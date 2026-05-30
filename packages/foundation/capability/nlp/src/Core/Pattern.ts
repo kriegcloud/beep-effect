@@ -27,7 +27,7 @@ const MeaningfulPatternOptionChoice = S.makeFilter(A.some<string>(Str.isNonEmpty
   message: "Pattern options must include at least one non-empty choice.",
   title: "Meaningful Pattern Option Choice",
 });
-const WinkPOSTagKit = LiteralKit([
+const UniversalPOSTagKit = LiteralKit([
   "ADJ",
   "ADP",
   "ADV",
@@ -47,11 +47,11 @@ const WinkPOSTagKit = LiteralKit([
   "X",
   "SPACE",
 ]).annotate(
-  $I.annote("WinkPOSTagKit", {
+  $I.annote("UniversalPOSTagKit", {
     description: "LiteralKit backing schema for wink part-of-speech tags.",
   })
 );
-const WinkEntityTypeKit = LiteralKit([
+const NamedEntityTypeKit = LiteralKit([
   "DATE",
   "ORDINAL",
   "CARDINAL",
@@ -66,7 +66,7 @@ const WinkEntityTypeKit = LiteralKit([
   "URL",
   "MENTION",
 ]).annotate(
-  $I.annote("WinkEntityTypeKit", {
+  $I.annote("NamedEntityTypeKit", {
     description: "LiteralKit backing schema for wink named-entity types.",
   })
 );
@@ -83,78 +83,80 @@ const renderBracketString = (values: ReadonlyArray<string>): string => `[${A.joi
  *
  * @example
  * ```ts
- * import { WinkPOSTag } from "@beep/nlp/Core/Pattern"
+ * import { UniversalPOSTag } from "@beep/nlp/Core/Pattern"
  *
- * console.log(WinkPOSTag.is.NOUN("NOUN")) // true
- * console.log(WinkPOSTag.is.NOUN("VERB")) // false
+ * console.log(UniversalPOSTag.is.NOUN("NOUN")) // true
+ * console.log(UniversalPOSTag.is.NOUN("VERB")) // false
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const WinkPOSTag = WinkPOSTagKit.pipe(
-  $I.annoteSchema("WinkPOSTag", {
+export const UniversalPOSTag = UniversalPOSTagKit.pipe(
+  $I.annoteSchema("UniversalPOSTag", {
     description: "Universal part-of-speech tags supported by wink-nlp.",
   }),
-  SchemaUtils.withLiteralKitStatics(WinkPOSTagKit)
+  SchemaUtils.withLiteralKitStatics(UniversalPOSTagKit)
 );
 
 /**
- * Runtime TypeScript union decoded by {@link WinkPOSTag}.
+ * Runtime TypeScript union decoded by {@link UniversalPOSTag}.
  *
  * @example
  * ```ts
- * import type { WinkPOSTag } from "@beep/nlp/Core/Pattern"
+ * import type { UniversalPOSTag } from "@beep/nlp/Core/Pattern"
  *
- * const describe = (tag: WinkPOSTag): string => `pos:${tag}`
+ * const describe = (tag: UniversalPOSTag): string => `pos:${tag}`
  * console.log(typeof describe) // "function"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export type WinkPOSTag = typeof WinkPOSTag.Type;
+export type UniversalPOSTag = typeof UniversalPOSTag.Type;
 
 /**
  * Named-entity labels accepted by wink-backed entity pattern matching.
  *
  * @example
  * ```ts
- * import { WinkEntityType } from "@beep/nlp/Core/Pattern"
+ * import { NamedEntityType } from "@beep/nlp/Core/Pattern"
  *
- * console.log(WinkEntityType.is.EMAIL("EMAIL")) // true
- * console.log(WinkEntityType.is.EMAIL("URL")) // false
+ * console.log(NamedEntityType.is.EMAIL("EMAIL")) // true
+ * console.log(NamedEntityType.is.EMAIL("URL")) // false
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const WinkEntityType = WinkEntityTypeKit.pipe(
-  $I.annoteSchema("WinkEntityType", {
+export const NamedEntityType = NamedEntityTypeKit.pipe(
+  $I.annoteSchema("NamedEntityType", {
     description: "Named-entity types supported by wink-nlp custom entity patterns.",
   }),
-  SchemaUtils.withLiteralKitStatics(WinkEntityTypeKit)
+  SchemaUtils.withLiteralKitStatics(NamedEntityTypeKit)
 );
 
 /**
- * Runtime TypeScript union decoded by {@link WinkEntityType}.
+ * Runtime TypeScript union decoded by {@link NamedEntityType}.
  *
  * @example
  * ```ts
- * import type { WinkEntityType } from "@beep/nlp/Core/Pattern"
+ * import type { NamedEntityType } from "@beep/nlp/Core/Pattern"
  *
- * const describe = (entityType: WinkEntityType): string => `entity:${entityType}`
+ * const describe = (entityType: NamedEntityType): string => `entity:${entityType}`
  * console.log(typeof describe) // "function"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export type WinkEntityType = typeof WinkEntityType.Type;
+export type NamedEntityType = typeof NamedEntityType.Type;
 
 const DisambiguatedLiteralPatternOptionChoice = S.makeFilter(
   (values: ReadonlyArray<string>) =>
-    A.some(values, (value) => P.every([Str.isNonEmpty, P.not(S.is(WinkPOSTag)), P.not(S.is(WinkEntityType))])(value)),
+    A.some(values, (value) =>
+      P.every([Str.isNonEmpty, P.not(S.is(UniversalPOSTag)), P.not(S.is(NamedEntityType))])(value)
+    ),
   {
     description: "Literal pattern options must include at least one non-reserved literal choice.",
     identifier: $I`DisambiguatedLiteralPatternOptionChoice`,
@@ -182,7 +184,7 @@ const DisambiguatedLiteralPatternOptionChoice = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export const POSPatternOption = S.NonEmptyArray(S.Union([WinkPOSTag, EmptyPatternChoice]))
+export const POSPatternOption = S.NonEmptyArray(S.Union([UniversalPOSTag, EmptyPatternChoice]))
   .check(MeaningfulPatternOptionChoice)
   .pipe(
     $I.annoteSchema("POSPatternOption", {
@@ -219,7 +221,7 @@ export type POSPatternOption = typeof POSPatternOption.Type;
  * @category models
  * @since 0.0.0
  */
-export const EntityPatternOption = S.NonEmptyArray(S.Union([WinkEntityType, EmptyPatternChoice]))
+export const EntityPatternOption = S.NonEmptyArray(S.Union([NamedEntityType, EmptyPatternChoice]))
   .check(MeaningfulPatternOptionChoice)
   .pipe(
     $I.annoteSchema("EntityPatternOption", {

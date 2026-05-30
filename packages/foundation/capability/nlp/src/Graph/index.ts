@@ -52,7 +52,7 @@ export * as EffectGraph from "./EffectGraph.ts";
 export * as GraphOperations from "./GraphOperations/index.ts";
 /**
  * Generic categorical operations over `effect/Graph` directed graphs
- * (functorial maps, folds, the search adjunction, traversals, streaming).
+ * (functorial maps, folds, indexed search, traversals, streaming).
  *
  * @example
  * ```typescript
@@ -81,7 +81,7 @@ export * as GraphOps from "./GraphOps.ts";
 export * as Schema from "./Schema.ts";
 /**
  * Categorical type classes for text operations on graphs (Functor/Monad/
- * Traversable/Foldable + the free⊣forgetful adjunction).
+ * Traversable/Foldable plus paired expansion and aggregation).
  *
  * @example
  * ```typescript

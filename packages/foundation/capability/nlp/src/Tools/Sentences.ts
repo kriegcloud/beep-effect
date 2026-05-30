@@ -8,7 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiSentence } from "./_schemas.ts";
+import { AiSentence, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/Sentences");
 
@@ -58,6 +58,8 @@ class SentencesSuccess extends S.Class<SentencesSuccess>($I`SentencesSuccess`)(
  */
 export const Sentences = Tool.make("Sentences", {
   description: "Split text into sentences with token counts and character positions.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: SentencesParameters,
   success: SentencesSuccess,
 });

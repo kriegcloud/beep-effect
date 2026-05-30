@@ -6,9 +6,9 @@
  * generic text-annotation IR — {@link TextChunk}s carved from a document, the
  * {@link Mention}s/{@link Entity}s/{@link Relation}s extracted from them, each
  * carrying a character {@link Span} and PROV-O-aligned {@link Provenance} — with
- * NO product vocabulary. The generic `Entity.type`/`Relation.type` discriminants
- * are what a downstream mapping turns into concrete knowledge-graph node/edge
- * types (see `goals/nlp-adjunct-port/research/generic-to-kg-mapping.md`).
+ * NO product vocabulary. The generic `Entity.type`/`Relation.type`
+ * discriminants are what a downstream mapping turns into concrete
+ * knowledge-graph node/edge types.
  *
  * Schema-first per repo law: every type is an `S.Class` with an `$NlpId`
  * identifier + annotation; identifiers are branded (`S.brand`) for construction

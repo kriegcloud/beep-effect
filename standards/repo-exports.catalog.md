@@ -16,13 +16,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Metric | Count |
 |---|---:|
-| packages | 84 |
-| packagesWithPublicExports | 79 |
+| packages | 85 |
+| packagesWithPublicExports | 80 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1026 |
-| publicExportEntries | 13370 |
-| uniquePackageSymbols | 6002 |
+| importSpecifiers | 1028 |
+| publicExportEntries | 13418 |
+| uniquePackageSymbols | 6015 |
 
 ## Seed Discovery Proof
 
@@ -77,12 +77,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 38 | `@beep/canvas` | `apps/canvas` | has-public-exports | 1 | 23 | 20 |
 | 39 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
 | 40 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
-| 41 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 776 | 579 |
+| 41 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 781 | 580 |
 | 42 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 702 | 214 |
 | 43 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
 | 44 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 1 | 30 | 24 |
 | 45 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 12 | 97 | 63 |
-| 46 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 324 | 108 |
+| 46 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 327 | 109 |
 | 47 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
 | 48 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
 | 49 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
@@ -91,7 +91,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 52 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
 | 53 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
 | 54 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
-| 55 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 89 | 981 | 485 |
+| 55 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 76 | 871 | 452 |
 | 56 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
 | 57 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
 | 58 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
@@ -111,16 +111,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 72 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 73 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
 | 74 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 75 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 118 | 539 | 455 |
+| 75 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 118 | 540 | 456 |
 | 76 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
 | 77 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
-| 78 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
-| 79 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
-| 80 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
-| 81 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
-| 82 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
-| 83 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
-| 84 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
+| 78 | `@beep/wink` | `packages/drivers/wink` | has-public-exports | 15 | 149 | 43 |
+| 79 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
+| 80 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
+| 81 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
+| 82 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
+| 83 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
+| 84 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
+| 85 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
 ## Public Exports
 
@@ -1745,11 +1746,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
 | `@beep/repo-cli/commands/Laws` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
 | `@beep/repo-cli/commands/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
-| `@beep/repo-cli/commands/Laws/AllowlistCheck` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:34` | Relative path to the effect laws allowlist. |
-| `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:93` | Runtime options for allowlist integrity checks. |
-| `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:112` | Result of an allowlist integrity check. |
-| `@beep/repo-cli/commands/Laws/AllowlistCheck` | `reportAllowlistCheckSummary` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:313` | Print allowlist integrity diagnostics to the console. |
-| `@beep/repo-cli/commands/Laws/AllowlistCheck` | `runAllowlistCheck` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:251` | Run the effect laws allowlist integrity check. |
+| `@beep/repo-cli/commands/Laws/AllowlistCheck` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:35` | Relative path to the effect laws allowlist. |
+| `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:119` | Runtime options for allowlist integrity checks. |
+| `@beep/repo-cli/commands/Laws/AllowlistCheck` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:138` | Result of an allowlist integrity check. |
+| `@beep/repo-cli/commands/Laws/AllowlistCheck` | `reportAllowlistCheckSummary` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:365` | Print allowlist integrity diagnostics to the console. |
+| `@beep/repo-cli/commands/Laws/AllowlistCheck` | `runAllowlistCheck` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:297` | Run the effect laws allowlist integrity check. |
 | `@beep/repo-cli/commands/Laws/DualArity` | `DualArityInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:113` | Namespace for {@link DualArityInventoryEntry} companion types. |
 | `@beep/repo-cli/commands/Laws/DualArity` | `DualArityRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:159` | Runtime options for public API dual-arity enforcement. |
 | `@beep/repo-cli/commands/Laws/DualArity` | `DualArityRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:189` | Summary of public API dual-arity inventory verification. |
@@ -2210,9 +2211,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Graphiti` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:639` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
 | `@beep/repo-cli/test/Graphiti` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:607` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
 | `@beep/repo-cli/test/Graphiti` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:668` | Decide whether Graphiti recovery should restart the backing containers. |
-| `@beep/repo-cli/test/Laws` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:34` | Relative path to the effect laws allowlist. |
-| `@beep/repo-cli/test/Laws` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:93` | Runtime options for allowlist integrity checks. |
-| `@beep/repo-cli/test/Laws` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:112` | Result of an allowlist integrity check. |
+| `@beep/repo-cli/test/Laws` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:35` | Relative path to the effect laws allowlist. |
+| `@beep/repo-cli/test/Laws` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:119` | Runtime options for allowlist integrity checks. |
+| `@beep/repo-cli/test/Laws` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:138` | Result of an allowlist integrity check. |
 | `@beep/repo-cli/test/Laws` | `collectNativeRuntimeViolationKeys` | const | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:485` | Collect normalized native-runtime violation keys for allowlist integrity checks. |
 | `@beep/repo-cli/test/Laws` | `DualArityInventoryEntry` | namespace | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:113` | Namespace for {@link DualArityInventoryEntry} companion types. |
 | `@beep/repo-cli/test/Laws` | `DualArityInventoryReadError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:31` | Failure raised when the dual-arity inventory cannot be read or decoded. |
@@ -2231,8 +2232,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesExecutionError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:94` | Failure raised when native runtime enforcement cannot complete. |
 | `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:92` | Runtime options for repo-local native runtime checks. |
 | `@beep/repo-cli/test/Laws` | `NoNativeRuntimeRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts:168` | Summary of repo-local native runtime checks. |
-| `@beep/repo-cli/test/Laws` | `reportAllowlistCheckSummary` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:313` | Print allowlist integrity diagnostics to the console. |
-| `@beep/repo-cli/test/Laws` | `runAllowlistCheck` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:251` | Run the effect laws allowlist integrity check. |
+| `@beep/repo-cli/test/Laws` | `reportAllowlistCheckSummary` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:365` | Print allowlist integrity diagnostics to the console. |
+| `@beep/repo-cli/test/Laws` | `runAllowlistCheck` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:297` | Run the effect laws allowlist integrity check. |
 | `@beep/repo-cli/test/Laws` | `runDualArityRules` | const | `packages/tooling/tool/cli/src/commands/Laws/DualArity.ts:1425` | Run public API dual-arity inventory verification. |
 | `@beep/repo-cli/test/Laws` | `runEffectFnRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectFn.ts:391` | Run the repo-local Effect.fn supplemental law. |
 | `@beep/repo-cli/test/Laws` | `runEffectImportRules` | const | `packages/tooling/tool/cli/src/commands/Laws/EffectImports.ts:110` | Run effect import style migration/check logic. |
@@ -2419,19 +2420,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ai-sync/_generated/schemas.gen` | `CodexSkillEntry` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:53` | Generated Codex skill entry. |
 | `@beep/ai-sync/_generated/schemas.gen` | `CodexSkills` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:74` | Generated Codex skills block. |
 | `@beep/ai-sync/_generated/schemas.gen` | `McpJsonServer` | class | `packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts:128` | Generated Claude-style MCP server schema. |
-| `@beep/ai-sync/_generated/source-metadata.gen` | `GENERATED_TIER_ONE_SOURCE_METADATA` | const | `packages/tooling/library/ai-sync/src/_generated/source-metadata.gen.ts:21` | Generated source metadata with content hashes for Tier-1 sources. |
+| `@beep/ai-sync/_generated/source-metadata.gen` | `GENERATED_TIER_ONE_SOURCE_METADATA` | const | `packages/tooling/library/ai-sync/src/_generated/source-metadata.gen.ts:22` | Generated source metadata with content hashes for Tier-1 sources. |
 | `@beep/ai-sync/drift` | `assertNoStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:187` | Fail when strict drift reports any findings. |
 | `@beep/ai-sync/drift` | `checkGeneratedArtifacts` | const | `packages/tooling/library/ai-sync/src/drift.ts:70` | Offline generated artifact freshness check. |
 | `@beep/ai-sync/drift` | `checkSourceDriftWithFetcher` | const | `packages/tooling/library/ai-sync/src/drift.ts:133` | Compare a set of sources with an injected fetcher. |
 | `@beep/ai-sync/drift` | `checkStrictDrift` | const | `packages/tooling/library/ai-sync/src/drift.ts:169` | Networked strict drift check against committed Tier-1 hashes. |
 | `@beep/ai-sync/drift` | `getGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/drift.ts:48` | Decode committed generated source metadata. |
-| `@beep/ai-sync/generator` | `AiSyncHttpLayer` | const | `packages/tooling/library/ai-sync/src/generator.ts:430` | Runtime layer for generator and drift commands. |
-| `@beep/ai-sync/generator` | `fetchSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:338` | Fetch an upstream source body. |
-| `@beep/ai-sync/generator` | `generateAiSyncArtifacts` | const | `packages/tooling/library/ai-sync/src/generator.ts:412` | Generate committed schema and source metadata files. |
+| `@beep/ai-sync/generator` | `AiSyncHttpLayer` | const | `packages/tooling/library/ai-sync/src/generator.ts:429` | Runtime layer for generator and drift commands. |
+| `@beep/ai-sync/generator` | `fetchSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:337` | Fetch an upstream source body. |
+| `@beep/ai-sync/generator` | `generateAiSyncArtifacts` | const | `packages/tooling/library/ai-sync/src/generator.ts:411` | Generate committed schema and source metadata files. |
 | `@beep/ai-sync/generator` | `GENERATED_SCHEMAS_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:26` | Generated schemas file path relative to the package root. |
 | `@beep/ai-sync/generator` | `GENERATED_SOURCE_METADATA_PATH` | const | `packages/tooling/library/ai-sync/src/generator.ts:39` | Generated source metadata file path relative to the package root. |
-| `@beep/ai-sync/generator` | `hashSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:314` | Compute a public SHA-256 content hash. |
-| `@beep/ai-sync/generator` | `renderGeneratedSchemas` | const | `packages/tooling/library/ai-sync/src/generator.ts:399` | Render generated schemas without network access. |
+| `@beep/ai-sync/generator` | `hashSourceText` | const | `packages/tooling/library/ai-sync/src/generator.ts:313` | Compute a public SHA-256 content hash. |
+| `@beep/ai-sync/generator` | `renderGeneratedSchemas` | const | `packages/tooling/library/ai-sync/src/generator.ts:398` | Render generated schemas without network access. |
 | `@beep/ai-sync/generator` | `renderGeneratedSourceMetadata` | const | `packages/tooling/library/ai-sync/src/generator.ts:104` | Render generated source metadata without network access. |
 | `@beep/ai-sync/index` | `AgentCommandMetadata` | class | `packages/tooling/library/ai-sync/src/schemas.ts:115` | Documentation-backed generic command metadata. |
 | `@beep/ai-sync/index` | `AgentInstructionDocument` | const | `packages/tooling/library/ai-sync/src/schemas.ts:35` | Agent instruction markdown document. |
@@ -2561,17 +2562,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp-mcp/Schemas` | `POSOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:139` | Output of the part-of-speech tagging tool. |
 | `@beep/nlp-mcp/Schemas` | `TextArrayOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:125` | Output of a tool that returns an array of strings (tokens or sentences). |
 | `@beep/nlp-mcp/Schemas` | `TextInput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:36` | Parameters for a text-only NLP tool call. |
-| `@beep/nlp-mcp/Server` | `BackendLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:129` | The live wink-nlp backend layer (the default {@link @beep/nlp/Backend#NLPBackend} |
-| `@beep/nlp-mcp/Server` | `makeNlpHandlers` | const | `packages/drivers/nlp-mcp/src/Server.ts:51` | Build the {@link Tools.NlpToolkit} handler record from an |
-| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:165` | Build the stdio-transport MCP server layer exposing the NLP toolkit. |
-| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:140` | Configuration for the MCP server identity advertised to clients. |
-| `@beep/nlp-mcp/Server` | `NlpToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:112` | The handler layer binding each {@link Tools.NlpToolkit} tool to an |
-| `@beep/nlp-mcp/Tools` | `ExtractEntities` | const | `packages/drivers/nlp-mcp/src/Tools.ts:114` | Extract named entities from text. |
-| `@beep/nlp-mcp/Tools` | `Lemmatize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:94` | Reduce each token to its canonical lemma. |
-| `@beep/nlp-mcp/Tools` | `NlpToolkit` | const | `packages/drivers/nlp-mcp/src/Tools.ts:134` | The toolkit bundling every NLP tool exposed by this MCP server. |
-| `@beep/nlp-mcp/Tools` | `PosTag` | const | `packages/drivers/nlp-mcp/src/Tools.ts:74` | Tag each token with its part-of-speech label. |
-| `@beep/nlp-mcp/Tools` | `Sentencize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:34` | Split text into sentences. |
-| `@beep/nlp-mcp/Tools` | `Tokenize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:54` | Split text into tokens (words). |
+| `@beep/nlp-mcp/Server` | `BackendLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:128` | The live wink-nlp backend layer (the default {@link @beep/nlp/Backend#NLPBackend} |
+| `@beep/nlp-mcp/Server` | `makeNlpHandlers` | const | `packages/drivers/nlp-mcp/src/Server.ts:50` | Build the {@link Tools.NlpToolkit} handler record from an |
+| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:164` | Build the stdio-transport MCP server layer exposing the NLP toolkit. |
+| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:139` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp/Server` | `NlpToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:111` | The handler layer binding each {@link Tools.NlpToolkit} tool to an |
+| `@beep/nlp-mcp/Tools` | `ExtractEntities` | const | `packages/drivers/nlp-mcp/src/Tools.ts:113` | Extract named entities from text. |
+| `@beep/nlp-mcp/Tools` | `Lemmatize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:93` | Reduce each token to its canonical lemma. |
+| `@beep/nlp-mcp/Tools` | `NlpToolkit` | const | `packages/drivers/nlp-mcp/src/Tools.ts:133` | The toolkit bundling every NLP tool exposed by this MCP server. |
+| `@beep/nlp-mcp/Tools` | `PosTag` | const | `packages/drivers/nlp-mcp/src/Tools.ts:73` | Tag each token with its part-of-speech label. |
+| `@beep/nlp-mcp/Tools` | `Sentencize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:33` | Split text into sentences. |
+| `@beep/nlp-mcp/Tools` | `Tokenize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:53` | Split text into tokens (words). |
 
 ### @beep/law-practice-domain
 
@@ -4882,6 +4883,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils` | `A` | SourceFile | `packages/foundation/modeling/utils/src/Array.ts:8` |  |
 | `@beep/utils` | `Bool` | SourceFile | `packages/foundation/modeling/utils/src/Bool.ts:17` |  |
 | `@beep/utils` | `DateTime` | SourceFile | `packages/foundation/modeling/utils/src/DateTime.ts:8` |  |
+| `@beep/utils` | `dual` | const | `node_modules/effect/dist/Function.d.ts:136` | Creates a function that can be called in data-first style or data-last |
 | `@beep/utils` | `Eq` | SourceFile | `packages/foundation/modeling/utils/src/Equal.ts:21` |  |
 | `@beep/utils` | `Err` | SourceFile | `packages/foundation/modeling/utils/src/Errors.ts:7` |  |
 | `@beep/utils` | `FileSystem` | SourceFile | `packages/foundation/modeling/utils/src/FileSystem.ts:8` |  |
@@ -4910,6 +4912,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils` | `thunkFalse` | const | `packages/foundation/modeling/utils/src/thunk.ts:124` | A thunk that always yields `false`. |
 | `@beep/utils` | `thunkNegative1` | const | `packages/foundation/modeling/utils/src/thunk.ts:385` | A thunk yielding `-1`. |
 | `@beep/utils` | `thunkNull` | const | `packages/foundation/modeling/utils/src/thunk.ts:52` | A thunk that always yields `null`. |
+| `@beep/utils` | `thunkResultFailVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:499` | Returns a thunk yielding `Result.failVoid`. |
 | `@beep/utils` | `thunkSome` | const | `packages/foundation/modeling/utils/src/thunk.ts:346` | Creates a thunk that yields `Option.some(value)`. |
 | `@beep/utils` | `thunkSomeEmptyArray` | const | `packages/foundation/modeling/utils/src/thunk.ts:439` | Returns a thunk yielding `Option.some([])`. |
 | `@beep/utils` | `thunkSomeEmptyRecord` | const | `packages/foundation/modeling/utils/src/thunk.ts:457` | Returns a thunk yielding `Option.some({})`. |
@@ -5291,6 +5294,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/index` | `A` | SourceFile | `packages/foundation/modeling/utils/src/Array.ts:8` |  |
 | `@beep/utils/index` | `Bool` | SourceFile | `packages/foundation/modeling/utils/src/Bool.ts:17` |  |
 | `@beep/utils/index` | `DateTime` | SourceFile | `packages/foundation/modeling/utils/src/DateTime.ts:8` |  |
+| `@beep/utils/index` | `dual` | const | `node_modules/effect/dist/Function.d.ts:136` | Creates a function that can be called in data-first style or data-last |
 | `@beep/utils/index` | `Eq` | SourceFile | `packages/foundation/modeling/utils/src/Equal.ts:21` |  |
 | `@beep/utils/index` | `Err` | SourceFile | `packages/foundation/modeling/utils/src/Errors.ts:7` |  |
 | `@beep/utils/index` | `FileSystem` | SourceFile | `packages/foundation/modeling/utils/src/FileSystem.ts:8` |  |
@@ -5319,6 +5323,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/index` | `thunkFalse` | const | `packages/foundation/modeling/utils/src/thunk.ts:124` | A thunk that always yields `false`. |
 | `@beep/utils/index` | `thunkNegative1` | const | `packages/foundation/modeling/utils/src/thunk.ts:385` | A thunk yielding `-1`. |
 | `@beep/utils/index` | `thunkNull` | const | `packages/foundation/modeling/utils/src/thunk.ts:52` | A thunk that always yields `null`. |
+| `@beep/utils/index` | `thunkResultFailVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:499` | Returns a thunk yielding `Result.failVoid`. |
 | `@beep/utils/index` | `thunkSome` | const | `packages/foundation/modeling/utils/src/thunk.ts:346` | Creates a thunk that yields `Option.some(value)`. |
 | `@beep/utils/index` | `thunkSomeEmptyArray` | const | `packages/foundation/modeling/utils/src/thunk.ts:439` | Returns a thunk yielding `Option.some([])`. |
 | `@beep/utils/index` | `thunkSomeEmptyRecord` | const | `packages/foundation/modeling/utils/src/thunk.ts:457` | Returns a thunk yielding `Option.some({})`. |
@@ -5640,6 +5645,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/thunk` | `thunkFalse` | const | `packages/foundation/modeling/utils/src/thunk.ts:124` | A thunk that always yields `false`. |
 | `@beep/utils/thunk` | `thunkNegative1` | const | `packages/foundation/modeling/utils/src/thunk.ts:385` | A thunk yielding `-1`. |
 | `@beep/utils/thunk` | `thunkNull` | const | `packages/foundation/modeling/utils/src/thunk.ts:52` | A thunk that always yields `null`. |
+| `@beep/utils/thunk` | `thunkResultFailVoid` | const | `packages/foundation/modeling/utils/src/thunk.ts:499` | Returns a thunk yielding `Result.failVoid`. |
 | `@beep/utils/thunk` | `thunkSome` | const | `packages/foundation/modeling/utils/src/thunk.ts:346` | Creates a thunk that yields `Option.some(value)`. |
 | `@beep/utils/thunk` | `thunkSomeEmptyArray` | const | `packages/foundation/modeling/utils/src/thunk.ts:439` | Returns a thunk yielding `Option.some([])`. |
 | `@beep/utils/thunk` | `thunkSomeEmptyRecord` | const | `packages/foundation/modeling/utils/src/thunk.ts:457` | Returns a thunk yielding `Option.some({})`. |
@@ -6528,93 +6534,94 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1019` | Identity composer for `@beep/acp`. |
-| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:590` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:606` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1315` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1508` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1152` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1101` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1186` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1118` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1135` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1169` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:833` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:850` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1443` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1395` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1475` | Identity composer for `@beep/canvas`. |
-| `@beep/identity` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1427` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1459` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1411` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:498` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:718` | $codedank web id export. |
-| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:483` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:162` | Identity composer for the `@beep/data` package. |
-| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1299` | Identity composer for `@beep/discord`. |
-| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:750` | $drizzle id export. |
-| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:766` | $duckdb id export. |
-| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:575` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:782` | $face detection id export. |
-| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | $ffmpeg id export. |
-| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1524` | Identity composer for `@beep/form`. |
-| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1347` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1020` | Identity composer for `@beep/acp`. |
+| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:591` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:607` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1316` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1509` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1153` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1102` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1068` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1187` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1119` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1136` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1170` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1085` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:834` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:851` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:868` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1444` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1396` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1476` | Identity composer for `@beep/canvas`. |
+| `@beep/identity` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1428` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1460` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1412` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:499` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` | $codedank web id export. |
+| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:484` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:163` | Identity composer for the `@beep/data` package. |
+| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1300` | Identity composer for `@beep/discord`. |
+| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:751` | $drizzle id export. |
+| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:767` | $duckdb id export. |
+| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:576` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:783` | $face detection id export. |
+| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:799` | $ffmpeg id export. |
+| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1525` | Identity composer for `@beep/form`. |
+| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1348` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:886` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:903` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:920` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:937` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:177` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:528` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1220` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1251` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1235` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1379` | Identity composer for `@beep/konva`. |
-| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:622` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:702` | $md id export. |
-| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:192` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:453` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1540` | Identity composer for `@beep/nlp-mcp`. |
-| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:468` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:734` | $oip web id export. |
-| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1283` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1035` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1363` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:814` | $postgres id export. |
-| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:654` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:670` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:271` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:286` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1492` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:301` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:513` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:316` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1267` | Identity composer for `@beep/runpod`. |
-| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:971` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1331` | Identity composer for `@beep/sanity`. |
-| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:207` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:954` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:438` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:378` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:423` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:348` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:393` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:363` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:408` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:543` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1205` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:331` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:222` | Identity composer for the `@beep/types` package. |
-| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:254` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:237` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:987` | $venice ai id export. |
-| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:638` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:560` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1051` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1003` | $xai id export. |
+| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:887` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:904` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:921` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:938` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:178` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:529` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1221` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1252` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1236` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1380` | Identity composer for `@beep/konva`. |
+| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:623` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:703` | $md id export. |
+| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:193` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:454` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1541` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:469` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:735` | $oip web id export. |
+| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1284` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1036` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1364` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | $postgres id export. |
+| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:655` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:671` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:272` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:287` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1493` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:302` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:514` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:317` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1268` | Identity composer for `@beep/runpod`. |
+| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:972` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1332` | Identity composer for `@beep/sanity`. |
+| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:208` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:955` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:439` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:379` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:424` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:349` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:394` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:364` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:409` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:544` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1206` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:332` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:223` | Identity composer for the `@beep/types` package. |
+| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:255` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:238` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:988` | $venice ai id export. |
+| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:639` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1557` | Identity composer for `@beep/wink`. |
+| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:561` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1052` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1004` | $xai id export. |
 | `@beep/identity` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:477` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:450` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:521` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -6629,7 +6636,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1211` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:345` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:327` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:686` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:687` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:414` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:199` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:362` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
@@ -6656,93 +6663,94 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/Id` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:576` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/Id` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:287` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/Id` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:180` | Current version of the `@beep/identity` package. |
-| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1019` | Identity composer for `@beep/acp`. |
-| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:590` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:606` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1315` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/index` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1508` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1152` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1101` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1186` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1118` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1135` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1169` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:833` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:850` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/index` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1443` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity/index` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1395` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity/index` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1475` | Identity composer for `@beep/canvas`. |
-| `@beep/identity/index` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1427` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity/index` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1459` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity/index` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1411` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:498` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:718` | $codedank web id export. |
-| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:483` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:162` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1299` | Identity composer for `@beep/discord`. |
-| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:750` | $drizzle id export. |
-| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:766` | $duckdb id export. |
-| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:575` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:782` | $face detection id export. |
-| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | $ffmpeg id export. |
-| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1524` | Identity composer for `@beep/form`. |
-| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1347` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1020` | Identity composer for `@beep/acp`. |
+| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:591` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:607` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1316` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity/index` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1509` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1153` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1102` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1068` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1187` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1119` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1136` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1170` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1085` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:834` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:851` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:868` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/index` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1444` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity/index` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1396` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity/index` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1476` | Identity composer for `@beep/canvas`. |
+| `@beep/identity/index` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1428` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity/index` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1460` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity/index` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1412` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:499` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` | $codedank web id export. |
+| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:484` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:163` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1300` | Identity composer for `@beep/discord`. |
+| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:751` | $drizzle id export. |
+| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:767` | $duckdb id export. |
+| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:576` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:783` | $face detection id export. |
+| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:799` | $ffmpeg id export. |
+| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1525` | Identity composer for `@beep/form`. |
+| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1348` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/index` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:886` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:903` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:920` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:937` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:177` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:528` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/index` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1220` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity/index` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1251` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity/index` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1235` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity/index` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1379` | Identity composer for `@beep/konva`. |
-| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:622` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:702` | $md id export. |
-| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:192` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:453` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/index` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1540` | Identity composer for `@beep/nlp-mcp`. |
-| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:468` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:734` | $oip web id export. |
-| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1283` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1035` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1363` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:814` | $postgres id export. |
-| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:654` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:670` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:271` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:286` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1492` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:301` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:513` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:316` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1267` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:971` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1331` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:207` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:954` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:438` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:378` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:423` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:348` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:393` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:363` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:408` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:543` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1205` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:331` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:222` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:254` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:237` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:987` | $venice ai id export. |
-| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:638` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:560` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1051` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1003` | $xai id export. |
+| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:887` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:904` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:921` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:938` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:178` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:529` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/index` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1221` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity/index` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1252` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity/index` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1236` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity/index` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1380` | Identity composer for `@beep/konva`. |
+| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:623` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:703` | $md id export. |
+| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:193` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:454` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/index` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1541` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:469` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:735` | $oip web id export. |
+| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1284` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1036` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1364` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | $postgres id export. |
+| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:655` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:671` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:272` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:287` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1493` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:302` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:514` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:317` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1268` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:972` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1332` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:208` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:955` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:439` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:379` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:424` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:349` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:394` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:364` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:409` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:544` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1206` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:332` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:223` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:255` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:238` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:988` | $venice ai id export. |
+| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:639` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/index` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1557` | Identity composer for `@beep/wink`. |
+| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:561` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1052` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1004` | $xai id export. |
 | `@beep/identity/index` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:477` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity/index` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:450` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity/index` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:521` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -6757,101 +6765,102 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/index` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1211` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity/index` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:345` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity/index` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:327` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:686` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:687` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity/index` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:414` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity/index` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:199` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity/index` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:362` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
 | `@beep/identity/index` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:576` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/index` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:287` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/index` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:180` | Current version of the `@beep/identity` package. |
-| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1019` | Identity composer for `@beep/acp`. |
-| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:590` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:606` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1315` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/packages` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1508` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1152` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1101` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1067` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1186` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1118` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1135` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1169` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1084` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:833` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:850` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:867` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/packages` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1443` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity/packages` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1395` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity/packages` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1475` | Identity composer for `@beep/canvas`. |
-| `@beep/identity/packages` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1427` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity/packages` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1459` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity/packages` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1411` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:498` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:718` | $codedank web id export. |
-| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:483` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:162` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1299` | Identity composer for `@beep/discord`. |
-| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:750` | $drizzle id export. |
-| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:766` | $duckdb id export. |
-| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:575` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:782` | $face detection id export. |
-| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:798` | $ffmpeg id export. |
-| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1524` | Identity composer for `@beep/form`. |
-| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1347` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1020` | Identity composer for `@beep/acp`. |
+| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:591` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:607` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1316` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity/packages` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1509` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1153` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1102` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1068` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1187` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1119` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1136` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1170` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1085` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:834` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:851` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:868` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/packages` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1444` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity/packages` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1396` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity/packages` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1476` | Identity composer for `@beep/canvas`. |
+| `@beep/identity/packages` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1428` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity/packages` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1460` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity/packages` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1412` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:499` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` | $codedank web id export. |
+| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:484` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:163` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1300` | Identity composer for `@beep/discord`. |
+| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:751` | $drizzle id export. |
+| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:767` | $duckdb id export. |
+| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:576` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:783` | $face detection id export. |
+| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:799` | $ffmpeg id export. |
+| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1525` | Identity composer for `@beep/form`. |
+| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1348` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/packages` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:886` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:903` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:920` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:937` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:177` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:528` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/packages` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1220` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity/packages` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1251` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity/packages` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1235` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity/packages` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1379` | Identity composer for `@beep/konva`. |
-| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:622` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:702` | $md id export. |
-| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:192` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:453` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/packages` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1540` | Identity composer for `@beep/nlp-mcp`. |
-| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:468` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:734` | $oip web id export. |
-| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1283` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1035` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1363` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:814` | $postgres id export. |
-| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:654` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:670` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:271` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:286` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1492` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:301` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:513` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:316` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1267` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:971` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1331` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:207` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:954` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:438` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:378` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:423` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:348` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:393` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:363` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:408` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:543` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1205` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:331` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:222` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:254` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:237` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:987` | $venice ai id export. |
-| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:638` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:560` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1051` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1003` | $xai id export. |
-| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:686` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:887` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:904` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:921` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:938` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:178` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:529` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/packages` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1221` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity/packages` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1252` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity/packages` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1236` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity/packages` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1380` | Identity composer for `@beep/konva`. |
+| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:623` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:703` | $md id export. |
+| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:193` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:454` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/packages` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1541` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:469` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:735` | $oip web id export. |
+| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1284` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1036` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1364` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | $postgres id export. |
+| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:655` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:671` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:272` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:287` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1493` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:302` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:514` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:317` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1268` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:972` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1332` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:208` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:955` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:439` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:379` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:424` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:349` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:394` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:364` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:409` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:544` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1206` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:332` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:223` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:255` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:238` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:988` | $venice ai id export. |
+| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:639` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/packages` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1557` | Identity composer for `@beep/wink`. |
+| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:561` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1052` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1004` | $xai id export. |
+| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:687` | RepoPkgs - export object containing all package IdentityComposer's |
 
 ### @beep/drizzle
 
@@ -7466,365 +7475,386 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp` | `Graph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/index.ts:22` |  |
 | `@beep/nlp` | `Handoff` | SourceFile | `packages/foundation/capability/nlp/src/Handoff/index.ts:26` |  |
 | `@beep/nlp` | `IdentifierText` | SourceFile | `packages/foundation/capability/nlp/src/IdentifierText.ts:7` |  |
-| `@beep/nlp` | `Layers` | SourceFile | `packages/foundation/capability/nlp/src/Layers/index.ts:8` |  |
 | `@beep/nlp` | `NLPService` | SourceFile | `packages/foundation/capability/nlp/src/NLPService.ts:18` |  |
 | `@beep/nlp` | `Ontology` | SourceFile | `packages/foundation/capability/nlp/src/Ontology/index.ts:22` |  |
 | `@beep/nlp` | `PathText` | SourceFile | `packages/foundation/capability/nlp/src/PathText.ts:7` |  |
 | `@beep/nlp` | `QueryText` | SourceFile | `packages/foundation/capability/nlp/src/QueryText.ts:7` |  |
 | `@beep/nlp` | `Tools` | SourceFile | `packages/foundation/capability/nlp/src/Tools/index.ts:8` |  |
 | `@beep/nlp` | `VariantText` | SourceFile | `packages/foundation/capability/nlp/src/VariantText.ts:7` |  |
-| `@beep/nlp` | `VERSION` | const | `packages/foundation/capability/nlp/src/index.ts:22` | Package version constant. |
-| `@beep/nlp` | `Wink` | SourceFile | `packages/foundation/capability/nlp/src/Wink/index.ts:7` |  |
 | `@beep/nlp/Algebra` | `Monoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:8` |  |
-| `@beep/nlp/Algebra` | `NLPMonoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:25` |  |
+| `@beep/nlp/Algebra` | `NLPMonoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:24` |  |
 | `@beep/nlp/Algebra/index` | `Monoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:8` |  |
-| `@beep/nlp/Algebra/index` | `NLPMonoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:25` |  |
-| `@beep/nlp/Algebra/Monoid` | `ArrayConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:194` | Array concatenation monoid (empty: []). |
-| `@beep/nlp/Algebra/Monoid` | `BooleanAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:385` | Logical AND monoid (empty: true). |
-| `@beep/nlp/Algebra/Monoid` | `BooleanAny` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:396` | Logical OR monoid (empty: false). |
-| `@beep/nlp/Algebra/Monoid` | `checkAssociativity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:435` | Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z) |
-| `@beep/nlp/Algebra/Monoid` | `checkLaws` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:453` | Check all monoid laws against a representative triple. |
-| `@beep/nlp/Algebra/Monoid` | `checkLeftIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:411` | Check left identity law: empty ⊕ x = x |
-| `@beep/nlp/Algebra/Monoid` | `checkRightIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:423` | Check right identity law: x ⊕ empty = x |
-| `@beep/nlp/Algebra/Monoid` | `combineAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:79` | Combine an array of values using a monoid, seeded with the identity. |
-| `@beep/nlp/Algebra/Monoid` | `Dual` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:370` | Dual monoid: reverse the order of combination (x ⊕' y = y ⊕ x). |
-| `@beep/nlp/Algebra/Monoid` | `Endo` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:355` | Endomorphism monoid: functions from A to A under composition (empty: identity). |
-| `@beep/nlp/Algebra/Monoid` | `fold` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:63` | Fold a collection using a monoid |
-| `@beep/nlp/Algebra/Monoid` | `getAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:294` | Extract the average from a {@link VectorAverage} result. |
-| `@beep/nlp/Algebra/Monoid` | `make` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:49` | Helper to create a Monoid instance |
-| `@beep/nlp/Algebra/Monoid` | `Monoid` | interface | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:27` | Monoid type class |
-| `@beep/nlp/Algebra/Monoid` | `MultiSet` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:212` | Multiset (bag) union monoid. |
-| `@beep/nlp/Algebra/Monoid` | `NumberMax` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:168` | Max monoid for numbers (empty: -Infinity). |
-| `@beep/nlp/Algebra/Monoid` | `NumberMin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:179` | Min monoid for numbers (empty: Infinity). |
-| `@beep/nlp/Algebra/Monoid` | `NumberProduct` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:157` | Multiplication monoid for numbers (empty: 1). |
-| `@beep/nlp/Algebra/Monoid` | `NumberSum` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:146` | Addition monoid for numbers (empty: 0). |
-| `@beep/nlp/Algebra/Monoid` | `Option` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:335` | Lift a monoid through Option: combine point-wise, treating `None` as the identity. |
-| `@beep/nlp/Algebra/Monoid` | `Product` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:309` | Product monoid: combine two monoids component-wise. |
-| `@beep/nlp/Algebra/Monoid` | `Product3` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:320` | Triple product monoid. |
-| `@beep/nlp/Algebra/Monoid` | `SetIntersection` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:243` | Set intersection monoid. |
-| `@beep/nlp/Algebra/Monoid` | `SetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:227` | Set union monoid (empty: ∅). |
-| `@beep/nlp/Algebra/Monoid` | `StringConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:97` | String concatenation monoid. |
-| `@beep/nlp/Algebra/Monoid` | `StringDelimited` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:125` | String join with prefix and suffix, useful for creating delimited lists. |
-| `@beep/nlp/Algebra/Monoid` | `StringJoin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:110` | String join with separator monoid. |
-| `@beep/nlp/Algebra/Monoid` | `VectorAdd` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:267` | Vector addition monoid (element-wise addition; empty: zero vector). |
-| `@beep/nlp/Algebra/Monoid` | `VectorAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:278` | Vector average monoid (tracks sum and count to compute a running average). |
-| `@beep/nlp/Algebra/NLPMonoid` | `aggregateSentences` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:400` | Aggregate sentences into a single document string. |
-| `@beep/nlp/Algebra/NLPMonoid` | `aggregateStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:408` | Aggregate document statistics. |
-| `@beep/nlp/Algebra/NLPMonoid` | `aggregateTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:385` | Aggregate tokens into a bag of words. |
-| `@beep/nlp/Algebra/NLPMonoid` | `AnnotationMap` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:162` | Linguistic annotation monoid (left-biased map merge). |
-| `@beep/nlp/Algebra/NLPMonoid` | `BagOfWords` | type | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:34` | Bag-of-words frequency map carrier: term -\> frequency. |
-| `@beep/nlp/Algebra/NLPMonoid` | `bagOfWordsToTF` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:339` | Convert a bag of words to term frequency (each count normalized by the total). |
-| `@beep/nlp/Algebra/NLPMonoid` | `computeTFIDF` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:361` | Compute TF-IDF scores from term frequency and document frequency. |
-| `@beep/nlp/Algebra/NLPMonoid` | `DependencyEdge` | interface | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:202` | Dependency parse edge carrier: a syntactic dependency (head, dependent, relation). |
-| `@beep/nlp/Algebra/NLPMonoid` | `DependencyParse` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:214` | Dependency parse monoid (concatenate edges). |
-| `@beep/nlp/Algebra/NLPMonoid` | `DocumentFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:234` | Document frequency monoid (counts presence across documents; union with addition). |
-| `@beep/nlp/Algebra/NLPMonoid` | `DocumentStatistics` | interface | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:128` | Document statistics carrier. |
-| `@beep/nlp/Algebra/NLPMonoid` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:140` | Document statistics monoid (sum counts component-wise). |
-| `@beep/nlp/Algebra/NLPMonoid` | `DocumentText` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:120` | Document text monoid (join paragraphs with a blank line). |
-| `@beep/nlp/Algebra/NLPMonoid` | `NamedEntity` | interface | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:181` | Named entity carrier. |
-| `@beep/nlp/Algebra/NLPMonoid` | `NamedEntityList` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:194` | Named entity list monoid (concatenation; preserves order, allows duplicates). |
-| `@beep/nlp/Algebra/NLPMonoid` | `NGramFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:280` | N-gram frequency monoid (bag-of-words over space-joined n-gram keys). |
-| `@beep/nlp/Algebra/NLPMonoid` | `SentenceArray` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:108` | Sentence array monoid (concatenation; preserves order and boundaries). |
-| `@beep/nlp/Algebra/NLPMonoid` | `SentenceConcat` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:92` | Sentence concatenation "near-monoid". |
-| `@beep/nlp/Algebra/NLPMonoid` | `TermFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:226` | Term frequency monoid (alias of {@link TokenBagOfWords}; semantic distinction). |
-| `@beep/nlp/Algebra/NLPMonoid` | `TextAnalysis` | interface | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:301` | Combined text analysis carrier (bag-of-words + entities + sentence count + vocabulary). |
-| `@beep/nlp/Algebra/NLPMonoid` | `TextAnalysisMonoid` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:314` | Text analysis monoid (product monoid over the linguistic features). |
-| `@beep/nlp/Algebra/NLPMonoid` | `TokenBagOfWords` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:58` | Token bag-of-words monoid (union with frequency addition). |
-| `@beep/nlp/Algebra/NLPMonoid` | `TokenConcat` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:48` | Token concatenation monoid (join with a space). |
-| `@beep/nlp/Algebra/NLPMonoid` | `TokenSetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:75` | Token set-union monoid (collect unique tokens; useful for vocabulary). |
-| `@beep/nlp/Algebra/NLPMonoid` | `Vocabulary` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:251` | Vocabulary monoid (unique terms; alias of {@link TokenSetUnion}). |
-| `@beep/nlp/Algebra/NLPMonoid` | `WeightedTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:263` | Weighted token monoid (combine weights additively per token). |
+| `@beep/nlp/Algebra/index` | `NLPMonoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:24` |  |
+| `@beep/nlp/Algebra/Monoid` | `ArrayConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:321` | Array concatenation monoid (empty: []). |
+| `@beep/nlp/Algebra/Monoid` | `BooleanAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:662` | Logical AND monoid (empty: true). |
+| `@beep/nlp/Algebra/Monoid` | `BooleanAny` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:683` | Logical OR monoid (empty: false). |
+| `@beep/nlp/Algebra/Monoid` | `checkAssociativity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:752` | Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z) |
+| `@beep/nlp/Algebra/Monoid` | `checkLaws` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:780` | Check all monoid laws against a representative triple. |
+| `@beep/nlp/Algebra/Monoid` | `checkLeftIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:708` | Check left identity law: empty ⊕ x = x |
+| `@beep/nlp/Algebra/Monoid` | `checkRightIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:730` | Check right identity law: x ⊕ empty = x |
+| `@beep/nlp/Algebra/Monoid` | `combineAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:126` | Combine an array of values using a monoid, seeded with the identity. |
+| `@beep/nlp/Algebra/Monoid` | `Dual` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:637` | Dual monoid: reverse the order of combination (x ⊕' y = y ⊕ x). |
+| `@beep/nlp/Algebra/Monoid` | `Endo` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:612` | Endomorphism monoid: functions from A to A under composition (empty: identity). |
+| `@beep/nlp/Algebra/Monoid` | `fold` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:100` | Fold a collection using a monoid |
+| `@beep/nlp/Algebra/Monoid` | `getAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:497` | Extract the average from a {@link VectorAverage} result. |
+| `@beep/nlp/Algebra/Monoid` | `make` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:76` | Helper to create a Monoid instance |
+| `@beep/nlp/Algebra/Monoid` | `Monoid` | interface | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:41` | Monoid type class |
+| `@beep/nlp/Algebra/Monoid` | `MultiSet` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:352` | Multiset (bag) union monoid. |
+| `@beep/nlp/Algebra/Monoid` | `NumberMax` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:275` | Max monoid for numbers (empty: -Infinity). |
+| `@beep/nlp/Algebra/Monoid` | `NumberMin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:296` | Min monoid for numbers (empty: Infinity). |
+| `@beep/nlp/Algebra/Monoid` | `NumberProduct` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:254` | Multiplication monoid for numbers (empty: 1). |
+| `@beep/nlp/Algebra/Monoid` | `NumberSum` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:233` | Addition monoid for numbers (empty: 0). |
+| `@beep/nlp/Algebra/Monoid` | `Option` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:578` | Lift a monoid through Option: combine point-wise, treating `None` as the identity. |
+| `@beep/nlp/Algebra/Monoid` | `Product` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:526` | Product monoid: combine two monoids component-wise. |
+| `@beep/nlp/Algebra/Monoid` | `Product3` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:551` | Triple product monoid. |
+| `@beep/nlp/Algebra/Monoid` | `SetIntersection` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:412` | Set intersection monoid. |
+| `@beep/nlp/Algebra/Monoid` | `SetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:381` | Set union monoid (empty: ∅). |
+| `@beep/nlp/Algebra/Monoid` | `StringConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:154` | String concatenation monoid. |
+| `@beep/nlp/Algebra/Monoid` | `StringDelimited` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:202` | String join with prefix and suffix, useful for creating delimited lists. |
+| `@beep/nlp/Algebra/Monoid` | `StringJoin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:177` | String join with separator monoid. |
+| `@beep/nlp/Algebra/Monoid` | `VectorAdd` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:446` | Vector addition monoid (element-wise addition; empty: zero vector). |
+| `@beep/nlp/Algebra/Monoid` | `VectorAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:471` | Vector average monoid (tracks sum and count to compute a running average). |
+| `@beep/nlp/Algebra/NLPMonoid` | `aggregateSentences` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:779` | Aggregate sentences into a single document string. |
+| `@beep/nlp/Algebra/NLPMonoid` | `aggregateStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:800` | Aggregate document statistics. |
+| `@beep/nlp/Algebra/NLPMonoid` | `aggregateTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:760` | Aggregate tokens into a bag of words. |
+| `@beep/nlp/Algebra/NLPMonoid` | `AnnotationMap` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:337` | Linguistic annotation monoid (left-biased map merge). |
+| `@beep/nlp/Algebra/NLPMonoid` | `BagOfWords` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:77` | Bag-of-words frequency map carrier: term -\> frequency. |
+| `@beep/nlp/Algebra/NLPMonoid` | `BagOfWords` | type | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:96` | Runtime type for the {@link BagOfWords} frequency-map carrier. |
+| `@beep/nlp/Algebra/NLPMonoid` | `bagOfWordsToTF` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:693` | Convert a bag of words to term frequency (each count normalized by the total). |
+| `@beep/nlp/Algebra/NLPMonoid` | `computeTFIDF` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:730` | Compute TF-IDF scores from term frequency and document frequency. |
+| `@beep/nlp/Algebra/NLPMonoid` | `DependencyEdge` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:424` | Dependency parse edge carrier: a syntactic dependency (head, dependent, relation). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DependencyParse` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:454` | Dependency parse monoid (concatenate edges). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:502` | Document frequency monoid (counts presence across documents; union with addition). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentStatistics` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:273` | Document statistics carrier. |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:303` | Document statistics monoid (sum counts component-wise). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentText` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:251` | Document text monoid (join paragraphs with a blank line). |
+| `@beep/nlp/Algebra/NLPMonoid` | `NamedEntity` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:371` | Named entity carrier. |
+| `@beep/nlp/Algebra/NLPMonoid` | `NamedEntityList` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:402` | Named entity list monoid (concatenation; preserves order, allows duplicates). |
+| `@beep/nlp/Algebra/NLPMonoid` | `NGramFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:578` | N-gram frequency monoid (bag-of-words over space-joined n-gram keys). |
+| `@beep/nlp/Algebra/NLPMonoid` | `SentenceArray` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:228` | Sentence array monoid (concatenation; preserves order and boundaries). |
+| `@beep/nlp/Algebra/NLPMonoid` | `SentenceConcat` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:198` | Sentence concatenation "near-monoid". |
+| `@beep/nlp/Algebra/NLPMonoid` | `TermFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:480` | Term frequency monoid (alias of {@link TokenBagOfWords}; semantic distinction). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TextAnalysis` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:610` | Combined text analysis carrier (bag-of-words + entities + sentence count + vocabulary). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TextAnalysisMonoid` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:657` | Text analysis monoid (product monoid over the linguistic features). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TokenBagOfWords` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:144` | Token bag-of-words monoid (union with frequency addition). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TokenConcat` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:121` | Token concatenation monoid (join with a space). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TokenSetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:170` | Token set-union monoid (collect unique tokens; useful for vocabulary). |
+| `@beep/nlp/Algebra/NLPMonoid` | `Vocabulary` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:527` | Vocabulary monoid (unique terms; alias of {@link TokenSetUnion}). |
+| `@beep/nlp/Algebra/NLPMonoid` | `WeightedTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:553` | Weighted token monoid (combine weights additively per token). |
 | `@beep/nlp/Backend` | `NLPBackend` | SourceFile | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:19` |  |
-| `@beep/nlp/Backend/Composition` | `CachingOptions` | interface | `packages/foundation/capability/nlp/src/Backend/Composition.ts:86` | Options controlling {@link withCaching}. |
-| `@beep/nlp/Backend/Composition` | `selectByCapability` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:159` | Select the first backend that supports a given capability. |
-| `@beep/nlp/Backend/Composition` | `withCaching` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:105` | Wrap a backend so each text-keyed operation is memoized behind an `effect/Cache` |
-| `@beep/nlp/Backend/Composition` | `withFallback` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:40` | Compose two backends so each operation tries `primary` first, then `secondary` |
+| `@beep/nlp/Backend/Composition` | `CachingOptions` | class | `packages/foundation/capability/nlp/src/Backend/Composition.ts:129` | Cache settings for memoized backend composition. |
+| `@beep/nlp/Backend/Composition` | `selectByCapability` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:268` | Select the first backend whose capability bitmap enables a requested feature. |
+| `@beep/nlp/Backend/Composition` | `withCaching` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:185` | Wrap a backend with per-operation `effect/Cache` memoization. |
+| `@beep/nlp/Backend/Composition` | `withFallback` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:74` | Compose two backends so each operation falls back to a secondary backend. |
 | `@beep/nlp/Backend/index` | `NLPBackend` | SourceFile | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:19` |  |
-| `@beep/nlp/Backend/NLPBackend` | `BackendCapabilities` | interface | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:150` | Capabilities a backend may or may not support, enabling runtime capability |
-| `@beep/nlp/Backend/NLPBackend` | `BackendInitError` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:69` | Failure raised when a backend fails to initialize. |
-| `@beep/nlp/Backend/NLPBackend` | `BackendNotSupported` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:44` | Failure raised when a backend does not support a requested operation. |
-| `@beep/nlp/Backend/NLPBackend` | `BackendOperationError` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:94` | Failure raised when a backend operation fails at runtime. |
-| `@beep/nlp/Backend/NLPBackend` | `getSupportedCapabilities` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:235` | List all capabilities a backend supports. |
-| `@beep/nlp/Backend/NLPBackend` | `initError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:260` | Construct a {@link BackendInitError} from an unknown cause. |
-| `@beep/nlp/Backend/NLPBackend` | `NLPBackend` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:218` | Service tag for the pluggable {@link NLPBackendShape} backend. |
-| `@beep/nlp/Backend/NLPBackend` | `NLPBackendError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:120` | Union of all backend failures. |
-| `@beep/nlp/Backend/NLPBackend` | `NLPBackendError` | type | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:141` | Runtime type for backend failures. |
-| `@beep/nlp/Backend/NLPBackend` | `NLPBackendShape` | interface | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:182` | Structural shape of the {@link NLPBackend} service. |
-| `@beep/nlp/Backend/NLPBackend` | `notSupported` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:247` | Construct a {@link BackendNotSupported} failure. |
-| `@beep/nlp/Backend/NLPBackend` | `operationError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:273` | Construct a {@link BackendOperationError} from an unknown cause. |
-| `@beep/nlp/Backend/NLPBackend` | `supportsCapability` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:226` | Check whether a backend supports a specific capability. |
-| `@beep/nlp/Backend/WinkBackend` | `WinkBackendLive` | const | `packages/foundation/capability/nlp/src/Backend/WinkBackend.ts:150` | Live {@link NLPBackend} layer backed by wink-nlp (requires {@link WinkEngine}). |
-| `@beep/nlp/Core` | `addElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:302` | Append elements to a pattern. |
-| `@beep/nlp/Core` | `applyPatch` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:613` | Apply a patch to a pattern. |
+| `@beep/nlp/Backend/NLPBackend` | `BackendCapabilities` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:185` | Capability bitmap that describes which operations a backend can perform. |
+| `@beep/nlp/Backend/NLPBackend` | `BackendInitError` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:79` | Failure raised when a backend fails to initialize. |
+| `@beep/nlp/Backend/NLPBackend` | `BackendNotSupported` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:49` | Failure raised when a backend does not support a requested operation. |
+| `@beep/nlp/Backend/NLPBackend` | `BackendOperationError` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:110` | Failure raised when a backend operation fails at runtime. |
+| `@beep/nlp/Backend/NLPBackend` | `getSupportedCapabilities` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:382` | List supported capability keys in schema order. |
+| `@beep/nlp/Backend/NLPBackend` | `initError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:423` | Construct a {@link BackendInitError} from an unknown initialization cause. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackend` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:305` | Service tag for the pluggable {@link NLPBackendShape} backend. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackendError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:138` | Tagged schema union for every recoverable backend failure. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackendError` | type | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:159` | Runtime TypeScript type represented by the {@link NLPBackendError} schema. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackendShape` | interface | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:269` | Structural shape of the {@link NLPBackend} service. |
+| `@beep/nlp/Backend/NLPBackend` | `notSupported` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:402` | Construct a {@link BackendNotSupported} failure with a default message. |
+| `@beep/nlp/Backend/NLPBackend` | `operationError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:444` | Construct a {@link BackendOperationError} for a failed backend operation. |
+| `@beep/nlp/Backend/NLPBackend` | `supportsCapability` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:343` | Check whether a backend advertises support for a single capability. |
+| `@beep/nlp/Core` | `addElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:303` | Append elements to a pattern. |
+| `@beep/nlp/Core` | `applyPatch` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:614` | Apply a patch to a pattern. |
+| `@beep/nlp/Core` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:154` | Bag-of-words term-frequency representation for a document or query. |
+| `@beep/nlp/Core` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:72` | Resolved BM25 hyperparameters used by vectorization and corpus management. |
+| `@beep/nlp/Core` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:37` | BM25 normalization mode used by vectorizer and corpus services. |
+| `@beep/nlp/Core` | `BM25Norm` | type | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:50` | Runtime TypeScript union decoded by {@link BM25Norm}. |
 | `@beep/nlp/Core` | `BracketStringToEntityPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:132` | Decode an entity bracket string into a pattern element. |
 | `@beep/nlp/Core` | `BracketStringToLiteralPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:163` | Decode a literal bracket string into a pattern element. |
 | `@beep/nlp/Core` | `BracketStringToPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:194` | Decode any supported bracket string element. |
 | `@beep/nlp/Core` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:217` | Runtime type for {@link BracketStringToPatternElement}. |
 | `@beep/nlp/Core` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:103` | Decode a POS bracket string into a pattern element. |
-| `@beep/nlp/Core` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:126` | Constructor for {@link CharPosition}. |
-| `@beep/nlp/Core` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:143` | Schema for {@link CharPosition}. |
-| `@beep/nlp/Core` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:96` | Branded number type for character positions. |
-| `@beep/nlp/Core` | `combine` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:576` | Combine two patterns into a new one. |
-| `@beep/nlp/Core` | `composePatches` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:631` | Compose multiple patches from left to right. |
-| `@beep/nlp/Core` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:175` | Immutable NLP document model. |
-| `@beep/nlp/Core` | `DocumentId` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:43` | Branded identifier for NLP documents. |
-| `@beep/nlp/Core` | `DocumentId` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:63` | Runtime type for {@link DocumentId}. |
-| `@beep/nlp/Core` | `documentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:93` | Constructor for {@link DocumentIndex}. |
-| `@beep/nlp/Core` | `DocumentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:110` | Schema for {@link DocumentIndex}. |
-| `@beep/nlp/Core` | `DocumentIndex` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:78` | Branded index for documents in ordered collections. |
-| `@beep/nlp/Core` | `drop` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:555` | Drop the first `count` elements. |
-| `@beep/nlp/Core` | `elementAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:423` | Get an element by index. |
-| `@beep/nlp/Core` | `elements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:408` | Materialize pattern elements as a readonly array. |
-| `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:116` | Create an entity pattern element. |
-| `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:117` |  |
+| `@beep/nlp/Core` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:140` | Construct a branded character offset after validating it is non-negative. |
+| `@beep/nlp/Core` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:158` | Schema that decodes non-negative numbers into {@link CharPosition} values. |
+| `@beep/nlp/Core` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:108` | Zero-based character offset into the original source text. |
+| `@beep/nlp/Core` | `combine` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:577` | Combine two patterns into a new one. |
+| `@beep/nlp/Core` | `composePatches` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:632` | Compose multiple patches from left to right. |
+| `@beep/nlp/Core` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:97` | Default BM25 hyperparameters used by live vectorizers. |
+| `@beep/nlp/Core` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:193` | Immutable document containing source text plus aligned tokens and sentences. |
+| `@beep/nlp/Core` | `DocumentId` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:44` | Stable non-empty identifier for a text document moving through NLP pipelines. |
+| `@beep/nlp/Core` | `DocumentId` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:65` | Runtime TypeScript type decoded by the {@link DocumentId} schema. |
+| `@beep/nlp/Core` | `documentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:97` | Construct a branded document index after validating it is non-negative. |
+| `@beep/nlp/Core` | `DocumentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:115` | Schema that decodes non-negative numbers into {@link DocumentIndex} values. |
+| `@beep/nlp/Core` | `DocumentIndex` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:81` | Zero-based position of a document inside an ordered corpus or batch. |
+| `@beep/nlp/Core` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:93` | Normalized terms for one document in set-based similarity comparisons. |
+| `@beep/nlp/Core` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:124` | Dense vector representation for a document or query. |
+| `@beep/nlp/Core` | `drop` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:556` | Drop the first `count` elements. |
+| `@beep/nlp/Core` | `elementAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:424` | Get an element by index. |
+| `@beep/nlp/Core` | `elements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:409` | Materialize pattern elements as a readonly array. |
+| `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:117` | Create an entity pattern element. |
 | `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:118` |  |
-| `@beep/nlp/Core` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:302` | Pattern element matching one or more entity types. |
-| `@beep/nlp/Core` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:206` | Entity alternatives for a single pattern position. |
-| `@beep/nlp/Core` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:227` | Runtime type for {@link EntityPatternOption}. |
+| `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:119` |  |
+| `@beep/nlp/Core` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:327` | Tagged pattern element that matches named-entity alternatives. |
+| `@beep/nlp/Core` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:224` | Non-empty set of entity-type choices for one pattern slot. |
+| `@beep/nlp/Core` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:245` | Runtime type for {@link EntityPatternOption}. |
 | `@beep/nlp/Core` | `extractBracketContent` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:89` | Create a bracket-string content slice if the input is bracketed. |
 | `@beep/nlp/Core` | `extractElementValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:74` | Extract element values as a readonly array. |
-| `@beep/nlp/Core` | `filterElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:513` | Filter pattern elements. |
-| `@beep/nlp/Core` | `generalizeLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:698` | Generalize literal elements into other element kinds. |
-| `@beep/nlp/Core` | `getMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:377` | Get a pattern's mark if present. |
-| `@beep/nlp/Core` | `hasMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:362` | Test whether a pattern has a mark. |
-| `@beep/nlp/Core` | `head` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:462` | Get the first pattern element. |
-| `@beep/nlp/Core` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:111` | Predicate for {@link CharPosition}. |
-| `@beep/nlp/Core` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:447` | Test whether a pattern is empty. |
+| `@beep/nlp/Core` | `filterElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:514` | Filter pattern elements. |
+| `@beep/nlp/Core` | `generalizeLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:699` | Generalize literal elements into other element kinds. |
+| `@beep/nlp/Core` | `getMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:378` | Get a pattern's mark if present. |
+| `@beep/nlp/Core` | `hasMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:363` | Test whether a pattern has a mark. |
+| `@beep/nlp/Core` | `head` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:463` | Get the first pattern element. |
+| `@beep/nlp/Core` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:124` | Narrow an unknown value to a non-negative character offset. |
+| `@beep/nlp/Core` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:448` | Test whether a pattern is empty. |
 | `@beep/nlp/Core` | `isEntityElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:42` | Check whether an element is an entity element. |
 | `@beep/nlp/Core` | `isLiteralElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:58` | Check whether an element is a literal element. |
 | `@beep/nlp/Core` | `isPOSElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:26` | Check whether an element is a POS element. |
-| `@beep/nlp/Core` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:46` | Predicate for {@link TokenIndex}. |
+| `@beep/nlp/Core` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:52` | Narrow an unknown value to a non-negative token index. |
 | `@beep/nlp/Core` | `joinBracketValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:120` | Join values into bracket-string form. |
-| `@beep/nlp/Core` | `last` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:477` | Get the last pattern element. |
-| `@beep/nlp/Core` | `length` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:393` | Count pattern elements. |
-| `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:141` | Create a literal pattern element. |
-| `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:142` |  |
+| `@beep/nlp/Core` | `last` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:478` | Get the last pattern element. |
+| `@beep/nlp/Core` | `length` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:394` | Count pattern elements. |
+| `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:142` | Create a literal pattern element. |
 | `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:143` |  |
-| `@beep/nlp/Core` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:325` | Pattern element matching one or more literal strings. |
-| `@beep/nlp/Core` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:242` | Literal alternatives for a single pattern position. |
-| `@beep/nlp/Core` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:264` | Runtime type for {@link LiteralPatternOption}. |
-| `@beep/nlp/Core` | `make` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:241` | Construct a pattern from an id and ordered elements. |
-| `@beep/nlp/Core` | `mapElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:492` | Map pattern elements. |
-| `@beep/nlp/Core` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:417` | Inclusive mark range over pattern element positions. |
-| `@beep/nlp/Core` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:436` | Runtime type for {@link MarkRange}. |
-| `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:188` | Create an optional entity pattern element. |
-| `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:189` |  |
+| `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:144` |  |
+| `@beep/nlp/Core` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:351` | Tagged pattern element that matches literal token text alternatives. |
+| `@beep/nlp/Core` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:265` | Non-empty set of literal token-text choices for one pattern slot. |
+| `@beep/nlp/Core` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:287` | Runtime type for {@link LiteralPatternOption}. |
+| `@beep/nlp/Core` | `make` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:242` | Construct a pattern from an id and ordered elements. |
+| `@beep/nlp/Core` | `mapElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:493` | Map pattern elements. |
+| `@beep/nlp/Core` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Inclusive `[start, end]` element-index range selected by a pattern. |
+| `@beep/nlp/Core` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:470` | Runtime type for {@link MarkRange}. |
+| `@beep/nlp/Core` | `NamedEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:132` | Named-entity labels accepted by wink-backed entity pattern matching. |
+| `@beep/nlp/Core` | `NamedEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:153` | Runtime TypeScript union decoded by {@link NamedEntityType}. |
+| `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:189` | Create an optional entity pattern element. |
 | `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:190` |  |
-| `@beep/nlp/Core` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:213` | Create an optional literal pattern element. |
-| `@beep/nlp/Core` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:214` |  |
+| `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:191` |  |
+| `@beep/nlp/Core` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:214` | Create an optional literal pattern element. |
 | `@beep/nlp/Core` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:215` |  |
-| `@beep/nlp/Core` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:163` | Create an optional POS pattern element. |
-| `@beep/nlp/Core` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:164` |  |
+| `@beep/nlp/Core` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:216` |  |
+| `@beep/nlp/Core` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:164` | Create an optional POS pattern element. |
 | `@beep/nlp/Core` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:165` |  |
-| `@beep/nlp/Core` | `patchReplaceAllLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:675` | Replace all literal elements. |
-| `@beep/nlp/Core` | `patchReplaceLiteralAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:647` | Replace a literal element at a given index. |
-| `@beep/nlp/Core` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Immutable NLP pattern. |
-| `@beep/nlp/Core` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:348` | Union of supported pattern elements. |
-| `@beep/nlp/Core` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:367` | Runtime type for {@link PatternElement}. |
+| `@beep/nlp/Core` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:166` |  |
+| `@beep/nlp/Core` | `patchReplaceAllLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:676` | Replace all literal elements. |
+| `@beep/nlp/Core` | `patchReplaceLiteralAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:648` | Replace a literal element at a given index. |
+| `@beep/nlp/Core` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:498` | Ordered pattern of POS, entity, and literal slots with an optional mark. |
+| `@beep/nlp/Core` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:375` | Schema union for every pattern element variant supported by this package. |
+| `@beep/nlp/Core` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:394` | Runtime type for {@link PatternElement}. |
 | `@beep/nlp/Core` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:232` | Decode a string array into ordered pattern elements. |
-| `@beep/nlp/Core` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:382` | Branded pattern identifier. |
-| `@beep/nlp/Core` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:402` | Runtime type for {@link PatternId}. |
-| `@beep/nlp/Core` | `PatternPatch` | type | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:598` | Functional patch over a pattern. |
-| `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:91` | Create a POS pattern element. |
-| `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:92` |  |
+| `@beep/nlp/Core` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:410` | Non-empty identifier for a reusable pattern definition. |
+| `@beep/nlp/Core` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:430` | Runtime type for {@link PatternId}. |
+| `@beep/nlp/Core` | `PatternPatch` | type | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:599` | Functional patch over a pattern. |
+| `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:92` | Create a POS pattern element. |
 | `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:93` |  |
-| `@beep/nlp/Core` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:279` | Pattern element matching one or more POS tags. |
-| `@beep/nlp/Core` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:170` | POS alternatives for a single pattern position. |
-| `@beep/nlp/Core` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:191` | Runtime type for {@link POSPatternOption}. |
-| `@beep/nlp/Core` | `prependElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:323` | Prepend elements to a pattern. |
-| `@beep/nlp/Core` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:87` | Immutable NLP sentence model. |
-| `@beep/nlp/Core` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:50` | Constructor for {@link SentenceIndex}. |
-| `@beep/nlp/Core` | `SentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:67` | Schema for {@link SentenceIndex}. |
-| `@beep/nlp/Core` | `SentenceIndex` | type | `packages/foundation/capability/nlp/src/Core/Sentence.ts:35` | Branded index for sentences in ordered collections. |
-| `@beep/nlp/Core` | `sentences` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:95` | Split text into sentences using the configured service. |
+| `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:94` |  |
+| `@beep/nlp/Core` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:303` | Tagged pattern element that matches grammatical POS alternatives. |
+| `@beep/nlp/Core` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:187` | Non-empty set of POS choices for one pattern slot. |
+| `@beep/nlp/Core` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:208` | Runtime type for {@link POSPatternOption}. |
+| `@beep/nlp/Core` | `prependElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:324` | Prepend elements to a pattern. |
+| `@beep/nlp/Core` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:109` | Immutable sentence with its document token range and optional scoring data. |
+| `@beep/nlp/Core` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:52` | Construct a branded sentence index after validating it is non-negative. |
+| `@beep/nlp/Core` | `SentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:70` | Schema that decodes non-negative numbers into {@link SentenceIndex} values. |
+| `@beep/nlp/Core` | `SentenceIndex` | type | `packages/foundation/capability/nlp/src/Core/Sentence.ts:36` | Zero-based position of a sentence within a document. |
+| `@beep/nlp/Core` | `sentences` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:139` | Split text into sentences using the configured service. |
+| `@beep/nlp/Core` | `SimilarityMethod` | const | `packages/foundation/capability/nlp/src/Core/Similarity.ts:35` | Similarity method identifiers exposed by NLP comparison services. |
+| `@beep/nlp/Core` | `SimilarityMethod` | type | `packages/foundation/capability/nlp/src/Core/Similarity.ts:48` | Runtime TypeScript union decoded by {@link SimilarityMethod}. |
+| `@beep/nlp/Core` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:126` | Normalized similarity score returned from an NLP comparison. |
 | `@beep/nlp/Core` | `splitBracketValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:105` | Split bracket content into trimmed segments. |
-| `@beep/nlp/Core` | `take` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:534` | Take the first `count` elements. |
-| `@beep/nlp/Core` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:163` | Immutable NLP token model with lexical and positional metadata. |
-| `@beep/nlp/Core` | `tokenCount` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:134` | Count tokens using the configured service. |
-| `@beep/nlp/Core` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:61` | Constructor for {@link TokenIndex}. |
-| `@beep/nlp/Core` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:76` | Schema for {@link TokenIndex}. |
-| `@beep/nlp/Core` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:31` | Branded number type for token indices. |
-| `@beep/nlp/Core` | `Tokenization` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:62` | Tokenization service. |
-| `@beep/nlp/Core` | `TokenizationError` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:38` | Tokenization error. |
-| `@beep/nlp/Core` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:77` | Tokenize text into tokens using the configured service. |
-| `@beep/nlp/Core` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:113` | Build a document using the configured service. |
-| `@beep/nlp/Core` | `WinkEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:124` | Supported wink entity types. |
-| `@beep/nlp/Core` | `WinkEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:144` | Runtime type for {@link WinkEntityType}. |
-| `@beep/nlp/Core` | `WinkPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:89` | Supported wink part-of-speech tags. |
-| `@beep/nlp/Core` | `WinkPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:109` | Runtime type for {@link WinkPOSTag}. |
-| `@beep/nlp/Core` | `withId` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:344` | Replace the pattern id. |
-| `@beep/nlp/Core` | `withMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:263` | Add a mark range to a pattern. |
-| `@beep/nlp/Core` | `withoutMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:281` | Remove a mark range from a pattern. |
-| `@beep/nlp/Core/Document` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:175` | Immutable NLP document model. |
-| `@beep/nlp/Core/Document` | `DocumentId` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:43` | Branded identifier for NLP documents. |
-| `@beep/nlp/Core/Document` | `DocumentId` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:63` | Runtime type for {@link DocumentId}. |
-| `@beep/nlp/Core/Document` | `documentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:93` | Constructor for {@link DocumentIndex}. |
-| `@beep/nlp/Core/Document` | `DocumentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:110` | Schema for {@link DocumentIndex}. |
-| `@beep/nlp/Core/Document` | `DocumentIndex` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:78` | Branded index for documents in ordered collections. |
-| `@beep/nlp/Core/index` | `addElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:302` | Append elements to a pattern. |
-| `@beep/nlp/Core/index` | `applyPatch` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:613` | Apply a patch to a pattern. |
+| `@beep/nlp/Core` | `take` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:535` | Take the first `count` elements. |
+| `@beep/nlp/Core` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:182` | Term-frequency entry reported for a learned vectorized document. |
+| `@beep/nlp/Core` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:205` | Immutable token with lexical text, source offsets, and optional NLP metadata. |
+| `@beep/nlp/Core` | `tokenCount` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:221` | Count tokens using the configured service. |
+| `@beep/nlp/Core` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:68` | Construct a branded token index after validating it is non-negative. |
+| `@beep/nlp/Core` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:84` | Schema that decodes non-negative numbers into {@link TokenIndex} values. |
+| `@beep/nlp/Core` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:36` | Zero-based position of a token within its document token stream. |
+| `@beep/nlp/Core` | `Tokenization` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:66` | Tokenization service. |
+| `@beep/nlp/Core` | `TokenizationError` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:42` | Tokenization error. |
+| `@beep/nlp/Core` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:101` | Tokenize text into tokens using the configured service. |
+| `@beep/nlp/Core` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:180` | Build a document using the configured service. |
+| `@beep/nlp/Core` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:64` | Weights controlling the asymmetric Tversky set similarity index. |
+| `@beep/nlp/Core` | `UniversalPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:95` | Universal part-of-speech tags accepted by wink-backed pattern matching. |
+| `@beep/nlp/Core` | `UniversalPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:116` | Runtime TypeScript union decoded by {@link UniversalPOSTag}. |
+| `@beep/nlp/Core` | `withId` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:345` | Replace the pattern id. |
+| `@beep/nlp/Core` | `withMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:264` | Add a mark range to a pattern. |
+| `@beep/nlp/Core` | `withoutMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:282` | Remove a mark range from a pattern. |
+| `@beep/nlp/Core/Document` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:193` | Immutable document containing source text plus aligned tokens and sentences. |
+| `@beep/nlp/Core/Document` | `DocumentId` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:44` | Stable non-empty identifier for a text document moving through NLP pipelines. |
+| `@beep/nlp/Core/Document` | `DocumentId` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:65` | Runtime TypeScript type decoded by the {@link DocumentId} schema. |
+| `@beep/nlp/Core/Document` | `documentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:97` | Construct a branded document index after validating it is non-negative. |
+| `@beep/nlp/Core/Document` | `DocumentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:115` | Schema that decodes non-negative numbers into {@link DocumentIndex} values. |
+| `@beep/nlp/Core/Document` | `DocumentIndex` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:81` | Zero-based position of a document inside an ordered corpus or batch. |
+| `@beep/nlp/Core/index` | `addElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:303` | Append elements to a pattern. |
+| `@beep/nlp/Core/index` | `applyPatch` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:614` | Apply a patch to a pattern. |
+| `@beep/nlp/Core/index` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:154` | Bag-of-words term-frequency representation for a document or query. |
+| `@beep/nlp/Core/index` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:72` | Resolved BM25 hyperparameters used by vectorization and corpus management. |
+| `@beep/nlp/Core/index` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:37` | BM25 normalization mode used by vectorizer and corpus services. |
+| `@beep/nlp/Core/index` | `BM25Norm` | type | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:50` | Runtime TypeScript union decoded by {@link BM25Norm}. |
 | `@beep/nlp/Core/index` | `BracketStringToEntityPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:132` | Decode an entity bracket string into a pattern element. |
 | `@beep/nlp/Core/index` | `BracketStringToLiteralPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:163` | Decode a literal bracket string into a pattern element. |
 | `@beep/nlp/Core/index` | `BracketStringToPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:194` | Decode any supported bracket string element. |
 | `@beep/nlp/Core/index` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:217` | Runtime type for {@link BracketStringToPatternElement}. |
 | `@beep/nlp/Core/index` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:103` | Decode a POS bracket string into a pattern element. |
-| `@beep/nlp/Core/index` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:126` | Constructor for {@link CharPosition}. |
-| `@beep/nlp/Core/index` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:143` | Schema for {@link CharPosition}. |
-| `@beep/nlp/Core/index` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:96` | Branded number type for character positions. |
-| `@beep/nlp/Core/index` | `combine` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:576` | Combine two patterns into a new one. |
-| `@beep/nlp/Core/index` | `composePatches` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:631` | Compose multiple patches from left to right. |
-| `@beep/nlp/Core/index` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:175` | Immutable NLP document model. |
-| `@beep/nlp/Core/index` | `DocumentId` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:43` | Branded identifier for NLP documents. |
-| `@beep/nlp/Core/index` | `DocumentId` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:63` | Runtime type for {@link DocumentId}. |
-| `@beep/nlp/Core/index` | `documentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:93` | Constructor for {@link DocumentIndex}. |
-| `@beep/nlp/Core/index` | `DocumentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:110` | Schema for {@link DocumentIndex}. |
-| `@beep/nlp/Core/index` | `DocumentIndex` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:78` | Branded index for documents in ordered collections. |
-| `@beep/nlp/Core/index` | `drop` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:555` | Drop the first `count` elements. |
-| `@beep/nlp/Core/index` | `elementAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:423` | Get an element by index. |
-| `@beep/nlp/Core/index` | `elements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:408` | Materialize pattern elements as a readonly array. |
-| `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:116` | Create an entity pattern element. |
-| `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:117` |  |
+| `@beep/nlp/Core/index` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:140` | Construct a branded character offset after validating it is non-negative. |
+| `@beep/nlp/Core/index` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:158` | Schema that decodes non-negative numbers into {@link CharPosition} values. |
+| `@beep/nlp/Core/index` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:108` | Zero-based character offset into the original source text. |
+| `@beep/nlp/Core/index` | `combine` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:577` | Combine two patterns into a new one. |
+| `@beep/nlp/Core/index` | `composePatches` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:632` | Compose multiple patches from left to right. |
+| `@beep/nlp/Core/index` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:97` | Default BM25 hyperparameters used by live vectorizers. |
+| `@beep/nlp/Core/index` | `Document` | class | `packages/foundation/capability/nlp/src/Core/Document.ts:193` | Immutable document containing source text plus aligned tokens and sentences. |
+| `@beep/nlp/Core/index` | `DocumentId` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:44` | Stable non-empty identifier for a text document moving through NLP pipelines. |
+| `@beep/nlp/Core/index` | `DocumentId` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:65` | Runtime TypeScript type decoded by the {@link DocumentId} schema. |
+| `@beep/nlp/Core/index` | `documentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:97` | Construct a branded document index after validating it is non-negative. |
+| `@beep/nlp/Core/index` | `DocumentIndex` | const | `packages/foundation/capability/nlp/src/Core/Document.ts:115` | Schema that decodes non-negative numbers into {@link DocumentIndex} values. |
+| `@beep/nlp/Core/index` | `DocumentIndex` | type | `packages/foundation/capability/nlp/src/Core/Document.ts:81` | Zero-based position of a document inside an ordered corpus or batch. |
+| `@beep/nlp/Core/index` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:93` | Normalized terms for one document in set-based similarity comparisons. |
+| `@beep/nlp/Core/index` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:124` | Dense vector representation for a document or query. |
+| `@beep/nlp/Core/index` | `drop` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:556` | Drop the first `count` elements. |
+| `@beep/nlp/Core/index` | `elementAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:424` | Get an element by index. |
+| `@beep/nlp/Core/index` | `elements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:409` | Materialize pattern elements as a readonly array. |
+| `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:117` | Create an entity pattern element. |
 | `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:118` |  |
-| `@beep/nlp/Core/index` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:302` | Pattern element matching one or more entity types. |
-| `@beep/nlp/Core/index` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:206` | Entity alternatives for a single pattern position. |
-| `@beep/nlp/Core/index` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:227` | Runtime type for {@link EntityPatternOption}. |
+| `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:119` |  |
+| `@beep/nlp/Core/index` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:327` | Tagged pattern element that matches named-entity alternatives. |
+| `@beep/nlp/Core/index` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:224` | Non-empty set of entity-type choices for one pattern slot. |
+| `@beep/nlp/Core/index` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:245` | Runtime type for {@link EntityPatternOption}. |
 | `@beep/nlp/Core/index` | `extractBracketContent` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:89` | Create a bracket-string content slice if the input is bracketed. |
 | `@beep/nlp/Core/index` | `extractElementValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:74` | Extract element values as a readonly array. |
-| `@beep/nlp/Core/index` | `filterElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:513` | Filter pattern elements. |
-| `@beep/nlp/Core/index` | `generalizeLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:698` | Generalize literal elements into other element kinds. |
-| `@beep/nlp/Core/index` | `getMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:377` | Get a pattern's mark if present. |
-| `@beep/nlp/Core/index` | `hasMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:362` | Test whether a pattern has a mark. |
-| `@beep/nlp/Core/index` | `head` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:462` | Get the first pattern element. |
-| `@beep/nlp/Core/index` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:111` | Predicate for {@link CharPosition}. |
-| `@beep/nlp/Core/index` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:447` | Test whether a pattern is empty. |
+| `@beep/nlp/Core/index` | `filterElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:514` | Filter pattern elements. |
+| `@beep/nlp/Core/index` | `generalizeLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:699` | Generalize literal elements into other element kinds. |
+| `@beep/nlp/Core/index` | `getMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:378` | Get a pattern's mark if present. |
+| `@beep/nlp/Core/index` | `hasMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:363` | Test whether a pattern has a mark. |
+| `@beep/nlp/Core/index` | `head` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:463` | Get the first pattern element. |
+| `@beep/nlp/Core/index` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:124` | Narrow an unknown value to a non-negative character offset. |
+| `@beep/nlp/Core/index` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:448` | Test whether a pattern is empty. |
 | `@beep/nlp/Core/index` | `isEntityElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:42` | Check whether an element is an entity element. |
 | `@beep/nlp/Core/index` | `isLiteralElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:58` | Check whether an element is a literal element. |
 | `@beep/nlp/Core/index` | `isPOSElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:26` | Check whether an element is a POS element. |
-| `@beep/nlp/Core/index` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:46` | Predicate for {@link TokenIndex}. |
+| `@beep/nlp/Core/index` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:52` | Narrow an unknown value to a non-negative token index. |
 | `@beep/nlp/Core/index` | `joinBracketValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:120` | Join values into bracket-string form. |
-| `@beep/nlp/Core/index` | `last` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:477` | Get the last pattern element. |
-| `@beep/nlp/Core/index` | `length` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:393` | Count pattern elements. |
-| `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:141` | Create a literal pattern element. |
-| `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:142` |  |
+| `@beep/nlp/Core/index` | `last` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:478` | Get the last pattern element. |
+| `@beep/nlp/Core/index` | `length` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:394` | Count pattern elements. |
+| `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:142` | Create a literal pattern element. |
 | `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:143` |  |
-| `@beep/nlp/Core/index` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:325` | Pattern element matching one or more literal strings. |
-| `@beep/nlp/Core/index` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:242` | Literal alternatives for a single pattern position. |
-| `@beep/nlp/Core/index` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:264` | Runtime type for {@link LiteralPatternOption}. |
-| `@beep/nlp/Core/index` | `make` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:241` | Construct a pattern from an id and ordered elements. |
-| `@beep/nlp/Core/index` | `mapElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:492` | Map pattern elements. |
-| `@beep/nlp/Core/index` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:417` | Inclusive mark range over pattern element positions. |
-| `@beep/nlp/Core/index` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:436` | Runtime type for {@link MarkRange}. |
-| `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:188` | Create an optional entity pattern element. |
-| `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:189` |  |
+| `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:144` |  |
+| `@beep/nlp/Core/index` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:351` | Tagged pattern element that matches literal token text alternatives. |
+| `@beep/nlp/Core/index` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:265` | Non-empty set of literal token-text choices for one pattern slot. |
+| `@beep/nlp/Core/index` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:287` | Runtime type for {@link LiteralPatternOption}. |
+| `@beep/nlp/Core/index` | `make` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:242` | Construct a pattern from an id and ordered elements. |
+| `@beep/nlp/Core/index` | `mapElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:493` | Map pattern elements. |
+| `@beep/nlp/Core/index` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Inclusive `[start, end]` element-index range selected by a pattern. |
+| `@beep/nlp/Core/index` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:470` | Runtime type for {@link MarkRange}. |
+| `@beep/nlp/Core/index` | `NamedEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:132` | Named-entity labels accepted by wink-backed entity pattern matching. |
+| `@beep/nlp/Core/index` | `NamedEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:153` | Runtime TypeScript union decoded by {@link NamedEntityType}. |
+| `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:189` | Create an optional entity pattern element. |
 | `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:190` |  |
-| `@beep/nlp/Core/index` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:213` | Create an optional literal pattern element. |
-| `@beep/nlp/Core/index` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:214` |  |
+| `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:191` |  |
+| `@beep/nlp/Core/index` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:214` | Create an optional literal pattern element. |
 | `@beep/nlp/Core/index` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:215` |  |
-| `@beep/nlp/Core/index` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:163` | Create an optional POS pattern element. |
-| `@beep/nlp/Core/index` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:164` |  |
+| `@beep/nlp/Core/index` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:216` |  |
+| `@beep/nlp/Core/index` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:164` | Create an optional POS pattern element. |
 | `@beep/nlp/Core/index` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:165` |  |
-| `@beep/nlp/Core/index` | `patchReplaceAllLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:675` | Replace all literal elements. |
-| `@beep/nlp/Core/index` | `patchReplaceLiteralAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:647` | Replace a literal element at a given index. |
-| `@beep/nlp/Core/index` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Immutable NLP pattern. |
-| `@beep/nlp/Core/index` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:348` | Union of supported pattern elements. |
-| `@beep/nlp/Core/index` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:367` | Runtime type for {@link PatternElement}. |
+| `@beep/nlp/Core/index` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:166` |  |
+| `@beep/nlp/Core/index` | `patchReplaceAllLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:676` | Replace all literal elements. |
+| `@beep/nlp/Core/index` | `patchReplaceLiteralAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:648` | Replace a literal element at a given index. |
+| `@beep/nlp/Core/index` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:498` | Ordered pattern of POS, entity, and literal slots with an optional mark. |
+| `@beep/nlp/Core/index` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:375` | Schema union for every pattern element variant supported by this package. |
+| `@beep/nlp/Core/index` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:394` | Runtime type for {@link PatternElement}. |
 | `@beep/nlp/Core/index` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:232` | Decode a string array into ordered pattern elements. |
-| `@beep/nlp/Core/index` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:382` | Branded pattern identifier. |
-| `@beep/nlp/Core/index` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:402` | Runtime type for {@link PatternId}. |
-| `@beep/nlp/Core/index` | `PatternPatch` | type | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:598` | Functional patch over a pattern. |
-| `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:91` | Create a POS pattern element. |
-| `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:92` |  |
+| `@beep/nlp/Core/index` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:410` | Non-empty identifier for a reusable pattern definition. |
+| `@beep/nlp/Core/index` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:430` | Runtime type for {@link PatternId}. |
+| `@beep/nlp/Core/index` | `PatternPatch` | type | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:599` | Functional patch over a pattern. |
+| `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:92` | Create a POS pattern element. |
 | `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:93` |  |
-| `@beep/nlp/Core/index` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:279` | Pattern element matching one or more POS tags. |
-| `@beep/nlp/Core/index` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:170` | POS alternatives for a single pattern position. |
-| `@beep/nlp/Core/index` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:191` | Runtime type for {@link POSPatternOption}. |
-| `@beep/nlp/Core/index` | `prependElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:323` | Prepend elements to a pattern. |
-| `@beep/nlp/Core/index` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:87` | Immutable NLP sentence model. |
-| `@beep/nlp/Core/index` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:50` | Constructor for {@link SentenceIndex}. |
-| `@beep/nlp/Core/index` | `SentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:67` | Schema for {@link SentenceIndex}. |
-| `@beep/nlp/Core/index` | `SentenceIndex` | type | `packages/foundation/capability/nlp/src/Core/Sentence.ts:35` | Branded index for sentences in ordered collections. |
-| `@beep/nlp/Core/index` | `sentences` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:95` | Split text into sentences using the configured service. |
+| `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:94` |  |
+| `@beep/nlp/Core/index` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:303` | Tagged pattern element that matches grammatical POS alternatives. |
+| `@beep/nlp/Core/index` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:187` | Non-empty set of POS choices for one pattern slot. |
+| `@beep/nlp/Core/index` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:208` | Runtime type for {@link POSPatternOption}. |
+| `@beep/nlp/Core/index` | `prependElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:324` | Prepend elements to a pattern. |
+| `@beep/nlp/Core/index` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:109` | Immutable sentence with its document token range and optional scoring data. |
+| `@beep/nlp/Core/index` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:52` | Construct a branded sentence index after validating it is non-negative. |
+| `@beep/nlp/Core/index` | `SentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:70` | Schema that decodes non-negative numbers into {@link SentenceIndex} values. |
+| `@beep/nlp/Core/index` | `SentenceIndex` | type | `packages/foundation/capability/nlp/src/Core/Sentence.ts:36` | Zero-based position of a sentence within a document. |
+| `@beep/nlp/Core/index` | `sentences` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:139` | Split text into sentences using the configured service. |
+| `@beep/nlp/Core/index` | `SimilarityMethod` | const | `packages/foundation/capability/nlp/src/Core/Similarity.ts:35` | Similarity method identifiers exposed by NLP comparison services. |
+| `@beep/nlp/Core/index` | `SimilarityMethod` | type | `packages/foundation/capability/nlp/src/Core/Similarity.ts:48` | Runtime TypeScript union decoded by {@link SimilarityMethod}. |
+| `@beep/nlp/Core/index` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:126` | Normalized similarity score returned from an NLP comparison. |
 | `@beep/nlp/Core/index` | `splitBracketValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:105` | Split bracket content into trimmed segments. |
-| `@beep/nlp/Core/index` | `take` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:534` | Take the first `count` elements. |
-| `@beep/nlp/Core/index` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:163` | Immutable NLP token model with lexical and positional metadata. |
-| `@beep/nlp/Core/index` | `tokenCount` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:134` | Count tokens using the configured service. |
-| `@beep/nlp/Core/index` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:61` | Constructor for {@link TokenIndex}. |
-| `@beep/nlp/Core/index` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:76` | Schema for {@link TokenIndex}. |
-| `@beep/nlp/Core/index` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:31` | Branded number type for token indices. |
-| `@beep/nlp/Core/index` | `Tokenization` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:62` | Tokenization service. |
-| `@beep/nlp/Core/index` | `TokenizationError` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:38` | Tokenization error. |
-| `@beep/nlp/Core/index` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:77` | Tokenize text into tokens using the configured service. |
-| `@beep/nlp/Core/index` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:113` | Build a document using the configured service. |
-| `@beep/nlp/Core/index` | `WinkEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:124` | Supported wink entity types. |
-| `@beep/nlp/Core/index` | `WinkEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:144` | Runtime type for {@link WinkEntityType}. |
-| `@beep/nlp/Core/index` | `WinkPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:89` | Supported wink part-of-speech tags. |
-| `@beep/nlp/Core/index` | `WinkPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:109` | Runtime type for {@link WinkPOSTag}. |
-| `@beep/nlp/Core/index` | `withId` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:344` | Replace the pattern id. |
-| `@beep/nlp/Core/index` | `withMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:263` | Add a mark range to a pattern. |
-| `@beep/nlp/Core/index` | `withoutMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:281` | Remove a mark range from a pattern. |
-| `@beep/nlp/Core/Pattern` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:302` | Pattern element matching one or more entity types. |
-| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:206` | Entity alternatives for a single pattern position. |
-| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:227` | Runtime type for {@link EntityPatternOption}. |
-| `@beep/nlp/Core/Pattern` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:325` | Pattern element matching one or more literal strings. |
-| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:242` | Literal alternatives for a single pattern position. |
-| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:264` | Runtime type for {@link LiteralPatternOption}. |
-| `@beep/nlp/Core/Pattern` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:417` | Inclusive mark range over pattern element positions. |
-| `@beep/nlp/Core/Pattern` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:436` | Runtime type for {@link MarkRange}. |
-| `@beep/nlp/Core/Pattern` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Immutable NLP pattern. |
-| `@beep/nlp/Core/Pattern` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:348` | Union of supported pattern elements. |
-| `@beep/nlp/Core/Pattern` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:367` | Runtime type for {@link PatternElement}. |
-| `@beep/nlp/Core/Pattern` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:382` | Branded pattern identifier. |
-| `@beep/nlp/Core/Pattern` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:402` | Runtime type for {@link PatternId}. |
-| `@beep/nlp/Core/Pattern` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:279` | Pattern element matching one or more POS tags. |
-| `@beep/nlp/Core/Pattern` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:170` | POS alternatives for a single pattern position. |
-| `@beep/nlp/Core/Pattern` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:191` | Runtime type for {@link POSPatternOption}. |
-| `@beep/nlp/Core/Pattern` | `WinkEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:124` | Supported wink entity types. |
-| `@beep/nlp/Core/Pattern` | `WinkEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:144` | Runtime type for {@link WinkEntityType}. |
-| `@beep/nlp/Core/Pattern` | `WinkPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:89` | Supported wink part-of-speech tags. |
-| `@beep/nlp/Core/Pattern` | `WinkPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:109` | Runtime type for {@link WinkPOSTag}. |
-| `@beep/nlp/Core/PatternBuilders` | `addElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:302` | Append elements to a pattern. |
-| `@beep/nlp/Core/PatternBuilders` | `applyPatch` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:613` | Apply a patch to a pattern. |
-| `@beep/nlp/Core/PatternBuilders` | `combine` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:576` | Combine two patterns into a new one. |
-| `@beep/nlp/Core/PatternBuilders` | `composePatches` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:631` | Compose multiple patches from left to right. |
-| `@beep/nlp/Core/PatternBuilders` | `drop` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:555` | Drop the first `count` elements. |
-| `@beep/nlp/Core/PatternBuilders` | `elementAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:423` | Get an element by index. |
-| `@beep/nlp/Core/PatternBuilders` | `elements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:408` | Materialize pattern elements as a readonly array. |
-| `@beep/nlp/Core/PatternBuilders` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:116` | Create an entity pattern element. |
-| `@beep/nlp/Core/PatternBuilders` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:117` |  |
+| `@beep/nlp/Core/index` | `take` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:535` | Take the first `count` elements. |
+| `@beep/nlp/Core/index` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:182` | Term-frequency entry reported for a learned vectorized document. |
+| `@beep/nlp/Core/index` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:205` | Immutable token with lexical text, source offsets, and optional NLP metadata. |
+| `@beep/nlp/Core/index` | `tokenCount` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:221` | Count tokens using the configured service. |
+| `@beep/nlp/Core/index` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:68` | Construct a branded token index after validating it is non-negative. |
+| `@beep/nlp/Core/index` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:84` | Schema that decodes non-negative numbers into {@link TokenIndex} values. |
+| `@beep/nlp/Core/index` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:36` | Zero-based position of a token within its document token stream. |
+| `@beep/nlp/Core/index` | `Tokenization` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:66` | Tokenization service. |
+| `@beep/nlp/Core/index` | `TokenizationError` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:42` | Tokenization error. |
+| `@beep/nlp/Core/index` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:101` | Tokenize text into tokens using the configured service. |
+| `@beep/nlp/Core/index` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:180` | Build a document using the configured service. |
+| `@beep/nlp/Core/index` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:64` | Weights controlling the asymmetric Tversky set similarity index. |
+| `@beep/nlp/Core/index` | `UniversalPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:95` | Universal part-of-speech tags accepted by wink-backed pattern matching. |
+| `@beep/nlp/Core/index` | `UniversalPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:116` | Runtime TypeScript union decoded by {@link UniversalPOSTag}. |
+| `@beep/nlp/Core/index` | `withId` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:345` | Replace the pattern id. |
+| `@beep/nlp/Core/index` | `withMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:264` | Add a mark range to a pattern. |
+| `@beep/nlp/Core/index` | `withoutMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:282` | Remove a mark range from a pattern. |
+| `@beep/nlp/Core/Pattern` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:327` | Tagged pattern element that matches named-entity alternatives. |
+| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:224` | Non-empty set of entity-type choices for one pattern slot. |
+| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:245` | Runtime type for {@link EntityPatternOption}. |
+| `@beep/nlp/Core/Pattern` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:351` | Tagged pattern element that matches literal token text alternatives. |
+| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:265` | Non-empty set of literal token-text choices for one pattern slot. |
+| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:287` | Runtime type for {@link LiteralPatternOption}. |
+| `@beep/nlp/Core/Pattern` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Inclusive `[start, end]` element-index range selected by a pattern. |
+| `@beep/nlp/Core/Pattern` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:470` | Runtime type for {@link MarkRange}. |
+| `@beep/nlp/Core/Pattern` | `NamedEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:132` | Named-entity labels accepted by wink-backed entity pattern matching. |
+| `@beep/nlp/Core/Pattern` | `NamedEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:153` | Runtime TypeScript union decoded by {@link NamedEntityType}. |
+| `@beep/nlp/Core/Pattern` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:498` | Ordered pattern of POS, entity, and literal slots with an optional mark. |
+| `@beep/nlp/Core/Pattern` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:375` | Schema union for every pattern element variant supported by this package. |
+| `@beep/nlp/Core/Pattern` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:394` | Runtime type for {@link PatternElement}. |
+| `@beep/nlp/Core/Pattern` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:410` | Non-empty identifier for a reusable pattern definition. |
+| `@beep/nlp/Core/Pattern` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:430` | Runtime type for {@link PatternId}. |
+| `@beep/nlp/Core/Pattern` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:303` | Tagged pattern element that matches grammatical POS alternatives. |
+| `@beep/nlp/Core/Pattern` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:187` | Non-empty set of POS choices for one pattern slot. |
+| `@beep/nlp/Core/Pattern` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:208` | Runtime type for {@link POSPatternOption}. |
+| `@beep/nlp/Core/Pattern` | `UniversalPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:95` | Universal part-of-speech tags accepted by wink-backed pattern matching. |
+| `@beep/nlp/Core/Pattern` | `UniversalPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:116` | Runtime TypeScript union decoded by {@link UniversalPOSTag}. |
+| `@beep/nlp/Core/PatternBuilders` | `addElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:303` | Append elements to a pattern. |
+| `@beep/nlp/Core/PatternBuilders` | `applyPatch` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:614` | Apply a patch to a pattern. |
+| `@beep/nlp/Core/PatternBuilders` | `combine` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:577` | Combine two patterns into a new one. |
+| `@beep/nlp/Core/PatternBuilders` | `composePatches` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:632` | Compose multiple patches from left to right. |
+| `@beep/nlp/Core/PatternBuilders` | `drop` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:556` | Drop the first `count` elements. |
+| `@beep/nlp/Core/PatternBuilders` | `elementAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:424` | Get an element by index. |
+| `@beep/nlp/Core/PatternBuilders` | `elements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:409` | Materialize pattern elements as a readonly array. |
+| `@beep/nlp/Core/PatternBuilders` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:117` | Create an entity pattern element. |
 | `@beep/nlp/Core/PatternBuilders` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:118` |  |
-| `@beep/nlp/Core/PatternBuilders` | `filterElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:513` | Filter pattern elements. |
-| `@beep/nlp/Core/PatternBuilders` | `generalizeLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:698` | Generalize literal elements into other element kinds. |
-| `@beep/nlp/Core/PatternBuilders` | `getMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:377` | Get a pattern's mark if present. |
-| `@beep/nlp/Core/PatternBuilders` | `hasMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:362` | Test whether a pattern has a mark. |
-| `@beep/nlp/Core/PatternBuilders` | `head` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:462` | Get the first pattern element. |
-| `@beep/nlp/Core/PatternBuilders` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:447` | Test whether a pattern is empty. |
-| `@beep/nlp/Core/PatternBuilders` | `last` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:477` | Get the last pattern element. |
-| `@beep/nlp/Core/PatternBuilders` | `length` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:393` | Count pattern elements. |
-| `@beep/nlp/Core/PatternBuilders` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:141` | Create a literal pattern element. |
-| `@beep/nlp/Core/PatternBuilders` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:142` |  |
+| `@beep/nlp/Core/PatternBuilders` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:119` |  |
+| `@beep/nlp/Core/PatternBuilders` | `filterElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:514` | Filter pattern elements. |
+| `@beep/nlp/Core/PatternBuilders` | `generalizeLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:699` | Generalize literal elements into other element kinds. |
+| `@beep/nlp/Core/PatternBuilders` | `getMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:378` | Get a pattern's mark if present. |
+| `@beep/nlp/Core/PatternBuilders` | `hasMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:363` | Test whether a pattern has a mark. |
+| `@beep/nlp/Core/PatternBuilders` | `head` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:463` | Get the first pattern element. |
+| `@beep/nlp/Core/PatternBuilders` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:448` | Test whether a pattern is empty. |
+| `@beep/nlp/Core/PatternBuilders` | `last` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:478` | Get the last pattern element. |
+| `@beep/nlp/Core/PatternBuilders` | `length` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:394` | Count pattern elements. |
+| `@beep/nlp/Core/PatternBuilders` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:142` | Create a literal pattern element. |
 | `@beep/nlp/Core/PatternBuilders` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:143` |  |
-| `@beep/nlp/Core/PatternBuilders` | `make` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:241` | Construct a pattern from an id and ordered elements. |
-| `@beep/nlp/Core/PatternBuilders` | `mapElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:492` | Map pattern elements. |
-| `@beep/nlp/Core/PatternBuilders` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:188` | Create an optional entity pattern element. |
-| `@beep/nlp/Core/PatternBuilders` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:189` |  |
+| `@beep/nlp/Core/PatternBuilders` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:144` |  |
+| `@beep/nlp/Core/PatternBuilders` | `make` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:242` | Construct a pattern from an id and ordered elements. |
+| `@beep/nlp/Core/PatternBuilders` | `mapElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:493` | Map pattern elements. |
+| `@beep/nlp/Core/PatternBuilders` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:189` | Create an optional entity pattern element. |
 | `@beep/nlp/Core/PatternBuilders` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:190` |  |
-| `@beep/nlp/Core/PatternBuilders` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:213` | Create an optional literal pattern element. |
-| `@beep/nlp/Core/PatternBuilders` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:214` |  |
+| `@beep/nlp/Core/PatternBuilders` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:191` |  |
+| `@beep/nlp/Core/PatternBuilders` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:214` | Create an optional literal pattern element. |
 | `@beep/nlp/Core/PatternBuilders` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:215` |  |
-| `@beep/nlp/Core/PatternBuilders` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:163` | Create an optional POS pattern element. |
-| `@beep/nlp/Core/PatternBuilders` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:164` |  |
+| `@beep/nlp/Core/PatternBuilders` | `optionalLiteral` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:216` |  |
+| `@beep/nlp/Core/PatternBuilders` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:164` | Create an optional POS pattern element. |
 | `@beep/nlp/Core/PatternBuilders` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:165` |  |
-| `@beep/nlp/Core/PatternBuilders` | `patchReplaceAllLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:675` | Replace all literal elements. |
-| `@beep/nlp/Core/PatternBuilders` | `patchReplaceLiteralAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:647` | Replace a literal element at a given index. |
-| `@beep/nlp/Core/PatternBuilders` | `PatternPatch` | type | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:598` | Functional patch over a pattern. |
-| `@beep/nlp/Core/PatternBuilders` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:91` | Create a POS pattern element. |
-| `@beep/nlp/Core/PatternBuilders` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:92` |  |
+| `@beep/nlp/Core/PatternBuilders` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:166` |  |
+| `@beep/nlp/Core/PatternBuilders` | `patchReplaceAllLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:676` | Replace all literal elements. |
+| `@beep/nlp/Core/PatternBuilders` | `patchReplaceLiteralAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:648` | Replace a literal element at a given index. |
+| `@beep/nlp/Core/PatternBuilders` | `PatternPatch` | type | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:599` | Functional patch over a pattern. |
+| `@beep/nlp/Core/PatternBuilders` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:92` | Create a POS pattern element. |
 | `@beep/nlp/Core/PatternBuilders` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:93` |  |
-| `@beep/nlp/Core/PatternBuilders` | `prependElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:323` | Prepend elements to a pattern. |
-| `@beep/nlp/Core/PatternBuilders` | `take` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:534` | Take the first `count` elements. |
-| `@beep/nlp/Core/PatternBuilders` | `withId` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:344` | Replace the pattern id. |
-| `@beep/nlp/Core/PatternBuilders` | `withMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:263` | Add a mark range to a pattern. |
-| `@beep/nlp/Core/PatternBuilders` | `withoutMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:281` | Remove a mark range from a pattern. |
+| `@beep/nlp/Core/PatternBuilders` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:94` |  |
+| `@beep/nlp/Core/PatternBuilders` | `prependElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:324` | Prepend elements to a pattern. |
+| `@beep/nlp/Core/PatternBuilders` | `take` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:535` | Take the first `count` elements. |
+| `@beep/nlp/Core/PatternBuilders` | `withId` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:345` | Replace the pattern id. |
+| `@beep/nlp/Core/PatternBuilders` | `withMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:264` | Add a mark range to a pattern. |
+| `@beep/nlp/Core/PatternBuilders` | `withoutMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:282` | Remove a mark range from a pattern. |
 | `@beep/nlp/Core/PatternOperations` | `extractBracketContent` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:89` | Create a bracket-string content slice if the input is bracketed. |
 | `@beep/nlp/Core/PatternOperations` | `extractElementValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:74` | Extract element values as a readonly array. |
 | `@beep/nlp/Core/PatternOperations` | `isEntityElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:42` | Check whether an element is an entity element. |
@@ -7838,609 +7868,478 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/PatternParsers` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:217` | Runtime type for {@link BracketStringToPatternElement}. |
 | `@beep/nlp/Core/PatternParsers` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:103` | Decode a POS bracket string into a pattern element. |
 | `@beep/nlp/Core/PatternParsers` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:232` | Decode a string array into ordered pattern elements. |
-| `@beep/nlp/Core/Sentence` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:87` | Immutable NLP sentence model. |
-| `@beep/nlp/Core/Sentence` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:50` | Constructor for {@link SentenceIndex}. |
-| `@beep/nlp/Core/Sentence` | `SentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:67` | Schema for {@link SentenceIndex}. |
-| `@beep/nlp/Core/Sentence` | `SentenceIndex` | type | `packages/foundation/capability/nlp/src/Core/Sentence.ts:35` | Branded index for sentences in ordered collections. |
-| `@beep/nlp/Core/Token` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:126` | Constructor for {@link CharPosition}. |
-| `@beep/nlp/Core/Token` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:143` | Schema for {@link CharPosition}. |
-| `@beep/nlp/Core/Token` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:96` | Branded number type for character positions. |
-| `@beep/nlp/Core/Token` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:111` | Predicate for {@link CharPosition}. |
-| `@beep/nlp/Core/Token` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:46` | Predicate for {@link TokenIndex}. |
-| `@beep/nlp/Core/Token` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:163` | Immutable NLP token model with lexical and positional metadata. |
-| `@beep/nlp/Core/Token` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:61` | Constructor for {@link TokenIndex}. |
-| `@beep/nlp/Core/Token` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:76` | Schema for {@link TokenIndex}. |
-| `@beep/nlp/Core/Token` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:31` | Branded number type for token indices. |
-| `@beep/nlp/Core/Tokenization` | `sentences` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:95` | Split text into sentences using the configured service. |
-| `@beep/nlp/Core/Tokenization` | `tokenCount` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:134` | Count tokens using the configured service. |
-| `@beep/nlp/Core/Tokenization` | `Tokenization` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:62` | Tokenization service. |
-| `@beep/nlp/Core/Tokenization` | `TokenizationError` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:38` | Tokenization error. |
-| `@beep/nlp/Core/Tokenization` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:77` | Tokenize text into tokens using the configured service. |
-| `@beep/nlp/Core/Tokenization` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:113` | Build a document using the configured service. |
-| `@beep/nlp/Graph` | `AnnotatedTextGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:28` |  |
+| `@beep/nlp/Core/Sentence` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:109` | Immutable sentence with its document token range and optional scoring data. |
+| `@beep/nlp/Core/Sentence` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:52` | Construct a branded sentence index after validating it is non-negative. |
+| `@beep/nlp/Core/Sentence` | `SentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:70` | Schema that decodes non-negative numbers into {@link SentenceIndex} values. |
+| `@beep/nlp/Core/Sentence` | `SentenceIndex` | type | `packages/foundation/capability/nlp/src/Core/Sentence.ts:36` | Zero-based position of a sentence within a document. |
+| `@beep/nlp/Core/Similarity` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:93` | Normalized terms for one document in set-based similarity comparisons. |
+| `@beep/nlp/Core/Similarity` | `SimilarityMethod` | const | `packages/foundation/capability/nlp/src/Core/Similarity.ts:35` | Similarity method identifiers exposed by NLP comparison services. |
+| `@beep/nlp/Core/Similarity` | `SimilarityMethod` | type | `packages/foundation/capability/nlp/src/Core/Similarity.ts:48` | Runtime TypeScript union decoded by {@link SimilarityMethod}. |
+| `@beep/nlp/Core/Similarity` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:126` | Normalized similarity score returned from an NLP comparison. |
+| `@beep/nlp/Core/Similarity` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:64` | Weights controlling the asymmetric Tversky set similarity index. |
+| `@beep/nlp/Core/Token` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:140` | Construct a branded character offset after validating it is non-negative. |
+| `@beep/nlp/Core/Token` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:158` | Schema that decodes non-negative numbers into {@link CharPosition} values. |
+| `@beep/nlp/Core/Token` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:108` | Zero-based character offset into the original source text. |
+| `@beep/nlp/Core/Token` | `isCharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:124` | Narrow an unknown value to a non-negative character offset. |
+| `@beep/nlp/Core/Token` | `isTokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:52` | Narrow an unknown value to a non-negative token index. |
+| `@beep/nlp/Core/Token` | `Token` | class | `packages/foundation/capability/nlp/src/Core/Token.ts:205` | Immutable token with lexical text, source offsets, and optional NLP metadata. |
+| `@beep/nlp/Core/Token` | `tokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:68` | Construct a branded token index after validating it is non-negative. |
+| `@beep/nlp/Core/Token` | `TokenIndex` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:84` | Schema that decodes non-negative numbers into {@link TokenIndex} values. |
+| `@beep/nlp/Core/Token` | `TokenIndex` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:36` | Zero-based position of a token within its document token stream. |
+| `@beep/nlp/Core/Tokenization` | `sentences` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:139` | Split text into sentences using the configured service. |
+| `@beep/nlp/Core/Tokenization` | `tokenCount` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:221` | Count tokens using the configured service. |
+| `@beep/nlp/Core/Tokenization` | `Tokenization` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:66` | Tokenization service. |
+| `@beep/nlp/Core/Tokenization` | `TokenizationError` | class | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:42` | Tokenization error. |
+| `@beep/nlp/Core/Tokenization` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:101` | Tokenize text into tokens using the configured service. |
+| `@beep/nlp/Core/Tokenization` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:180` | Build a document using the configured service. |
+| `@beep/nlp/Core/Vectorization` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:154` | Bag-of-words term-frequency representation for a document or query. |
+| `@beep/nlp/Core/Vectorization` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:72` | Resolved BM25 hyperparameters used by vectorization and corpus management. |
+| `@beep/nlp/Core/Vectorization` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:37` | BM25 normalization mode used by vectorizer and corpus services. |
+| `@beep/nlp/Core/Vectorization` | `BM25Norm` | type | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:50` | Runtime TypeScript union decoded by {@link BM25Norm}. |
+| `@beep/nlp/Core/Vectorization` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:97` | Default BM25 hyperparameters used by live vectorizers. |
+| `@beep/nlp/Core/Vectorization` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:124` | Dense vector representation for a document or query. |
+| `@beep/nlp/Core/Vectorization` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:182` | Term-frequency entry reported for a learned vectorized document. |
+| `@beep/nlp/Graph` | `AnnotatedTextGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:27` |  |
 | `@beep/nlp/Graph` | `EffectGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:27` |  |
 | `@beep/nlp/Graph` | `GraphOperations` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts:26` |  |
 | `@beep/nlp/Graph` | `GraphOps` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:23` |  |
 | `@beep/nlp/Graph` | `Schema` | SourceFile | `packages/foundation/capability/nlp/src/Graph/Schema.ts:21` |  |
-| `@beep/nlp/Graph` | `TypeClass` | SourceFile | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:28` |  |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `addDependencyAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:333` | Add syntactic-dependency annotation nodes to each sentence (idempotent). |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `addEntityAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:317` | Add named-entity annotation nodes to each sentence (idempotent). |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `addLemmaAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:301` | Add lemma annotation nodes to each sentence (idempotent). |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `addPOSAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:285` | Add part-of-speech annotation nodes to each sentence (idempotent). |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotatedNode` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:45` | Union of all node types (structural + linguistic annotations). |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotatedTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:105` | A directed text graph whose nodes may be structural or annotation nodes. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotationOptions` | interface | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:154` | Options controlling which annotation strata {@link fromDocumentAnnotated} adds. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `countNodesByType` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:439` | Count of nodes by kind (`text`/`pos`/`entity`/`lemma`/`dependency`/`relation`). |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:146` | Create an empty annotated text graph. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `filterByPOSTag` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:427` | POS nodes carrying a given tag. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `filterEntitiesByType` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:415` | Entities of a given type. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `fromDocumentAnnotated` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:181` | Build a fully annotated text graph from a document. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `getEntityNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:376` | All entity-annotation nodes with their indices. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `getLemmaNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:389` | All lemma-annotation nodes with their indices. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `getPOSNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:363` | All POS-annotation nodes with their indices. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:484` | Root node indices (no incoming edges). |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `getTextNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:402` | All structural text nodes with their indices. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isDependencyNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:85` | Type guard: the node is a {@link DependencyNode}. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isEntityNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:69` | Type guard: the node is an {@link EntityNode}. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isLemmaNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:77` | Type guard: the node is a {@link LemmaNode}. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isPOSNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:61` | Type guard: the node is a {@link POSNode}. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isRelationNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:93` | Type guard: the node is a {@link RelationNode}. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isTextNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:53` | Type guard: the node is a structural {@link TextNode}. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `MutableAnnotatedTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:113` | Mutable annotated text graph used during construction. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:476` | Total node count. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:467` | All nodes as an array. |
-| `@beep/nlp/Graph/EffectGraph` | `addNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:252` | Add a node to the graph, recalculating its depth from its parent and linking |
-| `@beep/nlp/Graph/EffectGraph` | `ana` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:388` | Anamorphism: top-down unfold building a graph from a seed (dual of {@link cata}). |
-| `@beep/nlp/Graph/EffectGraph` | `cata` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:343` | Catamorphism: bottom-up fold over the graph (children before parents). |
-| `@beep/nlp/Graph/EffectGraph` | `EffectGraph` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:150` | A directed acyclic graph of {@link GraphNode}s, backed by `effect/Graph` with |
-| `@beep/nlp/Graph/EffectGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:206` | Create an empty {@link EffectGraph}. |
-| `@beep/nlp/Graph/EffectGraph` | `generateNodeId` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:84` | Generate a fresh, unique {@link NodeId} (timestamp + random suffix). |
-| `@beep/nlp/Graph/EffectGraph` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:305` | Get all children of a node. |
-| `@beep/nlp/Graph/EffectGraph` | `getNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:296` | Get a node by id. |
-| `@beep/nlp/Graph/EffectGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:318` | Get all root nodes (those with no incoming edges). |
-| `@beep/nlp/Graph/EffectGraph` | `GraphAlgebra` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:335` | F-algebra: collapse a node and its already-processed children into a result. |
-| `@beep/nlp/Graph/EffectGraph` | `GraphCoalgebra` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:380` | Coalgebra: from a seed, produce node data and child seeds. |
-| `@beep/nlp/Graph/EffectGraph` | `GraphNode` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:132` | A node in the directed acyclic graph: an id, a data payload, an optional parent |
-| `@beep/nlp/Graph/EffectGraph` | `makeNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:173` | Create a new {@link GraphNode} (effectful: reads `Clock` + a random id). |
-| `@beep/nlp/Graph/EffectGraph` | `makeNodeId` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:69` | Constructor for {@link NodeId}. |
-| `@beep/nlp/Graph/EffectGraph` | `map` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:419` | Map over all node data, preserving graph structure (the Functor instance). |
-| `@beep/nlp/Graph/EffectGraph` | `NodeId` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:54` | Unique identifier for graph nodes. |
-| `@beep/nlp/Graph/EffectGraph` | `NodeMetadata` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:119` | Per-node processing metadata. |
-| `@beep/nlp/Graph/EffectGraph` | `NodeNotFoundError` | class | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:103` | Error raised when a node is not found in the graph. |
-| `@beep/nlp/Graph/EffectGraph` | `show` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:477` | Render the graph as an indented plain-text tree. |
-| `@beep/nlp/Graph/EffectGraph` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:225` | Create an {@link EffectGraph} with a single root node (effectful via {@link makeNode}). |
-| `@beep/nlp/Graph/EffectGraph` | `size` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:469` | Number of nodes in the graph. |
-| `@beep/nlp/Graph/EffectGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:460` | Collect all nodes as an array (topologically ordered by the backing graph). |
-| `@beep/nlp/Graph/GraphOperations` | `Catalog` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:27` |  |
+| `@beep/nlp/Graph` | `TypeClass` | SourceFile | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:27` |  |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addDependencyAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:523` | Add syntactic-dependency annotation nodes to each sentence node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addEntityAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:495` | Add named-entity annotation nodes to each sentence node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addLemmaAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:471` | Add lemma annotation children to each sentence node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addPOSAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:447` | Add POS annotation children to each sentence node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotatedNode` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:62` | Union of all node types (structural + linguistic annotations). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotatedTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:206` | A directed text graph whose nodes may be structural or annotation nodes. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `countNodesByType` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:701` | Count of nodes by kind (`text`/`pos`/`entity`/`lemma`/`dependency`/`relation`). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:255` | Create an empty annotated graph. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `filterByPOSTag` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:676` | Return POS annotation nodes carrying a specific tag. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `filterEntitiesByType` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:651` | Return entity nodes whose `entityType` matches the requested label. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `fromDocumentAnnotated` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:331` | Build a fully annotated text graph from a document. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getEntityNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:591` | Return entity annotation nodes together with their graph indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getLemmaNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:611` | Return lemma annotation nodes together with their graph indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getPOSNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:571` | Return POS annotation nodes together with their graph indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:767` | Return root node indices with no incoming edges. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getTextNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:631` | Return structural text nodes together with their graph indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isDependencyNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:163` | Refine a heterogeneous annotated node to a dependency node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isEntityNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:123` | Refine a heterogeneous annotated node to a named-entity node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isLemmaNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:139` | Refine a heterogeneous annotated node to a lemma node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isPOSNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:99` | Refine a heterogeneous annotated node to a POS annotation node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isRelationNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:186` | Refine a heterogeneous annotated node to a semantic-relation node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isTextNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:81` | Refine a heterogeneous annotated node to a structural text node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `MutableAnnotatedTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:222` | Mutable annotated graph used inside construction callbacks. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:752` | Count all structural and annotation nodes. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:736` | Collect all structural and annotation nodes in backing graph order. |
+| `@beep/nlp/Graph/EffectGraph` | `addNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:355` | Add a node to the graph, recalculating its depth from its parent and linking |
+| `@beep/nlp/Graph/EffectGraph` | `ana` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:598` | Unfold a seed into a graph by recursively producing child seeds. |
+| `@beep/nlp/Graph/EffectGraph` | `cata` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:524` | Fold a graph bottom-up, visiting children before their parents. |
+| `@beep/nlp/Graph/EffectGraph` | `EffectGraph` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:225` | NLP operation graph backed by `effect/Graph` plus node-id index maps. |
+| `@beep/nlp/Graph/EffectGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:290` | Create an empty graph with no nodes, edges, or id-index mappings. |
+| `@beep/nlp/Graph/EffectGraph` | `generateNodeId` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:95` | Generate a fresh node id from the Effect clock and random service. |
+| `@beep/nlp/Graph/EffectGraph` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:444` | Read the direct child nodes for a parent id. |
+| `@beep/nlp/Graph/EffectGraph` | `getNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:416` | Look up a node by stable node id. |
+| `@beep/nlp/Graph/EffectGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:472` | Get all root nodes, defined as nodes with no incoming parent edge. |
+| `@beep/nlp/Graph/EffectGraph` | `GraphAlgebra` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:499` | Algebra used by {@link cata} to collapse a node after its children. |
+| `@beep/nlp/Graph/EffectGraph` | `GraphCoalgebra` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:577` | Coalgebra used by {@link ana} to unfold a seed into node data and child seeds. |
+| `@beep/nlp/Graph/EffectGraph` | `GraphEdge` | class | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:197` | Directed child edge between two graph nodes. |
+| `@beep/nlp/Graph/EffectGraph` | `GraphNode` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:176` | Node payload plus graph lineage metadata. |
+| `@beep/nlp/Graph/EffectGraph` | `makeNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:250` | Create a graph node with generated id, timestamp, parent, and operation metadata. |
+| `@beep/nlp/Graph/EffectGraph` | `map` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:641` | Map every node payload while preserving ids, metadata, and edge structure. |
+| `@beep/nlp/Graph/EffectGraph` | `NodeId` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:56` | Branded identifier for graph nodes. |
+| `@beep/nlp/Graph/EffectGraph` | `NodeId` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:77` | Companion type for {@link NodeId}. |
+| `@beep/nlp/Graph/EffectGraph` | `NodeMetadata` | class | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:145` | Per-node metadata recorded by graph constructors and operations. |
+| `@beep/nlp/Graph/EffectGraph` | `NodeNotFoundError` | class | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:115` | Error raised when traversal cannot resolve a node id. |
+| `@beep/nlp/Graph/EffectGraph` | `show` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:731` | Render roots and descendants as an indented plain-text tree. |
+| `@beep/nlp/Graph/EffectGraph` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:312` | Create a graph containing one generated root node. |
+| `@beep/nlp/Graph/EffectGraph` | `size` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:710` | Count graph nodes. |
+| `@beep/nlp/Graph/EffectGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:694` | Collect all graph nodes in the backing graph's node order. |
+| `@beep/nlp/Graph/GraphOperations` | `Catalog` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:25` |  |
 | `@beep/nlp/Graph/GraphOperations` | `Errors` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:13` |  |
 | `@beep/nlp/Graph/GraphOperations` | `Executor` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:27` |  |
-| `@beep/nlp/Graph/GraphOperations` | `Operation` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:18` |  |
+| `@beep/nlp/Graph/GraphOperations` | `Operation` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:17` |  |
 | `@beep/nlp/Graph/GraphOperations` | `ResultStore` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:22` |  |
 | `@beep/nlp/Graph/GraphOperations` | `Types` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:22` |  |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `extractEntities` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:144` | Extract named entities (functor `Text -> [EntityNode]`). |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `extractRelations` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:194` | Extract semantic relations between entities (functor `Text -> [RelationNode]`). |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `getOperationNames` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:304` | List the names of all operations in the {@link StandardOperations} catalog. |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `lemmatize` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:120` | Lemmatize tokens to canonical forms (forgetful functor `Text -> [LemmaNode]`). |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `parseDependencies` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:169` | Parse syntactic dependencies (functor `Sentence -> [DependencyNode]`). |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `posTag` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:96` | Tag tokens with part-of-speech labels (functor `Text -> [POSNode]`). |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `sentencize` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:48` | Split text into sentences (free functor `Text -> [Sentence]`). |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `StandardOperations` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:278` | The standard catalog of linguistic + pure string operations, keyed by name. |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `tokenize` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:72` | Split text into tokens (free functor `Text -> [Token]`). |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `toLowerCase` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:221` | Lowercase the node text (pure transformation). |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `toUpperCase` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:240` | Uppercase the node text (pure transformation). |
-| `@beep/nlp/Graph/GraphOperations/Catalog` | `trim` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:259` | Trim leading/trailing whitespace from the node text (pure transformation). |
-| `@beep/nlp/Graph/GraphOperations/Errors` | `ExecutionError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:155` | General execution failure. |
-| `@beep/nlp/Graph/GraphOperations/Errors` | `GraphError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:107` | Invalid graph structure. |
-| `@beep/nlp/Graph/GraphOperations/Errors` | `GraphOperationError` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:179` | Union of all graph-operation failures. |
-| `@beep/nlp/Graph/GraphOperations/Errors` | `OperationError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:82` | Operation failed during execution. |
-| `@beep/nlp/Graph/GraphOperations/Errors` | `StorageError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:131` | Failed to store or retrieve a cached result. |
-| `@beep/nlp/Graph/GraphOperations/Errors` | `TimeoutError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:57` | Operation exceeded its time limit. |
-| `@beep/nlp/Graph/GraphOperations/Errors` | `ValidationError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:32` | Operation cannot be applied to a node. |
-| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutor` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:93` | Service tag for the {@link GraphExecutorShape} engine. |
-| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorLive` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:262` | Live {@link GraphExecutor} layer (requires a {@link ResultStore.ResultStore}). |
-| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorShape` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:64` | Structural shape of the {@link GraphExecutor} service. Results are type-erased |
-| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorTest` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:279` | Test layer providing both {@link GraphExecutor} and the {@link ResultStore.ResultStore} |
-| `@beep/nlp/Graph/GraphOperations/index` | `Catalog` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:27` |  |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `extractEntities` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:163` | Backend-backed operation that emits named-entity annotation nodes. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `extractRelations` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:222` | Backend-backed operation that emits semantic relation annotations. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `getOperationNames` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:336` | List the stable operation names exposed by {@link StandardOperations}. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `lemmatize` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:136` | Backend-backed operation that emits canonical lemma nodes. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `parseDependencies` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:192` | Backend-backed operation that emits syntactic dependency arcs for a sentence. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `posTag` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:108` | Backend-backed operation that emits part-of-speech annotation nodes. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `sentencize` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:51` | Backend-backed operation that splits document text into sentence children. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `StandardOperations` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:310` | Standard operations keyed by their public catalog names. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `tokenize` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:79` | Backend-backed operation that splits text into token children. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `toLowerCase` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:249` | Pure transformation that lowercases each source leaf. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `toUpperCase` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:268` | Pure transformation that uppercases each source leaf. |
+| `@beep/nlp/Graph/GraphOperations/Catalog` | `trim` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:287` | Pure transformation that trims leading and trailing whitespace. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `ExecutionError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:199` | Failure raised by the executor for orchestration problems. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `GraphError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:136` | Failure raised when graph structure is invalid for an operation. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `GraphOperationError` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:231` | Schema union covering every graph-operation failure variant. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `GraphOperationError` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:260` | Runtime type represented by {@link GraphOperationError}. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `OperationError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:105` | Failure raised when a node-level operation application defects. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `StorageError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:169` | Failure raised by a result-store backend. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `TimeoutError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:69` | Failure raised when an operation exceeds its configured timeout. |
+| `@beep/nlp/Graph/GraphOperations/Errors` | `ValidationError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:38` | Failure raised when validation rejects an operation for a source node. |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutor` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:121` | Service tag for the graph-operation execution engine. |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorLive` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:368` | Live {@link GraphExecutor} layer. |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorShape` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:77` | Structural service contract for applying operations to graph leaves. |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorTest` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:388` | Test layer providing both the executor and its in-memory result store. |
+| `@beep/nlp/Graph/GraphOperations/index` | `Catalog` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:25` |  |
 | `@beep/nlp/Graph/GraphOperations/index` | `Errors` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:13` |  |
 | `@beep/nlp/Graph/GraphOperations/index` | `Executor` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:27` |  |
-| `@beep/nlp/Graph/GraphOperations/index` | `Operation` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:18` |  |
+| `@beep/nlp/Graph/GraphOperations/index` | `Operation` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:17` |  |
 | `@beep/nlp/Graph/GraphOperations/index` | `ResultStore` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:22` |  |
 | `@beep/nlp/Graph/GraphOperations/index` | `Types` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:22` |  |
-| `@beep/nlp/Graph/GraphOperations/Operation` | `expand` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:147` | An expansion operation (`A -> [B]`). |
-| `@beep/nlp/Graph/GraphOperations/Operation` | `filter` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:167` | A filter operation (`A -> Option<A>`, modeled as `A -> [A]`). |
-| `@beep/nlp/Graph/GraphOperations/Operation` | `flatMap` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:235` | FlatMap operation - map and flatten. |
-| `@beep/nlp/Graph/GraphOperations/Operation` | `getCategory` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:248` | Get an operation's category. |
-| `@beep/nlp/Graph/GraphOperations/Operation` | `GraphOperation` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:36` | A categorical morphism in the category of graphs: `Node<A> -> Effect<[Node<B>], E, R>`. |
-| `@beep/nlp/Graph/GraphOperations/Operation` | `identity` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:198` | The identity operation: re-emits the node under a fresh id (effectful id). |
-| `@beep/nlp/Graph/GraphOperations/Operation` | `make` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:66` | Build a {@link GraphOperation} from a config, defaulting validate/estimateCost. |
-| `@beep/nlp/Graph/GraphOperations/Operation` | `map` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:219` | Map operation - transform data without changing structure. |
-| `@beep/nlp/Graph/GraphOperations/Operation` | `pure` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:96` | A pure operation: map node data to new data values, minting a child node per |
-| `@beep/nlp/Graph/GraphOperations/Operation` | `transform` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:122` | A transformation operation (`A -> B`). |
-| `@beep/nlp/Graph/GraphOperations/ResultStore` | `AnyOperationResult` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:39` | An {@link OperationResult} with its concrete type parameters erased, as stored |
-| `@beep/nlp/Graph/GraphOperations/ResultStore` | `CacheStats` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:94` | Cache statistics. |
-| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultKey` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:70` | Constructors for {@link ResultKey}. |
-| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultKey` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:51` | Cache key: an operation name paired with a node id. |
-| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStore` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:135` | Service tag for the {@link ResultStoreShape} cache. |
-| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStoreLive` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:216` | Live in-memory {@link ResultStore} layer. |
-| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStoreShape` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:111` | Structural shape of the {@link ResultStore} service. |
-| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStoreTest` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:231` | Test {@link ResultStore} layer (starts empty; same as {@link ResultStoreLive}). |
-| `@beep/nlp/Graph/GraphOperations/ResultStore` | `StoredResult` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:81` | A cached result with metadata. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `Complexity` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:126` | Asymptotic complexity class used to scale an {@link OperationCost}. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionId` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:285` | Unique identifier for one execution. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionMetrics` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:97` | The {@link ExecutionMetrics} monoid: {@link ExecutionMetrics.empty} is the |
-| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionMetrics` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:73` | Metrics collected while executing an operation. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionOptions` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:261` | Constructors for {@link ExecutionOptions}. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionOptions` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:241` | Options controlling a single execution. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionStrategy` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:56` | Constructors for the {@link ExecutionStrategy} variants. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionStrategy` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:37` | Strategy determining how an operation is executed across the graph's nodes. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `generateExecutionId` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:315` | Generate a fresh {@link ExecutionId} (timestamp + random suffix). |
-| `@beep/nlp/Graph/GraphOperations/Types` | `makeExecutionId` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:300` | Constructor for {@link ExecutionId}. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `makeOperationResult` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:354` | Build an {@link OperationResult} (effectful: reads `Clock` for the timestamp). |
-| `@beep/nlp/Graph/GraphOperations/Types` | `OperationCategory` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:229` | Category of an operation (its morphism shape). |
-| `@beep/nlp/Graph/GraphOperations/Types` | `OperationCost` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:156` | Constructors/combinators for {@link OperationCost}. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `OperationCost` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:134` | Estimated cost of applying an operation. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `OperationResult` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:331` | Result of executing an operation over a graph. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `ValidationResult` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:210` | Constructors/combinators for {@link ValidationResult}. |
-| `@beep/nlp/Graph/GraphOperations/Types` | `ValidationResult` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:191` | Result of validating that an operation can be applied. |
-| `@beep/nlp/Graph/GraphOps` | `batchNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:489` | Stream node data in fixed-size batches. |
-| `@beep/nlp/Graph/GraphOps` | `bimap` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:175` | Map over both node and edge data simultaneously (Bifunctor). |
-| `@beep/nlp/Graph/GraphOps` | `buildIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:322` | Build a search index from a graph (the `index` functor of `query ⊣ index`). |
-| `@beep/nlp/Graph/GraphOps` | `collectNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:257` | Collect all node data into an array (order unspecified). |
-| `@beep/nlp/Graph/GraphOps` | `collectTraversal` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:266` | Collect node data in a traversal order. |
-| `@beep/nlp/Graph/GraphOps` | `DirectedGraph` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:42` | A directed graph with node data `A` and edge data `E`. |
-| `@beep/nlp/Graph/GraphOps` | `edgeCount` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:532` | Number of edges. |
-| `@beep/nlp/Graph/GraphOps` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:552` | Create an empty directed graph. |
-| `@beep/nlp/Graph/GraphOps` | `filterEdges` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:207` | Keep only edges matching the predicate; all nodes are preserved. |
-| `@beep/nlp/Graph/GraphOps` | `filterNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:198` | Keep only nodes matching the predicate; edges touching dropped nodes are removed. |
-| `@beep/nlp/Graph/GraphOps` | `findNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:216` | Find all node indices whose data matches the predicate. |
-| `@beep/nlp/Graph/GraphOps` | `foldNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:231` | Fold over all node data in unspecified order. |
-| `@beep/nlp/Graph/GraphOps` | `foldTraversal` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:240` | Fold over node data in a specific traversal order. |
-| `@beep/nlp/Graph/GraphOps` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:300` | Child node indices of a node. |
-| `@beep/nlp/Graph/GraphOps` | `getLeaves` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:291` | Leaf node indices (no outgoing edges). |
-| `@beep/nlp/Graph/GraphOps` | `getNode` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:309` | Node data at an index, if present. |
-| `@beep/nlp/Graph/GraphOps` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:282` | Root node indices (no incoming edges). |
-| `@beep/nlp/Graph/GraphOps` | `isAcyclic` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:506` | Whether the graph is acyclic (a DAG). |
-| `@beep/nlp/Graph/GraphOps` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:540` | Whether the graph has no nodes. |
-| `@beep/nlp/Graph/GraphOps` | `mapEdges` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:166` | Map over edge data, preserving nodes (Functor). |
-| `@beep/nlp/Graph/GraphOps` | `mapNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:157` | Map over node data, preserving edges (Functor; obeys identity/composition). |
-| `@beep/nlp/Graph/GraphOps` | `mapNodesEffect` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:428` | Map over node data with an effectful function, returning a new graph. |
-| `@beep/nlp/Graph/GraphOps` | `merge` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:572` | Merge two graphs, copying the second graph's nodes and edges into the first |
-| `@beep/nlp/Graph/GraphOps` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:524` | Number of nodes. |
-| `@beep/nlp/Graph/GraphOps` | `NodeIndex` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:50` | A node index within a graph. |
-| `@beep/nlp/Graph/GraphOps` | `NodeWalker` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:58` | A graph walker for ordered traversals. |
-| `@beep/nlp/Graph/GraphOps` | `queryIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:348` | Query a search index for a single key (the `query` functor of `query ⊣ index`). |
-| `@beep/nlp/Graph/GraphOps` | `queryIndexIntersection` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:373` | Query a search index for all of several keys (intersection semantics). |
-| `@beep/nlp/Graph/GraphOps` | `queryIndexUnion` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:357` | Query a search index for any of several keys (union semantics, deduplicated). |
-| `@beep/nlp/Graph/GraphOps` | `SearchIndex` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:67` | An immutable search index mapping search keys to node indices, paired with the |
-| `@beep/nlp/Graph/GraphOps` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:560` | Create a graph with a single node. |
-| `@beep/nlp/Graph/GraphOps` | `streamNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:465` | Stream node data in a traversal order. |
-| `@beep/nlp/Graph/GraphOps` | `streamNodesWithIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:477` | Stream `[index, node]` entries in a traversal order. |
-| `@beep/nlp/Graph/GraphOps` | `stronglyConnectedComponents` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:514` | Strongly connected components. |
-| `@beep/nlp/Graph/GraphOps` | `TraversalOrder` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:78` | Traversal order for ordered folds and walks. |
-| `@beep/nlp/Graph/GraphOps` | `TraversalOrder` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:98` | Runtime type for graph traversal order values. |
-| `@beep/nlp/Graph/GraphOps` | `traverseNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:398` | Traverse the graph in order, running an effect per node (effects sequenced). |
-| `@beep/nlp/Graph/GraphOps` | `traverseNodesCollect` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:414` | Traverse the graph in order, running an effect per node and collecting results. |
-| `@beep/nlp/Graph/index` | `AnnotatedTextGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:28` |  |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `expand` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:212` | Create a one-to-many expansion operation. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `filter` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:242` | Create a predicate operation that keeps or drops leaf payloads. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `flatMap` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:315` | Build a named `flatMap` expansion for leaf payloads. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `getCategory` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:336` | Read an operation's morphism category. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `GraphOperation` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:57` | Operation contract for expanding one graph node into zero or more child nodes. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `identity` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:276` | Re-emit a leaf payload under a fresh child node id. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `make` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:99` | Build a graph operation while filling in safe validation and cost defaults. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `map` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:298` | Build a named `map` transformation for leaf payloads. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `pure` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:140` | Create an operation from a pure data function that emits child payloads. |
+| `@beep/nlp/Graph/GraphOperations/Operation` | `transform` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts:176` | Create a one-to-one transformation operation. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `AnyOperationResult` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:54` | Type-erased operation result stored in the cache. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `CacheStats` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:141` | Snapshot of the in-memory result-store cache. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultKey` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:82` | Cache key pairing the operation name with the source node id. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStore` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:205` | Service tag for retrieving the result cache from an Effect environment. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStoreLive` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:299` | Live in-memory {@link ResultStore} layer. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStoreShape` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:178` | Structural service contract for caching graph-operation results. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `ResultStoreTest` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:314` | Test {@link ResultStore} layer backed by the same empty in-memory store. |
+| `@beep/nlp/Graph/GraphOperations/ResultStore` | `StoredResult` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts:113` | Stored cache entry plus hit-count and insertion timestamp metadata. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `Complexity` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:177` | Asymptotic complexity vocabulary used when scaling operation cost estimates. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `Complexity` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:197` | Runtime type represented by {@link Complexity}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ConstantOperationCost` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:220` | Cost estimate for an operation whose time does not grow with leaf count. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionId` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:617` | Branded identifier for one graph-operation execution. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionId` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:637` | Runtime type represented by {@link ExecutionId}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionMetrics` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:123` | Metrics accumulated while applying an operation to graph leaves. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionOptions` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:571` | Options controlling one executor run. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionStrategy` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:57` | Strategy describing how an operation is scheduled across the current leaf set. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ExecutionStrategy` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:94` | Runtime type represented by {@link ExecutionStrategy}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `generateExecutionId` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:670` | Generate a fresh execution id from the Effect clock and random service. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `LinearithmicOperationCost` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:298` | Cost estimate for work that grows at `n log n`. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `LinearOperationCost` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:259` | Cost estimate for work that grows linearly with leaf count. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `makeExecutionId` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:652` | Constructor for {@link ExecutionId}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `makeOperationResult` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:732` | Build an operation result and stamp it with the current Effect clock time. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `OperationCategory` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:522` | Operation category vocabulary describing a graph morphism's shape. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `OperationCategory` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:545` | Runtime type represented by {@link OperationCategory}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `OperationCost` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:380` | Tagged union of operation cost estimates with scaling helpers. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `OperationCost` | type | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:444` | Companion type for {@link OperationCost}. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `OperationResult` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:700` | Result of applying one operation to the sampled graph leaves. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `QuadraticOperationCost` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:337` | Cost estimate for pairwise or otherwise quadratic graph work. |
+| `@beep/nlp/Graph/GraphOperations/Types` | `ValidationResult` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:472` | Result of checking whether an operation may run against graph leaves. |
+| `@beep/nlp/Graph/GraphOps` | `batchNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:909` | Stream node payloads in fixed-size traversal batches. |
+| `@beep/nlp/Graph/GraphOps` | `bimap` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:266` | Map node and edge data in one reconstruction pass. |
+| `@beep/nlp/Graph/GraphOps` | `buildIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:574` | Build a search index from keys extracted from each node payload. |
+| `@beep/nlp/Graph/GraphOps` | `collectNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:437` | Collect every node payload in the backing graph's iteration order. |
+| `@beep/nlp/Graph/GraphOps` | `collectTraversal` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:454` | Collect node payloads in `dfs`, `bfs`, or topological traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `DirectedGraph` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:50` | Alias for Effect's directed graph type used by generic graph utilities. |
+| `@beep/nlp/Graph/GraphOps` | `edgeCount` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:996` | Count edges in the graph. |
+| `@beep/nlp/Graph/GraphOps` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:1030` | Create an empty directed graph. |
+| `@beep/nlp/Graph/GraphOps` | `filterEdges` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:322` | Keep matching edges while preserving all nodes. |
+| `@beep/nlp/Graph/GraphOps` | `filterNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:299` | Keep matching nodes and remove edges touching dropped nodes. |
+| `@beep/nlp/Graph/GraphOps` | `findNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:345` | Find node indices whose payload matches a predicate. |
+| `@beep/nlp/Graph/GraphOps` | `foldNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:372` | Fold all node payloads in the backing graph's iteration order. |
+| `@beep/nlp/Graph/GraphOps` | `foldTraversal` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:396` | Fold node payloads in `dfs`, `bfs`, or topological traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:520` | Return direct outgoing neighbor indices for a node. |
+| `@beep/nlp/Graph/GraphOps` | `getLeaves` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:496` | Return node indices with no outgoing edges. |
+| `@beep/nlp/Graph/GraphOps` | `getNode` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:547` | Return node payload at an index, when the index exists. |
+| `@beep/nlp/Graph/GraphOps` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:480` | Return node indices with no incoming edges. |
+| `@beep/nlp/Graph/GraphOps` | `isAcyclic` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:948` | Check whether a graph has no directed cycles. |
+| `@beep/nlp/Graph/GraphOps` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:1011` | Check whether a graph has no nodes. |
+| `@beep/nlp/Graph/GraphOps` | `mapEdges` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:238` | Map edge data while preserving node payloads and connectivity. |
+| `@beep/nlp/Graph/GraphOps` | `mapNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:215` | Map node data while preserving every surviving edge. |
+| `@beep/nlp/Graph/GraphOps` | `mapNodesEffect` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:795` | Map node payloads with an effectful function and reconstruct the graph. |
+| `@beep/nlp/Graph/GraphOps` | `merge` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:1065` | Merge two graphs, copying the second graph's nodes and edges into the first |
+| `@beep/nlp/Graph/GraphOps` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:981` | Count nodes in the graph. |
+| `@beep/nlp/Graph/GraphOps` | `NodeIndex` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:68` | Stable node index allocated by the backing `effect/Graph`. |
+| `@beep/nlp/Graph/GraphOps` | `NodeWalker` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:84` | Effect graph walker used for ordered graph traversals. |
+| `@beep/nlp/Graph/GraphOps` | `queryIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:608` | Query a search index for one key. |
+| `@beep/nlp/Graph/GraphOps` | `queryIndexIntersection` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:658` | Query a search index for indices present under every supplied key. |
+| `@beep/nlp/Graph/GraphOps` | `queryIndexUnion` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:631` | Query a search index for any matching key, returning deduplicated indices. |
+| `@beep/nlp/Graph/GraphOps` | `SearchIndex` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:105` | An immutable search index mapping search keys to node indices, paired with the |
+| `@beep/nlp/Graph/GraphOps` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:1045` | Create a graph with one root node and no edges. |
+| `@beep/nlp/Graph/GraphOps` | `streamNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:854` | Stream node payloads in traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `streamNodesWithIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:880` | Stream node-index and payload pairs in traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `stronglyConnectedComponents` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:964` | Compute strongly connected components as node-index groups. |
+| `@beep/nlp/Graph/GraphOps` | `TraversalOrder` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:123` | Traversal order for ordered folds, walkers, streams, and batches. |
+| `@beep/nlp/Graph/GraphOps` | `TraversalOrder` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:143` | Runtime type for graph traversal order values. |
+| `@beep/nlp/Graph/GraphOps` | `traverseNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:701` | Traverse nodes in order, running one effect per visited node. |
+| `@beep/nlp/Graph/GraphOps` | `traverseNodesCollect` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:749` | Traverse nodes in order and collect each effect result. |
+| `@beep/nlp/Graph/index` | `AnnotatedTextGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:27` |  |
 | `@beep/nlp/Graph/index` | `EffectGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:27` |  |
 | `@beep/nlp/Graph/index` | `GraphOperations` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts:26` |  |
 | `@beep/nlp/Graph/index` | `GraphOps` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:23` |  |
 | `@beep/nlp/Graph/index` | `Schema` | SourceFile | `packages/foundation/capability/nlp/src/Graph/Schema.ts:21` |  |
-| `@beep/nlp/Graph/index` | `TypeClass` | SourceFile | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:28` |  |
-| `@beep/nlp/Graph/Schema` | `DependencyNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:305` | Syntactic dependency relation between two tokens. |
-| `@beep/nlp/Graph/Schema` | `EntityNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:250` | Named entity extracted from text (a functor `Text -> Entity`). |
-| `@beep/nlp/Graph/Schema` | `LemmaNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:278` | Lemmatized (canonical) form of a token (a forgetful functor `Token -> Lemma`). |
-| `@beep/nlp/Graph/Schema` | `NLPAnalysis` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:197` | Summary result of analyzing a piece of text. |
-| `@beep/nlp/Graph/Schema` | `POSNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:223` | Part-of-speech annotation for a token (a functor `Token -> POS`). |
-| `@beep/nlp/Graph/Schema` | `RelationNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:332` | Semantic relation between two entities. |
-| `@beep/nlp/Graph/Schema` | `TextEdge` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:173` | Edge between text nodes, labeled with a structural or linguistic relation. |
+| `@beep/nlp/Graph/index` | `TypeClass` | SourceFile | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:27` |  |
+| `@beep/nlp/Graph/Schema` | `DependencyNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:342` | Syntactic dependency relation between two tokens. |
+| `@beep/nlp/Graph/Schema` | `EntityNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:287` | Named entity extracted from text (a functor `Text -> Entity`). |
+| `@beep/nlp/Graph/Schema` | `LemmaNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:315` | Lemmatized (canonical) form of a token (a forgetful functor `Token -> Lemma`). |
+| `@beep/nlp/Graph/Schema` | `NLPAnalysis` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:234` | Summary result of analyzing a piece of text. |
+| `@beep/nlp/Graph/Schema` | `POSNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:260` | Part-of-speech annotation for a token (a functor `Token -> POS`). |
+| `@beep/nlp/Graph/Schema` | `RelationNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:369` | Semantic relation between two entities. |
+| `@beep/nlp/Graph/Schema` | `TextEdge` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:185` | Edge between text nodes, labeled with a structural or linguistic relation. |
+| `@beep/nlp/Graph/Schema` | `TextEdge` | type | `packages/foundation/capability/nlp/src/Graph/Schema.ts:219` | Runtime type for text-graph edges. |
 | `@beep/nlp/Graph/Schema` | `TextEdgeRelation` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:60` | Edge-relation vocabulary (structural + linguistic-annotation relations). |
-| `@beep/nlp/Graph/Schema` | `TextNode` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:102` | Text node stored in the graph: a piece of text with processing metadata. |
-| `@beep/nlp/Graph/Schema` | `TextNode` | type | `packages/foundation/capability/nlp/src/Graph/Schema.ts:158` | Runtime type for text-graph nodes. |
+| `@beep/nlp/Graph/Schema` | `TextNode` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:103` | Text node stored in the graph: a piece of text with processing metadata. |
+| `@beep/nlp/Graph/Schema` | `TextNode` | type | `packages/foundation/capability/nlp/src/Graph/Schema.ts:159` | Runtime type for text-graph nodes. |
 | `@beep/nlp/Graph/Schema` | `TextNodeType` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:41` | Structural text-node kind vocabulary. |
-| `@beep/nlp/Graph/TextGraph` | `addChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:173` | Add child nodes under a parent, validating the result stays acyclic. |
-| `@beep/nlp/Graph/TextGraph` | `bfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:300` | Breadth-first node walker. |
-| `@beep/nlp/Graph/TextGraph` | `dfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:291` | Depth-first node walker. |
-| `@beep/nlp/Graph/TextGraph` | `edgeCount` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:338` | Number of edges. |
-| `@beep/nlp/Graph/TextGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:103` | Create an empty text graph. |
-| `@beep/nlp/Graph/TextGraph` | `filterNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:278` | Keep only nodes matching the predicate (and edges between kept nodes). |
-| `@beep/nlp/Graph/TextGraph` | `findNodesByType` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:346` | Find node indices by node type. |
-| `@beep/nlp/Graph/TextGraph` | `fromDocument` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:138` | Build a text graph from a document by splitting it into sentence children. |
-| `@beep/nlp/Graph/TextGraph` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:373` | Child node indices of a node. |
-| `@beep/nlp/Graph/TextGraph` | `getLeaves` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:364` | Leaf node indices (no outgoing edges). |
-| `@beep/nlp/Graph/TextGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:355` | Root node indices (no incoming edges). |
-| `@beep/nlp/Graph/TextGraph` | `GraphCycleError` | class | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:62` | Raised when adding children would introduce a cycle (graphs must stay acyclic). |
-| `@beep/nlp/Graph/TextGraph` | `isAcyclic` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:441` | Whether the graph is acyclic (a DAG). |
-| `@beep/nlp/Graph/TextGraph` | `mapNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:270` | Map over all node data, preserving structure (reconstructs the graph). |
-| `@beep/nlp/Graph/TextGraph` | `MutableTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:47` | Mutable text graph used during construction. |
-| `@beep/nlp/Graph/TextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:330` | Number of nodes. |
-| `@beep/nlp/Graph/TextGraph` | `show` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:419` | Render the graph as an indented plain-text tree (roots downward). |
-| `@beep/nlp/Graph/TextGraph` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:118` | Create a text graph with a single root node (effectful: reads `Clock`). |
-| `@beep/nlp/Graph/TextGraph` | `stronglyConnectedComponents` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:449` | Strongly connected components. |
-| `@beep/nlp/Graph/TextGraph` | `TextGraph` | type | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:39` | A text-processing graph: `TextNode` data with `TextEdge` relationships. |
-| `@beep/nlp/Graph/TextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:317` | All nodes as an array. |
-| `@beep/nlp/Graph/TextGraph` | `toGraphViz` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:386` | Export the graph to GraphViz DOT format. |
-| `@beep/nlp/Graph/TextGraph` | `tokenizeNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:195` | Tokenize every sentence node, adding token children (idempotent: skips |
-| `@beep/nlp/Graph/TextGraph` | `toMermaid` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:399` | Export the graph to a Mermaid diagram. |
-| `@beep/nlp/Graph/TextGraph` | `topo` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:309` | Topological node walker (parents before children). |
-| `@beep/nlp/Graph/TypeClass` | `alt` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:432` | Combine two operations, collecting results from both (parallel branching). |
-| `@beep/nlp/Graph/TypeClass` | `ap` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:358` | Apply an operation of functions to an operation of values (Cartesian product). |
-| `@beep/nlp/Graph/TypeClass` | `chain` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:395` | Sequence dependent operations: the first's outputs choose the next operation. |
-| `@beep/nlp/Graph/TypeClass` | `collectData` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:282` | Collect all node data values from the graph. |
-| `@beep/nlp/Graph/TypeClass` | `Composable` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:83` | Operations composable end-to-end, forming a monoid (sequential composition + |
-| `@beep/nlp/Graph/TypeClass` | `composeOperations` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:114` | Compose two operations sequentially: the first's outputs feed the second. |
-| `@beep/nlp/Graph/TypeClass` | `depth` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:290` | Graph depth: the maximum node depth (longest root-to-leaf path). |
-| `@beep/nlp/Graph/TypeClass` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:451` | The empty operation (identity for {@link alt}): produces no nodes. |
-| `@beep/nlp/Graph/TypeClass` | `executeOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:176` | Apply an operation to every current leaf node, adding the results as children |
-| `@beep/nlp/Graph/TypeClass` | `executeOperations` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:197` | Apply a sequence of operations, each adding a DAG layer. |
-| `@beep/nlp/Graph/TypeClass` | `filterOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:264` | Filter operation: keep nodes whose data satisfies the predicate. |
-| `@beep/nlp/Graph/TypeClass` | `flatMap` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:331` | FlatMap over a {@link TextOperation}'s output data with an effectful function. |
-| `@beep/nlp/Graph/TypeClass` | `flatMapOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:273` | FlatMap operation: map then flatten in one step. |
-| `@beep/nlp/Graph/TypeClass` | `flatten` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:417` | Flatten nested operations (alias of {@link chain}). |
-| `@beep/nlp/Graph/TypeClass` | `Foldable` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:142` | Foldable structures of element type `A`. Laws: empty/singleton/concat |
-| `@beep/nlp/Graph/TypeClass` | `foldableGraph` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:153` | The {@link Foldable} instance for {@link EffectGraph}, folding over |
-| `@beep/nlp/Graph/TypeClass` | `ForgetfulOperation` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:226` | The forgetful (aggregation) functor: many nodes to one (e.g. sentences -\> text). |
-| `@beep/nlp/Graph/TypeClass` | `FreeOperation` | type | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:218` | The free (expansion) functor: one node to many (e.g. text -\> sentences). |
-| `@beep/nlp/Graph/TypeClass` | `Functor` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:305` | A Functor over `F`: `map` transforms the output while preserving structure. |
-| `@beep/nlp/Graph/TypeClass` | `identityOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:97` | The identity operation: re-emits the node under a fresh id (effectful id). |
-| `@beep/nlp/Graph/TypeClass` | `makeAdjunction` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:237` | Pair a free expansion with its forgetful aggregation as an adjunction. |
-| `@beep/nlp/Graph/TypeClass` | `makeOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:57` | Build a {@link TextOperation} from an effectful node-producing function. |
-| `@beep/nlp/Graph/TypeClass` | `map` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:315` | Map over a {@link TextOperation}'s output data, preserving structure/effects. |
-| `@beep/nlp/Graph/TypeClass` | `mapOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:255` | Map operation: transform node data without changing structure (a functor map). |
-| `@beep/nlp/Graph/TypeClass` | `pure` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:382` | Lift a value into an operation that always produces it. |
-| `@beep/nlp/Graph/TypeClass` | `pureOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:69` | A pure text operation: maps node data to new data values (no context/errors), |
-| `@beep/nlp/Graph/TypeClass` | `replicate` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:491` | Apply an operation `n` times and collect all results. |
-| `@beep/nlp/Graph/TypeClass` | `TextOperation` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:46` | A morphism in the graph category: maps a node of data `A` to new nodes of data |
-| `@beep/nlp/Graph/TypeClass` | `traverse` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:464` | Traverse an operation's outputs with an effectful function. |
-| `@beep/nlp/Graph/TypeClass` | `unless` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:524` | Apply an operation unless the node data satisfies the predicate. |
-| `@beep/nlp/Graph/TypeClass` | `when` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:510` | Apply an operation only when the node data satisfies the predicate. |
+| `@beep/nlp/Graph/TextGraph` | `addChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:262` | Add child nodes under a parent, validating the result stays acyclic. |
+| `@beep/nlp/Graph/TextGraph` | `bfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:509` | Create a breadth-first walker over text nodes. |
+| `@beep/nlp/Graph/TextGraph` | `dfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:491` | Create a depth-first walker over text nodes. |
+| `@beep/nlp/Graph/TextGraph` | `edgeCount` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:578` | Count edges in a text graph. |
+| `@beep/nlp/Graph/TextGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:120` | Create an empty structural text graph. |
+| `@beep/nlp/Graph/TextGraph` | `filterNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:464` | Keep matching text nodes and edges whose endpoints both remain. |
+| `@beep/nlp/Graph/TextGraph` | `findNodesByType` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:595` | Find node indices whose `type` matches a structural text-node kind. |
+| `@beep/nlp/Graph/TextGraph` | `fromDocument` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:206` | Build a document graph by splitting the root text into sentence children. |
+| `@beep/nlp/Graph/TextGraph` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:660` | Return direct child indices for a text node. |
+| `@beep/nlp/Graph/TextGraph` | `getLeaves` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:635` | Return text-graph leaves, defined as nodes with no outgoing edges. |
+| `@beep/nlp/Graph/TextGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:618` | Return text-graph roots, defined as nodes with no incoming edges. |
+| `@beep/nlp/Graph/TextGraph` | `GraphCycleError` | class | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:79` | Raised when adding children would introduce a cycle (graphs must stay acyclic). |
+| `@beep/nlp/Graph/TextGraph` | `isAcyclic` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:762` | Check whether the text graph is acyclic. |
+| `@beep/nlp/Graph/TextGraph` | `mapNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:444` | Map every text node while preserving edges between retained nodes. |
+| `@beep/nlp/Graph/TextGraph` | `MutableTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:63` | Mutable text graph used inside construction callbacks. |
+| `@beep/nlp/Graph/TextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:563` | Count nodes in a text graph. |
+| `@beep/nlp/Graph/TextGraph` | `show` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:733` | Render the graph as an indented tree from roots downward. |
+| `@beep/nlp/Graph/TextGraph` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:138` | Create a text graph with one generated root node. |
+| `@beep/nlp/Graph/TextGraph` | `stronglyConnectedComponents` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:777` | Compute strongly connected components as node-index groups. |
+| `@beep/nlp/Graph/TextGraph` | `TextGraph` | type | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:47` | A text-processing graph: `TextNode` data with `TextEdge` relationships. |
+| `@beep/nlp/Graph/TextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:543` | Collect all text nodes in backing graph order. |
+| `@beep/nlp/Graph/TextGraph` | `toGraphViz` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:685` | Export the text graph to GraphViz DOT format. |
+| `@beep/nlp/Graph/TextGraph` | `tokenizeNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:358` | Tokenize every sentence node, adding token children (idempotent: skips |
+| `@beep/nlp/Graph/TextGraph` | `toMermaid` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:705` | Export the text graph to a Mermaid diagram. |
+| `@beep/nlp/Graph/TextGraph` | `topo` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:527` | Create a topological walker where parents precede children. |
+| `@beep/nlp/Graph/TypeClass` | `alt` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:805` | Combine two operations, collecting results from both (parallel branching). |
+| `@beep/nlp/Graph/TypeClass` | `ap` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:654` | Apply an operation of functions to an operation of values (Cartesian product). |
+| `@beep/nlp/Graph/TypeClass` | `chain` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:722` | Sequence dependent operations: the first's outputs choose the next operation. |
+| `@beep/nlp/Graph/TypeClass` | `collectData` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:512` | Collect all node data values from the graph. |
+| `@beep/nlp/Graph/TypeClass` | `Composable` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:142` | Operations composable end-to-end, forming a monoid (sequential composition + |
+| `@beep/nlp/Graph/TypeClass` | `composeOperations` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:193` | Compose two operations sequentially: the first's outputs feed the second. |
+| `@beep/nlp/Graph/TypeClass` | `depth` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:529` | Graph depth: the maximum node depth (longest root-to-leaf path). |
+| `@beep/nlp/Graph/TypeClass` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:843` | The empty operation (identity for {@link alt}): produces no nodes. |
+| `@beep/nlp/Graph/TypeClass` | `executeOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:294` | Apply an operation to every current leaf node, adding the results as children |
+| `@beep/nlp/Graph/TypeClass` | `executeOperations` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:337` | Apply a sequence of operations, each adding a DAG layer. |
+| `@beep/nlp/Graph/TypeClass` | `filterOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:469` | Filter operation: keep nodes whose data satisfies the predicate. |
+| `@beep/nlp/Graph/TypeClass` | `flatMap` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:605` | FlatMap over a {@link TextOperation}'s output data with an effectful function. |
+| `@beep/nlp/Graph/TypeClass` | `flatMapOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:492` | FlatMap operation: map then flatten in one step. |
+| `@beep/nlp/Graph/TypeClass` | `flatten` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:767` | Flatten nested operations (alias of {@link chain}). |
+| `@beep/nlp/Graph/TypeClass` | `Foldable` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:234` | Foldable structures of element type `A`. Laws: empty/singleton/concat |
+| `@beep/nlp/Graph/TypeClass` | `foldableGraph` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:257` | The {@link Foldable} instance for {@link EffectGraph}, folding over |
+| `@beep/nlp/Graph/TypeClass` | `ForgetfulOperation` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:399` | The forgetful (aggregation) functor: many nodes to one (e.g. sentences -\> text). |
+| `@beep/nlp/Graph/TypeClass` | `FreeOperation` | type | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:377` | The free (expansion) functor: one node to many (e.g. text -\> sentences). |
+| `@beep/nlp/Graph/TypeClass` | `Functor` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:552` | A Functor over `F`: `map` transforms the output while preserving structure. |
+| `@beep/nlp/Graph/TypeClass` | `identityOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:164` | The identity operation: re-emits the node under a fresh id (effectful id). |
+| `@beep/nlp/Graph/TypeClass` | `makeAdjunction` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:424` | Pair a free expansion with its forgetful aggregation as an adjunction. |
+| `@beep/nlp/Graph/TypeClass` | `makeOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:79` | Build a {@link TextOperation} from an effectful node-producing function. |
+| `@beep/nlp/Graph/TypeClass` | `map` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:570` | Map over a {@link TextOperation}'s output data, preserving structure/effects. |
+| `@beep/nlp/Graph/TypeClass` | `mapOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:450` | Map operation: transform node data without changing structure (a functor map). |
+| `@beep/nlp/Graph/TypeClass` | `pure` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:697` | Lift a value into an operation that always produces it. |
+| `@beep/nlp/Graph/TypeClass` | `pureOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:110` | A pure text operation: maps node data to new data values (no context/errors), |
+| `@beep/nlp/Graph/TypeClass` | `replicate` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:915` | Apply an operation `n` times and collect all results. |
+| `@beep/nlp/Graph/TypeClass` | `TextOperation` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:59` | A morphism in the graph category: maps a node of data `A` to new nodes of data |
+| `@beep/nlp/Graph/TypeClass` | `traverse` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:869` | Traverse an operation's outputs with an effectful function. |
+| `@beep/nlp/Graph/TypeClass` | `unless` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:981` | Apply an operation unless the node data satisfies the predicate. |
+| `@beep/nlp/Graph/TypeClass` | `when` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:952` | Apply an operation only when the node data satisfies the predicate. |
 | `@beep/nlp/Handoff` | `Contract` | SourceFile | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:21` |  |
-| `@beep/nlp/Handoff/Contract` | `AnnotatedDocument` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:330` | The top-level handoff envelope: a fully annotated document — its chunks, |
-| `@beep/nlp/Handoff/Contract` | `ChunkId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:41` | Stable identifier for a {@link TextChunk}. |
-| `@beep/nlp/Handoff/Contract` | `ChunkId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:52` | Runtime type of {@link ChunkId}. |
-| `@beep/nlp/Handoff/Contract` | `ChunkKind` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:145` | Closed vocabulary of {@link TextChunk} granularities. |
-| `@beep/nlp/Handoff/Contract` | `Entity` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:270` | An entity: a canonical thing referred to by one or more {@link Mention}s. Its |
-| `@beep/nlp/Handoff/Contract` | `EntityId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:93` | Stable identifier for an {@link Entity}. |
-| `@beep/nlp/Handoff/Contract` | `EntityId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:104` | Runtime type of {@link EntityId}. |
-| `@beep/nlp/Handoff/Contract` | `makeProvenance` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:357` | Build a {@link Provenance} stamped with the current time (effectful: reads |
-| `@beep/nlp/Handoff/Contract` | `Mention` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:242` | A surface mention occurrence: where a span of text within a chunk refers to |
-| `@beep/nlp/Handoff/Contract` | `MentionId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:67` | Stable identifier for a {@link Mention}. |
-| `@beep/nlp/Handoff/Contract` | `MentionId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:78` | Runtime type of {@link MentionId}. |
-| `@beep/nlp/Handoff/Contract` | `Provenance` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:188` | PROV-O-aligned provenance for a piece of derived annotation: where it came |
-| `@beep/nlp/Handoff/Contract` | `Relation` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:299` | A directed relation between two {@link Entity}s. Its `type` is a GENERIC |
-| `@beep/nlp/Handoff/Contract` | `RelationId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:119` | Stable identifier for a {@link Relation}. |
-| `@beep/nlp/Handoff/Contract` | `RelationId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:130` | Runtime type of {@link RelationId}. |
-| `@beep/nlp/Handoff/Contract` | `Span` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:162` | A half-open character span `[start, end)` into the source text. |
-| `@beep/nlp/Handoff/Contract` | `TextChunk` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:215` | A contiguous chunk of source text at a given granularity, with its span and |
+| `@beep/nlp/Handoff/Contract` | `AnnotatedDocument` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:332` | The top-level handoff envelope: a fully annotated document — its chunks, |
+| `@beep/nlp/Handoff/Contract` | `ChunkId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:43` | Stable identifier for a {@link TextChunk}. |
+| `@beep/nlp/Handoff/Contract` | `ChunkId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:54` | Runtime type of {@link ChunkId}. |
+| `@beep/nlp/Handoff/Contract` | `ChunkKind` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:147` | Closed vocabulary of {@link TextChunk} granularities. |
+| `@beep/nlp/Handoff/Contract` | `Entity` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:272` | An entity: a canonical thing referred to by one or more {@link Mention}s. Its |
+| `@beep/nlp/Handoff/Contract` | `EntityId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:95` | Stable identifier for an {@link Entity}. |
+| `@beep/nlp/Handoff/Contract` | `EntityId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:106` | Runtime type of {@link EntityId}. |
+| `@beep/nlp/Handoff/Contract` | `makeProvenance` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:359` | Build a {@link Provenance} stamped with the current time (effectful: reads |
+| `@beep/nlp/Handoff/Contract` | `Mention` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:244` | A surface mention occurrence: where a span of text within a chunk refers to |
+| `@beep/nlp/Handoff/Contract` | `MentionId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:69` | Stable identifier for a {@link Mention}. |
+| `@beep/nlp/Handoff/Contract` | `MentionId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:80` | Runtime type of {@link MentionId}. |
+| `@beep/nlp/Handoff/Contract` | `Provenance` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:190` | PROV-O-aligned provenance for a piece of derived annotation: where it came |
+| `@beep/nlp/Handoff/Contract` | `Relation` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:301` | A directed relation between two {@link Entity}s. Its `type` is a GENERIC |
+| `@beep/nlp/Handoff/Contract` | `RelationId` | const | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:121` | Stable identifier for a {@link Relation}. |
+| `@beep/nlp/Handoff/Contract` | `RelationId` | type | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:132` | Runtime type of {@link RelationId}. |
+| `@beep/nlp/Handoff/Contract` | `Span` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:164` | A half-open character span `[start, end)` into the source text. |
+| `@beep/nlp/Handoff/Contract` | `TextChunk` | class | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:217` | A contiguous chunk of source text at a given granularity, with its span and |
 | `@beep/nlp/Handoff/index` | `Contract` | SourceFile | `packages/foundation/capability/nlp/src/Handoff/Contract.ts:21` |  |
-| `@beep/nlp/IdentifierText` | `tokens` | const | `packages/foundation/capability/nlp/src/IdentifierText.ts:35` | Convert a candidate identifier phrase into lowercase word tokens. |
-| `@beep/nlp/IdentifierText` | `variants` | const | `packages/foundation/capability/nlp/src/IdentifierText.ts:54` | Generate deterministic identifier variants for symbol lookup. |
-| `@beep/nlp/Layers` | `NLPAppLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:55` | Compatibility application layer matching the legacy tokenization-focused bundle. |
-| `@beep/nlp/Layers` | `NLPBaseLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:25` | Base runtime layer exposing the shared wink engine service. |
-| `@beep/nlp/Layers` | `TokenizationModuleLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:40` | Tokenization module layer exposing both the wink engine and tokenization service. |
-| `@beep/nlp/Layers` | `WinkEngine` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:70` | Wink engine service. |
-| `@beep/nlp/Layers` | `WinkEngineLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:84` | Wink engine live layer. |
-| `@beep/nlp/Layers/index` | `NLPAppLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:55` | Compatibility application layer matching the legacy tokenization-focused bundle. |
-| `@beep/nlp/Layers/index` | `NLPBaseLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:25` | Base runtime layer exposing the shared wink engine service. |
-| `@beep/nlp/Layers/index` | `TokenizationModuleLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:40` | Tokenization module layer exposing both the wink engine and tokenization service. |
-| `@beep/nlp/Layers/index` | `WinkEngine` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:70` | Wink engine service. |
-| `@beep/nlp/Layers/index` | `WinkEngineLive` | const | `packages/foundation/capability/nlp/src/Layers/index.ts:84` | Wink engine live layer. |
-| `@beep/nlp/NLPService` | `extractEntities` | const | `packages/foundation/capability/nlp/src/NLPService.ts:123` | Extract entities using the {@link NLPService} from context. |
-| `@beep/nlp/NLPService` | `extractRelations` | const | `packages/foundation/capability/nlp/src/NLPService.ts:132` | Extract relations using the {@link NLPService} from context. |
-| `@beep/nlp/NLPService` | `layer` | const | `packages/foundation/capability/nlp/src/NLPService.ts:105` | Construct an {@link NLPService} layer from a backend layer. |
-| `@beep/nlp/NLPService` | `make` | const | `packages/foundation/capability/nlp/src/NLPService.ts:75` | Build an {@link NLPServiceShape} facade from a backend. |
-| `@beep/nlp/NLPService` | `NLPService` | class | `packages/foundation/capability/nlp/src/NLPService.ts:60` | Service tag for the {@link NLPServiceShape} facade. |
-| `@beep/nlp/NLPService` | `NLPServiceShape` | interface | `packages/foundation/capability/nlp/src/NLPService.ts:34` | Structural shape of the {@link NLPService}. |
-| `@beep/nlp/NLPService` | `processText` | const | `packages/foundation/capability/nlp/src/NLPService.ts:114` | Process text into an annotated graph using the {@link NLPService} from context. |
-| `@beep/nlp/NLPService` | `tagPartsOfSpeech` | const | `packages/foundation/capability/nlp/src/NLPService.ts:143` | Tag parts of speech using the {@link NLPService} from context. |
+| `@beep/nlp/IdentifierText` | `tokens` | const | `packages/foundation/capability/nlp/src/IdentifierText.ts:40` | Split a source identifier or symbol-like phrase into normalized words. |
+| `@beep/nlp/IdentifierText` | `variants` | const | `packages/foundation/capability/nlp/src/IdentifierText.ts:65` | Generate common source-code spellings for a symbol phrase. |
+| `@beep/nlp/NLPService` | `extractEntities` | const | `packages/foundation/capability/nlp/src/NLPService.ts:278` | Extract entity nodes using {@link NLPService} from context. |
+| `@beep/nlp/NLPService` | `extractRelations` | const | `packages/foundation/capability/nlp/src/NLPService.ts:329` | Extract relation nodes using {@link NLPService} from context. |
+| `@beep/nlp/NLPService` | `layer` | const | `packages/foundation/capability/nlp/src/NLPService.ts:173` | Lift a backend layer into the high-level {@link NLPService} layer. |
+| `@beep/nlp/NLPService` | `make` | const | `packages/foundation/capability/nlp/src/NLPService.ts:119` | Build an {@link NLPServiceShape} facade around a concrete backend. |
+| `@beep/nlp/NLPService` | `NLPService` | class | `packages/foundation/capability/nlp/src/NLPService.ts:76` | Service tag for the {@link NLPServiceShape} facade. |
+| `@beep/nlp/NLPService` | `NLPServiceShape` | interface | `packages/foundation/capability/nlp/src/NLPService.ts:50` | High-level service facade over an {@link Backend.NLPBackend} implementation. |
+| `@beep/nlp/NLPService` | `processText` | const | `packages/foundation/capability/nlp/src/NLPService.ts:227` | Process text into an annotated graph using {@link NLPService} from context. |
+| `@beep/nlp/NLPService` | `tagPartsOfSpeech` | const | `packages/foundation/capability/nlp/src/NLPService.ts:382` | Tag parts of speech using {@link NLPService} from context. |
 | `@beep/nlp/Ontology` | `Kind` | SourceFile | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:24` |  |
 | `@beep/nlp/Ontology/index` | `Kind` | SourceFile | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:24` |  |
-| `@beep/nlp/Ontology/Kind` | `canContain` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:409` | Check whether `parent` can contain `child` per the containment poset. |
-| `@beep/nlp/Ontology/Kind` | `Character` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:242` | Create a Character-level typed text (atomic element of text). |
-| `@beep/nlp/Ontology/Kind` | `Chunk` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:321` | Create a Chunk-level typed text (shallow-parsing constituent: NP, VP, ...). |
-| `@beep/nlp/Ontology/Kind` | `content` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:443` | Extract raw content from typed text. |
-| `@beep/nlp/Ontology/Kind` | `Dependency` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:305` | Create a Dependency-level typed text (syntactic dependency arc). |
-| `@beep/nlp/Ontology/Kind` | `Document` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:179` | Create a Document-level typed text (top of the structural hierarchy). |
-| `@beep/nlp/Ontology/Kind` | `Embedding` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:289` | Create an Embedding-level typed text (vector-space representation). |
-| `@beep/nlp/Ontology/Kind` | `Entity` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:258` | Create an Entity-level typed text (named entity from NER). |
-| `@beep/nlp/Ontology/Kind` | `getValidChildren` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:424` | Get all valid child kinds for a given parent kind. |
-| `@beep/nlp/Ontology/Kind` | `isKind` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:509` | Type guard: whether a value is a {@link TypedText} of a specific kind. |
-| `@beep/nlp/Ontology/Kind` | `KindContainment` | interface | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:365` | Structural containment hierarchy: which kinds can contain which others. |
-| `@beep/nlp/Ontology/Kind` | `kindOf` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:458` | Get the kind of a typed text. |
-| `@beep/nlp/Ontology/Kind` | `Lemma` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:351` | Create a Lemma-level typed text (canonical/dictionary form of a token). |
-| `@beep/nlp/Ontology/Kind` | `mapContent` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:473` | Map over the content of typed text, preserving its kind. |
-| `@beep/nlp/Ontology/Kind` | `Paragraph` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:195` | Create a Paragraph-level typed text (logical grouping within a document). |
-| `@beep/nlp/Ontology/Kind` | `POS` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:336` | Create a POS-level typed text (part-of-speech annotation). |
-| `@beep/nlp/Ontology/Kind` | `recast` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:527` | Re-tag typed text to a new kind (use only when the transition is valid). |
-| `@beep/nlp/Ontology/Kind` | `Relation` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:273` | Create a Relation-level typed text (semantic connection between entities). |
-| `@beep/nlp/Ontology/Kind` | `Sentence` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:211` | Create a Sentence-level typed text (fundamental unit of meaning). |
-| `@beep/nlp/Ontology/Kind` | `TextKind` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:49` | Textual strata in the NLP category (the object layer). |
-| `@beep/nlp/Ontology/Kind` | `TextKind` | type | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:84` | Runtime type for {@link TextKind}. |
-| `@beep/nlp/Ontology/Kind` | `TextKindSchema` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:99` | Schema for {@link TextKind} (alias of the LiteralKit schema). |
-| `@beep/nlp/Ontology/Kind` | `Token` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:227` | Create a Token-level typed text (an individual word or punctuation mark). |
-| `@beep/nlp/Ontology/Kind` | `TypedText` | interface | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:127` | Text content tagged with its ontological kind. |
-| `@beep/nlp/Ontology/Kind` | `TypedTextSchema` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:146` | Runtime validation schema for {@link TypedText} of a given kind. |
-| `@beep/nlp/Ontology/Kind` | `withMetadata` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:491` | Merge additional metadata into typed text. |
-| `@beep/nlp/Operations` | `Composable` | SourceFile | `packages/foundation/capability/nlp/src/Operations/Composable.ts:29` |  |
+| `@beep/nlp/Ontology/Kind` | `canContain` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:441` | Check whether `parent` can contain `child` per the containment poset. |
+| `@beep/nlp/Ontology/Kind` | `Character` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:247` | Create character-level typed text for the atomic textual stratum. |
+| `@beep/nlp/Ontology/Kind` | `Chunk` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:326` | Create chunk-level typed text for shallow-parsing constituents. |
+| `@beep/nlp/Ontology/Kind` | `content` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:478` | Extract raw content from typed text. |
+| `@beep/nlp/Ontology/Kind` | `Dependency` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:310` | Create dependency-level typed text for syntactic dependency arcs. |
+| `@beep/nlp/Ontology/Kind` | `Document` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:184` | Create document-level typed text at the top of the structural hierarchy. |
+| `@beep/nlp/Ontology/Kind` | `Embedding` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:294` | Create embedding-level typed text for vector-space metadata about content. |
+| `@beep/nlp/Ontology/Kind` | `Entity` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:263` | Create entity-level typed text for a semantic mention extracted from prose. |
+| `@beep/nlp/Ontology/Kind` | `getValidChildren` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:459` | Get all valid child kinds for a given parent kind. |
+| `@beep/nlp/Ontology/Kind` | `isKind` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:556` | Type guard: whether a value is a {@link TypedText} of a specific kind. |
+| `@beep/nlp/Ontology/Kind` | `KindContainment` | class | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:380` | Structural containment hierarchy for valid parent-child kind relationships. |
+| `@beep/nlp/Ontology/Kind` | `kindOf` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:493` | Get the kind of a typed text. |
+| `@beep/nlp/Ontology/Kind` | `Lemma` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:356` | Create lemma-level typed text for canonical token forms. |
+| `@beep/nlp/Ontology/Kind` | `mapContent` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:508` | Map over the content of typed text, preserving its kind. |
+| `@beep/nlp/Ontology/Kind` | `Paragraph` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:200` | Create paragraph-level typed text for a logical block in a document. |
+| `@beep/nlp/Ontology/Kind` | `POS` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:341` | Create POS-level typed text for part-of-speech annotations. |
+| `@beep/nlp/Ontology/Kind` | `recast` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:574` | Re-tag typed text to a new kind (use only when the transition is valid). |
+| `@beep/nlp/Ontology/Kind` | `Relation` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:278` | Create relation-level typed text for a semantic edge between entities. |
+| `@beep/nlp/Ontology/Kind` | `Sentence` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:216` | Create sentence-level typed text for a complete utterance or statement. |
+| `@beep/nlp/Ontology/Kind` | `TextKind` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:50` | Textual strata in the NLP category (the object layer). |
+| `@beep/nlp/Ontology/Kind` | `TextKind` | type | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:85` | Runtime type for {@link TextKind}. |
+| `@beep/nlp/Ontology/Kind` | `TextKindSchema` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:101` | Runtime schema for validating values at the ontology kind boundary. |
+| `@beep/nlp/Ontology/Kind` | `Token` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:232` | Create token-level typed text for one word, symbol, or punctuation mark. |
+| `@beep/nlp/Ontology/Kind` | `TypedText` | interface | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:129` | Text content tagged with its ontological kind. |
+| `@beep/nlp/Ontology/Kind` | `TypedTextSchema` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:151` | Build a schema for text payloads constrained to one ontology kind schema. |
+| `@beep/nlp/Ontology/Kind` | `withMetadata` | const | `packages/foundation/capability/nlp/src/Ontology/Kind.ts:532` | Merge additional metadata into typed text. |
+| `@beep/nlp/Operations` | `Composable` | SourceFile | `packages/foundation/capability/nlp/src/Operations/Composable.ts:27` |  |
 | `@beep/nlp/Operations` | `Definition` | SourceFile | `packages/foundation/capability/nlp/src/Operations/Definition.ts:20` |  |
-| `@beep/nlp/Operations/Composable` | `aggregate` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:248` | Aggregate an array of values into a single value using a {@link Monoid.Monoid}. |
-| `@beep/nlp/Operations/Composable` | `compose` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:209` | Sequential composition: feed the first operation's output into the second. |
-| `@beep/nlp/Operations/Composable` | `fromDefinition` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:179` | Build an {@link OperationBuilder} from a structured {@link OperationDefinition}. |
-| `@beep/nlp/Operations/Composable` | `identity` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:228` | The identity operation: returns its input unchanged. |
-| `@beep/nlp/Operations/Composable` | `makeOperation` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:157` | Build an {@link OperationBuilder} from name, schemas, and an effectful arrow. |
-| `@beep/nlp/Operations/Composable` | `makePureOperation` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:196` | Build a pure (context-free, infallible) operation from a plain function. |
-| `@beep/nlp/Operations/Composable` | `NLPOperation` | type | `packages/foundation/capability/nlp/src/Operations/Composable.ts:41` | An effectful arrow from `A` to `B` requiring context `R` and failing with `E`. |
-| `@beep/nlp/Operations/Composable` | `OperationBuilder` | class | `packages/foundation/capability/nlp/src/Operations/Composable.ts:50` | A composable operation carrying its input/output schemas alongside its arrow, |
-| `@beep/nlp/Operations/Composable` | `traverse` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:237` | Traverse an array of inputs through an operation, collecting decoded results. |
-| `@beep/nlp/Operations/Definition` | `OperationDefinition` | interface | `packages/foundation/capability/nlp/src/Operations/Definition.ts:31` | Structured definition of an NLP operation: name + description (metadata), |
-| `@beep/nlp/Operations/Definition` | `OperationInput` | type | `packages/foundation/capability/nlp/src/Operations/Definition.ts:53` | Extract the decoded input type from an {@link OperationDefinition}. |
-| `@beep/nlp/Operations/Definition` | `OperationOutput` | type | `packages/foundation/capability/nlp/src/Operations/Definition.ts:69` | Extract the decoded output type from an {@link OperationDefinition}. |
-| `@beep/nlp/Operations/index` | `Composable` | SourceFile | `packages/foundation/capability/nlp/src/Operations/Composable.ts:29` |  |
+| `@beep/nlp/Operations/Composable` | `aggregate` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:529` | Aggregate an array of values into a single value using a {@link Monoid.Monoid}. |
+| `@beep/nlp/Operations/Composable` | `compose` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:467` | Sequential composition: feed the first operation's output into the second. |
+| `@beep/nlp/Operations/Composable` | `fromDefinition` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:294` | Build an {@link OperationBuilder} from a structured {@link OperationDefinition}. |
+| `@beep/nlp/Operations/Composable` | `identity` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:487` | The identity operation: returns its input unchanged. |
+| `@beep/nlp/Operations/Composable` | `makeOperation` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:265` | Build an {@link OperationBuilder} from name, schemas, and an effectful arrow. |
+| `@beep/nlp/Operations/Composable` | `makePureOperation` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:313` | Build a pure (context-free, infallible) operation from a plain function. |
+| `@beep/nlp/Operations/Composable` | `map` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:342` | Functor map for {@link OperationBuilder}, exposed as a dual helper for |
+| `@beep/nlp/Operations/Composable` | `NLPOperation` | type | `packages/foundation/capability/nlp/src/Operations/Composable.ts:53` | An effectful arrow from `A` to `B` requiring context `R` and failing with `E`. |
+| `@beep/nlp/Operations/Composable` | `OperationBuilder` | class | `packages/foundation/capability/nlp/src/Operations/Composable.ts:78` | A composable operation carrying its input/output schemas alongside its arrow, |
+| `@beep/nlp/Operations/Composable` | `product` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:384` | Applicative product for {@link OperationBuilder}, exposed as a dual helper for |
+| `@beep/nlp/Operations/Composable` | `traverse` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:508` | Traverse an array of inputs through an operation, collecting decoded results. |
+| `@beep/nlp/Operations/Composable` | `zipWith` | const | `packages/foundation/capability/nlp/src/Operations/Composable.ts:426` | Applicative zipWith for {@link OperationBuilder}, exposed as a dual helper for |
+| `@beep/nlp/Operations/Definition` | `OperationDefinition` | interface | `packages/foundation/capability/nlp/src/Operations/Definition.ts:48` | Structured definition of an NLP operation: name + description (metadata), |
+| `@beep/nlp/Operations/Definition` | `OperationInput` | type | `packages/foundation/capability/nlp/src/Operations/Definition.ts:80` | Extract the decoded input type from an {@link OperationDefinition}. |
+| `@beep/nlp/Operations/Definition` | `OperationOutput` | type | `packages/foundation/capability/nlp/src/Operations/Definition.ts:106` | Extract the decoded output type from an {@link OperationDefinition}. |
+| `@beep/nlp/Operations/index` | `Composable` | SourceFile | `packages/foundation/capability/nlp/src/Operations/Composable.ts:27` |  |
 | `@beep/nlp/Operations/index` | `Definition` | SourceFile | `packages/foundation/capability/nlp/src/Operations/Definition.ts:20` |  |
-| `@beep/nlp/PathText` | `filePathVariants` | const | `packages/foundation/capability/nlp/src/PathText.ts:76` | Generate deterministic file-query variants for source-file lookup. |
-| `@beep/nlp/PathText` | `isPathLike` | const | `packages/foundation/capability/nlp/src/PathText.ts:59` | True when the input is a bounded single-token path or module fragment. |
-| `@beep/nlp/PathText` | `moduleSpecifierVariants` | const | `packages/foundation/capability/nlp/src/PathText.ts:93` | Generate deterministic module-specifier variants for import-edge lookup. |
-| `@beep/nlp/PathText` | `normalizePathPhrase` | const | `packages/foundation/capability/nlp/src/PathText.ts:42` | Normalize a candidate path or module fragment for deterministic lookup. |
-| `@beep/nlp/QueryText` | `extractBacktickValue` | const | `packages/foundation/capability/nlp/src/QueryText.ts:68` | Extract the first value enclosed in backticks from a user question. |
-| `@beep/nlp/QueryText` | `normalizePhrase` | const | `packages/foundation/capability/nlp/src/QueryText.ts:45` | Normalize a short extracted phrase by trimming boundary punctuation and |
-| `@beep/nlp/QueryText` | `normalizeQuestion` | const | `packages/foundation/capability/nlp/src/QueryText.ts:28` | Collapse user question whitespace without changing punctuation or content. |
-| `@beep/nlp/Tools` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:64` | Ai corpus config tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:78` | Ai corpus idf tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:92` | Ai corpus matrix shape tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:106` | Ai corpus ranked document tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:120` | Ai corpus stats tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:134` | Ai corpus summary tool schema. |
-| `@beep/nlp/Tools` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:148` | Ai document stats tool schema. |
-| `@beep/nlp/Tools` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:162` | Ai entity tool schema. |
-| `@beep/nlp/Tools` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:176` | Ai keyword tool schema. |
-| `@beep/nlp/Tools` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:190` | Ai n gram tool schema. |
-| `@beep/nlp/Tools` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:204` | Ai phonetic match tool schema. |
-| `@beep/nlp/Tools` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:218` | Ai ranked text tool schema. |
-| `@beep/nlp/Tools` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:232` | Ai sentence tool schema. |
-| `@beep/nlp/Tools` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:246` | Ai sentence chunk tool schema. |
-| `@beep/nlp/Tools` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:260` | Ai token tool schema. |
-| `@beep/nlp/Tools` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:274` | Bow cosine similarity tool. |
-| `@beep/nlp/Tools` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:288` | Chunk by sentences tool. |
-| `@beep/nlp/Tools` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:302` | Corpus stats layer. |
-| `@beep/nlp/Tools` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:316` | Create corpus export. |
-| `@beep/nlp/Tools` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:330` | Delete corpus tool. |
-| `@beep/nlp/Tools` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:344` | Document stats tool. |
-| `@beep/nlp/Tools` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:586` | Export tools tool. |
-| `@beep/nlp/Tools` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:358` | Extract entities tool. |
-| `@beep/nlp/Tools` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:372` | Extract keywords tool. |
-| `@beep/nlp/Tools` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:386` | Learn corpus tool. |
-| `@beep/nlp/Tools` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:400` | Learn custom entities tool. |
-| `@beep/nlp/Tools` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:414` | N grams tool. |
-| `@beep/nlp/Tools` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:541` | Nlp toolkit tool. |
-| `@beep/nlp/Tools` | `NlpToolkitLive` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:556` | Nlp toolkit live tool. |
-| `@beep/nlp/Tools` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:571` | Nlp tools tool. |
-| `@beep/nlp/Tools` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:428` | Phonetic match tool. |
-| `@beep/nlp/Tools` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:442` | Query corpus tool. |
-| `@beep/nlp/Tools` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:456` | Rank by relevance tool. |
-| `@beep/nlp/Tools` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:470` | Sentences tool. |
-| `@beep/nlp/Tools` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:484` | Text similarity tool. |
-| `@beep/nlp/Tools` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:498` | Tokenize tool. |
-| `@beep/nlp/Tools` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:512` | Transform text tool. |
-| `@beep/nlp/Tools` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:526` | Tversky similarity tool. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusConfig` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:298` | BM25 corpus configuration model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusIdf` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:374` | Corpus IDF value model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusMatrixShape` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:397` | Corpus matrix-shape model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusRankedDocument` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:349` | Ranked corpus document model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:420` | Corpus stats model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusSummary` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:323` | Corpus summary model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiDocumentStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:147` | Flat document-stats model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiEntity` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:221` | Flat entity model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiKeyword` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:124` | Flat keyword model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiNGram` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:249` | Flat n-gram model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiPhoneticMatch` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:272` | Flat phonetic-match model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiRankedText` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:198` | Flat ranked-text model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiSentence` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:98` | Flat sentence model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiSentenceChunk` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:172` | Flat sentence-chunk model for tool outputs. |
-| `@beep/nlp/Tools/_schemas` | `AiToken` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:67` | Flat token model for tool outputs. |
-| `@beep/nlp/Tools/BowCosineSimilarity` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts:58` | Tool for computing bag-of-words cosine similarity. |
-| `@beep/nlp/Tools/ChunkBySentences` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts:57` | Tool for chunking text along sentence boundaries. |
-| `@beep/nlp/Tools/CorpusStats` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/CorpusStats.ts:49` | Tool for inspecting corpus internals. |
-| `@beep/nlp/Tools/CreateCorpus` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/CreateCorpus.ts:64` | Tool for creating a stateful corpus session. |
-| `@beep/nlp/Tools/DeleteCorpus` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/DeleteCorpus.ts:48` | Tool for deleting a corpus session. |
-| `@beep/nlp/Tools/DocumentStats` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/DocumentStats.ts:40` | Tool for computing high-level document statistics. |
-| `@beep/nlp/Tools/ExtractEntities` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/ExtractEntities.ts:65` | Tool for extracting built-in and custom entities from text. |
-| `@beep/nlp/Tools/ExtractKeywords` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/ExtractKeywords.ts:55` | Tool for extracting ranked keywords from text. |
-| `@beep/nlp/Tools/index` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:64` | Ai corpus config tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:78` | Ai corpus idf tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:92` | Ai corpus matrix shape tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:106` | Ai corpus ranked document tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:120` | Ai corpus stats tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:134` | Ai corpus summary tool schema. |
-| `@beep/nlp/Tools/index` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:148` | Ai document stats tool schema. |
-| `@beep/nlp/Tools/index` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:162` | Ai entity tool schema. |
-| `@beep/nlp/Tools/index` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:176` | Ai keyword tool schema. |
-| `@beep/nlp/Tools/index` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:190` | Ai n gram tool schema. |
-| `@beep/nlp/Tools/index` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:204` | Ai phonetic match tool schema. |
-| `@beep/nlp/Tools/index` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:218` | Ai ranked text tool schema. |
-| `@beep/nlp/Tools/index` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:232` | Ai sentence tool schema. |
-| `@beep/nlp/Tools/index` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:246` | Ai sentence chunk tool schema. |
-| `@beep/nlp/Tools/index` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:260` | Ai token tool schema. |
-| `@beep/nlp/Tools/index` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:274` | Bow cosine similarity tool. |
-| `@beep/nlp/Tools/index` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:288` | Chunk by sentences tool. |
-| `@beep/nlp/Tools/index` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:302` | Corpus stats layer. |
-| `@beep/nlp/Tools/index` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:316` | Create corpus export. |
-| `@beep/nlp/Tools/index` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:330` | Delete corpus tool. |
-| `@beep/nlp/Tools/index` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:344` | Document stats tool. |
-| `@beep/nlp/Tools/index` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:586` | Export tools tool. |
-| `@beep/nlp/Tools/index` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:358` | Extract entities tool. |
-| `@beep/nlp/Tools/index` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:372` | Extract keywords tool. |
-| `@beep/nlp/Tools/index` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:386` | Learn corpus tool. |
-| `@beep/nlp/Tools/index` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:400` | Learn custom entities tool. |
-| `@beep/nlp/Tools/index` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:414` | N grams tool. |
-| `@beep/nlp/Tools/index` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:541` | Nlp toolkit tool. |
-| `@beep/nlp/Tools/index` | `NlpToolkitLive` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:556` | Nlp toolkit live tool. |
-| `@beep/nlp/Tools/index` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:571` | Nlp tools tool. |
-| `@beep/nlp/Tools/index` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:428` | Phonetic match tool. |
-| `@beep/nlp/Tools/index` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:442` | Query corpus tool. |
-| `@beep/nlp/Tools/index` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:456` | Rank by relevance tool. |
-| `@beep/nlp/Tools/index` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:470` | Sentences tool. |
-| `@beep/nlp/Tools/index` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:484` | Text similarity tool. |
-| `@beep/nlp/Tools/index` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:498` | Tokenize tool. |
-| `@beep/nlp/Tools/index` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:512` | Transform text tool. |
-| `@beep/nlp/Tools/index` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:526` | Tversky similarity tool. |
-| `@beep/nlp/Tools/LearnCorpus` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts:68` | Tool for incrementally learning documents into a corpus. |
-| `@beep/nlp/Tools/LearnCustomEntities` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts:87` | Tool for teaching custom pattern-based entities. |
-| `@beep/nlp/Tools/NGrams` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/NGrams.ts:75` | Tool for extracting character n-grams. |
-| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:381` | NLP toolkit definition containing the full tool surface. |
-| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkitLive` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:396` | Live toolkit handlers backed by the wink runtime layers. |
-| `@beep/nlp/Tools/NlpToolkit` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:346` | Canonical ordered NLP tool list used to build the toolkit and export adapters. |
-| `@beep/nlp/Tools/PhoneticMatch` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/PhoneticMatch.ts:62` | Tool for comparing texts by phonetic overlap. |
-| `@beep/nlp/Tools/QueryCorpus` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts:75` | Tool for querying a previously learned corpus session. |
-| `@beep/nlp/Tools/RankByRelevance` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts:65` | Tool for ranking texts against a query. |
-| `@beep/nlp/Tools/Sentences` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/Sentences.ts:50` | Tool for splitting text into sentences with metadata. |
-| `@beep/nlp/Tools/TextSimilarity` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts:58` | Tool for computing similarity between two texts. |
-| `@beep/nlp/Tools/Tokenize` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/Tokenize.ts:50` | Tool for tokenizing text into annotated linguistic tokens. |
-| `@beep/nlp/Tools/ToolExport` | `ExportedTool` | interface | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:138` | Runtime descriptor for an exported positional tool. |
-| `@beep/nlp/Tools/ToolExport` | `ExportedToolError` | class | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:92` | Error raised while exporting or executing positional NLP tools. |
-| `@beep/nlp/Tools/ToolExport` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:283` | Export tools export. |
-| `@beep/nlp/Tools/TransformText` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/TransformText.ts:83` | Tool for applying text cleaning and normalization operations. |
-| `@beep/nlp/Tools/TverskySimilarity` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts:71` | Tool for computing asymmetric set similarity. |
-| `@beep/nlp/VariantText` | `orderedDedupe` | const | `packages/foundation/capability/nlp/src/VariantText.ts:31` | Remove empty strings and duplicates while preserving the first occurrence of |
-| `@beep/nlp/Wink` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:273` | Bag-of-words representation for a document or query. |
-| `@beep/nlp/Wink` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:196` | BM25 configuration used by wink vectorization and corpus management. |
-| `@beep/nlp/Wink` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:121` | BM25 normalization mode used by the vectorizer and corpus services. |
-| `@beep/nlp/Wink` | `CorpusManagerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:262` | Error raised while managing a live corpus session. |
-| `@beep/nlp/Wink` | `CustomEntityExample` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:99` | One custom-entity example expressed as ordered bracket-pattern elements. |
-| `@beep/nlp/Wink` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:225` | Default BM25 configuration used by the live wink vectorizer. |
-| `@beep/nlp/Wink` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:104` | Set of normalized document terms used for set-based similarity. |
-| `@beep/nlp/Wink` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:245` | Dense vector representation for a document or query. |
-| `@beep/nlp/Wink` | `EntityGroupName` | const | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:64` | Branded identifier for a wink custom-entity group. |
-| `@beep/nlp/Wink` | `EntityGroupName` | type | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:84` | Runtime type for {@link EntityGroupName}. |
-| `@beep/nlp/Wink` | `InstanceId` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:51` | Branded runtime identifier for one live wink engine instance. |
-| `@beep/nlp/Wink` | `InstanceId` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:71` | Runtime type for {@link InstanceId}. |
-| `@beep/nlp/Wink` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:84` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
-| `@beep/nlp/Wink` | `SentenceSpanFailure` | class | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:44` | Failure raised when wink sentence spans cannot be derived from the token stream. |
-| `@beep/nlp/Wink` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:161` | Error raised while computing wink-backed similarity. |
-| `@beep/nlp/Wink` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:131` | Similarity score returned from a wink-backed comparison. |
-| `@beep/nlp/Wink` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:300` | Term-frequency entry for a learned document. |
-| `@beep/nlp/Wink` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:77` | Parameters controlling the asymmetric Tversky index. |
-| `@beep/nlp/Wink` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:327` | Error raised while learning or querying wink BM25 vectors. |
-| `@beep/nlp/Wink` | `WinkCorpusManager` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:727` | Wink corpus manager service. |
-| `@beep/nlp/Wink` | `WinkCorpusManagerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:744` | Live wink corpus manager layer. |
-| `@beep/nlp/Wink` | `WinkEngine` | class | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:238` | Wink engine service tag. |
-| `@beep/nlp/Wink` | `WinkEngineCustomEntities` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:143` | Collection of learned custom-entity examples tracked as one logical group. |
-| `@beep/nlp/Wink` | `WinkEngineError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:37` | Failure raised while creating or accessing the wink runtime. |
-| `@beep/nlp/Wink` | `WinkEngineLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:253` | Live wink engine layer. |
-| `@beep/nlp/Wink` | `WinkEngineRef` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:61` | Wink engine ref service. |
-| `@beep/nlp/Wink` | `WinkEngineRefLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:75` | Wink engine ref live layer. |
-| `@beep/nlp/Wink` | `WinkEngineRuntimeState` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:109` | In-memory wink engine runtime state including the live wink runtime. |
-| `@beep/nlp/Wink` | `WinkEngineState` | class | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:86` | Serializable wink engine state metadata. |
-| `@beep/nlp/Wink` | `WinkEntityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:131` | Failure raised while learning or managing custom entity patterns. |
-| `@beep/nlp/Wink` | `WinkError` | type | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:180` | Union of wink runtime errors. |
-| `@beep/nlp/Wink` | `WinkLayerAllLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:23` | Wink layer all live layer. |
-| `@beep/nlp/Wink` | `WinkLayerLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:37` | Wink layer live layer. |
-| `@beep/nlp/Wink` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:288` | Wink similarity service. |
-| `@beep/nlp/Wink` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:303` | Live wink similarity layer. |
-| `@beep/nlp/Wink` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:343` | Wink-backed tokenization layer. |
-| `@beep/nlp/Wink` | `WinkTokenizationError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:82` | Failure raised while reading or tokenizing text through wink. |
-| `@beep/nlp/Wink` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:358` | Wink-backed tokenization layer with the live engine provided. |
-| `@beep/nlp/Wink` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:247` | Wink utility service. |
-| `@beep/nlp/Wink` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:123` | Error raised while calling wink utility helpers. |
-| `@beep/nlp/Wink` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:262` | Live wink utility layer. |
-| `@beep/nlp/Wink` | `WinkVectorizer` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:530` | Wink vectorizer service. |
-| `@beep/nlp/Wink` | `WinkVectorizerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:545` | Live wink vectorizer layer. |
-| `@beep/nlp/Wink/index` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:273` | Bag-of-words representation for a document or query. |
-| `@beep/nlp/Wink/index` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:196` | BM25 configuration used by wink vectorization and corpus management. |
-| `@beep/nlp/Wink/index` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:121` | BM25 normalization mode used by the vectorizer and corpus services. |
-| `@beep/nlp/Wink/index` | `CorpusManagerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:262` | Error raised while managing a live corpus session. |
-| `@beep/nlp/Wink/index` | `CustomEntityExample` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:99` | One custom-entity example expressed as ordered bracket-pattern elements. |
-| `@beep/nlp/Wink/index` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:225` | Default BM25 configuration used by the live wink vectorizer. |
-| `@beep/nlp/Wink/index` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:104` | Set of normalized document terms used for set-based similarity. |
-| `@beep/nlp/Wink/index` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:245` | Dense vector representation for a document or query. |
-| `@beep/nlp/Wink/index` | `EntityGroupName` | const | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:64` | Branded identifier for a wink custom-entity group. |
-| `@beep/nlp/Wink/index` | `EntityGroupName` | type | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:84` | Runtime type for {@link EntityGroupName}. |
-| `@beep/nlp/Wink/index` | `InstanceId` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:51` | Branded runtime identifier for one live wink engine instance. |
-| `@beep/nlp/Wink/index` | `InstanceId` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:71` | Runtime type for {@link InstanceId}. |
-| `@beep/nlp/Wink/index` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:84` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
-| `@beep/nlp/Wink/index` | `SentenceSpanFailure` | class | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:44` | Failure raised when wink sentence spans cannot be derived from the token stream. |
-| `@beep/nlp/Wink/index` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:161` | Error raised while computing wink-backed similarity. |
-| `@beep/nlp/Wink/index` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:131` | Similarity score returned from a wink-backed comparison. |
-| `@beep/nlp/Wink/index` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:300` | Term-frequency entry for a learned document. |
-| `@beep/nlp/Wink/index` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:77` | Parameters controlling the asymmetric Tversky index. |
-| `@beep/nlp/Wink/index` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:327` | Error raised while learning or querying wink BM25 vectors. |
-| `@beep/nlp/Wink/index` | `WinkCorpusManager` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:727` | Wink corpus manager service. |
-| `@beep/nlp/Wink/index` | `WinkCorpusManagerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:744` | Live wink corpus manager layer. |
-| `@beep/nlp/Wink/index` | `WinkEngine` | class | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:238` | Wink engine service tag. |
-| `@beep/nlp/Wink/index` | `WinkEngineCustomEntities` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:143` | Collection of learned custom-entity examples tracked as one logical group. |
-| `@beep/nlp/Wink/index` | `WinkEngineError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:37` | Failure raised while creating or accessing the wink runtime. |
-| `@beep/nlp/Wink/index` | `WinkEngineLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:253` | Live wink engine layer. |
-| `@beep/nlp/Wink/index` | `WinkEngineRef` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:61` | Wink engine ref service. |
-| `@beep/nlp/Wink/index` | `WinkEngineRefLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:75` | Wink engine ref live layer. |
-| `@beep/nlp/Wink/index` | `WinkEngineRuntimeState` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:109` | In-memory wink engine runtime state including the live wink runtime. |
-| `@beep/nlp/Wink/index` | `WinkEngineState` | class | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:86` | Serializable wink engine state metadata. |
-| `@beep/nlp/Wink/index` | `WinkEntityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:131` | Failure raised while learning or managing custom entity patterns. |
-| `@beep/nlp/Wink/index` | `WinkError` | type | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:180` | Union of wink runtime errors. |
-| `@beep/nlp/Wink/index` | `WinkLayerAllLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:23` | Wink layer all live layer. |
-| `@beep/nlp/Wink/index` | `WinkLayerLive` | const | `packages/foundation/capability/nlp/src/Wink/index.ts:37` | Wink layer live layer. |
-| `@beep/nlp/Wink/index` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:288` | Wink similarity service. |
-| `@beep/nlp/Wink/index` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:303` | Live wink similarity layer. |
-| `@beep/nlp/Wink/index` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:343` | Wink-backed tokenization layer. |
-| `@beep/nlp/Wink/index` | `WinkTokenizationError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:82` | Failure raised while reading or tokenizing text through wink. |
-| `@beep/nlp/Wink/index` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:358` | Wink-backed tokenization layer with the live engine provided. |
-| `@beep/nlp/Wink/index` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:247` | Wink utility service. |
-| `@beep/nlp/Wink/index` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:123` | Error raised while calling wink utility helpers. |
-| `@beep/nlp/Wink/index` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:262` | Live wink utility layer. |
-| `@beep/nlp/Wink/index` | `WinkVectorizer` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:530` | Wink vectorizer service. |
-| `@beep/nlp/Wink/index` | `WinkVectorizerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:545` | Live wink vectorizer layer. |
-| `@beep/nlp/Wink/Layer` | `WinkCorpusManagerLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:71` | Wink corpus manager live layer. |
-| `@beep/nlp/Wink/Layer` | `WinkEngine` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:85` | Wink engine service. |
-| `@beep/nlp/Wink/Layer` | `WinkEngineLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:99` | Wink engine live layer. |
-| `@beep/nlp/Wink/Layer` | `WinkEngineRefLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:113` | Wink engine ref live layer. |
-| `@beep/nlp/Wink/Layer` | `WinkLayerAllLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:56` | Full live wink layer bundle including corpus management. |
-| `@beep/nlp/Wink/Layer` | `WinkLayerLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:33` | Live wink layer bundle for the currently ported runtime surface. |
-| `@beep/nlp/Wink/Layer` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:127` | Wink similarity live layer. |
-| `@beep/nlp/Wink/Layer` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:141` | Wink tokenization layer. |
-| `@beep/nlp/Wink/Layer` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:155` | Wink tokenization live layer. |
-| `@beep/nlp/Wink/Layer` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:169` | Wink utils live layer. |
-| `@beep/nlp/Wink/Layer` | `WinkVectorizerLive` | const | `packages/foundation/capability/nlp/src/Wink/Layer.ts:183` | Wink vectorizer live layer. |
-| `@beep/nlp/Wink/WinkCorpusManager` | `CorpusManagerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:262` | Error raised while managing a live corpus session. |
-| `@beep/nlp/Wink/WinkCorpusManager` | `WinkCorpusManager` | class | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:727` | Wink corpus manager service. |
-| `@beep/nlp/Wink/WinkCorpusManager` | `WinkCorpusManagerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkCorpusManager.ts:744` | Live wink corpus manager layer. |
-| `@beep/nlp/Wink/WinkEngine` | `InstanceId` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:51` | Branded runtime identifier for one live wink engine instance. |
-| `@beep/nlp/Wink/WinkEngine` | `InstanceId` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:71` | Runtime type for {@link InstanceId}. |
-| `@beep/nlp/Wink/WinkEngine` | `WinkEngine` | class | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:238` | Wink engine service tag. |
-| `@beep/nlp/Wink/WinkEngine` | `WinkEngineLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:253` | Live wink engine layer. |
-| `@beep/nlp/Wink/WinkEngine` | `WinkEngineRuntimeState` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:109` | In-memory wink engine runtime state including the live wink runtime. |
-| `@beep/nlp/Wink/WinkEngine` | `WinkEngineState` | class | `packages/foundation/capability/nlp/src/Wink/WinkEngine.ts:86` | Serializable wink engine state metadata. |
-| `@beep/nlp/Wink/WinkEngineRef` | `InstanceId` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngineRef.ts:100` | Instance id export. |
-| `@beep/nlp/Wink/WinkEngineRef` | `WinkEngineRef` | class | `packages/foundation/capability/nlp/src/Wink/WinkEngineRef.ts:56` | Compatibility service for inspecting and updating the shared wink runtime state ref. |
-| `@beep/nlp/Wink/WinkEngineRef` | `WinkEngineRefLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngineRef.ts:71` | Live layer for {@link WinkEngineRef}. |
-| `@beep/nlp/Wink/WinkEngineRef` | `WinkEngineRuntimeState` | type | `packages/foundation/capability/nlp/src/Wink/WinkEngineRef.ts:86` | Wink engine runtime state type. |
-| `@beep/nlp/Wink/WinkEngineRef` | `WinkEngineState` | const | `packages/foundation/capability/nlp/src/Wink/WinkEngineRef.ts:114` | Wink engine state export. |
-| `@beep/nlp/Wink/WinkErrors` | `WinkEngineError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:37` | Failure raised while creating or accessing the wink runtime. |
-| `@beep/nlp/Wink/WinkErrors` | `WinkEntityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:131` | Failure raised while learning or managing custom entity patterns. |
-| `@beep/nlp/Wink/WinkErrors` | `WinkError` | type | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:180` | Union of wink runtime errors. |
-| `@beep/nlp/Wink/WinkErrors` | `WinkTokenizationError` | class | `packages/foundation/capability/nlp/src/Wink/WinkErrors.ts:82` | Failure raised while reading or tokenizing text through wink. |
-| `@beep/nlp/Wink/WinkPattern` | `CustomEntityExample` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:99` | One custom-entity example expressed as ordered bracket-pattern elements. |
-| `@beep/nlp/Wink/WinkPattern` | `EntityGroupName` | const | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:64` | Branded identifier for a wink custom-entity group. |
-| `@beep/nlp/Wink/WinkPattern` | `EntityGroupName` | type | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:84` | Runtime type for {@link EntityGroupName}. |
-| `@beep/nlp/Wink/WinkPattern` | `WinkEngineCustomEntities` | class | `packages/foundation/capability/nlp/src/Wink/WinkPattern.ts:143` | Collection of learned custom-entity examples tracked as one logical group. |
-| `@beep/nlp/Wink/WinkSimilarity` | `DocumentTermSet` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:104` | Set of normalized document terms used for set-based similarity. |
-| `@beep/nlp/Wink/WinkSimilarity` | `SimilarityError` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:161` | Error raised while computing wink-backed similarity. |
-| `@beep/nlp/Wink/WinkSimilarity` | `SimilarityScore` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:131` | Similarity score returned from a wink-backed comparison. |
-| `@beep/nlp/Wink/WinkSimilarity` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:77` | Parameters controlling the asymmetric Tversky index. |
-| `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarity` | class | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:288` | Wink similarity service. |
-| `@beep/nlp/Wink/WinkSimilarity` | `WinkSimilarityLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts:303` | Live wink similarity layer. |
-| `@beep/nlp/Wink/WinkTokenizer` | `SentenceSpanFailure` | class | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:44` | Failure raised when wink sentence spans cannot be derived from the token stream. |
-| `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenization` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:343` | Wink-backed tokenization layer. |
-| `@beep/nlp/Wink/WinkTokenizer` | `WinkTokenizationLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkTokenizer.ts:358` | Wink-backed tokenization layer with the live engine provided. |
-| `@beep/nlp/Wink/WinkUtils` | `WinkUtils` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:247` | Wink utility service. |
-| `@beep/nlp/Wink/WinkUtils` | `WinkUtilsError` | class | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:123` | Error raised while calling wink utility helpers. |
-| `@beep/nlp/Wink/WinkUtils` | `WinkUtilsLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkUtils.ts:262` | Live wink utility layer. |
-| `@beep/nlp/Wink/WinkVectorizer` | `BagOfWords` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:273` | Bag-of-words representation for a document or query. |
-| `@beep/nlp/Wink/WinkVectorizer` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:196` | BM25 configuration used by wink vectorization and corpus management. |
-| `@beep/nlp/Wink/WinkVectorizer` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:121` | BM25 normalization mode used by the vectorizer and corpus services. |
-| `@beep/nlp/Wink/WinkVectorizer` | `DefaultBM25Config` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:225` | Default BM25 configuration used by the live wink vectorizer. |
-| `@beep/nlp/Wink/WinkVectorizer` | `DocumentVector` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:245` | Dense vector representation for a document or query. |
-| `@beep/nlp/Wink/WinkVectorizer` | `ScopedVectorizer` | interface | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:84` | Minimal isolated vectorizer surface used by ranking and keyword extraction. |
-| `@beep/nlp/Wink/WinkVectorizer` | `TermFrequency` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:300` | Term-frequency entry for a learned document. |
-| `@beep/nlp/Wink/WinkVectorizer` | `VectorizerError` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:327` | Error raised while learning or querying wink BM25 vectors. |
-| `@beep/nlp/Wink/WinkVectorizer` | `WinkVectorizer` | class | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:530` | Wink vectorizer service. |
-| `@beep/nlp/Wink/WinkVectorizer` | `WinkVectorizerLive` | const | `packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts:545` | Live wink vectorizer layer. |
+| `@beep/nlp/PathText` | `filePathVariants` | const | `packages/foundation/capability/nlp/src/PathText.ts:91` | Generate source-file lookup variants from a path fragment. |
+| `@beep/nlp/PathText` | `isPathLike` | const | `packages/foundation/capability/nlp/src/PathText.ts:69` | Check whether normalized text is shaped like a single path or module token. |
+| `@beep/nlp/PathText` | `moduleSpecifierVariants` | const | `packages/foundation/capability/nlp/src/PathText.ts:112` | Generate import-specifier lookup variants from a module fragment. |
+| `@beep/nlp/PathText` | `normalizePathPhrase` | const | `packages/foundation/capability/nlp/src/PathText.ts:47` | Canonicalize a path-like phrase for file and module lookup. |
+| `@beep/nlp/QueryText` | `extractBacktickValue` | const | `packages/foundation/capability/nlp/src/QueryText.ts:77` | Extract the first value enclosed in backticks from a user question. |
+| `@beep/nlp/QueryText` | `normalizePhrase` | const | `packages/foundation/capability/nlp/src/QueryText.ts:54` | Normalize a short extracted phrase after it has been pulled from prose. |
+| `@beep/nlp/QueryText` | `normalizeQuestion` | const | `packages/foundation/capability/nlp/src/QueryText.ts:33` | Canonicalize a free-form user question for deterministic matching. |
+| `@beep/nlp/Tools` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:61` | Ai corpus config tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:75` | Ai corpus idf tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:89` | Ai corpus matrix shape tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:103` | Ai corpus ranked document tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:117` | Ai corpus stats tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:131` | Ai corpus summary tool schema. |
+| `@beep/nlp/Tools` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:145` | Ai document stats tool schema. |
+| `@beep/nlp/Tools` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:159` | Ai entity tool schema. |
+| `@beep/nlp/Tools` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:173` | Ai keyword tool schema. |
+| `@beep/nlp/Tools` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:187` | Ai n gram tool schema. |
+| `@beep/nlp/Tools` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:201` | Ai phonetic match tool schema. |
+| `@beep/nlp/Tools` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:215` | Ai ranked text tool schema. |
+| `@beep/nlp/Tools` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:229` | Ai sentence tool schema. |
+| `@beep/nlp/Tools` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:243` | Ai sentence chunk tool schema. |
+| `@beep/nlp/Tools` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:278` | Ai token tool schema. |
+| `@beep/nlp/Tools` | `AiToolError` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:264` | Ai tool error schema. |
+| `@beep/nlp/Tools` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:292` | Bow cosine similarity tool. |
+| `@beep/nlp/Tools` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:306` | Chunk by sentences tool. |
+| `@beep/nlp/Tools` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:320` | Corpus stats layer. |
+| `@beep/nlp/Tools` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:334` | Create corpus export. |
+| `@beep/nlp/Tools` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:348` | Delete corpus tool. |
+| `@beep/nlp/Tools` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:362` | Document stats tool. |
+| `@beep/nlp/Tools` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:589` | Export tools tool. |
+| `@beep/nlp/Tools` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:376` | Extract entities tool. |
+| `@beep/nlp/Tools` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:390` | Extract keywords tool. |
+| `@beep/nlp/Tools` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:404` | Learn corpus tool. |
+| `@beep/nlp/Tools` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:418` | Learn custom entities tool. |
+| `@beep/nlp/Tools` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:432` | N grams tool. |
+| `@beep/nlp/Tools` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:559` | Nlp toolkit tool. |
+| `@beep/nlp/Tools` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:574` | Nlp tools tool. |
+| `@beep/nlp/Tools` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:446` | Phonetic match tool. |
+| `@beep/nlp/Tools` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:460` | Query corpus tool. |
+| `@beep/nlp/Tools` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:474` | Rank by relevance tool. |
+| `@beep/nlp/Tools` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:488` | Sentences tool. |
+| `@beep/nlp/Tools` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:502` | Text similarity tool. |
+| `@beep/nlp/Tools` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:516` | Tokenize tool. |
+| `@beep/nlp/Tools` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:530` | Transform text tool. |
+| `@beep/nlp/Tools` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:544` | Tversky similarity tool. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusConfig` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:451` | Output schema for the resolved BM25 configuration of a managed corpus. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusIdf` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:558` | Output schema for an inverse document frequency value in a corpus. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusMatrixShape` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:590` | Output schema for the dimensions of an optional document-term matrix. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusRankedDocument` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:525` | Output schema for one ranked document returned from a corpus query. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:628` | Output schema for detailed corpus diagnostics and retrieval statistics. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusSummary` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:488` | Output schema for a managed corpus session summary. |
+| `@beep/nlp/Tools/_schemas` | `AiDocumentStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:194` | Output schema for high-level document statistics. |
+| `@beep/nlp/Tools/_schemas` | `AiEntity` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:303` | Output schema for an extracted named entity. |
+| `@beep/nlp/Tools/_schemas` | `AiKeyword` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:160` | Output schema for a keyword candidate and its importance score. |
+| `@beep/nlp/Tools/_schemas` | `AiNGram` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:340` | Output schema for an extracted n-gram and its frequency count. |
+| `@beep/nlp/Tools/_schemas` | `AiPhoneticMatch` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:375` | Output schema for phonetic overlap between two text inputs. |
+| `@beep/nlp/Tools/_schemas` | `AiRankedText` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:266` | Output schema for one ranked text candidate. |
+| `@beep/nlp/Tools/_schemas` | `AiSentence` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:125` | Output schema for a detected sentence with source offsets and token count. |
+| `@beep/nlp/Tools/_schemas` | `AiSentenceChunk` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:231` | Output schema for a sentence-aligned text chunk. |
+| `@beep/nlp/Tools/_schemas` | `AiToken` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:82` | Output schema for one token emitted by tokenization-oriented tools. |
+| `@beep/nlp/Tools/_schemas` | `AiToolError` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:414` | Structured failure schema returned by AI-facing NLP tools. |
+| `@beep/nlp/Tools/BowCosineSimilarity` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts:69` | Defines the agent-facing tool contract for comparing two texts by |
+| `@beep/nlp/Tools/ChunkBySentences` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts:67` | Defines the agent-facing tool contract for splitting text into chunks that |
+| `@beep/nlp/Tools/CorpusStats` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/CorpusStats.ts:61` | Defines the agent-facing tool contract for inspecting a learned corpus' |
+| `@beep/nlp/Tools/CreateCorpus` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/CreateCorpus.ts:75` | Defines the agent-facing tool contract for creating a stateful BM25-style |
+| `@beep/nlp/Tools/DeleteCorpus` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/DeleteCorpus.ts:58` | Defines the agent-facing tool contract for deleting a managed corpus session |
+| `@beep/nlp/Tools/DocumentStats` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/DocumentStats.ts:50` | Defines the agent-facing tool contract for computing document-level text |
+| `@beep/nlp/Tools/ExtractEntities` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/ExtractEntities.ts:76` | Defines the agent-facing tool contract for extracting built-in and custom |
+| `@beep/nlp/Tools/ExtractKeywords` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/ExtractKeywords.ts:65` | Defines the agent-facing tool contract for extracting ranked keyword terms |
+| `@beep/nlp/Tools/index` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:61` | Ai corpus config tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:75` | Ai corpus idf tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:89` | Ai corpus matrix shape tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:103` | Ai corpus ranked document tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:117` | Ai corpus stats tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:131` | Ai corpus summary tool schema. |
+| `@beep/nlp/Tools/index` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:145` | Ai document stats tool schema. |
+| `@beep/nlp/Tools/index` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:159` | Ai entity tool schema. |
+| `@beep/nlp/Tools/index` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:173` | Ai keyword tool schema. |
+| `@beep/nlp/Tools/index` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:187` | Ai n gram tool schema. |
+| `@beep/nlp/Tools/index` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:201` | Ai phonetic match tool schema. |
+| `@beep/nlp/Tools/index` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:215` | Ai ranked text tool schema. |
+| `@beep/nlp/Tools/index` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:229` | Ai sentence tool schema. |
+| `@beep/nlp/Tools/index` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:243` | Ai sentence chunk tool schema. |
+| `@beep/nlp/Tools/index` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:278` | Ai token tool schema. |
+| `@beep/nlp/Tools/index` | `AiToolError` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:264` | Ai tool error schema. |
+| `@beep/nlp/Tools/index` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:292` | Bow cosine similarity tool. |
+| `@beep/nlp/Tools/index` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:306` | Chunk by sentences tool. |
+| `@beep/nlp/Tools/index` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:320` | Corpus stats layer. |
+| `@beep/nlp/Tools/index` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:334` | Create corpus export. |
+| `@beep/nlp/Tools/index` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:348` | Delete corpus tool. |
+| `@beep/nlp/Tools/index` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:362` | Document stats tool. |
+| `@beep/nlp/Tools/index` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:589` | Export tools tool. |
+| `@beep/nlp/Tools/index` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:376` | Extract entities tool. |
+| `@beep/nlp/Tools/index` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:390` | Extract keywords tool. |
+| `@beep/nlp/Tools/index` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:404` | Learn corpus tool. |
+| `@beep/nlp/Tools/index` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:418` | Learn custom entities tool. |
+| `@beep/nlp/Tools/index` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:432` | N grams tool. |
+| `@beep/nlp/Tools/index` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:559` | Nlp toolkit tool. |
+| `@beep/nlp/Tools/index` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:574` | Nlp tools tool. |
+| `@beep/nlp/Tools/index` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:446` | Phonetic match tool. |
+| `@beep/nlp/Tools/index` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:460` | Query corpus tool. |
+| `@beep/nlp/Tools/index` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:474` | Rank by relevance tool. |
+| `@beep/nlp/Tools/index` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:488` | Sentences tool. |
+| `@beep/nlp/Tools/index` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:502` | Text similarity tool. |
+| `@beep/nlp/Tools/index` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:516` | Tokenize tool. |
+| `@beep/nlp/Tools/index` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:530` | Transform text tool. |
+| `@beep/nlp/Tools/index` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:544` | Tversky similarity tool. |
+| `@beep/nlp/Tools/LearnCorpus` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts:80` | Defines the agent-facing tool contract for incrementally learning documents |
+| `@beep/nlp/Tools/LearnCustomEntities` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts:99` | Defines the agent-facing tool contract for learning custom entity patterns |
+| `@beep/nlp/Tools/NGrams` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/NGrams.ts:87` | Defines the agent-facing tool contract for extracting fixed-size character |
+| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:122` | Effect AI toolkit definition containing the full NLP tool surface. |
+| `@beep/nlp/Tools/NlpToolkit` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:77` | Canonical ordered NLP tool list used to build the toolkit and export |
+| `@beep/nlp/Tools/PhoneticMatch` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/PhoneticMatch.ts:74` | Defines the agent-facing tool contract for comparing two texts by phonetic |
+| `@beep/nlp/Tools/QueryCorpus` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts:87` | Defines the agent-facing tool contract for querying a learned corpus session |
+| `@beep/nlp/Tools/RankByRelevance` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts:76` | Defines the agent-facing tool contract for ranking candidate texts by |
+| `@beep/nlp/Tools/Sentences` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/Sentences.ts:59` | Defines the agent-facing tool contract for splitting text into sentence |
+| `@beep/nlp/Tools/TextSimilarity` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts:69` | Defines the agent-facing tool contract for comparing two texts with BM25 |
+| `@beep/nlp/Tools/Tokenize` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/Tokenize.ts:60` | Defines the agent-facing tool contract for tokenizing text into annotated |
+| `@beep/nlp/Tools/ToolExport` | `ExportedTool` | interface | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:173` | Runtime descriptor for a tool exported as a positional function contract. |
+| `@beep/nlp/Tools/ToolExport` | `ExportedToolError` | class | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:111` | Typed failure for the positional tool export adapter. |
+| `@beep/nlp/Tools/ToolExport` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:331` | Effect that exports every NLP toolkit tool as a positional descriptor. |
+| `@beep/nlp/Tools/TransformText` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/TransformText.ts:95` | Defines the agent-facing tool contract for applying ordered text |
+| `@beep/nlp/Tools/TverskySimilarity` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts:84` | Defines the agent-facing tool contract for asymmetric Tversky similarity |
+| `@beep/nlp/VariantText` | `orderedDedupe` | const | `packages/foundation/capability/nlp/src/VariantText.ts:35` | Remove blank variants and keep the first spelling of each unique string. |
 
 ### @beep/infra
 
@@ -13138,8 +13037,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/hooks/useSpinner` | `useSpinner` | function | `packages/foundation/ui-system/ui/src/hooks/useSpinner.ts:129` | Use spinner hook. |
 | `@beep/ui/lib/index` | `cn` | function | `packages/foundation/ui-system/ui/src/lib/utils.ts:33` | Cn export. |
 | `@beep/ui/lib/index` | `sanitizeAnchorHref` | const | `packages/foundation/ui-system/ui/src/lib/url.ts:101` | Sanitize anchor href export. |
-| `@beep/ui/lib/react-invariant` | `ReactContextInvariantOptions` | class | `packages/foundation/ui-system/ui/src/lib/react-invariant.ts:27` | React context invariant options class. |
-| `@beep/ui/lib/react-invariant` | `requireReactContext` | const | `packages/foundation/ui-system/ui/src/lib/react-invariant.ts:52` | Require that a React context hook has been called under its provider. |
+| `@beep/ui/lib/react-invariant` | `ReactContextInvariantError` | class | `packages/foundation/ui-system/ui/src/lib/react-invariant.ts:53` | Error thrown when a React context hook is used outside its provider. |
+| `@beep/ui/lib/react-invariant` | `ReactContextInvariantOptions` | class | `packages/foundation/ui-system/ui/src/lib/react-invariant.ts:28` | React context invariant options class. |
+| `@beep/ui/lib/react-invariant` | `requireReactContext` | const | `packages/foundation/ui-system/ui/src/lib/react-invariant.ts:79` | Require that a React context hook has been called under its provider. |
 | `@beep/ui/lib/toaster` | `globalToastManager` | const | `packages/foundation/ui-system/ui/src/lib/toaster.ts:30` | Global toast manager export. |
 | `@beep/ui/lib/url` | `sanitizeAnchorHref` | const | `packages/foundation/ui-system/ui/src/lib/url.ts:101` | Sanitize anchor href export. |
 | `@beep/ui/lib/utils` | `cn` | function | `packages/foundation/ui-system/ui/src/lib/utils.ts:33` | Cn export. |
@@ -13626,6 +13526,160 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/canvas-client` | `VERSION` | const | `packages/canvas/client/src/index.ts:22` | Package version for `@beep/canvas-client`. |
+
+### @beep/wink
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/wink` | `CorpusManagerError` | class | `packages/drivers/wink/src/WinkCorpus.service.ts:340` | Typed failure for creating, learning, querying, or inspecting a managed corpus. |
+| `@beep/wink` | `CustomEntityExample` | class | `packages/drivers/wink/src/Wink.models.ts:110` | One wink custom-entity training example expressed as bracket-pattern elements. |
+| `@beep/wink` | `EntityGroupName` | const | `packages/drivers/wink/src/Wink.models.ts:66` | Branded identifier for a learned wink custom-entity group. |
+| `@beep/wink` | `EntityGroupName` | type | `packages/drivers/wink/src/Wink.models.ts:88` | Runtime TypeScript type produced by {@link EntityGroupName}. |
+| `@beep/wink` | `InstanceId` | const | `packages/drivers/wink/src/Wink.service.ts:54` | Branded runtime identifier for one initialized wink engine instance. |
+| `@beep/wink` | `InstanceId` | type | `packages/drivers/wink/src/Wink.service.ts:76` | Runtime TypeScript type produced by the {@link InstanceId} schema. |
+| `@beep/wink` | `makeWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:225` | Convert an expected wink driver failure into an AI tool error payload. |
+| `@beep/wink` | `mapWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:272` | Map the error channel of a wink-backed tool effect to {@link AiToolError}. |
+| `@beep/wink` | `observeWinkTool` | const | `packages/drivers/wink/src/WinkObservability.ts:311` | Observe a wink-backed AI tool and surface expected failures as structured |
+| `@beep/wink` | `observeWinkWorkflow` | const | `packages/drivers/wink/src/WinkObservability.ts:182` | Observe a wink workflow with standard metrics and span annotations. |
+| `@beep/wink` | `ScopedVectorizer` | interface | `packages/drivers/wink/src/WinkVectorizer.service.ts:91` | Isolated vectorizer surface passed to scoped BM25 workflows. |
+| `@beep/wink` | `SentenceSpanFailure` | class | `packages/drivers/wink/src/WinkTokenization.service.ts:57` | Typed failure used when wink sentence spans cannot be aligned to token indexes. |
+| `@beep/wink` | `SimilarityError` | class | `packages/drivers/wink/src/WinkSimilarity.service.ts:67` | Typed failure for wink-backed vector, set, or bag-of-words similarity. |
+| `@beep/wink` | `textLengthAttribute` | const | `packages/drivers/wink/src/WinkObservability.ts:133` | Build a span-safe text length annotation without recording raw text. |
+| `@beep/wink` | `VectorizerError` | class | `packages/drivers/wink/src/WinkVectorizer.service.ts:175` | Typed failure for learning documents or querying wink BM25 vector data. |
+| `@beep/wink` | `VERSION` | const | `packages/drivers/wink/src/index.ts:21` | Package version constant. |
+| `@beep/wink` | `WinkBackendLive` | const | `packages/drivers/wink/src/WinkBackend.service.ts:150` | Live {@link NLPBackend} layer backed by wink-nlp (requires {@link WinkEngine}). |
+| `@beep/wink` | `WinkCorpusManager` | class | `packages/drivers/wink/src/WinkCorpus.service.ts:830` | Service for managing stateful BM25 corpora and query sessions. |
+| `@beep/wink` | `WinkCorpusManagerLive` | const | `packages/drivers/wink/src/WinkCorpus.service.ts:859` | Live corpus manager layer requiring the wink engine and similarity services. |
+| `@beep/wink` | `WinkEngine` | class | `packages/drivers/wink/src/Wink.service.ts:284` | Service tag for direct access to the loaded `wink-nlp` runtime. |
+| `@beep/wink` | `WinkEngineCustomEntities` | class | `packages/drivers/wink/src/Wink.models.ts:166` | Collection of custom-entity examples learned as one logical wink entity group. |
+| `@beep/wink` | `WinkEngineError` | class | `packages/drivers/wink/src/Wink.errors.ts:38` | Typed failure for initializing or reading from the wink runtime. |
+| `@beep/wink` | `WinkEngineLive` | const | `packages/drivers/wink/src/Wink.service.ts:307` | Live layer that loads `wink-nlp` with the bundled English lite web model. |
+| `@beep/wink` | `WinkEngineRef` | class | `packages/drivers/wink/src/WinkEngineRef.service.ts:72` | Compatibility service for reading the live wink runtime ref and updating custom entities. |
+| `@beep/wink` | `WinkEngineRefLive` | const | `packages/drivers/wink/src/WinkEngineRef.service.ts:97` | Live compatibility layer backed by the shared wink engine runtime. |
+| `@beep/wink` | `WinkEngineRuntimeState` | type | `packages/drivers/wink/src/Wink.service.ts:136` | In-memory state held by the live wink engine ref. |
+| `@beep/wink` | `WinkEngineState` | class | `packages/drivers/wink/src/Wink.service.ts:97` | Serializable metadata for the current wink runtime and learned entity set. |
+| `@beep/wink` | `WinkEntityError` | class | `packages/drivers/wink/src/Wink.errors.ts:140` | Typed failure for learning or updating wink custom entity patterns. |
+| `@beep/wink` | `WinkError` | const | `packages/drivers/wink/src/Wink.errors.ts:193` | Tagged schema union for all wink runtime failures exposed by this module. |
+| `@beep/wink` | `WinkError` | type | `packages/drivers/wink/src/Wink.errors.ts:215` | Type-level companion for the {@link WinkError} schema union. |
+| `@beep/wink` | `WinkLayerAllLive` | const | `packages/drivers/wink/src/Wink.layer.ts:72` | Full live wink layer bundle including corpus management and shared utilities. |
+| `@beep/wink` | `WinkLayerLive` | const | `packages/drivers/wink/src/Wink.layer.ts:40` | Live layer bundle for the engine-backed tokenization surface. |
+| `@beep/wink` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:337` | Live toolkit handler layer backed by the wink NLP runtime. |
+| `@beep/wink` | `WinkSimilarity` | class | `packages/drivers/wink/src/WinkSimilarity.service.ts:256` | Service for computing cosine and Tversky scores using wink similarity helpers. |
+| `@beep/wink` | `WinkSimilarityLive` | const | `packages/drivers/wink/src/WinkSimilarity.service.ts:285` | Live layer for wink similarity utilities. |
+| `@beep/wink` | `WinkTokenization` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:374` | Engine-dependent layer implementing the core tokenization service with wink. |
+| `@beep/wink` | `WinkTokenizationError` | class | `packages/drivers/wink/src/Wink.errors.ts:87` | Typed failure for wink document reads, token collection, and token counts. |
+| `@beep/wink` | `WinkTokenizationLive` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:396` | Live tokenization layer with the wink engine already provided. |
+| `@beep/wink` | `WinkToolObservationOptions` | class | `packages/drivers/wink/src/WinkObservability.ts:108` | Tool observation options used when mapping driver failures to AI tool errors. |
+| `@beep/wink` | `WinkUtils` | class | `packages/drivers/wink/src/WinkUtils.service.ts:314` | Service wrapping `wink-nlp-utils` string cleanup, phonetic, and n-gram helpers. |
+| `@beep/wink` | `WinkUtilsError` | class | `packages/drivers/wink/src/WinkUtils.service.ts:150` | Typed failure for `wink-nlp-utils` string, token, and n-gram helpers. |
+| `@beep/wink` | `WinkUtilsLive` | const | `packages/drivers/wink/src/WinkUtils.service.ts:337` | Live layer for the `wink-nlp-utils` wrappers. |
+| `@beep/wink` | `WinkVectorizer` | class | `packages/drivers/wink/src/WinkVectorizer.service.ts:388` | Service for learning documents and producing BM25 vectors, bags, and term frequencies. |
+| `@beep/wink` | `WinkVectorizerLive` | const | `packages/drivers/wink/src/WinkVectorizer.service.ts:412` | Live BM25 vectorizer layer that depends on the wink engine. |
+| `@beep/wink` | `WinkWorkflowObservationOptions` | class | `packages/drivers/wink/src/WinkObservability.ts:77` | Workflow observation options shared by wink services and tool handlers. |
+| `@beep/wink` | `withWinkAttributes` | const | `packages/drivers/wink/src/WinkObservability.ts:155` | Merge extra string attributes into a wink observability attribute record. |
+| `@beep/wink/index` | `CorpusManagerError` | class | `packages/drivers/wink/src/WinkCorpus.service.ts:340` | Typed failure for creating, learning, querying, or inspecting a managed corpus. |
+| `@beep/wink/index` | `CustomEntityExample` | class | `packages/drivers/wink/src/Wink.models.ts:110` | One wink custom-entity training example expressed as bracket-pattern elements. |
+| `@beep/wink/index` | `EntityGroupName` | const | `packages/drivers/wink/src/Wink.models.ts:66` | Branded identifier for a learned wink custom-entity group. |
+| `@beep/wink/index` | `EntityGroupName` | type | `packages/drivers/wink/src/Wink.models.ts:88` | Runtime TypeScript type produced by {@link EntityGroupName}. |
+| `@beep/wink/index` | `InstanceId` | const | `packages/drivers/wink/src/Wink.service.ts:54` | Branded runtime identifier for one initialized wink engine instance. |
+| `@beep/wink/index` | `InstanceId` | type | `packages/drivers/wink/src/Wink.service.ts:76` | Runtime TypeScript type produced by the {@link InstanceId} schema. |
+| `@beep/wink/index` | `makeWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:225` | Convert an expected wink driver failure into an AI tool error payload. |
+| `@beep/wink/index` | `mapWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:272` | Map the error channel of a wink-backed tool effect to {@link AiToolError}. |
+| `@beep/wink/index` | `observeWinkTool` | const | `packages/drivers/wink/src/WinkObservability.ts:311` | Observe a wink-backed AI tool and surface expected failures as structured |
+| `@beep/wink/index` | `observeWinkWorkflow` | const | `packages/drivers/wink/src/WinkObservability.ts:182` | Observe a wink workflow with standard metrics and span annotations. |
+| `@beep/wink/index` | `ScopedVectorizer` | interface | `packages/drivers/wink/src/WinkVectorizer.service.ts:91` | Isolated vectorizer surface passed to scoped BM25 workflows. |
+| `@beep/wink/index` | `SentenceSpanFailure` | class | `packages/drivers/wink/src/WinkTokenization.service.ts:57` | Typed failure used when wink sentence spans cannot be aligned to token indexes. |
+| `@beep/wink/index` | `SimilarityError` | class | `packages/drivers/wink/src/WinkSimilarity.service.ts:67` | Typed failure for wink-backed vector, set, or bag-of-words similarity. |
+| `@beep/wink/index` | `textLengthAttribute` | const | `packages/drivers/wink/src/WinkObservability.ts:133` | Build a span-safe text length annotation without recording raw text. |
+| `@beep/wink/index` | `VectorizerError` | class | `packages/drivers/wink/src/WinkVectorizer.service.ts:175` | Typed failure for learning documents or querying wink BM25 vector data. |
+| `@beep/wink/index` | `VERSION` | const | `packages/drivers/wink/src/index.ts:21` | Package version constant. |
+| `@beep/wink/index` | `WinkBackendLive` | const | `packages/drivers/wink/src/WinkBackend.service.ts:150` | Live {@link NLPBackend} layer backed by wink-nlp (requires {@link WinkEngine}). |
+| `@beep/wink/index` | `WinkCorpusManager` | class | `packages/drivers/wink/src/WinkCorpus.service.ts:830` | Service for managing stateful BM25 corpora and query sessions. |
+| `@beep/wink/index` | `WinkCorpusManagerLive` | const | `packages/drivers/wink/src/WinkCorpus.service.ts:859` | Live corpus manager layer requiring the wink engine and similarity services. |
+| `@beep/wink/index` | `WinkEngine` | class | `packages/drivers/wink/src/Wink.service.ts:284` | Service tag for direct access to the loaded `wink-nlp` runtime. |
+| `@beep/wink/index` | `WinkEngineCustomEntities` | class | `packages/drivers/wink/src/Wink.models.ts:166` | Collection of custom-entity examples learned as one logical wink entity group. |
+| `@beep/wink/index` | `WinkEngineError` | class | `packages/drivers/wink/src/Wink.errors.ts:38` | Typed failure for initializing or reading from the wink runtime. |
+| `@beep/wink/index` | `WinkEngineLive` | const | `packages/drivers/wink/src/Wink.service.ts:307` | Live layer that loads `wink-nlp` with the bundled English lite web model. |
+| `@beep/wink/index` | `WinkEngineRef` | class | `packages/drivers/wink/src/WinkEngineRef.service.ts:72` | Compatibility service for reading the live wink runtime ref and updating custom entities. |
+| `@beep/wink/index` | `WinkEngineRefLive` | const | `packages/drivers/wink/src/WinkEngineRef.service.ts:97` | Live compatibility layer backed by the shared wink engine runtime. |
+| `@beep/wink/index` | `WinkEngineRuntimeState` | type | `packages/drivers/wink/src/Wink.service.ts:136` | In-memory state held by the live wink engine ref. |
+| `@beep/wink/index` | `WinkEngineState` | class | `packages/drivers/wink/src/Wink.service.ts:97` | Serializable metadata for the current wink runtime and learned entity set. |
+| `@beep/wink/index` | `WinkEntityError` | class | `packages/drivers/wink/src/Wink.errors.ts:140` | Typed failure for learning or updating wink custom entity patterns. |
+| `@beep/wink/index` | `WinkError` | const | `packages/drivers/wink/src/Wink.errors.ts:193` | Tagged schema union for all wink runtime failures exposed by this module. |
+| `@beep/wink/index` | `WinkError` | type | `packages/drivers/wink/src/Wink.errors.ts:215` | Type-level companion for the {@link WinkError} schema union. |
+| `@beep/wink/index` | `WinkLayerAllLive` | const | `packages/drivers/wink/src/Wink.layer.ts:72` | Full live wink layer bundle including corpus management and shared utilities. |
+| `@beep/wink/index` | `WinkLayerLive` | const | `packages/drivers/wink/src/Wink.layer.ts:40` | Live layer bundle for the engine-backed tokenization surface. |
+| `@beep/wink/index` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:337` | Live toolkit handler layer backed by the wink NLP runtime. |
+| `@beep/wink/index` | `WinkSimilarity` | class | `packages/drivers/wink/src/WinkSimilarity.service.ts:256` | Service for computing cosine and Tversky scores using wink similarity helpers. |
+| `@beep/wink/index` | `WinkSimilarityLive` | const | `packages/drivers/wink/src/WinkSimilarity.service.ts:285` | Live layer for wink similarity utilities. |
+| `@beep/wink/index` | `WinkTokenization` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:374` | Engine-dependent layer implementing the core tokenization service with wink. |
+| `@beep/wink/index` | `WinkTokenizationError` | class | `packages/drivers/wink/src/Wink.errors.ts:87` | Typed failure for wink document reads, token collection, and token counts. |
+| `@beep/wink/index` | `WinkTokenizationLive` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:396` | Live tokenization layer with the wink engine already provided. |
+| `@beep/wink/index` | `WinkToolObservationOptions` | class | `packages/drivers/wink/src/WinkObservability.ts:108` | Tool observation options used when mapping driver failures to AI tool errors. |
+| `@beep/wink/index` | `WinkUtils` | class | `packages/drivers/wink/src/WinkUtils.service.ts:314` | Service wrapping `wink-nlp-utils` string cleanup, phonetic, and n-gram helpers. |
+| `@beep/wink/index` | `WinkUtilsError` | class | `packages/drivers/wink/src/WinkUtils.service.ts:150` | Typed failure for `wink-nlp-utils` string, token, and n-gram helpers. |
+| `@beep/wink/index` | `WinkUtilsLive` | const | `packages/drivers/wink/src/WinkUtils.service.ts:337` | Live layer for the `wink-nlp-utils` wrappers. |
+| `@beep/wink/index` | `WinkVectorizer` | class | `packages/drivers/wink/src/WinkVectorizer.service.ts:388` | Service for learning documents and producing BM25 vectors, bags, and term frequencies. |
+| `@beep/wink/index` | `WinkVectorizerLive` | const | `packages/drivers/wink/src/WinkVectorizer.service.ts:412` | Live BM25 vectorizer layer that depends on the wink engine. |
+| `@beep/wink/index` | `WinkWorkflowObservationOptions` | class | `packages/drivers/wink/src/WinkObservability.ts:77` | Workflow observation options shared by wink services and tool handlers. |
+| `@beep/wink/index` | `withWinkAttributes` | const | `packages/drivers/wink/src/WinkObservability.ts:155` | Merge extra string attributes into a wink observability attribute record. |
+| `@beep/wink/Wink.errors` | `WinkEngineError` | class | `packages/drivers/wink/src/Wink.errors.ts:38` | Typed failure for initializing or reading from the wink runtime. |
+| `@beep/wink/Wink.errors` | `WinkEntityError` | class | `packages/drivers/wink/src/Wink.errors.ts:140` | Typed failure for learning or updating wink custom entity patterns. |
+| `@beep/wink/Wink.errors` | `WinkError` | const | `packages/drivers/wink/src/Wink.errors.ts:193` | Tagged schema union for all wink runtime failures exposed by this module. |
+| `@beep/wink/Wink.errors` | `WinkError` | type | `packages/drivers/wink/src/Wink.errors.ts:215` | Type-level companion for the {@link WinkError} schema union. |
+| `@beep/wink/Wink.errors` | `WinkTokenizationError` | class | `packages/drivers/wink/src/Wink.errors.ts:87` | Typed failure for wink document reads, token collection, and token counts. |
+| `@beep/wink/Wink.layer` | `WinkCorpusManagerLive` | const | `packages/drivers/wink/src/Wink.layer.ts:90` | Live layer for stateful corpus indexing and query services. |
+| `@beep/wink/Wink.layer` | `WinkEngine` | const | `packages/drivers/wink/src/Wink.layer.ts:110` | Service tag for direct access to the underlying wink runtime. |
+| `@beep/wink/Wink.layer` | `WinkEngineLive` | const | `packages/drivers/wink/src/Wink.layer.ts:132` | Live layer that initializes `wink-nlp` with the English lite web model. |
+| `@beep/wink/Wink.layer` | `WinkEngineRefLive` | const | `packages/drivers/wink/src/Wink.layer.ts:153` | Live layer for compatibility access to the shared wink engine state ref. |
+| `@beep/wink/Wink.layer` | `WinkLayerAllLive` | const | `packages/drivers/wink/src/Wink.layer.ts:72` | Full live wink layer bundle including corpus management and shared utilities. |
+| `@beep/wink/Wink.layer` | `WinkLayerLive` | const | `packages/drivers/wink/src/Wink.layer.ts:40` | Live layer bundle for the engine-backed tokenization surface. |
+| `@beep/wink/Wink.layer` | `WinkSimilarityLive` | const | `packages/drivers/wink/src/Wink.layer.ts:176` | Live layer for wink-backed vector, set, and bag-of-words similarity. |
+| `@beep/wink/Wink.layer` | `WinkTokenization` | const | `packages/drivers/wink/src/Wink.layer.ts:191` | Engine-dependent layer that implements the core tokenization service. |
+| `@beep/wink/Wink.layer` | `WinkTokenizationLive` | const | `packages/drivers/wink/src/Wink.layer.ts:214` | Live tokenization layer with the wink engine already provided. |
+| `@beep/wink/Wink.layer` | `WinkUtilsLive` | const | `packages/drivers/wink/src/Wink.layer.ts:235` | Live layer for `wink-nlp-utils` string and token helper wrappers. |
+| `@beep/wink/Wink.layer` | `WinkVectorizerLive` | const | `packages/drivers/wink/src/Wink.layer.ts:256` | Live layer for BM25 vectorization backed by the wink engine. |
+| `@beep/wink/Wink.models` | `CustomEntityExample` | class | `packages/drivers/wink/src/Wink.models.ts:110` | One wink custom-entity training example expressed as bracket-pattern elements. |
+| `@beep/wink/Wink.models` | `EntityGroupName` | const | `packages/drivers/wink/src/Wink.models.ts:66` | Branded identifier for a learned wink custom-entity group. |
+| `@beep/wink/Wink.models` | `EntityGroupName` | type | `packages/drivers/wink/src/Wink.models.ts:88` | Runtime TypeScript type produced by {@link EntityGroupName}. |
+| `@beep/wink/Wink.models` | `WinkEngineCustomEntities` | class | `packages/drivers/wink/src/Wink.models.ts:166` | Collection of custom-entity examples learned as one logical wink entity group. |
+| `@beep/wink/Wink.service` | `InstanceId` | const | `packages/drivers/wink/src/Wink.service.ts:54` | Branded runtime identifier for one initialized wink engine instance. |
+| `@beep/wink/Wink.service` | `InstanceId` | type | `packages/drivers/wink/src/Wink.service.ts:76` | Runtime TypeScript type produced by the {@link InstanceId} schema. |
+| `@beep/wink/Wink.service` | `WinkEngine` | class | `packages/drivers/wink/src/Wink.service.ts:284` | Service tag for direct access to the loaded `wink-nlp` runtime. |
+| `@beep/wink/Wink.service` | `WinkEngineLive` | const | `packages/drivers/wink/src/Wink.service.ts:307` | Live layer that loads `wink-nlp` with the bundled English lite web model. |
+| `@beep/wink/Wink.service` | `WinkEngineRuntimeState` | type | `packages/drivers/wink/src/Wink.service.ts:136` | In-memory state held by the live wink engine ref. |
+| `@beep/wink/Wink.service` | `WinkEngineState` | class | `packages/drivers/wink/src/Wink.service.ts:97` | Serializable metadata for the current wink runtime and learned entity set. |
+| `@beep/wink/WinkBackend.service` | `WinkBackendLive` | const | `packages/drivers/wink/src/WinkBackend.service.ts:150` | Live {@link NLPBackend} layer backed by wink-nlp (requires {@link WinkEngine}). |
+| `@beep/wink/WinkCorpus.service` | `CorpusManagerError` | class | `packages/drivers/wink/src/WinkCorpus.service.ts:340` | Typed failure for creating, learning, querying, or inspecting a managed corpus. |
+| `@beep/wink/WinkCorpus.service` | `WinkCorpusManager` | class | `packages/drivers/wink/src/WinkCorpus.service.ts:830` | Service for managing stateful BM25 corpora and query sessions. |
+| `@beep/wink/WinkCorpus.service` | `WinkCorpusManagerLive` | const | `packages/drivers/wink/src/WinkCorpus.service.ts:859` | Live corpus manager layer requiring the wink engine and similarity services. |
+| `@beep/wink/WinkEngineRef.service` | `InstanceId` | const | `packages/drivers/wink/src/WinkEngineRef.service.ts:135` | Branded schema for live wink engine instance identifiers. |
+| `@beep/wink/WinkEngineRef.service` | `WinkEngineRef` | class | `packages/drivers/wink/src/WinkEngineRef.service.ts:72` | Compatibility service for reading the live wink runtime ref and updating custom entities. |
+| `@beep/wink/WinkEngineRef.service` | `WinkEngineRefLive` | const | `packages/drivers/wink/src/WinkEngineRef.service.ts:97` | Live compatibility layer backed by the shared wink engine runtime. |
+| `@beep/wink/WinkEngineRef.service` | `WinkEngineRuntimeState` | type | `packages/drivers/wink/src/WinkEngineRef.service.ts:120` | Runtime state stored inside the shared wink engine ref. |
+| `@beep/wink/WinkEngineRef.service` | `WinkEngineState` | const | `packages/drivers/wink/src/WinkEngineRef.service.ts:155` | Serializable schema for wink engine state metadata. |
+| `@beep/wink/WinkObservability` | `makeWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:225` | Convert an expected wink driver failure into an AI tool error payload. |
+| `@beep/wink/WinkObservability` | `mapWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:272` | Map the error channel of a wink-backed tool effect to {@link AiToolError}. |
+| `@beep/wink/WinkObservability` | `observeWinkTool` | const | `packages/drivers/wink/src/WinkObservability.ts:311` | Observe a wink-backed AI tool and surface expected failures as structured |
+| `@beep/wink/WinkObservability` | `observeWinkWorkflow` | const | `packages/drivers/wink/src/WinkObservability.ts:182` | Observe a wink workflow with standard metrics and span annotations. |
+| `@beep/wink/WinkObservability` | `textLengthAttribute` | const | `packages/drivers/wink/src/WinkObservability.ts:133` | Build a span-safe text length annotation without recording raw text. |
+| `@beep/wink/WinkObservability` | `WinkToolObservationOptions` | class | `packages/drivers/wink/src/WinkObservability.ts:108` | Tool observation options used when mapping driver failures to AI tool errors. |
+| `@beep/wink/WinkObservability` | `WinkWorkflowObservationOptions` | class | `packages/drivers/wink/src/WinkObservability.ts:77` | Workflow observation options shared by wink services and tool handlers. |
+| `@beep/wink/WinkObservability` | `withWinkAttributes` | const | `packages/drivers/wink/src/WinkObservability.ts:155` | Merge extra string attributes into a wink observability attribute record. |
+| `@beep/wink/WinkSimilarity.service` | `SimilarityError` | class | `packages/drivers/wink/src/WinkSimilarity.service.ts:67` | Typed failure for wink-backed vector, set, or bag-of-words similarity. |
+| `@beep/wink/WinkSimilarity.service` | `WinkSimilarity` | class | `packages/drivers/wink/src/WinkSimilarity.service.ts:256` | Service for computing cosine and Tversky scores using wink similarity helpers. |
+| `@beep/wink/WinkSimilarity.service` | `WinkSimilarityLive` | const | `packages/drivers/wink/src/WinkSimilarity.service.ts:285` | Live layer for wink similarity utilities. |
+| `@beep/wink/WinkTokenization.service` | `SentenceSpanFailure` | class | `packages/drivers/wink/src/WinkTokenization.service.ts:57` | Typed failure used when wink sentence spans cannot be aligned to token indexes. |
+| `@beep/wink/WinkTokenization.service` | `WinkTokenization` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:374` | Engine-dependent layer implementing the core tokenization service with wink. |
+| `@beep/wink/WinkTokenization.service` | `WinkTokenizationLive` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:396` | Live tokenization layer with the wink engine already provided. |
+| `@beep/wink/WinkTools.service` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:337` | Live toolkit handler layer backed by the wink NLP runtime. |
+| `@beep/wink/WinkUtils.service` | `WinkUtils` | class | `packages/drivers/wink/src/WinkUtils.service.ts:314` | Service wrapping `wink-nlp-utils` string cleanup, phonetic, and n-gram helpers. |
+| `@beep/wink/WinkUtils.service` | `WinkUtilsError` | class | `packages/drivers/wink/src/WinkUtils.service.ts:150` | Typed failure for `wink-nlp-utils` string, token, and n-gram helpers. |
+| `@beep/wink/WinkUtils.service` | `WinkUtilsLive` | const | `packages/drivers/wink/src/WinkUtils.service.ts:337` | Live layer for the `wink-nlp-utils` wrappers. |
+| `@beep/wink/WinkVectorizer.service` | `ScopedVectorizer` | interface | `packages/drivers/wink/src/WinkVectorizer.service.ts:91` | Isolated vectorizer surface passed to scoped BM25 workflows. |
+| `@beep/wink/WinkVectorizer.service` | `VectorizerError` | class | `packages/drivers/wink/src/WinkVectorizer.service.ts:175` | Typed failure for learning documents or querying wink BM25 vector data. |
+| `@beep/wink/WinkVectorizer.service` | `WinkVectorizer` | class | `packages/drivers/wink/src/WinkVectorizer.service.ts:388` | Service for learning documents and producing BM25 vectors, bags, and term frequencies. |
+| `@beep/wink/WinkVectorizer.service` | `WinkVectorizerLive` | const | `packages/drivers/wink/src/WinkVectorizer.service.ts:412` | Live BM25 vectorizer layer that depends on the wink engine. |
 
 ### @beep/postgres
 

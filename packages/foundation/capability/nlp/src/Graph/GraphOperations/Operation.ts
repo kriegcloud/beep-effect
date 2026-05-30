@@ -5,10 +5,9 @@
  * node of data `A` to an array of child nodes of data `B`, possibly requiring
  * context `R` and failing with `E`, alongside validation and cost-estimation.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * - operations that mint nodes are EFFECTFUL ({@link pure}/{@link identity} use
- *   `EffectGraph.makeNode`/`generateNodeId`, which read `Clock`/`Random`) instead
- *   of adjunct's synchronous `EG.makeNode` + `NodeId.generate()`.
+ *   `EffectGraph.makeNode`/`generateNodeId`, which read `Clock`/`Random`).
  * - native `Array#map` becomes `effect/Array` + `Effect.forEach`.
  *
  * @since 0.0.0

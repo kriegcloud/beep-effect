@@ -7,11 +7,11 @@
  * {@link ResultStore.ResultStore}. Sequential and parallel strategies are
  * implemented; batch/streaming fall back to sequential.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * - `Context.GenericTag` becomes the `Context.Service` class form; service methods
  *   use `Effect.fn` so they appear in traces.
- * - `Date.now()` becomes `Clock.currentTimeMillis`; native `Map`/array mutation
- *   becomes `effect/Array`/`Effect.forEach`.
+ * - `Date.now()` becomes `Clock.currentTimeMillis`; keyed collection / array mutation
+ *   becomes `HashMap`/`effect/Array`/`Effect.forEach`.
  * - `Effect.either` (returning `Either`) becomes `Effect.result` (returning
  *   `Result`); the `result._tag === "Left"`/`as E` casts become `Result.match`.
  * - the `opts.strategy._tag` switch becomes `Match.valueTags`; the `as any` strategy
@@ -25,9 +25,10 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { A, dual } from "@beep/utils";
+import { A, dual, P } from "@beep/utils";
 import { Clock, Context, Duration, Effect, Layer, Match, Result } from "effect";
 import * as O from "effect/Option";
+import * as Obs from "../../internal/observability.ts";
 import { getChildren, toArray } from "../EffectGraph.ts";
 import { ExecutionError } from "./Errors.ts";
 import * as ResultStore from "./ResultStore.ts";
@@ -75,19 +76,29 @@ interface ExecutionFold {
  * @category models
  */
 export interface GraphExecutorShape {
-  readonly estimateCost: <A, B, R, E>(
-    graph: EffectGraph<A>,
-    operation: GraphOperation<A, B, R, E>
-  ) => Effect.Effect<Types.OperationCost>;
-  readonly execute: <A, B, R, E>(
-    graph: EffectGraph<A>,
-    operation: GraphOperation<A, B, R, E>,
-    options?: Partial<Types.ExecutionOptions>
-  ) => Effect.Effect<Types.OperationResult<unknown, unknown>, ExecutionError, R | ResultStore.ResultStore>;
-  readonly validate: <A, B, R, E>(
-    graph: EffectGraph<A>,
-    operation: GraphOperation<A, B, R, E>
-  ) => Effect.Effect<Types.ValidationResult>;
+  readonly estimateCost: {
+    <A, B, R, E>(graph: EffectGraph<A>, operation: GraphOperation<A, B, R, E>): Effect.Effect<Types.OperationCost>;
+    <A, B, R, E>(operation: GraphOperation<A, B, R, E>): (graph: EffectGraph<A>) => Effect.Effect<Types.OperationCost>;
+  };
+  readonly execute: {
+    <A, B, R, E>(
+      graph: EffectGraph<A>,
+      operation: GraphOperation<A, B, R, E>,
+      options?: Partial<Types.ExecutionOptions>
+    ): Effect.Effect<Types.OperationResult<unknown, unknown>, ExecutionError, R | ResultStore.ResultStore>;
+    <A, B, R, E>(
+      operation: GraphOperation<A, B, R, E>,
+      options?: Partial<Types.ExecutionOptions>
+    ): (
+      graph: EffectGraph<A>
+    ) => Effect.Effect<Types.OperationResult<unknown, unknown>, ExecutionError, R | ResultStore.ResultStore>;
+  };
+  readonly validate: {
+    <A, B, R, E>(graph: EffectGraph<A>, operation: GraphOperation<A, B, R, E>): Effect.Effect<Types.ValidationResult>;
+    <A, B, R, E>(
+      operation: GraphOperation<A, B, R, E>
+    ): (graph: EffectGraph<A>) => Effect.Effect<Types.ValidationResult>;
+  };
 }
 
 /**
@@ -123,6 +134,9 @@ const concurrencyOf = (strategy: Types.ExecutionStrategy): number =>
     Match.orElse(() => 1)
   );
 
+const isEffectGraph = (value: unknown): value is EffectGraph<unknown> =>
+  P.hasProperties(value, ["graph", "indexToNodeId", "nodeIdToIndex"]);
+
 /** Apply the operation to one node, caching on success, yielding nodes + errors. */
 const applyOne: {
   <A, B, R, E>(
@@ -144,6 +158,13 @@ const applyOne: {
     cache: boolean,
     leafNode: GraphNode<A>
   ): Effect.fn.Return<Application, ExecutionError, R> {
+    const attributes = {
+      cache_enabled: `${cache}`,
+      node_id: `${leafNode.id}`,
+      operation: operation.name,
+    };
+    yield* Obs.annotateNlpSpan(attributes);
+
     const key = ResultStore.ResultKey.new(operation.name, leafNode.id);
     const cached = cache
       ? yield* Effect.mapError(store.get(key), (e) =>
@@ -155,6 +176,12 @@ const applyOne: {
       : O.none<ResultStore.AnyOperationResult>();
 
     if (O.isSome(cached)) {
+      yield* Obs.annotateNlpSpan({
+        ...attributes,
+        cache_hit: "true",
+        error_count: `${A.length(cached.value.errors)}`,
+        nodes_created: `${A.length(cached.value.newNodes)}`,
+      });
       return {
         errors: cached.value.errors,
         fromCache: true,
@@ -165,17 +192,33 @@ const applyOne: {
     const result = yield* Effect.result(operation.apply(leafNode));
     return yield* Result.match(result, {
       onFailure: (failure): Effect.Effect<Application, ExecutionError> =>
-        Effect.succeed({
-          errors: A.of(failure),
-          fromCache: false,
-          newNodes: A.empty<GraphNode<unknown>>(),
-        }),
+        Obs.annotateNlpSpan({
+          ...attributes,
+          cache_hit: "false",
+          error_count: "1",
+          nodes_created: "0",
+          operation_failed: "true",
+        }).pipe(
+          Effect.as({
+            errors: A.of(failure),
+            fromCache: false,
+            newNodes: A.empty<GraphNode<unknown>>(),
+          })
+        ),
       onSuccess: (newNodes): Effect.Effect<Application, ExecutionError> =>
-        Effect.as(cache ? cacheResult(store, key, newNodes) : Effect.void, {
-          errors: A.empty<unknown>(),
-          fromCache: false,
-          newNodes,
-        }),
+        Obs.annotateNlpSpan({
+          ...attributes,
+          cache_hit: "false",
+          error_count: "0",
+          nodes_created: `${A.length(newNodes)}`,
+        }).pipe(
+          Effect.andThen(cache ? cacheResult(store, key, newNodes) : Effect.void),
+          Effect.as({
+            errors: A.empty<unknown>(),
+            fromCache: false,
+            newNodes,
+          })
+        ),
     });
   })
 );
@@ -252,12 +295,28 @@ const runStrategy: {
     cache: boolean,
     concurrency: number
   ): Effect.fn.Return<ExecutionFold, ExecutionError, R> {
-    const startTime = yield* Clock.currentTimeMillis;
-    const applications = yield* Effect.forEach(leafNodes, (leafNode) => applyOne(store, operation, cache, leafNode), {
-      concurrency,
-    });
-    const endTime = yield* Clock.currentTimeMillis;
-    return foldApplications(applications, A.length(leafNodes), endTime - startTime);
+    const attributes = {
+      cache_enabled: `${cache}`,
+      concurrency: `${concurrency}`,
+      leaf_count: `${A.length(leafNodes)}`,
+      operation: operation.name,
+    };
+    return yield* Effect.gen(function* () {
+      const startTime = yield* Clock.currentTimeMillis;
+      const applications = yield* Effect.forEach(leafNodes, (leafNode) => applyOne(store, operation, cache, leafNode), {
+        concurrency,
+      });
+      const endTime = yield* Clock.currentTimeMillis;
+      const fold = foldApplications(applications, A.length(leafNodes), endTime - startTime);
+      yield* Obs.annotateNlpSpan({
+        ...attributes,
+        cache_hits: `${fold.metrics.cacheHits}`,
+        cache_misses: `${fold.metrics.cacheMisses}`,
+        error_count: `${A.length(fold.errors)}`,
+        nodes_created: `${fold.metrics.nodesCreated}`,
+      });
+      return fold;
+    }).pipe(Obs.trackNlpDuration("nlp.graph_executor.run_strategy", attributes));
   })
 );
 
@@ -265,23 +324,42 @@ const runStrategy: {
 // Implementation
 // =============================================================================
 
-const makeGraphExecutor = Effect.succeed(
-  GraphExecutor.of({
-    estimateCost: Effect.fn("GraphExecutor.estimateCost")(function* (graph, operation) {
-      const leafNodes = getLeafNodes(graph);
-      return yield* O.match(A.head(leafNodes), {
-        onNone: () => Effect.succeed(Types.OperationCost.zero()),
-        onSome: (sample) =>
-          Effect.map(operation.estimateCost(sample), (cost) => Types.OperationCost.scale(cost, A.length(leafNodes))),
-      });
-    }),
+const estimateCost: GraphExecutorShape["estimateCost"] = dual(
+  2,
+  Effect.fn("GraphExecutor.estimateCost")(function* <A, B, R, E>(
+    graph: EffectGraph<A>,
+    operation: GraphOperation<A, B, R, E>
+  ) {
+    const leafNodes = getLeafNodes(graph);
+    return yield* O.match(A.head(leafNodes), {
+      onNone: () => Effect.succeed(Types.OperationCost.zero()),
+      onSome: (sample) =>
+        Effect.map(operation.estimateCost(sample), (cost) => Types.OperationCost.scale(cost, A.length(leafNodes))),
+    });
+  })
+);
 
-    execute: Effect.fn("GraphExecutor.execute")(function* (graph, operation, options = {}) {
-      const opts: Types.ExecutionOptions = { ...Types.ExecutionOptions.default(), ...options };
-      const executionId = yield* Types.generateExecutionId;
+const execute: GraphExecutorShape["execute"] = dual(
+  (args) => args.length >= 3 || isEffectGraph(args[0]),
+  Effect.fn("GraphExecutor.execute")(function* <A, B, R, E>(
+    graph: EffectGraph<A>,
+    operation: GraphOperation<A, B, R, E>,
+    options: Partial<Types.ExecutionOptions> = {}
+  ) {
+    const opts: Types.ExecutionOptions = { ...Types.ExecutionOptions.default(), ...options };
+    const executionId = yield* Types.generateExecutionId;
+    const leafNodes = getLeafNodes(graph);
+    const attributes = {
+      cache_enabled: `${opts.cache}`,
+      concurrency: `${concurrencyOf(opts.strategy)}`,
+      execution_id: `${executionId}`,
+      leaf_count: `${A.length(leafNodes)}`,
+      operation: operation.name,
+      strategy: opts.strategy._tag,
+    };
+
+    return yield* Effect.gen(function* () {
       const store = yield* ResultStore.ResultStore;
-      const leafNodes = getLeafNodes(graph);
-
       const fold: ExecutionFold =
         A.length(leafNodes) === 0
           ? {
@@ -291,23 +369,46 @@ const makeGraphExecutor = Effect.succeed(
             }
           : yield* runStrategy(store, leafNodes, operation, opts.cache, concurrencyOf(opts.strategy));
 
+      yield* Obs.annotateNlpSpan({
+        ...attributes,
+        cache_hits: `${fold.metrics.cacheHits}`,
+        cache_misses: `${fold.metrics.cacheMisses}`,
+        duration_ms: `${Duration.toMillis(fold.metrics.duration)}`,
+        error_count: `${A.length(fold.errors)}`,
+        nodes_created: `${fold.metrics.nodesCreated}`,
+        nodes_processed: `${fold.metrics.nodesProcessed}`,
+      });
       return yield* Types.makeOperationResult(executionId, graph, fold.newNodes, fold.errors, fold.metrics);
-    }),
+    }).pipe(Obs.observeNlpWorkflow("nlp.graph_executor.execute", attributes));
+  })
+);
 
-    validate: Effect.fn("GraphExecutor.validate")(function* (graph, operation) {
-      const leafNodes = getLeafNodes(graph);
-      if (A.length(leafNodes) === 0) {
-        return Types.ValidationResult.withWarnings(Types.ValidationResult.valid(), [
-          "No leaf nodes to apply operation to",
-        ]);
-      }
-      const validations = yield* Effect.forEach(leafNodes, (node) => operation.validate(node), { concurrency: 4 });
-      const errors = A.flatMap(validations, (v) => v.errors);
-      const warnings = A.flatMap(validations, (v) => v.warnings);
-      return A.length(errors) === 0
-        ? { errors: A.empty<string>(), valid: true, warnings }
-        : { errors, valid: false, warnings };
-    }),
+const validate: GraphExecutorShape["validate"] = dual(
+  2,
+  Effect.fn("GraphExecutor.validate")(function* <A, B, R, E>(
+    graph: EffectGraph<A>,
+    operation: GraphOperation<A, B, R, E>
+  ) {
+    const leafNodes = getLeafNodes(graph);
+    if (A.length(leafNodes) === 0) {
+      return Types.ValidationResult.withWarnings(Types.ValidationResult.valid(), [
+        "No leaf nodes to apply operation to",
+      ]);
+    }
+    const validations = yield* Effect.forEach(leafNodes, (node) => operation.validate(node), { concurrency: 4 });
+    const errors = A.flatMap(validations, (v) => v.errors);
+    const warnings = A.flatMap(validations, (v) => v.warnings);
+    return A.length(errors) === 0
+      ? { errors: A.empty<string>(), valid: true, warnings }
+      : { errors, valid: false, warnings };
+  })
+);
+
+const makeGraphExecutor = Effect.succeed(
+  GraphExecutor.of({
+    estimateCost,
+    execute,
+    validate,
   })
 );
 

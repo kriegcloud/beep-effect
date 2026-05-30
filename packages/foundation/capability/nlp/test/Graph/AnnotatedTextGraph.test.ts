@@ -3,9 +3,9 @@
  * NLPBackend, the idempotence of each annotation pass, the node-kind type
  * guards, and the count/filter queries.
  *
- * Ported from the `adjunct` repo's AnnotatedTextGraph tests to Effect v4 +
- * `@effect/vitest`. A deterministic stub backend stands in for wink so the proofs
- * assert structure, not linguistic accuracy.
+ * Effect v4 + `@effect/vitest` coverage for AnnotatedTextGraph. A deterministic
+ * stub backend stands in for wink so the proofs assert structure, not
+ * linguistic accuracy.
  */
 
 import { NLPBackend } from "@beep/nlp/Backend/NLPBackend";

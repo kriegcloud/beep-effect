@@ -6,7 +6,7 @@
  * stable API. Backends form a category: objects are backends, morphisms are
  * adapters/wrappers, and composition enables fallback strategies.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * `Data.TaggedError` becomes {@link @beep/schema#TaggedErrorClass} scoped by a
  * `$NlpId` composer, `Context.GenericTag` becomes the
  * `Context.Service` class form used across this package, and `Object.keys`
@@ -182,26 +182,49 @@ export type NLPBackendError = typeof NLPBackendError.Type;
  * @category models
  * @since 0.0.0
  */
-export interface BackendCapabilities {
-  /** Constituency parsing (phrase structure). */
-  readonly constituencyParsing: boolean;
-  /** Coreference resolution (entity mention linking). */
-  readonly coreferenceResolution: boolean;
-  /** Dependency parsing (syntactic structure). */
-  readonly dependencyParsing: boolean;
-  /** Lemmatization (morphological normalization). */
-  readonly lemmatization: boolean;
-  /** Named entity recognition (PERSON, ORG, LOC, ...). */
-  readonly ner: boolean;
-  /** Part-of-speech tagging. */
-  readonly posTagging: boolean;
-  /** Semantic relation extraction. */
-  readonly relationExtraction: boolean;
-  /** Sentence boundary detection. */
-  readonly sentencization: boolean;
-  /** Basic tokenization (word segmentation). */
-  readonly tokenization: boolean;
-}
+export class BackendCapabilities extends S.Class<BackendCapabilities>($I`BackendCapabilities`)(
+  {
+    /** Constituency parsing (phrase structure). */
+    constituencyParsing: S.Boolean.annotateKey({
+      description: "Constituency parsing (phrase structure).",
+    }),
+    /** Coreference resolution (entity mention linking). */
+    coreferenceResolution: S.Boolean.annotateKey({
+      description: "Coreference resolution (entity mention linking).",
+    }),
+    /** Dependency parsing (syntactic structure). */
+    dependencyParsing: S.Boolean.annotateKey({
+      description: "Dependency parsing (syntactic structure).",
+    }),
+    /** Lemmatization (morphological normalization). */
+    lemmatization: S.Boolean.annotateKey({
+      description: "",
+    }),
+    /** Named entity recognition (PERSON, ORG, LOC, ...). */
+    ner: S.Boolean.annotateKey({
+      description: "Named entity recognition (PERSON, ORG, LOC, ...).",
+    }),
+    /** Part-of-speech tagging. */
+    posTagging: S.Boolean.annotateKey({
+      description: "Part-of-speech tagging.",
+    }),
+    /** Semantic relation extraction. */
+    relationExtraction: S.Boolean.annotateKey({
+      description: "Semantic relation extraction.",
+    }),
+    /** Sentence boundary detection. */
+    sentencization: S.Boolean.annotateKey({
+      description: "Sentence boundary detection.",
+    }),
+    /** Basic tokenization (word segmentation). */
+    tokenization: S.Boolean.annotateKey({
+      description: "Basic tokenization (word segmentation).",
+    }),
+  },
+  $I.annote("BackendCapabilities", {
+    description: "Capabilities of an NLP backend service.",
+  })
+) {}
 
 /**
  * Structural shape of the {@link NLPBackend} service.

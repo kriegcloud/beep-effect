@@ -9,7 +9,7 @@ import { $NlpId } from "@beep/identity";
 import { PosInt } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiKeyword } from "./_schemas.ts";
+import { AiKeyword, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/ExtractKeywords");
 
@@ -64,6 +64,8 @@ class ExtractKeywordsSuccess extends S.Class<ExtractKeywordsSuccess>($I`ExtractK
  */
 export const ExtractKeywords = Tool.make("ExtractKeywords", {
   description: "Extract keywords from text ranked by TF-IDF-style importance.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: ExtractKeywordsParameters,
   success: ExtractKeywordsSuccess,
 });

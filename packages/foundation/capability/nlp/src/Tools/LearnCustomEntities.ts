@@ -10,6 +10,7 @@ import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
 import { MarkRange } from "../Core/Pattern.ts";
+import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/LearnCustomEntities");
 const LearnCustomEntitiesModeKit = LiteralKit(["append", "replace"]).annotate(
@@ -97,6 +98,8 @@ class LearnCustomEntitiesSuccess extends S.Class<LearnCustomEntitiesSuccess>($I`
  */
 export const LearnCustomEntities = Tool.make("LearnCustomEntities", {
   description: "Learn custom entity patterns using bracket-string elements such as [PROPN], [CARDINAL], or [$].",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: LearnCustomEntitiesParameters,
   success: LearnCustomEntitiesSuccess,
 });

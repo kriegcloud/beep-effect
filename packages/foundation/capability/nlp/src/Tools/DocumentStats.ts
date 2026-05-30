@@ -8,7 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiDocumentStats } from "./_schemas.ts";
+import { AiDocumentStats, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/DocumentStats");
 
@@ -50,6 +50,8 @@ class DocumentStatsParameters extends S.Class<DocumentStatsParameters>($I`Docume
 export const DocumentStats = Tool.make("DocumentStats", {
   description:
     "Compute fast document statistics including word count, sentence count, average sentence length, and character count.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: DocumentStatsParameters,
   success: AiDocumentStats,
 });

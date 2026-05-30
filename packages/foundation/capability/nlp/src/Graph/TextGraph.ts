@@ -5,12 +5,11 @@
  * {@link TextEdge} relationships, integrating with the package's
  * {@link Tokenization} service for sentence/token extraction.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * - node-creating constructors (`singleton`/`fromDocument`/`tokenizeNodes`) are
  *   EFFECTFUL, reading `Clock` for the node timestamp (was `Date.now()`).
  * - `fromDocument`/`tokenizeNodes` consume the existing `Core/Tokenization` service
- *   (mapping `Sentence.text` / `Token.text`) instead of adjunct's separate
- *   `NLPService` - the gap-table "merge" applied inline.
+ *   (mapping `Sentence.text` / `Token.text`).
  * - `addChildren` fails with a tagged {@link GraphCycleError} instead of `throw`.
  * - native `Array.from`/`forEach` become `effect/Array`; the `@effect/printer`
  *   formatter is dropped (`show` renders plain text).
@@ -27,6 +26,7 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Tok from "../Core/Tokenization.ts";
+import * as Obs from "../internal/observability.ts";
 import { TextEdge, TextNode } from "./Schema.ts";
 
 const $I = $NlpId.create("Graph/TextGraph");
@@ -207,26 +207,38 @@ export const singleton: {
 export const fromDocument = Effect.fn("fromDocument")(function* (
   text: string
 ): Effect.fn.Return<TextGraph, Tok.TokenizationError, Tok.Tokenization> {
-  const sentenceModels = yield* Tok.sentences(text);
-  const docNode = yield* makeTextNode({
-    text,
-    type: "document",
-    operation: "root",
-  });
-  const sentenceNodes = yield* Effect.forEach(sentenceModels, (sentence) =>
-    makeTextNode({
-      text: sentence.text,
-      type: "sentence",
-      operation: "sentencize",
-    })
-  );
-  return Graph.directed<TextNode, TextEdge>((mutable) => {
-    const docIndex = Graph.addNode(mutable, docNode);
-    A.forEach(sentenceNodes, (sentenceNode) => {
-      const sentenceIndex = Graph.addNode(mutable, sentenceNode);
-      Graph.addEdge(mutable, docIndex, sentenceIndex, TextEdge.make({ relation: "contains" }));
+  const attributes = {
+    document_length: `${text.length}`,
+    operation: "fromDocument",
+  };
+  return yield* Effect.gen(function* () {
+    const sentenceModels = yield* Tok.sentences(text);
+    const docNode = yield* makeTextNode({
+      text,
+      type: "document",
+      operation: "root",
     });
-  });
+    const sentenceNodes = yield* Effect.forEach(sentenceModels, (sentence) =>
+      makeTextNode({
+        text: sentence.text,
+        type: "sentence",
+        operation: "sentencize",
+      })
+    );
+    const graph = Graph.directed<TextNode, TextEdge>((mutable) => {
+      const docIndex = Graph.addNode(mutable, docNode);
+      A.forEach(sentenceNodes, (sentenceNode) => {
+        const sentenceIndex = Graph.addNode(mutable, sentenceNode);
+        Graph.addEdge(mutable, docIndex, sentenceIndex, TextEdge.make({ relation: "contains" }));
+      });
+    });
+    yield* Obs.annotateNlpSpan({
+      ...attributes,
+      node_count: `${Graph.nodeCount(graph)}`,
+      sentence_count: `${A.length(sentenceModels)}`,
+    });
+    return graph;
+  }).pipe(Obs.observeNlpWorkflow("nlp.text_graph.from_document", attributes));
 });
 
 // =============================================================================
@@ -359,43 +371,62 @@ export const addChildren: {
 export const tokenizeNodes = Effect.fn("tokenizeNodes")(function* (
   graph: TextGraph
 ): Effect.fn.Return<TextGraph, Tok.TokenizationError, Tok.Tokenization> {
-  let result = graph;
+  const attributes = {
+    input_node_count: `${Graph.nodeCount(graph)}`,
+    operation: "tokenizeNodes",
+  };
+  return yield* Effect.gen(function* () {
+    let result = graph;
+    let skippedSentenceCount = 0;
+    let tokenCount = 0;
 
-  const sentenceEntries = A.getSomes(
-    A.map(A.fromIterable(graph.pipe(Graph.nodes, Graph.indices)), (idx) =>
-      O.flatMap(Graph.getNode(graph, idx), (node) =>
-        node.type === "sentence"
-          ? O.some({
-              idx,
-              node,
-            })
-          : O.none()
+    const sentenceEntries = A.getSomes(
+      A.map(A.fromIterable(graph.pipe(Graph.nodes, Graph.indices)), (idx) =>
+        O.flatMap(Graph.getNode(graph, idx), (node) =>
+          node.type === "sentence"
+            ? O.some({
+                idx,
+                node,
+              })
+            : O.none()
+        )
       )
-    )
-  );
-
-  for (const { idx, node } of sentenceEntries) {
-    const alreadyTokenized = A.some(getChildren(result, idx), (childIdx) =>
-      O.match(Graph.getNode(result, childIdx), {
-        onNone: () => false,
-        onSome: (childNode) => childNode.type === "token",
-      })
     );
-    if (alreadyTokenized) continue;
 
-    const tokens = yield* Tok.tokenize(node.text);
-    const tokenNodes = yield* Effect.forEach(tokens, (token) =>
-      makeTextNode({ text: token.text, type: "token", operation: "tokenize" })
-    );
-    result = Graph.mutate(result, (mutable) => {
-      A.forEach(tokenNodes, (tokenNode) => {
-        const tokenIndex = Graph.addNode(mutable, tokenNode);
-        Graph.addEdge(mutable, idx, tokenIndex, TextEdge.make({ relation: "contains" }));
+    for (const { idx, node } of sentenceEntries) {
+      const alreadyTokenized = A.some(getChildren(result, idx), (childIdx) =>
+        O.match(Graph.getNode(result, childIdx), {
+          onNone: () => false,
+          onSome: (childNode) => childNode.type === "token",
+        })
+      );
+      if (alreadyTokenized) {
+        skippedSentenceCount = skippedSentenceCount + 1;
+        continue;
+      }
+
+      const tokens = yield* Tok.tokenize(node.text);
+      tokenCount = tokenCount + A.length(tokens);
+      const tokenNodes = yield* Effect.forEach(tokens, (token) =>
+        makeTextNode({ text: token.text, type: "token", operation: "tokenize" })
+      );
+      result = Graph.mutate(result, (mutable) => {
+        A.forEach(tokenNodes, (tokenNode) => {
+          const tokenIndex = Graph.addNode(mutable, tokenNode);
+          Graph.addEdge(mutable, idx, tokenIndex, TextEdge.make({ relation: "contains" }));
+        });
       });
-    });
-  }
+    }
 
-  return result;
+    yield* Obs.annotateNlpSpan({
+      ...attributes,
+      output_node_count: `${Graph.nodeCount(result)}`,
+      sentence_count: `${A.length(sentenceEntries)}`,
+      skipped_sentence_count: `${skippedSentenceCount}`,
+      token_count: `${tokenCount}`,
+    });
+    return result;
+  }).pipe(Obs.observeNlpWorkflow("nlp.text_graph.tokenize_nodes", attributes));
 });
 
 const rebuild = (

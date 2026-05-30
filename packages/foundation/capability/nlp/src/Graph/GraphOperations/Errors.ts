@@ -1,7 +1,7 @@
 /**
  * GraphOperations/Errors - failures raised during graph-operation execution.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * each `Data.TaggedError` becomes a {@link @beep/schema#TaggedErrorClass} scoped
  * by a `$NlpId` composer, `unknown` cause fields become
  * `S.DefectWithStack`, and the `NodeId` brand is carried as `S.String`.

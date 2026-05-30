@@ -9,6 +9,9 @@
   },
   "references": [
     {
+      "path": "../wink/tsconfig.json"
+    },
+    {
       "path": "../../foundation/capability/nlp/tsconfig.json"
     }
   ]

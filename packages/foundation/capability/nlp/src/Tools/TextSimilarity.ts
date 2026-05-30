@@ -9,6 +9,7 @@ import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
 import { UnitInterval } from "../internal/numbers.ts";
+import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/TextSimilarity");
 
@@ -68,6 +69,8 @@ class TextSimilaritySuccess extends S.Class<TextSimilaritySuccess>($I`TextSimila
 export const TextSimilarity = Tool.make("TextSimilarity", {
   description:
     "Compute similarity between two texts using BM25 vectorization and cosine similarity. Returns a score from 0 (unrelated) to 1 (identical).",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: TextSimilarityParameters,
   success: TextSimilaritySuccess,
 });

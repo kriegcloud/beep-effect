@@ -8,9 +8,9 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
+import { BM25Norm } from "../Core/Vectorization.ts";
 import { PositiveNumber, UnitInterval } from "../internal/numbers.ts";
-import { BM25Norm } from "../Wink/index.ts";
-import { AiCorpusSummary } from "./_schemas.ts";
+import { AiCorpusSummary, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/CreateCorpus");
 
@@ -74,6 +74,8 @@ class CreateCorpusParameters extends S.Class<CreateCorpusParameters>($I`CreateCo
  */
 export const CreateCorpus = Tool.make("CreateCorpus", {
   description: "Create a stateful BM25-style corpus session that can be learned incrementally across tool calls.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: CreateCorpusParameters,
   success: AiCorpusSummary,
 });

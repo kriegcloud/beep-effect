@@ -9,7 +9,7 @@ import { $NlpId } from "@beep/identity";
 import { LiteralKit, PosInt, SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiNGram } from "./_schemas.ts";
+import { AiNGram, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/NGrams");
 const NGramModeKit = LiteralKit(["bag", "edge", "set"]).annotate(
@@ -86,6 +86,8 @@ class NGramsSuccess extends S.Class<NGramsSuccess>($I`NGramsSuccess`)(
  */
 export const NGrams = Tool.make("NGrams", {
   description: "Extract character n-grams from text using bag, edge, or set mode with deterministic ranking.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: NGramsParameters,
   success: NGramsSuccess,
 });

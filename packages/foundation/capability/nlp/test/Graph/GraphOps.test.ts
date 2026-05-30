@@ -1,10 +1,10 @@
 /**
  * Proofs for the generic GraphOps: functor laws (identity/composition) for
- * mapNodes, the bifunctor bimap, filtering, folds, the search adjunction
- * (query ⊣ index) including union/intersection, effectful traversal and
+ * mapNodes, the bifunctor bimap, filtering, folds, indexed search including
+ * union/intersection, effectful traversal and
  * mapNodesEffect, streaming/batching, and structural merge.
  *
- * Ported from the `adjunct` repo's GraphOps tests to Effect v4 + `@effect/vitest`.
+ * Effect v4 + `@effect/vitest` coverage for GraphOps tests.
  * Graphs are built over plain `string` nodes / `number` edges so the laws are
  * checked without coupling to NLP schemas.
  */
@@ -101,7 +101,7 @@ describe("GraphOps filtering & folds", () => {
   });
 });
 
-describe("GraphOps search adjunction (query ⊣ index)", () => {
+describe("GraphOps indexed search", () => {
   it("buildIndex then queryIndex round-trips by key", () => {
     const g = sample();
     const idx = GraphOps.buildIndex(g, (n) => [n.length]);

@@ -9,6 +9,7 @@ import { $NlpId } from "@beep/identity";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
+import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/TransformText");
 const TransformOperationKit = LiteralKit([
@@ -93,6 +94,8 @@ class TransformTextSuccess extends S.Class<TransformTextSuccess>($I`TransformTex
  */
 export const TransformText = Tool.make("TransformText", {
   description: "Apply text transformation operations in sequence for cleaning and normalization.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: TransformTextParameters,
   success: TransformTextSuccess,
 });

@@ -7,7 +7,7 @@
  * the `@beep/nlp` backend operations (tokenize/sentencize/posTag/lemmatize/
  * extractEntities) in a flat, JSON-friendly form.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp-mcp`:
+ * Effect v4 `@beep/nlp-mcp` implementation notes:
  * `Schema.Class("Name")` becomes the identity-composer `S.Class` form with
  * `annote` metadata, and field constraints use v4 `S.check` combinators.
  *

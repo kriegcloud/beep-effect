@@ -53,9 +53,6 @@
       "@beep/nlp/IdentifierText": [
         "../../../packages/foundation/capability/nlp/src/IdentifierText.ts"
       ],
-      "@beep/nlp/Layers": [
-        "../../../packages/foundation/capability/nlp/src/Layers/index.ts"
-      ],
       "@beep/nlp/NLPService": [
         "../../../packages/foundation/capability/nlp/src/NLPService.ts"
       ],
@@ -77,9 +74,8 @@
       "@beep/nlp/VariantText": [
         "../../../packages/foundation/capability/nlp/src/VariantText.ts"
       ],
-      "@beep/nlp/Wink": [
-        "../../../packages/foundation/capability/nlp/src/Wink/index.ts"
-      ]
+      "@beep/wink": ["../../../packages/drivers/wink/src/index.ts"],
+      "@beep/wink/*": ["../../../packages/drivers/wink/src/*.ts"]
     }
   }
 }

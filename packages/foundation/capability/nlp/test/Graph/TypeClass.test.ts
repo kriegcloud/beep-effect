@@ -3,7 +3,7 @@
  * applicative ap, the alt monoid, composition, executeOperation layering, the
  * Foldable graph instance, and the utility combinators (when/unless/replicate).
  *
- * Ported from the `adjunct` repo's TypeClass tests to Effect v4 + `@effect/vitest`.
+ * Effect v4 + `@effect/vitest` coverage for TypeClass tests.
  * Operations are effectful node producers (Clock + Random id), so the proofs run
  * under the default test runtime.
  */

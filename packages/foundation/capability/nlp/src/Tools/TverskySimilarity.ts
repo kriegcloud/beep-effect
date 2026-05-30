@@ -10,6 +10,7 @@ import { SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
 import { UnitInterval } from "../internal/numbers.ts";
+import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/TverskySimilarity");
 
@@ -83,6 +84,8 @@ class TverskySimilaritySuccess extends S.Class<TverskySimilaritySuccess>($I`Tver
 export const TverskySimilarity = Tool.make("TverskySimilarity", {
   description:
     "Compute asymmetric set similarity between two texts using the Tversky index. Useful for containment-style comparisons.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: TverskySimilarityParameters,
   success: TverskySimilaritySuccess,
 });

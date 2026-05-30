@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "@beep/nlp": "workspace:^",
+    "@beep/wink": "workspace:^",
     "@effect/platform-node": "catalog:",
     "effect": "catalog:"
   },

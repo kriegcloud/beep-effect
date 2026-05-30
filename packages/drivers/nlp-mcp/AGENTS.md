@@ -1,7 +1,8 @@
 # @beep/nlp-mcp Agent Guide
 
 ## Purpose & Fit
-- Model Context Protocol server exposing @beep/nlp operations and the generic IR handoff contract as MCP tools.
+- Model Context Protocol server exposing `@beep/nlp` operations and the generic IR handoff contract as MCP tools.
+- Default runtime wiring uses the `@beep/wink` driver for `NLPBackend`.
 
 ## Surface Map
 | Surface | Key exports | Notes |

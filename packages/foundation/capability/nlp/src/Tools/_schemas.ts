@@ -10,7 +10,7 @@ import { LiteralKit, SchemaUtils } from "@beep/schema";
 import { Match } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { BM25Norm } from "../Wink/index.ts";
+import { BM25Norm } from "../Core/Vectorization.ts";
 
 const $I = $NlpId.create("Tools/_schemas");
 
@@ -382,6 +382,45 @@ export class AiPhoneticMatch extends S.Class<AiPhoneticMatch>($I`AiPhoneticMatch
   },
   $I.annote("AiPhoneticMatch", {
     description: "Phonetic overlap details for two texts.",
+  })
+) {}
+
+/**
+ * Structured failure schema returned by AI-facing NLP tools.
+ *
+ * Tool implementations should fail with this model for expected operational
+ * failures so AI clients can inspect the tool, operation, stable reason, and
+ * retry hint without parsing logs or natural-language exception text.
+ *
+ * @example
+ * ```ts
+ * import { AiToolError } from "@beep/nlp/Tools/_schemas"
+ *
+ * const failure = AiToolError.make({
+ *   message: "Corpus not found",
+ *   operation: "query",
+ *   reason: "CorpusNotFound",
+ *   retryable: false,
+ *   toolName: "QueryCorpus"
+ * })
+ *
+ * console.log(failure.retryable)
+ * // false
+ * ```
+ *
+ * @category tool-schemas
+ * @since 0.0.0
+ */
+export class AiToolError extends S.Class<AiToolError>($I`AiToolError`)(
+  {
+    message: describe(S.String, "Human-readable failure message safe to return to an AI tool caller."),
+    operation: describe(S.String, "Driver or tool operation that failed."),
+    reason: describe(S.optionalKey(S.String), "Stable failure category or driver error tag."),
+    retryable: describe(S.Boolean, "Whether retrying the same tool call may reasonably succeed."),
+    toolName: describe(S.String, "Name of the AI tool that returned the failure."),
+  },
+  $I.annote("AiToolError", {
+    description: "Structured AI tool failure with stable routing fields and retry metadata.",
   })
 ) {}
 

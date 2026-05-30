@@ -6,9 +6,8 @@
  * {@link NlpToolkit}. The handlers are wired separately (see `./Server.ts`) so the
  * tool surface stays a pure, declarative description.
  *
- * Ported from the `adjunct` repo (Effect v3, `@effect/ai`) to Effect v4 /
- * `effect/unstable/ai`: `Tool.make` parameters take a single Schema (the
- * {@link Schemas.TextInput} class) rather than a field record.
+ * Effect v4 implementation note: `Tool.make` parameters take a single Schema
+ * (the {@link Schemas.TextInput} class) rather than a field record.
  *
  * @since 0.0.0
  * @packageDocumentation

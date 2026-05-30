@@ -1,6 +1,6 @@
 # @beep/nlp-mcp
 
-Model Context Protocol server exposing @beep/nlp operations and the generic IR handoff contract as MCP tools.
+Model Context Protocol server exposing `@beep/nlp` operations and the generic IR handoff contract as MCP tools. The default backend is provided by `@beep/wink`.
 
 ## Installation
 

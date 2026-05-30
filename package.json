@@ -65,7 +65,8 @@
     "packages/drivers/phoenix",
     "packages/drivers/konva",
     "apps/canvas",
-    "packages/drivers/nlp-mcp"
+    "packages/drivers/nlp-mcp",
+    "packages/drivers/wink"
   ],
   "repository": {
     "type": "git",

@@ -9,7 +9,7 @@ import { $NlpId } from "@beep/identity";
 import { PosInt } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiRankedText } from "./_schemas.ts";
+import { AiRankedText, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/RankByRelevance");
 const CandidateText = S.String.pipe(
@@ -75,6 +75,8 @@ class RankByRelevanceSuccess extends S.Class<RankByRelevanceSuccess>($I`RankByRe
  */
 export const RankByRelevance = Tool.make("RankByRelevance", {
   description: "Rank an array of texts by relevance to a query using vectorized similarity.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: RankByRelevanceParameters,
   success: RankByRelevanceSuccess,
 });

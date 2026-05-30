@@ -65,6 +65,7 @@ const config = {
     "packages/drivers/konva/package.json",
     "apps/canvas/package.json",
     "packages/drivers/nlp-mcp/package.json",
+    "packages/drivers/wink/package.json",
   ],
   customTypes: {
     catalog: {

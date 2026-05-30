@@ -5,9 +5,8 @@
  * boundaries: define operations ({@link Definition}) and compose them
  * functorially/monadically/applicatively ({@link Composable}).
  *
- * The `adjunct` serialization/AST-reconstruction layer (Serialization,
- * SchemaASTMatchers, OperationCompiler, the deprecated Registry) is intentionally
- * not ported — see `goals/nlp-adjunct-port/research/operations-serialization-gap.md`.
+ * The schema-AST reconstruction layer is intentionally outside this package
+ * surface; operations compose over typed schemas and graph carriers directly.
  *
  * @since 0.0.0
  * @packageDocumentation

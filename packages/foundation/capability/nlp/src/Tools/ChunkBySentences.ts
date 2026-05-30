@@ -9,7 +9,7 @@ import { $NlpId } from "@beep/identity";
 import { PosInt } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiSentenceChunk } from "./_schemas.ts";
+import { AiSentenceChunk, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/ChunkBySentences");
 
@@ -66,6 +66,8 @@ class ChunkBySentencesSuccess extends S.Class<ChunkBySentencesSuccess>($I`ChunkB
  */
 export const ChunkBySentences = Tool.make("ChunkBySentences", {
   description: "Split text into sentence-aligned chunks, targeting a maximum character size per chunk.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: ChunkBySentencesParameters,
   success: ChunkBySentencesSuccess,
 });

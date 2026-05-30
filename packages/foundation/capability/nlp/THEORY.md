@@ -1,12 +1,10 @@
 # `@beep/nlp` — the categorical theory
 
-> Why this package looks the way it does. `@beep/nlp` is a port of the
-> [`adjunct`](https://github.com/mepuka/adjunct) text-graph engine (Effect v3) to
-> Effect v4. It treats natural-language annotation as **algebra over a typed
-> text graph**: text strata are objects, NLP operations are morphisms, the
-> structure-building/forgetting passes form **adjunctions**, and every law is a
-> machine-checked **proof** (FastCheck property test). This document is the map
-> from the mathematics to the modules.
+> Why this package looks the way it does. `@beep/nlp` treats natural-language
+> annotation as **algebra over a typed text graph**: text strata are objects,
+> NLP operations are morphisms, structure-building and projection passes come in
+> law-checked pairs, and every law is a machine-checked **proof** (FastCheck
+> property test). This document is the map from the mathematics to the modules.
 
 The headline claim is *full categorical fidelity*: the elegance is not
 decoration, it is the load-bearing structure. Operations compose because they
@@ -90,41 +88,32 @@ is via an F-algebra:
 
 The port keeps these as first-class recursion schemes rather than ad-hoc
 traversals, so a new fold (a new export format, a new metric) is a new algebra
-over the same functor, not a new bespoke walk. Effect v4 removed v3's
-`AST.getCompiler`/`AST.Match`; where the original `adjunct` leaned on those for
-schema-driven folds, the port records the gap (see
-`goals/nlp-adjunct-port/research/operations-serialization-gap.md`) and folds
-over the typed graph directly.
+over the same functor, not a new bespoke walk. Schema-driven folds run over the
+typed graph directly.
 
-## 6. The two adjunctions
+## 6. The two paired directions
 
-The deep structure is a pair of adjunctions.
+The deep structure is a pair of related directions.
 
-### 6.1 free ⊣ forgetful (structure ⊣ erasure)
+### 6.1 structure and projection
 
-Tokenization/segmentation is a **free functor**: it builds the most general
-structure over raw text (`Text → [Token]`, `Text → [Sentence]`) with no
-commitment beyond what the text forces. Lemmatization/normalization is the
-**forgetful functor** in the other direction: it discards morphological detail
-(`[Token] → [Lemma]`). The unit/counit triangle identities say that building
-structure and then forgetting it is coherent — normalizing tokens you just
-produced agrees with normalizing the source. The `NLPBackend` operation
-docstrings name these functors explicitly (`src/Backend/NLPBackend.ts`:
-*"free functor `Text → [Token]`"*, *"forgetful functor `[Token] → [Lemma]`"*).
+Tokenization/segmentation builds the most general structure over raw text
+(`Text -> [Token]`, `Text -> [Sentence]`) with no commitment beyond what the
+text forces. Lemmatization/normalization projects in the other direction by
+discarding morphological detail (`[Token] -> [Lemma]`). The practical law is
+that building structure and then projecting it stays coherent: normalizing
+tokens you just produced agrees with normalizing the source.
 
-### 6.2 query ⊣ index
+### 6.2 query and index
 
-Retrieval is the second adjunction: **indexing** an annotated graph (building
-the searchable representation) is left adjoint to **querying** it. Indexing is
-free over the annotations present; querying forgets back to the matched
-sub-structure. This is the seam the downstream knowledge-graph initiative
-consumes: the index is the bridge between the in-memory graph and the persisted
-KG.
+Retrieval is the second paired direction: **indexing** an annotated graph builds
+the searchable representation, and **querying** projects it back to matched
+sub-structure. The downstream knowledge-graph initiative consumes this index as
+the bridge between the in-memory graph and the persisted KG.
 
-Adjunctions are the reason the pipeline is *reversible in the right places*: you
-can always forget down to plain text, and you can always rebuild structure from
-text, and the round trips are governed by the triangle identities — themselves
-property-tested.
+These pairs are the reason the pipeline is *reversible in the right places*: you
+can always project down to plain text, and you can always rebuild structure from
+text, with round trips governed by property-tested laws.
 
 ## 7. Backends as a category of functors
 
@@ -134,8 +123,8 @@ property-tested.
 adapters/wrappers between backends are morphisms; composition gives fallback
 strategies. Operations a backend cannot perform fail with a typed
 `BackendNotSupported` rather than throwing, so capability detection is total.
-`src/Backend/WinkBackend.ts` is the concrete wink-nlp functor; an LLM-backed
-functor is a future object in the same category (seam only, not built here).
+`@beep/wink` provides the concrete wink-nlp functor; an LLM-backed functor is a
+future object in the same category (seam only, not built here).
 
 The backend operations are **functors over text**: `posTag`/`lemmatize`
 preserve token structure, `extractEntities`/`extractRelations` surface semantic
@@ -151,20 +140,16 @@ with branded ids, character `Span`s, and PROV-O-style `Provenance`
 object**: it carries a generic `type` discriminant on entities/relations and no
 domain vocabulary. The downstream `ip-law-knowledge-graph` initiative supplies
 the *interpretation functor* that maps generic `Entity.type`/`Relation.type` to
-its 15 node / 11 edge KG schema (see
-`goals/nlp-adjunct-port/research/generic-to-kg-mapping.md`). Because the IR is
-free, that mapping is mechanical: the universal property says any KG schema
-factors through it uniquely.
+its concrete KG schema. Because the IR is free, that mapping is mechanical: the
+universal property says any KG schema factors through it uniquely.
 
 `makeProvenance` stamps time via `Clock` (never `Date.now`), so provenance is
 deterministic under test and honest in production.
 
 ## 9. Proofs: laws as machine-checked tests
 
-`adjunct`'s "proofs" are not a `proofs.md`; they are FastCheck property suites
-that exercise the categorical laws. The port carries them to
-`effect/testing/FastCheck` (v4's bundled property testing). The laws under test
-include:
+The proofs are FastCheck property suites that exercise the categorical laws via
+`effect/testing/FastCheck`. The laws under test include:
 
 - monoid identity + associativity (§4);
 - Kleisli category laws — left/right identity and associativity of `compose`
@@ -181,13 +166,12 @@ fidelity."
 Fidelity does not mean *everything at once*. Gaps are documented rather than
 faked:
 
-- **Serialization / schema-AST folds** — v4 removed `AST.getCompiler`/`AST.Match`
-  and `@effect/typeclass` is not a dependency, so the cast-heavy serialization
-  registry from `adjunct` is deferred
-  (`research/operations-serialization-gap.md`); folds run over the typed graph.
+- **Serialization / schema-AST folds** — `@effect/typeclass` is not a
+  dependency, so folds run over the typed graph rather than through a separate
+  cast-heavy serialization registry.
 - **Streaming MCP tools** — the dataset/NDJSON batch tools are deferred to a
-  follow-up driver commit (`research/p4-streaming-deferral.md`); the categorical
-  core is unaffected because those are transport, not algebra.
+  follow-up driver commit; the categorical core is unaffected because those are
+  transport, not algebra.
 
 ## 11. Map: mathematics → modules
 
@@ -199,9 +183,9 @@ faked:
 | Graph-level operations, cata/ana         | `src/Graph/Operation.ts`, `src/Graph/GraphOps.ts`             |
 | Operation spine (catalog/executor/store) | `src/Graph/GraphOperations/`                                  |
 | Kleisli category of operations           | `src/Operations/Definition.ts`, `src/Operations/Composable.ts` |
-| Backends as functors                     | `src/Backend/NLPBackend.ts`, `src/Backend/WinkBackend.ts`     |
+| Backends as functors                     | `src/Backend/NLPBackend.ts`, `@beep/wink`                     |
 | Free IR at the boundary                  | `src/Handoff/Contract.ts`                                     |
-| Legacy/compat surface                    | `src/Core`, `src/Wink`, `src/Tools`, `src/Layers`             |
+| Neutral contracts and models             | `src/Core`, `src/Tools`, `src/Backend`                        |
 | MCP re-exposure (driver)                 | `@beep/nlp-mcp`                                               |
 
 ---

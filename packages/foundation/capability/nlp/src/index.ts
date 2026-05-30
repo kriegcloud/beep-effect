@@ -7,21 +7,6 @@
  */
 
 /**
- * Package version constant.
- *
- * @example
- * ```typescript
- * import { VERSION } from "@beep/nlp"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const VERSION = "0.0.0";
-
-/**
  * Algebraic structures (monoids) for NLP aggregation.
  *
  * @example
@@ -109,21 +94,6 @@ export * as Handoff from "./Handoff/index.ts";
  */
 export * as IdentifierText from "./IdentifierText.ts";
 /**
- * Layer composition helpers for the NLP runtime.
- *
- * @example
- * ```typescript
- * import { Layers } from "@beep/nlp"
- *
- * const liveLayer = Layers.NLPAppLive
- * console.log(liveLayer)
- * ```
- *
- * @since 0.0.0
- * @category layers
- */
-export * as Layers from "./Layers/index.ts";
-/**
  * High-level NLP service facade over a pluggable backend.
  *
  * @since 0.0.0
@@ -204,18 +174,3 @@ export * as Tools from "./Tools/index.ts";
  * @category normalization
  */
 export * as VariantText from "./VariantText.ts";
-/**
- * Wink NLP engine runtime integrations.
- *
- * @example
- * ```typescript
- * import { Wink } from "@beep/nlp"
- *
- * const liveLayer = Wink.WinkEngineLive
- * console.log(liveLayer)
- * ```
- *
- * @since 0.0.0
- * @category layers
- */
-export * as Wink from "./Wink/index.ts";

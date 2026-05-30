@@ -13,38 +13,86 @@
  * except {@link SentenceConcat}, which is a "near-monoid" (identity only) due to
  * punctuation normalization. Laws are verified in test/Algebra/NLPMonoid.test.ts.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`. The
- * `BagOfWords` carrier is kept as a native `Map<string, number>` to match the
- * package's existing tool seams; it will be reconciled when `NLPService` merges
- * into the Core tokenization seam.
+ * Effect v4 `@beep/nlp` implementation. Map
+ * and set carriers use Effect-native collection semantics at package
+ * boundaries.
  *
  * @since 0.0.0
  * @packageDocumentation
  */
 
+import { $NlpId } from "@beep/identity";
+import { MutableHashMapFromSelf } from "@beep/schema";
+import { HashSet, MutableHashMap } from "effect";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Monoid from "./Monoid.ts";
+
+const $I = $NlpId.create("Algebra/NLPMonoid");
+
+const TermNumberMap = MutableHashMapFromSelf({
+  key: S.String,
+  value: S.Number,
+});
+
+type TermNumberMap = typeof TermNumberMap.Type;
+type TokenHashSet = HashSet.HashSet<string>;
+
+const getCount = <K>(map: MutableHashMap.MutableHashMap<K, number>, key: K): number =>
+  O.getOrElse(MutableHashMap.get(map, key), () => 0);
+
+const combineNumericMaps = <K>(
+  left: MutableHashMap.MutableHashMap<K, number>,
+  right: MutableHashMap.MutableHashMap<K, number>
+): MutableHashMap.MutableHashMap<K, number> => {
+  const result = MutableHashMap.fromIterable(left);
+  MutableHashMap.forEach(right, (count, key) => {
+    MutableHashMap.set(result, key, getCount(result, key) + count);
+  });
+  return result;
+};
 
 /**
  * Bag-of-words frequency map carrier: term -\> frequency.
  *
  * @example
  * ```ts
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
- * const bow: NLPMonoid.BagOfWords = new Map([
+ * const bow: NLPMonoid.BagOfWords = MutableHashMap.make(
  *   ["effect", 2],
  *   ["schema", 1]
- * ])
+ * )
  *
- * console.log(Array.from(bow.entries()))
+ * console.log(Array.from(bow))
  * // [["effect", 2], ["schema", 1]]
  * ```
  *
  * @since 0.0.0
  * @category models
  */
-export type BagOfWords = Map<string, number>;
+export const BagOfWords = TermNumberMap;
+
+/**
+ * Runtime type for the {@link BagOfWords} frequency-map carrier.
+ *
+ * @example
+ * ```ts
+ * import * as MutableHashMap from "effect/MutableHashMap"
+ * import type { BagOfWords } from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const bow: BagOfWords = MutableHashMap.make(["effect", 1])
+ *
+ * console.log(Array.from(bow))
+ * // [["effect", 1]]
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type BagOfWords = typeof BagOfWords.Type;
 
 // =============================================================================
 // Token Monoids
@@ -53,7 +101,7 @@ export type BagOfWords = Map<string, number>;
 /**
  * Token concatenation monoid (join with a space).
  *
- * This is the forgetful functor `Token* -> Text` in the adjunction.
+ * This folds a token sequence back into plain text.
  *
  * @example
  * ```ts
@@ -78,13 +126,14 @@ export const TokenConcat: Monoid.Monoid<string> = Monoid.StringJoin(" ");
  *
  * @example
  * ```ts
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
- * const left = new Map([["effect", 2]])
- * const right = new Map([["effect", 1], ["schema", 1]])
+ * const left = MutableHashMap.make(["effect", 2])
+ * const right = MutableHashMap.make(["effect", 1], ["schema", 1])
  * const counts = NLPMonoid.TokenBagOfWords.combine(left, right)
  *
- * console.log(Array.from(counts.entries()))
+ * console.log(Array.from(counts))
  * // [["effect", 3], ["schema", 1]]
  * ```
  *
@@ -92,14 +141,8 @@ export const TokenConcat: Monoid.Monoid<string> = Monoid.StringJoin(" ");
  * @category combinators
  */
 export const TokenBagOfWords: Monoid.Monoid<BagOfWords> = {
-  empty: new Map(),
-  combine: dual(2, (bow1: BagOfWords, bow2: BagOfWords) => {
-    const result = new Map(bow1);
-    bow2.forEach((count: number, token: string) => {
-      result.set(token, (result.get(token) ?? 0) + count);
-    });
-    return result;
-  }),
+  empty: MutableHashMap.empty(),
+  combine: dual(2, combineNumericMaps),
 };
 
 /**
@@ -109,10 +152,11 @@ export const TokenBagOfWords: Monoid.Monoid<BagOfWords> = {
  * ```ts
  * import * as Monoid from "@beep/nlp/Algebra/Monoid"
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ * import * as HashSet from "effect/HashSet"
  *
  * const vocabulary = Monoid.fold(NLPMonoid.TokenSetUnion)([
- *   new Set(["effect", "schema"]),
- *   new Set(["schema", "docs"])
+ *   HashSet.make("effect", "schema"),
+ *   HashSet.make("schema", "docs")
  * ])
  *
  * console.log(Array.from(vocabulary).sort())
@@ -122,7 +166,7 @@ export const TokenBagOfWords: Monoid.Monoid<BagOfWords> = {
  * @since 0.0.0
  * @category combinators
  */
-export const TokenSetUnion: Monoid.Monoid<ReadonlySet<string>> = Monoid.SetUnion<string>();
+export const TokenSetUnion: Monoid.Monoid<TokenHashSet> = Monoid.SetUnion<string>();
 
 // =============================================================================
 // Sentence Monoids
@@ -225,11 +269,16 @@ export const DocumentText: Monoid.Monoid<string> = Monoid.StringJoin("\n\n");
  * @since 0.0.0
  * @category models
  */
-export interface DocumentStatistics {
-  readonly charCount: number;
-  readonly sentenceCount: number;
-  readonly wordCount: number;
-}
+export class DocumentStatistics extends S.Class<DocumentStatistics>($I`DocumentStatistics`)(
+  {
+    charCount: S.Number,
+    sentenceCount: S.Number,
+    wordCount: S.Number,
+  },
+  $I.annote("DocumentStatistics", {
+    description: "Document statistics carrier.",
+  })
+) {}
 
 /**
  * Document statistics monoid (sum counts component-wise).
@@ -271,25 +320,26 @@ export const DocumentStats: Monoid.Monoid<DocumentStatistics> = {
  *
  * @example
  * ```ts
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const Tags = NLPMonoid.AnnotationMap<number, string>()
- * const tags = Tags.combine(new Map([[0, "NOUN"]]), new Map([[0, "PROPN"], [1, "VERB"]]))
+ * const tags = Tags.combine(MutableHashMap.make([0, "NOUN"]), MutableHashMap.make([0, "PROPN"], [1, "VERB"]))
  *
- * console.log(Array.from(tags.entries()))
+ * console.log(Array.from(tags))
  * // [[0, "NOUN"], [1, "VERB"]]
  * ```
  *
  * @since 0.0.0
  * @category combinators
  */
-export const AnnotationMap = <K, V>(): Monoid.Monoid<Map<K, V>> => ({
-  empty: new Map(),
+export const AnnotationMap = <K, V>(): Monoid.Monoid<MutableHashMap.MutableHashMap<K, V>> => ({
+  empty: MutableHashMap.empty(),
   combine: dual(2, (m1, m2) => {
-    const result = new Map(m1);
-    m2.forEach((value: V, key: K) => {
-      if (!result.has(key)) {
-        result.set(key, value);
+    const result = MutableHashMap.fromIterable(m1);
+    MutableHashMap.forEach(m2, (value: V, key: K) => {
+      if (!MutableHashMap.has(result, key)) {
+        MutableHashMap.set(result, key, value);
       }
     });
     return result;
@@ -317,12 +367,17 @@ export const AnnotationMap = <K, V>(): Monoid.Monoid<Map<K, V>> => ({
  * @since 0.0.0
  * @category models
  */
-export interface NamedEntity {
-  readonly endPos: number;
-  readonly startPos: number;
-  readonly text: string;
-  readonly type: string;
-}
+export class NamedEntity extends S.Class<NamedEntity>($I`NamedEntity`)(
+  {
+    endPos: S.Number,
+    startPos: S.Number,
+    text: S.String,
+    type: S.String,
+  },
+  $I.annote("NamedEntity", {
+    description: "Named entity carrier.",
+  })
+) {}
 
 /**
  * Named entity list monoid (concatenation; preserves order, allows duplicates).
@@ -365,11 +420,16 @@ export const NamedEntityList: Monoid.Monoid<ReadonlyArray<NamedEntity>> = Monoid
  * @since 0.0.0
  * @category models
  */
-export interface DependencyEdge {
-  readonly dependent: number;
-  readonly head: number;
-  readonly relation: string;
-}
+export class DependencyEdge extends S.Class<DependencyEdge>($I`DependencyEdge`)(
+  {
+    dependent: S.Number,
+    head: S.Number,
+    relation: S.String,
+  },
+  $I.annote("DependencyEdge", {
+    description: "Dependency parse edge carrier.",
+  })
+) {}
 
 /**
  * Dependency parse monoid (concatenate edges).
@@ -401,14 +461,15 @@ export const DependencyParse: Monoid.Monoid<ReadonlyArray<DependencyEdge>> = Mon
  *
  * @example
  * ```ts
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const termCounts = NLPMonoid.TermFrequency.combine(
- *   new Map([["effect", 1]]),
- *   new Map([["effect", 2], ["docs", 1]])
+ *   MutableHashMap.make(["effect", 1]),
+ *   MutableHashMap.make(["effect", 2], ["docs", 1])
  * )
  *
- * console.log(Array.from(termCounts.entries()))
+ * console.log(Array.from(termCounts))
  * // [["effect", 3], ["docs", 1]]
  * ```
  *
@@ -422,29 +483,24 @@ export const TermFrequency: Monoid.Monoid<BagOfWords> = TokenBagOfWords;
  *
  * @example
  * ```ts
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const frequencies = NLPMonoid.DocumentFrequency.combine(
- *   new Map([["effect", 2], ["schema", 1]]),
- *   new Map([["effect", 1], ["nlp", 1]])
+ *   MutableHashMap.make(["effect", 2], ["schema", 1]),
+ *   MutableHashMap.make(["effect", 1], ["nlp", 1])
  * )
  *
- * console.log(Array.from(frequencies.entries()))
+ * console.log(Array.from(frequencies))
  * // [["effect", 3], ["schema", 1], ["nlp", 1]]
  * ```
  *
  * @since 0.0.0
  * @category combinators
  */
-export const DocumentFrequency: Monoid.Monoid<Map<string, number>> = {
-  empty: new Map(),
-  combine: dual(2, (df1: Map<string, number>, df2: Map<string, number>) => {
-    const result = new Map(df1);
-    df2.forEach((count, term) => {
-      result.set(term, (result.get(term) ?? 0) + count);
-    });
-    return result;
-  }),
+export const DocumentFrequency: Monoid.Monoid<TermNumberMap> = {
+  empty: MutableHashMap.empty(),
+  combine: dual(2, combineNumericMaps),
 };
 
 /**
@@ -453,10 +509,11 @@ export const DocumentFrequency: Monoid.Monoid<Map<string, number>> = {
  * @example
  * ```ts
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ * import * as HashSet from "effect/HashSet"
  *
  * const vocabulary = NLPMonoid.Vocabulary.combine(
- *   new Set(["effect", "schema"]),
- *   new Set(["schema", "nlp"])
+ *   HashSet.make("effect", "schema"),
+ *   HashSet.make("schema", "nlp")
  * )
  *
  * console.log(Array.from(vocabulary).sort())
@@ -466,7 +523,7 @@ export const DocumentFrequency: Monoid.Monoid<Map<string, number>> = {
  * @since 0.0.0
  * @category combinators
  */
-export const Vocabulary: Monoid.Monoid<ReadonlySet<string>> = TokenSetUnion;
+export const Vocabulary: Monoid.Monoid<TokenHashSet> = TokenSetUnion;
 
 // =============================================================================
 // Specialized Aggregation Monoids
@@ -477,29 +534,24 @@ export const Vocabulary: Monoid.Monoid<ReadonlySet<string>> = TokenSetUnion;
  *
  * @example
  * ```ts
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const weights = NLPMonoid.WeightedTokens.combine(
- *   new Map([["effect", 0.4], ["schema", 0.8]]),
- *   new Map([["effect", 0.3]])
+ *   MutableHashMap.make(["effect", 0.4], ["schema", 0.8]),
+ *   MutableHashMap.make(["effect", 0.3])
  * )
  *
- * console.log(Array.from(weights.entries()))
+ * console.log(Array.from(weights))
  * // [["effect", 0.7], ["schema", 0.8]]
  * ```
  *
  * @since 0.0.0
  * @category combinators
  */
-export const WeightedTokens: Monoid.Monoid<Map<string, number>> = {
-  empty: new Map(),
-  combine: dual(2, (wt1: Map<string, number>, wt2: Map<string, number>) => {
-    const result = new Map(wt1);
-    wt2.forEach((weight, token) => {
-      result.set(token, (result.get(token) ?? 0) + weight);
-    });
-    return result;
-  }),
+export const WeightedTokens: Monoid.Monoid<TermNumberMap> = {
+  empty: MutableHashMap.empty(),
+  combine: dual(2, combineNumericMaps),
 };
 
 /**
@@ -507,29 +559,24 @@ export const WeightedTokens: Monoid.Monoid<Map<string, number>> = {
  *
  * @example
  * ```ts
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const ngrams = NLPMonoid.NGramFrequency.combine(
- *   new Map([["effect schema", 2]]),
- *   new Map([["effect schema", 1], ["schema docs", 1]])
+ *   MutableHashMap.make(["effect schema", 2]),
+ *   MutableHashMap.make(["effect schema", 1], ["schema docs", 1])
  * )
  *
- * console.log(Array.from(ngrams.entries()))
+ * console.log(Array.from(ngrams))
  * // [["effect schema", 3], ["schema docs", 1]]
  * ```
  *
  * @since 0.0.0
  * @category combinators
  */
-export const NGramFrequency: Monoid.Monoid<Map<string, number>> = {
-  empty: new Map(),
-  combine: dual(2, (ng1: Map<string, number>, ng2: Map<string, number>) => {
-    const result = new Map(ng1);
-    ng2.forEach((count, ngram) => {
-      result.set(ngram, (result.get(ngram) ?? 0) + count);
-    });
-    return result;
-  }),
+export const NGramFrequency: Monoid.Monoid<TermNumberMap> = {
+  empty: MutableHashMap.empty(),
+  combine: dual(2, combineNumericMaps),
 };
 
 // =============================================================================
@@ -541,13 +588,15 @@ export const NGramFrequency: Monoid.Monoid<Map<string, number>> = {
  *
  * @example
  * ```ts
+ * import * as HashSet from "effect/HashSet"
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const analysis: NLPMonoid.TextAnalysis = {
- *   bow: new Map([["effect", 2]]),
+ *   bow: MutableHashMap.make(["effect", 2]),
  *   entities: [{ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" }],
  *   sentenceCount: 1,
- *   vocabulary: new Set(["effect"])
+ *   vocabulary: HashSet.make("effect")
  * }
  *
  * console.log(analysis.sentenceCount)
@@ -557,37 +606,44 @@ export const NGramFrequency: Monoid.Monoid<Map<string, number>> = {
  * @since 0.0.0
  * @category models
  */
-export interface TextAnalysis {
-  readonly bow: BagOfWords;
-  readonly entities: ReadonlyArray<NamedEntity>;
-  readonly sentenceCount: number;
-  readonly vocabulary: ReadonlySet<string>;
-}
+export class TextAnalysis extends S.Class<TextAnalysis>($I`TextAnalysis`)(
+  {
+    bow: BagOfWords,
+    entities: S.Array(NamedEntity),
+    sentenceCount: S.Number,
+    vocabulary: S.HashSet(S.String),
+  },
+  $I.annote("TextAnalysis", {
+    description: "Combined text analysis carrier (bag-of-words + entities + sentence count + vocabulary).",
+  })
+) {}
 
 /**
  * Text analysis monoid (product monoid over the linguistic features).
  *
  * @example
  * ```ts
+ * import * as HashSet from "effect/HashSet"
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const combined = NLPMonoid.TextAnalysisMonoid.combine(
  *   {
- *     bow: new Map([["effect", 1]]),
+ *     bow: MutableHashMap.make(["effect", 1]),
  *     entities: [{ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" }],
  *     sentenceCount: 1,
- *     vocabulary: new Set(["effect"])
+ *     vocabulary: HashSet.make("effect")
  *   },
  *   {
- *     bow: new Map([["schema", 2]]),
+ *     bow: MutableHashMap.make(["schema", 2]),
  *     entities: [],
  *     sentenceCount: 2,
- *     vocabulary: new Set(["schema"])
+ *     vocabulary: HashSet.make("schema")
  *   }
  * )
  *
  * console.log({
- *   bow: Array.from(combined.bow.entries()),
+ *   bow: Array.from(combined.bow),
  *   sentenceCount: combined.sentenceCount,
  *   vocabulary: Array.from(combined.vocabulary).sort()
  * })
@@ -599,10 +655,10 @@ export interface TextAnalysis {
  */
 export const TextAnalysisMonoid: Monoid.Monoid<TextAnalysis> = {
   empty: {
-    bow: new Map(),
+    bow: MutableHashMap.empty(),
     entities: [],
     sentenceCount: 0,
-    vocabulary: new Set(),
+    vocabulary: HashSet.empty(),
   },
   combine: dual(2, (a1, a2) => ({
     bow: TokenBagOfWords.combine(a1.bow, a2.bow),
@@ -621,27 +677,28 @@ export const TextAnalysisMonoid: Monoid.Monoid<TextAnalysis> = {
  *
  * @example
  * ```ts
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
- * const tf = NLPMonoid.bagOfWordsToTF(new Map([["effect", 3], ["schema", 1]]))
+ * const tf = NLPMonoid.bagOfWordsToTF(MutableHashMap.make(["effect", 3], ["schema", 1]))
  *
- * console.log(Array.from(tf.entries()))
+ * console.log(Array.from(tf))
  * // [["effect", 0.75], ["schema", 0.25]]
  * ```
  *
  * @since 0.0.0
  * @category utilities
  */
-export const bagOfWordsToTF = (bow: BagOfWords): Map<string, number> => {
+export const bagOfWordsToTF = (bow: BagOfWords): TermNumberMap => {
   let total = 0;
-  bow.forEach((count) => {
+  MutableHashMap.forEach(bow, (count) => {
     total += count;
   });
-  if (total === 0) return new Map();
+  if (total === 0) return MutableHashMap.empty();
 
-  const tf = new Map<string, number>();
-  bow.forEach((count, term) => {
-    tf.set(term, count / total);
+  const tf = MutableHashMap.empty<string, number>();
+  MutableHashMap.forEach(bow, (count, term) => {
+    MutableHashMap.set(tf, term, count / total);
   });
   return tf;
 };
@@ -653,31 +710,28 @@ export const bagOfWordsToTF = (bow: BagOfWords): Map<string, number> => {
  *
  * @example
  * ```ts
+ * import * as MutableHashMap from "effect/MutableHashMap"
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const scores = NLPMonoid.computeTFIDF(
- *   new Map([["effect", 0.5], ["schema", 0.5]]),
- *   new Map([["effect", 2], ["schema", 1]]),
+ *   MutableHashMap.make(["effect", 0.5], ["schema", 0.5]),
+ *   MutableHashMap.make(["effect", 2], ["schema", 1]),
  *   4
  * )
  *
- * console.log(Array.from(scores.entries()))
+ * console.log(Array.from(scores))
  * // [["effect", 0.34657359027997264], ["schema", 0.6931471805599453]]
  * ```
  *
  * @since 0.0.0
  * @category utilities
  */
-export const computeTFIDF = (
-  tf: Map<string, number>,
-  df: Map<string, number>,
-  totalDocs: number
-): Map<string, number> => {
-  const tfidf = new Map<string, number>();
-  tf.forEach((tfScore, term) => {
-    const docFreq = df.get(term) ?? 1;
+export const computeTFIDF = (tf: TermNumberMap, df: TermNumberMap, totalDocs: number): TermNumberMap => {
+  const tfidf = MutableHashMap.empty<string, number>();
+  MutableHashMap.forEach(tf, (tfScore, term) => {
+    const docFreq = O.getOrElse(MutableHashMap.get(df, term), () => 1);
     const idf = Math.log(totalDocs / docFreq);
-    tfidf.set(term, tfScore * idf);
+    MutableHashMap.set(tfidf, term, tfScore * idf);
   });
   return tfidf;
 };
@@ -695,7 +749,7 @@ export const computeTFIDF = (
  *
  * const counts = NLPMonoid.aggregateTokens(["effect", "schema", "effect"])
  *
- * console.log(Array.from(counts.entries()))
+ * console.log(Array.from(counts))
  * // [["effect", 2], ["schema", 1]]
  * ```
  *
@@ -703,13 +757,7 @@ export const computeTFIDF = (
  * @category utilities
  */
 export const aggregateTokens = (tokens: ReadonlyArray<string>): BagOfWords =>
-  Monoid.fold(TokenBagOfWords)(
-    tokens.map((token) => {
-      const bow: BagOfWords = new Map();
-      bow.set(token, 1);
-      return bow;
-    })
-  );
+  Monoid.fold(TokenBagOfWords)(tokens.map((token) => MutableHashMap.make([token, 1])));
 
 /**
  * Aggregate sentences into a single document string.

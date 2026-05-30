@@ -7,7 +7,7 @@
  * from the implementation, following the Toolkit pattern where handlers declare
  * their own requirements.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * the definition is parameterized by the DECODED value types `A`/`B` (with the
  * schemas carried as `Schema.Schema<A>`/`Schema.Schema<B>` metadata) rather than
  * by `Schema.Schema<any, any, any>` schema types — this avoids `any` and keeps the

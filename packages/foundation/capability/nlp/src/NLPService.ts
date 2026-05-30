@@ -7,7 +7,7 @@
  * and POS tags). The service depends on an {@link Backend.NLPBackend} provided via
  * a layer (e.g. `WinkBackendLive`).
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * `Context.GenericTag` becomes the `Context.Service` class form; `getBackend`
  * becomes a bare `Effect` (no zero-arg thunk).
  *

@@ -6,7 +6,7 @@
  * 2. Right identity: x ⊕ empty = x
  * 3. Associativity:  (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z)
  *
- * Ported from the `adjunct` repo (fast-check) to Effect v4's
+ * Property-based coverage for Effect v4's
  * `effect/testing/FastCheck`. These proofs are the fidelity gate for the port.
  */
 

@@ -2,8 +2,8 @@
  * Decode/encode round-trip proofs for the graph node & edge schemas.
  *
  * Verifies each schema class decodes valid input, round-trips through
- * encode/decode, and rejects invalid discriminants. Ported from the `adjunct`
- * repo's Schema design using Effect v4 + `@effect/vitest`. Uses v4's
+ * encode/decode, and rejects invalid discriminants using Effect v4 +
+ * `@effect/vitest`. Uses v4's
  * `decodeUnknownEffect`/`encodeEffect` (there is no `S.decodeUnknown`/`S.encode`).
  */
 

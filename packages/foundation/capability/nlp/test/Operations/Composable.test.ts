@@ -4,14 +4,14 @@
  * traverse/aggregate helpers. Laws are checked over `string -> number` style
  * operations so the categorical structure is verified without NLP coupling.
  *
- * Ported from the `adjunct` repo's composable-operations design to Effect v4 +
- * `@effect/vitest`.
+ * Effect v4 + `@effect/vitest` coverage for the composable-operations design.
  */
 
 import * as Monoid from "@beep/nlp/Algebra/Monoid";
 import * as Composable from "@beep/nlp/Operations/Composable";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
 
 const len = Composable.makeOperation("len", S.String, S.Number, (s) => Effect.succeed(s.length));
@@ -36,6 +36,20 @@ describe("Functor laws", () => {
       const composed = yield* len.map((n) => g(f(n)), S.Number).run("abcd");
       const sequential = yield* len.map(f, S.Number).map(g, S.Number).run("abcd");
       expect(composed).toBe(sequential);
+    })
+  );
+
+  it.effect(
+    "dual helper supports data-first and pipe-friendly data-last map",
+    Effect.fnUntraced(function* () {
+      const dataFirst = Composable.map(len, (n) => n + 1, S.Number);
+      const dataLast = pipe(
+        len,
+        Composable.map((n) => n * 2, S.Number)
+      );
+
+      expect(yield* dataFirst.run("abc")).toBe(4);
+      expect(yield* dataLast.run("abc")).toBe(6);
     })
   );
 });
@@ -85,12 +99,44 @@ describe("Applicative", () => {
   );
 
   it.effect(
+    "dual helper supports data-first and pipe-friendly data-last product",
+    Effect.fnUntraced(function* () {
+      const lenA = Composable.makeOperation("lenA", S.String, S.Number, (s) => Effect.succeed(s.length));
+      const lenB = Composable.makeOperation("lenB", S.String, S.Number, (s) => Effect.succeed(s.length * 10));
+      const outputSchema = S.Tuple([S.Number, S.Number]);
+
+      const dataFirst = Composable.product(lenA, lenB, outputSchema);
+      const dataLast = pipe(lenA, Composable.product(lenB, outputSchema));
+
+      expect(yield* dataFirst.run("abc")).toEqual([3, 30]);
+      expect(yield* dataLast.run("abc")).toEqual([3, 30]);
+    })
+  );
+
+  it.effect(
     "zipWith combines both results with a function",
     Effect.fnUntraced(function* () {
       const lenA = Composable.makeOperation("lenA", S.String, S.Number, (s) => Effect.succeed(s.length));
       const lenB = Composable.makeOperation("lenB", S.String, S.Number, (s) => Effect.succeed(s.length * 10));
       const summed = lenA.zipWith(lenB, (a, b) => a + b, S.Number);
       expect(yield* summed.run("abc")).toBe(33);
+    })
+  );
+
+  it.effect(
+    "dual helper supports data-first and pipe-friendly data-last zipWith",
+    Effect.fnUntraced(function* () {
+      const lenA = Composable.makeOperation("lenA", S.String, S.Number, (s) => Effect.succeed(s.length));
+      const lenB = Composable.makeOperation("lenB", S.String, S.Number, (s) => Effect.succeed(s.length * 10));
+
+      const dataFirst = Composable.zipWith(lenA, lenB, (a, b) => a + b, S.Number);
+      const dataLast = pipe(
+        lenA,
+        Composable.zipWith(lenB, (a, b) => a + b, S.Number)
+      );
+
+      expect(yield* dataFirst.run("abc")).toBe(33);
+      expect(yield* dataLast.run("abc")).toBe(33);
     })
   );
 });

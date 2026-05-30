@@ -2,7 +2,7 @@
  * Proofs for the EffectGraph engine: construction, child/root queries, the
  * catamorphism/anamorphism duality, and the Functor map.
  *
- * Ported from the `adjunct` repo's graph tests to Effect v4 + `@effect/vitest`.
+ * Effect v4 + `@effect/vitest` coverage for graph tests.
  * Node construction is effectful (Clock + Random id), so tests run under the
  * default test runtime.
  */

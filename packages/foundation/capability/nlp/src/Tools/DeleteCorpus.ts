@@ -8,6 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
+import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/DeleteCorpus");
 
@@ -56,6 +57,8 @@ class DeleteCorpusSuccess extends S.Class<DeleteCorpusSuccess>($I`DeleteCorpusSu
  */
 export const DeleteCorpus = Tool.make("DeleteCorpus", {
   description: "Delete a corpus session and release its in-memory index state.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: DeleteCorpusParameters,
   success: DeleteCorpusSuccess,
 });

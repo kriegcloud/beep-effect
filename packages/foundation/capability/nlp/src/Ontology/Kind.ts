@@ -13,7 +13,7 @@
  * Free operations increase granularity (move down the poset); forgetful
  * operations decrease it (move up).
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`.
+ * Effect v4 `@beep/nlp` implementation.
  * `Schema.Union(Schema.Literal(...))` is replaced by `@beep/schema`'s
  * `LiteralKit` per repo convention.
  *

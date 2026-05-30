@@ -6,17 +6,16 @@
  * produces an array of nodes of data `B`, possibly requiring context `R` and
  * failing with `E`. The module provides the Functor/Applicative/Monad/Traversable
  * combinators (`map`/`ap`/`chain`/`traverse`), a {@link Composable} monoid of
- * operations, a {@link Foldable} instance for graphs, and an adjunction model
- * (free expansion ⊣ forgetful aggregation).
+ * operations, a {@link Foldable} instance for graphs, and a paired
+ * expansion/aggregation model.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * - operations that mint nodes are EFFECTFUL: `EffectGraph.makeNode` /
- *   `EffectGraph.generateNodeId` read `Clock`/`Random` (adjunct called a synchronous
- *   `makeNode` + `NodeId.generate()`, which are repo-law violations here).
+ *   `EffectGraph.generateNodeId` read `Clock`/`Random`.
  * - `Foldable<F>` is parameterized as `Foldable<F, A>` so the graph instance is
- *   implementable without `any` (adjunct's `Foldable<F>` forced an `any` instance).
- * - `executeOperation` drops adjunct's `as EffectGraph<A | B>` casts: `effect/Graph`
- *   is covariant in its node type, so the widening is sound without assertions.
+ *   implementable without `any`.
+ * - `executeOperation` relies on `effect/Graph` covariance in its node type, so
+ *   the widening is sound without assertions.
  * - native `Array#map`/`flat`/`push` + index loops become `effect/Array` + folds +
  *   `Effect.all`/`Effect.forEach`; the `purOperation` typo is corrected to
  *   `pureOperation`.
@@ -403,7 +402,7 @@ export interface ForgetfulOperation<A, B, R = never, E = never> {
 }
 
 /**
- * Pair a free expansion with its forgetful aggregation as an adjunction.
+ * Pair a free expansion with its aggregation operation.
  *
  * @example
  * ```ts
@@ -414,9 +413,9 @@ export interface ForgetfulOperation<A, B, R = never, E = never> {
  *   name: "stringify",
  *   apply: (nodes) => makeNode(nodes.map((node) => String(node.data)).join(","))
  * }
- * const adjunction = makeAdjunction(mapOperation("length", (text: string) => text.length), aggregate)
+ * const pairing = makeAdjunction(mapOperation("length", (text: string) => text.length), aggregate)
  *
- * console.log(adjunction.expand.name) // "length"
+ * console.log(pairing.expand.name) // "length"
  * ```
  *
  * @since 0.0.0

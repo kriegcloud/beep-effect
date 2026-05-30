@@ -8,18 +8,17 @@
  * {@link RelationNode} (semantic relations). Categorically this is a
  * richer category whose objects include both structural and annotation nodes.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * - the heterogeneous node union is discriminated by schema-aware `S.is` guards
- *   over the plain `Schema.Class` node types (adjunct used `instanceof`; the repo
- *   forbids `instanceof` on schema types via the `instanceOfSchema` diagnostic).
+ *   over the plain `Schema.Class` node types.
  * - document/sentence `TextNode`s are built EFFECTFULLY, reading `Clock` for the
  *   timestamp (was `Date.now()`); annotation nodes arrive pre-built from the
  *   backend.
  * - native `Array.from`/`forEach`/`Object.keys`/`Array#push` become `effect/Array`
  *   (`A.*`), and `getNode`'s `Option` is consumed with `effect/Option`.
- * - `addDependencyAnnotations` is implemented (adjunct left it a TODO), wired to
+ * - `addDependencyAnnotations` is implemented and wired to
  *   `backend.parseDependencies`; it stays off by default in
- *   {@link fromDocumentAnnotated} to match adjunct's defaults.
+ *   {@link fromDocumentAnnotated}.
  *
  * @since 0.0.0
  * @packageDocumentation
@@ -32,6 +31,7 @@ import { Clock, Effect, Graph } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Backend from "../Backend/NLPBackend.ts";
+import * as Obs from "../internal/observability.ts";
 import { DependencyNode, EntityNode, LemmaNode, POSNode, RelationNode, TextEdge, TextNode } from "./Schema.ts";
 
 const $I = $NlpId.create("Graph/AnnotatedTextGraph");
@@ -335,39 +335,55 @@ export const fromDocumentAnnotated = Effect.fn("fromDocumentAnnotated")(function
 ): Effect.fn.Return<AnnotatedTextGraph, Backend.NLPBackendError, Backend.NLPBackend> {
   const backend = yield* Backend.NLPBackend;
   const resolved = { ...AnnotationOptions.make(), ...options };
+  const attributes = {
+    backend: backend.name,
+    document_length: `${text.length}`,
+    include_dependencies: `${resolved.includeDependencies}`,
+    include_entities: `${resolved.includeEntities}`,
+    include_lemmas: `${resolved.includeLemmas}`,
+    include_pos: `${resolved.includePOS}`,
+    operation: "fromDocumentAnnotated",
+  };
 
-  const sentences = yield* backend.sentencize(text);
-  const docNode = yield* makeTextNode({
-    text,
-    type: "document",
-    operation: "root",
-  });
-  const sentenceNodes = yield* Effect.forEach(sentences, (sentence) =>
-    makeTextNode({ text: sentence, type: "sentence", operation: "sentencize" })
-  );
-
-  let graph: AnnotatedTextGraph = Graph.directed<AnnotatedNode, TextEdge>((mutable) => {
-    const docIndex = Graph.addNode(mutable, docNode);
-    A.forEach(sentenceNodes, (sentenceNode) => {
-      const sentenceIndex = Graph.addNode(mutable, sentenceNode);
-      Graph.addEdge(mutable, docIndex, sentenceIndex, TextEdge.make({ relation: "contains" }));
+  return yield* Effect.gen(function* () {
+    const sentences = yield* backend.sentencize(text);
+    const docNode = yield* makeTextNode({
+      text,
+      type: "document",
+      operation: "root",
     });
-  });
+    const sentenceNodes = yield* Effect.forEach(sentences, (sentence) =>
+      makeTextNode({ text: sentence, type: "sentence", operation: "sentencize" })
+    );
 
-  if (P.isTruthy(resolved.includePOS)) {
-    graph = yield* addPOSAnnotations(graph);
-  }
-  if (P.isTruthy(resolved.includeLemmas)) {
-    graph = yield* addLemmaAnnotations(graph);
-  }
-  if (P.isTruthy(resolved.includeEntities)) {
-    graph = yield* addEntityAnnotations(graph);
-  }
-  if (P.isTruthy(resolved.includeDependencies)) {
-    graph = yield* addDependencyAnnotations(graph);
-  }
+    let graph: AnnotatedTextGraph = Graph.directed<AnnotatedNode, TextEdge>((mutable) => {
+      const docIndex = Graph.addNode(mutable, docNode);
+      A.forEach(sentenceNodes, (sentenceNode) => {
+        const sentenceIndex = Graph.addNode(mutable, sentenceNode);
+        Graph.addEdge(mutable, docIndex, sentenceIndex, TextEdge.make({ relation: "contains" }));
+      });
+    });
 
-  return graph;
+    if (P.isTruthy(resolved.includePOS)) {
+      graph = yield* addPOSAnnotations(graph);
+    }
+    if (P.isTruthy(resolved.includeLemmas)) {
+      graph = yield* addLemmaAnnotations(graph);
+    }
+    if (P.isTruthy(resolved.includeEntities)) {
+      graph = yield* addEntityAnnotations(graph);
+    }
+    if (P.isTruthy(resolved.includeDependencies)) {
+      graph = yield* addDependencyAnnotations(graph);
+    }
+
+    yield* Obs.annotateNlpSpan({
+      ...attributes,
+      node_count: `${Graph.nodeCount(graph)}`,
+      sentence_count: `${A.length(sentences)}`,
+    });
+    return graph;
+  }).pipe(Obs.observeNlpWorkflow("nlp.annotated_text_graph.from_document", attributes));
 });
 
 // =============================================================================
@@ -408,23 +424,50 @@ const addSentenceAnnotations = Effect.fn("AnnotatedTextGraph.addSentenceAnnotati
   relation,
 }: SentenceAnnotationConfig<N>): Effect.fn.Return<AnnotatedTextGraph, Backend.NLPBackendError, Backend.NLPBackend> {
   const backend = yield* Backend.NLPBackend;
-  let result = graph;
+  const attributes = {
+    backend: backend.name,
+    input_node_count: `${Graph.nodeCount(graph)}`,
+    operation: "addSentenceAnnotations",
+    relation,
+  };
+  return yield* Effect.gen(function* () {
+    let result = graph;
+    let annotationCount = 0;
+    let skippedExistingCount = 0;
+    let skippedMissingCount = 0;
+    const indices = sentenceIndices(graph);
 
-  for (const sentIdx of sentenceIndices(graph)) {
-    const sentNode = Graph.getNode(graph, sentIdx);
-    if (O.isNone(sentNode) || !isTextNode(sentNode.value)) continue;
-    if (childrenHave(result, sentIdx, hasAnnotation)) continue;
+    for (const sentIdx of indices) {
+      const sentNode = Graph.getNode(graph, sentIdx);
+      if (O.isNone(sentNode) || !isTextNode(sentNode.value)) {
+        skippedMissingCount = skippedMissingCount + 1;
+        continue;
+      }
+      if (childrenHave(result, sentIdx, hasAnnotation)) {
+        skippedExistingCount = skippedExistingCount + 1;
+        continue;
+      }
 
-    const annotationNodes = yield* collect(backend, sentNode.value.text);
-    result = Graph.mutate(result, (mutable) => {
-      A.forEach(annotationNodes, (annotationNode) => {
-        const annotationIdx = Graph.addNode(mutable, annotationNode);
-        Graph.addEdge(mutable, sentIdx, annotationIdx, TextEdge.make({ relation }));
+      const annotationNodes = yield* collect(backend, sentNode.value.text);
+      annotationCount = annotationCount + A.length(annotationNodes);
+      result = Graph.mutate(result, (mutable) => {
+        A.forEach(annotationNodes, (annotationNode) => {
+          const annotationIdx = Graph.addNode(mutable, annotationNode);
+          Graph.addEdge(mutable, sentIdx, annotationIdx, TextEdge.make({ relation }));
+        });
       });
-    });
-  }
+    }
 
-  return result;
+    yield* Obs.annotateNlpSpan({
+      ...attributes,
+      annotation_count: `${annotationCount}`,
+      output_node_count: `${Graph.nodeCount(result)}`,
+      sentence_count: `${A.length(indices)}`,
+      skipped_existing_count: `${skippedExistingCount}`,
+      skipped_missing_count: `${skippedMissingCount}`,
+    });
+    return result;
+  }).pipe(Obs.observeNlpWorkflow("nlp.annotated_text_graph.add_sentence_annotations", attributes));
 });
 
 /**

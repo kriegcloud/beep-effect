@@ -8,6 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
+import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/LearnCorpus");
 
@@ -78,6 +79,8 @@ class LearnCorpusSuccess extends S.Class<LearnCorpusSuccess>($I`LearnCorpusSucce
  */
 export const LearnCorpus = Tool.make("LearnCorpus", {
   description: "Learn one or more documents into an existing corpus session for incremental indexing.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: LearnCorpusParameters,
   success: LearnCorpusSuccess,
 });

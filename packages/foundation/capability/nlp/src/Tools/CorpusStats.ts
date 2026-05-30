@@ -9,7 +9,7 @@ import { $NlpId } from "@beep/identity";
 import { PosInt } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiCorpusStats } from "./_schemas.ts";
+import { AiCorpusStats, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/CorpusStats");
 
@@ -60,6 +60,8 @@ class CorpusStatsParameters extends S.Class<CorpusStatsParameters>($I`CorpusStat
  */
 export const CorpusStats = Tool.make("CorpusStats", {
   description: "Inspect corpus internals such as vocabulary, IDF values, and optional document-term matrix.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: CorpusStatsParameters,
   success: AiCorpusStats,
 });

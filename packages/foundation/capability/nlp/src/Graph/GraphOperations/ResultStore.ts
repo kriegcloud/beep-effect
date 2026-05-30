@@ -5,9 +5,9 @@
  * expensive operations are not recomputed. The default implementation is an
  * in-memory `Ref<HashMap>`.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * - `Context.GenericTag` becomes the `Context.Service` class form.
- * - `Ref<Map<...>>` becomes `Ref<HashMap<...>>`; native `Map` ops become `HashMap`.
+ * - keyed cache storage becomes `Ref<HashMap<...>>`; cache operations use `HashMap`.
  * - `Date.now()` becomes `Clock.currentTimeMillis`.
  * - the heterogeneous store value is `unknown`-typed and SOUND: results are stored
  *   as {@link AnyOperationResult} (`OperationResult<unknown, unknown>`) and read back

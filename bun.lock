@@ -619,6 +619,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/nlp": "workspace:^",
+        "@beep/wink": "workspace:^",
         "@effect/platform-node": "catalog:",
         "effect": "catalog:",
       },
@@ -731,6 +732,25 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/drivers/wink": {
+      "name": "@beep/wink",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/nlp": "workspace:^",
+        "@beep/observability": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+        "wink-eng-lite-web-model": "catalog:",
+        "wink-nlp": "catalog:",
+        "wink-nlp-utils": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/xai": {
       "name": "@beep/xai",
       "version": "0.0.3",
@@ -813,9 +833,6 @@
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
-        "wink-eng-lite-web-model": "catalog:",
-        "wink-nlp": "catalog:",
-        "wink-nlp-utils": "catalog:",
       },
       "devDependencies": {
         "@beep/test-utils": "workspace:^",
@@ -2060,6 +2077,8 @@
     "@beep/venice-ai": ["@beep/venice-ai@workspace:packages/drivers/venice-ai"],
 
     "@beep/wealth-management-domain": ["@beep/wealth-management-domain@workspace:packages/wealth-management/domain"],
+
+    "@beep/wink": ["@beep/wink@workspace:packages/drivers/wink"],
 
     "@beep/workspace-domain": ["@beep/workspace-domain@workspace:packages/workspace/domain"],
 

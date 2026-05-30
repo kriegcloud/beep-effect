@@ -6,7 +6,7 @@
  */
 
 import { A, O, Str, thunk0 } from "@beep/utils";
-import { HashMap } from "effect";
+import { HashMap, HashSet } from "effect";
 import { dual } from "effect/Function";
 // =============================================================================
 // Core Monoid Type Class
@@ -363,10 +363,11 @@ export const MultiSet = <K>(): Monoid<HashMap.HashMap<K, number>> => ({
  * @example
  * ```ts
  * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import * as HashSet from "effect/HashSet"
  *
  * const vocabulary = Monoid.fold(Monoid.SetUnion<string>())([
- *   new Set(["effect", "schema"]),
- *   new Set(["schema", "nlp"])
+ *   HashSet.make("effect", "schema"),
+ *   HashSet.make("schema", "nlp")
  * ])
  *
  * console.log(Array.from(vocabulary).sort())
@@ -376,9 +377,9 @@ export const MultiSet = <K>(): Monoid<HashMap.HashMap<K, number>> => ({
  * @since 0.0.0
  * @category combinators
  */
-export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
-  empty: new Set(),
-  combine: dual(2, (x, y) => new Set([...x, ...y])),
+export const SetUnion = <A>(): Monoid<HashSet.HashSet<A>> => ({
+  empty: HashSet.empty(),
+  combine: dual(2, (x, y) => HashSet.union(x, y)),
 });
 
 /**
@@ -392,11 +393,12 @@ export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
  * @example
  * ```ts
  * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import * as HashSet from "effect/HashSet"
  * import * as O from "effect/Option"
  *
  * const commonTags = Monoid.fold(Monoid.SetIntersection<string>())([
- *   O.some(new Set(["noun", "topic", "entity"])),
- *   O.some(new Set(["topic", "entity"]))
+ *   O.some(HashSet.make("noun", "topic", "entity")),
+ *   O.some(HashSet.make("topic", "entity"))
  * ])
  *
  * console.log(O.map(commonTags, (tags) => Array.from(tags).sort()))
@@ -406,17 +408,14 @@ export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
  * @since 0.0.0
  * @category combinators
  */
-export const SetIntersection: <A>() => Monoid<O.Option<ReadonlySet<A>>> = <A>(): Monoid<O.Option<ReadonlySet<A>>> => ({
+export const SetIntersection: <A>() => Monoid<O.Option<HashSet.HashSet<A>>> = <A>(): Monoid<
+  O.Option<HashSet.HashSet<A>>
+> => ({
   empty: O.none(),
   combine: dual(2, (x, y) => {
     if (O.isNone(x)) return y;
     if (O.isNone(y)) return x;
-
-    const result = new Set<A>();
-    for (const elem of x.value) {
-      if (y.value.has(elem) === true) result.add(elem);
-    }
-    return O.some(result);
+    return O.some(HashSet.intersection(x.value, y.value));
   }),
 });
 

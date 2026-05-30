@@ -7,7 +7,7 @@
  * {@link LemmaNode}, {@link DependencyNode}, {@link RelationNode}). These are the
  * basis for the product-neutral handoff contract emitted to downstream consumers.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * `Schema.Class("Name")` becomes `S.Class($I\`Name\`)(fields, $I.annote(...))\`,
  * multi-arm `Schema.Literal(...)` becomes `S.Literals(...)`, `Schema.optional`
  * becomes `S.optionalKey`, and `Schema.Record({key,value})` becomes the positional
@@ -77,6 +77,7 @@ export const TextEdgeRelation = LiteralKit([
 );
 
 type TextNodeKind = typeof TextNodeType.Type;
+type TextEdgeRelationKind = typeof TextEdgeRelation.Type;
 
 const textNodeFields = <T extends TextNodeKind>(literal: S.Literal<T>) => ({
   text: S.String,
@@ -157,6 +158,17 @@ export const TextNode = TextNodeType.mapMembers(
  */
 export type TextNode = typeof TextNode.Type;
 
+const textEdgeFields = <T extends TextEdgeRelationKind>(literal: S.Literal<T>) => ({
+  relation: S.tag(literal.literal),
+  label: S.optionalKey(S.String),
+  weight: S.optionalKey(S.Number),
+});
+
+const textEdgeMember =
+  <T extends TextEdgeRelationKind>(name: string, description: string) =>
+  (literal: S.Literal<T>) =>
+    literal.pipe(textEdgeFields, S.Struct, $I.annoteSchema(name, { description }));
+
 /**
  * Edge between text nodes, labeled with a structural or linguistic relation.
  *
@@ -170,16 +182,41 @@ export type TextNode = typeof TextNode.Type;
  * @since 0.0.0
  * @category models
  */
-export class TextEdge extends S.Class<TextEdge>($I`TextEdge`)(
-  {
-    relation: TextEdgeRelation,
-    label: S.optionalKey(S.String),
-    weight: S.optionalKey(S.Number),
-  },
-  $I.annote("TextEdge", {
+export const TextEdge = TextEdgeRelation.mapMembers(
+  Tuple.evolve([
+    textEdgeMember("ContainsTextEdge", "Structural text-graph edge indicating containment."),
+    textEdgeMember("FollowsTextEdge", "Structural text-graph edge indicating sequence order."),
+    textEdgeMember("DerivedFromTextEdge", "Structural text-graph edge indicating derivation lineage."),
+    textEdgeMember("ParentOfTextEdge", "Structural text-graph edge indicating parentage."),
+    textEdgeMember("TaggedAsTextEdge", "Linguistic text-graph edge linking a token to a part-of-speech tag."),
+    textEdgeMember("LemmaOfTextEdge", "Linguistic text-graph edge linking a lemma to its token."),
+    textEdgeMember("HeadOfTextEdge", "Linguistic text-graph edge indicating a dependency head."),
+    textEdgeMember("DependentOfTextEdge", "Linguistic text-graph edge indicating a dependency dependent."),
+    textEdgeMember("EntityMentionTextEdge", "Linguistic text-graph edge linking an entity mention to source text."),
+    textEdgeMember("RelatesToTextEdge", "Linguistic text-graph edge linking related extracted entities."),
+  ])
+).pipe(
+  $I.annoteSchema("TextEdge", {
     description: "Text-graph edge labeled with a structural or linguistic-annotation relation.",
-  })
-) {}
+  }),
+  S.toTaggedUnion("relation")
+);
+
+/**
+ * Runtime type for text-graph edges.
+ *
+ * @example
+ * ```ts
+ * import type { TextEdge } from "@beep/nlp/Graph/Schema"
+ *
+ * const relation = (edge: TextEdge) => edge.relation
+ * console.log(relation)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type TextEdge = typeof TextEdge.Type;
 
 /**
  * Summary result of analyzing a piece of text.

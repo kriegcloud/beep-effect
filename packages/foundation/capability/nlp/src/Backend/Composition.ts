@@ -8,20 +8,72 @@
  *   with a capacity bound and TTL.
  * - {@link selectByCapability}: pick the first backend supporting a capability.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
- * adjunct's `withCaching` was a no-op stub; here it is a real per-operation
- * `effect/Cache`. `backends.find(...)` becomes `effect/Array` `A.findFirst`
- * (returning `Option`).
+ * Effect v4 `@beep/nlp` implementation notes:
+ * `withCaching` is a real per-operation `effect/Cache`. `backends.find(...)`
+ * becomes `effect/Array` `A.findFirst` (returning `Option`).
  *
  * @since 0.0.0
  * @packageDocumentation
  */
 
+import { $NlpId } from "@beep/identity";
 import { A } from "@beep/utils";
 import { Cache, Duration, Effect } from "effect";
+import * as S from "effect/Schema";
+import * as Obs from "../internal/observability.ts";
 import { NLPBackend } from "./NLPBackend.ts";
+import type * as EffectCache from "effect/Cache";
 import type * as O from "effect/Option";
 import type { BackendCapabilities, NLPBackendShape } from "./NLPBackend.ts";
+
+const $I = $NlpId.create("Backend/Composition");
+
+const backendOperationAttributes = (
+  operation: string,
+  backend: NLPBackendShape,
+  extra: Record<string, string> = {}
+): Record<string, string> => ({
+  backend: backend.name,
+  operation,
+  ...extra,
+});
+
+const fallbackOperation = <A, E, R>(
+  operation: string,
+  primary: NLPBackendShape,
+  secondary: NLPBackendShape,
+  primaryEffect: Effect.Effect<A, E, R>,
+  secondaryEffect: Effect.Effect<A, E, R>
+): Effect.Effect<A, E, R> => {
+  const attributes = {
+    operation,
+    primary_backend: primary.name,
+    secondary_backend: secondary.name,
+  };
+  return primaryEffect.pipe(
+    Effect.catchCause((cause) => Obs.recordNlpBackendFallback(cause, attributes).pipe(Effect.andThen(secondaryEffect))),
+    Obs.trackNlpDuration(`nlp.backend.fallback.${operation}`, attributes)
+  );
+};
+
+const cachedGet = <A, E, R>(
+  cache: EffectCache.Cache<string, A, E, R>,
+  operation: string,
+  backend: NLPBackendShape,
+  key: string,
+  capacity: number,
+  timeToLive: Duration.Duration
+): Effect.Effect<A, E, R> => {
+  const attributes = backendOperationAttributes(operation, backend, {
+    cache_capacity: `${capacity}`,
+    cache_ttl_ms: `${Duration.toMillis(timeToLive)}`,
+  });
+  return Effect.gen(function* () {
+    const hit = yield* Cache.has(cache, key);
+    yield* Obs.recordNlpCacheLookup(hit, attributes);
+    return yield* Cache.get(cache, key);
+  }).pipe(Obs.trackNlpDuration(`nlp.backend.cached.${operation}`, attributes));
+};
 
 /**
  * Compose two backends so each operation falls back to a secondary backend.
@@ -85,25 +137,55 @@ export const withFallback = (primary: NLPBackendShape, secondary: NLPBackendShap
     capabilities,
     name: `${primary.name}+${secondary.name}`,
     tokenize: Effect.fn("FallbackBackend.tokenize")(function* (text: string) {
-      return yield* Effect.catch(primary.tokenize(text), () => secondary.tokenize(text));
+      return yield* fallbackOperation("tokenize", primary, secondary, primary.tokenize(text), secondary.tokenize(text));
     }),
     sentencize: Effect.fn("FallbackBackend.sentencize")(function* (text: string) {
-      return yield* Effect.catch(primary.sentencize(text), () => secondary.sentencize(text));
+      return yield* fallbackOperation(
+        "sentencize",
+        primary,
+        secondary,
+        primary.sentencize(text),
+        secondary.sentencize(text)
+      );
     }),
     posTag: Effect.fn("FallbackBackend.posTag")(function* (text: string) {
-      return yield* Effect.catch(primary.posTag(text), () => secondary.posTag(text));
+      return yield* fallbackOperation("posTag", primary, secondary, primary.posTag(text), secondary.posTag(text));
     }),
     lemmatize: Effect.fn("FallbackBackend.lemmatize")(function* (text: string) {
-      return yield* Effect.catch(primary.lemmatize(text), () => secondary.lemmatize(text));
+      return yield* fallbackOperation(
+        "lemmatize",
+        primary,
+        secondary,
+        primary.lemmatize(text),
+        secondary.lemmatize(text)
+      );
     }),
     extractEntities: Effect.fn("FallbackBackend.extractEntities")(function* (text: string) {
-      return yield* Effect.catch(primary.extractEntities(text), () => secondary.extractEntities(text));
+      return yield* fallbackOperation(
+        "extractEntities",
+        primary,
+        secondary,
+        primary.extractEntities(text),
+        secondary.extractEntities(text)
+      );
     }),
     parseDependencies: Effect.fn("FallbackBackend.parseDependencies")(function* (sentence: string) {
-      return yield* Effect.catch(primary.parseDependencies(sentence), () => secondary.parseDependencies(sentence));
+      return yield* fallbackOperation(
+        "parseDependencies",
+        primary,
+        secondary,
+        primary.parseDependencies(sentence),
+        secondary.parseDependencies(sentence)
+      );
     }),
     extractRelations: Effect.fn("FallbackBackend.extractRelations")(function* (text: string) {
-      return yield* Effect.catch(primary.extractRelations(text), () => secondary.extractRelations(text));
+      return yield* fallbackOperation(
+        "extractRelations",
+        primary,
+        secondary,
+        primary.extractRelations(text),
+        secondary.extractRelations(text)
+      );
     }),
   });
 };
@@ -123,10 +205,15 @@ export const withFallback = (primary: NLPBackendShape, secondary: NLPBackendShap
  * @category models
  * @since 0.0.0
  */
-export interface CachingOptions {
-  readonly capacity?: number;
-  readonly timeToLive?: Duration.Duration;
-}
+export class CachingOptions extends S.Class<CachingOptions>($I`CachingOptions`)(
+  {
+    capacity: S.optionalKey(S.Number),
+    timeToLive: S.optionalKey(S.Duration),
+  },
+  $I.annote("CachingOptions", {
+    description: "Cache settings for memoized backend composition.",
+  })
+) {}
 
 /**
  * Wrap a backend with per-operation `effect/Cache` memoization.
@@ -192,25 +279,25 @@ export const withCaching = Effect.fn("withCaching")(function* (
     capabilities: backend.capabilities,
     name: `cached(${backend.name})`,
     tokenize: Effect.fn("CachedBackend.tokenize")(function* (text: string) {
-      return yield* Cache.get(tokenizeCache, text);
+      return yield* cachedGet(tokenizeCache, "tokenize", backend, text, capacity, timeToLive);
     }),
     sentencize: Effect.fn("CachedBackend.sentencize")(function* (text: string) {
-      return yield* Cache.get(sentencizeCache, text);
+      return yield* cachedGet(sentencizeCache, "sentencize", backend, text, capacity, timeToLive);
     }),
     posTag: Effect.fn("CachedBackend.posTag")(function* (text: string) {
-      return yield* Cache.get(posTagCache, text);
+      return yield* cachedGet(posTagCache, "posTag", backend, text, capacity, timeToLive);
     }),
     lemmatize: Effect.fn("CachedBackend.lemmatize")(function* (text: string) {
-      return yield* Cache.get(lemmatizeCache, text);
+      return yield* cachedGet(lemmatizeCache, "lemmatize", backend, text, capacity, timeToLive);
     }),
     extractEntities: Effect.fn("CachedBackend.extractEntities")(function* (text: string) {
-      return yield* Cache.get(entitiesCache, text);
+      return yield* cachedGet(entitiesCache, "extractEntities", backend, text, capacity, timeToLive);
     }),
     parseDependencies: Effect.fn("CachedBackend.parseDependencies")(function* (sentence: string) {
-      return yield* Cache.get(dependenciesCache, sentence);
+      return yield* cachedGet(dependenciesCache, "parseDependencies", backend, sentence, capacity, timeToLive);
     }),
     extractRelations: Effect.fn("CachedBackend.extractRelations")(function* (text: string) {
-      return yield* Cache.get(relationsCache, text);
+      return yield* cachedGet(relationsCache, "extractRelations", backend, text, capacity, timeToLive);
     }),
   });
 });

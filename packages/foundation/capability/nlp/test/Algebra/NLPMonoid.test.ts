@@ -4,16 +4,42 @@
  * Verifies the NLP monoids satisfy the monoid laws. Note: `SentenceConcat` is a
  * "near-monoid" — it satisfies the identity laws but NOT strict associativity
  * (punctuation normalization is not associative), so only identity is asserted
- * for it, exactly as in the source `adjunct` suite.
+ * for it, exactly as in the legacy property suite.
  *
- * Ported from the `adjunct` repo (fast-check) to Effect v4's
+ * Property-based coverage for Effect v4's
  * `effect/testing/FastCheck`.
  */
 
 import * as NLP from "@beep/nlp/Algebra/NLPMonoid";
 import { describe, expect, it } from "@effect/vitest";
+import * as HashSet from "effect/HashSet";
+import * as MutableHashMap from "effect/MutableHashMap";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import { FastCheck as fc } from "effect/testing";
 import type { BagOfWords } from "@beep/nlp/Algebra/NLPMonoid";
+
+const mutableHashMapEquals = <K, V>(
+  a: MutableHashMap.MutableHashMap<K, V>,
+  b: MutableHashMap.MutableHashMap<K, V>
+): boolean => {
+  if (MutableHashMap.size(a) !== MutableHashMap.size(b)) return false;
+  for (const [key, value] of a) {
+    if (!O.contains(MutableHashMap.get(b, key), value)) return false;
+  }
+  return true;
+};
+
+const lookupNumber = (map: MutableHashMap.MutableHashMap<string, number>, key: string): number =>
+  O.getOrElse(MutableHashMap.get(map, key), () => -1);
+
+const hashSetEquals = <A>(a: HashSet.HashSet<A>, b: HashSet.HashSet<A>): boolean => {
+  if (HashSet.size(a) !== HashSet.size(b)) return false;
+  for (const elem of a) {
+    if (!HashSet.has(b, elem)) return false;
+  }
+  return true;
+};
 
 const testMonoidLaws = <A>(
   name: string,
@@ -47,27 +73,13 @@ describe("Token Monoids", () => {
   describe("TokenBagOfWords", () => {
     const bowArbitrary: fc.Arbitrary<BagOfWords> = fc
       .dictionary(fc.string(), fc.integer({ min: 1, max: 100 }))
-      .map((dict) => new Map(Object.entries(dict)));
-    const bowEquals = (a: BagOfWords, b: BagOfWords): boolean => {
-      if (a.size !== b.size) return false;
-      for (const [key, value] of a) {
-        if (b.get(key) !== value) return false;
-      }
-      return true;
-    };
-    testMonoidLaws("TokenBagOfWords", NLP.TokenBagOfWords, bowArbitrary, bowEquals);
+      .map((dict) => MutableHashMap.fromIterable(R.toEntries(dict)));
+    testMonoidLaws("TokenBagOfWords", NLP.TokenBagOfWords, bowArbitrary, mutableHashMapEquals);
   });
 
   describe("TokenSetUnion", () => {
-    const setArbitrary: fc.Arbitrary<ReadonlySet<string>> = fc.array(fc.string()).map((arr) => new Set(arr));
-    const setEquals = (a: ReadonlySet<string>, b: ReadonlySet<string>): boolean => {
-      if (a.size !== b.size) return false;
-      for (const elem of a) {
-        if (!b.has(elem)) return false;
-      }
-      return true;
-    };
-    testMonoidLaws("TokenSetUnion", NLP.TokenSetUnion, setArbitrary, setEquals);
+    const setArbitrary: fc.Arbitrary<HashSet.HashSet<string>> = fc.array(fc.string()).map(HashSet.fromIterable);
+    testMonoidLaws("TokenSetUnion", NLP.TokenSetUnion, setArbitrary, hashSetEquals);
   });
 });
 
@@ -109,45 +121,28 @@ describe("Document Monoids", () => {
 // Linguistic monoids
 describe("Linguistic Monoids", () => {
   describe("AnnotationMap", () => {
-    const annotationArbitrary: fc.Arbitrary<Map<number, string>> = fc
+    const annotationArbitrary: fc.Arbitrary<MutableHashMap.MutableHashMap<number, string>> = fc
       .array(fc.tuple(fc.integer(), fc.string()))
-      .map((pairs) => new Map(pairs));
-    const annotationEquals = (a: Map<number, string>, b: Map<number, string>): boolean => {
-      if (a.size !== b.size) return false;
-      for (const [key, value] of a) {
-        if (b.get(key) !== value) return false;
-      }
-      return true;
-    };
-    testMonoidLaws("AnnotationMap", NLP.AnnotationMap<number, string>(), annotationArbitrary, annotationEquals);
+      .map(MutableHashMap.fromIterable);
+    testMonoidLaws("AnnotationMap", NLP.AnnotationMap<number, string>(), annotationArbitrary, mutableHashMapEquals);
   });
 });
 
 // Utility functions
 describe("Utility Functions", () => {
   it("bagOfWordsToTF normalizes frequencies", () => {
-    const bow: BagOfWords = new Map([
-      ["the", 2],
-      ["cat", 1],
-      ["sat", 1],
-    ]);
+    const bow: BagOfWords = MutableHashMap.make(["the", 2], ["cat", 1], ["sat", 1]);
     const tf = NLP.bagOfWordsToTF(bow);
-    expect(tf.get("the")).toBeCloseTo(0.5);
-    expect(tf.get("cat")).toBeCloseTo(0.25);
-    expect(tf.get("sat")).toBeCloseTo(0.25);
+    expect(lookupNumber(tf, "the")).toBeCloseTo(0.5);
+    expect(lookupNumber(tf, "cat")).toBeCloseTo(0.25);
+    expect(lookupNumber(tf, "sat")).toBeCloseTo(0.25);
   });
 
   it("computeTFIDF calculates TF-IDF scores", () => {
-    const tf = new Map([
-      ["common", 0.5],
-      ["rare", 0.1],
-    ]);
-    const df = new Map([
-      ["common", 100],
-      ["rare", 1],
-    ]);
+    const tf = MutableHashMap.make(["common", 0.5], ["rare", 0.1]);
+    const df = MutableHashMap.make(["common", 100], ["rare", 1]);
     const tfidf = NLP.computeTFIDF(tf, df, 100);
-    expect(tfidf.get("common")).toBeCloseTo(0);
-    expect(tfidf.get("rare")).toBeGreaterThan(0);
+    expect(lookupNumber(tfidf, "common")).toBeCloseTo(0);
+    expect(lookupNumber(tfidf, "rare")).toBeGreaterThan(0);
   });
 });

@@ -9,7 +9,7 @@ import { $NlpId } from "@beep/identity";
 import { PosInt } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiCorpusRankedDocument } from "./_schemas.ts";
+import { AiCorpusRankedDocument, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/QueryCorpus");
 
@@ -86,6 +86,8 @@ class QueryCorpusSuccess extends S.Class<QueryCorpusSuccess>($I`QueryCorpusSucce
  */
 export const QueryCorpus = Tool.make("QueryCorpus", {
   description: "Query a learned corpus session and return vector-ranked results without relearning.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: QueryCorpusParameters,
   success: QueryCorpusSuccess,
 });

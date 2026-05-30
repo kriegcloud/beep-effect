@@ -2,7 +2,7 @@
  * Property-based tests ("proofs") for the Ontology/Kind containment poset and
  * the typed-text smart constructors.
  *
- * Ported from the `adjunct` repo's Kind design (no dedicated v3 test existed);
+ * Effect v4 coverage for Kind design (no dedicated v3 test existed);
  * uses Effect v4's `effect/testing/FastCheck`.
  */
 

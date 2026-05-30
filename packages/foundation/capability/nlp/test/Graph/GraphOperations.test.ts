@@ -5,7 +5,7 @@
  * store/get/has/delete/clear/gc round-trips, and the GraphExecutor over a small
  * graph (leaf application, caching, validation, cost estimation).
  *
- * Ported from the `adjunct` repo's GraphOperations to Effect v4 + `@effect/vitest`.
+ * Effect v4 + `@effect/vitest` coverage for GraphOperations.
  */
 
 import * as EG from "@beep/nlp/Graph/EffectGraph";
@@ -14,6 +14,7 @@ import { provideScopedLayer } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import { FastCheck as fc } from "effect/testing";
 
@@ -203,6 +204,22 @@ describe("GraphExecutor", () => {
       expect(result.errors.length).toBe(0);
       expect(result.metrics.nodesProcessed).toBe(1);
       expect(result.metrics.nodesCreated).toBe(1);
+    }, provideScopedLayer(Executor.GraphExecutorTest))
+  );
+
+  it.effect(
+    "supports pipe-friendly dual service methods",
+    Effect.fnUntraced(function* () {
+      const graph = yield* EG.singleton("hello");
+      const executor = yield* Executor.GraphExecutor;
+
+      const result = yield* pipe(graph, executor.execute(upper, { cache: false }));
+      const validation = yield* pipe(graph, executor.validate(upper));
+      const cost = yield* pipe(graph, executor.estimateCost(upper));
+
+      expect(result.newNodes.map((n) => n.data)).toEqual(["HELLO"]);
+      expect(validation.valid).toBe(true);
+      expect(cost.complexity).toBe("O(1)");
     }, provideScopedLayer(Executor.GraphExecutorTest))
   );
 

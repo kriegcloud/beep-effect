@@ -6,7 +6,7 @@
  * (its {@link ExecutionMetrics.combine} is associative with {@link ExecutionMetrics.empty}
  * as identity), which is how per-node results aggregate into a run total.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * - `ExecutionId` is a `Brand.nominal` branded string with an EFFECTFUL
  *   {@link generateExecutionId} (reads `Clock` + `effect/Random`) instead of an
  *   inline `crypto.randomUUID()`.

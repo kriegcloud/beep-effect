@@ -8,7 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiEntity } from "./_schemas.ts";
+import { AiEntity, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/ExtractEntities");
 
@@ -75,6 +75,8 @@ class ExtractEntitiesSuccess extends S.Class<ExtractEntitiesSuccess>($I`ExtractE
  */
 export const ExtractEntities = Tool.make("ExtractEntities", {
   description: "Extract named entities from text, including optional learned custom entities.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: ExtractEntitiesParameters,
   success: ExtractEntitiesSuccess,
 });

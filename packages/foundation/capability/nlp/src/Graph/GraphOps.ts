@@ -2,19 +2,19 @@
  * GraphOps - generic categorical operations over `effect/Graph` directed graphs.
  *
  * Structure-preserving and structure-querying operations with mathematical
- * foundations: functorial `mapNodes`/`mapEdges`/`bimap`, monoidal folds, the
- * search adjunction (`query ⊣ index`), effectful traversals, and streaming for
- * large graphs. Graphs form a category whose morphisms are structure-preserving
- * maps; functors preserve identity and composition; the index/query pair is an
- * adjunction.
+ * foundations: functorial `mapNodes`/`mapEdges`/`bimap`, monoidal folds,
+ * indexed search, effectful traversals, and streaming for large graphs. Graphs
+ * form a category whose morphisms are structure-preserving maps; functors
+ * preserve identity and composition; the index/query pair supports lookup by
+ * derived keys.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * - type-changing `mapNodes`/`mapEdges`/`bimap`/`mapNodesEffect` RECONSTRUCT the
- *   graph with an old→new index remap (adjunct used `@ts-expect-error` +
- *   `as any` because v4's in-place `Graph.mapNodes` cannot change the node type).
- * - native `Map`/`Set` become `HashMap`/`HashSet` (and `MutableHashMap` for the
- *   local index remap); `Array#push`/`forEach`/`!` become `effect/Array` + folds.
- * - `merge` remaps and copies the second graph's edges (adjunct left edges a TODO).
+ *   graph with an old→new index remap because v4's in-place `Graph.mapNodes`
+ *   cannot change the node type.
+ * - native keyed/set collections become `HashMap`/`HashSet` (and `MutableHashMap`
+ *   for the local index remap); `Array#push`/`forEach`/`!` become `effect/Array` + folds.
+ * - `merge` remaps and copies the second graph's edges.
  *
  * @since 0.0.0
  * @packageDocumentation

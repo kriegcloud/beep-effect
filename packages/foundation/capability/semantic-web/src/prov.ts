@@ -901,7 +901,7 @@ export class ProvBundle extends S.Class<ProvBundle>($I`ProvBundle`)(
       overview: "Bounded provenance bundle exported by the semantic-web surface.",
       status: "stable",
       specifications: [{ name: "PROV-O", disposition: "informative" }],
-      equivalenceBasis: "Record collection equality plus lifecycle adjunct equality.",
+      equivalenceBasis: "Record collection equality plus lifecycle equality.",
       provenanceProfile: "minimal-core-v1",
       evidenceAnchoring: "Bundle exports are expected to be paired with explicit evidence anchors.",
       timeSemantics: "Lifecycle fields remain explicit adjuncts instead of being collapsed into activity timestamps.",

@@ -6,16 +6,16 @@
  * (potentially creating children). Composition preserves the DAG property.
  *
  * Theoretical foundations: catamorphism (bottom-up fold), F-algebra (`F a -> a`),
- * and adjunctions (operations as adjoint functors). Built on Effect's in-core
+ * and structure-preserving operation composition. Built on Effect's in-core
  * `effect/Graph` module.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * - `makeNode`/`singleton`/`ana` are EFFECTFUL (read `Clock` for the timestamp and an
  *   `effect/Random`-based id generator) instead of calling `Date.now()` +
  *   `crypto.randomUUID()` inline, both of which are repo-law violations.
  * - `NodeId` is a `Brand.nominal` branded string (no `as`).
- * - native `Map`/`Set` become `MutableHashMap`/`MutableHashSet`; native array methods
- *   become `effect/Array`; partial `getOrThrow`/`!` become `Option` handling.
+ * - native keyed/set collections become `MutableHashMap`/`MutableHashSet`; native
+ *   array methods become `effect/Array`; partial `getOrThrow`/`!` become `Option` handling.
  * - `Data.TaggedError` becomes `TaggedErrorClass` from `@beep/schema`.
  * - the terminal `Formatter` (which depended on the dropped `@effect/printer`) is gone;
  *   `show` renders the plain-text tree.

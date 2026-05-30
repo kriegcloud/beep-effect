@@ -44,8 +44,6 @@
     "./Handoff/*": "./src/Handoff/*.ts",
     "./IdentifierText": "./src/IdentifierText.ts",
     "./internal/*": null,
-    "./Layers": "./src/Layers/index.ts",
-    "./Layers/*": "./src/Layers/*.ts",
     "./NLPService": "./src/NLPService.ts",
     "./Ontology": "./src/Ontology/index.ts",
     "./Ontology/*": "./src/Ontology/*.ts",
@@ -56,9 +54,7 @@
     "./QueryText": "./src/QueryText.ts",
     "./Tools": "./src/Tools/index.ts",
     "./Tools/*": "./src/Tools/*.ts",
-    "./VariantText": "./src/VariantText.ts",
-    "./Wink": "./src/Wink/index.ts",
-    "./Wink/*": "./src/Wink/*.ts"
+    "./VariantText": "./src/VariantText.ts"
   },
   "files": [
     "src/**/*.ts",
@@ -86,8 +82,6 @@
       "./Handoff/*": "./dist/Handoff/*.js",
       "./IdentifierText": "./dist/IdentifierText.js",
       "./internal/*": null,
-      "./Layers": "./dist/Layers/index.js",
-      "./Layers/*": "./dist/Layers/*.js",
       "./NLPService": "./dist/NLPService.js",
       "./Ontology": "./dist/Ontology/index.js",
       "./Ontology/*": "./dist/Ontology/*.js",
@@ -98,19 +92,15 @@
       "./QueryText": "./dist/QueryText.js",
       "./Tools": "./dist/Tools/index.js",
       "./Tools/*": "./dist/Tools/*.js",
-      "./VariantText": "./dist/VariantText.js",
-      "./Wink": "./dist/Wink/index.js",
-      "./Wink/*": "./dist/Wink/*.js"
+      "./VariantText": "./dist/VariantText.js"
     }
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/observability": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
-    "effect": "catalog:",
-    "wink-eng-lite-web-model": "catalog:",
-    "wink-nlp": "catalog:",
-    "wink-nlp-utils": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@beep/test-utils": "workspace:^",

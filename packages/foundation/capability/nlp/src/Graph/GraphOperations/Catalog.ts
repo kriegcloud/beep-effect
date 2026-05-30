@@ -7,16 +7,14 @@
  * require it in their context `R` and fail with {@link Backend.NLPBackendError});
  * the pure string operations are context-free transformations.
  *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
+ * Effect v4 `@beep/nlp` implementation notes:
  * - operations are backed by {@link Backend.NLPBackend} (the granular linguistic
- *   contract) rather than adjunct's fat `NLPService`; the thin facade `NLPService`
- *   delegates to the same backend.
+ *   contract); the thin facade `NLPService` delegates to the same backend.
  * - node creation is EFFECTFUL (`EffectGraph.makeNode` reads `Clock`/`Random`), so
- *   `apply` uses `Effect.forEach` instead of adjunct's synchronous `[].map(makeNode)`.
- * - adjunct's text-utility operations (paragraphize/normalizeWhitespace/
+ *   `apply` uses `Effect.forEach`.
+ * - text-utility operations (paragraphize/normalizeWhitespace/
  *   removePunctuation/removeStopWords/stem/ngrams) are NOT backend operations; they
- *   live on the existing `Core`/`Wink` services and are folded in during the
- *   Core/Wink/Tools reconciliation (see `goals/nlp-adjunct-port`), not here.
+ *   live on the existing Core, driver, and tool layers.
  * - `Object.keys` becomes `Struct.keys`; the cast-based `getOperation(name)` lookup
  *   is dropped (it required `as any`).
  *

@@ -7,19 +7,18 @@
  * operation's result into its flat MCP output schema and translates backend
  * failures into {@link Schemas.NlpToolError}.
  *
- * Ported from the `adjunct` repo (Effect v3, `@effect/ai` + `@effect/platform-bun`)
- * to Effect v4 / `effect/unstable/ai` + `@effect/platform-node`: handlers back onto
- * `NLPBackend` (the granular contract) instead of the fat `NLPService`, use
- * `Effect.fn` + `Effect.mapError`, and node ids/timestamps stay inside `@beep/nlp`.
+ * Effect v4 driver note: handlers back onto `NLPBackend` (the granular
+ * contract), use `Effect.fn` + `Effect.mapError`, and keep node ids/timestamps
+ * inside `@beep/nlp`.
  *
  * @since 0.0.0
  * @packageDocumentation
  */
 
 import * as Backend from "@beep/nlp/Backend/NLPBackend";
-import { WinkBackendLive } from "@beep/nlp/Backend/WinkBackend";
-import * as WinkEngine from "@beep/nlp/Wink/WinkEngine";
 import { A, O } from "@beep/utils";
+import * as WinkEngine from "@beep/wink";
+import { WinkBackendLive } from "@beep/wink";
 import { Effect, Layer } from "effect";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import * as Schemas from "./Schemas.ts";

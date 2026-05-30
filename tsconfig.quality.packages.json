@@ -124,6 +124,9 @@
       "path": "packages/drivers/venice-ai"
     },
     {
+      "path": "packages/drivers/wink"
+    },
+    {
       "path": "packages/drivers/xai"
     },
     {
