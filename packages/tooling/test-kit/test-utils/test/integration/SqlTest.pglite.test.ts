@@ -135,7 +135,12 @@ const isContainerInspectable = Effect.fn("SqlTestIntegration.isContainerInspecta
   );
 });
 
-describe.concurrent("PGLite shared external SQL test driver", () => {
+// Sequential (overriding the global `sequence.concurrent: true`): every test in this block opens
+// its own connection to the single shared external database. The PGLite wire-protocol server backing
+// the integration lane accepts only one connection at a time, so concurrent tests would terminate
+// each other's connections and hang. The provisioning lane already enforces this with
+// `--concurrency=1` and `BEEP_TEST_DATABASE_MAX_CONNECTIONS=1`.
+describe.sequential("PGLite shared external SQL test driver", () => {
   it.effect(
     "runs select 1 through the shared external driver",
 

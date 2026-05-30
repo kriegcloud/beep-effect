@@ -7485,67 +7485,67 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Algebra` | `NLPMonoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:24` |  |
 | `@beep/nlp/Algebra/index` | `Monoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:8` |  |
 | `@beep/nlp/Algebra/index` | `NLPMonoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:24` |  |
-| `@beep/nlp/Algebra/Monoid` | `ArrayConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:321` | Array concatenation monoid (empty: []). |
-| `@beep/nlp/Algebra/Monoid` | `BooleanAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:662` | Logical AND monoid (empty: true). |
-| `@beep/nlp/Algebra/Monoid` | `BooleanAny` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:683` | Logical OR monoid (empty: false). |
-| `@beep/nlp/Algebra/Monoid` | `checkAssociativity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:752` | Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z) |
-| `@beep/nlp/Algebra/Monoid` | `checkLaws` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:780` | Check all monoid laws against a representative triple. |
-| `@beep/nlp/Algebra/Monoid` | `checkLeftIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:708` | Check left identity law: empty ⊕ x = x |
-| `@beep/nlp/Algebra/Monoid` | `checkRightIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:730` | Check right identity law: x ⊕ empty = x |
-| `@beep/nlp/Algebra/Monoid` | `combineAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:126` | Combine an array of values using a monoid, seeded with the identity. |
-| `@beep/nlp/Algebra/Monoid` | `Dual` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:637` | Dual monoid: reverse the order of combination (x ⊕' y = y ⊕ x). |
-| `@beep/nlp/Algebra/Monoid` | `Endo` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:612` | Endomorphism monoid: functions from A to A under composition (empty: identity). |
-| `@beep/nlp/Algebra/Monoid` | `fold` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:100` | Fold a collection using a monoid |
-| `@beep/nlp/Algebra/Monoid` | `getAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:497` | Extract the average from a {@link VectorAverage} result. |
-| `@beep/nlp/Algebra/Monoid` | `make` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:76` | Helper to create a Monoid instance |
-| `@beep/nlp/Algebra/Monoid` | `Monoid` | interface | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:41` | Monoid type class |
-| `@beep/nlp/Algebra/Monoid` | `MultiSet` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:352` | Multiset (bag) union monoid. |
-| `@beep/nlp/Algebra/Monoid` | `NumberMax` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:275` | Max monoid for numbers (empty: -Infinity). |
-| `@beep/nlp/Algebra/Monoid` | `NumberMin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:296` | Min monoid for numbers (empty: Infinity). |
-| `@beep/nlp/Algebra/Monoid` | `NumberProduct` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:254` | Multiplication monoid for numbers (empty: 1). |
-| `@beep/nlp/Algebra/Monoid` | `NumberSum` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:233` | Addition monoid for numbers (empty: 0). |
-| `@beep/nlp/Algebra/Monoid` | `Option` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:578` | Lift a monoid through Option: combine point-wise, treating `None` as the identity. |
-| `@beep/nlp/Algebra/Monoid` | `Product` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:526` | Product monoid: combine two monoids component-wise. |
-| `@beep/nlp/Algebra/Monoid` | `Product3` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:551` | Triple product monoid. |
-| `@beep/nlp/Algebra/Monoid` | `SetIntersection` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:412` | Set intersection monoid. |
-| `@beep/nlp/Algebra/Monoid` | `SetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:381` | Set union monoid (empty: ∅). |
-| `@beep/nlp/Algebra/Monoid` | `StringConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:154` | String concatenation monoid. |
-| `@beep/nlp/Algebra/Monoid` | `StringDelimited` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:202` | String join with prefix and suffix, useful for creating delimited lists. |
-| `@beep/nlp/Algebra/Monoid` | `StringJoin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:177` | String join with separator monoid. |
-| `@beep/nlp/Algebra/Monoid` | `VectorAdd` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:446` | Vector addition monoid (element-wise addition; empty: zero vector). |
-| `@beep/nlp/Algebra/Monoid` | `VectorAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:471` | Vector average monoid (tracks sum and count to compute a running average). |
-| `@beep/nlp/Algebra/NLPMonoid` | `aggregateSentences` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:779` | Aggregate sentences into a single document string. |
-| `@beep/nlp/Algebra/NLPMonoid` | `aggregateStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:800` | Aggregate document statistics. |
-| `@beep/nlp/Algebra/NLPMonoid` | `aggregateTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:760` | Aggregate tokens into a bag of words. |
-| `@beep/nlp/Algebra/NLPMonoid` | `AnnotationMap` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:337` | Linguistic annotation monoid (left-biased map merge). |
-| `@beep/nlp/Algebra/NLPMonoid` | `BagOfWords` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:77` | Bag-of-words frequency map carrier: term -\> frequency. |
-| `@beep/nlp/Algebra/NLPMonoid` | `BagOfWords` | type | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:96` | Runtime type for the {@link BagOfWords} frequency-map carrier. |
-| `@beep/nlp/Algebra/NLPMonoid` | `bagOfWordsToTF` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:693` | Convert a bag of words to term frequency (each count normalized by the total). |
-| `@beep/nlp/Algebra/NLPMonoid` | `computeTFIDF` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:730` | Compute TF-IDF scores from term frequency and document frequency. |
-| `@beep/nlp/Algebra/NLPMonoid` | `DependencyEdge` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:424` | Dependency parse edge carrier: a syntactic dependency (head, dependent, relation). |
-| `@beep/nlp/Algebra/NLPMonoid` | `DependencyParse` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:454` | Dependency parse monoid (concatenate edges). |
-| `@beep/nlp/Algebra/NLPMonoid` | `DocumentFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:502` | Document frequency monoid (counts presence across documents; union with addition). |
-| `@beep/nlp/Algebra/NLPMonoid` | `DocumentStatistics` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:273` | Document statistics carrier. |
-| `@beep/nlp/Algebra/NLPMonoid` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:303` | Document statistics monoid (sum counts component-wise). |
-| `@beep/nlp/Algebra/NLPMonoid` | `DocumentText` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:251` | Document text monoid (join paragraphs with a blank line). |
-| `@beep/nlp/Algebra/NLPMonoid` | `NamedEntity` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:371` | Named entity carrier. |
-| `@beep/nlp/Algebra/NLPMonoid` | `NamedEntityList` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:402` | Named entity list monoid (concatenation; preserves order, allows duplicates). |
-| `@beep/nlp/Algebra/NLPMonoid` | `NGramFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:578` | N-gram frequency monoid (bag-of-words over space-joined n-gram keys). |
-| `@beep/nlp/Algebra/NLPMonoid` | `SentenceArray` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:228` | Sentence array monoid (concatenation; preserves order and boundaries). |
-| `@beep/nlp/Algebra/NLPMonoid` | `SentenceConcat` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:198` | Sentence concatenation "near-monoid". |
-| `@beep/nlp/Algebra/NLPMonoid` | `TermFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:480` | Term frequency monoid (alias of {@link TokenBagOfWords}; semantic distinction). |
-| `@beep/nlp/Algebra/NLPMonoid` | `TextAnalysis` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:610` | Combined text analysis carrier (bag-of-words + entities + sentence count + vocabulary). |
-| `@beep/nlp/Algebra/NLPMonoid` | `TextAnalysisMonoid` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:657` | Text analysis monoid (product monoid over the linguistic features). |
-| `@beep/nlp/Algebra/NLPMonoid` | `TokenBagOfWords` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:144` | Token bag-of-words monoid (union with frequency addition). |
-| `@beep/nlp/Algebra/NLPMonoid` | `TokenConcat` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:121` | Token concatenation monoid (join with a space). |
-| `@beep/nlp/Algebra/NLPMonoid` | `TokenSetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:170` | Token set-union monoid (collect unique tokens; useful for vocabulary). |
-| `@beep/nlp/Algebra/NLPMonoid` | `Vocabulary` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:527` | Vocabulary monoid (unique terms; alias of {@link TokenSetUnion}). |
-| `@beep/nlp/Algebra/NLPMonoid` | `WeightedTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:553` | Weighted token monoid (combine weights additively per token). |
+| `@beep/nlp/Algebra/Monoid` | `ArrayConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:320` | Array concatenation monoid (empty: []). |
+| `@beep/nlp/Algebra/Monoid` | `BooleanAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:661` | Logical AND monoid (empty: true). |
+| `@beep/nlp/Algebra/Monoid` | `BooleanAny` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:682` | Logical OR monoid (empty: false). |
+| `@beep/nlp/Algebra/Monoid` | `checkAssociativity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:751` | Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z) |
+| `@beep/nlp/Algebra/Monoid` | `checkLaws` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:779` | Check all monoid laws against a representative triple. |
+| `@beep/nlp/Algebra/Monoid` | `checkLeftIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:707` | Check left identity law: empty ⊕ x = x |
+| `@beep/nlp/Algebra/Monoid` | `checkRightIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:729` | Check right identity law: x ⊕ empty = x |
+| `@beep/nlp/Algebra/Monoid` | `combineAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:125` | Combine an array of values using a monoid, seeded with the identity. |
+| `@beep/nlp/Algebra/Monoid` | `Dual` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:636` | Dual monoid: reverse the order of combination (x ⊕' y = y ⊕ x). |
+| `@beep/nlp/Algebra/Monoid` | `Endo` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:611` | Endomorphism monoid: functions from A to A under composition (empty: identity). |
+| `@beep/nlp/Algebra/Monoid` | `fold` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:99` | Fold a collection using a monoid |
+| `@beep/nlp/Algebra/Monoid` | `getAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:496` | Extract the average from a {@link VectorAverage} result. |
+| `@beep/nlp/Algebra/Monoid` | `make` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:75` | Helper to create a Monoid instance |
+| `@beep/nlp/Algebra/Monoid` | `Monoid` | interface | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:40` | Monoid type class |
+| `@beep/nlp/Algebra/Monoid` | `MultiSet` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:351` | Multiset (bag) union monoid. |
+| `@beep/nlp/Algebra/Monoid` | `NumberMax` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:274` | Max monoid for numbers (empty: -Infinity). |
+| `@beep/nlp/Algebra/Monoid` | `NumberMin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:295` | Min monoid for numbers (empty: Infinity). |
+| `@beep/nlp/Algebra/Monoid` | `NumberProduct` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:253` | Multiplication monoid for numbers (empty: 1). |
+| `@beep/nlp/Algebra/Monoid` | `NumberSum` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:232` | Addition monoid for numbers (empty: 0). |
+| `@beep/nlp/Algebra/Monoid` | `Option` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:577` | Lift a monoid through Option: combine point-wise, treating `None` as the identity. |
+| `@beep/nlp/Algebra/Monoid` | `Product` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:525` | Product monoid: combine two monoids component-wise. |
+| `@beep/nlp/Algebra/Monoid` | `Product3` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:550` | Triple product monoid. |
+| `@beep/nlp/Algebra/Monoid` | `SetIntersection` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:411` | Set intersection monoid. |
+| `@beep/nlp/Algebra/Monoid` | `SetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:380` | Set union monoid (empty: ∅). |
+| `@beep/nlp/Algebra/Monoid` | `StringConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:153` | String concatenation monoid. |
+| `@beep/nlp/Algebra/Monoid` | `StringDelimited` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:201` | String join with prefix and suffix, useful for creating delimited lists. |
+| `@beep/nlp/Algebra/Monoid` | `StringJoin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:176` | String join with separator monoid. |
+| `@beep/nlp/Algebra/Monoid` | `VectorAdd` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:445` | Vector addition monoid (element-wise addition; empty: zero vector). |
+| `@beep/nlp/Algebra/Monoid` | `VectorAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:470` | Vector average monoid (tracks sum and count to compute a running average). |
+| `@beep/nlp/Algebra/NLPMonoid` | `aggregateSentences` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:778` | Aggregate sentences into a single document string. |
+| `@beep/nlp/Algebra/NLPMonoid` | `aggregateStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:799` | Aggregate document statistics. |
+| `@beep/nlp/Algebra/NLPMonoid` | `aggregateTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:759` | Aggregate tokens into a bag of words. |
+| `@beep/nlp/Algebra/NLPMonoid` | `AnnotationMap` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:336` | Linguistic annotation monoid (left-biased map merge). |
+| `@beep/nlp/Algebra/NLPMonoid` | `BagOfWords` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:76` | Bag-of-words frequency map carrier: term -\> frequency. |
+| `@beep/nlp/Algebra/NLPMonoid` | `BagOfWords` | type | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:95` | Runtime type for the {@link BagOfWords} frequency-map carrier. |
+| `@beep/nlp/Algebra/NLPMonoid` | `bagOfWordsToTF` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:692` | Convert a bag of words to term frequency (each count normalized by the total). |
+| `@beep/nlp/Algebra/NLPMonoid` | `computeTFIDF` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:729` | Compute TF-IDF scores from term frequency and document frequency. |
+| `@beep/nlp/Algebra/NLPMonoid` | `DependencyEdge` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:423` | Dependency parse edge carrier: a syntactic dependency (head, dependent, relation). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DependencyParse` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:453` | Dependency parse monoid (concatenate edges). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:501` | Document frequency monoid (counts presence across documents; union with addition). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentStatistics` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:272` | Document statistics carrier. |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:302` | Document statistics monoid (sum counts component-wise). |
+| `@beep/nlp/Algebra/NLPMonoid` | `DocumentText` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:250` | Document text monoid (join paragraphs with a blank line). |
+| `@beep/nlp/Algebra/NLPMonoid` | `NamedEntity` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:370` | Named entity carrier. |
+| `@beep/nlp/Algebra/NLPMonoid` | `NamedEntityList` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:401` | Named entity list monoid (concatenation; preserves order, allows duplicates). |
+| `@beep/nlp/Algebra/NLPMonoid` | `NGramFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:577` | N-gram frequency monoid (bag-of-words over space-joined n-gram keys). |
+| `@beep/nlp/Algebra/NLPMonoid` | `SentenceArray` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:227` | Sentence array monoid (concatenation; preserves order and boundaries). |
+| `@beep/nlp/Algebra/NLPMonoid` | `SentenceConcat` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:197` | Sentence concatenation "near-monoid". |
+| `@beep/nlp/Algebra/NLPMonoid` | `TermFrequency` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:479` | Term frequency monoid (alias of {@link TokenBagOfWords}; semantic distinction). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TextAnalysis` | class | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:609` | Combined text analysis carrier (bag-of-words + entities + sentence count + vocabulary). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TextAnalysisMonoid` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:656` | Text analysis monoid (product monoid over the linguistic features). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TokenBagOfWords` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:143` | Token bag-of-words monoid (union with frequency addition). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TokenConcat` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:120` | Token concatenation monoid (join with a space). |
+| `@beep/nlp/Algebra/NLPMonoid` | `TokenSetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:169` | Token set-union monoid (collect unique tokens; useful for vocabulary). |
+| `@beep/nlp/Algebra/NLPMonoid` | `Vocabulary` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:526` | Vocabulary monoid (unique terms; alias of {@link TokenSetUnion}). |
+| `@beep/nlp/Algebra/NLPMonoid` | `WeightedTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:552` | Weighted token monoid (combine weights additively per token). |
 | `@beep/nlp/Backend` | `NLPBackend` | SourceFile | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:19` |  |
-| `@beep/nlp/Backend/Composition` | `CachingOptions` | class | `packages/foundation/capability/nlp/src/Backend/Composition.ts:129` | Cache settings for memoized backend composition. |
-| `@beep/nlp/Backend/Composition` | `selectByCapability` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:268` | Select the first backend whose capability bitmap enables a requested feature. |
-| `@beep/nlp/Backend/Composition` | `withCaching` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:185` | Wrap a backend with per-operation `effect/Cache` memoization. |
-| `@beep/nlp/Backend/Composition` | `withFallback` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:74` | Compose two backends so each operation falls back to a secondary backend. |
+| `@beep/nlp/Backend/Composition` | `CachingOptions` | class | `packages/foundation/capability/nlp/src/Backend/Composition.ts:208` | Cache settings for memoized backend composition. |
+| `@beep/nlp/Backend/Composition` | `selectByCapability` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:347` | Select the first backend whose capability bitmap enables a requested feature. |
+| `@beep/nlp/Backend/Composition` | `withCaching` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:264` | Wrap a backend with per-operation `effect/Cache` memoization. |
+| `@beep/nlp/Backend/Composition` | `withFallback` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:123` | Compose two backends so each operation falls back to a secondary backend. |
 | `@beep/nlp/Backend/index` | `NLPBackend` | SourceFile | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:19` |  |
 | `@beep/nlp/Backend/NLPBackend` | `BackendCapabilities` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:185` | Capability bitmap that describes which operations a backend can perform. |
 | `@beep/nlp/Backend/NLPBackend` | `BackendInitError` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:79` | Failure raised when a backend fails to initialize. |
@@ -7905,31 +7905,31 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Graph` | `GraphOps` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:23` |  |
 | `@beep/nlp/Graph` | `Schema` | SourceFile | `packages/foundation/capability/nlp/src/Graph/Schema.ts:21` |  |
 | `@beep/nlp/Graph` | `TypeClass` | SourceFile | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:27` |  |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `addDependencyAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:523` | Add syntactic-dependency annotation nodes to each sentence node. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `addEntityAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:495` | Add named-entity annotation nodes to each sentence node. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `addLemmaAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:471` | Add lemma annotation children to each sentence node. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `addPOSAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:447` | Add POS annotation children to each sentence node. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotatedNode` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:62` | Union of all node types (structural + linguistic annotations). |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotatedTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:206` | A directed text graph whose nodes may be structural or annotation nodes. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `countNodesByType` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:701` | Count of nodes by kind (`text`/`pos`/`entity`/`lemma`/`dependency`/`relation`). |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:255` | Create an empty annotated graph. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `filterByPOSTag` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:676` | Return POS annotation nodes carrying a specific tag. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `filterEntitiesByType` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:651` | Return entity nodes whose `entityType` matches the requested label. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `fromDocumentAnnotated` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:331` | Build a fully annotated text graph from a document. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `getEntityNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:591` | Return entity annotation nodes together with their graph indices. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `getLemmaNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:611` | Return lemma annotation nodes together with their graph indices. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `getPOSNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:571` | Return POS annotation nodes together with their graph indices. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:767` | Return root node indices with no incoming edges. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `getTextNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:631` | Return structural text nodes together with their graph indices. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isDependencyNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:163` | Refine a heterogeneous annotated node to a dependency node. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isEntityNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:123` | Refine a heterogeneous annotated node to a named-entity node. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isLemmaNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:139` | Refine a heterogeneous annotated node to a lemma node. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isPOSNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:99` | Refine a heterogeneous annotated node to a POS annotation node. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isRelationNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:186` | Refine a heterogeneous annotated node to a semantic-relation node. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `isTextNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:81` | Refine a heterogeneous annotated node to a structural text node. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `MutableAnnotatedTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:222` | Mutable annotated graph used inside construction callbacks. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:752` | Count all structural and annotation nodes. |
-| `@beep/nlp/Graph/AnnotatedTextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:736` | Collect all structural and annotation nodes in backing graph order. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addDependencyAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:567` | Add syntactic-dependency annotation nodes to each sentence node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addEntityAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:539` | Add named-entity annotation nodes to each sentence node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addLemmaAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:515` | Add lemma annotation children to each sentence node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `addPOSAnnotations` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:491` | Add POS annotation children to each sentence node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotatedNode` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:63` | Union of all node types (structural + linguistic annotations). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `AnnotatedTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:207` | A directed text graph whose nodes may be structural or annotation nodes. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `countNodesByType` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:745` | Count of nodes by kind (`text`/`pos`/`entity`/`lemma`/`dependency`/`relation`). |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:256` | Create an empty annotated graph. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `filterByPOSTag` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:720` | Return POS annotation nodes carrying a specific tag. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `filterEntitiesByType` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:695` | Return entity nodes whose `entityType` matches the requested label. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `fromDocumentAnnotated` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:332` | Build a fully annotated text graph from a document. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getEntityNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:635` | Return entity annotation nodes together with their graph indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getLemmaNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:655` | Return lemma annotation nodes together with their graph indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getPOSNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:615` | Return POS annotation nodes together with their graph indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:811` | Return root node indices with no incoming edges. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `getTextNodes` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:675` | Return structural text nodes together with their graph indices. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isDependencyNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:164` | Refine a heterogeneous annotated node to a dependency node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isEntityNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:124` | Refine a heterogeneous annotated node to a named-entity node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isLemmaNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:140` | Refine a heterogeneous annotated node to a lemma node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isPOSNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:100` | Refine a heterogeneous annotated node to a POS annotation node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isRelationNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:187` | Refine a heterogeneous annotated node to a semantic-relation node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `isTextNode` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:82` | Refine a heterogeneous annotated node to a structural text node. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `MutableAnnotatedTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:223` | Mutable annotated graph used inside construction callbacks. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:796` | Count all structural and annotation nodes. |
+| `@beep/nlp/Graph/AnnotatedTextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:780` | Collect all structural and annotation nodes in backing graph order. |
 | `@beep/nlp/Graph/EffectGraph` | `addNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:355` | Add a node to the graph, recalculating its depth from its parent and linking |
 | `@beep/nlp/Graph/EffectGraph` | `ana` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:598` | Unfold a seed into a graph by recursively producing child seeds. |
 | `@beep/nlp/Graph/EffectGraph` | `cata` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:524` | Fold a graph bottom-up, visiting children before their parents. |
@@ -7979,10 +7979,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Graph/GraphOperations/Errors` | `StorageError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:169` | Failure raised by a result-store backend. |
 | `@beep/nlp/Graph/GraphOperations/Errors` | `TimeoutError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:69` | Failure raised when an operation exceeds its configured timeout. |
 | `@beep/nlp/Graph/GraphOperations/Errors` | `ValidationError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:38` | Failure raised when validation rejects an operation for a source node. |
-| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutor` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:121` | Service tag for the graph-operation execution engine. |
-| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorLive` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:368` | Live {@link GraphExecutor} layer. |
-| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorShape` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:77` | Structural service contract for applying operations to graph leaves. |
-| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorTest` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:388` | Test layer providing both the executor and its in-memory result store. |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutor` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:122` | Service tag for the graph-operation execution engine. |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorLive` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:433` | Live {@link GraphExecutor} layer. |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorShape` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:78` | Structural service contract for applying operations to graph leaves. |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorTest` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:453` | Test layer providing both the executor and its in-memory result store. |
 | `@beep/nlp/Graph/GraphOperations/index` | `Catalog` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:25` |  |
 | `@beep/nlp/Graph/GraphOperations/index` | `Errors` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:13` |  |
 | `@beep/nlp/Graph/GraphOperations/index` | `Executor` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:27` |  |
@@ -8084,31 +8084,31 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Graph/Schema` | `TextNode` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:103` | Text node stored in the graph: a piece of text with processing metadata. |
 | `@beep/nlp/Graph/Schema` | `TextNode` | type | `packages/foundation/capability/nlp/src/Graph/Schema.ts:159` | Runtime type for text-graph nodes. |
 | `@beep/nlp/Graph/Schema` | `TextNodeType` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:41` | Structural text-node kind vocabulary. |
-| `@beep/nlp/Graph/TextGraph` | `addChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:262` | Add child nodes under a parent, validating the result stays acyclic. |
-| `@beep/nlp/Graph/TextGraph` | `bfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:509` | Create a breadth-first walker over text nodes. |
-| `@beep/nlp/Graph/TextGraph` | `dfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:491` | Create a depth-first walker over text nodes. |
-| `@beep/nlp/Graph/TextGraph` | `edgeCount` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:578` | Count edges in a text graph. |
-| `@beep/nlp/Graph/TextGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:120` | Create an empty structural text graph. |
-| `@beep/nlp/Graph/TextGraph` | `filterNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:464` | Keep matching text nodes and edges whose endpoints both remain. |
-| `@beep/nlp/Graph/TextGraph` | `findNodesByType` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:595` | Find node indices whose `type` matches a structural text-node kind. |
-| `@beep/nlp/Graph/TextGraph` | `fromDocument` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:206` | Build a document graph by splitting the root text into sentence children. |
-| `@beep/nlp/Graph/TextGraph` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:660` | Return direct child indices for a text node. |
-| `@beep/nlp/Graph/TextGraph` | `getLeaves` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:635` | Return text-graph leaves, defined as nodes with no outgoing edges. |
-| `@beep/nlp/Graph/TextGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:618` | Return text-graph roots, defined as nodes with no incoming edges. |
-| `@beep/nlp/Graph/TextGraph` | `GraphCycleError` | class | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:79` | Raised when adding children would introduce a cycle (graphs must stay acyclic). |
-| `@beep/nlp/Graph/TextGraph` | `isAcyclic` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:762` | Check whether the text graph is acyclic. |
-| `@beep/nlp/Graph/TextGraph` | `mapNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:444` | Map every text node while preserving edges between retained nodes. |
-| `@beep/nlp/Graph/TextGraph` | `MutableTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:63` | Mutable text graph used inside construction callbacks. |
-| `@beep/nlp/Graph/TextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:563` | Count nodes in a text graph. |
-| `@beep/nlp/Graph/TextGraph` | `show` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:733` | Render the graph as an indented tree from roots downward. |
-| `@beep/nlp/Graph/TextGraph` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:138` | Create a text graph with one generated root node. |
-| `@beep/nlp/Graph/TextGraph` | `stronglyConnectedComponents` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:777` | Compute strongly connected components as node-index groups. |
-| `@beep/nlp/Graph/TextGraph` | `TextGraph` | type | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:47` | A text-processing graph: `TextNode` data with `TextEdge` relationships. |
-| `@beep/nlp/Graph/TextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:543` | Collect all text nodes in backing graph order. |
-| `@beep/nlp/Graph/TextGraph` | `toGraphViz` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:685` | Export the text graph to GraphViz DOT format. |
-| `@beep/nlp/Graph/TextGraph` | `tokenizeNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:358` | Tokenize every sentence node, adding token children (idempotent: skips |
-| `@beep/nlp/Graph/TextGraph` | `toMermaid` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:705` | Export the text graph to a Mermaid diagram. |
-| `@beep/nlp/Graph/TextGraph` | `topo` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:527` | Create a topological walker where parents precede children. |
+| `@beep/nlp/Graph/TextGraph` | `addChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:275` | Add child nodes under a parent, validating the result stays acyclic. |
+| `@beep/nlp/Graph/TextGraph` | `bfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:541` | Create a breadth-first walker over text nodes. |
+| `@beep/nlp/Graph/TextGraph` | `dfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:523` | Create a depth-first walker over text nodes. |
+| `@beep/nlp/Graph/TextGraph` | `edgeCount` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:610` | Count edges in a text graph. |
+| `@beep/nlp/Graph/TextGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:121` | Create an empty structural text graph. |
+| `@beep/nlp/Graph/TextGraph` | `filterNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:496` | Keep matching text nodes and edges whose endpoints both remain. |
+| `@beep/nlp/Graph/TextGraph` | `findNodesByType` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:627` | Find node indices whose `type` matches a structural text-node kind. |
+| `@beep/nlp/Graph/TextGraph` | `fromDocument` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:207` | Build a document graph by splitting the root text into sentence children. |
+| `@beep/nlp/Graph/TextGraph` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:692` | Return direct child indices for a text node. |
+| `@beep/nlp/Graph/TextGraph` | `getLeaves` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:667` | Return text-graph leaves, defined as nodes with no outgoing edges. |
+| `@beep/nlp/Graph/TextGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:650` | Return text-graph roots, defined as nodes with no incoming edges. |
+| `@beep/nlp/Graph/TextGraph` | `GraphCycleError` | class | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:80` | Raised when adding children would introduce a cycle (graphs must stay acyclic). |
+| `@beep/nlp/Graph/TextGraph` | `isAcyclic` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:794` | Check whether the text graph is acyclic. |
+| `@beep/nlp/Graph/TextGraph` | `mapNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:476` | Map every text node while preserving edges between retained nodes. |
+| `@beep/nlp/Graph/TextGraph` | `MutableTextGraph` | type | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:64` | Mutable text graph used inside construction callbacks. |
+| `@beep/nlp/Graph/TextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:595` | Count nodes in a text graph. |
+| `@beep/nlp/Graph/TextGraph` | `show` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:765` | Render the graph as an indented tree from roots downward. |
+| `@beep/nlp/Graph/TextGraph` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:139` | Create a text graph with one generated root node. |
+| `@beep/nlp/Graph/TextGraph` | `stronglyConnectedComponents` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:809` | Compute strongly connected components as node-index groups. |
+| `@beep/nlp/Graph/TextGraph` | `TextGraph` | type | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:48` | A text-processing graph: `TextNode` data with `TextEdge` relationships. |
+| `@beep/nlp/Graph/TextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:575` | Collect all text nodes in backing graph order. |
+| `@beep/nlp/Graph/TextGraph` | `toGraphViz` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:717` | Export the text graph to GraphViz DOT format. |
+| `@beep/nlp/Graph/TextGraph` | `tokenizeNodes` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:371` | Tokenize every sentence node, adding token children (idempotent: skips |
+| `@beep/nlp/Graph/TextGraph` | `toMermaid` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:737` | Export the text graph to a Mermaid diagram. |
+| `@beep/nlp/Graph/TextGraph` | `topo` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:559` | Create a topological walker where parents precede children. |
 | `@beep/nlp/Graph/TypeClass` | `alt` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:805` | Combine two operations, collecting results from both (parallel branching). |
 | `@beep/nlp/Graph/TypeClass` | `ap` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:654` | Apply an operation of functions to an operation of values (Cartesian product). |
 | `@beep/nlp/Graph/TypeClass` | `chain` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:722` | Sequence dependent operations: the first's outputs choose the next operation. |
@@ -8129,7 +8129,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Graph/TypeClass` | `FreeOperation` | type | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:377` | The free (expansion) functor: one node to many (e.g. text -\> sentences). |
 | `@beep/nlp/Graph/TypeClass` | `Functor` | interface | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:552` | A Functor over `F`: `map` transforms the output while preserving structure. |
 | `@beep/nlp/Graph/TypeClass` | `identityOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:164` | The identity operation: re-emits the node under a fresh id (effectful id). |
-| `@beep/nlp/Graph/TypeClass` | `makeAdjunction` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:424` | Pair a free expansion with its forgetful aggregation as an adjunction. |
+| `@beep/nlp/Graph/TypeClass` | `makeAdjunction` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:424` | Pair a free expansion with its aggregation operation. |
 | `@beep/nlp/Graph/TypeClass` | `makeOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:79` | Build a {@link TextOperation} from an effectful node-producing function. |
 | `@beep/nlp/Graph/TypeClass` | `map` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:570` | Map over a {@link TextOperation}'s output data, preserving structure/effects. |
 | `@beep/nlp/Graph/TypeClass` | `mapOperation` | const | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:450` | Map operation: transform node data without changing structure (a functor map). |
@@ -8334,9 +8334,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Tools/Sentences` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/Sentences.ts:59` | Defines the agent-facing tool contract for splitting text into sentence |
 | `@beep/nlp/Tools/TextSimilarity` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts:69` | Defines the agent-facing tool contract for comparing two texts with BM25 |
 | `@beep/nlp/Tools/Tokenize` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/Tokenize.ts:60` | Defines the agent-facing tool contract for tokenizing text into annotated |
-| `@beep/nlp/Tools/ToolExport` | `ExportedTool` | interface | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:173` | Runtime descriptor for a tool exported as a positional function contract. |
-| `@beep/nlp/Tools/ToolExport` | `ExportedToolError` | class | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:111` | Typed failure for the positional tool export adapter. |
-| `@beep/nlp/Tools/ToolExport` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:331` | Effect that exports every NLP toolkit tool as a positional descriptor. |
+| `@beep/nlp/Tools/ToolExport` | `ExportedTool` | interface | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:174` | Runtime descriptor for a tool exported as a positional function contract. |
+| `@beep/nlp/Tools/ToolExport` | `ExportedToolError` | class | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:112` | Typed failure for the positional tool export adapter. |
+| `@beep/nlp/Tools/ToolExport` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:395` | Effect that exports every NLP toolkit tool as a positional descriptor. |
 | `@beep/nlp/Tools/TransformText` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/TransformText.ts:95` | Defines the agent-facing tool contract for applying ordered text |
 | `@beep/nlp/Tools/TverskySimilarity` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts:84` | Defines the agent-facing tool contract for asymmetric Tversky similarity |
 | `@beep/nlp/VariantText` | `orderedDedupe` | const | `packages/foundation/capability/nlp/src/VariantText.ts:35` | Remove blank variants and keep the first spelling of each unique string. |
@@ -13538,8 +13538,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/wink` | `InstanceId` | const | `packages/drivers/wink/src/Wink.service.ts:54` | Branded runtime identifier for one initialized wink engine instance. |
 | `@beep/wink` | `InstanceId` | type | `packages/drivers/wink/src/Wink.service.ts:76` | Runtime TypeScript type produced by the {@link InstanceId} schema. |
 | `@beep/wink` | `makeWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:225` | Convert an expected wink driver failure into an AI tool error payload. |
-| `@beep/wink` | `mapWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:272` | Map the error channel of a wink-backed tool effect to {@link AiToolError}. |
-| `@beep/wink` | `observeWinkTool` | const | `packages/drivers/wink/src/WinkObservability.ts:311` | Observe a wink-backed AI tool and surface expected failures as structured |
+| `@beep/wink` | `mapWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:271` | Map the error channel of a wink-backed tool effect to {@link AiToolError}. |
+| `@beep/wink` | `observeWinkTool` | const | `packages/drivers/wink/src/WinkObservability.ts:310` | Observe a wink-backed AI tool and surface expected failures as structured |
 | `@beep/wink` | `observeWinkWorkflow` | const | `packages/drivers/wink/src/WinkObservability.ts:182` | Observe a wink workflow with standard metrics and span annotations. |
 | `@beep/wink` | `ScopedVectorizer` | interface | `packages/drivers/wink/src/WinkVectorizer.service.ts:91` | Isolated vectorizer surface passed to scoped BM25 workflows. |
 | `@beep/wink` | `SentenceSpanFailure` | class | `packages/drivers/wink/src/WinkTokenization.service.ts:57` | Typed failure used when wink sentence spans cannot be aligned to token indexes. |
@@ -13584,8 +13584,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/wink/index` | `InstanceId` | const | `packages/drivers/wink/src/Wink.service.ts:54` | Branded runtime identifier for one initialized wink engine instance. |
 | `@beep/wink/index` | `InstanceId` | type | `packages/drivers/wink/src/Wink.service.ts:76` | Runtime TypeScript type produced by the {@link InstanceId} schema. |
 | `@beep/wink/index` | `makeWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:225` | Convert an expected wink driver failure into an AI tool error payload. |
-| `@beep/wink/index` | `mapWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:272` | Map the error channel of a wink-backed tool effect to {@link AiToolError}. |
-| `@beep/wink/index` | `observeWinkTool` | const | `packages/drivers/wink/src/WinkObservability.ts:311` | Observe a wink-backed AI tool and surface expected failures as structured |
+| `@beep/wink/index` | `mapWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:271` | Map the error channel of a wink-backed tool effect to {@link AiToolError}. |
+| `@beep/wink/index` | `observeWinkTool` | const | `packages/drivers/wink/src/WinkObservability.ts:310` | Observe a wink-backed AI tool and surface expected failures as structured |
 | `@beep/wink/index` | `observeWinkWorkflow` | const | `packages/drivers/wink/src/WinkObservability.ts:182` | Observe a wink workflow with standard metrics and span annotations. |
 | `@beep/wink/index` | `ScopedVectorizer` | interface | `packages/drivers/wink/src/WinkVectorizer.service.ts:91` | Isolated vectorizer surface passed to scoped BM25 workflows. |
 | `@beep/wink/index` | `SentenceSpanFailure` | class | `packages/drivers/wink/src/WinkTokenization.service.ts:57` | Typed failure used when wink sentence spans cannot be aligned to token indexes. |
@@ -13659,8 +13659,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/wink/WinkEngineRef.service` | `WinkEngineRuntimeState` | type | `packages/drivers/wink/src/WinkEngineRef.service.ts:120` | Runtime state stored inside the shared wink engine ref. |
 | `@beep/wink/WinkEngineRef.service` | `WinkEngineState` | const | `packages/drivers/wink/src/WinkEngineRef.service.ts:155` | Serializable schema for wink engine state metadata. |
 | `@beep/wink/WinkObservability` | `makeWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:225` | Convert an expected wink driver failure into an AI tool error payload. |
-| `@beep/wink/WinkObservability` | `mapWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:272` | Map the error channel of a wink-backed tool effect to {@link AiToolError}. |
-| `@beep/wink/WinkObservability` | `observeWinkTool` | const | `packages/drivers/wink/src/WinkObservability.ts:311` | Observe a wink-backed AI tool and surface expected failures as structured |
+| `@beep/wink/WinkObservability` | `mapWinkToolError` | const | `packages/drivers/wink/src/WinkObservability.ts:271` | Map the error channel of a wink-backed tool effect to {@link AiToolError}. |
+| `@beep/wink/WinkObservability` | `observeWinkTool` | const | `packages/drivers/wink/src/WinkObservability.ts:310` | Observe a wink-backed AI tool and surface expected failures as structured |
 | `@beep/wink/WinkObservability` | `observeWinkWorkflow` | const | `packages/drivers/wink/src/WinkObservability.ts:182` | Observe a wink workflow with standard metrics and span annotations. |
 | `@beep/wink/WinkObservability` | `textLengthAttribute` | const | `packages/drivers/wink/src/WinkObservability.ts:133` | Build a span-safe text length annotation without recording raw text. |
 | `@beep/wink/WinkObservability` | `WinkToolObservationOptions` | class | `packages/drivers/wink/src/WinkObservability.ts:108` | Tool observation options used when mapping driver failures to AI tool errors. |

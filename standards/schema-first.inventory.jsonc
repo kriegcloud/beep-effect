@@ -1,11 +1,7 @@
 {
   "version": 1,
   "generatedOn": "2026-05-30",
-  "scope": [
-    "apps/**/*.{ts,tsx}",
-    "packages/**/*.{ts,tsx}",
-    "infra/**/*.ts"
-  ],
+  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
     "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -286,6 +282,22 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/drivers/wink/src/Wink.service.ts",
+      "symbol": "WinkEngineRuntimeState",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/wink",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/wink/src/WinkVectorizer.service.ts",
+      "symbol": "ScopedVectorizer",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/wink",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/drivers/xai/src/XAi.service.ts",
       "symbol": "XAiWebSocketSession",
       "kind": "exported-interface",
@@ -502,54 +514,6 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts",
-      "symbol": "DependencyEdge",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts",
-      "symbol": "DocumentStatistics",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts",
-      "symbol": "NamedEntity",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts",
-      "symbol": "TextAnalysis",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Backend/Composition.ts",
-      "symbol": "CachingOptions",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Backend/NLPBackend.ts",
-      "symbol": "BackendCapabilities",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/foundation/capability/nlp/src/Backend/NLPBackend.ts",
       "symbol": "NLPBackendShape",
       "kind": "exported-interface",
@@ -623,7 +587,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@255",
+      "symbol": "anonymous@292",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -631,7 +595,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@308",
+      "symbol": "anonymous@345",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -639,7 +603,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@309",
+      "symbol": "anonymous@346",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -647,7 +611,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@335",
+      "symbol": "anonymous@372",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -655,7 +619,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@338",
+      "symbol": "anonymous@375",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -663,7 +627,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@340",
+      "symbol": "anonymous@377",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -671,7 +635,7 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@343",
+      "symbol": "anonymous@380",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -752,22 +716,6 @@
     {
       "file": "packages/foundation/capability/nlp/src/Tools/ToolExport.ts",
       "symbol": "ExportedTool",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Wink/WinkEngine.ts",
-      "symbol": "WinkEngineRuntimeState",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Type alias contains a live wink runtime handle and stays tracked as a runtime-boundary exception."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts",
-      "symbol": "ScopedVectorizer",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/nlp",

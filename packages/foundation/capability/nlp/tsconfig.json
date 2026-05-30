@@ -9,6 +9,9 @@
   },
   "references": [
     {
+      "path": "../observability/tsconfig.json"
+    },
+    {
       "path": "../../modeling/identity/tsconfig.json"
     },
     {

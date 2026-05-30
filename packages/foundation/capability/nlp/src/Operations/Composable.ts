@@ -118,7 +118,7 @@ export class OperationBuilder<A, B, R = never, E = never> {
    * import { makePureOperation } from "@beep/nlp/Operations/Composable"
    *
    * const words = makePureOperation("words", S.String, S.Array(S.String), (input) => input.split(" "))
-   * const count = map(words, (tokens) => tokens.length, S.Number)
+   * const count = words.map((tokens) => tokens.length, S.Number)
    * Effect.runPromise(count.run("typed effects compose")).then(console.log) // 3
    * ```
    *

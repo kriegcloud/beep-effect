@@ -20,10 +20,10 @@
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts",
+      "file": "packages/drivers/wink/src/WinkSimilarity.service.ts",
       "kind": "new-map-set",
       "reason": "wink-nlp similarity.set.tversky requires native Set inputs because it reads Set size and membership directly as part of its third-party API contract.",
-      "owner": "@beep/nlp",
+      "owner": "@beep/wink",
       "issue": "WINK-SIMILARITY-NATIVE-SET-BRIDGE"
     },
     {

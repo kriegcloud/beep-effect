@@ -222,17 +222,16 @@ export const observeWinkWorkflow: {
  * @category observability
  * @since 0.0.0
  */
-export const makeWinkToolError = (options: WinkToolObservationOptions, error: unknown): typeof AiToolError.Type =>
-  AiToolError.make({
+export const makeWinkToolError = (options: WinkToolObservationOptions, error: unknown): typeof AiToolError.Type => {
+  const reason = errorReason(error);
+  return AiToolError.make({
     message: errorMessage(error),
     operation: options.operation,
-    ...O.match(errorReason(error), {
-      onNone: () => ({}),
-      onSome: (reason) => ({ reason }),
-    }),
+    ...(O.isSome(reason) ? { reason: reason.value } : {}),
     retryable: options.retryable ?? false,
     toolName: options.toolName,
   });
+};
 
 const logWinkToolFailure =
   (options: WinkToolObservationOptions) =>

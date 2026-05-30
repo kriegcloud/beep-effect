@@ -186,6 +186,7 @@ upserting
 URDNA
 vectorizer
 Vectorizer
+vectorizers
 viewports
 vsync
 webglcontextlost
@@ -225,6 +226,7 @@ notif
 unhover
 unhovers
 acyclicity
+amod
 bimap
 Bifunctor
 cata
