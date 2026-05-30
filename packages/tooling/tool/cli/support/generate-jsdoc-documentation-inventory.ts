@@ -1,27 +1,29 @@
 #!/usr/bin/env bun
 
-import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { A, Str } from "@beep/utils";
-import * as jsonc from "jsonc-parser";
 import { Node, Project, SyntaxKind } from "ts-morph";
+import {
+  declarationKind,
+  discoverWorkspacePackages,
+  escapeRegExp,
+  formatJsonc,
+  getDocNode,
+  getJsDocText,
+  listSourceFiles,
+  normalizeSlashes,
+  readJsonc,
+  repoRelative,
+  rootDir,
+  stripCommentFraming,
+  summaryFromComment,
+  tagsFromComment,
+  topoSortPackageNames,
+  valuesForTag,
+} from "./_shared.ts";
 import type { SourceFile } from "ts-morph";
-
-type JsonRecord = Record<string, unknown>;
-
-type PackageJson = JsonRecord & {
-  readonly name: string;
-  readonly workspaces?: unknown;
-};
-
-type WorkspacePackageInfo = {
-  readonly name: string;
-  readonly path: string;
-  readonly absolutePath: string;
-  readonly packageJson: PackageJson;
-};
+import type { JsonRecord, WorkspacePackageInfo } from "./_shared.ts";
 
 type DocumentationIssue = {
   readonly rule: string;
@@ -37,10 +39,10 @@ type InventoryEntry = JsonRecord & {
   readonly missingRequiredTags: ReadonlyArray<string>;
   readonly forbiddenTags: ReadonlyArray<string>;
   readonly malformedConditionalTags: ReadonlyArray<DocumentationIssue>;
-  readonly exampleImportViolations?: ReadonlyArray<DocumentationIssue>;
-  readonly unsafeExampleViolations?: ReadonlyArray<DocumentationIssue>;
-  readonly schemaAnnotationGaps?: ReadonlyArray<DocumentationIssue>;
-  readonly categoryViolations?: ReadonlyArray<DocumentationIssue>;
+  readonly exampleImportViolations: ReadonlyArray<DocumentationIssue>;
+  readonly unsafeExampleViolations: ReadonlyArray<DocumentationIssue>;
+  readonly schemaAnnotationGaps: ReadonlyArray<DocumentationIssue>;
+  readonly categoryViolations: ReadonlyArray<DocumentationIssue>;
 };
 
 type PackageInventory = JsonRecord & {
@@ -101,54 +103,15 @@ type DirectExportDescriptor =
       readonly declaration: Node;
     };
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(scriptDir, "../../../../..");
 const outputJsonPath = path.join(rootDir, "standards", "jsdoc-documentation.inventory.jsonc");
 const outputMarkdownPath = path.join(rootDir, "standards", "jsdoc-documentation.inventory.md");
 const requiredExportTags = ["@example", "@category", "@since"];
 const requiredModuleTags = ["@since"];
 const forbiddenTags = ["@module", "@template"];
 const requiredTsdocCustomTags = ["@effects", "@precondition", "@postcondition", "@invariant"];
-const sourceExtensions = new Set([".ts", ".tsx"]);
-const ignoredSourceSuffixes = [".d.ts"];
-
-const readText = (filePath: string): string => readFileSync(filePath, "utf8");
-
-const readJsonc = (filePath: string): JsonRecord => {
-  const text = readText(filePath);
-  const errors: jsonc.ParseError[] = [];
-  const parsed = jsonc.parse(text, errors, {
-    allowTrailingComma: true,
-    disallowComments: false,
-  });
-
-  if (errors.length > 0) {
-    const [first] = errors;
-    throw new Error(`Failed to parse ${filePath}: ${jsonc.printParseErrorCode(first.error)} at offset ${first.offset}`);
-  }
-
-  return parsed as JsonRecord;
-};
-
-const formatJsonc = (value: unknown): string => {
-  const encoded = JSON.stringify(value, null, 2);
-  return `${jsonc.applyEdits(
-    encoded,
-    jsonc.format(encoded, undefined, {
-      insertSpaces: true,
-      tabSize: 2,
-    })
-  )}\n`;
-};
-
-const normalizeSlashes = (value: string): string => Str.replaceAll(path.sep, "/")(value);
-
-const repoRelative = (absolutePath: string): string => normalizeSlashes(path.relative(rootDir, absolutePath) || ".");
 
 const markdownAnchor = (value: string): string =>
   Str.replace(/^-+|-+$/g, "")(Str.replace(/[^a-z0-9]+/g, "-")(Str.replace(/`/g, "")(Str.toLowerCase(value))));
-
-const escapeRegExp = (value: string): string => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 
 const globPatternToRegExp = (pattern: string): RegExp => {
   const normalized = normalizeSlashes(Str.replace(/^\.\//, "")(pattern));
@@ -200,185 +163,6 @@ const packageSourceMatchesExclude = (
   return matcher.test(packageRelative) || matcher.test(srcRelative);
 };
 
-const readPackageJson = (filePath: string): PackageJson => readJsonc(filePath) as PackageJson;
-
-const readRootPackage = (): PackageJson => readPackageJson(path.join(rootDir, "package.json"));
-
-const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string> => {
-  if (A.isArray(workspaces)) {
-    return workspaces.filter((pattern): pattern is string => typeof pattern === "string");
-  }
-  if (workspaces !== null && typeof workspaces === "object") {
-    const workspaceRecord = workspaces as { readonly packages?: unknown };
-    if (A.isArray(workspaceRecord.packages)) {
-      return workspaceRecord.packages.filter((pattern): pattern is string => typeof pattern === "string");
-    }
-  }
-  return [];
-};
-
-const expandWorkspacePattern = (pattern: string): ReadonlyArray<string> => {
-  const segments = A.filter(Str.split("/")(normalizeSlashes(pattern)), Str.isNonEmpty);
-  let candidates = [rootDir];
-
-  for (const segment of segments) {
-    const nextCandidates: Array<string> = [];
-
-    for (const candidate of candidates) {
-      if (segment === "*") {
-        if (!existsSync(candidate)) {
-          continue;
-        }
-        for (const entry of readdirSync(candidate, { withFileTypes: true })) {
-          if (entry.isDirectory()) {
-            A.appendInPlace(nextCandidates, path.join(candidate, entry.name));
-          }
-        }
-        continue;
-      }
-
-      A.appendInPlace(nextCandidates, path.join(candidate, segment));
-    }
-
-    candidates = nextCandidates;
-  }
-
-  return A.filter(candidates, (candidate) => existsSync(path.join(candidate, "package.json")));
-};
-
-const discoverWorkspacePackages = (): Map<string, WorkspacePackageInfo> => {
-  const rootPackage = readRootPackage();
-  const packages = new Map<string, WorkspacePackageInfo>();
-
-  packages.set(rootPackage.name, {
-    name: rootPackage.name,
-    path: ".",
-    absolutePath: rootDir,
-    packageJson: rootPackage,
-  });
-
-  for (const pattern of workspacePatternsFrom(rootPackage.workspaces)) {
-    for (const packagePath of expandWorkspacePattern(pattern)) {
-      const packageJson = readPackageJson(path.join(packagePath, "package.json"));
-      packages.set(packageJson.name, {
-        name: packageJson.name,
-        path: repoRelative(packagePath),
-        absolutePath: packagePath,
-        packageJson,
-      });
-    }
-  }
-
-  return packages;
-};
-
-const topoSortPackageNames = (): ReadonlyArray<string> => {
-  const result = spawnSync("bun", ["run", "topo-sort"], {
-    cwd: rootDir,
-    encoding: "utf8",
-  });
-
-  if (result.status !== 0) {
-    throw new Error(`bun run topo-sort failed:\n${result.stderr || result.stdout}`);
-  }
-
-  return A.filter(
-    A.map(
-      A.filter(
-        A.map(Str.split(/\r?\n/)(result.stdout), (line) => Str.trim(line)),
-        (line) => Str.startsWith("@")(line)
-      ),
-      (line) => Str.split(/\s+/u)(line)[0]
-    ),
-    (packageName) => packageName !== undefined
-  );
-};
-
-const listSourceFiles = (directory: string): ReadonlyArray<string> => {
-  if (!existsSync(directory)) {
-    return [];
-  }
-
-  const files: Array<string> = [];
-  const visit = (current: string): void => {
-    for (const entry of readdirSync(current, { withFileTypes: true })) {
-      const absolutePath = path.join(current, entry.name);
-
-      if (entry.isDirectory()) {
-        if (
-          entry.name === "node_modules" ||
-          entry.name === "dist" ||
-          entry.name === "build" ||
-          entry.name === ".turbo"
-        ) {
-          continue;
-        }
-        visit(absolutePath);
-        continue;
-      }
-
-      if (!entry.isFile()) {
-        continue;
-      }
-
-      const extension = path.extname(entry.name);
-      if (!sourceExtensions.has(extension)) {
-        continue;
-      }
-
-      if (A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(entry.name))) {
-        continue;
-      }
-
-      A.appendInPlace(files, absolutePath);
-    }
-  };
-
-  visit(directory);
-  return A.sortInPlace(files, (left, right) => Str.localeCompare(right)(left));
-};
-
-const stripCommentFraming = (commentText: string): ReadonlyArray<string> =>
-  A.map(Str.split(/\r?\n/)(Str.replace(/\*\/$/, "")(Str.replace(/^\/\*\*/, "")(commentText))), (line) =>
-    Str.trimEnd(Str.replace(/^\s*\*\s?/, "")(line))
-  );
-
-const summaryFromComment = (commentText: string): string | undefined => {
-  for (const line of stripCommentFraming(commentText)) {
-    const trimmed = Str.trim(line);
-    if (trimmed.length === 0 || Str.startsWith("@")(trimmed) || Str.startsWith("```")(trimmed)) {
-      continue;
-    }
-    return trimmed;
-  }
-  return undefined;
-};
-
-const tagsFromComment = (commentText: string): ReadonlyArray<string> => {
-  const tags: Array<string> = [];
-  for (const line of stripCommentFraming(commentText)) {
-    const match = /^\s*@([A-Za-z][\w-]*)\b/.exec(line);
-    if (match !== null) {
-      A.appendInPlace(tags, `@${match[1]}`);
-    }
-  }
-  return [...new Set(tags)];
-};
-
-const valuesForTag = (commentText: string, tagName: string): ReadonlyArray<string> => {
-  const values: Array<string> = [];
-  const pattern = new RegExp(`^\\s*${escapeRegExp(tagName)}\\b\\s*(.*)$`);
-
-  for (const line of stripCommentFraming(commentText)) {
-    const match = pattern.exec(line);
-    if (match !== null) {
-      A.appendInPlace(values, Str.trim(match[1] ?? ""));
-    }
-  }
-
-  return values;
-};
-
 const extractExamples = (commentText: string): ReadonlyArray<string> => {
   const cleaned = A.join(stripCommentFraming(commentText), "\n");
   const examples: Array<string> = [];
@@ -393,56 +177,12 @@ const extractExamples = (commentText: string): ReadonlyArray<string> => {
   return examples;
 };
 
-const getDocNode = (node: Node): Node => {
-  if (Node.isVariableDeclaration(node)) {
-    return node.getVariableStatement() ?? node;
-  }
-  if (Node.isExportSpecifier(node)) {
-    return node.getParent();
-  }
-  return node;
-};
-
-const getJsDocText = (node: Node): string => {
-  const docNode = getDocNode(node);
-  if (Node.isJSDocable(docNode)) {
-    const docs = docNode.getJsDocs();
-    return docs.at(-1)?.getText() ?? "";
-  }
-  return "";
-};
-
 const leadingJsDocText = (node: Node): string =>
   node
     .getLeadingCommentRanges()
     .map((range) => range.getText())
     .filter((text: string) => Str.startsWith("/**")(text))
     .at(-1) ?? "";
-
-const declarationKind = (node: Node): string => {
-  if (Node.isFunctionDeclaration(node)) {
-    return "function";
-  }
-  if (Node.isVariableDeclaration(node)) {
-    return "const";
-  }
-  if (Node.isTypeAliasDeclaration(node)) {
-    return "type";
-  }
-  if (Node.isInterfaceDeclaration(node)) {
-    return "interface";
-  }
-  if (Node.isClassDeclaration(node)) {
-    return "class";
-  }
-  if (Node.isModuleDeclaration(node)) {
-    return "namespace";
-  }
-  if (Node.isEnumDeclaration(node)) {
-    return "enum";
-  }
-  return node.getKindName();
-};
 
 const missingRequiredTags = (
   presentTags: ReadonlyArray<string>,
@@ -668,6 +408,9 @@ const analyzeModule = (sourceFile: SourceFile, packagePath: string, exportCount:
     forbiddenTags: forbidden,
     missingSummary,
     malformedConditionalTags: malformedTags,
+    exampleImportViolations: [],
+    unsafeExampleViolations: [],
+    schemaAnnotationGaps: [],
     categoryViolations: categoryIssues,
     exportCount,
     remediationStatus: findingCount === 0 ? "resolved" : "open",
@@ -711,6 +454,7 @@ const analyzeExportDeclaration = (declaration: Node, sourceFile: SourceFile, pac
     exampleImportViolations: importIssues,
     unsafeExampleViolations: unsafeIssues,
     schemaAnnotationGaps: [] as Array<DocumentationIssue>,
+    categoryViolations: categoryIssues,
     remediationStatus: findingCount === 0 ? "resolved" : "open",
   };
 };
@@ -759,6 +503,7 @@ const analyzeDirectExport = (
     exampleImportViolations: importIssues,
     unsafeExampleViolations: unsafeIssues,
     schemaAnnotationGaps: schemaGaps,
+    categoryViolations: categoryIssues,
     remediationStatus: findingCount === 0 ? "resolved" : "open",
   };
 };
@@ -994,16 +739,16 @@ const detailList = (entry: InventoryEntry): string => {
   if (entry.malformedConditionalTags.length > 0) {
     A.appendInPlace(details, `${entry.malformedConditionalTags.length} malformed conditional tag(s)`);
   }
-  if (entry.exampleImportViolations?.length > 0) {
+  if (entry.exampleImportViolations.length > 0) {
     A.appendInPlace(details, `${entry.exampleImportViolations.length} example import violation(s)`);
   }
-  if (entry.unsafeExampleViolations?.length > 0) {
+  if (entry.unsafeExampleViolations.length > 0) {
     A.appendInPlace(details, `${entry.unsafeExampleViolations.length} unsafe example violation(s)`);
   }
-  if (entry.schemaAnnotationGaps?.length > 0) {
+  if (entry.schemaAnnotationGaps.length > 0) {
     A.appendInPlace(details, `${entry.schemaAnnotationGaps.length} schema annotation/type-alias gap(s)`);
   }
-  if (entry.categoryViolations?.length > 0) {
+  if (entry.categoryViolations.length > 0) {
     A.appendInPlace(details, `${entry.categoryViolations.length} category casing violation(s)`);
   }
 

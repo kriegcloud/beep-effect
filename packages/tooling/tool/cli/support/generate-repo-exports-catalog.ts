@@ -1,34 +1,39 @@
 #!/usr/bin/env bun
 
-import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { A, O, Str } from "@beep/utils";
-import * as jsonc from "jsonc-parser";
-import { Node, Project } from "ts-morph";
+import { Project } from "ts-morph";
+import {
+  declarationKind,
+  discoverWorkspacePackages,
+  escapeRegExp,
+  formatJsonc,
+  getJsDocText,
+  ignoredSourceSuffixes,
+  listSourceFiles,
+  normalizeSlashes,
+  readText,
+  repoRelative,
+  rootDir,
+  summaryFromComment,
+  tagsFromComment,
+  topoSortPackageNames,
+  valuesForTag,
+} from "./_shared.ts";
 import type * as Ordering from "effect/Ordering";
-import type { SourceFile } from "ts-morph";
-
-type JsonRecord = Record<string, unknown>;
-
-type PackageJson = JsonRecord & {
-  readonly name: string;
-  readonly workspaces?: unknown;
-  readonly exports?: unknown;
-};
-
-type WorkspacePackageInfo = {
-  readonly name: string;
-  readonly path: string;
-  readonly absolutePath: string;
-  readonly packageJson: PackageJson;
-};
+import type { Node, SourceFile } from "ts-morph";
+import type { JsonRecord, PackageJson, WorkspacePackageInfo } from "./_shared.ts";
 
 type ExportMapEntry = {
   readonly subpath: string;
   readonly target: string | null | undefined;
   readonly denied: boolean;
+};
+
+type ActiveExportMapEntry = ExportMapEntry & {
+  readonly target: string;
+  readonly denied: false;
 };
 
 type ExportExposure = {
@@ -83,12 +88,8 @@ type Catalog = {
   readonly packages: ReadonlyArray<PackageCatalog>;
 };
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(scriptDir, "../../../../..");
 const outputJsonPath = path.join(rootDir, "standards", "repo-exports.catalog.jsonc");
 const outputMarkdownPath = path.join(rootDir, "standards", "repo-exports.catalog.md");
-const sourceExtensions = new Set([".ts", ".tsx"]);
-const ignoredSourceSuffixes = [".d.ts"];
 const conditionPreference = ["types", "import", "default", "require"];
 const conditionNames = new Set(conditionPreference);
 const checkMode = A.contains(process.argv, "--check");
@@ -105,266 +106,8 @@ const compareNumber = (left: number, right: number): Ordering.Ordering => {
   return 0;
 };
 
-const readText = (filePath: string): string => readFileSync(filePath, "utf8");
-
-const readJsonc = (filePath: string): JsonRecord => {
-  const text = readText(filePath);
-  const errors: jsonc.ParseError[] = [];
-  const parsed = jsonc.parse(text, errors, {
-    allowTrailingComma: true,
-    disallowComments: false,
-  });
-
-  if (errors.length > 0) {
-    const [first] = errors;
-    throw new Error(`Failed to parse ${filePath}: ${jsonc.printParseErrorCode(first.error)} at offset ${first.offset}`);
-  }
-
-  return parsed as JsonRecord;
-};
-
-const formatJsonc = (value: unknown): string => {
-  const encoded = JSON.stringify(value, null, 2);
-  return `${jsonc.applyEdits(
-    encoded,
-    jsonc.format(encoded, undefined, {
-      insertSpaces: true,
-      tabSize: 2,
-    })
-  )}\n`;
-};
-
-const normalizeSlashes = (value: string): string => Str.replaceAll(path.sep, "/")(value);
-
-const repoRelative = (absolutePath: string): string => normalizeSlashes(path.relative(rootDir, absolutePath) || ".");
-
-const escapeRegExp = (value: string): string => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
-
 const markdownCell = (value: unknown): string =>
   Str.replace(/\|/g, "\\|")(Str.replace(/\r?\n/g, " ")(String(value ?? "")));
-
-const readPackageJson = (filePath: string): PackageJson => readJsonc(filePath) as PackageJson;
-
-const readRootPackage = (): PackageJson => readPackageJson(path.join(rootDir, "package.json"));
-
-const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string> => {
-  if (A.isArray(workspaces)) {
-    return workspaces.filter((pattern): pattern is string => typeof pattern === "string");
-  }
-  if (workspaces !== null && typeof workspaces === "object") {
-    const workspaceRecord = workspaces as { readonly packages?: unknown };
-    if (A.isArray(workspaceRecord.packages)) {
-      return workspaceRecord.packages.filter((pattern): pattern is string => typeof pattern === "string");
-    }
-  }
-  return [];
-};
-
-const expandWorkspacePattern = (pattern: string): ReadonlyArray<string> => {
-  const segments = A.filter(Str.split("/")(normalizeSlashes(pattern)), Str.isNonEmpty);
-  let candidates = [rootDir];
-
-  for (const segment of segments) {
-    const nextCandidates: Array<string> = [];
-
-    for (const candidate of candidates) {
-      if (segment === "*") {
-        if (!existsSync(candidate)) {
-          continue;
-        }
-        for (const entry of readdirSync(candidate, { withFileTypes: true })) {
-          if (entry.isDirectory()) {
-            A.appendInPlace(nextCandidates, path.join(candidate, entry.name));
-          }
-        }
-        continue;
-      }
-
-      A.appendInPlace(nextCandidates, path.join(candidate, segment));
-    }
-
-    candidates = nextCandidates;
-  }
-
-  return A.filter(candidates, (candidate) => existsSync(path.join(candidate, "package.json")));
-};
-
-const discoverWorkspacePackages = (): Map<string, WorkspacePackageInfo> => {
-  const rootPackage = readRootPackage();
-  const packages = new Map<string, WorkspacePackageInfo>();
-
-  packages.set(rootPackage.name, {
-    name: rootPackage.name,
-    path: ".",
-    absolutePath: rootDir,
-    packageJson: rootPackage,
-  });
-
-  for (const pattern of workspacePatternsFrom(rootPackage.workspaces)) {
-    for (const packagePath of expandWorkspacePattern(pattern)) {
-      const packageJson = readPackageJson(path.join(packagePath, "package.json"));
-      packages.set(packageJson.name, {
-        name: packageJson.name,
-        path: repoRelative(packagePath),
-        absolutePath: packagePath,
-        packageJson,
-      });
-    }
-  }
-
-  return packages;
-};
-
-const topoSortPackageNames = (): ReadonlyArray<string> => {
-  const result = spawnSync("bun", ["run", "topo-sort"], {
-    cwd: rootDir,
-    encoding: "utf8",
-  });
-
-  if (result.status !== 0) {
-    throw new Error(`bun run topo-sort failed:\n${result.stderr || result.stdout}`);
-  }
-
-  return A.filter(
-    A.map(
-      A.filter(
-        A.map(Str.split(/\r?\n/)(result.stdout), (line) => Str.trim(line)),
-        (line) => line.length > 0
-      ),
-      (line) => Str.split(/\s+/u)(line)[0]
-    ),
-    (packageName) => packageName !== undefined
-  );
-};
-
-const listSourceFiles = (directory: string): ReadonlyArray<string> => {
-  if (!existsSync(directory)) {
-    return [];
-  }
-
-  const files: Array<string> = [];
-  const visit = (current: string): void => {
-    for (const entry of readdirSync(current, { withFileTypes: true })) {
-      const absolutePath = path.join(current, entry.name);
-
-      if (entry.isDirectory()) {
-        if (
-          entry.name === "node_modules" ||
-          entry.name === "dist" ||
-          entry.name === "build" ||
-          entry.name === ".turbo"
-        ) {
-          continue;
-        }
-        visit(absolutePath);
-        continue;
-      }
-
-      if (!entry.isFile()) {
-        continue;
-      }
-
-      const extension = path.extname(entry.name);
-      if (!sourceExtensions.has(extension)) {
-        continue;
-      }
-
-      if (A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(entry.name))) {
-        continue;
-      }
-
-      A.appendInPlace(files, absolutePath);
-    }
-  };
-
-  visit(directory);
-  return A.sortInPlace(files, compareText);
-};
-
-const stripCommentFraming = (commentText: string): ReadonlyArray<string> =>
-  A.map(Str.split(/\r?\n/)(Str.replace(/\*\/$/, "")(Str.replace(/^\/\*\*/, "")(commentText))), (line) =>
-    Str.trimEnd(Str.replace(/^\s*\*\s?/, "")(line))
-  );
-
-const summaryFromComment = (commentText: string): string | undefined => {
-  for (const line of stripCommentFraming(commentText)) {
-    const trimmed = Str.trim(line);
-    if (trimmed.length === 0 || Str.startsWith("@")(trimmed) || Str.startsWith("```")(trimmed)) {
-      continue;
-    }
-    return trimmed;
-  }
-  return undefined;
-};
-
-const tagsFromComment = (commentText: string): ReadonlyArray<string> => {
-  const tags: Array<string> = [];
-  for (const line of stripCommentFraming(commentText)) {
-    const match = /^\s*@([A-Za-z][\w-]*)\b/.exec(line);
-    if (match !== null) {
-      A.appendInPlace(tags, `@${match[1]}`);
-    }
-  }
-  return [...new Set(tags)];
-};
-
-const valuesForTag = (commentText: string, tagName: string): ReadonlyArray<string> => {
-  const values: Array<string> = [];
-  const pattern = new RegExp(`^\\s*${escapeRegExp(tagName)}\\b\\s*(.*)$`);
-
-  for (const line of stripCommentFraming(commentText)) {
-    const match = pattern.exec(line);
-    if (match !== null) {
-      A.appendInPlace(values, Str.trim(match[1] ?? ""));
-    }
-  }
-
-  return values;
-};
-
-const getDocNode = (node: Node): Node => {
-  if (Node.isVariableDeclaration(node)) {
-    return node.getVariableStatement() ?? node;
-  }
-  if (Node.isExportSpecifier(node)) {
-    return node.getParent();
-  }
-  return node;
-};
-
-const getJsDocText = (node: Node): string => {
-  const docNode = getDocNode(node);
-  if (Node.isJSDocable(docNode)) {
-    const docs = docNode.getJsDocs();
-    return docs.at(-1)?.getText() ?? "";
-  }
-  return "";
-};
-
-const declarationKind = (node: Node): string => {
-  if (Node.isFunctionDeclaration(node)) {
-    return "function";
-  }
-  if (Node.isVariableDeclaration(node)) {
-    return "const";
-  }
-  if (Node.isTypeAliasDeclaration(node)) {
-    return "type";
-  }
-  if (Node.isInterfaceDeclaration(node)) {
-    return "interface";
-  }
-  if (Node.isClassDeclaration(node)) {
-    return "class";
-  }
-  if (Node.isModuleDeclaration(node)) {
-    return "namespace";
-  }
-  if (Node.isEnumDeclaration(node)) {
-    return "enum";
-  }
-  return node.getKindName();
-};
 
 const isIgnoredSourceTarget = (target: unknown): target is string =>
   typeof target === "string" && A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(target));
@@ -465,6 +208,9 @@ const isSourceTarget = (target: unknown): target is string =>
   (Str.endsWith(".ts")(target) || Str.endsWith(".tsx")(target)) &&
   !A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(target));
 
+const isActiveSourceExportEntry = (entry: ExportMapEntry): entry is ActiveExportMapEntry =>
+  !entry.denied && isSourceTarget(entry.target);
+
 const capturesForPattern = (pattern: string, value: string): Array<string> | undefined => {
   const parts = A.map(Str.split("*")(normalizeSlashes(pattern)), escapeRegExp);
   const regex = new RegExp(`^${A.join(parts, "(.+)")}$`);
@@ -500,7 +246,7 @@ const expandExportMap = (
 ): ReadonlyArray<ExportExposure> => {
   const exportEntries = exportMapEntriesFrom(packageInfo.packageJson);
   const deniedEntries = A.filter(exportEntries, (entry) => entry.denied);
-  const activeEntries = A.filter(exportEntries, (entry) => !entry.denied && isSourceTarget(entry.target));
+  const activeEntries = A.filter(exportEntries, isActiveSourceExportEntry);
   const exposures: Array<ExportExposure> = [];
   const seen = new Set<string>();
 
