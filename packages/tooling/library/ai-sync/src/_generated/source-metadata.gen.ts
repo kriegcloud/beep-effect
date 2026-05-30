@@ -16,7 +16,6 @@
  *
  * console.log(GENERATED_TIER_ONE_SOURCE_METADATA.length)
  * ```
- *
  * @category constants
  * @since 0.0.0
  */
