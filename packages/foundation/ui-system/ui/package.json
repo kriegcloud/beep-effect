@@ -7,8 +7,9 @@
   "type": "module",
   "scripts": {
     "build": "bun run beep:build",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "storybook": "portless storybook.beep sh -c 'storybook dev -p \"$PORT\"'",
+    "storybook:build": "storybook build",
+    "storybook:start": "portless storybook.beep sh -c 'vite preview --host 0.0.0.0 --port \"$PORT\" --outDir storybook-static'",
     "check": "bun run beep:check",
     "test": "bun run beep:test",
     "coverage": "bunx --bun vitest run --coverage",
