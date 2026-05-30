@@ -110,6 +110,9 @@ export const CanvasProject = CanvasProjectStatus.mapMembers(
  */
 export type CanvasProject = typeof CanvasProject.Type;
 
+const makeCanvasProject = (canvasProject: CanvasProject): CanvasProject =>
+  canvasProject.status === "open" ? OpenCanvasProject.make(canvasProject) : ArchivedCanvasProject.make(canvasProject);
+
 /**
  * CanvasProject creation input.
  *
@@ -153,7 +156,7 @@ export class CreateCanvasProjectInput extends S.Class<CreateCanvasProjectInput>(
  * @since 0.0.0
  */
 export const create = (input: CreateCanvasProjectInput): CanvasProject =>
-  CanvasProject.make({
+  OpenCanvasProject.make({
     id: input.id,
     title: input.title,
     status: "open",
@@ -195,8 +198,9 @@ export const addNode = Effect.fn("CanvasProject.addNode")(function* (
       canvasNodeId: canvasNode.id,
     });
   }
-  return CanvasProject.make({
+  return OpenCanvasProject.make({
     ...canvasProject,
+    status: "open",
     nodes: A.append(canvasProject.nodes, canvasNode),
   });
 });
@@ -225,8 +229,9 @@ export const removeNode = Effect.fn("CanvasProject.removeNode")(function* (
       canvasNodeId,
     });
   }
-  return CanvasProject.make({
+  return OpenCanvasProject.make({
     ...canvasProject,
+    status: "open",
     nodes: A.filter(canvasProject.nodes, (node) => node.id !== canvasNodeId),
   });
 });
@@ -246,7 +251,7 @@ export const removeNode = Effect.fn("CanvasProject.removeNode")(function* (
  */
 export const archive = Effect.fn("CanvasProject.archive")(function* (canvasProject: CanvasProject) {
   yield* requireMutable(canvasProject);
-  return CanvasProject.make({
+  return ArchivedCanvasProject.make({
     ...canvasProject,
     status: "archived",
   });
@@ -273,7 +278,7 @@ export const reopen = Effect.fn("CanvasProject.reopen")(function* (canvasProject
       to: "open",
     });
   }
-  return CanvasProject.make({
+  return makeCanvasProject({
     ...canvasProject,
     status: "open",
   });

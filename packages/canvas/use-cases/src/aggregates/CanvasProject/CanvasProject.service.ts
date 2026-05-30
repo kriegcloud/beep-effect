@@ -114,7 +114,7 @@ export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositorySha
     return yield* mutateStoredCanvasProject(repository, command.id, DomainCanvasProject.archive);
   }),
   create: flow(
-    DomainCanvasProject.CreateCanvasProjectInput.make,
+    (command) => DomainCanvasProject.CreateCanvasProjectInput.make(command),
     DomainCanvasProject.create,
     Effect.succeed,
     Effect.flatMap(repository.create),
