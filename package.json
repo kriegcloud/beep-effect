@@ -75,6 +75,7 @@
   "scripts": {
     "op": "op run --env-file=.env --",
     "beep": "bun run packages/tooling/tool/cli/src/bin.ts --",
+    "ai-sync": "bun run --cwd packages/tooling/library/ai-sync ai-sync",
     "topo-sort": "bun run beep topo-sort",
     "codegen": "bun run beep codegen",
     "codex:quality-review-fix-loop": "bun run beep codex quality-review-fix-loop",
