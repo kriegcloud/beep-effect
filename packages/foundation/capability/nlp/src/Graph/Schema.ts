@@ -141,6 +141,20 @@ export const TextNode = TextNodeType.mapMembers(
   S.toTaggedUnion("type")
 );
 
+/**
+ * Runtime type for text-graph nodes.
+ *
+ * @example
+ * ```ts
+ * import type { TextNode } from "@beep/nlp/Graph/Schema"
+ *
+ * const typeName = (node: TextNode) => node.type
+ * console.log(typeName)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type TextNode = typeof TextNode.Type;
 
 /**

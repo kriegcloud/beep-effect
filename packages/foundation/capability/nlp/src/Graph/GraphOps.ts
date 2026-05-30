@@ -81,6 +81,20 @@ export const TraversalOrder = LiteralKit(["dfs", "bfs", "topo"]).annotate(
   })
 );
 
+/**
+ * Runtime type for graph traversal order values.
+ *
+ * @example
+ * ```ts
+ * import type { TraversalOrder } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const order: TraversalOrder = "dfs"
+ * console.log(order)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type TraversalOrder = typeof TraversalOrder.Type;
 
 // =============================================================================

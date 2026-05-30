@@ -41,42 +41,52 @@ const stub = (
 });
 
 describe("withFallback", () => {
-  it.effect("uses the secondary backend when the primary fails", Effect.fn(function* () {
-    const primary = stub("primary", { ...baseCapabilities, tokenization: true }, () => Effect.fail(Backend.operationError("primary", "tokenize", new Error("boom"))));
-    const secondary = stub("secondary", { ...baseCapabilities, ner: true }, () => Effect.succeed(["fallback"]));
-    const composed = Composition.withFallback(primary, secondary);
-    const tokens = yield* composed.tokenize("x");
-    expect(tokens).toEqual(["fallback"]);
-    expect(composed.name).toBe("primary+secondary");
-    expect(composed.capabilities.tokenization).toBe(true);
-    expect(composed.capabilities.ner).toBe(true);
-})
+  it.effect(
+    "uses the secondary backend when the primary fails",
+    Effect.fn(function* () {
+      const primary = stub("primary", { ...baseCapabilities, tokenization: true }, () =>
+        Effect.fail(Backend.operationError("primary", "tokenize", new Error("boom")))
+      );
+      const secondary = stub("secondary", { ...baseCapabilities, ner: true }, () => Effect.succeed(["fallback"]));
+      const composed = Composition.withFallback(primary, secondary);
+      const tokens = yield* composed.tokenize("x");
+      expect(tokens).toEqual(["fallback"]);
+      expect(composed.name).toBe("primary+secondary");
+      expect(composed.capabilities.tokenization).toBe(true);
+      expect(composed.capabilities.ner).toBe(true);
+    })
   );
 
-  it.effect("keeps the primary result when it succeeds", Effect.fn(function* () {
-    const primary = stub("primary", baseCapabilities, () => Effect.succeed(["primary"]));
-    const secondary = stub("secondary", baseCapabilities, () => Effect.succeed(["secondary"]));
-    const composed = Composition.withFallback(primary, secondary);
-    expect(yield* composed.tokenize("x")).toEqual(["primary"]);
-})
+  it.effect(
+    "keeps the primary result when it succeeds",
+    Effect.fn(function* () {
+      const primary = stub("primary", baseCapabilities, () => Effect.succeed(["primary"]));
+      const secondary = stub("secondary", baseCapabilities, () => Effect.succeed(["secondary"]));
+      const composed = Composition.withFallback(primary, secondary);
+      expect(yield* composed.tokenize("x")).toEqual(["primary"]);
+    })
   );
 });
 
 describe("withCaching", () => {
-  it.effect("memoizes a lookup so the backend runs once per key", Effect.fn(function* () {
-    let calls = 0;
-    const backend = stub("counting", { ...baseCapabilities, tokenization: true }, text => Effect.sync(() => {
-        calls = calls + 1;
-        return [text];
-    }));
-    const cached = yield* Composition.withCaching(backend, { capacity: 8 });
-    const first = yield* cached.tokenize("hello");
-    const second = yield* cached.tokenize("hello");
-    expect(first).toEqual(["hello"]);
-    expect(second).toEqual(["hello"]);
-    expect(calls).toBe(1);
-    expect(cached.name).toBe("cached(counting)");
-})
+  it.effect(
+    "memoizes a lookup so the backend runs once per key",
+    Effect.fn(function* () {
+      let calls = 0;
+      const backend = stub("counting", { ...baseCapabilities, tokenization: true }, (text) =>
+        Effect.sync(() => {
+          calls = calls + 1;
+          return [text];
+        })
+      );
+      const cached = yield* Composition.withCaching(backend, { capacity: 8 });
+      const first = yield* cached.tokenize("hello");
+      const second = yield* cached.tokenize("hello");
+      expect(first).toEqual(["hello"]);
+      expect(second).toEqual(["hello"]);
+      expect(calls).toBe(1);
+      expect(cached.name).toBe("cached(counting)");
+    })
   );
 });
 

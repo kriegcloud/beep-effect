@@ -124,6 +124,20 @@ export const NLPBackendError = S.Union([BackendNotSupported, BackendInitError, B
   })
 );
 
+/**
+ * Runtime type for backend failures.
+ *
+ * @example
+ * ```ts
+ * import type { NLPBackendError } from "@beep/nlp/Backend/NLPBackend"
+ *
+ * const tag = (error: NLPBackendError) => error._tag
+ * console.log(tag)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type NLPBackendError = typeof NLPBackendError.Type;
 
 /**

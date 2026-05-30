@@ -7542,19 +7542,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Backend/Composition` | `withCaching` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:105` | Wrap a backend so each text-keyed operation is memoized behind an `effect/Cache` |
 | `@beep/nlp/Backend/Composition` | `withFallback` | const | `packages/foundation/capability/nlp/src/Backend/Composition.ts:40` | Compose two backends so each operation tries `primary` first, then `secondary` |
 | `@beep/nlp/Backend/index` | `NLPBackend` | SourceFile | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:19` |  |
-| `@beep/nlp/Backend/NLPBackend` | `BackendCapabilities` | interface | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:136` | Capabilities a backend may or may not support, enabling runtime capability |
+| `@beep/nlp/Backend/NLPBackend` | `BackendCapabilities` | interface | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:150` | Capabilities a backend may or may not support, enabling runtime capability |
 | `@beep/nlp/Backend/NLPBackend` | `BackendInitError` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:69` | Failure raised when a backend fails to initialize. |
 | `@beep/nlp/Backend/NLPBackend` | `BackendNotSupported` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:44` | Failure raised when a backend does not support a requested operation. |
 | `@beep/nlp/Backend/NLPBackend` | `BackendOperationError` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:94` | Failure raised when a backend operation fails at runtime. |
-| `@beep/nlp/Backend/NLPBackend` | `getSupportedCapabilities` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:221` | List all capabilities a backend supports. |
-| `@beep/nlp/Backend/NLPBackend` | `initError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:246` | Construct a {@link BackendInitError} from an unknown cause. |
-| `@beep/nlp/Backend/NLPBackend` | `NLPBackend` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:204` | Service tag for the pluggable {@link NLPBackendShape} backend. |
+| `@beep/nlp/Backend/NLPBackend` | `getSupportedCapabilities` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:235` | List all capabilities a backend supports. |
+| `@beep/nlp/Backend/NLPBackend` | `initError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:260` | Construct a {@link BackendInitError} from an unknown cause. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackend` | class | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:218` | Service tag for the pluggable {@link NLPBackendShape} backend. |
 | `@beep/nlp/Backend/NLPBackend` | `NLPBackendError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:120` | Union of all backend failures. |
-| `@beep/nlp/Backend/NLPBackend` | `NLPBackendError` | type | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:127` |  |
-| `@beep/nlp/Backend/NLPBackend` | `NLPBackendShape` | interface | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:168` | Structural shape of the {@link NLPBackend} service. |
-| `@beep/nlp/Backend/NLPBackend` | `notSupported` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:233` | Construct a {@link BackendNotSupported} failure. |
-| `@beep/nlp/Backend/NLPBackend` | `operationError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:259` | Construct a {@link BackendOperationError} from an unknown cause. |
-| `@beep/nlp/Backend/NLPBackend` | `supportsCapability` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:212` | Check whether a backend supports a specific capability. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackendError` | type | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:141` | Runtime type for backend failures. |
+| `@beep/nlp/Backend/NLPBackend` | `NLPBackendShape` | interface | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:182` | Structural shape of the {@link NLPBackend} service. |
+| `@beep/nlp/Backend/NLPBackend` | `notSupported` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:247` | Construct a {@link BackendNotSupported} failure. |
+| `@beep/nlp/Backend/NLPBackend` | `operationError` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:273` | Construct a {@link BackendOperationError} from an unknown cause. |
+| `@beep/nlp/Backend/NLPBackend` | `supportsCapability` | const | `packages/foundation/capability/nlp/src/Backend/NLPBackend.ts:226` | Check whether a backend supports a specific capability. |
 | `@beep/nlp/Backend/WinkBackend` | `WinkBackendLive` | const | `packages/foundation/capability/nlp/src/Backend/WinkBackend.ts:150` | Live {@link NLPBackend} layer backed by wink-nlp (requires {@link WinkEngine}). |
 | `@beep/nlp/Core` | `addElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:302` | Append elements to a pattern. |
 | `@beep/nlp/Core` | `applyPatch` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:613` | Apply a patch to a pattern. |
@@ -7939,9 +7939,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Graph/GraphOperations/Errors` | `TimeoutError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:57` | Operation exceeded its time limit. |
 | `@beep/nlp/Graph/GraphOperations/Errors` | `ValidationError` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:32` | Operation cannot be applied to a node. |
 | `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutor` | class | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:93` | Service tag for the {@link GraphExecutorShape} engine. |
-| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorLive` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:251` | Live {@link GraphExecutor} layer (requires a {@link ResultStore.ResultStore}). |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorLive` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:262` | Live {@link GraphExecutor} layer (requires a {@link ResultStore.ResultStore}). |
 | `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorShape` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:64` | Structural shape of the {@link GraphExecutor} service. Results are type-erased |
-| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorTest` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:268` | Test layer providing both {@link GraphExecutor} and the {@link ResultStore.ResultStore} |
+| `@beep/nlp/Graph/GraphOperations/Executor` | `GraphExecutorTest` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:279` | Test layer providing both {@link GraphExecutor} and the {@link ResultStore.ResultStore} |
 | `@beep/nlp/Graph/GraphOperations/index` | `Catalog` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:27` |  |
 | `@beep/nlp/Graph/GraphOperations/index` | `Errors` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:13` |  |
 | `@beep/nlp/Graph/GraphOperations/index` | `Executor` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:27` |  |
@@ -7984,60 +7984,60 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Graph/GraphOperations/Types` | `OperationResult` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:331` | Result of executing an operation over a graph. |
 | `@beep/nlp/Graph/GraphOperations/Types` | `ValidationResult` | const | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:210` | Constructors/combinators for {@link ValidationResult}. |
 | `@beep/nlp/Graph/GraphOperations/Types` | `ValidationResult` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts:191` | Result of validating that an operation can be applied. |
-| `@beep/nlp/Graph/GraphOps` | `batchNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:475` | Stream node data in fixed-size batches. |
-| `@beep/nlp/Graph/GraphOps` | `bimap` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:161` | Map over both node and edge data simultaneously (Bifunctor). |
-| `@beep/nlp/Graph/GraphOps` | `buildIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:308` | Build a search index from a graph (the `index` functor of `query ⊣ index`). |
-| `@beep/nlp/Graph/GraphOps` | `collectNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:243` | Collect all node data into an array (order unspecified). |
-| `@beep/nlp/Graph/GraphOps` | `collectTraversal` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:252` | Collect node data in a traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `batchNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:489` | Stream node data in fixed-size batches. |
+| `@beep/nlp/Graph/GraphOps` | `bimap` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:175` | Map over both node and edge data simultaneously (Bifunctor). |
+| `@beep/nlp/Graph/GraphOps` | `buildIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:322` | Build a search index from a graph (the `index` functor of `query ⊣ index`). |
+| `@beep/nlp/Graph/GraphOps` | `collectNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:257` | Collect all node data into an array (order unspecified). |
+| `@beep/nlp/Graph/GraphOps` | `collectTraversal` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:266` | Collect node data in a traversal order. |
 | `@beep/nlp/Graph/GraphOps` | `DirectedGraph` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:42` | A directed graph with node data `A` and edge data `E`. |
-| `@beep/nlp/Graph/GraphOps` | `edgeCount` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:518` | Number of edges. |
-| `@beep/nlp/Graph/GraphOps` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:538` | Create an empty directed graph. |
-| `@beep/nlp/Graph/GraphOps` | `filterEdges` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:193` | Keep only edges matching the predicate; all nodes are preserved. |
-| `@beep/nlp/Graph/GraphOps` | `filterNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:184` | Keep only nodes matching the predicate; edges touching dropped nodes are removed. |
-| `@beep/nlp/Graph/GraphOps` | `findNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:202` | Find all node indices whose data matches the predicate. |
-| `@beep/nlp/Graph/GraphOps` | `foldNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:217` | Fold over all node data in unspecified order. |
-| `@beep/nlp/Graph/GraphOps` | `foldTraversal` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:226` | Fold over node data in a specific traversal order. |
-| `@beep/nlp/Graph/GraphOps` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:286` | Child node indices of a node. |
-| `@beep/nlp/Graph/GraphOps` | `getLeaves` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:277` | Leaf node indices (no outgoing edges). |
-| `@beep/nlp/Graph/GraphOps` | `getNode` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:295` | Node data at an index, if present. |
-| `@beep/nlp/Graph/GraphOps` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:268` | Root node indices (no incoming edges). |
-| `@beep/nlp/Graph/GraphOps` | `isAcyclic` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:492` | Whether the graph is acyclic (a DAG). |
-| `@beep/nlp/Graph/GraphOps` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:526` | Whether the graph has no nodes. |
-| `@beep/nlp/Graph/GraphOps` | `mapEdges` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:152` | Map over edge data, preserving nodes (Functor). |
-| `@beep/nlp/Graph/GraphOps` | `mapNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:143` | Map over node data, preserving edges (Functor; obeys identity/composition). |
-| `@beep/nlp/Graph/GraphOps` | `mapNodesEffect` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:414` | Map over node data with an effectful function, returning a new graph. |
-| `@beep/nlp/Graph/GraphOps` | `merge` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:558` | Merge two graphs, copying the second graph's nodes and edges into the first |
-| `@beep/nlp/Graph/GraphOps` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:510` | Number of nodes. |
+| `@beep/nlp/Graph/GraphOps` | `edgeCount` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:532` | Number of edges. |
+| `@beep/nlp/Graph/GraphOps` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:552` | Create an empty directed graph. |
+| `@beep/nlp/Graph/GraphOps` | `filterEdges` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:207` | Keep only edges matching the predicate; all nodes are preserved. |
+| `@beep/nlp/Graph/GraphOps` | `filterNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:198` | Keep only nodes matching the predicate; edges touching dropped nodes are removed. |
+| `@beep/nlp/Graph/GraphOps` | `findNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:216` | Find all node indices whose data matches the predicate. |
+| `@beep/nlp/Graph/GraphOps` | `foldNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:231` | Fold over all node data in unspecified order. |
+| `@beep/nlp/Graph/GraphOps` | `foldTraversal` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:240` | Fold over node data in a specific traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:300` | Child node indices of a node. |
+| `@beep/nlp/Graph/GraphOps` | `getLeaves` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:291` | Leaf node indices (no outgoing edges). |
+| `@beep/nlp/Graph/GraphOps` | `getNode` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:309` | Node data at an index, if present. |
+| `@beep/nlp/Graph/GraphOps` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:282` | Root node indices (no incoming edges). |
+| `@beep/nlp/Graph/GraphOps` | `isAcyclic` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:506` | Whether the graph is acyclic (a DAG). |
+| `@beep/nlp/Graph/GraphOps` | `isEmpty` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:540` | Whether the graph has no nodes. |
+| `@beep/nlp/Graph/GraphOps` | `mapEdges` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:166` | Map over edge data, preserving nodes (Functor). |
+| `@beep/nlp/Graph/GraphOps` | `mapNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:157` | Map over node data, preserving edges (Functor; obeys identity/composition). |
+| `@beep/nlp/Graph/GraphOps` | `mapNodesEffect` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:428` | Map over node data with an effectful function, returning a new graph. |
+| `@beep/nlp/Graph/GraphOps` | `merge` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:572` | Merge two graphs, copying the second graph's nodes and edges into the first |
+| `@beep/nlp/Graph/GraphOps` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:524` | Number of nodes. |
 | `@beep/nlp/Graph/GraphOps` | `NodeIndex` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:50` | A node index within a graph. |
 | `@beep/nlp/Graph/GraphOps` | `NodeWalker` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:58` | A graph walker for ordered traversals. |
-| `@beep/nlp/Graph/GraphOps` | `queryIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:334` | Query a search index for a single key (the `query` functor of `query ⊣ index`). |
-| `@beep/nlp/Graph/GraphOps` | `queryIndexIntersection` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:359` | Query a search index for all of several keys (intersection semantics). |
-| `@beep/nlp/Graph/GraphOps` | `queryIndexUnion` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:343` | Query a search index for any of several keys (union semantics, deduplicated). |
+| `@beep/nlp/Graph/GraphOps` | `queryIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:348` | Query a search index for a single key (the `query` functor of `query ⊣ index`). |
+| `@beep/nlp/Graph/GraphOps` | `queryIndexIntersection` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:373` | Query a search index for all of several keys (intersection semantics). |
+| `@beep/nlp/Graph/GraphOps` | `queryIndexUnion` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:357` | Query a search index for any of several keys (union semantics, deduplicated). |
 | `@beep/nlp/Graph/GraphOps` | `SearchIndex` | interface | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:67` | An immutable search index mapping search keys to node indices, paired with the |
-| `@beep/nlp/Graph/GraphOps` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:546` | Create a graph with a single node. |
-| `@beep/nlp/Graph/GraphOps` | `streamNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:451` | Stream node data in a traversal order. |
-| `@beep/nlp/Graph/GraphOps` | `streamNodesWithIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:463` | Stream `[index, node]` entries in a traversal order. |
-| `@beep/nlp/Graph/GraphOps` | `stronglyConnectedComponents` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:500` | Strongly connected components. |
+| `@beep/nlp/Graph/GraphOps` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:560` | Create a graph with a single node. |
+| `@beep/nlp/Graph/GraphOps` | `streamNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:465` | Stream node data in a traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `streamNodesWithIndex` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:477` | Stream `[index, node]` entries in a traversal order. |
+| `@beep/nlp/Graph/GraphOps` | `stronglyConnectedComponents` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:514` | Strongly connected components. |
 | `@beep/nlp/Graph/GraphOps` | `TraversalOrder` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:78` | Traversal order for ordered folds and walks. |
-| `@beep/nlp/Graph/GraphOps` | `TraversalOrder` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:84` |  |
-| `@beep/nlp/Graph/GraphOps` | `traverseNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:384` | Traverse the graph in order, running an effect per node (effects sequenced). |
-| `@beep/nlp/Graph/GraphOps` | `traverseNodesCollect` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:400` | Traverse the graph in order, running an effect per node and collecting results. |
+| `@beep/nlp/Graph/GraphOps` | `TraversalOrder` | type | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:98` | Runtime type for graph traversal order values. |
+| `@beep/nlp/Graph/GraphOps` | `traverseNodes` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:398` | Traverse the graph in order, running an effect per node (effects sequenced). |
+| `@beep/nlp/Graph/GraphOps` | `traverseNodesCollect` | const | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:414` | Traverse the graph in order, running an effect per node and collecting results. |
 | `@beep/nlp/Graph/index` | `AnnotatedTextGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:28` |  |
 | `@beep/nlp/Graph/index` | `EffectGraph` | SourceFile | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:27` |  |
 | `@beep/nlp/Graph/index` | `GraphOperations` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts:26` |  |
 | `@beep/nlp/Graph/index` | `GraphOps` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOps.ts:23` |  |
 | `@beep/nlp/Graph/index` | `Schema` | SourceFile | `packages/foundation/capability/nlp/src/Graph/Schema.ts:21` |  |
 | `@beep/nlp/Graph/index` | `TypeClass` | SourceFile | `packages/foundation/capability/nlp/src/Graph/TypeClass.ts:28` |  |
-| `@beep/nlp/Graph/Schema` | `DependencyNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:291` | Syntactic dependency relation between two tokens. |
-| `@beep/nlp/Graph/Schema` | `EntityNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:236` | Named entity extracted from text (a functor `Text -> Entity`). |
-| `@beep/nlp/Graph/Schema` | `LemmaNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:264` | Lemmatized (canonical) form of a token (a forgetful functor `Token -> Lemma`). |
-| `@beep/nlp/Graph/Schema` | `NLPAnalysis` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:183` | Summary result of analyzing a piece of text. |
-| `@beep/nlp/Graph/Schema` | `POSNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:209` | Part-of-speech annotation for a token (a functor `Token -> POS`). |
-| `@beep/nlp/Graph/Schema` | `RelationNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:318` | Semantic relation between two entities. |
-| `@beep/nlp/Graph/Schema` | `TextEdge` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:159` | Edge between text nodes, labeled with a structural or linguistic relation. |
+| `@beep/nlp/Graph/Schema` | `DependencyNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:305` | Syntactic dependency relation between two tokens. |
+| `@beep/nlp/Graph/Schema` | `EntityNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:250` | Named entity extracted from text (a functor `Text -> Entity`). |
+| `@beep/nlp/Graph/Schema` | `LemmaNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:278` | Lemmatized (canonical) form of a token (a forgetful functor `Token -> Lemma`). |
+| `@beep/nlp/Graph/Schema` | `NLPAnalysis` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:197` | Summary result of analyzing a piece of text. |
+| `@beep/nlp/Graph/Schema` | `POSNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:223` | Part-of-speech annotation for a token (a functor `Token -> POS`). |
+| `@beep/nlp/Graph/Schema` | `RelationNode` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:332` | Semantic relation between two entities. |
+| `@beep/nlp/Graph/Schema` | `TextEdge` | class | `packages/foundation/capability/nlp/src/Graph/Schema.ts:173` | Edge between text nodes, labeled with a structural or linguistic relation. |
 | `@beep/nlp/Graph/Schema` | `TextEdgeRelation` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:60` | Edge-relation vocabulary (structural + linguistic-annotation relations). |
 | `@beep/nlp/Graph/Schema` | `TextNode` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:102` | Text node stored in the graph: a piece of text with processing metadata. |
-| `@beep/nlp/Graph/Schema` | `TextNode` | type | `packages/foundation/capability/nlp/src/Graph/Schema.ts:144` |  |
+| `@beep/nlp/Graph/Schema` | `TextNode` | type | `packages/foundation/capability/nlp/src/Graph/Schema.ts:158` | Runtime type for text-graph nodes. |
 | `@beep/nlp/Graph/Schema` | `TextNodeType` | const | `packages/foundation/capability/nlp/src/Graph/Schema.ts:41` | Structural text-node kind vocabulary. |
 | `@beep/nlp/Graph/TextGraph` | `addChildren` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:173` | Add child nodes under a parent, validating the result stays acyclic. |
 | `@beep/nlp/Graph/TextGraph` | `bfs` | const | `packages/foundation/capability/nlp/src/Graph/TextGraph.ts:300` | Breadth-first node walker. |

@@ -129,37 +129,47 @@ describe("GraphOps search adjunction (query ⊣ index)", () => {
 });
 
 describe("GraphOps effectful operations", () => {
-  it.effect("traverseNodesCollect runs an effect per node", Effect.fn(function* () {
-    const g = sample();
-    const out = yield* GraphOps.traverseNodesCollect(g, GraphOps.getRoots(g), "bfs", n => Effect.succeed(n.toUpperCase()));
-    expect(out.length).toBe(4);
-    expect(out.includes("A")).toBe(true);
-})
+  it.effect(
+    "traverseNodesCollect runs an effect per node",
+    Effect.fn(function* () {
+      const g = sample();
+      const out = yield* GraphOps.traverseNodesCollect(g, GraphOps.getRoots(g), "bfs", (n) =>
+        Effect.succeed(n.toUpperCase())
+      );
+      expect(out.length).toBe(4);
+      expect(out.includes("A")).toBe(true);
+    })
   );
 
-  it.effect("mapNodesEffect rebuilds the graph with transformed nodes", Effect.fn(function* () {
-    const g = sample();
-    const out = yield* GraphOps.mapNodesEffect(g, n => Effect.succeed(`${n}${n}`));
-    expect(GraphOps.nodeCount(out)).toBe(4);
-    expect(GraphOps.edgeCount(out)).toBe(3);
-    expect(GraphOps.collectNodes(out).includes("aa")).toBe(true);
-})
+  it.effect(
+    "mapNodesEffect rebuilds the graph with transformed nodes",
+    Effect.fn(function* () {
+      const g = sample();
+      const out = yield* GraphOps.mapNodesEffect(g, (n) => Effect.succeed(`${n}${n}`));
+      expect(GraphOps.nodeCount(out)).toBe(4);
+      expect(GraphOps.edgeCount(out)).toBe(3);
+      expect(GraphOps.collectNodes(out).includes("aa")).toBe(true);
+    })
   );
 });
 
 describe("GraphOps streaming & merge", () => {
-  it.effect("streamNodes emits every node", Effect.fn(function* () {
-    const g = sample();
-    const collected = yield* Stream.runCollect(GraphOps.streamNodes(g, GraphOps.getRoots(g), "dfs"));
-    expect(collected.length).toBe(4);
-})
+  it.effect(
+    "streamNodes emits every node",
+    Effect.fn(function* () {
+      const g = sample();
+      const collected = yield* Stream.runCollect(GraphOps.streamNodes(g, GraphOps.getRoots(g), "dfs"));
+      expect(collected.length).toBe(4);
+    })
   );
 
-  it.effect("batchNodes groups nodes into fixed-size batches", Effect.fn(function* () {
-    const g = sample();
-    const batches = yield* Stream.runCollect(GraphOps.batchNodes(g, GraphOps.getRoots(g), "dfs", 2));
-    expect(batches.length).toBe(2);
-})
+  it.effect(
+    "batchNodes groups nodes into fixed-size batches",
+    Effect.fn(function* () {
+      const g = sample();
+      const batches = yield* Stream.runCollect(GraphOps.batchNodes(g, GraphOps.getRoots(g), "dfs", 2));
+      expect(batches.length).toBe(2);
+    })
   );
 
   it("merge combines nodes and edges from both graphs", () => {

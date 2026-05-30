@@ -95,12 +95,14 @@ describe("Failure constructors", () => {
 });
 
 describe("Tagged errors are schema-decodable", () => {
-  it.effect("BackendNotSupported round-trips through encode/decode", Effect.fn(function* () {
-    const err = Backend.notSupported("wink", "posTag");
-    const encoded = yield* S.encodeEffect(Backend.BackendNotSupported)(err);
-    const decoded = yield* S.decodeUnknownEffect(Backend.BackendNotSupported)(encoded);
-    expect(decoded.backend).toBe("wink");
-    expect(decoded.operation).toBe("posTag");
-})
+  it.effect(
+    "BackendNotSupported round-trips through encode/decode",
+    Effect.fn(function* () {
+      const err = Backend.notSupported("wink", "posTag");
+      const encoded = yield* S.encodeEffect(Backend.BackendNotSupported)(err);
+      const decoded = yield* S.decodeUnknownEffect(Backend.BackendNotSupported)(encoded);
+      expect(decoded.backend).toBe("wink");
+      expect(decoded.operation).toBe("posTag");
+    })
   );
 });

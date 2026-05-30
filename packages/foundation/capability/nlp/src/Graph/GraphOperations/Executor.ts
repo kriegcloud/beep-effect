@@ -1,8 +1,8 @@
 /**
  * GraphOperations/Executor - the graph-operation execution engine.
  *
- * Applies a {@link Operation.GraphOperation} to every leaf node of an
- * {@link EffectGraph.EffectGraph}, collecting the new nodes, per-node errors, and
+ * Applies a {@link GraphOperation} to every leaf node of an
+ * {@link EffectGraph}, collecting the new nodes, per-node errors, and
  * aggregated {@link Types.ExecutionMetrics}, with optional result caching via the
  * {@link ResultStore.ResultStore}. Sequential and parallel strategies are
  * implemented; batch/streaming fall back to sequential.
@@ -115,18 +115,29 @@ const applyOne = Effect.fn("applyOne")(function* <A, B, R, E>(
   const key = ResultStore.ResultKey.make(operation.name, leafNode.id);
   const cached = cache
     ? yield* Effect.mapError(store.get(key), (e) =>
-        ExecutionError.make({ cause: O.some(e), message: "Storage retrieve failed" })
+        ExecutionError.make({
+          cause: O.some(e),
+          message: "Storage retrieve failed",
+        })
       )
     : O.none<ResultStore.AnyOperationResult>();
 
   if (O.isSome(cached)) {
-    return { errors: cached.value.errors, fromCache: true, newNodes: cached.value.newNodes };
+    return {
+      errors: cached.value.errors,
+      fromCache: true,
+      newNodes: cached.value.newNodes,
+    };
   }
 
   const result = yield* Effect.result(operation.apply(leafNode));
   return yield* Result.match(result, {
     onFailure: (failure): Effect.Effect<Application, ExecutionError> =>
-      Effect.succeed({ errors: A.of(failure), fromCache: false, newNodes: A.empty<GraphNode<unknown>>() }),
+      Effect.succeed({
+        errors: A.of(failure),
+        fromCache: false,
+        newNodes: A.empty<GraphNode<unknown>>(),
+      }),
     onSuccess: (newNodes): Effect.Effect<Application, ExecutionError> =>
       Effect.as(cache ? cacheResult(store, key, newNodes) : Effect.void, {
         errors: A.empty<unknown>(),
