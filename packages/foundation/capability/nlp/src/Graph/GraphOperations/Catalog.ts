@@ -43,7 +43,7 @@ import type { DependencyNode, EntityNode, LemmaNode, POSNode, RelationNode } fro
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export const sentencize: Op.GraphOperation<string, string, Backend.NLPBackend, Backend.NLPBackendError> = Op.make({
   apply: Effect.fn("Catalog.sentencize")(function* (node) {
@@ -67,7 +67,7 @@ export const sentencize: Op.GraphOperation<string, string, Backend.NLPBackend, B
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export const tokenize: Op.GraphOperation<string, string, Backend.NLPBackend, Backend.NLPBackendError> = Op.make({
   apply: Effect.fn("Catalog.tokenize")(function* (node) {
@@ -91,7 +91,7 @@ export const tokenize: Op.GraphOperation<string, string, Backend.NLPBackend, Bac
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export const posTag: Op.GraphOperation<string, POSNode, Backend.NLPBackend, Backend.NLPBackendError> = Op.make({
   apply: Effect.fn("Catalog.posTag")(function* (node) {
@@ -115,7 +115,7 @@ export const posTag: Op.GraphOperation<string, POSNode, Backend.NLPBackend, Back
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export const lemmatize: Op.GraphOperation<string, LemmaNode, Backend.NLPBackend, Backend.NLPBackendError> = Op.make({
   apply: Effect.fn("Catalog.lemmatize")(function* (node) {
@@ -139,7 +139,7 @@ export const lemmatize: Op.GraphOperation<string, LemmaNode, Backend.NLPBackend,
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export const extractEntities: Op.GraphOperation<string, EntityNode, Backend.NLPBackend, Backend.NLPBackendError> =
   Op.make({
@@ -164,7 +164,7 @@ export const extractEntities: Op.GraphOperation<string, EntityNode, Backend.NLPB
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export const parseDependencies: Op.GraphOperation<string, DependencyNode, Backend.NLPBackend, Backend.NLPBackendError> =
   Op.make({
@@ -189,7 +189,7 @@ export const parseDependencies: Op.GraphOperation<string, DependencyNode, Backen
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export const extractRelations: Op.GraphOperation<string, RelationNode, Backend.NLPBackend, Backend.NLPBackendError> =
   Op.make({
@@ -216,7 +216,7 @@ export const extractRelations: Op.GraphOperation<string, RelationNode, Backend.N
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export const toLowerCase: Op.GraphOperation<string, string> = Op.transform({
   description: "Convert text to lowercase.",
@@ -235,7 +235,7 @@ export const toLowerCase: Op.GraphOperation<string, string> = Op.transform({
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export const toUpperCase: Op.GraphOperation<string, string> = Op.transform({
   description: "Convert text to uppercase.",
@@ -254,7 +254,7 @@ export const toUpperCase: Op.GraphOperation<string, string> = Op.transform({
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export const trim: Op.GraphOperation<string, string> = Op.transform({
   description: "Remove leading and trailing whitespace.",
@@ -273,7 +273,7 @@ export const trim: Op.GraphOperation<string, string> = Op.transform({
  * ```
  *
  * @since 0.0.0
- * @category catalog
+ * @category constants
  */
 export const StandardOperations = {
   extractEntities,
@@ -299,6 +299,6 @@ export const StandardOperations = {
  * ```
  *
  * @since 0.0.0
- * @category catalog
+ * @category constants
  */
 export const getOperationNames = (): ReadonlyArray<string> => A.fromIterable(Struct.keys(StandardOperations));

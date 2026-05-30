@@ -1,8 +1,8 @@
 /**
- * MCP server wiring for the @beep/nlp MCP driver.
+ * MCP server wiring for the `@beep/nlp` MCP driver.
  *
  * Binds the {@link Tools.NlpToolkit} handlers to the pluggable
- * {@link @beep/nlp/Backend!NLPBackend} (defaulting to the wink-nlp backend) and
+ * {@link @beep/nlp/Backend#NLPBackend} (defaulting to the wink-nlp backend) and
  * composes the stdio-transport MCP server layer. Each handler maps a backend
  * operation's result into its flat MCP output schema and translates backend
  * failures into {@link Schemas.NlpToolError}.
@@ -33,7 +33,7 @@ const toToolError =
 
 /**
  * Build the {@link Tools.NlpToolkit} handler record from an
- * {@link @beep/nlp/Backend!NLPBackend}. Each handler maps a backend operation's
+ * {@link @beep/nlp/Backend#NLPBackend}. Each handler maps a backend operation's
  * result into its flat MCP output schema and translates backend failures into
  * {@link Schemas.NlpToolError}. Exposed directly (not only as a layer) so tests
  * can invoke handlers with their concrete success/failure types.
@@ -97,7 +97,7 @@ export const makeNlpHandlers = Effect.gen(function* () {
 
 /**
  * The handler layer binding each {@link Tools.NlpToolkit} tool to an
- * {@link @beep/nlp/Backend!NLPBackend} operation. Requires an `NLPBackend` in context.
+ * {@link @beep/nlp/Backend#NLPBackend} operation. Requires an `NLPBackend` in context.
  *
  * @example
  * ```ts
@@ -112,7 +112,7 @@ export const makeNlpHandlers = Effect.gen(function* () {
 export const NlpToolkitHandlersLive = NlpToolkit.toLayer(makeNlpHandlers);
 
 /**
- * The live wink-nlp backend layer (the default {@link @beep/nlp/Backend!NLPBackend}
+ * The live wink-nlp backend layer (the default {@link @beep/nlp/Backend#NLPBackend}
  * implementation) with its `WinkEngine` dependency provided. Engine initialization
  * failures are promoted to defects, so the resolved layer has no error channel.
  *

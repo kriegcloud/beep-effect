@@ -36,7 +36,7 @@ const $I = $NlpId.create("Handoff/Contract");
  * ```
  *
  * @since 0.0.0
- * @category ids
+ * @category identifiers
  */
 export const ChunkId = S.String.pipe(
   S.brand("ChunkId"),
@@ -47,7 +47,7 @@ export const ChunkId = S.String.pipe(
  * Runtime type of {@link ChunkId}.
  *
  * @since 0.0.0
- * @category ids
+ * @category identifiers
  */
 export type ChunkId = typeof ChunkId.Type;
 
@@ -62,7 +62,7 @@ export type ChunkId = typeof ChunkId.Type;
  * ```
  *
  * @since 0.0.0
- * @category ids
+ * @category identifiers
  */
 export const MentionId = S.String.pipe(
   S.brand("MentionId"),
@@ -73,7 +73,7 @@ export const MentionId = S.String.pipe(
  * Runtime type of {@link MentionId}.
  *
  * @since 0.0.0
- * @category ids
+ * @category identifiers
  */
 export type MentionId = typeof MentionId.Type;
 
@@ -88,7 +88,7 @@ export type MentionId = typeof MentionId.Type;
  * ```
  *
  * @since 0.0.0
- * @category ids
+ * @category identifiers
  */
 export const EntityId = S.String.pipe(
   S.brand("EntityId"),
@@ -99,7 +99,7 @@ export const EntityId = S.String.pipe(
  * Runtime type of {@link EntityId}.
  *
  * @since 0.0.0
- * @category ids
+ * @category identifiers
  */
 export type EntityId = typeof EntityId.Type;
 
@@ -114,7 +114,7 @@ export type EntityId = typeof EntityId.Type;
  * ```
  *
  * @since 0.0.0
- * @category ids
+ * @category identifiers
  */
 export const RelationId = S.String.pipe(
   S.brand("RelationId"),
@@ -125,7 +125,7 @@ export const RelationId = S.String.pipe(
  * Runtime type of {@link RelationId}.
  *
  * @since 0.0.0
- * @category ids
+ * @category identifiers
  */
 export type RelationId = typeof RelationId.Type;
 

@@ -357,7 +357,7 @@ export const Lemma: (content: string, metadata?: Record<string, unknown>) => Typ
 /**
  * Structural containment hierarchy: which kinds can contain which others.
  *
- * Forms a poset where `A` containing `B` means "A > B".
+ * Forms a poset where `A` containing `B` means `A > B`.
  *
  * @since 0.0.0
  * @category models
@@ -468,7 +468,7 @@ export const kindOf = <K extends TextKind>(text: TypedText<K>): K => text.kind;
  * ```
  *
  * @since 0.0.0
- * @category transformations
+ * @category mapping
  */
 export const mapContent = <K extends TextKind>(text: TypedText<K>, f: (content: string) => string): TypedText<K> => ({
   ...text,
@@ -486,7 +486,7 @@ export const mapContent = <K extends TextKind>(text: TypedText<K>, f: (content: 
  * ```
  *
  * @since 0.0.0
- * @category transformations
+ * @category mapping
  */
 export const withMetadata = <K extends TextKind>(
   text: TypedText<K>,
@@ -522,7 +522,7 @@ export const isKind =
  * ```
  *
  * @since 0.0.0
- * @category transformations
+ * @category mapping
  */
 export const recast = <K extends TextKind>(text: TypedText<TextKind>, newKind: K): TypedText<K> => ({
   ...text,

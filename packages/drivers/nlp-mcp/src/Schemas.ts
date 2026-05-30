@@ -1,5 +1,5 @@
 /**
- * MCP tool input/output schemas for the @beep/nlp MCP server.
+ * MCP tool input/output schemas for the `@beep/nlp` MCP server.
  *
  * Schema-first I/O contracts for each NLP tool exposed over the Model Context
  * Protocol: the parameter schemas validate incoming tool calls and the output
@@ -8,8 +8,8 @@
  * extractEntities) in a flat, JSON-friendly form.
  *
  * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp-mcp`:
- * `Schema.Class("Name")` becomes `S.Class($I\`Name\`)(fields, $I.annote(...))` and
- * field constraints use v4 `S.check` combinators.
+ * `Schema.Class("Name")` becomes the identity-composer `S.Class` form with
+ * `annote` metadata, and field constraints use v4 `S.check` combinators.
  *
  * @since 0.0.0
  * @packageDocumentation

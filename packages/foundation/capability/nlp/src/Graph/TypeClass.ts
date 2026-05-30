@@ -148,7 +148,7 @@ export interface Foldable<F, A> {
  * node data in graph order.
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const foldableGraph = <A>(): Foldable<EffectGraph<A>, A> => ({
   fold: (graph, algebra, initial) =>
@@ -353,7 +353,7 @@ export const flatMap = <A, B, C, R1, E1, R2, E2>(
  * Apply an operation of functions to an operation of values (Cartesian product).
  *
  * @since 0.0.0
- * @category applicative
+ * @category combinators
  */
 export const ap = <A, B, C, R1, E1, R2, E2>(
   opFn: TextOperation<A, (b: B) => C, R1, E1>,
@@ -377,7 +377,7 @@ export const ap = <A, B, C, R1, E1, R2, E2>(
  * Lift a value into an operation that always produces it.
  *
  * @since 0.0.0
- * @category applicative
+ * @category combinators
  */
 export const pure = <A, B>(value: B): TextOperation<A, B> =>
   makeOperation("pure", (node) => Effect.map(makeNode(value, O.some(node.id), O.some("pure")), A.of));
@@ -390,7 +390,7 @@ export const pure = <A, B>(value: B): TextOperation<A, B> =>
  * Sequence dependent operations: the first's outputs choose the next operation.
  *
  * @since 0.0.0
- * @category monad
+ * @category combinators
  */
 export const chain = <A, B, C, R1, E1, R2, E2>(
   operation: TextOperation<A, B, R1, E1>,
@@ -412,7 +412,7 @@ export const chain = <A, B, C, R1, E1, R2, E2>(
  * Flatten nested operations (alias of {@link chain}).
  *
  * @since 0.0.0
- * @category monad
+ * @category combinators
  */
 export const flatten = <A, B, C, R1, E1, R2, E2>(
   operation: TextOperation<A, B, R1, E1>,
@@ -427,7 +427,7 @@ export const flatten = <A, B, C, R1, E1, R2, E2>(
  * Combine two operations, collecting results from both (parallel branching).
  *
  * @since 0.0.0
- * @category alternative
+ * @category combinators
  */
 export const alt = <A, B, R1, E1, R2, E2>(
   op1: TextOperation<A, B, R1, E1>,
@@ -446,7 +446,7 @@ export const alt = <A, B, R1, E1, R2, E2>(
  * The empty operation (identity for {@link alt}): produces no nodes.
  *
  * @since 0.0.0
- * @category alternative
+ * @category combinators
  */
 export const empty = <A, B>(): TextOperation<A, B> =>
   makeOperation("empty", () => Effect.succeed(A.empty<GraphNode<B>>()));
@@ -459,7 +459,7 @@ export const empty = <A, B>(): TextOperation<A, B> =>
  * Traverse an operation's outputs with an effectful function.
  *
  * @since 0.0.0
- * @category traversable
+ * @category combinators
  */
 export const traverse = <A, B, C, R1, E1, R2, E2>(
   operation: TextOperation<A, B, R1, E1>,

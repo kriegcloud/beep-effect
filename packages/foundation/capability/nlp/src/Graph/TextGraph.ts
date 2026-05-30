@@ -286,7 +286,7 @@ export const filterNodes = (graph: TextGraph, predicate: (node: TextNode) => boo
  * Depth-first node walker.
  *
  * @since 0.0.0
- * @category traversal
+ * @category sequencing
  */
 export const dfs = (graph: TextGraph, start?: ReadonlyArray<Graph.NodeIndex>): Graph.NodeWalker<TextNode> =>
   Graph.dfs(graph, start !== undefined ? { start: A.fromIterable(start) } : undefined);
@@ -295,7 +295,7 @@ export const dfs = (graph: TextGraph, start?: ReadonlyArray<Graph.NodeIndex>): G
  * Breadth-first node walker.
  *
  * @since 0.0.0
- * @category traversal
+ * @category sequencing
  */
 export const bfs = (graph: TextGraph, start?: ReadonlyArray<Graph.NodeIndex>): Graph.NodeWalker<TextNode> =>
   Graph.bfs(graph, start !== undefined ? { start: A.fromIterable(start) } : undefined);
@@ -304,7 +304,7 @@ export const bfs = (graph: TextGraph, start?: ReadonlyArray<Graph.NodeIndex>): G
  * Topological node walker (parents before children).
  *
  * @since 0.0.0
- * @category traversal
+ * @category sequencing
  */
 export const topo = (graph: TextGraph): Graph.NodeWalker<TextNode> => Graph.topo(graph);
 
@@ -436,7 +436,7 @@ export const show = (graph: TextGraph): string => {
  * Whether the graph is acyclic (a DAG).
  *
  * @since 0.0.0
- * @category algorithms
+ * @category utilities
  */
 export const isAcyclic = (graph: TextGraph): boolean => Graph.isAcyclic(graph);
 
@@ -444,7 +444,7 @@ export const isAcyclic = (graph: TextGraph): boolean => Graph.isAcyclic(graph);
  * Strongly connected components.
  *
  * @since 0.0.0
- * @category algorithms
+ * @category utilities
  */
 export const stronglyConnectedComponents = (graph: TextGraph): ReadonlyArray<ReadonlyArray<Graph.NodeIndex>> =>
   Graph.stronglyConnectedComponents(graph);

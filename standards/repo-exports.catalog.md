@@ -2549,9 +2549,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/nlp-mcp` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:11` |  |
+| `@beep/nlp-mcp` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:12` |  |
 | `@beep/nlp-mcp/bin` | `SERVER_CONFIG` | const | `packages/drivers/nlp-mcp/src/bin.ts:24` | The server identity advertised to MCP clients by this entrypoint. |
-| `@beep/nlp-mcp/index` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:11` |  |
+| `@beep/nlp-mcp/index` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:12` |  |
 | `@beep/nlp-mcp/Schemas` | `EntityEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:100` | A single extracted named entity. |
 | `@beep/nlp-mcp/Schemas` | `EntityOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:167` | Output of the named-entity extraction tool. |
 | `@beep/nlp-mcp/Schemas` | `LemmaEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:85` | A single lemmatized token. |
@@ -2561,11 +2561,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp-mcp/Schemas` | `POSOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:139` | Output of the part-of-speech tagging tool. |
 | `@beep/nlp-mcp/Schemas` | `TextArrayOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:125` | Output of a tool that returns an array of strings (tokens or sentences). |
 | `@beep/nlp-mcp/Schemas` | `TextInput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:36` | Parameters for a text-only NLP tool call. |
-| `@beep/nlp-mcp/Server` | `BackendLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:127` | The live wink-nlp backend layer (the default {@link @beep/nlp/Backend!NLPBackend} |
+| `@beep/nlp-mcp/Server` | `BackendLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:129` | The live wink-nlp backend layer (the default {@link @beep/nlp/Backend#NLPBackend} |
 | `@beep/nlp-mcp/Server` | `makeNlpHandlers` | const | `packages/drivers/nlp-mcp/src/Server.ts:51` | Build the {@link Tools.NlpToolkit} handler record from an |
-| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:163` | Build the stdio-transport MCP server layer exposing the NLP toolkit. |
-| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:138` | Configuration for the MCP server identity advertised to clients. |
-| `@beep/nlp-mcp/Server` | `NlpToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:110` | The handler layer binding each {@link Tools.NlpToolkit} tool to an |
+| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:165` | Build the stdio-transport MCP server layer exposing the NLP toolkit. |
+| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:140` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp/Server` | `NlpToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:112` | The handler layer binding each {@link Tools.NlpToolkit} tool to an |
 | `@beep/nlp-mcp/Tools` | `ExtractEntities` | const | `packages/drivers/nlp-mcp/src/Tools.ts:114` | Extract named entities from text. |
 | `@beep/nlp-mcp/Tools` | `Lemmatize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:94` | Reduce each token to its canonical lemma. |
 | `@beep/nlp-mcp/Tools` | `NlpToolkit` | const | `packages/drivers/nlp-mcp/src/Tools.ts:134` | The toolkit bundling every NLP tool exposed by this MCP server. |
@@ -7477,39 +7477,39 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp` | `VariantText` | SourceFile | `packages/foundation/capability/nlp/src/VariantText.ts:7` |  |
 | `@beep/nlp` | `VERSION` | const | `packages/foundation/capability/nlp/src/index.ts:22` | Package version constant. |
 | `@beep/nlp` | `Wink` | SourceFile | `packages/foundation/capability/nlp/src/Wink/index.ts:7` |  |
-| `@beep/nlp/Algebra` | `Monoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:1` |  |
+| `@beep/nlp/Algebra` | `Monoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:8` |  |
 | `@beep/nlp/Algebra` | `NLPMonoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:25` |  |
-| `@beep/nlp/Algebra/index` | `Monoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:1` |  |
+| `@beep/nlp/Algebra/index` | `Monoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:8` |  |
 | `@beep/nlp/Algebra/index` | `NLPMonoid` | SourceFile | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:25` |  |
-| `@beep/nlp/Algebra/Monoid` | `ArrayConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:187` | Array concatenation monoid (empty: []). |
-| `@beep/nlp/Algebra/Monoid` | `BooleanAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:388` | Logical AND monoid (empty: true). |
-| `@beep/nlp/Algebra/Monoid` | `BooleanAny` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:399` | Logical OR monoid (empty: false). |
-| `@beep/nlp/Algebra/Monoid` | `checkAssociativity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:438` | Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z) |
-| `@beep/nlp/Algebra/Monoid` | `checkLaws` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:456` | Check all monoid laws against a representative triple. |
-| `@beep/nlp/Algebra/Monoid` | `checkLeftIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:414` | Check left identity law: empty ⊕ x = x |
-| `@beep/nlp/Algebra/Monoid` | `checkRightIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:426` | Check right identity law: x ⊕ empty = x |
-| `@beep/nlp/Algebra/Monoid` | `combineAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:72` | Combine an array of values using a monoid, seeded with the identity. |
-| `@beep/nlp/Algebra/Monoid` | `Dual` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:373` | Dual monoid: reverse the order of combination (x ⊕' y = y ⊕ x). |
-| `@beep/nlp/Algebra/Monoid` | `Endo` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:358` | Endomorphism monoid: functions from A to A under composition (empty: identity). |
-| `@beep/nlp/Algebra/Monoid` | `fold` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:56` | Fold a collection using a monoid |
-| `@beep/nlp/Algebra/Monoid` | `getAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:293` | Extract the average from a {@link VectorAverage} result. |
-| `@beep/nlp/Algebra/Monoid` | `make` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:42` | Helper to create a Monoid instance |
-| `@beep/nlp/Algebra/Monoid` | `Monoid` | interface | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:20` | Monoid type class |
-| `@beep/nlp/Algebra/Monoid` | `MultiSet` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:205` | Multiset (bag) union monoid. |
-| `@beep/nlp/Algebra/Monoid` | `NumberMax` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:161` | Max monoid for numbers (empty: -Infinity). |
-| `@beep/nlp/Algebra/Monoid` | `NumberMin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:172` | Min monoid for numbers (empty: Infinity). |
-| `@beep/nlp/Algebra/Monoid` | `NumberProduct` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:150` | Multiplication monoid for numbers (empty: 1). |
-| `@beep/nlp/Algebra/Monoid` | `NumberSum` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:139` | Addition monoid for numbers (empty: 0). |
-| `@beep/nlp/Algebra/Monoid` | `Option` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:334` | Lift a monoid through Option: combine point-wise, treating `None` as the identity. |
-| `@beep/nlp/Algebra/Monoid` | `Product` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:308` | Product monoid: combine two monoids component-wise. |
-| `@beep/nlp/Algebra/Monoid` | `Product3` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:319` | Triple product monoid. |
-| `@beep/nlp/Algebra/Monoid` | `SetIntersection` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:236` | Set intersection monoid. |
-| `@beep/nlp/Algebra/Monoid` | `SetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:220` | Set union monoid (empty: ∅). |
-| `@beep/nlp/Algebra/Monoid` | `StringConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:90` | String concatenation monoid. |
-| `@beep/nlp/Algebra/Monoid` | `StringDelimited` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:118` | String join with prefix and suffix, useful for creating delimited lists. |
-| `@beep/nlp/Algebra/Monoid` | `StringJoin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:103` | String join with separator monoid. |
-| `@beep/nlp/Algebra/Monoid` | `VectorAdd` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:266` | Vector addition monoid (element-wise addition; empty: zero vector). |
-| `@beep/nlp/Algebra/Monoid` | `VectorAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:277` | Vector average monoid (tracks sum and count to compute a running average). |
+| `@beep/nlp/Algebra/Monoid` | `ArrayConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:194` | Array concatenation monoid (empty: []). |
+| `@beep/nlp/Algebra/Monoid` | `BooleanAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:385` | Logical AND monoid (empty: true). |
+| `@beep/nlp/Algebra/Monoid` | `BooleanAny` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:396` | Logical OR monoid (empty: false). |
+| `@beep/nlp/Algebra/Monoid` | `checkAssociativity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:435` | Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z) |
+| `@beep/nlp/Algebra/Monoid` | `checkLaws` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:453` | Check all monoid laws against a representative triple. |
+| `@beep/nlp/Algebra/Monoid` | `checkLeftIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:411` | Check left identity law: empty ⊕ x = x |
+| `@beep/nlp/Algebra/Monoid` | `checkRightIdentity` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:423` | Check right identity law: x ⊕ empty = x |
+| `@beep/nlp/Algebra/Monoid` | `combineAll` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:79` | Combine an array of values using a monoid, seeded with the identity. |
+| `@beep/nlp/Algebra/Monoid` | `Dual` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:370` | Dual monoid: reverse the order of combination (x ⊕' y = y ⊕ x). |
+| `@beep/nlp/Algebra/Monoid` | `Endo` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:355` | Endomorphism monoid: functions from A to A under composition (empty: identity). |
+| `@beep/nlp/Algebra/Monoid` | `fold` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:63` | Fold a collection using a monoid |
+| `@beep/nlp/Algebra/Monoid` | `getAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:294` | Extract the average from a {@link VectorAverage} result. |
+| `@beep/nlp/Algebra/Monoid` | `make` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:49` | Helper to create a Monoid instance |
+| `@beep/nlp/Algebra/Monoid` | `Monoid` | interface | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:27` | Monoid type class |
+| `@beep/nlp/Algebra/Monoid` | `MultiSet` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:212` | Multiset (bag) union monoid. |
+| `@beep/nlp/Algebra/Monoid` | `NumberMax` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:168` | Max monoid for numbers (empty: -Infinity). |
+| `@beep/nlp/Algebra/Monoid` | `NumberMin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:179` | Min monoid for numbers (empty: Infinity). |
+| `@beep/nlp/Algebra/Monoid` | `NumberProduct` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:157` | Multiplication monoid for numbers (empty: 1). |
+| `@beep/nlp/Algebra/Monoid` | `NumberSum` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:146` | Addition monoid for numbers (empty: 0). |
+| `@beep/nlp/Algebra/Monoid` | `Option` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:335` | Lift a monoid through Option: combine point-wise, treating `None` as the identity. |
+| `@beep/nlp/Algebra/Monoid` | `Product` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:309` | Product monoid: combine two monoids component-wise. |
+| `@beep/nlp/Algebra/Monoid` | `Product3` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:320` | Triple product monoid. |
+| `@beep/nlp/Algebra/Monoid` | `SetIntersection` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:243` | Set intersection monoid. |
+| `@beep/nlp/Algebra/Monoid` | `SetUnion` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:227` | Set union monoid (empty: ∅). |
+| `@beep/nlp/Algebra/Monoid` | `StringConcat` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:97` | String concatenation monoid. |
+| `@beep/nlp/Algebra/Monoid` | `StringDelimited` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:125` | String join with prefix and suffix, useful for creating delimited lists. |
+| `@beep/nlp/Algebra/Monoid` | `StringJoin` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:110` | String join with separator monoid. |
+| `@beep/nlp/Algebra/Monoid` | `VectorAdd` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:267` | Vector addition monoid (element-wise addition; empty: zero vector). |
+| `@beep/nlp/Algebra/Monoid` | `VectorAverage` | const | `packages/foundation/capability/nlp/src/Algebra/Monoid.ts:278` | Vector average monoid (tracks sum and count to compute a running average). |
 | `@beep/nlp/Algebra/NLPMonoid` | `aggregateSentences` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:400` | Aggregate sentences into a single document string. |
 | `@beep/nlp/Algebra/NLPMonoid` | `aggregateStats` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:408` | Aggregate document statistics. |
 | `@beep/nlp/Algebra/NLPMonoid` | `aggregateTokens` | const | `packages/foundation/capability/nlp/src/Algebra/NLPMonoid.ts:385` | Aggregate tokens into a bag of words. |
@@ -7892,27 +7892,27 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Graph/AnnotatedTextGraph` | `nodeCount` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:476` | Total node count. |
 | `@beep/nlp/Graph/AnnotatedTextGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts:467` | All nodes as an array. |
 | `@beep/nlp/Graph/EffectGraph` | `addNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:252` | Add a node to the graph, recalculating its depth from its parent and linking |
-| `@beep/nlp/Graph/EffectGraph` | `ana` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:392` | Anamorphism: top-down unfold building a graph from a seed (dual of {@link cata}). |
-| `@beep/nlp/Graph/EffectGraph` | `cata` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:347` | Catamorphism: bottom-up fold over the graph (children before parents). |
+| `@beep/nlp/Graph/EffectGraph` | `ana` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:388` | Anamorphism: top-down unfold building a graph from a seed (dual of {@link cata}). |
+| `@beep/nlp/Graph/EffectGraph` | `cata` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:343` | Catamorphism: bottom-up fold over the graph (children before parents). |
 | `@beep/nlp/Graph/EffectGraph` | `EffectGraph` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:150` | A directed acyclic graph of {@link GraphNode}s, backed by `effect/Graph` with |
 | `@beep/nlp/Graph/EffectGraph` | `empty` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:206` | Create an empty {@link EffectGraph}. |
 | `@beep/nlp/Graph/EffectGraph` | `generateNodeId` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:84` | Generate a fresh, unique {@link NodeId} (timestamp + random suffix). |
-| `@beep/nlp/Graph/EffectGraph` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:309` | Get all children of a node. |
-| `@beep/nlp/Graph/EffectGraph` | `getNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:300` | Get a node by id. |
-| `@beep/nlp/Graph/EffectGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:322` | Get all root nodes (those with no incoming edges). |
-| `@beep/nlp/Graph/EffectGraph` | `GraphAlgebra` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:339` | F-algebra: collapse a node and its already-processed children into a result. |
-| `@beep/nlp/Graph/EffectGraph` | `GraphCoalgebra` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:384` | Coalgebra: from a seed, produce node data and child seeds. |
+| `@beep/nlp/Graph/EffectGraph` | `getChildren` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:305` | Get all children of a node. |
+| `@beep/nlp/Graph/EffectGraph` | `getNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:296` | Get a node by id. |
+| `@beep/nlp/Graph/EffectGraph` | `getRoots` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:318` | Get all root nodes (those with no incoming edges). |
+| `@beep/nlp/Graph/EffectGraph` | `GraphAlgebra` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:335` | F-algebra: collapse a node and its already-processed children into a result. |
+| `@beep/nlp/Graph/EffectGraph` | `GraphCoalgebra` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:380` | Coalgebra: from a seed, produce node data and child seeds. |
 | `@beep/nlp/Graph/EffectGraph` | `GraphNode` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:132` | A node in the directed acyclic graph: an id, a data payload, an optional parent |
 | `@beep/nlp/Graph/EffectGraph` | `makeNode` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:173` | Create a new {@link GraphNode} (effectful: reads `Clock` + a random id). |
 | `@beep/nlp/Graph/EffectGraph` | `makeNodeId` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:69` | Constructor for {@link NodeId}. |
-| `@beep/nlp/Graph/EffectGraph` | `map` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:423` | Map over all node data, preserving graph structure (the Functor instance). |
+| `@beep/nlp/Graph/EffectGraph` | `map` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:419` | Map over all node data, preserving graph structure (the Functor instance). |
 | `@beep/nlp/Graph/EffectGraph` | `NodeId` | type | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:54` | Unique identifier for graph nodes. |
 | `@beep/nlp/Graph/EffectGraph` | `NodeMetadata` | interface | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:119` | Per-node processing metadata. |
 | `@beep/nlp/Graph/EffectGraph` | `NodeNotFoundError` | class | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:103` | Error raised when a node is not found in the graph. |
-| `@beep/nlp/Graph/EffectGraph` | `show` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:481` | Render the graph as an indented plain-text tree. |
+| `@beep/nlp/Graph/EffectGraph` | `show` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:477` | Render the graph as an indented plain-text tree. |
 | `@beep/nlp/Graph/EffectGraph` | `singleton` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:225` | Create an {@link EffectGraph} with a single root node (effectful via {@link makeNode}). |
-| `@beep/nlp/Graph/EffectGraph` | `size` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:473` | Number of nodes in the graph. |
-| `@beep/nlp/Graph/EffectGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:464` | Collect all nodes as an array (topologically ordered by the backing graph). |
+| `@beep/nlp/Graph/EffectGraph` | `size` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:469` | Number of nodes in the graph. |
+| `@beep/nlp/Graph/EffectGraph` | `toArray` | const | `packages/foundation/capability/nlp/src/Graph/EffectGraph.ts:460` | Collect all nodes as an array (topologically ordered by the backing graph). |
 | `@beep/nlp/Graph/GraphOperations` | `Catalog` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Catalog.ts:27` |  |
 | `@beep/nlp/Graph/GraphOperations` | `Errors` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Errors.ts:13` |  |
 | `@beep/nlp/Graph/GraphOperations` | `Executor` | SourceFile | `packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts:27` |  |
@@ -8793,21 +8793,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:177` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1385` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1523` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2053` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2069` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1453` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1671` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:407` | Results for local-file reuse lookups. |
 | `@beep/repo-utils` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:333` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1487` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1849` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:377` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:245` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
-| `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1415` | Service tag for reuse partition planning. |
+| `@beep/repo-utils` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1568` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2154` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:141` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:213` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
@@ -9005,21 +9005,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:177` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/index` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/index` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1385` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1523` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2053` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2069` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1453` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1671` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:407` | Results for local-file reuse lookups. |
 | `@beep/repo-utils/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:333` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1487` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1849` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:377` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:245` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1415` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1568` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2154` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:141` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:213` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
@@ -9950,21 +9950,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogEntry` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:177` | Catalog entry describing an existing reusable symbol or curated pattern. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogOrigin` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:27` | Catalog entry origin domain. |
 | `@beep/repo-utils/Reuse/index` | `ReuseCatalogOrigin` | type | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:49` | Runtime type for `ReuseCatalogOrigin`. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1385` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1523` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2053` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/index` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2069` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1453` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/Reuse/index` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1671` | Default live layer for reuse candidate discovery and local option lookup. |
 | `@beep/repo-utils/Reuse/index` | `ReuseFindResult` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:407` | Results for local-file reuse lookups. |
 | `@beep/repo-utils/Reuse/index` | `ReuseInventory` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:333` | Inventory payload produced for a requested scope. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1487` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/Reuse/index` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1849` | Default live layer for ranked reuse inventories and implementation packets. |
 | `@beep/repo-utils/Reuse/index` | `ReusePacket` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:377` | Materialized implementation packet for one reuse candidate. |
 | `@beep/repo-utils/Reuse/index` | `ReusePartitionPlan` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:245` | Partition plan covering scout and specialist work units for a selected scope. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1415` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/Reuse/index` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1568` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/Reuse/index` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2154` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/Reuse/index` | `ReuseSourceSymbolRef` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:141` | File-local source symbol reference tied to a reuse opportunity. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnit` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:213` | Partition work unit emitted for package scouts or hotspot specialists. |
 | `@beep/repo-utils/Reuse/index` | `ReuseWorkUnitKind` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts:63` | Partition work-unit kind. |
@@ -9987,17 +9987,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/Reuse/Reuse.service` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:609` | Normalize a declaration to a structural signature that ignores formatting, |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReuseAnalysisError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:119` | Typed error returned when reuse analysis cannot complete a repository scan or lookup. |
 | `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCandidateNotFoundError` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:145` | Typed error returned when a requested candidate id is absent from the current reuse inventory. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1387` | Service tag for the reuse catalog contract. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1525` | Default live layer for building the shared reuse catalog. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2055` | Service tag for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2071` | Default live layer for declaration-anchored structural clone detection. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1455` | Service tag for reuse candidate discovery. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1673` | Default live layer for reuse candidate discovery and local option lookup. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1489` | Service tag for reuse inventory materialization. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1851` | Default live layer for ranked reuse inventories and implementation packets. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1417` | Service tag for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1570` | Default live layer for reuse partition planning. |
-| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2156` | Fully wired reuse-discovery layer suite for CLI and tests. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1385` | Service tag for the reuse catalog contract. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCatalogServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1523` | Default live layer for building the shared reuse catalog. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2053` | Service tag for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseCloneServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2069` | Default live layer for declaration-anchored structural clone detection. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1453` | Service tag for reuse candidate discovery. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseDiscoveryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1671` | Default live layer for reuse candidate discovery and local option lookup. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1487` | Service tag for reuse inventory materialization. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseInventoryServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1849` | Default live layer for ranked reuse inventories and implementation packets. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerService` | class | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1415` | Service tag for reuse partition planning. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReusePartitionPlannerServiceLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:1568` | Default live layer for reuse partition planning. |
+| `@beep/repo-utils/Reuse/Reuse.service` | `ReuseServiceSuiteLive` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:2154` | Fully wired reuse-discovery layer suite for CLI and tests. |
 | `@beep/repo-utils/Reuse/TokenSimilarity` | `fnv1a32` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:39` | 32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the |
 | `@beep/repo-utils/Reuse/TokenSimilarity` | `jaccardSimilarity` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:193` | Exact Jaccard similarity between two shingle sets: `\|A ∩ B\| / \|A ∪ B\|`. Two |
 | `@beep/repo-utils/Reuse/TokenSimilarity` | `lshBandKeys` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:160` | Project a MinHash signature into `bands` LSH band keys. The signature is split |

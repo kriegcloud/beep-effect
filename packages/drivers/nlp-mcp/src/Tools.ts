@@ -1,5 +1,5 @@
 /**
- * MCP tool definitions for the @beep/nlp MCP server.
+ * MCP tool definitions for the `@beep/nlp` MCP server.
  *
  * Declares each NLP operation as an `effect/unstable/ai` {@link Tool} with a
  * schema-validated parameter and success contract, and bundles them into a single
@@ -129,6 +129,6 @@ export const ExtractEntities = Tool.make("nlp_entities", {
  * ```
  *
  * @since 0.0.0
- * @category toolkit
+ * @category tools
  */
 export const NlpToolkit = Toolkit.make(Sentencize, Tokenize, PosTag, Lemmatize, ExtractEntities);

@@ -18,29 +18,25 @@ import * as Layer from "effect/Layer";
 const TestLayer = Layer.provide(NLPService.layer(WinkBackendLive), WinkEngine.WinkEngineLive);
 
 describe("NLPService", () => {
-  it.effect("processText builds an annotated text graph with a document root", () =>
-    Effect.gen(function* () {
-      const graph = yield* NLPService.processText("The cat sat. The dog ran.");
-      // a non-empty graph with at least the document + sentence structure
-      expect(EffectGraph.nodeCount(graph)).toBeGreaterThan(0);
-      const docs = Graph.getTextNodes(graph).filter((entry) => entry.node.type === "document");
-      expect(docs.length).toBe(1);
-    }).pipe(provideScopedLayer(TestLayer))
+  it.effect("processText builds an annotated text graph with a document root", Effect.fn(function* () {
+    const graph = yield* NLPService.processText("The cat sat. The dog ran.");
+    expect(EffectGraph.nodeCount(graph)).toBeGreaterThan(0);
+    const docs = Graph.getTextNodes(graph).filter(entry => entry.node.type === "document");
+    expect(docs.length).toBe(1);
+}, provideScopedLayer(TestLayer))
   );
 
-  it.effect("tagPartsOfSpeech delegates to the backend", () =>
-    Effect.gen(function* () {
-      const tagged = yield* NLPService.tagPartsOfSpeech("dogs run");
-      expect(tagged.length).toBe(2);
-    }).pipe(provideScopedLayer(TestLayer))
+  it.effect("tagPartsOfSpeech delegates to the backend", Effect.fn(function* () {
+    const tagged = yield* NLPService.tagPartsOfSpeech("dogs run");
+    expect(tagged.length).toBe(2);
+}, provideScopedLayer(TestLayer))
   );
 
-  it.effect("extractEntities delegates to the backend", () =>
-    Effect.gen(function* () {
-      const entities = yield* NLPService.extractEntities("Meet me at 5pm.");
-      for (const entity of entities) {
+  it.effect("extractEntities delegates to the backend", Effect.fn(function* () {
+    const entities = yield* NLPService.extractEntities("Meet me at 5pm.");
+    for (const entity of entities) {
         expect(typeof entity.entityType).toBe("string");
-      }
-    }).pipe(provideScopedLayer(TestLayer))
+    }
+}, provideScopedLayer(TestLayer))
   );
 });

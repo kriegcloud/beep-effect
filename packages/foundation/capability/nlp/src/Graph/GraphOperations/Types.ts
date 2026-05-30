@@ -92,7 +92,7 @@ export interface ExecutionMetrics {
  * ```
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const ExecutionMetrics = {
   empty: (): ExecutionMetrics => ({

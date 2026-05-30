@@ -16,7 +16,7 @@
  * ```
  *
  * @since 0.0.0
- * @category algebra
+ * @category combinators
  */
 export * as Monoid from "./Monoid.ts";
 /**
@@ -30,6 +30,6 @@ export * as Monoid from "./Monoid.ts";
  * ```
  *
  * @since 0.0.0
- * @category algebra
+ * @category combinators
  */
 export * as NLPMonoid from "./NLPMonoid.ts";

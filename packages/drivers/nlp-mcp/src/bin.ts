@@ -1,5 +1,5 @@
 /**
- * stdio entrypoint for the @beep/nlp MCP server.
+ * stdio entrypoint for the `@beep/nlp` MCP server.
  *
  * Launches the {@link Server.makeServerLayer} stdio-transport MCP server so an
  * MCP client (e.g. an editor or agent runtime) can call the NLP tools over

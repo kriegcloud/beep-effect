@@ -7,10 +7,10 @@
  * decode/encode like any other `@beep/schema` model.
  */
 
+import * as Backend from "@beep/nlp/Backend/NLPBackend";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import * as Backend from "../../src/Backend/NLPBackend.ts";
 
 const capabilities: Backend.BackendCapabilities = {
   tokenization: true,
@@ -95,13 +95,12 @@ describe("Failure constructors", () => {
 });
 
 describe("Tagged errors are schema-decodable", () => {
-  it.effect("BackendNotSupported round-trips through encode/decode", () =>
-    Effect.gen(function* () {
-      const err = Backend.notSupported("wink", "posTag");
-      const encoded = yield* S.encodeEffect(Backend.BackendNotSupported)(err);
-      const decoded = yield* S.decodeUnknownEffect(Backend.BackendNotSupported)(encoded);
-      expect(decoded.backend).toBe("wink");
-      expect(decoded.operation).toBe("posTag");
-    })
+  it.effect("BackendNotSupported round-trips through encode/decode", Effect.fn(function* () {
+    const err = Backend.notSupported("wink", "posTag");
+    const encoded = yield* S.encodeEffect(Backend.BackendNotSupported)(err);
+    const decoded = yield* S.decodeUnknownEffect(Backend.BackendNotSupported)(encoded);
+    expect(decoded.backend).toBe("wink");
+    expect(decoded.operation).toBe("posTag");
+})
   );
 });

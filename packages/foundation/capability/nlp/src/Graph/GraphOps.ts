@@ -212,7 +212,7 @@ export const findNodes = <A, E>(
  * Fold over all node data in unspecified order.
  *
  * @since 0.0.0
- * @category folds
+ * @category folding
  */
 export const foldNodes = <A, E, B>(graph: DirectedGraph<A, E>, initial: B, f: (acc: B, node: A) => B): B =>
   A.reduce(A.fromIterable(graph.pipe(Graph.nodes, Graph.values)), initial, (acc, node) => f(acc, node));
@@ -221,7 +221,7 @@ export const foldNodes = <A, E, B>(graph: DirectedGraph<A, E>, initial: B, f: (a
  * Fold over node data in a specific traversal order.
  *
  * @since 0.0.0
- * @category folds
+ * @category folding
  */
 export const foldTraversal = <A, E, B>(
   graph: DirectedGraph<A, E>,
@@ -303,7 +303,7 @@ export const getNode = <A, E>(graph: DirectedGraph<A, E>, nodeIndex: NodeIndex):
  * Build a search index from a graph (the `index` functor of `query ⊣ index`).
  *
  * @since 0.0.0
- * @category search
+ * @category queries
  */
 export const buildIndex = <A, E, K>(
   graph: DirectedGraph<A, E>,
@@ -329,7 +329,7 @@ export const buildIndex = <A, E, K>(
  * Query a search index for a single key (the `query` functor of `query ⊣ index`).
  *
  * @since 0.0.0
- * @category search
+ * @category queries
  */
 export const queryIndex = <K, A>(searchIndex: SearchIndex<K, A>, key: K): ReadonlyArray<NodeIndex> =>
   O.getOrElse(HashMap.get(searchIndex.index, key), A.empty<NodeIndex>);
@@ -338,7 +338,7 @@ export const queryIndex = <K, A>(searchIndex: SearchIndex<K, A>, key: K): Readon
  * Query a search index for any of several keys (union semantics, deduplicated).
  *
  * @since 0.0.0
- * @category search
+ * @category queries
  */
 export const queryIndexUnion = <K, A>(
   searchIndex: SearchIndex<K, A>,
@@ -354,7 +354,7 @@ export const queryIndexUnion = <K, A>(
  * Query a search index for all of several keys (intersection semantics).
  *
  * @since 0.0.0
- * @category search
+ * @category queries
  */
 export const queryIndexIntersection = <K, A>(
   searchIndex: SearchIndex<K, A>,
@@ -379,7 +379,7 @@ export const queryIndexIntersection = <K, A>(
  * Traverse the graph in order, running an effect per node (effects sequenced).
  *
  * @since 0.0.0
- * @category traversal
+ * @category sequencing
  */
 export const traverseNodes = <A, E, R, Err>(
   graph: DirectedGraph<A, E>,
@@ -395,7 +395,7 @@ export const traverseNodes = <A, E, R, Err>(
  * Traverse the graph in order, running an effect per node and collecting results.
  *
  * @since 0.0.0
- * @category traversal
+ * @category sequencing
  */
 export const traverseNodesCollect = <A, E, B, Err, R>(
   graph: DirectedGraph<A, E>,
@@ -446,7 +446,7 @@ export const mapNodesEffect = Effect.fn("mapNodesEffect")(function* <A, B, E, Er
  * Stream node data in a traversal order.
  *
  * @since 0.0.0
- * @category streaming
+ * @category streams
  */
 export const streamNodes = <A, E>(
   graph: DirectedGraph<A, E>,
@@ -458,7 +458,7 @@ export const streamNodes = <A, E>(
  * Stream `[index, node]` entries in a traversal order.
  *
  * @since 0.0.0
- * @category streaming
+ * @category streams
  */
 export const streamNodesWithIndex = <A, E>(
   graph: DirectedGraph<A, E>,
@@ -470,7 +470,7 @@ export const streamNodesWithIndex = <A, E>(
  * Stream node data in fixed-size batches.
  *
  * @since 0.0.0
- * @category streaming
+ * @category streams
  */
 export const batchNodes = <A, E>(
   graph: DirectedGraph<A, E>,
@@ -487,7 +487,7 @@ export const batchNodes = <A, E>(
  * Whether the graph is acyclic (a DAG).
  *
  * @since 0.0.0
- * @category algorithms
+ * @category utilities
  */
 export const isAcyclic = <A, E>(graph: DirectedGraph<A, E>): boolean => Graph.isAcyclic(graph);
 
@@ -495,7 +495,7 @@ export const isAcyclic = <A, E>(graph: DirectedGraph<A, E>): boolean => Graph.is
  * Strongly connected components.
  *
  * @since 0.0.0
- * @category algorithms
+ * @category utilities
  */
 export const stronglyConnectedComponents = <A, E>(
   graph: DirectedGraph<A, E>

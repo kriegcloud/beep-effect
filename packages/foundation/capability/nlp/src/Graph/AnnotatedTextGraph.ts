@@ -280,7 +280,7 @@ const addSentenceAnnotations = Effect.fn("AnnotatedTextGraph.addSentenceAnnotati
  * Add part-of-speech annotation nodes to each sentence (idempotent).
  *
  * @since 0.0.0
- * @category annotations
+ * @category mapping
  */
 export const addPOSAnnotations = (
   graph: AnnotatedTextGraph
@@ -296,7 +296,7 @@ export const addPOSAnnotations = (
  * Add lemma annotation nodes to each sentence (idempotent).
  *
  * @since 0.0.0
- * @category annotations
+ * @category mapping
  */
 export const addLemmaAnnotations = (
   graph: AnnotatedTextGraph
@@ -312,7 +312,7 @@ export const addLemmaAnnotations = (
  * Add named-entity annotation nodes to each sentence (idempotent).
  *
  * @since 0.0.0
- * @category annotations
+ * @category mapping
  */
 export const addEntityAnnotations = (
   graph: AnnotatedTextGraph
@@ -328,7 +328,7 @@ export const addEntityAnnotations = (
  * Add syntactic-dependency annotation nodes to each sentence (idempotent).
  *
  * @since 0.0.0
- * @category annotations
+ * @category mapping
  */
 export const addDependencyAnnotations = (
   graph: AnnotatedTextGraph

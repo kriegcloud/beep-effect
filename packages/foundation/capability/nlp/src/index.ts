@@ -32,7 +32,7 @@ export const VERSION = "0.0.0";
  * ```
  *
  * @since 0.0.0
- * @category algebra
+ * @category combinators
  */
 export * as Algebra from "./Algebra/index.ts";
 /**
@@ -46,7 +46,7 @@ export * as Algebra from "./Algebra/index.ts";
  * ```
  *
  * @since 0.0.0
- * @category backend
+ * @category ports
  */
 export * as Backend from "./Backend/index.ts";
 /**
@@ -75,7 +75,7 @@ export * as Core from "./Core/index.ts";
  * ```
  *
  * @since 0.0.0
- * @category graph
+ * @category models
  */
 export * as Graph from "./Graph/index.ts";
 /**
@@ -90,7 +90,7 @@ export * as Graph from "./Graph/index.ts";
  * ```
  *
  * @since 0.0.0
- * @category handoff
+ * @category interop
  */
 export * as Handoff from "./Handoff/index.ts";
 /**
@@ -141,7 +141,7 @@ export * as NLPService from "./NLPService.ts";
  * ```
  *
  * @since 0.0.0
- * @category ontology
+ * @category models
  */
 export * as Ontology from "./Ontology/index.ts";
 /**

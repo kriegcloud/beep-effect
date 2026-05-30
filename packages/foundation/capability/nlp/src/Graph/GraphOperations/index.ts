@@ -21,7 +21,7 @@
  * ```
  *
  * @since 0.0.0
- * @category catalog
+ * @category constants
  */
 export * as Catalog from "./Catalog.ts";
 /**
@@ -49,7 +49,7 @@ export * as Errors from "./Errors.ts";
  * ```
  *
  * @since 0.0.0
- * @category execution
+ * @category use-cases
  */
 export * as Executor from "./Executor.ts";
 /**
@@ -63,7 +63,7 @@ export * as Executor from "./Executor.ts";
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export * as Operation from "./Operation.ts";
 /**
@@ -77,7 +77,7 @@ export * as Operation from "./Operation.ts";
  * ```
  *
  * @since 0.0.0
- * @category storage
+ * @category repositories
  */
 export * as ResultStore from "./ResultStore.ts";
 /**

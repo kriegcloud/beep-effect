@@ -25,7 +25,7 @@
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export * as Composable from "./Composable.ts";
 /**
@@ -39,6 +39,6 @@ export * as Composable from "./Composable.ts";
  * ```
  *
  * @since 0.0.0
- * @category operations
+ * @category use-cases
  */
 export type * as Definition from "./Definition.ts";

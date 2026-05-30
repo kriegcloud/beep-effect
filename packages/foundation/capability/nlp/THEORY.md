@@ -191,18 +191,18 @@ faked:
 
 ## 11. Map: mathematics → modules
 
-| Concept | Module |
-| --- | --- |
-| Typed text strata (objects) | `src/Ontology` |
-| Graph carriers (node/edge schemas) | `src/Graph/Schema.ts` |
-| Monoids + typeclass hierarchy | `src/Graph/TypeClass.ts` |
-| Graph-level operations, cata/ana | `src/Graph/Operation.ts`, `src/Graph/GraphOps.ts` |
-| Operation spine (catalog/executor/store) | `src/Graph/GraphOperations/` |
-| Kleisli category of operations | `src/Operations/Definition.ts`, `src/Operations/Composable.ts` |
-| Backends as functors | `src/Backend/NLPBackend.ts`, `src/Backend/WinkBackend.ts` |
-| Free IR at the boundary | `src/Handoff/Contract.ts` |
-| Legacy/compat surface | `src/Core`, `src/Wink`, `src/Tools`, `src/Layers` |
-| MCP re-exposure (driver) | `@beep/nlp-mcp` |
+| Concept                                  | Module                                                        |
+| ---------------------------------------- | ------------------------------------------------------------- |
+| Typed text strata (objects)              | `src/Ontology`                                                |
+| Graph carriers (node/edge schemas)       | `src/Graph/Schema.ts`                                         |
+| Monoids + typeclass hierarchy            | `src/Graph/TypeClass.ts`                                      |
+| Graph-level operations, cata/ana         | `src/Graph/Operation.ts`, `src/Graph/GraphOps.ts`             |
+| Operation spine (catalog/executor/store) | `src/Graph/GraphOperations/`                                  |
+| Kleisli category of operations           | `src/Operations/Definition.ts`, `src/Operations/Composable.ts` |
+| Backends as functors                     | `src/Backend/NLPBackend.ts`, `src/Backend/WinkBackend.ts`     |
+| Free IR at the boundary                  | `src/Handoff/Contract.ts`                                     |
+| Legacy/compat surface                    | `src/Core`, `src/Wink`, `src/Tools`, `src/Layers`             |
+| MCP re-exposure (driver)                 | `@beep/nlp-mcp`                                               |
 
 ---
 

@@ -21,6 +21,6 @@
  * ```
  *
  * @since 0.0.0
- * @category handoff
+ * @category interop
  */
 export * as Contract from "./Contract.ts";

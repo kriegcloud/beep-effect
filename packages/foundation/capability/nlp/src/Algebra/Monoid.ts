@@ -1,3 +1,10 @@
+/**
+ * Algebraic monoid primitives and reusable instances.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { A, O, Str, thunk0 } from "@beep/utils";
 import { HashMap } from "effect";
 import { dual } from "effect/Function";
@@ -85,7 +92,7 @@ export const combineAll =
  * - Combine: (x, y) =\> x + y
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const StringConcat: Monoid<string> = {
   empty: "",
@@ -98,7 +105,7 @@ export const StringConcat: Monoid<string> = {
  * Combines strings with a separator, intelligently handling empty strings.
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const StringJoin = (separator: string): Monoid<string> => ({
   empty: "",
@@ -113,7 +120,7 @@ export const StringJoin = (separator: string): Monoid<string> => ({
  * String join with prefix and suffix, useful for creating delimited lists.
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const StringDelimited = (prefix: string, suffix: string, separator: string): Monoid<string> => ({
   empty: "",
@@ -134,7 +141,7 @@ export const StringDelimited = (prefix: string, suffix: string, separator: strin
  * Addition monoid for numbers (empty: 0).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const NumberSum: Monoid<number> = {
   empty: 0,
@@ -145,7 +152,7 @@ export const NumberSum: Monoid<number> = {
  * Multiplication monoid for numbers (empty: 1).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const NumberProduct: Monoid<number> = {
   empty: 1,
@@ -156,7 +163,7 @@ export const NumberProduct: Monoid<number> = {
  * Max monoid for numbers (empty: -Infinity).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const NumberMax: Monoid<number> = {
   empty: Number.NEGATIVE_INFINITY,
@@ -167,7 +174,7 @@ export const NumberMax: Monoid<number> = {
  * Min monoid for numbers (empty: Infinity).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const NumberMin: Monoid<number> = {
   empty: Number.POSITIVE_INFINITY,
@@ -182,7 +189,7 @@ export const NumberMin: Monoid<number> = {
  * Array concatenation monoid (empty: []).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const ArrayConcat = <A>(): Monoid<ReadonlyArray<A>> => ({
   empty: [],
@@ -200,7 +207,7 @@ export const ArrayConcat = <A>(): Monoid<ReadonlyArray<A>> => ({
  * Union adds the multiplicities.
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const MultiSet = <K>(): Monoid<HashMap.HashMap<K, number>> => ({
   empty: HashMap.empty(),
@@ -215,7 +222,7 @@ export const MultiSet = <K>(): Monoid<HashMap.HashMap<K, number>> => ({
  * Set union monoid (empty: ∅).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
   empty: new Set(),
@@ -231,7 +238,7 @@ export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
  * Only use when all elements come from a finite universe.
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const SetIntersection: <A>() => Monoid<O.Option<ReadonlySet<A>>> = <A>(): Monoid<O.Option<ReadonlySet<A>>> => ({
   empty: O.none(),
@@ -255,7 +262,7 @@ export const SetIntersection: <A>() => Monoid<O.Option<ReadonlySet<A>>> = <A>():
  * Vector addition monoid (element-wise addition; empty: zero vector).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const VectorAdd = (dimension: number): Monoid<ReadonlyArray<number>> => ({
   empty: A.replicate(0, dimension),
@@ -266,7 +273,7 @@ export const VectorAdd = (dimension: number): Monoid<ReadonlyArray<number>> => (
  * Vector average monoid (tracks sum and count to compute a running average).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const VectorAverage = (
   dimension: number
@@ -343,7 +350,7 @@ export const Option = <A>(monoid: Monoid<A>): Monoid<O.Option<A>> => ({
  * Endomorphism monoid: functions from A to A under composition (empty: identity).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const Endo = <A>(): Monoid<(a: A) => A> => ({
   empty: (a) => a,
@@ -373,7 +380,7 @@ export const Dual = <A>(monoid: Monoid<A>): Monoid<A> => ({
  * Logical AND monoid (empty: true).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const BooleanAll: Monoid<boolean> = {
   empty: true,
@@ -384,7 +391,7 @@ export const BooleanAll: Monoid<boolean> = {
  * Logical OR monoid (empty: false).
  *
  * @since 0.0.0
- * @category instances
+ * @category combinators
  */
 export const BooleanAny: Monoid<boolean> = {
   empty: false,
@@ -399,7 +406,7 @@ export const BooleanAny: Monoid<boolean> = {
  * Check left identity law: empty ⊕ x = x
  *
  * @since 0.0.0
- * @category laws
+ * @category predicates
  */
 export const checkLeftIdentity = <A>(
   monoid: Monoid<A>,
@@ -411,7 +418,7 @@ export const checkLeftIdentity = <A>(
  * Check right identity law: x ⊕ empty = x
  *
  * @since 0.0.0
- * @category laws
+ * @category predicates
  */
 export const checkRightIdentity = <A>(
   monoid: Monoid<A>,
@@ -423,7 +430,7 @@ export const checkRightIdentity = <A>(
  * Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z)
  *
  * @since 0.0.0
- * @category laws
+ * @category predicates
  */
 export const checkAssociativity = <A>(
   monoid: Monoid<A>,
@@ -441,7 +448,7 @@ export const checkAssociativity = <A>(
  * Check all monoid laws against a representative triple.
  *
  * @since 0.0.0
- * @category laws
+ * @category predicates
  */
 export const checkLaws = <A>(
   monoid: Monoid<A>,

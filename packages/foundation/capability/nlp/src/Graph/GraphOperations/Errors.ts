@@ -3,7 +3,7 @@
  *
  * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
  * each `Data.TaggedError` becomes a {@link @beep/schema#TaggedErrorClass} scoped
- * by a {@link @beep/identity#$NlpId} composer, `unknown` cause fields become
+ * by a `$NlpId` composer, `unknown` cause fields become
  * `S.DefectWithStack`, and the `NodeId` brand is carried as `S.String`.
  *
  * @since 0.0.0

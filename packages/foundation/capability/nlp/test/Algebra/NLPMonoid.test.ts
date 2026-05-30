@@ -10,10 +10,10 @@
  * `effect/testing/FastCheck`.
  */
 
+import * as NLP from "@beep/nlp/Algebra/NLPMonoid";
 import { describe, expect, it } from "@effect/vitest";
 import { FastCheck as fc } from "effect/testing";
-import * as NLP from "../../src/Algebra/NLPMonoid.ts";
-import type { BagOfWords } from "../../src/Algebra/NLPMonoid.ts";
+import type { BagOfWords } from "@beep/nlp/Algebra/NLPMonoid";
 
 const testMonoidLaws = <A>(
   name: string,

@@ -64,7 +64,7 @@ export class OperationBuilder<A, B, R = never, E = never> {
    * Execute the operation on a typed input.
    *
    * @since 0.0.0
-   * @category execution
+   * @category use-cases
    */
   run(input: A): Effect.Effect<B, E, R> {
     return this.operation(input);
@@ -232,7 +232,7 @@ export const identity = <A>(schema: S.Schema<A>): OperationBuilder<A, A> =>
  * Traverse an array of inputs through an operation, collecting decoded results.
  *
  * @since 0.0.0
- * @category traversal
+ * @category sequencing
  */
 export const traverse =
   <A, B, R, E>(operation: OperationBuilder<A, B, R, E>) =>
@@ -243,7 +243,7 @@ export const traverse =
  * Aggregate an array of values into a single value using a {@link Monoid.Monoid}.
  *
  * @since 0.0.0
- * @category aggregation
+ * @category folding
  */
 export const aggregate =
   <A, M>(monoid: Monoid.Monoid<M>, f: (a: A) => M) =>

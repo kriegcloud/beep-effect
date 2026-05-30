@@ -17,74 +17,66 @@ import * as Layer from "effect/Layer";
 const BackendLayer = Layer.provide(WinkBackendLive, WinkEngine.WinkEngineLive);
 
 describe("Catalog backend-backed operations", () => {
-  it.effect("sentencize produces a child node per sentence", () =>
-    Effect.gen(function* () {
-      const root = yield* EG.makeNode("Hello world. How are you?");
-      const children = yield* Catalog.sentencize.apply(root);
-      expect(children.length).toBe(2);
-      expect(children.every((c) => typeof c.data === "string")).toBe(true);
-    }).pipe(provideScopedLayer(BackendLayer))
+  it.effect("sentencize produces a child node per sentence", Effect.fn(function* () {
+    const root = yield* EG.makeNode("Hello world. How are you?");
+    const children = yield* Catalog.sentencize.apply(root);
+    expect(children.length).toBe(2);
+    expect(children.every(c => typeof c.data === "string")).toBe(true);
+}, provideScopedLayer(BackendLayer))
   );
 
-  it.effect("tokenize produces a child node per token", () =>
-    Effect.gen(function* () {
-      const root = yield* EG.makeNode("dogs run fast");
-      const children = yield* Catalog.tokenize.apply(root);
-      expect(children.length).toBeGreaterThanOrEqual(3);
-    }).pipe(provideScopedLayer(BackendLayer))
+  it.effect("tokenize produces a child node per token", Effect.fn(function* () {
+    const root = yield* EG.makeNode("dogs run fast");
+    const children = yield* Catalog.tokenize.apply(root);
+    expect(children.length).toBeGreaterThanOrEqual(3);
+}, provideScopedLayer(BackendLayer))
   );
 
-  it.effect("posTag produces POS annotation nodes", () =>
-    Effect.gen(function* () {
-      const root = yield* EG.makeNode("dogs run");
-      const children = yield* Catalog.posTag.apply(root);
-      expect(children.length).toBe(2);
-      expect(typeof children[0]?.data.tag).toBe("string");
-    }).pipe(provideScopedLayer(BackendLayer))
+  it.effect("posTag produces POS annotation nodes", Effect.fn(function* () {
+    const root = yield* EG.makeNode("dogs run");
+    const children = yield* Catalog.posTag.apply(root);
+    expect(children.length).toBe(2);
+    expect(typeof children[0]?.data.tag).toBe("string");
+}, provideScopedLayer(BackendLayer))
   );
 
-  it.effect("lemmatize produces lemma annotation nodes", () =>
-    Effect.gen(function* () {
-      const root = yield* EG.makeNode("running dogs");
-      const children = yield* Catalog.lemmatize.apply(root);
-      expect(children.length).toBe(2);
-      expect(typeof children[0]?.data.lemma).toBe("string");
-    }).pipe(provideScopedLayer(BackendLayer))
+  it.effect("lemmatize produces lemma annotation nodes", Effect.fn(function* () {
+    const root = yield* EG.makeNode("running dogs");
+    const children = yield* Catalog.lemmatize.apply(root);
+    expect(children.length).toBe(2);
+    expect(typeof children[0]?.data.lemma).toBe("string");
+}, provideScopedLayer(BackendLayer))
   );
 
-  it.effect("each backend op records its operation name on the produced nodes", () =>
-    Effect.gen(function* () {
-      const root = yield* EG.makeNode("hello world");
-      const children = yield* Catalog.tokenize.apply(root);
-      const first = children[0];
-      expect(first?.metadata.operation._tag).toBe("Some");
-    }).pipe(provideScopedLayer(BackendLayer))
+  it.effect("each backend op records its operation name on the produced nodes", Effect.fn(function* () {
+    const root = yield* EG.makeNode("hello world");
+    const children = yield* Catalog.tokenize.apply(root);
+    const first = children[0];
+    expect(first?.metadata.operation._tag).toBe("Some");
+}, provideScopedLayer(BackendLayer))
   );
 });
 
 describe("Catalog pure operations", () => {
-  it.effect("toLowerCase transforms node data", () =>
-    Effect.gen(function* () {
-      const root = yield* EG.makeNode("HELLO");
-      const [child] = yield* Catalog.toLowerCase.apply(root);
-      expect(child?.data).toBe("hello");
-    })
+  it.effect("toLowerCase transforms node data", Effect.fn(function* () {
+    const root = yield* EG.makeNode("HELLO");
+    const [child] = yield* Catalog.toLowerCase.apply(root);
+    expect(child?.data).toBe("hello");
+})
   );
 
-  it.effect("toUpperCase transforms node data", () =>
-    Effect.gen(function* () {
-      const root = yield* EG.makeNode("hello");
-      const [child] = yield* Catalog.toUpperCase.apply(root);
-      expect(child?.data).toBe("HELLO");
-    })
+  it.effect("toUpperCase transforms node data", Effect.fn(function* () {
+    const root = yield* EG.makeNode("hello");
+    const [child] = yield* Catalog.toUpperCase.apply(root);
+    expect(child?.data).toBe("HELLO");
+})
   );
 
-  it.effect("trim removes surrounding whitespace", () =>
-    Effect.gen(function* () {
-      const root = yield* EG.makeNode("  spaced  ");
-      const [child] = yield* Catalog.trim.apply(root);
-      expect(child?.data).toBe("spaced");
-    })
+  it.effect("trim removes surrounding whitespace", Effect.fn(function* () {
+    const root = yield* EG.makeNode("  spaced  ");
+    const [child] = yield* Catalog.trim.apply(root);
+    expect(child?.data).toBe("spaced");
+})
   );
 
   it("getOperationNames lists the catalog entries", () => {

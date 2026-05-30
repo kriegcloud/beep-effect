@@ -6,9 +6,9 @@
  * uses Effect v4's `effect/testing/FastCheck`.
  */
 
+import * as Kind from "@beep/nlp/Ontology/Kind";
 import { describe, expect, it } from "@effect/vitest";
 import { FastCheck as fc } from "effect/testing";
-import * as Kind from "../../src/Ontology/Kind.ts";
 
 const allKinds: ReadonlyArray<Kind.TextKind> = [
   "Document",

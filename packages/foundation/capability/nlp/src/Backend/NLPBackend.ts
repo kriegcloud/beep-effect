@@ -8,7 +8,7 @@
  *
  * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
  * `Data.TaggedError` becomes {@link @beep/schema#TaggedErrorClass} scoped by a
- * {@link @beep/identity#$NlpId} composer, `Context.GenericTag` becomes the
+ * `$NlpId` composer, `Context.GenericTag` becomes the
  * `Context.Service` class form used across this package, and `Object.keys`
  * becomes `Struct.keys`.
  *
@@ -207,7 +207,7 @@ export class NLPBackend extends Context.Service<NLPBackend, NLPBackendShape>()($
  * Check whether a backend supports a specific capability.
  *
  * @since 0.0.0
- * @category utils
+ * @category utilities
  */
 export const supportsCapability = (backend: NLPBackendShape, capability: keyof BackendCapabilities): boolean =>
   backend.capabilities[capability];
@@ -216,7 +216,7 @@ export const supportsCapability = (backend: NLPBackendShape, capability: keyof B
  * List all capabilities a backend supports.
  *
  * @since 0.0.0
- * @category utils
+ * @category utilities
  */
 export const getSupportedCapabilities = (backend: NLPBackendShape): ReadonlyArray<keyof BackendCapabilities> =>
   pipe(

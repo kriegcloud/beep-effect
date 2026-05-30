@@ -17,6 +17,6 @@
  * ```
  *
  * @since 0.0.0
- * @category ontology
+ * @category models
  */
 export * as Kind from "./Kind.ts";

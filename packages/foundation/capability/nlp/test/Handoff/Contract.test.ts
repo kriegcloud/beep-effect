@@ -49,26 +49,24 @@ const sampleDocument = Contract.AnnotatedDocument.make({
 });
 
 describe("AnnotatedDocument round-trip", () => {
-  it.effect("encode then decode preserves the document", () =>
-    Effect.gen(function* () {
-      const encoded = yield* S.encodeUnknownEffect(Contract.AnnotatedDocument)(sampleDocument);
-      const decoded = yield* S.decodeUnknownEffect(Contract.AnnotatedDocument)(encoded);
-      expect(decoded.version).toBe("nlp-ir/1.0");
-      expect(decoded.chunks.length).toBe(1);
-      expect(decoded.entities.length).toBe(1);
-      expect(decoded.relations.length).toBe(1);
-      expect(decoded.chunks[0]?.text).toBe("Hello world");
-    })
+  it.effect("encode then decode preserves the document", Effect.fn(function* () {
+    const encoded = yield* S.encodeUnknownEffect(Contract.AnnotatedDocument)(sampleDocument);
+    const decoded = yield* S.decodeUnknownEffect(Contract.AnnotatedDocument)(encoded);
+    expect(decoded.version).toBe("nlp-ir/1.0");
+    expect(decoded.chunks.length).toBe(1);
+    expect(decoded.entities.length).toBe(1);
+    expect(decoded.relations.length).toBe(1);
+    expect(decoded.chunks[0]?.text).toBe("Hello world");
+})
   );
 
-  it.effect("every chunk, entity, and relation carries provenance", () =>
-    Effect.gen(function* () {
-      const encoded = yield* S.encodeUnknownEffect(Contract.AnnotatedDocument)(sampleDocument);
-      const decoded = yield* S.decodeUnknownEffect(Contract.AnnotatedDocument)(encoded);
-      expect(decoded.chunks.every((c) => typeof c.provenance.source === "string")).toBe(true);
-      expect(decoded.entities.every((e) => typeof e.provenance.generatedBy === "string")).toBe(true);
-      expect(decoded.relations.every((r) => typeof r.provenance.timestamp === "number")).toBe(true);
-    })
+  it.effect("every chunk, entity, and relation carries provenance", Effect.fn(function* () {
+    const encoded = yield* S.encodeUnknownEffect(Contract.AnnotatedDocument)(sampleDocument);
+    const decoded = yield* S.decodeUnknownEffect(Contract.AnnotatedDocument)(encoded);
+    expect(decoded.chunks.every(c => typeof c.provenance.source === "string")).toBe(true);
+    expect(decoded.entities.every(e => typeof e.provenance.generatedBy === "string")).toBe(true);
+    expect(decoded.relations.every(r => typeof r.provenance.timestamp === "number")).toBe(true);
+})
   );
 });
 
@@ -86,20 +84,18 @@ describe("Span", () => {
 });
 
 describe("makeProvenance", () => {
-  it.effect("stamps timestamp from the clock and omits absent confidence", () =>
-    Effect.gen(function* () {
-      const prov = yield* Contract.makeProvenance("doc-9", "wink-nlp");
-      expect(prov.source).toBe("doc-9");
-      expect(prov.generatedBy).toBe("wink-nlp");
-      expect(typeof prov.timestamp).toBe("number");
-      expect(prov.confidence).toBeUndefined();
-    })
+  it.effect("stamps timestamp from the clock and omits absent confidence", Effect.fn(function* () {
+    const prov = yield* Contract.makeProvenance("doc-9", "wink-nlp");
+    expect(prov.source).toBe("doc-9");
+    expect(prov.generatedBy).toBe("wink-nlp");
+    expect(typeof prov.timestamp).toBe("number");
+    expect(prov.confidence).toBeUndefined();
+})
   );
 
-  it.effect("carries confidence when provided", () =>
-    Effect.gen(function* () {
-      const prov = yield* Contract.makeProvenance("doc-9", "wink-nlp", 0.9);
-      expect(prov.confidence).toBe(0.9);
-    })
+  it.effect("carries confidence when provided", Effect.fn(function* () {
+    const prov = yield* Contract.makeProvenance("doc-9", "wink-nlp", 0.9);
+    expect(prov.confidence).toBe(0.9);
+})
   );
 });

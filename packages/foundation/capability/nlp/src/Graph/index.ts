@@ -17,7 +17,7 @@
  * ```
  *
  * @since 0.0.0
- * @category graph
+ * @category models
  */
 export * as AnnotatedTextGraph from "./AnnotatedTextGraph.ts";
 /**
@@ -31,7 +31,7 @@ export * as AnnotatedTextGraph from "./AnnotatedTextGraph.ts";
  * ```
  *
  * @since 0.0.0
- * @category graph
+ * @category models
  */
 export * as EffectGraph from "./EffectGraph.ts";
 /**
@@ -47,7 +47,7 @@ export * as EffectGraph from "./EffectGraph.ts";
  * ```
  *
  * @since 0.0.0
- * @category graph
+ * @category models
  */
 export * as GraphOperations from "./GraphOperations/index.ts";
 /**
@@ -62,7 +62,7 @@ export * as GraphOperations from "./GraphOperations/index.ts";
  * ```
  *
  * @since 0.0.0
- * @category graph
+ * @category models
  */
 export * as GraphOps from "./GraphOps.ts";
 /**
@@ -76,7 +76,7 @@ export * as GraphOps from "./GraphOps.ts";
  * ```
  *
  * @since 0.0.0
- * @category graph
+ * @category models
  */
 export * as Schema from "./Schema.ts";
 /**
@@ -91,6 +91,6 @@ export * as Schema from "./Schema.ts";
  * ```
  *
  * @since 0.0.0
- * @category graph
+ * @category models
  */
 export * as TypeClass from "./TypeClass.ts";

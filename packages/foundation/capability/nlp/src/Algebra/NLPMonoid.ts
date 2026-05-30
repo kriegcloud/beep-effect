@@ -43,7 +43,7 @@ export type BagOfWords = Map<string, number>;
  * This is the forgetful functor `Token* -> Text` in the adjunction.
  *
  * @since 0.0.0
- * @category token
+ * @category combinators
  */
 export const TokenConcat: Monoid.Monoid<string> = Monoid.StringJoin(" ");
 
@@ -53,7 +53,7 @@ export const TokenConcat: Monoid.Monoid<string> = Monoid.StringJoin(" ");
  * A monoid homomorphism from the free monoid `Token*` to the multiset monoid.
  *
  * @since 0.0.0
- * @category token
+ * @category combinators
  */
 export const TokenBagOfWords: Monoid.Monoid<BagOfWords> = {
   empty: new Map(),
@@ -70,7 +70,7 @@ export const TokenBagOfWords: Monoid.Monoid<BagOfWords> = {
  * Token set-union monoid (collect unique tokens; useful for vocabulary).
  *
  * @since 0.0.0
- * @category token
+ * @category combinators
  */
 export const TokenSetUnion: Monoid.Monoid<ReadonlySet<string>> = Monoid.SetUnion<string>();
 
@@ -87,7 +87,7 @@ export const TokenSetUnion: Monoid.Monoid<ReadonlySet<string>> = Monoid.SetUnion
  * pragmatic near-monoid for text joining.
  *
  * @since 0.0.0
- * @category sentence
+ * @category combinators
  */
 export const SentenceConcat: Monoid.Monoid<string> = {
   empty: "",
@@ -103,7 +103,7 @@ export const SentenceConcat: Monoid.Monoid<string> = {
  * Sentence array monoid (concatenation; preserves order and boundaries).
  *
  * @since 0.0.0
- * @category sentence
+ * @category combinators
  */
 export const SentenceArray: Monoid.Monoid<ReadonlyArray<string>> = Monoid.ArrayConcat<string>();
 
@@ -115,7 +115,7 @@ export const SentenceArray: Monoid.Monoid<ReadonlyArray<string>> = Monoid.ArrayC
  * Document text monoid (join paragraphs with a blank line).
  *
  * @since 0.0.0
- * @category document
+ * @category combinators
  */
 export const DocumentText: Monoid.Monoid<string> = Monoid.StringJoin("\n\n");
 
@@ -135,7 +135,7 @@ export interface DocumentStatistics {
  * Document statistics monoid (sum counts component-wise).
  *
  * @since 0.0.0
- * @category document
+ * @category combinators
  */
 export const DocumentStats: Monoid.Monoid<DocumentStatistics> = {
   empty: { wordCount: 0, sentenceCount: 0, charCount: 0 },
@@ -157,7 +157,7 @@ export const DocumentStats: Monoid.Monoid<DocumentStatistics> = {
  * NER labels, dependency parses, etc. keyed by position.
  *
  * @since 0.0.0
- * @category linguistic
+ * @category combinators
  */
 export const AnnotationMap = <K, V>(): Monoid.Monoid<Map<K, V>> => ({
   empty: new Map(),
@@ -189,7 +189,7 @@ export interface NamedEntity {
  * Named entity list monoid (concatenation; preserves order, allows duplicates).
  *
  * @since 0.0.0
- * @category linguistic
+ * @category combinators
  */
 export const NamedEntityList: Monoid.Monoid<ReadonlyArray<NamedEntity>> = Monoid.ArrayConcat<NamedEntity>();
 
@@ -209,7 +209,7 @@ export interface DependencyEdge {
  * Dependency parse monoid (concatenate edges).
  *
  * @since 0.0.0
- * @category linguistic
+ * @category combinators
  */
 export const DependencyParse: Monoid.Monoid<ReadonlyArray<DependencyEdge>> = Monoid.ArrayConcat<DependencyEdge>();
 
@@ -221,7 +221,7 @@ export const DependencyParse: Monoid.Monoid<ReadonlyArray<DependencyEdge>> = Mon
  * Term frequency monoid (alias of {@link TokenBagOfWords}; semantic distinction).
  *
  * @since 0.0.0
- * @category corpus
+ * @category combinators
  */
 export const TermFrequency: Monoid.Monoid<BagOfWords> = TokenBagOfWords;
 
@@ -229,7 +229,7 @@ export const TermFrequency: Monoid.Monoid<BagOfWords> = TokenBagOfWords;
  * Document frequency monoid (counts presence across documents; union with addition).
  *
  * @since 0.0.0
- * @category corpus
+ * @category combinators
  */
 export const DocumentFrequency: Monoid.Monoid<Map<string, number>> = {
   empty: new Map(),
@@ -246,7 +246,7 @@ export const DocumentFrequency: Monoid.Monoid<Map<string, number>> = {
  * Vocabulary monoid (unique terms; alias of {@link TokenSetUnion}).
  *
  * @since 0.0.0
- * @category corpus
+ * @category combinators
  */
 export const Vocabulary: Monoid.Monoid<ReadonlySet<string>> = TokenSetUnion;
 
@@ -258,7 +258,7 @@ export const Vocabulary: Monoid.Monoid<ReadonlySet<string>> = TokenSetUnion;
  * Weighted token monoid (combine weights additively per token).
  *
  * @since 0.0.0
- * @category specialized
+ * @category combinators
  */
 export const WeightedTokens: Monoid.Monoid<Map<string, number>> = {
   empty: new Map(),
@@ -275,7 +275,7 @@ export const WeightedTokens: Monoid.Monoid<Map<string, number>> = {
  * N-gram frequency monoid (bag-of-words over space-joined n-gram keys).
  *
  * @since 0.0.0
- * @category specialized
+ * @category combinators
  */
 export const NGramFrequency: Monoid.Monoid<Map<string, number>> = {
   empty: new Map(),
@@ -309,7 +309,7 @@ export interface TextAnalysis {
  * Text analysis monoid (product monoid over the linguistic features).
  *
  * @since 0.0.0
- * @category composite
+ * @category combinators
  */
 export const TextAnalysisMonoid: Monoid.Monoid<TextAnalysis> = {
   empty: {
@@ -334,7 +334,7 @@ export const TextAnalysisMonoid: Monoid.Monoid<TextAnalysis> = {
  * Convert a bag of words to term frequency (each count normalized by the total).
  *
  * @since 0.0.0
- * @category utils
+ * @category utilities
  */
 export const bagOfWordsToTF = (bow: BagOfWords): Map<string, number> => {
   let total = 0;
@@ -356,7 +356,7 @@ export const bagOfWordsToTF = (bow: BagOfWords): Map<string, number> => {
  * `TF-IDF(t, d) = TF(t, d) * log(N / DF(t))`.
  *
  * @since 0.0.0
- * @category utils
+ * @category utilities
  */
 export const computeTFIDF = (
   tf: Map<string, number>,
@@ -380,7 +380,7 @@ export const computeTFIDF = (
  * Aggregate tokens into a bag of words.
  *
  * @since 0.0.0
- * @category utils
+ * @category utilities
  */
 export const aggregateTokens = (tokens: ReadonlyArray<string>): BagOfWords =>
   Monoid.fold(TokenBagOfWords)(
@@ -395,7 +395,7 @@ export const aggregateTokens = (tokens: ReadonlyArray<string>): BagOfWords =>
  * Aggregate sentences into a single document string.
  *
  * @since 0.0.0
- * @category utils
+ * @category utilities
  */
 export const aggregateSentences = (sentences: ReadonlyArray<string>): string => Monoid.fold(SentenceConcat)(sentences);
 
@@ -403,7 +403,7 @@ export const aggregateSentences = (sentences: ReadonlyArray<string>): string => 
  * Aggregate document statistics.
  *
  * @since 0.0.0
- * @category utils
+ * @category utilities
  */
 export const aggregateStats = (stats: ReadonlyArray<DocumentStatistics>): DocumentStatistics =>
   Monoid.fold(DocumentStats)(stats);
