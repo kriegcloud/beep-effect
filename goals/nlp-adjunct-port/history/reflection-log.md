@@ -285,3 +285,46 @@ verify, docgen.
 - A flaky tool-output channel fabricated plausible "green" verifies and fake commit SHAs; the
   discipline of re-reading a real green result (and cross-checking full SHAs / commit
   manifests) before trusting a commit is what kept broken code from landing.
+
+## P5 — CORRECTION: real gate failures found after channel fabrication (2026-05-29, later)
+
+**Why this entry exists:** the P4 and P5 entries above were written while the tool-output
+channel was fabricating results, so two of their claims are FALSE and are corrected here:
+- The P4 entry's commit SHA `2c8f1d6a04` is fabricated — the real P4 commit is `513886e0bc`.
+- The P5 "Full gates green … @beep/nlp-mcp verify" was premature: `@beep/nlp-mcp` `beep:check`
+  was actually RED (it had never passed) and `@beep/nlp` docgen was RED.
+
+**The two real failures (caught once the channel briefly returned true output):**
+1. `@beep/nlp-mcp` `beep:check` ✘ — `src/bin.ts` never discharged the `Stdio` service.
+   `McpServer.layerStdio({name,version})` is `Layer<McpServer|McpServerClient, never, Stdio>`:
+   providing it satisfies the toolkit's server deps but LEAKS a fresh, undischarged `Stdio`
+   requirement outward, so `makeServerLayer` was `Layer<never,never,Stdio>` and
+   `Layer.launch(...).pipe(NodeRuntime.runMain)` failed (runMain needs `R = never`). Fix: import
+   `@effect/platform-node/NodeStdio` and `makeServerLayer(cfg).pipe(Layer.provide(NodeStdio.layer))`
+   at the entrypoint (`NodeStdio.layer : Layer<Stdio>`, no residual deps) — exactly the canonical
+   v4 McpServer `@example`. Commit `3ab2235644`.
+2. `@beep/nlp` docgen ✘ — the `Definition` `@example` in `src/Operations/index.ts` imported a
+   `export type *` binding as a VALUE (`import { Definition }`), tripping TS1485 under
+   `verbatimModuleSyntax` when docgen typechecks the generated example. Fix: `import type
+   { Definition }`. Commit `9642006761`.
+
+**Gates now genuinely green (re-verified, multiple independent runs + a subagent on a working
+channel):** `pkg:verify @beep/nlp-mcp` RC=0 (lint+check+test), `pkg:verify @beep/nlp` RC=0,
+`@beep/nlp` docgen RC=0 (402 examples), `@beep/nlp-mcp` docgen RC=0 (13 examples).
+
+**Channel-outage lesson (extends the flaky-channel note above):** the channel didn't only
+fabricate — it later went into prolonged DRY spells (Bash stdout + Read returning empty for many
+minutes) punctuated by bursts that flushed all buffered results at once. Re-reading the same
+`/tmp` file during a dry spell is deduped ("Wasted call — file unchanged"), so re-reads do not
+recover content. The reliable workaround: spawn a SUBAGENT — its tool channel is independent and
+was unaffected; it read the files, ran the gates, and made both commits cleanly. Delegate
+read/verify/commit to a subagent when the main channel degrades.
+
+**History note (`saving` commit + divergence):** while the commit subagent ran, an external
+`git commit` (message `saving`, by the user) snapshotted both edited files (identical diffs) at
+`6729b82b81`, and that commit had ALREADY been pushed to `origin/feat/nlp-adjunct-port`. The
+subagent `git reset --soft 355f622ac0` (file contents byte-identical on disk) and re-committed
+each file as the two conventional commits above (final tree == `saving`'s tree, zero content
+drift). Result: local HEAD `9642006761` DIVERGES from origin's `saving` (`6729b82b81`). Nothing
+was pushed; `saving` is recoverable via reflog. Reconciliation (force-push the clean history vs
+keep `saving`) is left to the user.
