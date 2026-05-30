@@ -56,7 +56,8 @@
     }
   },
   "dependencies": {
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "box-node-sdk": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",

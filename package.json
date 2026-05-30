@@ -222,6 +222,7 @@
     "d3": "^7.9.0",
     "cytoscape": "^3.33.4",
     "sql-formatter": "^15.8.0",
+    "box-node-sdk": "^4.11.0",
     "markdownlint-cli2": "^0.22.1",
     "micromark": "^4.0.2",
     "micromark-extension-gfm": "^3.0.0",
