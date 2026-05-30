@@ -1052,7 +1052,7 @@ export const make = <TFields extends Field.FieldsRecord, R, A, E, SubmitArgs = v
               Effect.sleep(Duration.millis(debounceSubmitMs)),
               Effect.flatMap(() =>
                 Effect.sync(() => {
-                  if (!get(submitAtom).waiting) {
+                  if (!get.registry.get(submitAtom).waiting) {
                     get.set(submitAtom, undefined as SubmitArgs);
                   }
                 })
