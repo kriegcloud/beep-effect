@@ -8,7 +8,7 @@
  * basis for the product-neutral handoff contract emitted to downstream consumers.
  *
  * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
- * `Schema.Class("Name")` becomes `S.Class($I\`Name\`)(fields, $I.annote(...))`,
+ * `Schema.Class("Name")` becomes `S.Class($I\`Name\`)(fields, $I.annote(...))\`,
  * multi-arm `Schema.Literal(...)` becomes `S.Literals(...)`, `Schema.optional`
  * becomes `S.optionalKey`, and `Schema.Record({key,value})` becomes the positional
  * `S.Record(key, value)`. `timestamp` remains a plain field supplied by the graph
@@ -20,6 +20,7 @@
 
 import { $NlpId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { Tuple } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $NlpId.create("Graph/Schema");
@@ -75,6 +76,16 @@ export const TextEdgeRelation = LiteralKit([
   })
 );
 
+type TextNodeKind = typeof TextNodeType.Type;
+
+const textNodeFields = <T extends TextNodeKind>(literal: S.Literal<T>) => ({
+  text: S.String,
+  type: S.tag(literal.literal),
+  operation: S.optionalKey(S.String),
+  timestamp: S.Number,
+  metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
+});
+
 /**
  * Text node stored in the graph: a piece of text with processing metadata.
  *
@@ -88,18 +99,49 @@ export const TextEdgeRelation = LiteralKit([
  * @since 0.0.0
  * @category models
  */
-export class TextNode extends S.Class<TextNode>($I`TextNode`)(
-  {
-    text: S.String,
-    type: TextNodeType,
-    operation: S.optionalKey(S.String),
-    timestamp: S.Number,
-    metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
-  },
-  $I.annote("TextNode", {
-    description: "Text-graph node: text content plus processing metadata and a creation timestamp.",
-  })
-) {}
+export const TextNode = TextNodeType.mapMembers(
+  Tuple.evolve([
+    (literal: S.Literal<"sentence">) =>
+      literal.pipe(
+        textNodeFields,
+        S.Struct,
+        $I.annoteSchema("SentenceTextNode", {
+          description: "Sentence text-graph node with processing metadata and a creation timestamp.",
+        })
+      ),
+    (literal: S.Literal<"token">) =>
+      literal.pipe(
+        textNodeFields,
+        S.Struct,
+        $I.annoteSchema("TokenTextNode", {
+          description: "Token text-graph node with processing metadata and a creation timestamp.",
+        })
+      ),
+    (literal: S.Literal<"paragraph">) =>
+      literal.pipe(
+        textNodeFields,
+        S.Struct,
+        $I.annoteSchema("ParagraphTextNode", {
+          description: "Paragraph text-graph node with processing metadata and a creation timestamp.",
+        })
+      ),
+    (literal: S.Literal<"document">) =>
+      literal.pipe(
+        textNodeFields,
+        S.Struct,
+        $I.annoteSchema("DocumentTextNode", {
+          description: "Document text-graph node with processing metadata and a creation timestamp.",
+        })
+      ),
+  ])
+).pipe(
+  $I.annoteSchema("TextNode", {
+    description: "Type-discriminated text-graph node with processing metadata and a creation timestamp.",
+  }),
+  S.toTaggedUnion("type")
+);
+
+export type TextNode = typeof TextNode.Type;
 
 /**
  * Edge between text nodes, labeled with a structural or linguistic relation.

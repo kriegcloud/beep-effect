@@ -96,7 +96,11 @@ export type TextKind = typeof TextKind.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const TextKindSchema: S.Schema<TextKind> = TextKind;
+export const TextKindSchema: S.Schema<TextKind> = TextKind.pipe(
+  $I.annoteSchema("TextKindSchema", {
+    description: "Runtime schema alias for NLP text ontology kinds.",
+  })
+);
 
 // =============================================================================
 // Typed Text Payload
@@ -144,7 +148,11 @@ export const TypedTextSchema = <K extends TextKind>(kind: S.Schema<K>) =>
     kind,
     content: S.String,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
-  });
+  }).pipe(
+    $I.annoteSchema("TypedTextSchema", {
+      description: "Generic schema for text content tagged with a supplied ontology kind.",
+    })
+  );
 
 // =============================================================================
 // Smart Constructors

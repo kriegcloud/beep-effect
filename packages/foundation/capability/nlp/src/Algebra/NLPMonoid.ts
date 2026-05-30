@@ -22,10 +22,11 @@
  * @packageDocumentation
  */
 
+import { dual } from "effect/Function";
 import * as Monoid from "./Monoid.ts";
 
 /**
- * Bag-of-words frequency map carrier: term -> frequency.
+ * Bag-of-words frequency map carrier: term -\> frequency.
  *
  * @since 0.0.0
  * @category models
@@ -56,13 +57,13 @@ export const TokenConcat: Monoid.Monoid<string> = Monoid.StringJoin(" ");
  */
 export const TokenBagOfWords: Monoid.Monoid<BagOfWords> = {
   empty: new Map(),
-  combine: (bow1, bow2) => {
+  combine: dual(2, (bow1: BagOfWords, bow2: BagOfWords) => {
     const result = new Map(bow1);
-    bow2.forEach((count, token) => {
+    bow2.forEach((count: number, token: string) => {
       result.set(token, (result.get(token) ?? 0) + count);
     });
     return result;
-  },
+  }),
 };
 
 /**
@@ -90,12 +91,12 @@ export const TokenSetUnion: Monoid.Monoid<ReadonlySet<string>> = Monoid.SetUnion
  */
 export const SentenceConcat: Monoid.Monoid<string> = {
   empty: "",
-  combine: (s1, s2) => {
+  combine: dual(2, (s1, s2) => {
     if (s1 === "") return s2;
     if (s2 === "") return s1;
     const s1Normalized = /[.!?]$/.test(s1) ? s1 : `${s1}.`;
     return `${s1Normalized} ${s2}`;
-  },
+  }),
 };
 
 /**
@@ -138,11 +139,11 @@ export interface DocumentStatistics {
  */
 export const DocumentStats: Monoid.Monoid<DocumentStatistics> = {
   empty: { wordCount: 0, sentenceCount: 0, charCount: 0 },
-  combine: (s1, s2) => ({
+  combine: dual(2, (s1, s2) => ({
     wordCount: s1.wordCount + s2.wordCount,
     sentenceCount: s1.sentenceCount + s2.sentenceCount,
     charCount: s1.charCount + s2.charCount,
-  }),
+  })),
 };
 
 // =============================================================================
@@ -160,15 +161,15 @@ export const DocumentStats: Monoid.Monoid<DocumentStatistics> = {
  */
 export const AnnotationMap = <K, V>(): Monoid.Monoid<Map<K, V>> => ({
   empty: new Map(),
-  combine: (m1, m2) => {
+  combine: dual(2, (m1, m2) => {
     const result = new Map(m1);
-    m2.forEach((value, key) => {
+    m2.forEach((value: V, key: K) => {
       if (!result.has(key)) {
         result.set(key, value);
       }
     });
     return result;
-  },
+  }),
 });
 
 /**
@@ -232,13 +233,13 @@ export const TermFrequency: Monoid.Monoid<BagOfWords> = TokenBagOfWords;
  */
 export const DocumentFrequency: Monoid.Monoid<Map<string, number>> = {
   empty: new Map(),
-  combine: (df1, df2) => {
+  combine: dual(2, (df1: Map<string, number>, df2: Map<string, number>) => {
     const result = new Map(df1);
     df2.forEach((count, term) => {
       result.set(term, (result.get(term) ?? 0) + count);
     });
     return result;
-  },
+  }),
 };
 
 /**
@@ -261,13 +262,13 @@ export const Vocabulary: Monoid.Monoid<ReadonlySet<string>> = TokenSetUnion;
  */
 export const WeightedTokens: Monoid.Monoid<Map<string, number>> = {
   empty: new Map(),
-  combine: (wt1, wt2) => {
+  combine: dual(2, (wt1: Map<string, number>, wt2: Map<string, number>) => {
     const result = new Map(wt1);
     wt2.forEach((weight, token) => {
       result.set(token, (result.get(token) ?? 0) + weight);
     });
     return result;
-  },
+  }),
 };
 
 /**
@@ -278,13 +279,13 @@ export const WeightedTokens: Monoid.Monoid<Map<string, number>> = {
  */
 export const NGramFrequency: Monoid.Monoid<Map<string, number>> = {
   empty: new Map(),
-  combine: (ng1, ng2) => {
+  combine: dual(2, (ng1: Map<string, number>, ng2: Map<string, number>) => {
     const result = new Map(ng1);
     ng2.forEach((count, ngram) => {
       result.set(ngram, (result.get(ngram) ?? 0) + count);
     });
     return result;
-  },
+  }),
 };
 
 // =============================================================================
@@ -317,12 +318,12 @@ export const TextAnalysisMonoid: Monoid.Monoid<TextAnalysis> = {
     sentenceCount: 0,
     vocabulary: new Set(),
   },
-  combine: (a1, a2) => ({
+  combine: dual(2, (a1, a2) => ({
     bow: TokenBagOfWords.combine(a1.bow, a2.bow),
     entities: NamedEntityList.combine(a1.entities, a2.entities),
     sentenceCount: a1.sentenceCount + a2.sentenceCount,
     vocabulary: TokenSetUnion.combine(a1.vocabulary, a2.vocabulary),
-  }),
+  })),
 };
 
 // =============================================================================

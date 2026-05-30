@@ -9,7 +9,7 @@
  * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
  * - the `@effect/typeclass` instances (Foldable/SemiApplicative/Traversable) are
  *   reimplemented on core `effect` (`Effect.zipWith`/`Effect.all`/`Effect.forEach`
- *   and `Monoid` from {@link @beep/nlp/Algebra/Monoid}), since `@effect/typeclass`
+ *   and `Monoid` from {@link @beep/nlp/Algebra/Monoid#Monoid}), since `@effect/typeclass`
  *   is not a dependency here.
  * - the builder is parameterized by the DECODED value types `A`/`B` (schemas carried
  *   as `Schema.Schema<A>`/`Schema.Schema<B>`), avoiding `any` and the v4 schema
@@ -27,7 +27,7 @@
  */
 
 import { A } from "@beep/utils";
-import { Effect } from "effect";
+import { Effect, flow } from "effect";
 import type * as S from "effect/Schema";
 import type * as Monoid from "../Algebra/Monoid.ts";
 import type { OperationDefinition } from "./Definition.ts";
@@ -94,7 +94,7 @@ export class OperationBuilder<A, B, R = never, E = never> {
    */
   flatMap<C, R2, E2>(next: OperationBuilder<B, C, R2, E2>): OperationBuilder<A, C, R | R2, E | E2> {
     return new OperationBuilder(
-      (input) => Effect.flatMap(this.operation(input), (result) => next.run(result)),
+      flow(this.operation, Effect.flatMap(next.operation)),
       this.inputSchema,
       next.outputSchema,
       `${this.name}.flatMap`
@@ -198,7 +198,7 @@ export const makePureOperation = <A, B>(
   inputSchema: S.Schema<A>,
   outputSchema: S.Schema<B>,
   f: (input: A) => B
-): OperationBuilder<A, B> => new OperationBuilder((input) => Effect.succeed(f(input)), inputSchema, outputSchema, name);
+): OperationBuilder<A, B> => new OperationBuilder(flow(f, Effect.succeed), inputSchema, outputSchema, name);
 
 /**
  * Sequential composition: feed the first operation's output into the second.

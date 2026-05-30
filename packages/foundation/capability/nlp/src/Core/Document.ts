@@ -107,9 +107,17 @@ export const documentIndex: Brand.Constructor<DocumentIndex> = Brand.check<Docum
  * @since 0.0.0
  * @category validation
  */
-export const DocumentIndex = NonNegativeInt.pipe(S.fromBrand("DocumentIndex", documentIndex));
+export const DocumentIndex = NonNegativeInt.pipe(
+  S.fromBrand("DocumentIndex", documentIndex),
+  $I.annoteSchema("DocumentIndex", {
+    description: "Non-negative ordered index for an NLP document.",
+  })
+);
 
-const rebuildSentence = (sentence: Sentence, sentenceTokens: A.NonEmptyReadonlyArray<Token>) => {
+const rebuildSentence: {
+  (sentenceTokens: A.NonEmptyReadonlyArray<Token>, sentence: Sentence): Result.Result<Sentence>;
+  (sentence: Sentence): (sentenceTokens: A.NonEmptyReadonlyArray<Token>) => Result.Result<Sentence>;
+} = dual(2, (sentenceTokens: A.NonEmptyReadonlyArray<Token>, sentence: Sentence) => {
   const [firstToken, ...remainingTokens] = sentenceTokens;
   const lastToken = A.reduce(remainingTokens, firstToken, (_, token) => token);
 
@@ -126,7 +134,7 @@ const rebuildSentence = (sentence: Sentence, sentenceTokens: A.NonEmptyReadonlyA
       tokens: Chunk.fromIterable(sentenceTokens),
     })
   );
-};
+});
 
 const filterSentence = (predicate: (token: Token) => boolean) => (sentence: Sentence) =>
   pipe(
@@ -134,7 +142,7 @@ const filterSentence = (predicate: (token: Token) => boolean) => (sentence: Sent
     Chunk.toReadonlyArray,
     A.match({
       onEmpty: () => Result.failVoid,
-      onNonEmpty: (sentenceTokens) => rebuildSentence(sentence, sentenceTokens),
+      onNonEmpty: rebuildSentence(sentence),
     })
   );
 

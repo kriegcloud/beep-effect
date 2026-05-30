@@ -28,12 +28,12 @@ import { $NlpId } from "@beep/identity";
 import { A } from "@beep/utils";
 import { Clock, Context, Duration, Effect, Layer, Match, Result } from "effect";
 import * as O from "effect/Option";
-import type { EffectGraph, GraphNode } from "../EffectGraph.ts";
 import { getChildren, toArray } from "../EffectGraph.ts";
 import { ExecutionError } from "./Errors.ts";
-import type { GraphOperation } from "./Operation.ts";
 import * as ResultStore from "./ResultStore.ts";
 import * as Types from "./Types.ts";
+import type { EffectGraph, GraphNode } from "../EffectGraph.ts";
+import type { GraphOperation } from "./Operation.ts";
 
 const $I = $NlpId.create("Graph/GraphOperations/Executor");
 

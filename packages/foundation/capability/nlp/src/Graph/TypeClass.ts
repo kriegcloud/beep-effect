@@ -2,7 +2,7 @@
  * TypeClass - categorical abstractions for text-processing operations on graphs.
  *
  * Formalizes text operations as morphisms in the Kleisli category of `Effect`:
- * a {@link TextOperation} takes one {@link EffectGraph.GraphNode} of data `A` and
+ * a {@link TextOperation} takes one {@link GraphNode} of data `A` and
  * produces an array of nodes of data `B`, possibly requiring context `R` and
  * failing with `E`. The module provides the Functor/Applicative/Monad/Traversable
  * combinators (`map`/`ap`/`chain`/`traverse`), a {@link Composable} monoid of
@@ -96,7 +96,13 @@ export interface Composable<A, R = never, E = never> {
  */
 export const identityOperation = <A>(): TextOperation<A, A> =>
   makeOperation("identity", (node) =>
-    Effect.map(generateNodeId, (id) => A.of({ ...node, id, parentId: O.some(node.id) }))
+    Effect.map(generateNodeId, (id) =>
+      A.of({
+        ...node,
+        id,
+        parentId: O.some(node.id),
+      })
+    )
   );
 
 /**
@@ -109,8 +115,9 @@ export const composeOperations = <A, B, C, R, E>(
   first: TextOperation<A, B, R, E>,
   second: TextOperation<B, C, R, E>
 ): TextOperation<A, C, R, E> =>
-  makeOperation(`${first.name} -> ${second.name}`, (node) =>
-    Effect.gen(function* () {
+  makeOperation(
+    `${first.name} -> ${second.name}`,
+    Effect.fn(function* (node) {
       const intermediateNodes = yield* first.apply(node);
       const results = yield* Effect.all(
         A.map(intermediateNodes, (intermediate) => second.apply(intermediate)),
@@ -137,7 +144,7 @@ export interface Foldable<F, A> {
 }
 
 /**
- * The {@link Foldable} instance for {@link EffectGraph.EffectGraph}, folding over
+ * The {@link Foldable} instance for {@link EffectGraph}, folding over
  * node data in graph order.
  *
  * @since 0.0.0
@@ -188,24 +195,23 @@ export const executeOperation = <A, B, R, E>(
  * @since 0.0.0
  * @category combinators
  */
-export const executeOperations = <R, E>(
+export const executeOperations = Effect.fn("executeOperations")(function* <R, E>(
   graph: EffectGraph<unknown>,
   operations: ReadonlyArray<TextOperation<unknown, unknown, R, E>>
-): Effect.Effect<EffectGraph<unknown>, E, R> =>
-  Effect.gen(function* () {
-    let currentGraph: EffectGraph<unknown> = graph;
-    for (const operation of operations) {
-      currentGraph = yield* executeOperation(currentGraph, operation);
-    }
-    return currentGraph;
-  });
+): Effect.fn.Return<EffectGraph<unknown>, E, R> {
+  let currentGraph: EffectGraph<unknown> = graph;
+  for (const operation of operations) {
+    currentGraph = yield* executeOperation(currentGraph, operation);
+  }
+  return currentGraph;
+});
 
 // =============================================================================
 // Adjunction Modeling (Free ⊣ Forgetful)
 // =============================================================================
 
 /**
- * The free (expansion) functor: one node to many (e.g. text -> sentences).
+ * The free (expansion) functor: one node to many (e.g. text -\> sentences).
  *
  * @since 0.0.0
  * @category models
@@ -213,7 +219,7 @@ export const executeOperations = <R, E>(
 export type FreeOperation<A, B, R = never, E = never> = TextOperation<A, B, R, E>;
 
 /**
- * The forgetful (aggregation) functor: many nodes to one (e.g. sentences -> text).
+ * The forgetful (aggregation) functor: many nodes to one (e.g. sentences -\> text).
  *
  * @since 0.0.0
  * @category models
@@ -309,7 +315,12 @@ export interface Functor<F> {
  */
 export const map = <A, B, C, R, E>(operation: TextOperation<A, B, R, E>, f: (b: B) => C): TextOperation<A, C, R, E> =>
   makeOperation(`${operation.name} |> map`, (node) =>
-    Effect.map(operation.apply(node), (nodes) => A.map(nodes, (n) => ({ ...n, data: f(n.data) })))
+    Effect.map(operation.apply(node), (nodes) =>
+      A.map(nodes, (n) => ({
+        ...n,
+        data: f(n.data),
+      }))
+    )
   );
 
 /**
@@ -324,7 +335,14 @@ export const flatMap = <A, B, C, R1, E1, R2, E2>(
 ): TextOperation<A, C, R1 | R2, E1 | E2> =>
   makeOperation(`${operation.name} |> flatMap`, (node) =>
     Effect.flatMap(operation.apply(node), (nodes) =>
-      Effect.all(A.map(nodes, (n) => Effect.map(f(n.data), (newData) => ({ ...n, data: newData }))))
+      Effect.all(
+        A.map(nodes, (n) =>
+          Effect.map(f(n.data), (newData) => ({
+            ...n,
+            data: newData,
+          }))
+        )
+      )
     )
   );
 
@@ -347,7 +365,10 @@ export const ap = <A, B, C, R1, E1, R2, E2>(
       const fnNodes = yield* opFn.apply(node);
       const valNodes = yield* opVal.apply(node);
       return A.flatMap(fnNodes, (fnNode) =>
-        A.map(valNodes, (valNode) => ({ ...valNode, data: fnNode.data(valNode.data) }))
+        A.map(valNodes, (valNode) => ({
+          ...valNode,
+          data: fnNode.data(valNode.data),
+        }))
       );
     })
   );
@@ -444,7 +465,14 @@ export const traverse = <A, B, C, R1, E1, R2, E2>(
 ): TextOperation<A, C, R1 | R2, E1 | E2> =>
   makeOperation(`${operation.name} |> traverse`, (node) =>
     Effect.flatMap(operation.apply(node), (nodes) =>
-      Effect.all(A.map(nodes, (n) => Effect.map(f(n.data), (newData) => ({ ...n, data: newData }))))
+      Effect.all(
+        A.map(nodes, (n) =>
+          Effect.map(f(n.data), (newData) => ({
+            ...n,
+            data: newData,
+          }))
+        )
+      )
     )
   );
 

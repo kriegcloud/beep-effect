@@ -12,7 +12,11 @@ import { Tool } from "effect/unstable/ai";
 import { AiNGram } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/NGrams");
-const NGramModeKit = LiteralKit(["bag", "edge", "set"]);
+const NGramModeKit = LiteralKit(["bag", "edge", "set"]).annotate(
+  $I.annote("NGramModeKit", {
+    description: "LiteralKit backing schema for character n-gram generation modes.",
+  })
+);
 const NGramMode = NGramModeKit.pipe(
   $I.annoteSchema("NGramMode", {
     description: "Character n-gram generation mode.",

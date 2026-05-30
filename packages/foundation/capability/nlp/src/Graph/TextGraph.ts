@@ -1,8 +1,8 @@
 /**
  * TextGraph - text processing over Effect's in-core `effect/Graph`.
  *
- * Builds and manipulates directed graphs of {@link Schema.TextNode} data linked by
- * {@link Schema.TextEdge} relationships, integrating with the package's
+ * Builds and manipulates directed graphs of {@link TextNode} data linked by
+ * {@link TextEdge} relationships, integrating with the package's
  * {@link Tokenization} service for sentence/token extraction.
  *
  * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
@@ -135,21 +135,30 @@ export const singleton = (text: string, type: TextNode["type"]): Effect.Effect<T
  * @since 0.0.0
  * @category constructors
  */
-export const fromDocument = (text: string): Effect.Effect<TextGraph, Tok.TokenizationError, Tok.Tokenization> =>
-  Effect.gen(function* () {
-    const sentenceModels = yield* Tok.sentences(text);
-    const docNode = yield* makeTextNode({ text, type: "document", operation: "root" });
-    const sentenceNodes = yield* Effect.forEach(sentenceModels, (sentence) =>
-      makeTextNode({ text: sentence.text, type: "sentence", operation: "sentencize" })
-    );
-    return Graph.directed<TextNode, TextEdge>((mutable) => {
-      const docIndex = Graph.addNode(mutable, docNode);
-      A.forEach(sentenceNodes, (sentenceNode) => {
-        const sentenceIndex = Graph.addNode(mutable, sentenceNode);
-        Graph.addEdge(mutable, docIndex, sentenceIndex, TextEdge.make({ relation: "contains" }));
-      });
+export const fromDocument = Effect.fn("fromDocument")(function* (
+  text: string
+): Effect.fn.Return<TextGraph, Tok.TokenizationError, Tok.Tokenization> {
+  const sentenceModels = yield* Tok.sentences(text);
+  const docNode = yield* makeTextNode({
+    text,
+    type: "document",
+    operation: "root",
+  });
+  const sentenceNodes = yield* Effect.forEach(sentenceModels, (sentence) =>
+    makeTextNode({
+      text: sentence.text,
+      type: "sentence",
+      operation: "sentencize",
+    })
+  );
+  return Graph.directed<TextNode, TextEdge>((mutable) => {
+    const docIndex = Graph.addNode(mutable, docNode);
+    A.forEach(sentenceNodes, (sentenceNode) => {
+      const sentenceIndex = Graph.addNode(mutable, sentenceNode);
+      Graph.addEdge(mutable, docIndex, sentenceIndex, TextEdge.make({ relation: "contains" }));
     });
   });
+});
 
 // =============================================================================
 // Graph Operations
@@ -183,39 +192,47 @@ export const addChildren = (
  * @since 0.0.0
  * @category combinators
  */
-export const tokenizeNodes = (graph: TextGraph): Effect.Effect<TextGraph, Tok.TokenizationError, Tok.Tokenization> =>
-  Effect.gen(function* () {
-    let result = graph;
+export const tokenizeNodes = Effect.fn("tokenizeNodes")(function* (
+  graph: TextGraph
+): Effect.fn.Return<TextGraph, Tok.TokenizationError, Tok.Tokenization> {
+  let result = graph;
 
-    const sentenceEntries = A.getSomes(
-      A.map(A.fromIterable(graph.pipe(Graph.nodes, Graph.indices)), (idx) =>
-        O.flatMap(Graph.getNode(graph, idx), (node) => (node.type === "sentence" ? O.some({ idx, node }) : O.none()))
+  const sentenceEntries = A.getSomes(
+    A.map(A.fromIterable(graph.pipe(Graph.nodes, Graph.indices)), (idx) =>
+      O.flatMap(Graph.getNode(graph, idx), (node) =>
+        node.type === "sentence"
+          ? O.some({
+              idx,
+              node,
+            })
+          : O.none()
       )
+    )
+  );
+
+  for (const { idx, node } of sentenceEntries) {
+    const alreadyTokenized = A.some(getChildren(result, idx), (childIdx) =>
+      O.match(Graph.getNode(result, childIdx), {
+        onNone: () => false,
+        onSome: (childNode) => childNode.type === "token",
+      })
     );
+    if (alreadyTokenized) continue;
 
-    for (const { idx, node } of sentenceEntries) {
-      const alreadyTokenized = A.some(getChildren(result, idx), (childIdx) =>
-        O.match(Graph.getNode(result, childIdx), {
-          onNone: () => false,
-          onSome: (childNode) => childNode.type === "token",
-        })
-      );
-      if (alreadyTokenized) continue;
-
-      const tokens = yield* Tok.tokenize(node.text);
-      const tokenNodes = yield* Effect.forEach(tokens, (token) =>
-        makeTextNode({ text: token.text, type: "token", operation: "tokenize" })
-      );
-      result = Graph.mutate(result, (mutable) => {
-        A.forEach(tokenNodes, (tokenNode) => {
-          const tokenIndex = Graph.addNode(mutable, tokenNode);
-          Graph.addEdge(mutable, idx, tokenIndex, TextEdge.make({ relation: "contains" }));
-        });
+    const tokens = yield* Tok.tokenize(node.text);
+    const tokenNodes = yield* Effect.forEach(tokens, (token) =>
+      makeTextNode({ text: token.text, type: "token", operation: "tokenize" })
+    );
+    result = Graph.mutate(result, (mutable) => {
+      A.forEach(tokenNodes, (tokenNode) => {
+        const tokenIndex = Graph.addNode(mutable, tokenNode);
+        Graph.addEdge(mutable, idx, tokenIndex, TextEdge.make({ relation: "contains" }));
       });
-    }
+    });
+  }
 
-    return result;
-  });
+  return result;
+});
 
 const rebuild = (
   graph: TextGraph,
@@ -384,16 +401,13 @@ export const toMermaid = (graph: TextGraph): string =>
     nodeLabel: (node) => `${node.type}: ${node.text.slice(0, 20)}`,
     edgeLabel: (edge) => edge.relation,
     direction: "TB",
-    nodeShape: (node) => {
-      switch (node.type) {
-        case "document":
-          return "rounded";
-        case "token":
-          return "circle";
-        default:
-          return "rectangle";
-      }
-    },
+    nodeShape: (node) =>
+      TextNode.match(node, {
+        document: (): Graph.MermaidNodeShape => "rounded",
+        paragraph: (): Graph.MermaidNodeShape => "rectangle",
+        sentence: (): Graph.MermaidNodeShape => "rectangle",
+        token: (): Graph.MermaidNodeShape => "circle",
+      }),
   });
 
 /**

@@ -6,7 +6,7 @@
  * model lifecycle is owned in one place. Provides tokenization, sentence
  * detection, POS tagging, lemmatization, and named-entity recognition; dependency
  * parsing and relation extraction are unsupported and fail with
- * {@link Backend.BackendNotSupported}.
+ * {@link BackendNotSupported}.
  *
  * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
  * - instead of instantiating its own `winkNLP(model)`, it reads the existing
@@ -25,11 +25,11 @@
 import { A } from "@beep/utils";
 import { Clock, Effect, Layer } from "effect";
 import * as O from "effect/Option";
-import type { Detail, ItsFunction } from "wink-nlp";
 import * as Schema from "../Graph/Schema.ts";
-import { WinkEngine } from "../Wink/WinkEngine.ts";
-import type { BackendCapabilities } from "./NLPBackend.ts";
+import { WinkEngine } from "../Wink/index.ts";
 import { NLPBackend, notSupported, operationError } from "./NLPBackend.ts";
+import type { Detail, ItsFunction } from "wink-nlp";
+import type { BackendCapabilities } from "./NLPBackend.ts";
 
 const BACKEND_NAME = "wink-nlp";
 

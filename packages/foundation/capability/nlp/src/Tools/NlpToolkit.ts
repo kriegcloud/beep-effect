@@ -6,7 +6,7 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { A, Str, thunkEmptyReadonlyArray, thunkEmptyStr, thunkFalse } from "@beep/utils";
+import { A, Str, thunk0, thunkEmptyReadonlyArray, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { Chunk, Clock, Effect, flow, Inspectable, identity, Layer, Match, Order, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -18,15 +18,20 @@ import { BracketStringToPatternElement, Tokenization } from "../Core/index.ts";
 import { ascendingNumber, ascendingString, descendingNumber } from "../internal/order.ts";
 import {
   BagOfWords,
+  CorpusManagerError,
   CustomEntityExample,
   DocumentTermSet,
   EntityGroupName,
+  SimilarityError,
   TverskyParams,
+  VectorizerError,
   WinkCorpusManager,
   WinkEngine,
   WinkEngineCustomEntities,
+  WinkEngineError,
   WinkSimilarity,
   WinkUtils,
+  WinkUtilsError,
   WinkVectorizer,
 } from "../Wink/index.ts";
 import { WinkLayerAllLive } from "../Wink/Layer.ts";
@@ -51,28 +56,20 @@ import { TransformText } from "./TransformText.ts";
 import { TverskySimilarity } from "./TverskySimilarity.ts";
 import type { Tool } from "effect/unstable/ai";
 import type { Token } from "../Core/Token.ts";
-import type {
-  CorpusManagerError,
-  SimilarityError,
-  VectorizerError,
-  WinkEngineError,
-  WinkUtilsError,
-} from "../Wink/index.ts";
 
 const $I = $NlpId.create("Tools/NlpToolkit");
 
 const emptyTermBag = R.empty<string, number>();
 
-const unwrapOptionString = (value: O.Option<string>): string =>
-  O.match(value, {
-    onNone: thunkEmptyStr,
-    onSome: identity,
-  });
+const unwrapOptionString = O.match<string, string>({
+  onNone: thunkEmptyStr,
+  onSome: identity,
+});
 
 const isPunctuationToken = (token: Token): boolean =>
   O.match(token.shape, {
     onNone: thunkFalse,
-    onSome: (shape) => !/[Xxd]/.test(shape),
+    onSome: P.not(/[Xxd]/.test),
   });
 
 const isWordLikeToken = (token: Token): boolean => !isPunctuationToken(token) && /[\p{L}\p{N}]/u.test(token.text);
@@ -168,15 +165,20 @@ const setJaccard = (leftValues: ReadonlyArray<string>, rightValues: ReadonlyArra
   const combined = pipe(left, A.union(right));
 
   return A.match(combined, {
-    onEmpty: () => 0,
+    onEmpty: thunk0,
     onNonEmpty: () => pipe(left, A.intersection(right), A.length) / A.length(combined),
   });
 };
 
-class EntityOutputDetail extends S.Class<EntityOutputDetail>($I`EntityOutputDetail`)({
-  type: S.optionalKey(S.Unknown),
-  value: S.optionalKey(S.Unknown),
-}) {}
+class EntityOutputDetail extends S.Class<EntityOutputDetail>($I`EntityOutputDetail`)(
+  {
+    type: S.optionalKey(S.Unknown),
+    value: S.optionalKey(S.Unknown),
+  },
+  $I.annote("EntityOutputDetail", {
+    description: "Loose detail object returned by wink entity output records.",
+  })
+) {}
 
 const decodeEntityOutputDetails = (value: unknown): ReadonlyArray<EntityOutputDetail> =>
   Match.type<boolean>().pipe(
@@ -318,7 +320,15 @@ type NlpToolList = readonly [
 ];
 
 type NlpToolkitTools = Toolkit.ToolsByName<NlpToolList>;
-type NlpToolkitLiveError = CorpusManagerError | SimilarityError | VectorizerError | WinkEngineError | WinkUtilsError;
+
+const NlpToolkitLiveError = S.Union([
+  CorpusManagerError,
+  SimilarityError,
+  VectorizerError,
+  WinkEngineError,
+  WinkUtilsError,
+]).pipe(S.toTaggedUnion("_tag"));
+type NlpToolkitLiveError = typeof NlpToolkitLiveError.Type;
 
 /**
  * Canonical ordered NLP tool list used to build the toolkit and export adapters.
@@ -514,7 +524,7 @@ export const NlpToolkitLive: Layer.Layer<
 
         return {
           avgSentenceLength: A.match(Chunk.toReadonlyArray(document.sentences), {
-            onEmpty: () => 0,
+            onEmpty: thunk0,
             onNonEmpty: () => wordCount / document.sentenceCount,
           }),
           charCount: Str.length(text),
@@ -804,13 +814,13 @@ export const NlpToolkitLive: Layer.Layer<
               end: pipe(
                 A.last(tokens),
                 O.map((token) => token.end),
-                O.getOrElse(() => 0)
+                O.getOrElse(thunk0)
               ),
               index: sentence.index,
               start: pipe(
                 A.head(tokens),
                 O.map((token) => token.start),
-                O.getOrElse(() => 0)
+                O.getOrElse(thunk0)
               ),
               text: sentence.text,
               tokenCount: A.length(tokens),

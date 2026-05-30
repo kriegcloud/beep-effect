@@ -2,10 +2,10 @@
  * AnnotatedTextGraph - text graphs enriched with linguistic-annotation nodes.
  *
  * Extends the structural text graph with annotation strata produced by an
- * {@link Backend.NLPBackend}: {@link Schema.POSNode} (part-of-speech),
- * {@link Schema.EntityNode} (named entities), {@link Schema.LemmaNode} (lemmas),
- * {@link Schema.DependencyNode} (syntactic dependencies), and
- * {@link Schema.RelationNode} (semantic relations). Categorically this is a
+ * {@link Backend.NLPBackend}: {@link POSNode} (part-of-speech),
+ * {@link EntityNode} (named entities), {@link LemmaNode} (lemmas),
+ * {@link DependencyNode} (syntactic dependencies), and
+ * {@link RelationNode} (semantic relations). Categorically this is a
  * richer category whose objects include both structural and annotation nodes.
  *
  * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
@@ -45,7 +45,7 @@ import { DependencyNode, EntityNode, LemmaNode, POSNode, RelationNode, TextEdge,
 export type AnnotatedNode = TextNode | POSNode | EntityNode | LemmaNode | DependencyNode | RelationNode;
 
 /**
- * Type guard: the node is a structural {@link Schema.TextNode}.
+ * Type guard: the node is a structural {@link TextNode}.
  *
  * @since 0.0.0
  * @category refinements
@@ -53,7 +53,7 @@ export type AnnotatedNode = TextNode | POSNode | EntityNode | LemmaNode | Depend
 export const isTextNode: (node: AnnotatedNode) => node is TextNode = S.is(TextNode);
 
 /**
- * Type guard: the node is a {@link Schema.POSNode}.
+ * Type guard: the node is a {@link POSNode}.
  *
  * @since 0.0.0
  * @category refinements
@@ -61,7 +61,7 @@ export const isTextNode: (node: AnnotatedNode) => node is TextNode = S.is(TextNo
 export const isPOSNode: (node: AnnotatedNode) => node is POSNode = S.is(POSNode);
 
 /**
- * Type guard: the node is an {@link Schema.EntityNode}.
+ * Type guard: the node is an {@link EntityNode}.
  *
  * @since 0.0.0
  * @category refinements
@@ -69,7 +69,7 @@ export const isPOSNode: (node: AnnotatedNode) => node is POSNode = S.is(POSNode)
 export const isEntityNode: (node: AnnotatedNode) => node is EntityNode = S.is(EntityNode);
 
 /**
- * Type guard: the node is a {@link Schema.LemmaNode}.
+ * Type guard: the node is a {@link LemmaNode}.
  *
  * @since 0.0.0
  * @category refinements
@@ -77,7 +77,7 @@ export const isEntityNode: (node: AnnotatedNode) => node is EntityNode = S.is(En
 export const isLemmaNode: (node: AnnotatedNode) => node is LemmaNode = S.is(LemmaNode);
 
 /**
- * Type guard: the node is a {@link Schema.DependencyNode}.
+ * Type guard: the node is a {@link DependencyNode}.
  *
  * @since 0.0.0
  * @category refinements
@@ -85,7 +85,7 @@ export const isLemmaNode: (node: AnnotatedNode) => node is LemmaNode = S.is(Lemm
 export const isDependencyNode: (node: AnnotatedNode) => node is DependencyNode = S.is(DependencyNode);
 
 /**
- * Type guard: the node is a {@link Schema.RelationNode}.
+ * Type guard: the node is a {@link RelationNode}.
  *
  * @since 0.0.0
  * @category refinements
@@ -178,43 +178,46 @@ const defaultAnnotationOptions: Required<AnnotationOptions> = {
  * @since 0.0.0
  * @category constructors
  */
-export const fromDocumentAnnotated = (
+export const fromDocumentAnnotated = Effect.fn("fromDocumentAnnotated")(function* (
   text: string,
   options: AnnotationOptions = defaultAnnotationOptions
-): Effect.Effect<AnnotatedTextGraph, Backend.NLPBackendError, Backend.NLPBackend> =>
-  Effect.gen(function* () {
-    const backend = yield* Backend.NLPBackend;
-    const resolved = { ...defaultAnnotationOptions, ...options };
+): Effect.fn.Return<AnnotatedTextGraph, Backend.NLPBackendError, Backend.NLPBackend> {
+  const backend = yield* Backend.NLPBackend;
+  const resolved = { ...defaultAnnotationOptions, ...options };
 
-    const sentences = yield* backend.sentencize(text);
-    const docNode = yield* makeTextNode({ text, type: "document", operation: "root" });
-    const sentenceNodes = yield* Effect.forEach(sentences, (sentence) =>
-      makeTextNode({ text: sentence, type: "sentence", operation: "sentencize" })
-    );
-
-    let graph: AnnotatedTextGraph = Graph.directed<AnnotatedNode, TextEdge>((mutable) => {
-      const docIndex = Graph.addNode(mutable, docNode);
-      A.forEach(sentenceNodes, (sentenceNode) => {
-        const sentenceIndex = Graph.addNode(mutable, sentenceNode);
-        Graph.addEdge(mutable, docIndex, sentenceIndex, TextEdge.make({ relation: "contains" }));
-      });
-    });
-
-    if (resolved.includePOS) {
-      graph = yield* addPOSAnnotations(graph);
-    }
-    if (resolved.includeLemmas) {
-      graph = yield* addLemmaAnnotations(graph);
-    }
-    if (resolved.includeEntities) {
-      graph = yield* addEntityAnnotations(graph);
-    }
-    if (resolved.includeDependencies) {
-      graph = yield* addDependencyAnnotations(graph);
-    }
-
-    return graph;
+  const sentences = yield* backend.sentencize(text);
+  const docNode = yield* makeTextNode({
+    text,
+    type: "document",
+    operation: "root",
   });
+  const sentenceNodes = yield* Effect.forEach(sentences, (sentence) =>
+    makeTextNode({ text: sentence, type: "sentence", operation: "sentencize" })
+  );
+
+  let graph: AnnotatedTextGraph = Graph.directed<AnnotatedNode, TextEdge>((mutable) => {
+    const docIndex = Graph.addNode(mutable, docNode);
+    A.forEach(sentenceNodes, (sentenceNode) => {
+      const sentenceIndex = Graph.addNode(mutable, sentenceNode);
+      Graph.addEdge(mutable, docIndex, sentenceIndex, TextEdge.make({ relation: "contains" }));
+    });
+  });
+
+  if (resolved.includePOS) {
+    graph = yield* addPOSAnnotations(graph);
+  }
+  if (resolved.includeLemmas) {
+    graph = yield* addLemmaAnnotations(graph);
+  }
+  if (resolved.includeEntities) {
+    graph = yield* addEntityAnnotations(graph);
+  }
+  if (resolved.includeDependencies) {
+    graph = yield* addDependencyAnnotations(graph);
+  }
+
+  return graph;
+});
 
 // =============================================================================
 // Annotation passes
@@ -235,6 +238,44 @@ const childrenHave = (
     })
   );
 
+interface SentenceAnnotationConfig<N extends AnnotatedNode> {
+  readonly collect: (
+    backend: Backend.NLPBackendShape,
+    text: string
+  ) => Effect.Effect<ReadonlyArray<N>, Backend.NLPBackendError>;
+  readonly graph: AnnotatedTextGraph;
+  readonly hasAnnotation: (node: AnnotatedNode) => node is N;
+  readonly relation: TextEdge["relation"];
+}
+
+const addSentenceAnnotations = Effect.fn("AnnotatedTextGraph.addSentenceAnnotations")(function* <
+  N extends AnnotatedNode,
+>({
+  collect,
+  graph,
+  hasAnnotation,
+  relation,
+}: SentenceAnnotationConfig<N>): Effect.fn.Return<AnnotatedTextGraph, Backend.NLPBackendError, Backend.NLPBackend> {
+  const backend = yield* Backend.NLPBackend;
+  let result = graph;
+
+  for (const sentIdx of sentenceIndices(graph)) {
+    const sentNode = Graph.getNode(graph, sentIdx);
+    if (O.isNone(sentNode) || !isTextNode(sentNode.value)) continue;
+    if (childrenHave(result, sentIdx, hasAnnotation)) continue;
+
+    const annotationNodes = yield* collect(backend, sentNode.value.text);
+    result = Graph.mutate(result, (mutable) => {
+      A.forEach(annotationNodes, (annotationNode) => {
+        const annotationIdx = Graph.addNode(mutable, annotationNode);
+        Graph.addEdge(mutable, sentIdx, annotationIdx, TextEdge.make({ relation }));
+      });
+    });
+  }
+
+  return result;
+});
+
 /**
  * Add part-of-speech annotation nodes to each sentence (idempotent).
  *
@@ -244,25 +285,11 @@ const childrenHave = (
 export const addPOSAnnotations = (
   graph: AnnotatedTextGraph
 ): Effect.Effect<AnnotatedTextGraph, Backend.NLPBackendError, Backend.NLPBackend> =>
-  Effect.gen(function* () {
-    const backend = yield* Backend.NLPBackend;
-    let result = graph;
-
-    for (const sentIdx of sentenceIndices(graph)) {
-      const sentNode = Graph.getNode(graph, sentIdx);
-      if (O.isNone(sentNode) || !isTextNode(sentNode.value)) continue;
-      if (childrenHave(result, sentIdx, isPOSNode)) continue;
-
-      const posNodes = yield* backend.posTag(sentNode.value.text);
-      result = Graph.mutate(result, (mutable) => {
-        A.forEach(posNodes, (posNode) => {
-          const posIdx = Graph.addNode(mutable, posNode);
-          Graph.addEdge(mutable, sentIdx, posIdx, TextEdge.make({ relation: "contains" }));
-        });
-      });
-    }
-
-    return result;
+  addSentenceAnnotations({
+    collect: (backend, text) => backend.posTag(text),
+    graph,
+    hasAnnotation: isPOSNode,
+    relation: "contains",
   });
 
 /**
@@ -274,25 +301,11 @@ export const addPOSAnnotations = (
 export const addLemmaAnnotations = (
   graph: AnnotatedTextGraph
 ): Effect.Effect<AnnotatedTextGraph, Backend.NLPBackendError, Backend.NLPBackend> =>
-  Effect.gen(function* () {
-    const backend = yield* Backend.NLPBackend;
-    let result = graph;
-
-    for (const sentIdx of sentenceIndices(graph)) {
-      const sentNode = Graph.getNode(graph, sentIdx);
-      if (O.isNone(sentNode) || !isTextNode(sentNode.value)) continue;
-      if (childrenHave(result, sentIdx, isLemmaNode)) continue;
-
-      const lemmaNodes = yield* backend.lemmatize(sentNode.value.text);
-      result = Graph.mutate(result, (mutable) => {
-        A.forEach(lemmaNodes, (lemmaNode) => {
-          const lemmaIdx = Graph.addNode(mutable, lemmaNode);
-          Graph.addEdge(mutable, sentIdx, lemmaIdx, TextEdge.make({ relation: "contains" }));
-        });
-      });
-    }
-
-    return result;
+  addSentenceAnnotations({
+    collect: (backend, text) => backend.lemmatize(text),
+    graph,
+    hasAnnotation: isLemmaNode,
+    relation: "contains",
   });
 
 /**
@@ -304,25 +317,11 @@ export const addLemmaAnnotations = (
 export const addEntityAnnotations = (
   graph: AnnotatedTextGraph
 ): Effect.Effect<AnnotatedTextGraph, Backend.NLPBackendError, Backend.NLPBackend> =>
-  Effect.gen(function* () {
-    const backend = yield* Backend.NLPBackend;
-    let result = graph;
-
-    for (const sentIdx of sentenceIndices(graph)) {
-      const sentNode = Graph.getNode(graph, sentIdx);
-      if (O.isNone(sentNode) || !isTextNode(sentNode.value)) continue;
-      if (childrenHave(result, sentIdx, isEntityNode)) continue;
-
-      const entityNodes = yield* backend.extractEntities(sentNode.value.text);
-      result = Graph.mutate(result, (mutable) => {
-        A.forEach(entityNodes, (entityNode) => {
-          const entityIdx = Graph.addNode(mutable, entityNode);
-          Graph.addEdge(mutable, sentIdx, entityIdx, TextEdge.make({ relation: "entity-mention" }));
-        });
-      });
-    }
-
-    return result;
+  addSentenceAnnotations({
+    collect: (backend, text) => backend.extractEntities(text),
+    graph,
+    hasAnnotation: isEntityNode,
+    relation: "entity-mention",
   });
 
 /**
@@ -334,25 +333,11 @@ export const addEntityAnnotations = (
 export const addDependencyAnnotations = (
   graph: AnnotatedTextGraph
 ): Effect.Effect<AnnotatedTextGraph, Backend.NLPBackendError, Backend.NLPBackend> =>
-  Effect.gen(function* () {
-    const backend = yield* Backend.NLPBackend;
-    let result = graph;
-
-    for (const sentIdx of sentenceIndices(graph)) {
-      const sentNode = Graph.getNode(graph, sentIdx);
-      if (O.isNone(sentNode) || !isTextNode(sentNode.value)) continue;
-      if (childrenHave(result, sentIdx, isDependencyNode)) continue;
-
-      const depNodes = yield* backend.parseDependencies(sentNode.value.text);
-      result = Graph.mutate(result, (mutable) => {
-        A.forEach(depNodes, (depNode) => {
-          const depIdx = Graph.addNode(mutable, depNode);
-          Graph.addEdge(mutable, sentIdx, depIdx, TextEdge.make({ relation: "head-of" }));
-        });
-      });
-    }
-
-    return result;
+  addSentenceAnnotations({
+    collect: (backend, text) => backend.parseDependencies(text),
+    graph,
+    hasAnnotation: isDependencyNode,
+    relation: "head-of",
   });
 
 // =============================================================================
@@ -377,7 +362,10 @@ const entriesWhere = <K extends AnnotatedNode>(
  */
 export const getPOSNodes = (
   graph: AnnotatedTextGraph
-): ReadonlyArray<{ readonly index: Graph.NodeIndex; readonly node: POSNode }> => entriesWhere(graph, isPOSNode);
+): ReadonlyArray<{
+  readonly index: Graph.NodeIndex;
+  readonly node: POSNode;
+}> => entriesWhere(graph, isPOSNode);
 
 /**
  * All entity-annotation nodes with their indices.
@@ -387,7 +375,10 @@ export const getPOSNodes = (
  */
 export const getEntityNodes = (
   graph: AnnotatedTextGraph
-): ReadonlyArray<{ readonly index: Graph.NodeIndex; readonly node: EntityNode }> => entriesWhere(graph, isEntityNode);
+): ReadonlyArray<{
+  readonly index: Graph.NodeIndex;
+  readonly node: EntityNode;
+}> => entriesWhere(graph, isEntityNode);
 
 /**
  * All lemma-annotation nodes with their indices.
@@ -397,7 +388,10 @@ export const getEntityNodes = (
  */
 export const getLemmaNodes = (
   graph: AnnotatedTextGraph
-): ReadonlyArray<{ readonly index: Graph.NodeIndex; readonly node: LemmaNode }> => entriesWhere(graph, isLemmaNode);
+): ReadonlyArray<{
+  readonly index: Graph.NodeIndex;
+  readonly node: LemmaNode;
+}> => entriesWhere(graph, isLemmaNode);
 
 /**
  * All structural text nodes with their indices.
@@ -407,7 +401,10 @@ export const getLemmaNodes = (
  */
 export const getTextNodes = (
   graph: AnnotatedTextGraph
-): ReadonlyArray<{ readonly index: Graph.NodeIndex; readonly node: TextNode }> => entriesWhere(graph, isTextNode);
+): ReadonlyArray<{
+  readonly index: Graph.NodeIndex;
+  readonly node: TextNode;
+}> => entriesWhere(graph, isTextNode);
 
 /**
  * Entities of a given type.
@@ -448,7 +445,11 @@ export const countNodesByType = (graph: AnnotatedTextGraph): Record<string, numb
       if (isPOSNode(node)) return { ...counts, pos: counts.pos + 1 };
       if (isEntityNode(node)) return { ...counts, entity: counts.entity + 1 };
       if (isLemmaNode(node)) return { ...counts, lemma: counts.lemma + 1 };
-      if (isDependencyNode(node)) return { ...counts, dependency: counts.dependency + 1 };
+      if (isDependencyNode(node))
+        return {
+          ...counts,
+          dependency: counts.dependency + 1,
+        };
       return { ...counts, relation: counts.relation + 1 };
     }
   );

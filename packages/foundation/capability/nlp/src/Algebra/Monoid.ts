@@ -1,6 +1,6 @@
+import { A, O, Str, thunk0 } from "@beep/utils";
 import { HashMap } from "effect";
-import * as O from "effect/Option";
-
+import { dual } from "effect/Function";
 // =============================================================================
 // Core Monoid Type Class
 // =============================================================================
@@ -22,7 +22,10 @@ export interface Monoid<A> {
    * Associative binary operation
    * Must satisfy: combine(combine(x, y), z) = combine(x, combine(y, z))
    */
-  readonly combine: (x: A, y: A) => A;
+  readonly combine: {
+    (x: A, y: A): A;
+    (y: A): (x: A) => A;
+  };
   /**
    * The identity element
    * Must satisfy: combine(empty, x) = x = combine(x, empty)
@@ -36,7 +39,7 @@ export interface Monoid<A> {
  * @since 0.0.0
  * @category constructors
  */
-export const make = <A>(empty: A, combine: (x: A, y: A) => A): Monoid<A> => ({
+export const make = <A>(empty: A, combine: Monoid<A>["combine"]): Monoid<A> => ({
   empty,
   combine,
 });
@@ -79,14 +82,14 @@ export const combineAll =
  * String concatenation monoid.
  *
  * - Empty: ""
- * - Combine: (x, y) => x + y
+ * - Combine: (x, y) =\> x + y
  *
  * @since 0.0.0
  * @category instances
  */
 export const StringConcat: Monoid<string> = {
   empty: "",
-  combine: (x, y) => x + y,
+  combine: dual(2, (x, y) => x + y),
 };
 
 /**
@@ -99,11 +102,11 @@ export const StringConcat: Monoid<string> = {
  */
 export const StringJoin = (separator: string): Monoid<string> => ({
   empty: "",
-  combine: (x, y) => {
-    if (x === "") return y;
-    if (y === "") return x;
+  combine: dual(2, (x, y) => {
+    if (Str.isEmpty(x)) return y;
+    if (Str.isEmpty(y)) return x;
     return `${x}${separator}${y}`;
-  },
+  }),
 });
 
 /**
@@ -114,13 +117,13 @@ export const StringJoin = (separator: string): Monoid<string> => ({
  */
 export const StringDelimited = (prefix: string, suffix: string, separator: string): Monoid<string> => ({
   empty: "",
-  combine: (x, y) => {
-    if (x === "" && y === "") return "";
-    if (x === "") return `${prefix}${y}${suffix}`;
-    if (y === "") return `${prefix}${x}${suffix}`;
-    const inner = `${x.slice(prefix.length, -suffix.length)}${separator}${y.slice(prefix.length, -suffix.length)}`;
+  combine: dual(2, (x, y) => {
+    if (Str.isEmpty(x) && Str.isEmpty(y)) return "";
+    if (Str.isEmpty(x)) return `${prefix}${y}${suffix}`;
+    if (Str.isEmpty(y)) return `${prefix}${x}${suffix}`;
+    const inner = `${Str.slice(prefix.length, -suffix.length)(x)}${separator}${Str.slice(prefix.length, -suffix.length)(y)}`;
     return `${prefix}${inner}${suffix}`;
-  },
+  }),
 });
 
 // =============================================================================
@@ -135,7 +138,7 @@ export const StringDelimited = (prefix: string, suffix: string, separator: strin
  */
 export const NumberSum: Monoid<number> = {
   empty: 0,
-  combine: (x, y) => x + y,
+  combine: dual(2, (x, y) => x + y),
 };
 
 /**
@@ -146,7 +149,7 @@ export const NumberSum: Monoid<number> = {
  */
 export const NumberProduct: Monoid<number> = {
   empty: 1,
-  combine: (x, y) => x * y,
+  combine: dual(2, (x, y) => x * y),
 };
 
 /**
@@ -157,7 +160,7 @@ export const NumberProduct: Monoid<number> = {
  */
 export const NumberMax: Monoid<number> = {
   empty: Number.NEGATIVE_INFINITY,
-  combine: (x, y) => Math.max(x, y),
+  combine: dual(2, (x, y) => Math.max(x, y)),
 };
 
 /**
@@ -168,7 +171,7 @@ export const NumberMax: Monoid<number> = {
  */
 export const NumberMin: Monoid<number> = {
   empty: Number.POSITIVE_INFINITY,
-  combine: (x, y) => Math.min(x, y),
+  combine: dual(2, (x, y) => Math.min(x, y)),
 };
 
 // =============================================================================
@@ -183,7 +186,7 @@ export const NumberMin: Monoid<number> = {
  */
 export const ArrayConcat = <A>(): Monoid<ReadonlyArray<A>> => ({
   empty: [],
-  combine: (x, y) => [...x, ...y],
+  combine: dual(2, (x, y) => [...x, ...y]),
 });
 
 // =============================================================================
@@ -201,10 +204,11 @@ export const ArrayConcat = <A>(): Monoid<ReadonlyArray<A>> => ({
  */
 export const MultiSet = <K>(): Monoid<HashMap.HashMap<K, number>> => ({
   empty: HashMap.empty(),
-  combine: (x, y) =>
-    HashMap.reduce(y, x, (map, count, key) =>
-      HashMap.modifyAt(map, key, (existing) => O.some(O.getOrElse(existing, () => 0) + count))
-    ),
+  combine: dual(2, (x, y) =>
+    HashMap.reduce(y, x, (map: HashMap.HashMap<K, number>, count: number, key: K) =>
+      HashMap.modifyAt(map, key, (existing: O.Option<number>) => O.some(O.getOrElse(existing, thunk0) + count))
+    )
+  ),
 });
 
 /**
@@ -215,7 +219,7 @@ export const MultiSet = <K>(): Monoid<HashMap.HashMap<K, number>> => ({
  */
 export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
   empty: new Set(),
-  combine: (x, y) => new Set([...x, ...y]),
+  combine: dual(2, (x, y) => new Set([...x, ...y])),
 });
 
 /**
@@ -229,15 +233,15 @@ export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
  * @since 0.0.0
  * @category instances
  */
-export const SetIntersection = <A>(): Monoid<O.Option<ReadonlySet<A>>> => ({
+export const SetIntersection: <A>() => Monoid<O.Option<ReadonlySet<A>>> = <A>(): Monoid<O.Option<ReadonlySet<A>>> => ({
   empty: O.none(),
-  combine: (x, y) =>
+  combine: dual(2, (x, y) =>
     O.match(x, {
       onNone: () => y,
-      onSome: (xs) =>
+      onSome: (xs: ReadonlySet<A>) =>
         O.match(y, {
           onNone: () => x,
-          onSome: (ys) => {
+          onSome: (ys: ReadonlySet<A>) => {
             const result = new Set<A>();
             for (const elem of xs) {
               if (ys.has(elem)) result.add(elem);
@@ -245,7 +249,8 @@ export const SetIntersection = <A>(): Monoid<O.Option<ReadonlySet<A>>> => ({
             return O.some(result);
           },
         }),
-    }),
+    })
+  ),
 });
 
 // =============================================================================
@@ -259,8 +264,8 @@ export const SetIntersection = <A>(): Monoid<O.Option<ReadonlySet<A>>> => ({
  * @category instances
  */
 export const VectorAdd = (dimension: number): Monoid<ReadonlyArray<number>> => ({
-  empty: Array(dimension).fill(0),
-  combine: (x, y) => x.map((xi, i) => xi + (y[i] ?? 0)),
+  empty: A.replicate(0, dimension),
+  combine: dual(2, (x, y) => A.map(x, (xi, i) => xi + (y[i] ?? 0))),
 });
 
 /**
@@ -272,11 +277,11 @@ export const VectorAdd = (dimension: number): Monoid<ReadonlyArray<number>> => (
 export const VectorAverage = (
   dimension: number
 ): Monoid<{ readonly sum: ReadonlyArray<number>; readonly count: number }> => ({
-  empty: { sum: Array(dimension).fill(0), count: 0 },
-  combine: (x, y) => ({
-    sum: x.sum.map((xi, i) => xi + (y.sum[i] ?? 0)),
+  empty: { sum: A.replicate(0, dimension), count: 0 },
+  combine: dual(2, (x, y) => ({
+    sum: A.map(x.sum, (xi, i) => xi + (y.sum[i] ?? 0)),
     count: x.count + y.count,
-  }),
+  })),
 });
 
 /**
@@ -288,7 +293,7 @@ export const VectorAverage = (
 export const getAverage = (result: {
   readonly sum: ReadonlyArray<number>;
   readonly count: number;
-}): ReadonlyArray<number> => (result.count === 0 ? result.sum : result.sum.map((x) => x / result.count));
+}): ReadonlyArray<number> => (result.count === 0 ? result.sum : A.map(result.sum, (x) => x / result.count));
 
 // =============================================================================
 // Tuple Monoids (Product)
@@ -302,7 +307,7 @@ export const getAverage = (result: {
  */
 export const Product = <A, B>(ma: Monoid<A>, mb: Monoid<B>): Monoid<readonly [A, B]> => ({
   empty: [ma.empty, mb.empty],
-  combine: ([xa, xb], [ya, yb]) => [ma.combine(xa, ya), mb.combine(xb, yb)],
+  combine: dual(2, ([xa, xb], [ya, yb]) => [ma.combine(xa, ya), mb.combine(xb, yb)]),
 });
 
 /**
@@ -313,7 +318,7 @@ export const Product = <A, B>(ma: Monoid<A>, mb: Monoid<B>): Monoid<readonly [A,
  */
 export const Product3 = <A, B, C>(ma: Monoid<A>, mb: Monoid<B>, mc: Monoid<C>): Monoid<readonly [A, B, C]> => ({
   empty: [ma.empty, mb.empty, mc.empty],
-  combine: ([xa, xb, xc], [ya, yb, yc]) => [ma.combine(xa, ya), mb.combine(xb, yb), mc.combine(xc, yc)],
+  combine: dual(2, ([xa, xb, xc], [ya, yb, yc]) => [ma.combine(xa, ya), mb.combine(xb, yb), mc.combine(xc, yc)]),
 });
 
 // =============================================================================
@@ -328,15 +333,16 @@ export const Product3 = <A, B, C>(ma: Monoid<A>, mb: Monoid<B>, mc: Monoid<C>): 
  */
 export const Option = <A>(monoid: Monoid<A>): Monoid<O.Option<A>> => ({
   empty: O.none(),
-  combine: (x, y) =>
+  combine: dual(2, (x, y) =>
     O.match(x, {
       onNone: () => y,
-      onSome: (xa) =>
+      onSome: (xa: A) =>
         O.match(y, {
           onNone: () => x,
-          onSome: (ya) => O.some(monoid.combine(xa, ya)),
+          onSome: (ya: A) => O.some(monoid.combine(xa, ya)),
         }),
-    }),
+    })
+  ),
 });
 
 // =============================================================================
@@ -351,7 +357,7 @@ export const Option = <A>(monoid: Monoid<A>): Monoid<O.Option<A>> => ({
  */
 export const Endo = <A>(): Monoid<(a: A) => A> => ({
   empty: (a) => a,
-  combine: (f, g) => (a) => f(g(a)),
+  combine: dual(2, (f, g) => (a: A) => f(g(a))),
 });
 
 // =============================================================================
@@ -366,7 +372,7 @@ export const Endo = <A>(): Monoid<(a: A) => A> => ({
  */
 export const Dual = <A>(monoid: Monoid<A>): Monoid<A> => ({
   empty: monoid.empty,
-  combine: (x, y) => monoid.combine(y, x),
+  combine: dual(2, (x, y) => monoid.combine(y, x)),
 });
 
 // =============================================================================
@@ -381,7 +387,7 @@ export const Dual = <A>(monoid: Monoid<A>): Monoid<A> => ({
  */
 export const BooleanAll: Monoid<boolean> = {
   empty: true,
-  combine: (x, y) => x && y,
+  combine: dual(2, (x, y) => x && y),
 };
 
 /**
@@ -392,7 +398,7 @@ export const BooleanAll: Monoid<boolean> = {
  */
 export const BooleanAny: Monoid<boolean> = {
   empty: false,
-  combine: (x, y) => x || y,
+  combine: dual(2, (x, y) => x || y),
 };
 
 // =============================================================================

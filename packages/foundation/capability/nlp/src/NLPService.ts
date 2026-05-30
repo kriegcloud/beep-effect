@@ -17,10 +17,10 @@
 
 import { $NlpId } from "@beep/identity";
 import { Context, Effect, Layer } from "effect";
-import type { NLPBackendError, NLPBackendShape } from "./Backend/NLPBackend.ts";
 import * as Backend from "./Backend/NLPBackend.ts";
-import type { AnnotatedTextGraph } from "./Graph/AnnotatedTextGraph.ts";
 import * as ATG from "./Graph/AnnotatedTextGraph.ts";
+import type { NLPBackendError, NLPBackendShape } from "./Backend/NLPBackend.ts";
+import type { AnnotatedTextGraph } from "./Graph/AnnotatedTextGraph.ts";
 import type { EntityNode, POSNode, RelationNode } from "./Graph/Schema.ts";
 
 const $I = $NlpId.create("NLPService");

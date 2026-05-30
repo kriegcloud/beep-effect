@@ -7,8 +7,8 @@
  * adapters/wrappers, and composition enables fallback strategies.
  *
  * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`:
- * `Data.TaggedError` becomes {@link @beep/schema!TaggedErrorClass} scoped by a
- * {@link @beep/identity!$NlpId} composer, `Context.GenericTag` becomes the
+ * `Data.TaggedError` becomes {@link @beep/schema#TaggedErrorClass} scoped by a
+ * {@link @beep/identity#$NlpId} composer, `Context.GenericTag` becomes the
  * `Context.Service` class form used across this package, and `Object.keys`
  * becomes `Struct.keys`.
  *
@@ -117,7 +117,14 @@ export class BackendOperationError extends TaggedErrorClass<BackendOperationErro
  * @since 0.0.0
  * @category errors
  */
-export type NLPBackendError = BackendNotSupported | BackendInitError | BackendOperationError;
+export const NLPBackendError = S.Union([BackendNotSupported, BackendInitError, BackendOperationError]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("NLPBackendError", {
+    description: "A backend failure.",
+  })
+);
+
+export type NLPBackendError = typeof NLPBackendError.Type;
 
 /**
  * Capabilities a backend may or may not support, enabling runtime capability

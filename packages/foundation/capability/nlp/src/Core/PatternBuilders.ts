@@ -459,7 +459,7 @@ export const isEmpty = (pattern: Pattern): boolean => Chunk.isEmpty(pattern.elem
  * @since 0.0.0
  * @category getters
  */
-export const head = (pattern: Pattern): PatternElement | undefined => elementAt(pattern, 0);
+export const head = elementAt(0);
 
 /**
  * Get the last pattern element.

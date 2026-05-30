@@ -9,6 +9,7 @@ import { WinkBackendLive } from "@beep/nlp/Backend/WinkBackend";
 import * as EG from "@beep/nlp/Graph/EffectGraph";
 import { Catalog } from "@beep/nlp/Graph/GraphOperations";
 import * as WinkEngine from "@beep/nlp/Wink/WinkEngine";
+import { provideScopedLayer } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -22,7 +23,7 @@ describe("Catalog backend-backed operations", () => {
       const children = yield* Catalog.sentencize.apply(root);
       expect(children.length).toBe(2);
       expect(children.every((c) => typeof c.data === "string")).toBe(true);
-    }).pipe(Effect.provide(BackendLayer))
+    }).pipe(provideScopedLayer(BackendLayer))
   );
 
   it.effect("tokenize produces a child node per token", () =>
@@ -30,7 +31,7 @@ describe("Catalog backend-backed operations", () => {
       const root = yield* EG.makeNode("dogs run fast");
       const children = yield* Catalog.tokenize.apply(root);
       expect(children.length).toBeGreaterThanOrEqual(3);
-    }).pipe(Effect.provide(BackendLayer))
+    }).pipe(provideScopedLayer(BackendLayer))
   );
 
   it.effect("posTag produces POS annotation nodes", () =>
@@ -39,7 +40,7 @@ describe("Catalog backend-backed operations", () => {
       const children = yield* Catalog.posTag.apply(root);
       expect(children.length).toBe(2);
       expect(typeof children[0]?.data.tag).toBe("string");
-    }).pipe(Effect.provide(BackendLayer))
+    }).pipe(provideScopedLayer(BackendLayer))
   );
 
   it.effect("lemmatize produces lemma annotation nodes", () =>
@@ -48,7 +49,7 @@ describe("Catalog backend-backed operations", () => {
       const children = yield* Catalog.lemmatize.apply(root);
       expect(children.length).toBe(2);
       expect(typeof children[0]?.data.lemma).toBe("string");
-    }).pipe(Effect.provide(BackendLayer))
+    }).pipe(provideScopedLayer(BackendLayer))
   );
 
   it.effect("each backend op records its operation name on the produced nodes", () =>
@@ -57,7 +58,7 @@ describe("Catalog backend-backed operations", () => {
       const children = yield* Catalog.tokenize.apply(root);
       const first = children[0];
       expect(first?.metadata.operation._tag).toBe("Some");
-    }).pipe(Effect.provide(BackendLayer))
+    }).pipe(provideScopedLayer(BackendLayer))
   );
 });
 

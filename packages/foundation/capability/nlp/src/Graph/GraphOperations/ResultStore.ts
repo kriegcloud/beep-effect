@@ -1,7 +1,7 @@
 /**
  * GraphOperations/ResultStore - caching of operation results.
  *
- * Caches {@link Types.OperationResult}s keyed by operation name + node id so
+ * Caches {@link OperationResult}s keyed by operation name + node id so
  * expensive operations are not recomputed. The default implementation is an
  * in-memory `Ref<HashMap>`.
  *
@@ -180,11 +180,11 @@ const makeResultStore = Effect.gen(function* () {
       const timestamps = A.map(entries, (e) => e.timestamp);
       return {
         newestEntry: A.match(timestamps, {
-          onEmpty: () => O.none<number>(),
+          onEmpty: O.none<number>,
           onNonEmpty: (ts) => O.some(Math.max(...ts)),
         }),
         oldestEntry: A.match(timestamps, {
-          onEmpty: () => O.none<number>(),
+          onEmpty: O.none<number>,
           onNonEmpty: (ts) => O.some(Math.min(...ts)),
         }),
         size: HashMap.size(map),

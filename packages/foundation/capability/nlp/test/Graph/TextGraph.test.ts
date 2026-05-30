@@ -9,6 +9,8 @@
 import { TextNode } from "@beep/nlp/Graph/Schema";
 import * as TG from "@beep/nlp/Graph/TextGraph";
 import { WinkTokenizationLive } from "@beep/nlp/Wink/index";
+import { provideScopedLayer } from "@beep/test-utils";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Graph from "effect/Graph";
@@ -46,7 +48,7 @@ describe("TextGraph acyclicity", () => {
 describe("TextGraph from document (service-backed)", () => {
   it.effect("fromDocument creates a doc root with sentence children", () =>
     Effect.gen(function* () {
-      const g = yield* TG.fromDocument("Hello there. How are you?").pipe(Effect.provide(WinkTokenizationLive));
+      const g = yield* TG.fromDocument("Hello there. How are you?").pipe(provideScopedLayer(WinkTokenizationLive));
       expect(TG.findNodesByType(g, "document")).toHaveLength(1);
       const sentences = TG.findNodesByType(g, "sentence");
       expect(sentences.length).toBeGreaterThanOrEqual(2);
@@ -55,11 +57,11 @@ describe("TextGraph from document (service-backed)", () => {
 
   it.effect("tokenizeNodes is idempotent", () =>
     Effect.gen(function* () {
-      const g0 = yield* TG.fromDocument("Hello there.").pipe(Effect.provide(WinkTokenizationLive));
-      const g1 = yield* TG.tokenizeNodes(g0).pipe(Effect.provide(WinkTokenizationLive));
+      const g0 = yield* TG.fromDocument("Hello there.").pipe(provideScopedLayer(WinkTokenizationLive));
+      const g1 = yield* TG.tokenizeNodes(g0).pipe(provideScopedLayer(WinkTokenizationLive));
       const tokensAfterFirst = TG.findNodesByType(g1, "token").length;
       expect(tokensAfterFirst).toBeGreaterThan(0);
-      const g2 = yield* TG.tokenizeNodes(g1).pipe(Effect.provide(WinkTokenizationLive));
+      const g2 = yield* TG.tokenizeNodes(g1).pipe(provideScopedLayer(WinkTokenizationLive));
       expect(TG.findNodesByType(g2, "token").length).toBe(tokensAfterFirst);
     })
   );
@@ -83,7 +85,7 @@ describe("TextGraph traversal & queries", () => {
       const root = TG.getRoots(g0)[0]!;
       const child = TextNode.make({ text: "s", type: "sentence", timestamp: 0 });
       const g1 = yield* TG.addChildren(g0, root, [child], "contains");
-      const indices = Array.from(Graph.indices(TG.topo(g1)));
+      const indices = A.fromIterable(g1.pipe(TG.topo, Graph.indices));
       expect(indices).toHaveLength(2);
     })
   );

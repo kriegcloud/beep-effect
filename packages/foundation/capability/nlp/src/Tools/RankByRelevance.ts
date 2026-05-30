@@ -12,9 +12,11 @@ import { Tool } from "effect/unstable/ai";
 import { AiRankedText } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/RankByRelevance");
-const CandidateText = S.String.annotate({
-  description: "Candidate text to rank",
-});
+const CandidateText = S.String.pipe(
+  $I.annoteSchema("CandidateText", {
+    description: "Candidate text to rank against a query.",
+  })
+);
 
 class RankByRelevanceParameters extends S.Class<RankByRelevanceParameters>($I`RankByRelevanceParameters`)(
   {

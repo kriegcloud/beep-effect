@@ -9,6 +9,7 @@
 import * as Backend from "@beep/nlp/Backend/NLPBackend";
 import { WinkBackendLive } from "@beep/nlp/Backend/WinkBackend";
 import * as WinkEngine from "@beep/nlp/Wink/WinkEngine";
+import { provideScopedLayer } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -22,7 +23,7 @@ describe("WinkBackend", () => {
       const tokens = yield* backend.tokenize("Hello world");
       expect(tokens.length).toBeGreaterThan(0);
       expect(tokens).toContain("Hello");
-    }).pipe(Effect.provide(TestLayer))
+    }).pipe(provideScopedLayer(TestLayer))
   );
 
   it.effect("splits text into sentences", () =>
@@ -30,7 +31,7 @@ describe("WinkBackend", () => {
       const backend = yield* Backend.NLPBackend;
       const sentences = yield* backend.sentencize("Hello world. How are you?");
       expect(sentences.length).toBe(2);
-    }).pipe(Effect.provide(TestLayer))
+    }).pipe(provideScopedLayer(TestLayer))
   );
 
   it.effect("tags parts of speech, one POSNode per token", () =>
@@ -41,7 +42,7 @@ describe("WinkBackend", () => {
       expect(tagged[0]?.text).toBe("dogs");
       expect(typeof tagged[0]?.tag).toBe("string");
       expect(tagged[0]?.position).toBe(0);
-    }).pipe(Effect.provide(TestLayer))
+    }).pipe(provideScopedLayer(TestLayer))
   );
 
   it.effect("lemmatizes tokens to canonical forms", () =>
@@ -51,7 +52,7 @@ describe("WinkBackend", () => {
       expect(lemmas.length).toBe(2);
       expect(lemmas[0]?.token).toBe("running");
       expect(typeof lemmas[0]?.lemma).toBe("string");
-    }).pipe(Effect.provide(TestLayer))
+    }).pipe(provideScopedLayer(TestLayer))
   );
 
   it.effect("extracts entities with a type and span", () =>
@@ -63,7 +64,7 @@ describe("WinkBackend", () => {
         expect(typeof entity.entityType).toBe("string");
         expect(entity.span.end).toBeGreaterThanOrEqual(entity.span.start);
       }
-    }).pipe(Effect.provide(TestLayer))
+    }).pipe(provideScopedLayer(TestLayer))
   );
 
   it.effect("fails parseDependencies with BackendNotSupported", () =>
@@ -71,7 +72,7 @@ describe("WinkBackend", () => {
       const backend = yield* Backend.NLPBackend;
       const result = yield* Effect.flip(backend.parseDependencies("a sentence"));
       expect(result._tag).toBe("BackendNotSupported");
-    }).pipe(Effect.provide(TestLayer))
+    }).pipe(provideScopedLayer(TestLayer))
   );
 
   it.effect("fails extractRelations with BackendNotSupported", () =>
@@ -79,6 +80,6 @@ describe("WinkBackend", () => {
       const backend = yield* Backend.NLPBackend;
       const result = yield* Effect.flip(backend.extractRelations("a sentence"));
       expect(result._tag).toBe("BackendNotSupported");
-    }).pipe(Effect.provide(TestLayer))
+    }).pipe(provideScopedLayer(TestLayer))
   );
 });

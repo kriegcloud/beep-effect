@@ -10,6 +10,7 @@
 
 import * as EG from "@beep/nlp/Graph/EffectGraph";
 import { Errors, Executor, Operation, ResultStore, Types } from "@beep/nlp/Graph/GraphOperations";
+import { provideScopedLayer } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -168,7 +169,7 @@ describe("ResultStore", () => {
       const stats = yield* store.stats;
       expect(stats.size).toBe(1);
       expect(stats.totalHits).toBe(1);
-    }).pipe(Effect.provide(ResultStore.ResultStoreTest))
+    }).pipe(provideScopedLayer(ResultStore.ResultStoreTest))
   );
 
   it.effect("delete and clear remove entries", () =>
@@ -182,7 +183,7 @@ describe("ResultStore", () => {
       yield* store.store(ResultStore.ResultKey.make("op", EG.makeNodeId("n3")), yield* mkResult);
       yield* store.clear;
       expect((yield* store.stats).size).toBe(0);
-    }).pipe(Effect.provide(ResultStore.ResultStoreTest))
+    }).pipe(provideScopedLayer(ResultStore.ResultStoreTest))
   );
 });
 
@@ -198,7 +199,7 @@ describe("GraphExecutor", () => {
       expect(result.errors.length).toBe(0);
       expect(result.metrics.nodesProcessed).toBe(1);
       expect(result.metrics.nodesCreated).toBe(1);
-    }).pipe(Effect.provide(Executor.GraphExecutorTest))
+    }).pipe(provideScopedLayer(Executor.GraphExecutorTest))
   );
 
   it.effect("reports a cache miss then a cache hit for the same node", () =>
@@ -210,7 +211,7 @@ describe("GraphExecutor", () => {
       expect(first.metrics.cacheMisses).toBe(1);
       expect(first.metrics.cacheHits).toBe(0);
       expect(second.metrics.cacheHits).toBe(1);
-    }).pipe(Effect.provide(Executor.GraphExecutorTest))
+    }).pipe(provideScopedLayer(Executor.GraphExecutorTest))
   );
 
   it.effect("validate warns when there are no leaf nodes", () =>
@@ -219,7 +220,7 @@ describe("GraphExecutor", () => {
       const result = yield* executor.validate(EG.empty<string>(), upper);
       expect(result.valid).toBe(true);
       expect(result.warnings.length).toBeGreaterThan(0);
-    }).pipe(Effect.provide(Executor.GraphExecutorTest))
+    }).pipe(provideScopedLayer(Executor.GraphExecutorTest))
   );
 
   it.effect("estimateCost scales by the number of leaf nodes", () =>
@@ -228,7 +229,7 @@ describe("GraphExecutor", () => {
       const executor = yield* Executor.GraphExecutor;
       const cost = yield* executor.estimateCost(graph, upper);
       expect(cost.complexity).toBe("O(1)");
-    }).pipe(Effect.provide(Executor.GraphExecutorTest))
+    }).pipe(provideScopedLayer(Executor.GraphExecutorTest))
   );
 
   it.effect("surfaces a per-node error without failing the run", () =>
@@ -245,6 +246,6 @@ describe("GraphExecutor", () => {
       const result = yield* executor.execute(graph, boom);
       expect(result.newNodes.length).toBe(0);
       expect(result.errors.length).toBe(1);
-    }).pipe(Effect.provide(Executor.GraphExecutorTest))
+    }).pipe(provideScopedLayer(Executor.GraphExecutorTest))
   );
 });

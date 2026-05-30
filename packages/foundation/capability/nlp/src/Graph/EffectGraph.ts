@@ -26,9 +26,10 @@
 
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { A } from "@beep/utils";
+import { A, thunk0 } from "@beep/utils";
 import { Brand, Clock, Effect, Graph, HashMap, MutableHashMap, MutableHashSet, Random } from "effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $NlpId.create("Graph/EffectGraph");
@@ -141,7 +142,7 @@ interface GraphEdge {
 
 /**
  * A directed acyclic graph of {@link GraphNode}s, backed by `effect/Graph` with
- * id<->index mappings maintained alongside.
+ * id\<-\>index mappings maintained alongside.
  *
  * @since 0.0.0
  * @category models
@@ -185,7 +186,7 @@ export const makeNode = <A>(
         operation,
         timestamp,
         // recalculated when added to a graph under a parent
-        depth: O.match(parentId, { onNone: () => 0, onSome: () => 1 }),
+        depth: O.match(parentId, { onNone: thunk0, onSome: () => 1 }),
       },
     };
   });
@@ -230,7 +231,7 @@ export const singleton = <A>(data: A): Effect.Effect<EffectGraph<A>> =>
       nodeIndex = O.some(Graph.addNode(mutable, node));
     });
     return O.match(nodeIndex, {
-      onNone: () => empty<A>(),
+      onNone: empty<A>,
       onSome: (idx) => ({
         graph,
         nodeIdToIndex: HashMap.make([node.id, idx]),
@@ -245,7 +246,7 @@ export const singleton = <A>(data: A): Effect.Effect<EffectGraph<A>> =>
 
 /**
  * Add a node to the graph, recalculating its depth from its parent and linking
- * the parent->child edge when a parent is present.
+ * the parent-\>child edge when a parent is present.
  *
  * @since 0.0.0
  * @category combinators
@@ -259,7 +260,7 @@ export const addNode = <A>(effectGraph: EffectGraph<A>, node: GraphNode<A>): Eff
         Graph.getNode(effectGraph.graph, idx)
       );
       const parentDepth = O.match(parentNode, {
-        onNone: () => 0,
+        onNone: thunk0,
         onSome: (p) => p.metadata.depth,
       });
       return { ...node, metadata: { ...node.metadata, depth: parentDepth + 1 } };
@@ -271,10 +272,10 @@ export const addNode = <A>(effectGraph: EffectGraph<A>, node: GraphNode<A>): Eff
     const nodeIndex = Graph.addNode(mutable, updatedNode);
     newNodeIndex = O.some(nodeIndex);
     O.match(node.parentId, {
-      onNone: () => {},
+      onNone: R.empty,
       onSome: (parentId) =>
         O.match(HashMap.get(effectGraph.nodeIdToIndex, parentId), {
-          onNone: () => {},
+          onNone: R.empty,
           onSome: (pIdx) => {
             Graph.addEdge(mutable, pIdx, nodeIndex, { relation: "child" });
           },
@@ -309,7 +310,7 @@ export const getNode = <A>(graph: EffectGraph<A>, nodeId: NodeId): O.Option<Grap
  */
 export const getChildren = <A>(graph: EffectGraph<A>, nodeId: NodeId): ReadonlyArray<GraphNode<A>> =>
   O.match(HashMap.get(graph.nodeIdToIndex, nodeId), {
-    onNone: () => A.empty<GraphNode<A>>(),
+    onNone: A.empty<GraphNode<A>>,
     onSome: (idx) =>
       A.getSomes(A.map(Graph.neighbors(graph.graph, idx), (childIdx) => Graph.getNode(graph.graph, childIdx))),
   });
@@ -487,7 +488,7 @@ export const show = <A>(graph: EffectGraph<A>, showData: (a: A) => string): stri
     if (MutableHashSet.has(visited, nodeId)) return;
     MutableHashSet.add(visited, nodeId);
     O.match(getNode(graph, nodeId), {
-      onNone: () => {},
+      onNone: R.empty,
       onSome: (node) => {
         const op = O.getOrElse(node.metadata.operation, () => "root");
         lines.push(`${"  ".repeat(indent)}[${op}] ${showData(node.data)}`);

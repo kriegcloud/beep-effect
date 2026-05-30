@@ -10,9 +10,9 @@
  * `effect/testing/FastCheck`. These proofs are the fidelity gate for the port.
  */
 
+import * as Monoid from "@beep/nlp/Algebra/Monoid";
 import { describe, expect, it } from "@effect/vitest";
 import { FastCheck as fc } from "effect/testing";
-import * as Monoid from "../../src/Algebra/Monoid";
 
 const testMonoidLaws = <A>(
   name: string,

@@ -114,6 +114,7 @@
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
+    "@beep/test-utils": "workspace:^",
     "@types/bun": "catalog:",
     "@types/node": "catalog:"
   },

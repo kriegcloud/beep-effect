@@ -7,10 +7,11 @@
  * default test runtime.
  */
 
+import * as EG from "@beep/nlp/Graph/EffectGraph";
+import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
-import * as EG from "../../src/Graph/EffectGraph.ts";
 
 describe("EffectGraph construction", () => {
   it.effect("singleton has one root node", () =>
@@ -59,7 +60,10 @@ describe("Catamorphism", () => {
       const gc = yield* EG.makeNode("gc", O.some(c1.id));
       const g3 = EG.addNode(g2, gc);
 
-      const counts = yield* EG.cata(g3, (_node, children) => 1 + children.reduce((s, n) => s + n, 0));
+      const counts = yield* EG.cata<string, number>(
+        g3,
+        (_node, children) => 1 + A.reduce(children, 0, (s, n) => s + n)
+      );
       // single root, total nodes = 4
       expect(counts).toHaveLength(1);
       expect(counts[0]).toBe(4);
@@ -74,7 +78,7 @@ describe("Catamorphism", () => {
       const g1 = EG.addNode(g0, c1);
       const collected = yield* EG.cata(
         g1,
-        (node, children) => [node.data, ...children.flat()] as ReadonlyArray<string>
+        (node, children): ReadonlyArray<string> => A.prepend(A.flatten(children), node.data)
       );
       expect(collected[0]).toContain("root");
       expect(collected[0]).toContain("a");

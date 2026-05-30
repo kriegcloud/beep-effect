@@ -39,11 +39,16 @@ type TokenUtilities = {
   readonly soundex: (tokens: Array<string>) => ReadonlyArray<string>;
 };
 
-type NGramResult = {
-  readonly ngrams: Record<string, number>;
-  readonly totalNGrams: number;
-  readonly uniqueNGrams: number;
-};
+class NGramResult extends S.Class<NGramResult>($I`NGramResult`)(
+  {
+    ngrams: S.Record(S.String, S.Number),
+    totalNGrams: S.Number,
+    uniqueNGrams: S.Number,
+  },
+  $I.annote("NGramResult", {
+    description: "Result of n-gram analysis, including n-gram counts, total n-grams, and unique n-grams.",
+  })
+) {}
 
 const isNGramRecord = (value: unknown): value is Record<string, number> => P.isObject(value);
 const isStringArray = (value: unknown): value is ReadonlyArray<string> =>

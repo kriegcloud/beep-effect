@@ -20,10 +20,14 @@
  * @packageDocumentation
  */
 
-import { A } from "@beep/utils";
+import { $NlpId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
+import { A, O, thunkTrue } from "@beep/utils";
 import { Effect, Graph, HashMap, HashSet, MutableHashMap, Stream } from "effect";
 import { identity } from "effect/Function";
-import * as O from "effect/Option";
+import * as R from "effect/Record";
+
+const $I = $NlpId.create("Graph/GraphOps");
 
 // =============================================================================
 // Type Definitions
@@ -69,9 +73,15 @@ export interface SearchIndex<K, A> {
  * Traversal order for ordered folds and walks.
  *
  * @since 0.0.0
- * @category models
+ * @category schemas
  */
-export type TraversalOrder = "dfs" | "bfs" | "topo";
+export const TraversalOrder = LiteralKit(["dfs", "bfs", "topo"]).annotate(
+  $I.annote("TraversalOrder", {
+    description: "Graph traversal order for ordered folds and walkers.",
+  })
+);
+
+export type TraversalOrder = typeof TraversalOrder.Type;
 
 // =============================================================================
 // Internal: structural reconstruction with index remapping
@@ -113,14 +123,11 @@ const createWalker = <A, E>(
   order: TraversalOrder
 ): NodeWalker<A> => {
   const options = A.length(start) > 0 ? { start: A.fromIterable(start) } : undefined;
-  switch (order) {
-    case "dfs":
-      return Graph.dfs(graph, options);
-    case "bfs":
-      return Graph.bfs(graph, options);
-    case "topo":
-      return Graph.topo(graph);
-  }
+  return TraversalOrder.$match(order, {
+    bfs: () => Graph.bfs(graph, options),
+    dfs: () => Graph.dfs(graph, options),
+    topo: () => Graph.topo(graph),
+  });
 };
 
 // =============================================================================
@@ -134,13 +141,7 @@ const createWalker = <A, E>(
  * @category mapping
  */
 export const mapNodes = <A, B, E>(graph: DirectedGraph<A, E>, f: (node: A) => B): DirectedGraph<B, E> =>
-  reconstruct<A, E, B, E>(
-    graph,
-    () => true,
-    (node) => f(node),
-    () => true,
-    identity
-  );
+  reconstruct<A, E, B, E>(graph, thunkTrue, f, thunkTrue, identity);
 
 /**
  * Map over edge data, preserving nodes (Functor).
@@ -149,13 +150,7 @@ export const mapNodes = <A, B, E>(graph: DirectedGraph<A, E>, f: (node: A) => B)
  * @category mapping
  */
 export const mapEdges = <A, E, F>(graph: DirectedGraph<A, E>, f: (edge: E) => F): DirectedGraph<A, F> =>
-  reconstruct<A, E, A, F>(
-    graph,
-    () => true,
-    identity,
-    () => true,
-    (edge) => f(edge)
-  );
+  reconstruct<A, E, A, F>(graph, thunkTrue, identity, thunkTrue, (edge) => f(edge));
 
 /**
  * Map over both node and edge data simultaneously (Bifunctor).
@@ -170,9 +165,9 @@ export const bimap = <A, B, E, F>(
 ): DirectedGraph<B, F> =>
   reconstruct<A, E, B, F>(
     graph,
-    () => true,
+    thunkTrue,
     (node) => nodeF(node),
-    () => true,
+    thunkTrue,
     (edge) => edgeF(edge)
   );
 
@@ -187,13 +182,7 @@ export const bimap = <A, B, E, F>(
  * @category filtering
  */
 export const filterNodes = <A, E>(graph: DirectedGraph<A, E>, predicate: (node: A) => boolean): DirectedGraph<A, E> =>
-  reconstruct<A, E, A, E>(
-    graph,
-    (node) => predicate(node),
-    identity,
-    () => true,
-    identity
-  );
+  reconstruct<A, E, A, E>(graph, (node) => predicate(node), identity, thunkTrue, identity);
 
 /**
  * Keep only edges matching the predicate; all nodes are preserved.
@@ -202,13 +191,7 @@ export const filterNodes = <A, E>(graph: DirectedGraph<A, E>, predicate: (node: 
  * @category filtering
  */
 export const filterEdges = <A, E>(graph: DirectedGraph<A, E>, predicate: (edge: E) => boolean): DirectedGraph<A, E> =>
-  reconstruct<A, E, A, E>(
-    graph,
-    () => true,
-    identity,
-    (edge) => predicate(edge),
-    identity
-  );
+  reconstruct<A, E, A, E>(graph, thunkTrue, identity, (edge) => predicate(edge), identity);
 
 /**
  * Find all node indices whose data matches the predicate.
@@ -349,7 +332,7 @@ export const buildIndex = <A, E, K>(
  * @category search
  */
 export const queryIndex = <K, A>(searchIndex: SearchIndex<K, A>, key: K): ReadonlyArray<NodeIndex> =>
-  O.getOrElse(HashMap.get(searchIndex.index, key), () => A.empty<NodeIndex>());
+  O.getOrElse(HashMap.get(searchIndex.index, key), A.empty<NodeIndex>);
 
 /**
  * Query a search index for any of several keys (union semantics, deduplicated).
@@ -378,7 +361,7 @@ export const queryIndexIntersection = <K, A>(
   keys: ReadonlyArray<K>
 ): ReadonlyArray<NodeIndex> =>
   O.match(A.head(keys), {
-    onNone: () => A.empty<NodeIndex>(),
+    onNone: A.empty<NodeIndex>,
     onSome: (firstKey) => {
       const firstResults = A.fromIterable(HashSet.fromIterable(queryIndex(searchIndex, firstKey)));
       const restSets = A.map(A.drop(keys, 1), (key) => HashSet.fromIterable(queryIndex(searchIndex, key)));
@@ -470,7 +453,7 @@ export const streamNodes = <A, E>(
   graph: DirectedGraph<A, E>,
   start: ReadonlyArray<NodeIndex>,
   order: TraversalOrder
-): Stream.Stream<A, never, never> => Stream.fromIterable(Graph.values(createWalker(graph, start, order)));
+): Stream.Stream<A> => Stream.fromIterable(Graph.values(createWalker(graph, start, order)));
 
 /**
  * Stream `[index, node]` entries in a traversal order.
@@ -482,8 +465,7 @@ export const streamNodesWithIndex = <A, E>(
   graph: DirectedGraph<A, E>,
   start: ReadonlyArray<NodeIndex>,
   order: TraversalOrder
-): Stream.Stream<readonly [NodeIndex, A], never, never> =>
-  Stream.fromIterable(Graph.entries(createWalker(graph, start, order)));
+): Stream.Stream<readonly [NodeIndex, A]> => Stream.fromIterable(Graph.entries(createWalker(graph, start, order)));
 
 /**
  * Stream node data in fixed-size batches.
@@ -496,7 +478,7 @@ export const batchNodes = <A, E>(
   start: ReadonlyArray<NodeIndex>,
   order: TraversalOrder,
   batchSize: number
-): Stream.Stream<ReadonlyArray<A>, never, never> => Stream.grouped(streamNodes(graph, start, order), batchSize);
+): Stream.Stream<ReadonlyArray<A>> => Stream.grouped(streamNodes(graph, start, order), batchSize);
 
 // =============================================================================
 // Graph Properties and Validation
@@ -582,7 +564,7 @@ export const merge = <A, E>(g1: DirectedGraph<A, E>, g2: DirectedGraph<A, E>): D
     }
     for (const edgeIndex of Graph.indices(g2.pipe(Graph.edges))) {
       O.match(Graph.getEdge(g2, edgeIndex), {
-        onNone: () => {},
+        onNone: R.empty,
         onSome: (edge) => {
           const from = MutableHashMap.get(indexMap, edge.source);
           const to = MutableHashMap.get(indexMap, edge.target);

@@ -29,8 +29,8 @@ import { Effect, Struct } from "effect";
 import * as O from "effect/Option";
 import * as Backend from "../../Backend/NLPBackend.ts";
 import { makeNode } from "../EffectGraph.ts";
-import type { DependencyNode, EntityNode, LemmaNode, POSNode, RelationNode } from "../Schema.ts";
 import * as Op from "./Operation.ts";
+import type { DependencyNode, EntityNode, LemmaNode, POSNode, RelationNode } from "../Schema.ts";
 
 /**
  * Split text into sentences (free functor `Text -> [Sentence]`).

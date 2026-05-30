@@ -18,10 +18,10 @@
 import { A } from "@beep/utils";
 import { Effect } from "effect";
 import * as O from "effect/Option";
-import type { GraphNode } from "../EffectGraph.ts";
 import { generateNodeId, makeNode } from "../EffectGraph.ts";
-import type { OperationCategory, OperationCost, ValidationResult } from "./Types.ts";
 import * as Types from "./Types.ts";
+import type { GraphNode } from "../EffectGraph.ts";
+import type { OperationCategory, OperationCost, ValidationResult } from "./Types.ts";
 
 // =============================================================================
 // Core Operation Interface

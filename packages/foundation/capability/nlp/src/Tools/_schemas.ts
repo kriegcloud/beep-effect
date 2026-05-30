@@ -26,8 +26,16 @@ const describe = <Schema extends S.Top>(schema: Schema, description: string, ext
     Match.exhaustive
   )(P.isUndefined(extras));
 
-const AiEntitySourceKit = LiteralKit(["builtin", "custom"]);
-const AiPhoneticAlgorithmKit = LiteralKit(["soundex", "phonetize"]);
+const AiEntitySourceKit = LiteralKit(["builtin", "custom"]).annotate(
+  $I.annote("AiEntitySourceKit", {
+    description: "LiteralKit backing schema for AI entity source values.",
+  })
+);
+const AiPhoneticAlgorithmKit = LiteralKit(["soundex", "phonetize"]).annotate(
+  $I.annote("AiPhoneticAlgorithmKit", {
+    description: "LiteralKit backing schema for AI phonetic algorithm values.",
+  })
+);
 
 const AiEntitySource = AiEntitySourceKit.pipe(
   $I.annoteSchema("AiEntitySource", {

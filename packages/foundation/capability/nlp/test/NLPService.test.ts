@@ -9,6 +9,7 @@ import { WinkBackendLive } from "@beep/nlp/Backend/WinkBackend";
 import * as Graph from "@beep/nlp/Graph/AnnotatedTextGraph";
 import * as NLPService from "@beep/nlp/NLPService";
 import * as WinkEngine from "@beep/nlp/Wink/WinkEngine";
+import { provideScopedLayer } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as EffectGraph from "effect/Graph";
@@ -24,14 +25,14 @@ describe("NLPService", () => {
       expect(EffectGraph.nodeCount(graph)).toBeGreaterThan(0);
       const docs = Graph.getTextNodes(graph).filter((entry) => entry.node.type === "document");
       expect(docs.length).toBe(1);
-    }).pipe(Effect.provide(TestLayer))
+    }).pipe(provideScopedLayer(TestLayer))
   );
 
   it.effect("tagPartsOfSpeech delegates to the backend", () =>
     Effect.gen(function* () {
       const tagged = yield* NLPService.tagPartsOfSpeech("dogs run");
       expect(tagged.length).toBe(2);
-    }).pipe(Effect.provide(TestLayer))
+    }).pipe(provideScopedLayer(TestLayer))
   );
 
   it.effect("extractEntities delegates to the backend", () =>
@@ -40,6 +41,6 @@ describe("NLPService", () => {
       for (const entity of entities) {
         expect(typeof entity.entityType).toBe("string");
       }
-    }).pipe(Effect.provide(TestLayer))
+    }).pipe(provideScopedLayer(TestLayer))
   );
 });
