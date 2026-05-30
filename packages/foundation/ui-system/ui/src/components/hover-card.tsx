@@ -4,6 +4,15 @@ import { PreviewCard as PreviewCardPrimitive } from "@base-ui/react/preview-card
 import { cn } from "../lib/index.ts";
 
 /**
+ * Hover card component.
+ *
+ * @example
+ * ```tsx
+ * import { HoverCard } from "@beep/ui/components/hover-card"
+ *
+ * console.log(HoverCard)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -12,6 +21,15 @@ function HoverCard({ ...props }: PreviewCardPrimitive.Root.Props) {
 }
 
 /**
+ * Hover card trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { HoverCardTrigger } from "@beep/ui/components/hover-card"
+ *
+ * console.log(HoverCardTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -20,6 +38,15 @@ function HoverCardTrigger({ ...props }: PreviewCardPrimitive.Trigger.Props) {
 }
 
 /**
+ * Hover card content component.
+ *
+ * @example
+ * ```tsx
+ * import { HoverCardContent } from "@beep/ui/components/hover-card"
+ *
+ * console.log(HoverCardContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

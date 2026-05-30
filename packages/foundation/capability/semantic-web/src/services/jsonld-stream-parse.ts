@@ -40,7 +40,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * ```ts
  * import { JsonLdStreamMode } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * void JsonLdStreamMode
+ * console.log(JsonLdStreamMode)
  * ```
  *
  * @since 0.0.0
@@ -60,7 +60,7 @@ export const JsonLdStreamMode = LiteralKit(["true-streaming", "buffered-fallback
  * import type { JsonLdStreamMode } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
  * const acceptJsonLdStreamMode = (value: JsonLdStreamMode) => value
- * void acceptJsonLdStreamMode
+ * console.log(acceptJsonLdStreamMode)
  * ```
  *
  * @since 0.0.0
@@ -75,7 +75,7 @@ export type JsonLdStreamMode = typeof JsonLdStreamMode.Type;
  * ```ts
  * import { JsonLdTextChunkStream } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * void JsonLdTextChunkStream
+ * console.log(JsonLdTextChunkStream)
  * ```
  *
  * @since 0.0.0
@@ -103,7 +103,7 @@ export class JsonLdTextChunkStream extends S.Class<JsonLdTextChunkStream>($I`Jso
  * ```ts
  * import { JsonLdByteChunkStream } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * void JsonLdByteChunkStream
+ * console.log(JsonLdByteChunkStream)
  * ```
  *
  * @since 0.0.0
@@ -131,7 +131,7 @@ export class JsonLdByteChunkStream extends S.Class<JsonLdByteChunkStream>($I`Jso
  * ```ts
  * import { JsonLdStreamParseInput } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * void JsonLdStreamParseInput
+ * console.log(JsonLdStreamParseInput)
  * ```
  *
  * @since 0.0.0
@@ -152,7 +152,7 @@ export const JsonLdStreamParseInput = S.Union([JsonLdTextChunkStream, JsonLdByte
  * import type { JsonLdStreamParseInput } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
  * const acceptJsonLdStreamParseInput = (value: JsonLdStreamParseInput) => value
- * void acceptJsonLdStreamParseInput
+ * console.log(acceptJsonLdStreamParseInput)
  * ```
  *
  * @since 0.0.0
@@ -167,7 +167,7 @@ export type JsonLdStreamParseInput = typeof JsonLdStreamParseInput.Type;
  * ```ts
  * import { JsonLdStreamParseRequest } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * void JsonLdStreamParseRequest
+ * console.log(JsonLdStreamParseRequest)
  * ```
  *
  * @since 0.0.0
@@ -194,7 +194,7 @@ export class JsonLdStreamParseRequest extends S.Class<JsonLdStreamParseRequest>(
  * ```ts
  * import { JsonLdStreamParseResult } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * void JsonLdStreamParseResult
+ * console.log(JsonLdStreamParseResult)
  * ```
  *
  * @since 0.0.0
@@ -222,7 +222,7 @@ export class JsonLdStreamParseResult extends S.Class<JsonLdStreamParseResult>($I
  * ```ts
  * import { JsonLdStreamParseErrorReason } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * void JsonLdStreamParseErrorReason
+ * console.log(JsonLdStreamParseErrorReason)
  * ```
  *
  * @since 0.0.0
@@ -245,7 +245,7 @@ export const JsonLdStreamParseErrorReason = LiteralKit([
  * ```ts
  * import { JsonLdStreamParseError } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * void JsonLdStreamParseError
+ * console.log(JsonLdStreamParseError)
  * ```
  *
  * @since 0.0.0
@@ -274,7 +274,7 @@ export class JsonLdStreamParseError extends TaggedErrorClass<JsonLdStreamParseEr
  * import type { JsonLdStreamParseServiceShape } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
  * const acceptJsonLdStreamParseServiceShape = (value: JsonLdStreamParseServiceShape) => value
- * void acceptJsonLdStreamParseServiceShape
+ * console.log(acceptJsonLdStreamParseServiceShape)
  * ```
  *
  * @since 0.0.0
@@ -291,7 +291,7 @@ export interface JsonLdStreamParseServiceShape {
  * ```ts
  * import { JsonLdStreamParseService } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * void JsonLdStreamParseService
+ * console.log(JsonLdStreamParseService)
  * ```
  *
  * @since 0.0.0

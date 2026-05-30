@@ -37,7 +37,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * ```ts
  * import { JsonLdDocumentErrorReason } from "@beep/semantic-web/services/jsonld-document"
  *
- * void JsonLdDocumentErrorReason
+ * console.log(JsonLdDocumentErrorReason)
  * ```
  *
  * @since 0.0.0
@@ -63,7 +63,7 @@ export const JsonLdDocumentErrorReason = LiteralKit([
  * ```ts
  * import { JsonLdDocumentError } from "@beep/semantic-web/services/jsonld-document"
  *
- * void JsonLdDocumentError
+ * console.log(JsonLdDocumentError)
  * ```
  *
  * @since 0.0.0
@@ -89,7 +89,7 @@ export class JsonLdDocumentError extends TaggedErrorClass<JsonLdDocumentError>($
  * ```ts
  * import { CompactJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * void CompactJsonLdDocumentRequest
+ * console.log(CompactJsonLdDocumentRequest)
  * ```
  *
  * @since 0.0.0
@@ -118,7 +118,7 @@ export class CompactJsonLdDocumentRequest extends S.Class<CompactJsonLdDocumentR
  * ```ts
  * import { FlattenJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * void FlattenJsonLdDocumentRequest
+ * console.log(FlattenJsonLdDocumentRequest)
  * ```
  *
  * @since 0.0.0
@@ -146,7 +146,7 @@ export class FlattenJsonLdDocumentRequest extends S.Class<FlattenJsonLdDocumentR
  * ```ts
  * import { FrameJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * void FrameJsonLdDocumentRequest
+ * console.log(FrameJsonLdDocumentRequest)
  * ```
  *
  * @since 0.0.0
@@ -173,7 +173,7 @@ export class FrameJsonLdDocumentRequest extends S.Class<FrameJsonLdDocumentReque
  * ```ts
  * import { JsonLdDocumentLoaderPolicy } from "@beep/semantic-web/services/jsonld-document"
  *
- * void JsonLdDocumentLoaderPolicy
+ * console.log(JsonLdDocumentLoaderPolicy)
  * ```
  *
  * @since 0.0.0
@@ -201,7 +201,7 @@ export class JsonLdDocumentLoaderPolicy extends S.Class<JsonLdDocumentLoaderPoli
  * ```ts
  * import { JsonLdDocumentNormalizationProfile } from "@beep/semantic-web/services/jsonld-document"
  *
- * void JsonLdDocumentNormalizationProfile
+ * console.log(JsonLdDocumentNormalizationProfile)
  * ```
  *
  * @since 0.0.0
@@ -221,7 +221,7 @@ export const JsonLdDocumentNormalizationProfile = LiteralKit(["bounded-v1", "exp
  * import type { JsonLdDocumentNormalizationProfile } from "@beep/semantic-web/services/jsonld-document"
  *
  * const acceptJsonLdDocumentNormalizationProfile = (value: JsonLdDocumentNormalizationProfile) => value
- * void acceptJsonLdDocumentNormalizationProfile
+ * console.log(acceptJsonLdDocumentNormalizationProfile)
  * ```
  *
  * @since 0.0.0
@@ -236,7 +236,7 @@ export type JsonLdDocumentNormalizationProfile = typeof JsonLdDocumentNormalizat
  * ```ts
  * import { ExpandJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * void ExpandJsonLdDocumentRequest
+ * console.log(ExpandJsonLdDocumentRequest)
  * ```
  *
  * @since 0.0.0
@@ -263,7 +263,7 @@ export class ExpandJsonLdDocumentRequest extends S.Class<ExpandJsonLdDocumentReq
  * ```ts
  * import { NormalizeJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * void NormalizeJsonLdDocumentRequest
+ * console.log(NormalizeJsonLdDocumentRequest)
  * ```
  *
  * @since 0.0.0
@@ -294,7 +294,7 @@ export class NormalizeJsonLdDocumentRequest extends S.Class<NormalizeJsonLdDocum
  * ```ts
  * import { JsonLdToRdfRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * void JsonLdToRdfRequest
+ * console.log(JsonLdToRdfRequest)
  * ```
  *
  * @since 0.0.0
@@ -320,7 +320,7 @@ export class JsonLdToRdfRequest extends S.Class<JsonLdToRdfRequest>($I`JsonLdToR
  * ```ts
  * import { JsonLdFromRdfRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * void JsonLdFromRdfRequest
+ * console.log(JsonLdFromRdfRequest)
  * ```
  *
  * @since 0.0.0
@@ -347,7 +347,7 @@ export class JsonLdFromRdfRequest extends S.Class<JsonLdFromRdfRequest>($I`JsonL
  * ```ts
  * import { JsonLdDocumentResult } from "@beep/semantic-web/services/jsonld-document"
  *
- * void JsonLdDocumentResult
+ * console.log(JsonLdDocumentResult)
  * ```
  *
  * @since 0.0.0
@@ -370,7 +370,7 @@ export class JsonLdDocumentResult extends S.Class<JsonLdDocumentResult>($I`JsonL
  * ```ts
  * import { JsonLdToRdfResult } from "@beep/semantic-web/services/jsonld-document"
  *
- * void JsonLdToRdfResult
+ * console.log(JsonLdToRdfResult)
  * ```
  *
  * @since 0.0.0
@@ -394,7 +394,7 @@ export class JsonLdToRdfResult extends S.Class<JsonLdToRdfResult>($I`JsonLdToRdf
  * import type { JsonLdDocumentServiceShape } from "@beep/semantic-web/services/jsonld-document"
  *
  * const acceptJsonLdDocumentServiceShape = (value: JsonLdDocumentServiceShape) => value
- * void acceptJsonLdDocumentServiceShape
+ * console.log(acceptJsonLdDocumentServiceShape)
  * ```
  *
  * @since 0.0.0
@@ -419,7 +419,7 @@ export interface JsonLdDocumentServiceShape {
  * ```ts
  * import { JsonLdDocumentService } from "@beep/semantic-web/services/jsonld-document"
  *
- * void JsonLdDocumentService
+ * console.log(JsonLdDocumentService)
  * ```
  *
  * @since 0.0.0

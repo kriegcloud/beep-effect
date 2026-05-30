@@ -1066,7 +1066,7 @@ export const makeAiMetricsInstallSpec: (
  *   const plan = yield* makeAiMetricsInstallPlan()
  *   console.log(plan.dryRunOnly)
  * })
- * void program
+ * console.log(program)
  * ```
  * @category constructors
  * @since 0.0.0
@@ -1107,7 +1107,7 @@ export const makeAiMetricsInstallPlan: (
  *   const result = yield* makeAiMetricsInstallDoctorResult()
  *   console.log(result.status)
  * })
- * void program
+ * console.log(program)
  * ```
  * @category constructors
  * @since 0.0.0
@@ -1212,7 +1212,7 @@ export const makeAiMetricsInstallDoctorResult: (
  *   const result = yield* makeAiMetricsInstallApplyDryRunResult()
  *   console.log(result.dryRun)
  * })
- * void program
+ * console.log(program)
  * ```
  * @category constructors
  * @since 0.0.0

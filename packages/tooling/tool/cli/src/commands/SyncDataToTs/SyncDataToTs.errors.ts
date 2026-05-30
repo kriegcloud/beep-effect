@@ -29,6 +29,13 @@ const causeMessage = (cause: unknown): string => {
 /**
  * Operational error during source fetch, parsing, projection, or file writes.
  *
+ * @example
+ * ```ts
+ * import { SyncDataToTsError } from "@beep/repo-cli/commands/SyncDataToTs"
+ *
+ * console.log(SyncDataToTsError)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -79,6 +86,13 @@ export class SyncDataToTsError extends TaggedErrorClass<SyncDataToTsError>($I`Sy
 
 /**
  * Drift detected in check mode.
+ *
+ * @example
+ * ```ts
+ * import { SyncDataToTsDriftError } from "@beep/repo-cli/commands/SyncDataToTs"
+ *
+ * console.log(SyncDataToTsDriftError)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

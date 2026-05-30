@@ -1,6 +1,20 @@
 /**
  * Responsive mobile-state helpers for `@beep/ui`.
  *
+ * @example
+ * ```ts
+ * import { resolveIsMobile } from "@beep/ui/hooks/useMobile"
+ *
+ * console.log(resolveIsMobile)
+ * ```
+ *
+ * @example
+ * ```ts
+ * import { useIsMobile } from "@beep/ui/hooks/useMobile"
+ *
+ * console.log(useIsMobile)
+ * ```
+ *
  * @category hooks
  * @since 0.0.0
  * @packageDocumentation
@@ -16,18 +30,32 @@ import { TOUCH_MEDIA_QUERY } from "../themes/scales.ts";
 const mobileMediaQuery = Str.replace(/^@media\s*/, "")(TOUCH_MEDIA_QUERY);
 
 /**
- * Resolve an optional mobile flag to a concrete boolean value.
+ * Resolve is mobile export.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { resolveIsMobile } from "@beep/ui/hooks/useMobile"
+ *
+ * console.log(resolveIsMobile)
+ * ```
+ *
  * @category utilities
+ * @since 0.0.0
  */
 export const resolveIsMobile = (isMobile: O.Option<boolean>): boolean => O.getOrElse(isMobile, constFalse);
 
 /**
- * React hook that tracks whether the current viewport matches the mobile media query.
+ * Use is mobile hook.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { useIsMobile } from "@beep/ui/hooks/useMobile"
+ *
+ * console.log(useIsMobile)
+ * ```
+ *
  * @category components
+ * @since 0.0.0
  */
 export function useIsMobile() {
   const [isMobileAtom] = React.useState(() => Atom.make<O.Option<boolean>>(O.none<boolean>()));

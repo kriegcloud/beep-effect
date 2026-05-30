@@ -52,6 +52,15 @@ export type HasNullByte = typeof HasNullByte.Type;
  * Branded schema for path strings that do not use unsupported Windows device
  * namespace prefixes.
  *
+ * @example
+ * ```ts
+ * import { SupportedWindowsNamespace } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const path = S.decodeUnknownSync(SupportedWindowsNamespace)("C:\\Users\\Ada")
+ * console.log(path)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -79,6 +88,15 @@ export type SupportedWindowsNamespace = typeof SupportedWindowsNamespace.Type;
 
 /**
  * Branded schema for strings that contain a POSIX separator.
+ *
+ * @example
+ * ```ts
+ * import { UsesPosixSeparator } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const path = S.decodeUnknownSync(UsesPosixSeparator)("src/index.ts")
+ * console.log(path)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -108,6 +126,15 @@ export type UsesPosixSeparator = typeof UsesPosixSeparator.Type;
 /**
  * Branded schema for strings that contain a Windows separator.
  *
+ * @example
+ * ```ts
+ * import { UsesWindowsSeparator } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const path = S.decodeUnknownSync(UsesWindowsSeparator)("C:\\Users\\Ada")
+ * console.log(path)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -135,6 +162,15 @@ export type UsesWindowsSeparator = typeof UsesWindowsSeparator.Type;
 
 /**
  * Branded schema for strings that end with a POSIX or Windows path separator.
+ *
+ * @example
+ * ```ts
+ * import { EndsWithSeparator } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const path = S.decodeUnknownSync(EndsWithSeparator)("src/")
+ * console.log(path)
+ * ```
  *
  * @since 0.0.0
  * @category validation

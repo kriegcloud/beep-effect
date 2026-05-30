@@ -25,7 +25,7 @@ const $I = $CanvasId.create("commandBridge");
  * import { makeCanvasCommandRuntime } from "@beep/canvas"
  *
  * const runtime = makeCanvasCommandRuntime()
- * void runtime.dispose()
+ * console.log(runtime.dispose())
  * ```
  *
  * @category commands
@@ -42,7 +42,7 @@ export const makeCanvasCommandRuntime = () => ManagedRuntime.make(CanvasServerLi
  * import type { CanvasCommandRuntime } from "@beep/canvas"
  *
  * const runtime: CanvasCommandRuntime = makeCanvasCommandRuntime()
- * void runtime.dispose()
+ * console.log(runtime.dispose())
  * ```
  *
  * @category commands

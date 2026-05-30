@@ -9,8 +9,8 @@
  * import * as S from "effect/Schema"
  * import { ObservedError, ObservedCause } from "@beep/observability"
  *
- * void ObservedError
- * void ObservedCause
+ * console.log(ObservedError)
+ * console.log(ObservedCause)
  * ```
  *
  * @packageDocumentation
@@ -51,7 +51,7 @@ export const ObservedError = S.Error.pipe(
  * import type { ObservedError } from "@beep/observability"
  *
  * const readMessage = (error: ObservedError) => error.message
- * void readMessage
+ * console.log(readMessage)
  * ```
  *
  * @category models
@@ -89,7 +89,7 @@ export const ObservedErrorWithStack = S.ErrorWithStack.pipe(
  * import type { ObservedErrorWithStack } from "@beep/observability"
  *
  * const readStack = (error: ObservedErrorWithStack) => error.stack
- * void readStack
+ * console.log(readStack)
  * ```
  *
  * @category models
@@ -107,7 +107,7 @@ export type ObservedErrorWithStack = typeof ObservedErrorWithStack.Type;
  *
  * const decode = S.decodeUnknownSync(ObservedDefect)
  * const defect = decode("unexpected crash")
- * void defect
+ * console.log(defect)
  * ```
  *
  * @since 0.0.0
@@ -127,7 +127,7 @@ export const ObservedDefect = S.Defect.pipe(
  * import type { ObservedDefect } from "@beep/observability"
  *
  * const keepDefect = (defect: ObservedDefect) => defect
- * void keepDefect
+ * console.log(keepDefect)
  * ```
  *
  * @category models
@@ -145,7 +145,7 @@ export type ObservedDefect = typeof ObservedDefect.Type;
  *
  * const decode = S.decodeUnknownSync(ObservedDefectWithStack)
  * const defect = decode(new Error("unexpected crash"))
- * void defect
+ * console.log(defect)
  * ```
  *
  * @since 0.0.0
@@ -165,7 +165,7 @@ export const ObservedDefectWithStack = S.DefectWithStack.pipe(
  * import type { ObservedDefectWithStack } from "@beep/observability"
  *
  * const keepDefect = (defect: ObservedDefectWithStack) => defect
- * void keepDefect
+ * console.log(keepDefect)
  * ```
  *
  * @category models
@@ -180,7 +180,7 @@ export type ObservedDefectWithStack = typeof ObservedDefectWithStack.Type;
  * ```typescript
  * import { ObservedCauseReason } from "@beep/observability"
  *
- * void ObservedCauseReason
+ * console.log(ObservedCauseReason)
  * ```
  *
  * @since 0.0.0
@@ -200,7 +200,7 @@ export const ObservedCauseReason = S.CauseReason(ObservedErrorWithStack, Observe
  * import type { ObservedCauseReason } from "@beep/observability"
  *
  * const keepReason = (reason: ObservedCauseReason) => reason
- * void keepReason
+ * console.log(keepReason)
  * ```
  *
  * @category models
@@ -215,7 +215,7 @@ export type ObservedCauseReason = typeof ObservedCauseReason.Type;
  * ```typescript
  * import { ObservedCause } from "@beep/observability"
  *
- * void ObservedCause
+ * console.log(ObservedCause)
  * ```
  *
  * @since 0.0.0
@@ -235,7 +235,7 @@ export const ObservedCause = S.Cause(ObservedErrorWithStack, ObservedDefectWithS
  * import type { ObservedCause } from "@beep/observability"
  *
  * const keepCause = (cause: ObservedCause) => cause
- * void keepCause
+ * console.log(keepCause)
  * ```
  *
  * @category models
@@ -250,7 +250,7 @@ export type ObservedCause = typeof ObservedCause.Type;
  * ```typescript
  * import { ObservedExit } from "@beep/observability"
  *
- * void ObservedExit
+ * console.log(ObservedExit)
  * ```
  *
  * @since 0.0.0
@@ -270,7 +270,7 @@ export const ObservedExit = S.Exit(S.Unknown, ObservedErrorWithStack, ObservedDe
  * import type { ObservedExit } from "@beep/observability"
  *
  * const keepExit = (exit: ObservedExit) => exit
- * void keepExit
+ * console.log(keepExit)
  * ```
  *
  * @category models

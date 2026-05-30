@@ -38,7 +38,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * ```ts
  * import { ShaclSeverity } from "@beep/semantic-web/services/shacl-validation"
  *
- * void ShaclSeverity
+ * console.log(ShaclSeverity)
  * ```
  *
  * @since 0.0.0
@@ -57,7 +57,7 @@ export const ShaclSeverity = LiteralKit(["info", "warning", "violation"]).pipe(
  * ```ts
  * import { ShaclPropertyShape } from "@beep/semantic-web/services/shacl-validation"
  *
- * void ShaclPropertyShape
+ * console.log(ShaclPropertyShape)
  * ```
  *
  * @since 0.0.0
@@ -86,7 +86,7 @@ export class ShaclPropertyShape extends S.Class<ShaclPropertyShape>($I`ShaclProp
  * ```ts
  * import { ShaclNodeShape } from "@beep/semantic-web/services/shacl-validation"
  *
- * void ShaclNodeShape
+ * console.log(ShaclNodeShape)
  * ```
  *
  * @since 0.0.0
@@ -114,7 +114,7 @@ export class ShaclNodeShape extends S.Class<ShaclNodeShape>($I`ShaclNodeShape`)(
  * ```ts
  * import { ShaclValidationViolation } from "@beep/semantic-web/services/shacl-validation"
  *
- * void ShaclValidationViolation
+ * console.log(ShaclValidationViolation)
  * ```
  *
  * @since 0.0.0
@@ -140,7 +140,7 @@ export class ShaclValidationViolation extends S.Class<ShaclValidationViolation>(
  * ```ts
  * import { ShaclValidationRequest } from "@beep/semantic-web/services/shacl-validation"
  *
- * void ShaclValidationRequest
+ * console.log(ShaclValidationRequest)
  * ```
  *
  * @since 0.0.0
@@ -168,7 +168,7 @@ export class ShaclValidationRequest extends S.Class<ShaclValidationRequest>($I`S
  * ```ts
  * import { ShaclValidationResult } from "@beep/semantic-web/services/shacl-validation"
  *
- * void ShaclValidationResult
+ * console.log(ShaclValidationResult)
  * ```
  *
  * @since 0.0.0
@@ -193,7 +193,7 @@ export class ShaclValidationResult extends S.Class<ShaclValidationResult>($I`Sha
  * ```ts
  * import { ShaclValidationError } from "@beep/semantic-web/services/shacl-validation"
  *
- * void ShaclValidationError
+ * console.log(ShaclValidationError)
  * ```
  *
  * @since 0.0.0
@@ -219,7 +219,7 @@ export class ShaclValidationError extends TaggedErrorClass<ShaclValidationError>
  * import type { ShaclValidationServiceShape } from "@beep/semantic-web/services/shacl-validation"
  *
  * const acceptShaclValidationServiceShape = (value: ShaclValidationServiceShape) => value
- * void acceptShaclValidationServiceShape
+ * console.log(acceptShaclValidationServiceShape)
  * ```
  *
  * @since 0.0.0
@@ -236,7 +236,7 @@ export interface ShaclValidationServiceShape {
  * ```ts
  * import { ShaclValidationService } from "@beep/semantic-web/services/shacl-validation"
  *
- * void ShaclValidationService
+ * console.log(ShaclValidationService)
  * ```
  *
  * @since 0.0.0

@@ -51,6 +51,7 @@ const decodeStatusField = S.decodeUnknownOption(HttpApiStatusField);
  *   route: "/todos",
  *   successStatus
  * })
+ * console.log(descriptor.route)
  * ```
  *
  * @since 0.0.0
@@ -139,6 +140,7 @@ const isHttpApiHandlerEffect = <
  * import { httpApiSuccessStatus } from "@beep/observability/server"
  *
  * const status = httpApiSuccessStatus(S.String, 200)
+ * console.log(status)
  * ```
  *
  * @since 0.0.0
@@ -180,6 +182,7 @@ const endpointErrorSchemas = (endpoint: HttpApiEndpoint.AnyWithProps): ReadonlyA
  * import { makeHttpApiMetrics } from "@beep/observability/server"
  *
  * const metrics = makeHttpApiMetrics("todox_api")
+ * console.log(metrics.requestsTotal)
  * ```
  *
  * @since 0.0.0
@@ -258,6 +261,7 @@ const annotateHttpApiOutcome = Effect.fn("annotateHttpApiOutcome")(function* (
  * declare const group: HttpApiGroup.AnyWithProps
  * declare const endpoint: HttpApiEndpoint.AnyWithProps
  * const descriptor = makeHttpApiTelemetryDescriptor("TodoApi", group, endpoint)
+ * console.log(descriptor.endpointName)
  * ```
  *
  * @since 0.0.0
@@ -295,6 +299,7 @@ export const makeHttpApiTelemetryDescriptor: {
  *
  * declare const endpoint: HttpApiEndpoint.AnyWithProps
  * const status = httpApiFailureStatus(endpoint, new Error("not found"))
+ * console.log(status)
  * ```
  *
  * @since 0.0.0
@@ -329,11 +334,7 @@ export const httpApiFailureStatus: {
  * @example
  * ```typescript
  * import { Effect } from "effect"
- * import {
- *
- *
- *
- * } from "@beep/observability/server"
+ * import { makeHttpApiMetrics, observeHttpApiEffect } from "@beep/observability/server"
  * import type { HttpApiEndpoint } from "effect/unstable/httpapi"
  * import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse"
  *
@@ -342,6 +343,7 @@ export const httpApiFailureStatus: {
  * const metrics = makeHttpApiMetrics("todox_api")
  * const handler = Effect.succeed(HttpServerResponse.empty({ status: 200 }))
  * const observed = observeHttpApiEffect(descriptor, endpoint, metrics, handler)
+ * console.log(Effect.runPromise(observed))
  * ```
  *
  * @since 0.0.0
@@ -420,6 +422,39 @@ const observeHttpApiEffectImpl = <E, R>(
 /**
  * Observes an HTTP API Effect and records request metrics.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ * import {
+ *   HttpApiTelemetryDescriptor,
+ *   makeHttpApiMetrics,
+ *   observeHttpApiEffect
+ * } from "@beep/observability/server"
+ * import type { HttpApiEndpoint } from "effect/unstable/httpapi"
+ * import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse"
+ *
+ * declare const endpoint: HttpApiEndpoint.AnyWithProps
+ * const successStatus = S.decodeUnknownSync(NonNegativeInt)(200)
+ * const descriptor = HttpApiTelemetryDescriptor.make({
+ *   apiName: "TodoApi",
+ *   endpointName: "listTodos",
+ *   groupName: "todos",
+ *   method: "GET",
+ *   route: "/todos",
+ *   successStatus
+ * })
+ * const metrics = makeHttpApiMetrics("todo_api")
+ * const observed = observeHttpApiEffect(
+ *   Effect.succeed(HttpServerResponse.empty({ status: 200 })),
+ *   { descriptor, endpoint, metrics }
+ * )
+ * console.log(observed)
+ * ```
+ *
+ * @effects Updates HTTP API request metrics, annotates spans, and preserves the wrapped response effect.
+ *
  * @category observability
  * @since 0.0.0
  */
@@ -471,7 +506,7 @@ export const observeHttpApiEffect: {
  * ```typescript
  * import { HttpApiTelemetryMiddleware } from "@beep/observability/server"
  *
- * void HttpApiTelemetryMiddleware
+ * console.log(HttpApiTelemetryMiddleware)
  * ```
  *
  * @since 0.0.0
@@ -494,6 +529,7 @@ export class HttpApiTelemetryMiddleware extends HttpApiMiddleware.Service<HttpAp
  *   apiName: "TodoApi",
  *   metrics,
  * })
+ * console.log(TelemetryLive)
  * ```
  *
  * @since 0.0.0
@@ -523,16 +559,13 @@ export const layerHttpApiTelemetryMiddleware = (
  * @example
  * ```typescript
  * import { Effect } from "effect"
- * import {
- *
- *
- *
- * } from "@beep/observability/server"
+ * import { makeHttpApiMetrics, observeHttpApiHandler } from "@beep/observability/server"
  *
  * declare const descriptor: HttpApiTelemetryDescriptor
  * const metrics = makeHttpApiMetrics("todox_api")
  * const handler = Effect.succeed({ status: 200 as const })
  * const observed = observeHttpApiHandler(descriptor, metrics, handler)
+ * console.log(Effect.runPromise(observed))
  * ```
  *
  * @since 0.0.0
@@ -578,6 +611,37 @@ const observeHttpApiHandlerImpl = Effect.fn("observeHttpApiHandlerImpl")(functio
 
 /**
  * Observes an HTTP API handler Effect and records request metrics.
+ *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ * import {
+ *   HttpApiTelemetryDescriptor,
+ *   makeHttpApiMetrics,
+ *   observeHttpApiHandler
+ * } from "@beep/observability/server"
+ *
+ * const successStatus = S.decodeUnknownSync(NonNegativeInt)(200)
+ * const descriptor = HttpApiTelemetryDescriptor.make({
+ *   apiName: "TodoApi",
+ *   endpointName: "listTodos",
+ *   groupName: "todos",
+ *   method: "GET",
+ *   route: "/todos",
+ *   successStatus
+ * })
+ * const metrics = makeHttpApiMetrics("todo_api")
+ * const observed = observeHttpApiHandler(
+ *   descriptor,
+ *   metrics,
+ *   Effect.succeed({ status: 200 })
+ * )
+ * console.log(Effect.runPromise(observed))
+ * ```
+ *
+ * @effects Updates HTTP API request metrics and annotates spans around the wrapped handler effect.
  *
  * @category observability
  * @since 0.0.0

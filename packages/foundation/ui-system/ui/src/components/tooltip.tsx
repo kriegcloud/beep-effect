@@ -4,6 +4,15 @@ import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import { cn } from "../lib/index.ts";
 
 /**
+ * Tooltip provider export.
+ *
+ * @example
+ * ```tsx
+ * import { TooltipProvider } from "@beep/ui/components/tooltip"
+ *
+ * console.log(TooltipProvider)
+ * ```
+ *
  * @category providers
  * @since 0.0.0
  */
@@ -12,6 +21,15 @@ function TooltipProvider({ ...props }: TooltipPrimitive.Provider.Props) {
 }
 
 /**
+ * Tooltip component.
+ *
+ * @example
+ * ```tsx
+ * import { Tooltip } from "@beep/ui/components/tooltip"
+ *
+ * console.log(Tooltip)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -20,6 +38,15 @@ function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
 }
 
 /**
+ * Tooltip trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { TooltipTrigger } from "@beep/ui/components/tooltip"
+ *
+ * console.log(TooltipTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -28,6 +55,15 @@ function TooltipTrigger({ className, ...props }: TooltipPrimitive.Trigger.Props)
 }
 
 /**
+ * Tooltip content component.
+ *
+ * @example
+ * ```tsx
+ * import { TooltipContent } from "@beep/ui/components/tooltip"
+ *
+ * console.log(TooltipContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

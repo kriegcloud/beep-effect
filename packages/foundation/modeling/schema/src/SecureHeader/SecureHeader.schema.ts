@@ -27,6 +27,15 @@ const SecureHeaderBase = LiteralKit([
 ]);
 
 /**
+ * Secure header literal schema.
+ *
+ * @example
+ * ```ts
+ * import { SecureHeader } from "@beep/schema/SecureHeader"
+ *
+ * console.log(SecureHeader.Options)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -38,6 +47,8 @@ export const SecureHeader = SecureHeaderBase.pipe(
 );
 
 /**
+ * Runtime type for secure header identifiers.
+ *
  * @category models
  * @since 0.0.0
  */

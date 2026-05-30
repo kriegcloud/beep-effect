@@ -16,7 +16,7 @@
  *
  * )
  *
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  *
  * @packageDocumentation
@@ -41,7 +41,7 @@ const $I = $ObservabilityId.create("Logging");
  * import { LoggingConfig, layerConsoleLogger } from "@beep/observability"
  *
  * const config = LoggingConfig.make({ format: "json", minLogLevel: "Debug" })
- * void layerConsoleLogger(config)
+ * console.log(layerConsoleLogger(config))
  * ```
  *
  * @since 0.0.0
@@ -61,7 +61,7 @@ export const LogFormat = LiteralKit(["pretty", "structured", "json", "logfmt", "
  * import type { LogFormat } from "@beep/observability"
  *
  * const format: LogFormat = "json"
- * void format
+ * console.log(format)
  * ```
  *
  * @category models
@@ -77,7 +77,7 @@ export type LogFormat = typeof LogFormat.Type;
  * import { PrettyLoggerConfig } from "@beep/observability"
  *
  * const config = PrettyLoggerConfig.make({ theme: "forest", bannerMode: "off" })
- * void config.theme // "forest"
+ * console.log(config.theme)// "forest"
  * ```
  *
  * @since 0.0.0
@@ -97,7 +97,7 @@ export const PrettyLogTheme = LiteralKit(["ocean", "forest", "sunrise", "mono"])
  * import type { PrettyLogTheme } from "@beep/observability"
  *
  * const theme: PrettyLogTheme = "forest"
- * void theme
+ * console.log(theme)
  * ```
  *
  * @category models
@@ -113,7 +113,7 @@ export type PrettyLogTheme = typeof PrettyLogTheme.Type;
  * import { PrettyLoggerConfig } from "@beep/observability"
  *
  * const config = PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "startup" })
- * void config.bannerMode // "startup"
+ * console.log(config.bannerMode)// "startup"
  * ```
  *
  * @since 0.0.0
@@ -133,7 +133,7 @@ export const BannerMode = LiteralKit(["off", "startup", "phase", "all"]).pipe(
  * import type { BannerMode } from "@beep/observability"
  *
  * const mode: BannerMode = "startup"
- * void mode
+ * console.log(mode)
  * ```
  *
  * @category models
@@ -153,7 +153,7 @@ export type BannerMode = typeof BannerMode.Type;
  *   bannerMode: "off",
  * })
  *
- * void config.theme // "forest"
+ * console.log(config.theme)// "forest"
  * ```
  *
  * @since 0.0.0
@@ -181,7 +181,7 @@ export class PrettyLoggerConfig extends S.Class<PrettyLoggerConfig>($I`PrettyLog
  *   minLogLevel: "Info",
  * })
  *
- * void config.format // "structured"
+ * console.log(config.format)// "structured"
  * ```
  *
  * @since 0.0.0
@@ -392,7 +392,7 @@ const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
  *
  * )
  *
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  *
  * @since 0.0.0

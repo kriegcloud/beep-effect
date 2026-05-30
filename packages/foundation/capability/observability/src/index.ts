@@ -9,14 +9,14 @@
  * import { Effect } from "effect"
  * import { classifyCause, LoggingConfig, layerConsoleLogger } from "@beep/observability"
  *
- * void classifyCause
+ * console.log(classifyCause)
  *
  * const config = LoggingConfig.make({ format: "pretty", minLogLevel: "Info" })
  * const program = Effect.log("hello").pipe(
  *
  * )
  *
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  *
  * @packageDocumentation

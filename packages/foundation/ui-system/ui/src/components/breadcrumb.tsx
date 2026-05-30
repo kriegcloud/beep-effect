@@ -5,6 +5,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Breadcrumb component.
+ *
+ * @example
+ * ```tsx
+ * import { Breadcrumb } from "@beep/ui/components/breadcrumb"
+ *
+ * console.log(Breadcrumb)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -13,6 +22,15 @@ function Breadcrumb({ ...props }: React.ComponentPropsWithoutRef<"nav">) {
 }
 
 /**
+ * Breadcrumb list component.
+ *
+ * @example
+ * ```tsx
+ * import { BreadcrumbList } from "@beep/ui/components/breadcrumb"
+ *
+ * console.log(BreadcrumbList)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -30,6 +48,15 @@ function BreadcrumbList({ className, ...props }: React.ComponentPropsWithoutRef<
 }
 
 /**
+ * Breadcrumb item component.
+ *
+ * @example
+ * ```tsx
+ * import { BreadcrumbItem } from "@beep/ui/components/breadcrumb"
+ *
+ * console.log(BreadcrumbItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -38,6 +65,15 @@ function BreadcrumbItem({ className, ...props }: React.ComponentPropsWithoutRef<
 }
 
 /**
+ * Breadcrumb link component.
+ *
+ * @example
+ * ```tsx
+ * import { BreadcrumbLink } from "@beep/ui/components/breadcrumb"
+ *
+ * console.log(BreadcrumbLink)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -48,6 +84,15 @@ function BreadcrumbLink({ className, ...props }: React.ComponentPropsWithoutRef<
 }
 
 /**
+ * Breadcrumb page component.
+ *
+ * @example
+ * ```tsx
+ * import { BreadcrumbPage } from "@beep/ui/components/breadcrumb"
+ *
+ * console.log(BreadcrumbPage)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -65,6 +110,15 @@ function BreadcrumbPage({ className, ...props }: React.ComponentPropsWithoutRef<
 }
 
 /**
+ * Breadcrumb separator component.
+ *
+ * @example
+ * ```tsx
+ * import { BreadcrumbSeparator } from "@beep/ui/components/breadcrumb"
+ *
+ * console.log(BreadcrumbSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -83,6 +137,15 @@ function BreadcrumbSeparator({ children, className, ...props }: React.ComponentP
 }
 
 /**
+ * Breadcrumb ellipsis component.
+ *
+ * @example
+ * ```tsx
+ * import { BreadcrumbEllipsis } from "@beep/ui/components/breadcrumb"
+ *
+ * console.log(BreadcrumbEllipsis)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

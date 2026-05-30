@@ -66,7 +66,7 @@ export const CauseClassification = LiteralKit(["empty", "failure", "defect", "in
  * import type { CauseClassification } from "@beep/observability"
  *
  * const classification: CauseClassification = "failure"
- * void classification
+ * console.log(classification)
  * ```
  *
  * @category models
@@ -81,7 +81,7 @@ export type CauseClassification = typeof CauseClassification.Type;
  * ```typescript
  * import { ExitOutcome } from "@beep/observability"
  *
- * void ExitOutcome
+ * console.log(ExitOutcome)
  * ```
  *
  * @since 0.0.0
@@ -101,7 +101,7 @@ export const ExitOutcome = LiteralKit(["success", "failure"]).pipe(
  * import type { ExitOutcome } from "@beep/observability"
  *
  * const outcome: ExitOutcome = "success"
- * void outcome
+ * console.log(outcome)
  * ```
  *
  * @category models
@@ -182,7 +182,7 @@ const CauseSummary = CauseSummaryTagged.pipe(
  * import type { CauseSummary } from "@beep/observability"
  *
  * const renderClassification = (summary: CauseSummary) => summary.classification
- * void renderClassification
+ * console.log(renderClassification)
  * ```
  *
  * @category models
@@ -246,7 +246,7 @@ const ObservedExitSummaryTagged = CauseClassification.toTaggedUnion("classificat
  * ```typescript
  * import { ObservedExitSummary } from "@beep/observability"
  *
- * void ObservedExitSummary
+ * console.log(ObservedExitSummary)
  * ```
  *
  * @since 0.0.0
@@ -266,7 +266,7 @@ export const ObservedExitSummary = ObservedExitSummaryTagged.pipe(
  * import type { ObservedExitSummary } from "@beep/observability"
  *
  * const renderOutcome = (summary: ObservedExitSummary) => summary.outcome
- * void renderOutcome
+ * console.log(renderOutcome)
  * ```
  *
  * @category models

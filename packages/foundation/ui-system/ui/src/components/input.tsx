@@ -3,6 +3,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Input component.
+ *
+ * @example
+ * ```tsx
+ * import { Input } from "@beep/ui/components/input"
+ *
+ * console.log(Input)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

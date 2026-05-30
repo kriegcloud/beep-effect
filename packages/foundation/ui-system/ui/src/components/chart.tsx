@@ -15,6 +15,14 @@ type TooltipNameType = number | string;
 /**
  * Configuration describing each chart series' label, icon, and color or per-theme colors.
  *
+ * @example
+ * ```tsx
+ * import type { ChartConfig } from "@beep/ui/components/chart"
+ *
+ * const config: ChartConfig = { revenue: { label: "Revenue", color: "var(--chart-1)" } }
+ * console.log(config.revenue?.label)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -44,6 +52,13 @@ function useChart() {
 
 /**
  * Responsive chart wrapper that provides the chart config context and theme CSS variables.
+ *
+ * @example
+ * ```tsx
+ * import { ChartContainer } from "@beep/ui/components/chart"
+ *
+ * console.log(ChartContainer)
+ * ```
  *
  * @category components
  * @since 0.0.0
@@ -89,6 +104,13 @@ function ChartContainer({
 /**
  * Injects per-theme CSS custom properties for a chart's configured series colors.
  *
+ * @example
+ * ```tsx
+ * import { ChartStyle } from "@beep/ui/components/chart"
+ *
+ * console.log(ChartStyle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -131,6 +153,13 @@ ${A.join(
 /**
  * Recharts tooltip primitive paired with {@link ChartTooltipContent}.
  *
+ * @example
+ * ```tsx
+ * import { ChartTooltip } from "@beep/ui/components/chart"
+ *
+ * console.log(ChartTooltip)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -138,6 +167,13 @@ const ChartTooltip = RechartsPrimitive.Tooltip;
 
 /**
  * Themed tooltip content for charts, rendering the active payload's label, indicator, and values.
+ *
+ * @example
+ * ```tsx
+ * import { ChartTooltipContent } from "@beep/ui/components/chart"
+ *
+ * console.log(ChartTooltipContent)
+ * ```
  *
  * @category components
  * @since 0.0.0
@@ -280,6 +316,13 @@ function ChartTooltipContent({
 /**
  * Recharts legend primitive paired with {@link ChartLegendContent}.
  *
+ * @example
+ * ```tsx
+ * import { ChartLegend } from "@beep/ui/components/chart"
+ *
+ * console.log(ChartLegend)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -287,6 +330,13 @@ const ChartLegend = RechartsPrimitive.Legend;
 
 /**
  * Themed legend content for charts, rendering each series' icon or color swatch and label.
+ *
+ * @example
+ * ```tsx
+ * import { ChartLegendContent } from "@beep/ui/components/chart"
+ *
+ * console.log(ChartLegendContent)
+ * ```
  *
  * @category components
  * @since 0.0.0
@@ -363,6 +413,15 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
 }
 
 /**
+ * Chart component suite exports.
+ *
+ * @example
+ * ```tsx
+ * import { ChartContainer } from "@beep/ui/components/chart"
+ *
+ * console.log(ChartContainer)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

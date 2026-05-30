@@ -16,7 +16,7 @@ import type { SqlError } from "effect/unstable/sql/SqlError";
  * import type { NativeMigrationError } from "@beep/postgres/interop"
  *
  * const describeMigrationError = (_error: NativeMigrationError) => "migration failed"
- * void describeMigrationError
+ * console.log(describeMigrationError)
  * ```
  *
  * @since 0.0.0
@@ -32,7 +32,7 @@ export type NativeMigrationError = EffectDrizzleQueryError | MigratorInitError |
  * import { NativePgClient } from "@beep/postgres/interop"
  *
  * const pgClientTag = NativePgClient.PgClient
- * void pgClientTag
+ * console.log(pgClientTag)
  * ```
  *
  * @since 0.0.0
@@ -49,8 +49,8 @@ export * as NativePgClient from "@effect/sql-pg/PgClient";
  * const config: EffectDrizzlePgConfig = {}
  * const useDatabase = (_database: EffectPgDatabase) => config
  * const useLogger = (_logger: EffectLogger) => config
- * void useDatabase
- * void useLogger
+ * console.log(useDatabase)
+ * console.log(useLogger)
  * ```
  *
  * @since 0.0.0

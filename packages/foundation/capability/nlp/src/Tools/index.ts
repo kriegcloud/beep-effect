@@ -49,6 +49,8 @@ import { TransformText as TransformTextSource } from "./TransformText.ts";
 import { TverskySimilarity as TverskySimilaritySource } from "./TverskySimilarity.ts";
 
 /**
+ * Ai corpus config tool schema.
+ *
  * @example
  * ```ts
  * import { AiCorpusConfig } from "@beep/nlp/Tools"
@@ -61,6 +63,8 @@ import { TverskySimilarity as TverskySimilaritySource } from "./TverskySimilarit
  */
 export const AiCorpusConfig = AiCorpusConfigSource;
 /**
+ * Ai corpus idf tool schema.
+ *
  * @example
  * ```ts
  * import { AiCorpusIdf } from "@beep/nlp/Tools"
@@ -73,6 +77,8 @@ export const AiCorpusConfig = AiCorpusConfigSource;
  */
 export const AiCorpusIdf = AiCorpusIdfSource;
 /**
+ * Ai corpus matrix shape tool schema.
+ *
  * @example
  * ```ts
  * import { AiCorpusMatrixShape } from "@beep/nlp/Tools"
@@ -85,6 +91,8 @@ export const AiCorpusIdf = AiCorpusIdfSource;
  */
 export const AiCorpusMatrixShape = AiCorpusMatrixShapeSource;
 /**
+ * Ai corpus ranked document tool schema.
+ *
  * @example
  * ```ts
  * import { AiCorpusRankedDocument } from "@beep/nlp/Tools"
@@ -97,6 +105,8 @@ export const AiCorpusMatrixShape = AiCorpusMatrixShapeSource;
  */
 export const AiCorpusRankedDocument = AiCorpusRankedDocumentSource;
 /**
+ * Ai corpus stats tool schema.
+ *
  * @example
  * ```ts
  * import { AiCorpusStats } from "@beep/nlp/Tools"
@@ -109,6 +119,8 @@ export const AiCorpusRankedDocument = AiCorpusRankedDocumentSource;
  */
 export const AiCorpusStats = AiCorpusStatsSource;
 /**
+ * Ai corpus summary tool schema.
+ *
  * @example
  * ```ts
  * import { AiCorpusSummary } from "@beep/nlp/Tools"
@@ -121,6 +133,8 @@ export const AiCorpusStats = AiCorpusStatsSource;
  */
 export const AiCorpusSummary = AiCorpusSummarySource;
 /**
+ * Ai document stats tool schema.
+ *
  * @example
  * ```ts
  * import { AiDocumentStats } from "@beep/nlp/Tools"
@@ -133,6 +147,8 @@ export const AiCorpusSummary = AiCorpusSummarySource;
  */
 export const AiDocumentStats = AiDocumentStatsSource;
 /**
+ * Ai entity tool schema.
+ *
  * @example
  * ```ts
  * import { AiEntity } from "@beep/nlp/Tools"
@@ -145,6 +161,8 @@ export const AiDocumentStats = AiDocumentStatsSource;
  */
 export const AiEntity = AiEntitySource;
 /**
+ * Ai keyword tool schema.
+ *
  * @example
  * ```ts
  * import { AiKeyword } from "@beep/nlp/Tools"
@@ -157,6 +175,8 @@ export const AiEntity = AiEntitySource;
  */
 export const AiKeyword = AiKeywordSource;
 /**
+ * Ai n gram tool schema.
+ *
  * @example
  * ```ts
  * import { AiNGram } from "@beep/nlp/Tools"
@@ -169,6 +189,8 @@ export const AiKeyword = AiKeywordSource;
  */
 export const AiNGram = AiNGramSource;
 /**
+ * Ai phonetic match tool schema.
+ *
  * @example
  * ```ts
  * import { AiPhoneticMatch } from "@beep/nlp/Tools"
@@ -181,6 +203,8 @@ export const AiNGram = AiNGramSource;
  */
 export const AiPhoneticMatch = AiPhoneticMatchSource;
 /**
+ * Ai ranked text tool schema.
+ *
  * @example
  * ```ts
  * import { AiRankedText } from "@beep/nlp/Tools"
@@ -193,6 +217,8 @@ export const AiPhoneticMatch = AiPhoneticMatchSource;
  */
 export const AiRankedText = AiRankedTextSource;
 /**
+ * Ai sentence tool schema.
+ *
  * @example
  * ```ts
  * import { AiSentence } from "@beep/nlp/Tools"
@@ -205,6 +231,8 @@ export const AiRankedText = AiRankedTextSource;
  */
 export const AiSentence = AiSentenceSource;
 /**
+ * Ai sentence chunk tool schema.
+ *
  * @example
  * ```ts
  * import { AiSentenceChunk } from "@beep/nlp/Tools"
@@ -217,6 +245,8 @@ export const AiSentence = AiSentenceSource;
  */
 export const AiSentenceChunk = AiSentenceChunkSource;
 /**
+ * Ai token tool schema.
+ *
  * @example
  * ```ts
  * import { AiToken } from "@beep/nlp/Tools"
@@ -229,6 +259,8 @@ export const AiSentenceChunk = AiSentenceChunkSource;
  */
 export const AiToken = AiTokenSource;
 /**
+ * Bow cosine similarity tool.
+ *
  * @example
  * ```ts
  * import { BowCosineSimilarity } from "@beep/nlp/Tools"
@@ -241,6 +273,8 @@ export const AiToken = AiTokenSource;
  */
 export const BowCosineSimilarity = BowCosineSimilaritySource;
 /**
+ * Chunk by sentences tool.
+ *
  * @example
  * ```ts
  * import { ChunkBySentences } from "@beep/nlp/Tools"
@@ -253,6 +287,8 @@ export const BowCosineSimilarity = BowCosineSimilaritySource;
  */
 export const ChunkBySentences = ChunkBySentencesSource;
 /**
+ * Corpus stats layer.
+ *
  * @example
  * ```ts
  * import { CorpusStats } from "@beep/nlp/Tools"
@@ -265,6 +301,8 @@ export const ChunkBySentences = ChunkBySentencesSource;
  */
 export const CorpusStats = CorpusStatsSource;
 /**
+ * Create corpus export.
+ *
  * @example
  * ```ts
  * import { CreateCorpus } from "@beep/nlp/Tools"
@@ -277,6 +315,8 @@ export const CorpusStats = CorpusStatsSource;
  */
 export const CreateCorpus: typeof CreateCorpusSource = CreateCorpusSource;
 /**
+ * Delete corpus tool.
+ *
  * @example
  * ```ts
  * import { DeleteCorpus } from "@beep/nlp/Tools"
@@ -289,6 +329,8 @@ export const CreateCorpus: typeof CreateCorpusSource = CreateCorpusSource;
  */
 export const DeleteCorpus = DeleteCorpusSource;
 /**
+ * Document stats tool.
+ *
  * @example
  * ```ts
  * import { DocumentStats } from "@beep/nlp/Tools"
@@ -301,6 +343,8 @@ export const DeleteCorpus = DeleteCorpusSource;
  */
 export const DocumentStats = DocumentStatsSource;
 /**
+ * Extract entities tool.
+ *
  * @example
  * ```ts
  * import { ExtractEntities } from "@beep/nlp/Tools"
@@ -313,6 +357,8 @@ export const DocumentStats = DocumentStatsSource;
  */
 export const ExtractEntities = ExtractEntitiesSource;
 /**
+ * Extract keywords tool.
+ *
  * @example
  * ```ts
  * import { ExtractKeywords } from "@beep/nlp/Tools"
@@ -325,6 +371,8 @@ export const ExtractEntities = ExtractEntitiesSource;
  */
 export const ExtractKeywords = ExtractKeywordsSource;
 /**
+ * Learn corpus tool.
+ *
  * @example
  * ```ts
  * import { LearnCorpus } from "@beep/nlp/Tools"
@@ -337,6 +385,8 @@ export const ExtractKeywords = ExtractKeywordsSource;
  */
 export const LearnCorpus = LearnCorpusSource;
 /**
+ * Learn custom entities tool.
+ *
  * @example
  * ```ts
  * import { LearnCustomEntities } from "@beep/nlp/Tools"
@@ -349,6 +399,8 @@ export const LearnCorpus = LearnCorpusSource;
  */
 export const LearnCustomEntities = LearnCustomEntitiesSource;
 /**
+ * N grams tool.
+ *
  * @example
  * ```ts
  * import { NGrams } from "@beep/nlp/Tools"
@@ -361,6 +413,8 @@ export const LearnCustomEntities = LearnCustomEntitiesSource;
  */
 export const NGrams = NGramsSource;
 /**
+ * Phonetic match tool.
+ *
  * @example
  * ```ts
  * import { PhoneticMatch } from "@beep/nlp/Tools"
@@ -373,6 +427,8 @@ export const NGrams = NGramsSource;
  */
 export const PhoneticMatch = PhoneticMatchSource;
 /**
+ * Query corpus tool.
+ *
  * @example
  * ```ts
  * import { QueryCorpus } from "@beep/nlp/Tools"
@@ -385,6 +441,8 @@ export const PhoneticMatch = PhoneticMatchSource;
  */
 export const QueryCorpus = QueryCorpusSource;
 /**
+ * Rank by relevance tool.
+ *
  * @example
  * ```ts
  * import { RankByRelevance } from "@beep/nlp/Tools"
@@ -397,6 +455,8 @@ export const QueryCorpus = QueryCorpusSource;
  */
 export const RankByRelevance = RankByRelevanceSource;
 /**
+ * Sentences tool.
+ *
  * @example
  * ```ts
  * import { Sentences } from "@beep/nlp/Tools"
@@ -409,6 +469,8 @@ export const RankByRelevance = RankByRelevanceSource;
  */
 export const Sentences = SentencesSource;
 /**
+ * Text similarity tool.
+ *
  * @example
  * ```ts
  * import { TextSimilarity } from "@beep/nlp/Tools"
@@ -421,6 +483,8 @@ export const Sentences = SentencesSource;
  */
 export const TextSimilarity = TextSimilaritySource;
 /**
+ * Tokenize tool.
+ *
  * @example
  * ```ts
  * import { Tokenize } from "@beep/nlp/Tools"
@@ -433,6 +497,8 @@ export const TextSimilarity = TextSimilaritySource;
  */
 export const Tokenize = TokenizeSource;
 /**
+ * Transform text tool.
+ *
  * @example
  * ```ts
  * import { TransformText } from "@beep/nlp/Tools"
@@ -445,6 +511,8 @@ export const Tokenize = TokenizeSource;
  */
 export const TransformText = TransformTextSource;
 /**
+ * Tversky similarity tool.
+ *
  * @example
  * ```ts
  * import { TverskySimilarity } from "@beep/nlp/Tools"
@@ -458,6 +526,8 @@ export const TransformText = TransformTextSource;
 export const TverskySimilarity = TverskySimilaritySource;
 
 /**
+ * Nlp toolkit tool.
+ *
  * @example
  * ```ts
  * import { NlpToolkit } from "@beep/nlp/Tools"
@@ -471,6 +541,8 @@ export const TverskySimilarity = TverskySimilaritySource;
 export const NlpToolkit: typeof NlpToolkitSource = NlpToolkitSource;
 
 /**
+ * Nlp toolkit live tool.
+ *
  * @example
  * ```ts
  * import { NlpToolkitLive } from "@beep/nlp/Tools"
@@ -484,6 +556,8 @@ export const NlpToolkit: typeof NlpToolkitSource = NlpToolkitSource;
 export const NlpToolkitLive: typeof NlpToolkitLiveSource = NlpToolkitLiveSource;
 
 /**
+ * Nlp tools tool.
+ *
  * @example
  * ```ts
  * import { NlpTools } from "@beep/nlp/Tools"
@@ -497,6 +571,8 @@ export const NlpToolkitLive: typeof NlpToolkitLiveSource = NlpToolkitLiveSource;
 export const NlpTools: typeof NlpToolsSource = NlpToolsSource;
 
 /**
+ * Export tools tool.
+ *
  * @example
  * ```ts
  * import { exportTools } from "@beep/nlp/Tools"

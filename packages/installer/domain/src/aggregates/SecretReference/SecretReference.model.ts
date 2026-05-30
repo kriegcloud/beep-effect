@@ -16,6 +16,13 @@ const $I = $InstallerDomainId.create("aggregates/SecretReference/SecretReference
 /**
  * Installer secret reference purpose.
  *
+ * @example
+ * ```ts
+ * import { SecretReferencePurpose } from "@beep/installer-domain/aggregates/SecretReference"
+ *
+ * console.log(SecretReferencePurpose)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -41,6 +48,13 @@ export type SecretReferencePurpose = typeof SecretReferencePurpose.Type;
 /**
  * Dry-run status for a secret reference.
  *
+ * @example
+ * ```ts
+ * import { SecretReferenceStatus } from "@beep/installer-domain/aggregates/SecretReference"
+ *
+ * console.log(SecretReferenceStatus)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -60,6 +74,13 @@ export type SecretReferenceStatus = typeof SecretReferenceStatus.Type;
 
 /**
  * Secret reference consumed by stack installer workflows.
+ *
+ * @example
+ * ```ts
+ * import { SecretReference } from "@beep/installer-domain/aggregates/SecretReference"
+ *
+ * console.log(SecretReference)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0

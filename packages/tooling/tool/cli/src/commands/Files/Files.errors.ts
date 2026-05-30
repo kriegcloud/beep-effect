@@ -31,7 +31,7 @@ class PlatformErrorOptions extends S.Class<PlatformErrorOptions>($I`PlatformErro
  * import { FilesCommandError } from "@beep/repo-cli/commands/Files/index"
  *
  * const error = FilesCommandError.make({ message: "Invalid directory" })
- * void error.message
+ * console.log(error.message)
  * ```
  * @category error-handling
  * @since 0.0.0
@@ -66,6 +66,13 @@ export class FilesCommandError extends TaggedErrorClass<FilesCommandError>($I`Fi
  * @param filePath - Path involved in the failed operation.
  * @param options - Wrapped platform failure details.
  * @returns File command error with operation context.
+ * @example
+ * ```ts
+ * import { formatPlatformError } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(formatPlatformError)
+ * ```
+ *
  * @category error-handling
  * @since 0.0.0
  */
@@ -86,6 +93,13 @@ export const formatPlatformError: {
  *
  * @param filePath - Path rejected because it has no suffix to preserve.
  * @returns Failed effect with a file command error.
+ * @example
+ * ```ts
+ * import { failOnExtensionlessFile } from "@beep/repo-cli/commands/Files"
+ *
+ * console.log(failOnExtensionlessFile)
+ * ```
+ *
  * @category error-handling
  * @since 0.0.0
  */

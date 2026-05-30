@@ -20,7 +20,7 @@ import type * as VariantSchema from "../VariantSchema/index.ts";
  * const BlobId = Model.Uint8Array.pipe(Schema.brand("BlobId"))
  * const field: Model.UuidV4Insert<"BlobId"> = Model.UuidV4Insert(BlobId)
  *
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -41,7 +41,7 @@ export interface UuidV4Insert<B extends string>
  * ```ts
  * import * as Model from "@beep/schema/Model"
  *
- * void Model.Uint8Array
+ * console.log(Model.Uint8Array)
  * ```
  *
  * @since 0.0.0
@@ -62,7 +62,7 @@ export const Uint8Array: S.instanceOf<Uint8Array<ArrayBuffer>> = S.Uint8Array as
  * const BlobId = Model.Uint8Array.pipe(Schema.brand("BlobId"))
  * const overridable = Model.UuidV4WithGenerate(BlobId)
  *
- * void overridable
+ * console.log(overridable)
  * ```
  *
  * @since 0.0.0
@@ -87,7 +87,7 @@ export const UuidV4WithGenerate = <B extends string>(
  *
  * class Blob extends Model.Class<Blob>("Blob")({}) {}
  *
- * void Blob
+ * console.log(Blob)
  * ```
  *
  * @since 0.0.0

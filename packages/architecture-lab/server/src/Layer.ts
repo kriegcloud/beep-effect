@@ -14,6 +14,13 @@ import { WorkerServerLayer } from "./entities/Worker/index.ts";
 /**
  * Live architecture lab server layer.
  *
+ * @example
+ * ```ts
+ * import { ArchitectureLabServerLive } from "@beep/architecture-lab-server/layer"
+ *
+ * console.log(ArchitectureLabServerLive)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */

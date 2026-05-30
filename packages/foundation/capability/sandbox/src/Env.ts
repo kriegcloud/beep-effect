@@ -19,6 +19,13 @@ const emptyEnv: Record<string, string> = {};
 /**
  * Provider environment merge options.
  *
+ * @example
+ * ```ts
+ * import { MergeProviderEnvOptions } from "@beep/sandbox/Env"
+ *
+ * console.log(MergeProviderEnvOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -72,6 +79,13 @@ const parseEnvFile = (content: string): Record<string, string> => {
 /**
  * Resolve declared sandbox environment variables from `.sandcastle/.env`.
  *
+ * @example
+ * ```ts
+ * import { resolveEnv } from "@beep/sandbox/Env"
+ *
+ * console.log(resolveEnv)
+ * ```
+ *
  * @category combinators
  * @since 0.0.0
  */
@@ -102,6 +116,13 @@ export const resolveEnv = Effect.fn("Env.resolveEnv")(function* (
 
 /**
  * Merge resolved environment variables with agent and sandbox provider env.
+ *
+ * @example
+ * ```ts
+ * import { mergeProviderEnv } from "@beep/sandbox/Env"
+ *
+ * console.log(mergeProviderEnv)
+ * ```
  *
  * @category combinators
  * @since 0.0.0

@@ -38,6 +38,15 @@ type SidebarContextValue = {
 const SidebarContext = React.createContext<SidebarContextValue | null>(null);
 
 /**
+ * Use sidebar hook.
+ *
+ * @example
+ * ```tsx
+ * import { useSidebar } from "@beep/ui/components/sidebar"
+ *
+ * console.log(useSidebar)
+ * ```
+ *
  * @category hooks
  * @since 0.0.0
  */
@@ -67,6 +76,15 @@ interface SidebarProviderProps extends React.ComponentPropsWithoutRef<"div"> {
 }
 
 /**
+ * Sidebar provider export.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarProvider } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarProvider)
+ * ```
+ *
  * @category providers
  * @since 0.0.0
  */
@@ -179,6 +197,15 @@ interface SidebarProps extends React.ComponentPropsWithoutRef<"div"> {
 }
 
 /**
+ * Sidebar component.
+ *
+ * @example
+ * ```tsx
+ * import { Sidebar } from "@beep/ui/components/sidebar"
+ *
+ * console.log(Sidebar)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -325,6 +352,15 @@ function Sidebar({
 }
 
 /**
+ * Sidebar trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarTrigger } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -350,6 +386,15 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentPropsWi
 }
 
 /**
+ * Sidebar rail component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarRail } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarRail)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -378,6 +423,15 @@ function SidebarRail({ className, ...props }: React.ComponentPropsWithoutRef<"bu
 }
 
 /**
+ * Sidebar inset component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarInset } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarInset)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -396,6 +450,15 @@ function SidebarInset({ className, ...props }: React.ComponentPropsWithoutRef<"m
 }
 
 /**
+ * Sidebar input component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarInput } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarInput)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -410,6 +473,15 @@ function SidebarInput({ className, ...props }: React.ComponentPropsWithoutRef<ty
 }
 
 /**
+ * Sidebar header component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarHeader } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarHeader)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -420,6 +492,15 @@ function SidebarHeader({ className, ...props }: React.ComponentPropsWithoutRef<"
 }
 
 /**
+ * Sidebar footer component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarFooter } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarFooter)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -434,6 +515,15 @@ function SidebarFooter({ className, ...props }: React.ComponentPropsWithoutRef<"
 }
 
 /**
+ * Sidebar separator component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarSeparator } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -444,6 +534,15 @@ function SidebarSeparator({ className, ...props }: React.ComponentPropsWithoutRe
 }
 
 /**
+ * Sidebar content component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarContent } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -461,6 +560,15 @@ function SidebarContent({ className, ...props }: React.ComponentPropsWithoutRef<
 }
 
 /**
+ * Sidebar group component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarGroup } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -471,6 +579,15 @@ function SidebarGroup({ className, ...props }: React.ComponentPropsWithoutRef<"d
 }
 
 /**
+ * Sidebar group label component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarGroupLabel } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarGroupLabel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -489,6 +606,15 @@ function SidebarGroupLabel({ className, ...props }: React.ComponentPropsWithoutR
 }
 
 /**
+ * Sidebar group action component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarGroupAction } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarGroupAction)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -509,6 +635,15 @@ function SidebarGroupAction({ className, ...props }: React.ComponentPropsWithout
 }
 
 /**
+ * Sidebar group content component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarGroupContent } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarGroupContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -517,6 +652,15 @@ function SidebarGroupContent({ className, ...props }: React.ComponentPropsWithou
 }
 
 /**
+ * Sidebar menu component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarMenu } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarMenu)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -525,6 +669,15 @@ function SidebarMenu({ className, ...props }: React.ComponentPropsWithoutRef<"ul
 }
 
 /**
+ * Sidebar menu item component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarMenuItem } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarMenuItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -562,6 +715,15 @@ interface SidebarMenuButtonProps
 }
 
 /**
+ * Sidebar menu button component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarMenuButton } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarMenuButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -606,6 +768,15 @@ function SidebarMenuButton({
 }
 
 /**
+ * Sidebar menu action component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarMenuAction } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarMenuAction)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -637,6 +808,15 @@ function SidebarMenuAction({
 }
 
 /**
+ * Sidebar menu badge component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarMenuBadge } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarMenuBadge)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -659,6 +839,15 @@ function SidebarMenuBadge({ className, ...props }: React.ComponentPropsWithoutRe
 }
 
 /**
+ * Sidebar menu skeleton component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarMenuSkeleton } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarMenuSkeleton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -687,6 +876,15 @@ function SidebarMenuSkeleton({
 }
 
 /**
+ * Sidebar menu sub component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarMenuSub } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarMenuSub)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -705,6 +903,15 @@ function SidebarMenuSub({ className, ...props }: React.ComponentPropsWithoutRef<
 }
 
 /**
+ * Sidebar menu sub item component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarMenuSubItem } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarMenuSubItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -713,6 +920,15 @@ function SidebarMenuSubItem({ className, ...props }: React.ComponentPropsWithout
 }
 
 /**
+ * Sidebar menu sub button component.
+ *
+ * @example
+ * ```tsx
+ * import { SidebarMenuSubButton } from "@beep/ui/components/sidebar"
+ *
+ * console.log(SidebarMenuSubButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

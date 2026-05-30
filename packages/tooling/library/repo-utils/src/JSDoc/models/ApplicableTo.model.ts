@@ -16,7 +16,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/ApplicableTo.model");
  * ```ts
  * import { ApplicableTo } from "@beep/repo-utils/JSDoc/models/ApplicableTo.model"
  *
- * void ApplicableTo
+ * console.log(ApplicableTo)
  * ```
  * @category models
  * @since 0.0.0
@@ -65,7 +65,7 @@ export const ApplicableTo = LiteralKit([
  *
  * type Example = ApplicableTo
  * const accept = <A extends Example>(value: A): A => value
- * void accept
+ * console.log(accept)
  * ```
  * @category models
  * @since 0.0.0

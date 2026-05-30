@@ -125,6 +125,15 @@ export const oklchToRgbValue = ({ l: lightness, c: chroma, h: hue }: OklchEncode
 /**
  * Branded finite OKLCH coordinate.
  *
+ * @example
+ * ```ts
+ * import { OklchCoordinate } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const coordinate = S.decodeUnknownSync(OklchCoordinate)(0.42)
+ * console.log(coordinate)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -145,6 +154,15 @@ export type OklchCoordinate = typeof OklchCoordinate.Type;
 
 /**
  * Canonical OKLCH lightness component.
+ *
+ * @example
+ * ```ts
+ * import { OklchLightness } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const lightness = S.decodeUnknownSync(OklchLightness)(0.72)
+ * console.log(lightness)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -168,6 +186,15 @@ export type OklchLightness = typeof OklchLightness.Type;
 /**
  * Canonical OKLCH chroma component.
  *
+ * @example
+ * ```ts
+ * import { OklchChroma } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const chroma = S.decodeUnknownSync(OklchChroma)(0.12)
+ * console.log(chroma)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -189,6 +216,15 @@ export type OklchChroma = typeof OklchChroma.Type;
 
 /**
  * Canonical OKLCH hue component.
+ *
+ * @example
+ * ```ts
+ * import { OklchHue } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const hue = S.decodeUnknownSync(OklchHue)(240)
+ * console.log(hue)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -212,6 +248,15 @@ export type OklchHue = typeof OklchHue.Type;
 /**
  * OKLCH object with finite coordinates.
  *
+ * @example
+ * ```ts
+ * import { OklchInput } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const color = S.decodeUnknownSync(OklchInput)({ l: 0.72, c: 0.12, h: 240 })
+ * console.log(color.h)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -228,6 +273,15 @@ export class OklchInput extends S.Class<OklchInput>($I`OklchInput`)(
 
 /**
  * Canonical OKLCH color object.
+ *
+ * @example
+ * ```ts
+ * import { OklchColor } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const color = S.decodeUnknownSync(OklchColor)({ l: 0.72, c: 0.12, h: 240 })
+ * console.log(color.l)
+ * ```
  *
  * @since 0.0.0
  * @category validation

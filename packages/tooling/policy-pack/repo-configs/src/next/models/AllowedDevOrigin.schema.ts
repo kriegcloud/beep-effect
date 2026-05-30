@@ -21,7 +21,7 @@ const allowedDevOriginPattern =
  * import * as S from "effect/Schema"
  * import { AllowedDevOrigin } from "@beep/repo-configs/next"
  * const program = S.decodeUnknownEffect(AllowedDevOrigin)("*.local-origin.dev")
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -49,7 +49,7 @@ export const AllowedDevOrigin = S.Trim.check(
  * ```ts
  * import type { AllowedDevOrigin } from "@beep/repo-configs/next"
  * const origin = "local-origin.dev" as AllowedDevOrigin
- * void origin
+ * console.log(origin)
  * ```
  * @category models
  * @since 0.0.0

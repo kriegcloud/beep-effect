@@ -1,4 +1,6 @@
 /**
+ * Shared testing helpers for Effect layers, SQL test drivers, and package-local test setup.
+ *
  * @packageDocumentation
  * \@beep/test-utils
  * @category testing
@@ -27,7 +29,7 @@ export * from "./SqlTest.js";
  * ```ts
  * import { VERSION } from "@beep/test-utils"
  * const version = VERSION
- * void version
+ * console.log(version)
  * ```
  * @category configuration
  * @since 0.0.0

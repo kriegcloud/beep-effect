@@ -35,7 +35,7 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  * ```ts
  * import { JsonLdContextErrorReason } from "@beep/semantic-web/services/jsonld-context"
  *
- * void JsonLdContextErrorReason
+ * console.log(JsonLdContextErrorReason)
  * ```
  *
  * @since 0.0.0
@@ -54,7 +54,7 @@ export const JsonLdContextErrorReason = LiteralKit(["unknownTerm", "policyViolat
  * ```ts
  * import { JsonLdContextError } from "@beep/semantic-web/services/jsonld-context"
  *
- * void JsonLdContextError
+ * console.log(JsonLdContextError)
  * ```
  *
  * @since 0.0.0
@@ -80,7 +80,7 @@ export class JsonLdContextError extends TaggedErrorClass<JsonLdContextError>($I`
  * ```ts
  * import { NormalizeJsonLdContextRequest } from "@beep/semantic-web/services/jsonld-context"
  *
- * void NormalizeJsonLdContextRequest
+ * console.log(NormalizeJsonLdContextRequest)
  * ```
  *
  * @since 0.0.0
@@ -108,7 +108,7 @@ export class NormalizeJsonLdContextRequest extends S.Class<NormalizeJsonLdContex
  * ```ts
  * import { ExpandJsonLdTermRequest } from "@beep/semantic-web/services/jsonld-context"
  *
- * void ExpandJsonLdTermRequest
+ * console.log(ExpandJsonLdTermRequest)
  * ```
  *
  * @since 0.0.0
@@ -135,7 +135,7 @@ export class ExpandJsonLdTermRequest extends S.Class<ExpandJsonLdTermRequest>($I
  * ```ts
  * import { ExpandJsonLdTermResult } from "@beep/semantic-web/services/jsonld-context"
  *
- * void ExpandJsonLdTermResult
+ * console.log(ExpandJsonLdTermResult)
  * ```
  *
  * @since 0.0.0
@@ -159,7 +159,7 @@ export class ExpandJsonLdTermResult extends S.Class<ExpandJsonLdTermResult>($I`E
  * ```ts
  * import { CompactJsonLdIriRequest } from "@beep/semantic-web/services/jsonld-context"
  *
- * void CompactJsonLdIriRequest
+ * console.log(CompactJsonLdIriRequest)
  * ```
  *
  * @since 0.0.0
@@ -186,7 +186,7 @@ export class CompactJsonLdIriRequest extends S.Class<CompactJsonLdIriRequest>($I
  * ```ts
  * import { CompactJsonLdIriResult } from "@beep/semantic-web/services/jsonld-context"
  *
- * void CompactJsonLdIriResult
+ * console.log(CompactJsonLdIriResult)
  * ```
  *
  * @since 0.0.0
@@ -210,7 +210,7 @@ export class CompactJsonLdIriResult extends S.Class<CompactJsonLdIriResult>($I`C
  * ```ts
  * import { MergeJsonLdContextsRequest } from "@beep/semantic-web/services/jsonld-context"
  *
- * void MergeJsonLdContextsRequest
+ * console.log(MergeJsonLdContextsRequest)
  * ```
  *
  * @since 0.0.0
@@ -238,7 +238,7 @@ export class MergeJsonLdContextsRequest extends S.Class<MergeJsonLdContextsReque
  * import type { JsonLdContextServiceShape } from "@beep/semantic-web/services/jsonld-context"
  *
  * const acceptJsonLdContextServiceShape = (value: JsonLdContextServiceShape) => value
- * void acceptJsonLdContextServiceShape
+ * console.log(acceptJsonLdContextServiceShape)
  * ```
  *
  * @since 0.0.0
@@ -258,7 +258,7 @@ export interface JsonLdContextServiceShape {
  * ```ts
  * import { JsonLdContextService } from "@beep/semantic-web/services/jsonld-context"
  *
- * void JsonLdContextService
+ * console.log(JsonLdContextService)
  * ```
  *
  * @since 0.0.0

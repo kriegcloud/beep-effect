@@ -36,7 +36,7 @@ const withSource = <A, E, R>(source: SourceShape, effect: Effect.Effect<A, E, R 
  * @example
  * ```ts
  * import { SourceShape } from "@beep/repo-docgen/Parser"
- * void SourceShape
+ * console.log(SourceShape)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -73,7 +73,7 @@ export class SourceShape {
  * @example
  * ```ts
  * import { Source } from "@beep/repo-docgen/Parser"
- * void Source
+ * console.log(Source)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -117,7 +117,7 @@ type Comment = {
  * ```ts
  * import { parseComment } from "@beep/repo-docgen/Parser"
  * const comment = parseComment("/** Example. *\/")
- * void comment
+ * console.log(comment)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -200,7 +200,7 @@ const parseInterfaceDeclarations = (interfaces: ReadonlyArray<ast.InterfaceDecla
  * @example
  * ```ts
  * import { parseInterfaces } from "@beep/repo-docgen/Parser"
- * void parseInterfaces
+ * console.log(parseInterfaces)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -291,7 +291,7 @@ const getFunctionDeclarations = Effect.gen(function* () {
  * @example
  * ```ts
  * import { parseFunctions } from "@beep/repo-docgen/Parser"
- * void parseFunctions
+ * console.log(parseFunctions)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -331,7 +331,7 @@ const parseTypeAliasDeclarations = (typeAliases: ReadonlyArray<ast.TypeAliasDecl
  * @example
  * ```ts
  * import { parseTypeAliases } from "@beep/repo-docgen/Parser"
- * void parseTypeAliases
+ * console.log(parseTypeAliases)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -365,7 +365,7 @@ const parseConstantVariableDeclaration = Effect.fn("parseConstantVariableDeclara
  * @example
  * ```ts
  * import { parseConstants } from "@beep/repo-docgen/Parser"
- * void parseConstants
+ * console.log(parseConstants)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -447,7 +447,7 @@ const parseNamedExports = (ed: ast.ExportDeclaration) => {
  * @example
  * ```ts
  * import { parseExports } from "@beep/repo-docgen/Parser"
- * void parseExports
+ * console.log(parseExports)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -498,7 +498,7 @@ const parseModuleDeclarations = (namespaces: ReadonlyArray<ast.ModuleDeclaration
  * @example
  * ```ts
  * import { parseNamespaces } from "@beep/repo-docgen/Parser"
- * void parseNamespaces
+ * console.log(parseNamespaces)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -579,7 +579,7 @@ const parseProperties = (c: ast.ClassDeclaration) =>
  * @example
  * ```ts
  * import { getConstructorDeclarationSignature } from "@beep/repo-docgen/Parser"
- * void getConstructorDeclarationSignature
+ * console.log(getConstructorDeclarationSignature)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -642,7 +642,7 @@ const parseClass = Effect.fn("parseClass")(function* (c: ast.ClassDeclaration) {
  * @example
  * ```ts
  * import { parseClasses } from "@beep/repo-docgen/Parser"
- * void parseClasses
+ * console.log(parseClasses)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -660,7 +660,7 @@ export const parseClasses = Source.pipe(
  * @example
  * ```ts
  * import { parseModuleDocumentation } from "@beep/repo-docgen/Parser"
- * void parseModuleDocumentation
+ * console.log(parseModuleDocumentation)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -682,7 +682,7 @@ export const parseModuleDocumentation = Source.pipe(
  * @example
  * ```ts
  * import { parseModule } from "@beep/repo-docgen/Parser"
- * void parseModule
+ * console.log(parseModule)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -727,7 +727,7 @@ export const parseModule = Effect.gen(function* () {
  * @example
  * ```ts
  * import { parseFile } from "@beep/repo-docgen/Parser"
- * void parseFile
+ * console.log(parseFile)
  * ```
  * @category parsing
  * @since 0.0.0
@@ -783,7 +783,7 @@ const createProject = Effect.fn("createProject")(function* (files: ReadonlyArray
  * ```ts
  * import { parseFiles } from "@beep/repo-docgen/Parser"
  * const parsed = parseFiles([])
- * void parsed
+ * console.log(parsed)
  * ```
  * @category parsing
  * @since 0.0.0

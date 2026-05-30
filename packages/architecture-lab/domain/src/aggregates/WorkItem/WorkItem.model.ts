@@ -20,6 +20,13 @@ const $I = $ArchitectureLabDomainId.create("aggregates/WorkItem/WorkItem.model")
 /**
  * Architecture lab WorkItem aggregate.
  *
+ * @example
+ * ```ts
+ * import { WorkItem } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(WorkItem)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -39,6 +46,13 @@ export class WorkItem extends S.Class<WorkItem>($I`WorkItem`)(
 
 /**
  * WorkItem creation input.
+ *
+ * @example
+ * ```ts
+ * import { CreateWorkItemInput } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(CreateWorkItemInput)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -60,6 +74,13 @@ export class CreateWorkItemInput extends S.Class<CreateWorkItemInput>($I`CreateW
 /**
  * Create a new open WorkItem aggregate.
  *
+ * @example
+ * ```ts
+ * import { create } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(create)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -77,6 +98,13 @@ const requireMutable = (workItem: WorkItem): Effect.Effect<void, WorkItemAlready
 
 /**
  * Assign an open WorkItem to a concrete assignee.
+ *
+ * @example
+ * ```ts
+ * import { assign } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(assign)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0
@@ -103,6 +131,13 @@ export const assign = Effect.fn("WorkItem.assign")(function* (workItem: WorkItem
 /**
  * Complete an open or assigned WorkItem.
  *
+ * @example
+ * ```ts
+ * import { complete } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(complete)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -127,6 +162,13 @@ export const complete = Effect.fn("WorkItem.complete")(function* (workItem: Work
 /**
  * Reopen a completed WorkItem.
  *
+ * @example
+ * ```ts
+ * import { reopen } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(reopen)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -144,6 +186,13 @@ export const reopen = Effect.fn("WorkItem.reopen")(function* (workItem: WorkItem
 
 /**
  * Archive any non-archived WorkItem.
+ *
+ * @example
+ * ```ts
+ * import { archive } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(archive)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0

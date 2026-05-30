@@ -15,6 +15,13 @@ import { $I } from "./HttpStatus.shared.ts";
  * resource. For example, search engines should remove the resource’s
  * information from their databases.
  *
+ * @example
+ * ```ts
+ * import { Gone } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Gone.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -38,6 +45,13 @@ export type Gone = typeof Gone.Type;
  * 411 “Length Required” – The length of the request’s content is not specified
  * and the resource on the server requires it.
  *
+ * @example
+ * ```ts
+ * import { LengthRequired } from "@beep/schema/HttpStatus"
+ *
+ * console.log(LengthRequired.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -60,6 +74,13 @@ export type LengthRequired = typeof LengthRequired.Type;
 /**
  * 412 “Precondition failed” – The headers of the request specify certain
  * preconditions that the server fails to meet.
+ *
+ * @example
+ * ```ts
+ * import { PreconditionFailed } from "@beep/schema/HttpStatus"
+ *
+ * console.log(PreconditionFailed.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -88,6 +109,13 @@ export type PreconditionFailed = typeof PreconditionFailed.Type;
  * problem, read this guide about the “413 Entity Too Large” Error in
  * WordPress.
  *
+ * @example
+ * ```ts
+ * import { PayloadTooLarge } from "@beep/schema/HttpStatus"
+ *
+ * console.log(PayloadTooLarge.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -111,6 +139,13 @@ export type PayloadTooLarge = typeof PayloadTooLarge.Type;
  * 414 “URI Too Long” – The length of the URI is too long and the server can’t
  * process it. Usually, this is the result of a GET request containing too much
  * data and therefore must be changed to a POST request.
+ *
+ * @example
+ * ```ts
+ * import { UriTooLong } from "@beep/schema/HttpStatus"
+ *
+ * console.log(UriTooLong.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -136,6 +171,13 @@ export type UriTooLong = typeof UriTooLong.Type;
  * server doesn’t support. For instance, you try to upload an image file in
  * .jpg format, but the server doesn’t support it.
  *
+ * @example
+ * ```ts
+ * import { UnsupportedMediaType } from "@beep/schema/HttpStatus"
+ *
+ * console.log(UnsupportedMediaType.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -160,6 +202,13 @@ export type UnsupportedMediaType = typeof UnsupportedMediaType.Type;
  * resource that the server can’t provide. This error can occur when your
  * browser asks for a portion of a file that is outside of the end of the file.
  *
+ * @example
+ * ```ts
+ * import { RangeNotSatisfiable } from "@beep/schema/HttpStatus"
+ *
+ * console.log(RangeNotSatisfiable.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -183,6 +232,13 @@ export type RangeNotSatisfiable = typeof RangeNotSatisfiable.Type;
  * 417 “Expectation Failed” – The server fails to meet the requirements set in
  * the request’s expected header field.
  *
+ * @example
+ * ```ts
+ * import { ExpectationFailed } from "@beep/schema/HttpStatus"
+ *
+ * console.log(ExpectationFailed.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -205,6 +261,13 @@ export type ExpectationFailed = typeof ExpectationFailed.Type;
 /**
  * 418 “I’m a teapot.” – This error is returned by teapots requested to brew
  * coffee. It is an April’s Fool joke dating back to 1998.
+ *
+ * @example
+ * ```ts
+ * import { ImATeapot } from "@beep/schema/HttpStatus"
+ *
+ * console.log(ImATeapot.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation

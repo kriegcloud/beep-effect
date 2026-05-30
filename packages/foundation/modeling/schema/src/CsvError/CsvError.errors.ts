@@ -29,6 +29,14 @@ const CsvErrorBase: TaggedErrorClassFromFields<CsvError, "CsvError", typeof CsvE
 /**
  * Raised when CSV parsing, header validation, or formatting fails.
  *
+ * @example
+ * ```ts
+ * import { CsvError } from "@beep/schema/CsvError"
+ *
+ * const error = CsvError.make({ message: "Invalid CSV" })
+ * console.log(error.message)
+ * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -36,6 +44,14 @@ export class CsvError extends CsvErrorBase {}
 
 /**
  * Construct a {@link CsvError}.
+ *
+ * @example
+ * ```ts
+ * import { csvError } from "@beep/schema/CsvError"
+ *
+ * const error = csvError("Invalid CSV", 4)
+ * console.log(error.offset)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

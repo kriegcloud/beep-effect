@@ -14,6 +14,13 @@ const $I = $AiProviderCliId.create("AiProviderCli.errors");
 /**
  * Technical provider CLI failure.
  *
+ * @example
+ * ```ts
+ * import { AiProviderCliError } from "@beep/ai-provider-cli/AiProviderCli.errors"
+ *
+ * console.log(AiProviderCliError)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */

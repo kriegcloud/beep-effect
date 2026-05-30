@@ -17,6 +17,13 @@ const $I = $BeepId.create("db-admin/migrations/ArchitectureLab");
 /**
  * db-admin migration target metadata.
  *
+ * @example
+ * ```ts
+ * import { DbAdminMigrationTarget } from "@beep/db-admin/migrations/ArchitectureLab"
+ *
+ * console.log(DbAdminMigrationTarget)
+ * ```
+ *
  * @category configuration
  * @since 0.0.0
  */
@@ -35,6 +42,13 @@ export class DbAdminMigrationTarget extends S.Class<DbAdminMigrationTarget>($I`D
 
 /**
  * Architecture lab migration target used to prove current db-admin aggregation.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureLabMigrationTarget } from "@beep/db-admin/migrations/ArchitectureLab"
+ *
+ * console.log(ArchitectureLabMigrationTarget)
+ * ```
  *
  * @category configuration
  * @since 0.0.0

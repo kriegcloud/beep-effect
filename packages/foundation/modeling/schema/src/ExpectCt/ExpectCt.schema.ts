@@ -22,6 +22,16 @@ const headerName = "Expect-CT" as const;
 const defaultMaxAge = 60 * 60 * 24;
 
 /**
+ * Configuration for the `Expect-CT` header.
+ *
+ * @example
+ * ```ts
+ * import { ExpectCTConfig } from "@beep/schema/ExpectCt"
+ *
+ * const config = ExpectCTConfig.make({ enforce: true, maxAge: 86400 })
+ * console.log(config.enforce)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -37,6 +47,17 @@ export class ExpectCTConfig extends S.Class<ExpectCTConfig>($I`ExpectCTConfig`)(
 ) {}
 
 /**
+ * Schema for tuple-based enabled `Expect-CT` configuration.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ExpectCTConfig, ExpectCTEnabled } from "@beep/schema/ExpectCt"
+ *
+ * const enabled = S.decodeUnknownSync(ExpectCTEnabled)([true, ExpectCTConfig.make({ enforce: true })])
+ * console.log(enabled[0])
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -47,12 +68,24 @@ export const ExpectCTEnabled = S.Tuple([S.Literal(true), ExpectCTConfig]).pipe(
 );
 
 /**
+ * Type for tuple-based enabled `Expect-CT` configuration.
+ *
  * @category models
  * @since 0.0.0
  */
 export type ExpectCTEnabled = typeof ExpectCTEnabled.Type;
 
 /**
+ * Schema for enabled or disabled `Expect-CT` options.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ExpectCTOption } from "@beep/schema/ExpectCt"
+ *
+ * console.log(S.decodeUnknownSync(ExpectCTOption)(true))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -63,12 +96,25 @@ export const ExpectCTOption = S.Union([S.Boolean, ExpectCTEnabled]).pipe(
 );
 
 /**
+ * Type for enabled or disabled `Expect-CT` options.
+ *
  * @category models
  * @since 0.0.0
  */
 export type ExpectCTOption = typeof ExpectCTOption.Type;
 
 /**
+ * Model for a rendered `Expect-CT` response header.
+ *
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { ExpectCTResponseHeader } from "@beep/schema/ExpectCt"
+ *
+ * const header = ExpectCTResponseHeader.make({ name: "Expect-CT", value: O.some("max-age=86400") })
+ * console.log(header.name)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -145,6 +191,17 @@ const decodeExpectCTValue = Effect.fn("ExpectCT.decodeExpectCTValue")(function* 
 });
 
 /**
+ * Schema that renders Expect-CT options into a response header.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ExpectCTHeader } from "@beep/schema/ExpectCt"
+ *
+ * const header = S.decodeUnknownSync(ExpectCTHeader)(true)
+ * console.log(header.name)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -202,6 +259,8 @@ export const ExpectCTHeader = S.Union([ExpectCTOption, S.Undefined]).pipe(
 );
 
 /**
+ * Type for rendered `Expect-CT` response headers.
+ *
  * @category models
  * @since 0.0.0
  */

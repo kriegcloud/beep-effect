@@ -5,6 +5,15 @@ import { CheckIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
 
 /**
+ * Checkbox component.
+ *
+ * @example
+ * ```tsx
+ * import { Checkbox } from "@beep/ui/components/checkbox"
+ *
+ * console.log(Checkbox)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

@@ -15,7 +15,7 @@ import { makeNamedNode } from "../rdf.ts";
  * ```ts
  * import { OA_NAMESPACE } from "@beep/semantic-web/vocab/oa"
  *
- * void OA_NAMESPACE
+ * console.log(OA_NAMESPACE)
  * ```
  *
  * @since 0.0.0
@@ -30,7 +30,7 @@ export const OA_NAMESPACE = "http://www.w3.org/ns/oa#" as const;
  * ```ts
  * import { OA_ANNOTATION } from "@beep/semantic-web/vocab/oa"
  *
- * void OA_ANNOTATION
+ * console.log(OA_ANNOTATION)
  * ```
  *
  * @since 0.0.0
@@ -45,7 +45,7 @@ export const OA_ANNOTATION = makeNamedNode(`${OA_NAMESPACE}Annotation`);
  * ```ts
  * import { OA_HAS_TARGET } from "@beep/semantic-web/vocab/oa"
  *
- * void OA_HAS_TARGET
+ * console.log(OA_HAS_TARGET)
  * ```
  *
  * @since 0.0.0
@@ -60,7 +60,7 @@ export const OA_HAS_TARGET = makeNamedNode(`${OA_NAMESPACE}hasTarget`);
  * ```ts
  * import { OA_HAS_SELECTOR } from "@beep/semantic-web/vocab/oa"
  *
- * void OA_HAS_SELECTOR
+ * console.log(OA_HAS_SELECTOR)
  * ```
  *
  * @since 0.0.0

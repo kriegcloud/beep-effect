@@ -29,7 +29,7 @@ const decodeJsonString = S.decodeUnknownOption(S.fromJsonString(S.Json));
  *   cwd: "src",
  *   ignore: ["*.test.ts"]
  * })
- * void options.cwd
+ * console.log(options.cwd)
  * ```
  * @category models
  * @since 0.0.0
@@ -53,7 +53,7 @@ export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
  * ```ts
  * import type { FsUtilsShape } from "@beep/repo-utils/FsUtils"
  * const methodName = "readJson" satisfies keyof FsUtilsShape
- * void methodName
+ * console.log(methodName)
  * ```
  * @category models
  * @since 0.0.0
@@ -153,7 +153,7 @@ export interface FsUtilsShape {
  *   const fsUtils = yield* FsUtils
  *   return fsUtils
  * })
- * void program
+ * console.log(program)
  * ```
  * @category models
  * @since 0.0.0
@@ -169,7 +169,7 @@ export class FsUtils extends Context.Service<FsUtils, FsUtilsShape>()($I`FsUtils
  * import { Layer } from "effect"
  * import { FsUtilsLive } from "@beep/repo-utils/FsUtils"
  * const layer = Layer.provideMerge(FsUtilsLive, Layer.empty)
- * void layer
+ * console.log(layer)
  * ```
  * @category constructors
  * @since 0.0.0

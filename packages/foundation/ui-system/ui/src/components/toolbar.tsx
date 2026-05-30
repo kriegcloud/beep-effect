@@ -15,6 +15,15 @@ import type { VariantProps } from "class-variance-authority";
 import type { ComponentProps, ElementType, ReactNode } from "react";
 
 /**
+ * Toolbar component.
+ *
+ * @example
+ * ```tsx
+ * import { Toolbar } from "@beep/ui/components/toolbar"
+ *
+ * console.log(Toolbar)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -23,6 +32,15 @@ export function Toolbar({ className, ...props }: ToolbarPrimitive.Root.Props) {
 }
 
 /**
+ * Toolbar toggle group component.
+ *
+ * @example
+ * ```tsx
+ * import { ToolbarToggleGroup } from "@beep/ui/components/toolbar"
+ *
+ * console.log(ToolbarToggleGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -60,6 +78,15 @@ export function ToolbarToggleGroup({
 }
 
 /**
+ * Toolbar link component.
+ *
+ * @example
+ * ```tsx
+ * import { ToolbarLink } from "@beep/ui/components/toolbar"
+ *
+ * console.log(ToolbarLink)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -68,6 +95,15 @@ export function ToolbarLink({ className, ...props }: ToolbarPrimitive.Link.Props
 }
 
 /**
+ * Toolbar separator component.
+ *
+ * @example
+ * ```tsx
+ * import { ToolbarSeparator } from "@beep/ui/components/toolbar"
+ *
+ * console.log(ToolbarSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -138,6 +174,15 @@ type ToolbarActionButtonProps = ToolbarButtonBaseProps &
 type ToolbarButtonProps = ToolbarToggleButtonProps | ToolbarActionButtonProps;
 
 /**
+ * Toolbar button component.
+ *
+ * @example
+ * ```tsx
+ * import { ToolbarButton } from "@beep/ui/components/toolbar"
+ *
+ * console.log(ToolbarButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -193,6 +238,15 @@ export const ToolbarButton = withTooltip(function ToolbarButton(props: ToolbarBu
 });
 
 /**
+ * Toolbar split button component.
+ *
+ * @example
+ * ```tsx
+ * import { ToolbarSplitButton } from "@beep/ui/components/toolbar"
+ *
+ * console.log(ToolbarSplitButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -203,6 +257,15 @@ export function ToolbarSplitButton({ className, ...props }: ComponentProps<typeo
 type ToolbarSplitButtonPrimaryProps = ComponentProps<"span"> & VariantProps<typeof toolbarButtonVariants>;
 
 /**
+ * Toolbar split button primary component.
+ *
+ * @example
+ * ```tsx
+ * import { ToolbarSplitButtonPrimary } from "@beep/ui/components/toolbar"
+ *
+ * console.log(ToolbarSplitButtonPrimary)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -232,6 +295,15 @@ export function ToolbarSplitButtonPrimary({
 }
 
 /**
+ * Toolbar split button secondary component.
+ *
+ * @example
+ * ```tsx
+ * import { ToolbarSplitButtonSecondary } from "@beep/ui/components/toolbar"
+ *
+ * console.log(ToolbarSplitButtonSecondary)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -261,6 +333,15 @@ export function ToolbarSplitButtonSecondary({
 }
 
 /**
+ * Toolbar toggle item component.
+ *
+ * @example
+ * ```tsx
+ * import { ToolbarToggleItem } from "@beep/ui/components/toolbar"
+ *
+ * console.log(ToolbarToggleItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -274,6 +355,15 @@ export function ToolbarToggleItem({
 }
 
 /**
+ * Toolbar group component.
+ *
+ * @example
+ * ```tsx
+ * import { ToolbarGroup } from "@beep/ui/components/toolbar"
+ *
+ * console.log(ToolbarGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -326,6 +416,15 @@ function withTooltip<T extends ElementType>(Component: T) {
 }
 
 /**
+ * Toolbar menu group component.
+ *
+ * @example
+ * ```tsx
+ * import { ToolbarMenuGroup } from "@beep/ui/components/toolbar"
+ *
+ * console.log(ToolbarMenuGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

@@ -11,8 +11,8 @@
  *
  * const serviceId = $SchemaId`TenantService`
  * const customId = $I.create("custom").make("CustomService")
- * void serviceId
- * void customId
+ * console.log(serviceId)
+ * console.log(customId)
  * ```
  *
  * @since 0.0.0
@@ -31,7 +31,7 @@ import * as Identity from "./Id.ts";
  * import { $I } from "@beep/identity/packages"
  *
  * const id = $I.make("CustomSegment")
- * void id // "@beep/CustomSegment"
+ * console.log(id)// "@beep/CustomSegment"
  * ```
  *
  * @since 0.0.0
@@ -672,55 +672,142 @@ export const $ProfessionalRuntimeProofId: Identity.IdentityComposer<"@beep/profe
 /**
  * RepoPkgs - export object containing all package IdentityComposer's
  *
+ * @example
+ * ```ts
+ * import { RepoPkgs } from "@beep/identity/packages"
+ *
+ * console.log(RepoPkgs)
+ * ```
+ *
  * @category configuration
  * @since 0.0.0
  */
 export const RepoPkgs = composers;
 
 /**
+ * $md id export.
+ *
  * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $MdId } from "@beep/identity/packages"
+ *
+ * console.log($MdId)
+ * ```
+ *
  * @category configuration
  */
 export const $MdId: Identity.IdentityComposer<"@beep/md"> = composers.$MdId;
 
 /**
+ * $codedank web id export.
+ *
  * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $CodedankWebId } from "@beep/identity/packages"
+ *
+ * console.log($CodedankWebId)
+ * ```
+ *
  * @category configuration
  */
 export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = composers.$CodedankWebId;
 
 /**
+ * $oip web id export.
+ *
  * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $OipWebId } from "@beep/identity/packages"
+ *
+ * console.log($OipWebId)
+ * ```
+ *
  * @category configuration
  */
 export const $OipWebId: Identity.IdentityComposer<"@beep/oip-web"> = composers.$OipWebId;
 
 /**
+ * $drizzle id export.
+ *
  * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $DrizzleId } from "@beep/identity/packages"
+ *
+ * console.log($DrizzleId)
+ * ```
+ *
  * @category configuration
  */
 export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.$DrizzleId;
 
 /**
+ * $duckdb id export.
+ *
  * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $DuckdbId } from "@beep/identity/packages"
+ *
+ * console.log($DuckdbId)
+ * ```
+ *
  * @category configuration
  */
 export const $DuckdbId: Identity.IdentityComposer<"@beep/duckdb"> = composers.$DuckdbId;
 
 /**
+ * $face detection id export.
+ *
  * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $FaceDetectionId } from "@beep/identity/packages"
+ *
+ * console.log($FaceDetectionId)
+ * ```
+ *
  * @category configuration
  */
 export const $FaceDetectionId: Identity.IdentityComposer<"@beep/face-detection"> = composers.$FaceDetectionId;
 
 /**
+ * $ffmpeg id export.
+ *
  * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $FfmpegId } from "@beep/identity/packages"
+ *
+ * console.log($FfmpegId)
+ * ```
+ *
  * @category configuration
  */
 export const $FfmpegId: Identity.IdentityComposer<"@beep/ffmpeg"> = composers.$FfmpegId;
 
 /**
+ * $postgres id export.
+ *
  * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $PostgresId } from "@beep/identity/packages"
+ *
+ * console.log($PostgresId)
+ * ```
+ *
  * @category configuration
  */
 export const $PostgresId: Identity.IdentityComposer<"@beep/postgres"> = composers.$PostgresId;
@@ -883,13 +970,49 @@ export const $ScratchpadId: Identity.IdentityComposer<"@beep/scratchpad"> = comp
 export const $SandboxId: Identity.IdentityComposer<"@beep/sandbox"> = composers.$SandboxId;
 
 /**
+ * $openai id export.
+ *
  * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $OpenaiId } from "@beep/identity/packages"
+ *
+ * console.log($OpenaiId)
+ * ```
+ *
+ * @category configuration
+ */
+export const $OpenaiId: Identity.IdentityComposer<"@beep/openai"> = composers.$OpenaiId;
+
+/**
+ * $venice ai id export.
+ *
+ * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $VeniceAiId } from "@beep/identity/packages"
+ *
+ * console.log($VeniceAiId)
+ * ```
+ *
  * @category configuration
  */
 export const $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai"> = composers.$VeniceAiId;
 
 /**
+ * $xai id export.
+ *
  * @since 0.0.0
+ *
+ * @example
+ * ```ts
+ * import { $XaiId } from "@beep/identity/packages"
+ *
+ * console.log($XaiId)
+ * ```
+ *
  * @category configuration
  */
 export const $XaiId: Identity.IdentityComposer<"@beep/xai"> = composers.$XaiId;
@@ -902,7 +1025,7 @@ export const $XaiId: Identity.IdentityComposer<"@beep/xai"> = composers.$XaiId;
  * import { $AcpId } from "@beep/identity"
  *
  * const id = $AcpId.make("AcpClient")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -918,7 +1041,7 @@ export const $AcpId: Identity.IdentityComposer<"@beep/acp"> = composers.$AcpId;
  * import { $OpenaiCompatId } from "@beep/identity"
  *
  * const id = $OpenaiCompatId.make("LanguageModel")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -934,7 +1057,7 @@ export const $OpenaiCompatId: Identity.IdentityComposer<"@beep/openai-compat"> =
  * import { $WorkspaceTablesId } from "@beep/identity"
  *
  * const id = $WorkspaceTablesId.make("WorkspaceTable")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -950,7 +1073,7 @@ export const $WorkspaceTablesId: Identity.IdentityComposer<"@beep/workspace-tabl
  * import { $ArchitectureLabDomainId } from "@beep/identity"
  *
  * const id = $ArchitectureLabDomainId.make("WorkItem")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -967,7 +1090,7 @@ export const $ArchitectureLabDomainId: Identity.IdentityComposer<"@beep/architec
  * import { $ArchitectureLabUseCasesId } from "@beep/identity"
  *
  * const id = $ArchitectureLabUseCasesId.make("WorkItemService")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -984,7 +1107,7 @@ export const $ArchitectureLabUseCasesId: Identity.IdentityComposer<"@beep/archit
  * import { $ArchitectureLabConfigId } from "@beep/identity"
  *
  * const id = $ArchitectureLabConfigId.make("Config")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1001,7 +1124,7 @@ export const $ArchitectureLabConfigId: Identity.IdentityComposer<"@beep/architec
  * import { $ArchitectureLabServerId } from "@beep/identity"
  *
  * const id = $ArchitectureLabServerId.make("Layer")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1018,7 +1141,7 @@ export const $ArchitectureLabServerId: Identity.IdentityComposer<"@beep/architec
  * import { $ArchitectureLabTablesId } from "@beep/identity"
  *
  * const id = $ArchitectureLabTablesId.make("WorkItemTable")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1035,7 +1158,7 @@ export const $ArchitectureLabTablesId: Identity.IdentityComposer<"@beep/architec
  * import { $ArchitectureLabClientId } from "@beep/identity"
  *
  * const id = $ArchitectureLabClientId.make("WorkItemClient")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1052,7 +1175,7 @@ export const $ArchitectureLabClientId: Identity.IdentityComposer<"@beep/architec
  * import { $ArchitectureLabUiId } from "@beep/identity"
  *
  * const id = $ArchitectureLabUiId.make("WorkItemViewModel")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1069,7 +1192,7 @@ export const $ArchitectureLabUiId: Identity.IdentityComposer<"@beep/architecture
  * import { $ArchitectureLabProofId } from "@beep/identity"
  *
  * const id = $ArchitectureLabProofId.make("Proof")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1088,7 +1211,7 @@ export const $ArchitectureLabProofId: Identity.IdentityComposer<"@beep/architect
  * import { $StackInstallerId } from "@beep/identity"
  *
  * const id = $StackInstallerId.make("Workbench")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1099,6 +1222,13 @@ export const $StackInstallerId: Identity.IdentityComposer<"@beep/stack-installer
 /**
  * Identity composer for `@beep/installer-domain`.
  *
+ * @example
+ * ```ts
+ * import { $InstallerDomainId } from "@beep/identity/packages"
+ *
+ * console.log($InstallerDomainId)
+ * ```
+ *
  * @category configuration
  * @since 0.0.0
  */
@@ -1106,6 +1236,13 @@ export const $InstallerDomainId: Identity.IdentityComposer<"@beep/installer-doma
 
 /**
  * Identity composer for `@beep/installer-use-cases`.
+ *
+ * @example
+ * ```ts
+ * import { $InstallerUseCasesId } from "@beep/identity/packages"
+ *
+ * console.log($InstallerUseCasesId)
+ * ```
  *
  * @category configuration
  * @since 0.0.0
@@ -1115,6 +1252,13 @@ export const $InstallerUseCasesId: Identity.IdentityComposer<"@beep/installer-us
 
 /**
  * Identity composer for `@beep/installer-server`.
+ *
+ * @example
+ * ```ts
+ * import { $InstallerServerId } from "@beep/identity/packages"
+ *
+ * console.log($InstallerServerId)
+ * ```
  *
  * @category configuration
  * @since 0.0.0
@@ -1129,7 +1273,7 @@ export const $InstallerServerId: Identity.IdentityComposer<"@beep/installer-serv
  * import { $RunpodId } from "@beep/identity"
  *
  * const id = $RunpodId.make("Runpod")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1145,7 +1289,7 @@ export const $RunpodId: Identity.IdentityComposer<"@beep/runpod"> = composers.$R
  * import { $OnepasswordCliId } from "@beep/identity"
  *
  * const id = $OnepasswordCliId.make("OnepasswordCli")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1161,7 +1305,7 @@ export const $OnepasswordCliId: Identity.IdentityComposer<"@beep/onepassword-cli
  * import { $DiscordId } from "@beep/identity"
  *
  * const id = $DiscordId.make("Discord")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1177,7 +1321,7 @@ export const $DiscordId: Identity.IdentityComposer<"@beep/discord"> = composers.
  * import { $AiProviderCliId } from "@beep/identity"
  *
  * const id = $AiProviderCliId.make("AiProviderCli")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1193,7 +1337,7 @@ export const $AiProviderCliId: Identity.IdentityComposer<"@beep/ai-provider-cli"
  * import { $SanityId } from "@beep/identity"
  *
  * const id = $SanityId.make("Sanity")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1209,7 +1353,7 @@ export const $SanityId: Identity.IdentityComposer<"@beep/sanity"> = composers.$S
  * import { $HubspotId } from "@beep/identity"
  *
  * const id = $HubspotId.make("Hubspot")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1225,7 +1369,7 @@ export const $HubspotId: Identity.IdentityComposer<"@beep/hubspot"> = composers.
  * import { $PhoenixId } from "@beep/identity"
  *
  * const id = $PhoenixId.make("Phoenix")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1241,7 +1385,7 @@ export const $PhoenixId: Identity.IdentityComposer<"@beep/phoenix"> = composers.
  * import { $KonvaId } from "@beep/identity"
  *
  * const id = $KonvaId.make("Konva")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1257,7 +1401,7 @@ export const $KonvaId: Identity.IdentityComposer<"@beep/konva"> = composers.$Kon
  * import { $CanvasDomainId } from "@beep/identity"
  *
  * const id = $CanvasDomainId.make("CanvasProject")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1273,7 +1417,7 @@ export const $CanvasDomainId: Identity.IdentityComposer<"@beep/canvas-domain"> =
  * import { $CanvasUseCasesId } from "@beep/identity"
  *
  * const id = $CanvasUseCasesId.make("CanvasProjectUseCases")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1289,7 +1433,7 @@ export const $CanvasUseCasesId: Identity.IdentityComposer<"@beep/canvas-use-case
  * import { $CanvasServerId } from "@beep/identity"
  *
  * const id = $CanvasServerId.make("CanvasProjectBundleRepository")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1305,7 +1449,7 @@ export const $CanvasServerId: Identity.IdentityComposer<"@beep/canvas-server"> =
  * import { $CanvasClientId } from "@beep/identity"
  *
  * const id = $CanvasClientId.make("CanvasEditorState")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1321,7 +1465,7 @@ export const $CanvasClientId: Identity.IdentityComposer<"@beep/canvas-client"> =
  * import { $CanvasUiId } from "@beep/identity"
  *
  * const id = $CanvasUiId.make("CanvasEditor")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1337,7 +1481,7 @@ export const $CanvasUiId: Identity.IdentityComposer<"@beep/canvas-ui"> = compose
  * import { $CanvasId } from "@beep/identity"
  *
  * const id = $CanvasId.make("Canvas")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1354,7 +1498,7 @@ export const $CanvasId: Identity.IdentityComposer<"@beep/canvas"> = composers.$C
  * import { $RepoCodegraphId } from "@beep/identity"
  *
  * const id = $RepoCodegraphId.make("RepoCodegraph")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1370,7 +1514,7 @@ export const $RepoCodegraphId: Identity.IdentityComposer<"@beep/repo-codegraph">
  * import { $AiSyncId } from "@beep/identity"
  *
  * const id = $AiSyncId.make("AiSync")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0
@@ -1386,7 +1530,7 @@ export const $AiSyncId: Identity.IdentityComposer<"@beep/ai-sync"> = composers.$
  * import { $FormId } from "@beep/identity"
  *
  * const id = $FormId.make("Form")
- * void id
+ * console.log(id)
  * ```
  *
  * @since 0.0.0

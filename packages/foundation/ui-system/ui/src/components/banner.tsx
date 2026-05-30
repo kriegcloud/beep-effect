@@ -5,6 +5,15 @@ import type { VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
 /**
+ * Banner variants component.
+ *
+ * @example
+ * ```tsx
+ * import { bannerVariants } from "@beep/ui/components/banner"
+ *
+ * console.log(bannerVariants)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -41,6 +50,15 @@ type BannerRootProps = React.ComponentProps<"div"> &
   };
 
 /**
+ * Banner root component.
+ *
+ * @example
+ * ```tsx
+ * import { Banner } from "@beep/ui/components/banner"
+ *
+ * console.log(Banner)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -56,6 +74,15 @@ function Banner({ className, variant = "default", icon, children, ...props }: Ba
 }
 
 /**
+ * Banner content wrapper.
+ *
+ * @example
+ * ```tsx
+ * import { BannerContent } from "@beep/ui/components/banner"
+ *
+ * console.log(BannerContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -64,6 +91,15 @@ const BannerContent = ({ className, ...props }: React.ComponentProps<"div">) => 
 );
 
 /**
+ * Banner title text component.
+ *
+ * @example
+ * ```tsx
+ * import { BannerTitle } from "@beep/ui/components/banner"
+ *
+ * console.log(BannerTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -72,6 +108,15 @@ const BannerTitle = ({ className, ...props }: React.ComponentProps<"p">) => (
 );
 
 /**
+ * Banner description text component.
+ *
+ * @example
+ * ```tsx
+ * import { BannerDescription } from "@beep/ui/components/banner"
+ *
+ * console.log(BannerDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -84,6 +129,15 @@ type BannerDismissProps = React.ComponentProps<"button"> & {
 };
 
 /**
+ * Banner dismiss button.
+ *
+ * @example
+ * ```tsx
+ * import { BannerDismiss } from "@beep/ui/components/banner"
+ *
+ * console.log(BannerDismiss)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -112,6 +166,15 @@ Banner.Description = BannerDescription;
 Banner.Dismiss = BannerDismiss;
 
 /**
+ * Banner component suite exports.
+ *
+ * @example
+ * ```tsx
+ * import { Banner } from "@beep/ui/components/banner"
+ *
+ * console.log(Banner)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

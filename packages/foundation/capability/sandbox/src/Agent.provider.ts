@@ -326,6 +326,13 @@ const piToolCallEvent = (line: PiToolExecutionStartStreamLine): O.Option<ParsedS
 /**
  * Parsed event emitted by an agent stream line.
  *
+ * @example
+ * ```ts
+ * import { ParsedStreamEvent } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(ParsedStreamEvent)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -360,6 +367,13 @@ export type ParsedStreamEvent = typeof ParsedStreamEvent.Type;
 /**
  * Reasoning effort accepted by the Codex provider.
  *
+ * @example
+ * ```ts
+ * import { CodexEffort } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(CodexEffort)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -379,6 +393,13 @@ export type CodexEffort = typeof CodexEffort.Type;
 
 /**
  * Reasoning effort accepted by the Claude Code provider.
+ *
+ * @example
+ * ```ts
+ * import { ClaudeEffort } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(ClaudeEffort)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -400,6 +421,13 @@ export type ClaudeEffort = typeof ClaudeEffort.Type;
 /**
  * Options passed when building an agent command.
  *
+ * @example
+ * ```ts
+ * import { AgentCommandOptions } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(AgentCommandOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -417,6 +445,13 @@ export class AgentCommandOptions extends S.Class<AgentCommandOptions>($I`AgentCo
 /**
  * Command emitted by an agent provider.
  *
+ * @example
+ * ```ts
+ * import { PrintCommand } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(PrintCommand)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -432,6 +467,13 @@ export class PrintCommand extends S.Class<PrintCommand>($I`PrintCommand`)(
 
 /**
  * Token usage snapshot extracted from an agent session.
+ *
+ * @example
+ * ```ts
+ * import { IterationUsage } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(IterationUsage)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -451,6 +493,13 @@ export class IterationUsage extends S.Class<IterationUsage>($I`IterationUsage`)(
 /**
  * Options for the Codex provider.
  *
+ * @example
+ * ```ts
+ * import { CodexOptions } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(CodexOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -467,6 +516,13 @@ export class CodexOptions extends S.Class<CodexOptions>($I`CodexOptions`)(
 /**
  * Options for the Pi provider.
  *
+ * @example
+ * ```ts
+ * import { PiOptions } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(PiOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -482,6 +538,13 @@ export class PiOptions extends S.Class<PiOptions>($I`PiOptions`)(
 /**
  * Options for the OpenCode provider.
  *
+ * @example
+ * ```ts
+ * import { OpenCodeOptions } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(OpenCodeOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -496,6 +559,13 @@ export class OpenCodeOptions extends S.Class<OpenCodeOptions>($I`OpenCodeOptions
 
 /**
  * Options for the Claude Code provider.
+ *
+ * @example
+ * ```ts
+ * import { ClaudeCodeOptions } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(ClaudeCodeOptions)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -514,6 +584,14 @@ export class ClaudeCodeOptions extends S.Class<ClaudeCodeOptions>($I`ClaudeCodeO
 /**
  * Effect-first agent provider contract.
  *
+ * @example
+ * ```ts
+ * import type { AgentProvider } from "@beep/sandbox/Agent.provider"
+ *
+ * const value = {} as AgentProvider
+ * console.log(value)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -529,6 +607,13 @@ export interface AgentProvider {
 
 /**
  * Default Claude model used by the source Sandcastle implementation.
+ *
+ * @example
+ * ```ts
+ * import { DEFAULT_CLAUDE_MODEL } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(DEFAULT_CLAUDE_MODEL)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -754,6 +839,13 @@ const parseClaudeSessionUsage = (content: string): O.Option<IterationUsage> =>
 /**
  * Create a Codex agent provider.
  *
+ * @example
+ * ```ts
+ * import { codex } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(codex)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -778,6 +870,13 @@ export const codex = (model: string, options: CodexOptions = CodexOptions.make({
 /**
  * Create a Pi agent provider.
  *
+ * @example
+ * ```ts
+ * import { pi } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(pi)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -798,6 +897,13 @@ export const pi = (model: string, options: PiOptions = PiOptions.make({})): Agen
 /**
  * Create an OpenCode agent provider.
  *
+ * @example
+ * ```ts
+ * import { opencode } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(opencode)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -816,6 +922,13 @@ export const opencode = (model: string, options: OpenCodeOptions = OpenCodeOptio
 
 /**
  * Create a Claude Code agent provider.
+ *
+ * @example
+ * ```ts
+ * import { claudeCode } from "@beep/sandbox/Agent.provider"
+ *
+ * console.log(claudeCode)
+ * ```
  *
  * @category constructors
  * @since 0.0.0

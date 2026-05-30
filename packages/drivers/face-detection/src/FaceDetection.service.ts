@@ -79,6 +79,14 @@ type OrtTensor = import("onnxruntime-node").Tensor;
 /**
  * Loaded face detector bound to one model session.
  *
+ * @example
+ * ```ts
+ * import type { LoadedFaceDetector } from "@beep/face-detection/FaceDetection.service"
+ *
+ * const value = {} as LoadedFaceDetector
+ * console.log(value)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -88,6 +96,14 @@ export interface LoadedFaceDetector {
 
 /**
  * Runtime shape exposed by the {@link FaceDetectionService}.
+ *
+ * @example
+ * ```ts
+ * import type { FaceDetectionServiceShape } from "@beep/face-detection/FaceDetection.service"
+ *
+ * const value = {} as FaceDetectionServiceShape
+ * console.log(value)
+ * ```
  *
  * @category services
  * @since 0.0.0
@@ -101,6 +117,13 @@ export interface FaceDetectionServiceShape {
 
 /**
  * Service tag for ONNX face detection.
+ *
+ * @example
+ * ```ts
+ * import { FaceDetectionService } from "@beep/face-detection/FaceDetection.service"
+ *
+ * console.log(FaceDetectionService)
+ * ```
  *
  * @category services
  * @since 0.0.0
@@ -580,6 +603,13 @@ const makeLoadedDetector = (ort: Ort, session: OrtSession): LoadedFaceDetector =
 /**
  * Construct the live ONNX Runtime service implementation.
  *
+ * @example
+ * ```ts
+ * import { makeFaceDetectionService } from "@beep/face-detection/FaceDetection.service"
+ *
+ * console.log(makeFaceDetectionService)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -609,6 +639,13 @@ export const makeFaceDetectionService = (): FaceDetectionServiceShape =>
  * @param config - Model configuration.
  * @param use - Workflow to run with the loaded detector.
  * @returns The workflow result.
+ * @example
+ * ```ts
+ * import { withDetector } from "@beep/face-detection/FaceDetection.service"
+ *
+ * console.log(withDetector)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */

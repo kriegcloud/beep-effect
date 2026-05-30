@@ -3,6 +3,15 @@ import { cn } from "../lib/index.ts";
 import type { IconProps } from "@phosphor-icons/react";
 
 /**
+ * Spinner component.
+ *
+ * @example
+ * ```tsx
+ * import { Spinner } from "@beep/ui/components/spinner"
+ *
+ * console.log(Spinner)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

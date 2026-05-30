@@ -64,7 +64,7 @@ type AcpClientRaw = {
  * import type { AcpClientShape } from "@beep/acp/client"
  *
  * const notificationsOf = (client: AcpClientShape) => client.raw.notifications
- * void notificationsOf
+ * console.log(notificationsOf)
  * ```
  *
  * @category services
@@ -351,7 +351,7 @@ interface BufferedNotificationHandler<A> {
  * import { make } from "@beep/acp/client"
  *
  * const fromStdio = (stdio: Stdio.Stdio) => make(stdio)
- * void fromStdio
+ * console.log(fromStdio)
  * ```
  *
  * @category constructors
@@ -722,7 +722,7 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
  * import { layerChildProcess } from "@beep/acp/client"
  *
  * const fromHandle = (handle: ChildProcessSpawner.ChildProcessHandle) => layerChildProcess(handle)
- * void fromHandle
+ * console.log(fromHandle)
  * ```
  *
  * @category layers

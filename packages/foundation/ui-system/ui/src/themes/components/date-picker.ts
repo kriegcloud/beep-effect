@@ -4,6 +4,15 @@ import type {} from "@mui/x-date-pickers-pro/themeAugmentation";
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Date picker theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { datePickerTheme } from "@beep/ui/themes/components/date-picker"
+ *
+ * console.log(datePickerTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

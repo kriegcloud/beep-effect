@@ -123,7 +123,7 @@ const compactIdentifier = (context: JsonLdContext, iri: string): string => {
  * ```ts
  * import { JsonLdContextServiceLive } from "@beep/semantic-web/adapters/jsonld-context"
  *
- * void JsonLdContextServiceLive
+ * console.log(JsonLdContextServiceLive)
  * ```
  *
  * @since 0.0.0

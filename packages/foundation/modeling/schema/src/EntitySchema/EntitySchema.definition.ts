@@ -28,6 +28,14 @@ import type {
 /**
  * Entity metadata attached to entity schema classes.
  *
+ * @example
+ * ```ts
+ * import type { Definition } from "@beep/schema/EntitySchema"
+ *
+ * const definition = { fields: {}, inputFields: {}, persisted: {}, tableName: "accounts", variantFields: {} } as Definition
+ * console.log(definition.tableName)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -54,6 +62,15 @@ export type Definition<
 /**
  * Encoded persistence row shape for a field map.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import type { EncodedShape } from "@beep/schema/EntitySchema"
+ *
+ * type Row = EncodedShape<{ readonly id: typeof S.String }>
+ * console.log({ id: "acct_123" } satisfies Row)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -63,6 +80,15 @@ export type EncodedShape<FieldMap extends EntityFieldInputs> = {
 
 /**
  * Decoded domain type shape for a field map.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import type { TypeShape } from "@beep/schema/EntitySchema"
+ *
+ * type Domain = TypeShape<{ readonly id: typeof S.String }>
+ * console.log({ id: "acct_123" } satisfies Domain)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -74,6 +100,14 @@ export type TypeShape<FieldMap extends EntityFieldInputs> = {
 /**
  * Schema annotation bag accepted by entity class factories.
  *
+ * @example
+ * ```ts
+ * import type { SchemaAnnotations } from "@beep/schema/EntitySchema"
+ *
+ * const annotations = { title: "Account" } satisfies SchemaAnnotations
+ * console.log(annotations.title)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -82,6 +116,14 @@ export type SchemaAnnotations = S.Annotations.Annotations;
 /**
  * Type-level snake-case transform.
  *
+ * @example
+ * ```ts
+ * import type { SnakeCase } from "@beep/schema/EntitySchema"
+ *
+ * const table = "account_profile" satisfies SnakeCase<"AccountProfile">
+ * console.log(table)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -89,6 +131,14 @@ export type SnakeCase<Value extends string> = ReturnType<typeof Str.snakeCase<Va
 
 /**
  * Last path segment of an identity string.
+ *
+ * @example
+ * ```ts
+ * import type { LastPathSegment } from "@beep/schema/EntitySchema"
+ *
+ * const segment = "Account" satisfies LastPathSegment<"Domain/Account">
+ * console.log(segment)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -100,6 +150,14 @@ export type LastPathSegment<Value extends string> = Value extends `${string}/${i
 /**
  * Default table name derived from a schema identifier.
  *
+ * @example
+ * ```ts
+ * import type { TableNameFromIdentifier } from "@beep/schema/EntitySchema"
+ *
+ * const table = "account_profile" satisfies TableNameFromIdentifier<"Domain/AccountProfile">
+ * console.log(table)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -107,6 +165,14 @@ export type TableNameFromIdentifier<Identifier extends string> = SnakeCase<LastP
 
 /**
  * Column name for a field key and descriptor.
+ *
+ * @example
+ * ```ts
+ * import type { ColumnNameFor, PersistDescriptor } from "@beep/schema/EntitySchema"
+ *
+ * type Column = ColumnNameFor<"createdAt", PersistDescriptor<"text", "provided">>
+ * console.log("created_at" as Column)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -119,6 +185,15 @@ export type ColumnNameFor<Key extends string, Descriptor extends PersistDescript
 
 /**
  * Input accepted by {@link ClassFactory}.
+ *
+ * @example
+ * ```ts
+ * import { defineClassInput } from "@beep/schema/EntitySchema"
+ * import type { ClassInput } from "@beep/schema/EntitySchema"
+ *
+ * const input = defineClassInput({ fields: {}, persisted: {} }) satisfies ClassInput<{}, {}>
+ * console.log(Object.keys(input.fields))
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -138,6 +213,14 @@ export type ClassInput<
 /**
  * Preserve a checked class input while letting callers keep `const` inference.
  *
+ * @example
+ * ```ts
+ * import { defineClassInput } from "@beep/schema/EntitySchema"
+ *
+ * const input = defineClassInput({ fields: {}, persisted: {} })
+ * console.log(Object.keys(input.fields))
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -152,6 +235,15 @@ export const defineClassInput = <
 
 /**
  * Variant field schema selected for a persisted field descriptor.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import type { PersistDescriptor, VariantFieldFor } from "@beep/schema/EntitySchema"
+ *
+ * type Field = VariantFieldFor<typeof S.String, PersistDescriptor.Any>
+ * console.log(S.String as Field)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -182,6 +274,15 @@ export type VariantFieldFor<
 /**
  * Variant field schema selected for a field input and persisted descriptor.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import type { PersistDescriptor, VariantFieldForInput } from "@beep/schema/EntitySchema"
+ *
+ * type Field = VariantFieldForInput<typeof S.String, PersistDescriptor.Any>
+ * console.log(S.String as Field)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -192,6 +293,15 @@ export type VariantFieldForInput<
 
 /**
  * Variant field map derived from entity inputs and persistence descriptors.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import type { VariantFieldsFor } from "@beep/schema/EntitySchema"
+ *
+ * type Fields = VariantFieldsFor<{ readonly id: typeof S.String }, {}>
+ * console.log({ id: S.String } as Fields)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -204,6 +314,14 @@ export type VariantFieldsFor<FieldMap extends EntityFieldInputs, Persisted exten
 
 /**
  * Entity schema class produced by {@link ClassFactory}.
+ *
+ * @example
+ * ```ts
+ * import type { EntityClass } from "@beep/schema/EntitySchema"
+ *
+ * declare const entity: EntityClass.Any
+ * console.log(entity.definition.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -257,6 +375,15 @@ export namespace EntityClass {
 /**
  * Assign fields with right-hand override.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import type { Assign } from "@beep/schema/EntitySchema"
+ *
+ * type Fields = Assign<{ readonly id: typeof S.String }, { readonly name: typeof S.String }>
+ * console.log({ id: S.String, name: S.String } satisfies Fields)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -266,6 +393,14 @@ export type Assign<Base extends EntityFieldInputs, Extension extends EntityField
 
 /**
  * Assign persisted maps with right-hand override.
+ *
+ * @example
+ * ```ts
+ * import type { AssignPersisted } from "@beep/schema/EntitySchema"
+ *
+ * type Persisted = AssignPersisted<{}, {}>
+ * console.log({} satisfies Persisted)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -277,6 +412,15 @@ export type AssignPersisted<BasePersisted extends PersistedMap, ExtensionPersist
 /**
  * Field and persistence maps produced by composing an inherited entity shape
  * with a child entity shape.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import type { AssignedEntityParts } from "@beep/schema/EntitySchema"
+ *
+ * type Parts = AssignedEntityParts<{ readonly id: typeof S.String }, {}, { readonly name: typeof S.String }, {}>
+ * console.log({ fields: { id: S.String, name: S.String }, persisted: {} } as Parts)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -294,6 +438,14 @@ export type AssignedEntityParts<
 /**
  * Persisted map produced by composing inherited and child entity parts.
  *
+ * @example
+ * ```ts
+ * import type { AssignedPersisted } from "@beep/schema/EntitySchema"
+ *
+ * type Persisted = AssignedPersisted<{}, {}, {}, {}>
+ * console.log({} satisfies Persisted)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -310,6 +462,20 @@ export type AssignedPersisted<
 /**
  * Compose field and persistence maps together so their correlation is checked
  * at the call site and preserved for downstream class factories.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { assignEntityParts } from "@beep/schema/EntitySchema"
+ *
+ * const parts = assignEntityParts({
+ *   baseFields: {},
+ *   basePersisted: {},
+ *   extensionFields: { name: S.String },
+ *   extensionPersisted: { name: { storageKind: "text", valueStrategy: "provided" } },
+ * })
+ * console.log(Object.keys(parts.fields))
+ * ```
  *
  * @since 0.0.0
  * @category constructors

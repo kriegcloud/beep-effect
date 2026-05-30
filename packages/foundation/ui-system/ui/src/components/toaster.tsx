@@ -15,8 +15,14 @@ import { globalToastManager } from "../lib/toaster.ts";
 import type { ToastData } from "@beep/ui/components/toast";
 
 /**
- * Renders the live toasts from the toast manager. Must be mounted inside a
- * {@link ToastProvider} so `useToastManager` resolves its context.
+ * Renders the live toasts from the toast manager.
+ *
+ * @example
+ * ```tsx
+ * import { ToastPrimitive } from "@beep/ui/components/toaster"
+ *
+ * console.log(ToastPrimitive)
+ * ```
  *
  * @category components
  * @since 0.0.0
@@ -55,6 +61,15 @@ function ToasterViewport() {
 }
 
 /**
+ * Toaster component.
+ *
+ * @example
+ * ```tsx
+ * import { Toaster } from "@beep/ui/components/toaster"
+ *
+ * console.log(Toaster)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -67,6 +82,15 @@ export function Toaster() {
 }
 
 /**
+ * Toast primitive namespace re-export.
+ *
+ * @example
+ * ```tsx
+ * import { ToastPrimitive } from "@beep/ui/components/toaster"
+ *
+ * console.log(ToastPrimitive)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

@@ -5,6 +5,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Popover component.
+ *
+ * @example
+ * ```tsx
+ * import { Popover } from "@beep/ui/components/popover"
+ *
+ * console.log(Popover)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -13,6 +22,15 @@ function Popover({ ...props }: PopoverPrimitive.Root.Props) {
 }
 
 /**
+ * Popover trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { PopoverTrigger } from "@beep/ui/components/popover"
+ *
+ * console.log(PopoverTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -21,6 +39,15 @@ function PopoverTrigger({ ...props }: PopoverPrimitive.Trigger.Props) {
 }
 
 /**
+ * Popover content component.
+ *
+ * @example
+ * ```tsx
+ * import { PopoverContent } from "@beep/ui/components/popover"
+ *
+ * console.log(PopoverContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -58,6 +85,15 @@ function PopoverContent({
 }
 
 /**
+ * Popover header component.
+ *
+ * @example
+ * ```tsx
+ * import { PopoverHeader } from "@beep/ui/components/popover"
+ *
+ * console.log(PopoverHeader)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -66,6 +102,15 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Popover title component.
+ *
+ * @example
+ * ```tsx
+ * import { PopoverTitle } from "@beep/ui/components/popover"
+ *
+ * console.log(PopoverTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -74,6 +119,15 @@ function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
 }
 
 /**
+ * Popover description component.
+ *
+ * @example
+ * ```tsx
+ * import { PopoverDescription } from "@beep/ui/components/popover"
+ *
+ * console.log(PopoverDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

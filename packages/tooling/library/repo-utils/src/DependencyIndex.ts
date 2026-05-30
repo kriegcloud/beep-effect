@@ -43,12 +43,8 @@ const ROOT_KEY = "@beep/root";
  * import { Effect } from "effect"
  * import { buildRepoDependencyIndex } from "@beep/repo-utils/DependencyIndex"
  *
- * const program = Effect.gen(function*() {
- *
- *
- *
- * })
- * void program
+ * const program = buildRepoDependencyIndex(".")
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0

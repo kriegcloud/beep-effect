@@ -22,7 +22,7 @@ const $I = $DrizzleId.create("Drizzle.service");
  * import * as S from "effect/Schema"
  *
  * const rows = S.decodeUnknownSync(DrizzleRows)([])
- * void rows
+ * console.log(rows)
  * ```
  *
  * @category schemas
@@ -42,7 +42,7 @@ export const DrizzleRows = S.Array(S.Unknown).pipe(
  * import type { DrizzleRows } from "@beep/drizzle"
  *
  * const rows: DrizzleRows = []
- * void rows
+ * console.log(rows)
  * ```
  *
  * @category models
@@ -66,7 +66,7 @@ export type DrizzleRows = typeof DrizzleRows.Type;
  *   withTransaction: (use) => use(client)
  * }
  *
- * void client
+ * console.log(client)
  * ```
  *
  * @category models
@@ -92,7 +92,7 @@ export interface DrizzleClient {
  *   withTransaction: (use) => use(service)
  * }
  *
- * void service
+ * console.log(service)
  * ```
  *
  * @category services
@@ -119,7 +119,7 @@ const makeService = (client: DrizzleClient): DrizzleShape =>
  * import { Drizzle } from "@beep/drizzle"
  *
  * const tag = Drizzle
- * void tag
+ * console.log(tag)
  * ```
  *
  * @category services
@@ -141,7 +141,7 @@ export class Drizzle extends Context.Service<Drizzle, DrizzleShape>()($I`Drizzle
    *
    * const layer = Drizzle.makeLayer(client)
    *
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers

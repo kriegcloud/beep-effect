@@ -27,6 +27,13 @@ const $I = $SandboxId.create("createWorktree");
 /**
  * Options for creating a managed worktree.
  *
+ * @example
+ * ```ts
+ * import { CreateWorktreeOptions } from "@beep/sandbox/createWorktree"
+ *
+ * console.log(CreateWorktreeOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -44,6 +51,14 @@ export class CreateWorktreeOptions extends S.Class<CreateWorktreeOptions>($I`Cre
 
 /**
  * Programmatic worktree wrapper.
+ *
+ * @example
+ * ```ts
+ * import type { Worktree } from "@beep/sandbox/createWorktree"
+ *
+ * const value = {} as Worktree
+ * console.log(value)
+ * ```
  *
  * @category services
  * @since 0.0.0
@@ -67,6 +82,13 @@ export interface Worktree<R = never> {
 /**
  * Worktree creation summary.
  *
+ * @example
+ * ```ts
+ * import { CreateWorktreeResult } from "@beep/sandbox/createWorktree"
+ *
+ * console.log(CreateWorktreeResult)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -82,6 +104,13 @@ export class CreateWorktreeResult extends S.Class<CreateWorktreeResult>($I`Creat
 
 /**
  * Create a managed worktree wrapper.
+ *
+ * @example
+ * ```ts
+ * import { createWorktree } from "@beep/sandbox/createWorktree"
+ *
+ * console.log(createWorktree)
+ * ```
  *
  * @category constructors
  * @since 0.0.0
@@ -123,6 +152,13 @@ export const createWorktree = Effect.fn("createWorktree.createWorktree")(functio
 
 /**
  * Create a managed worktree whose lifetime is bound to the current Effect scope.
+ *
+ * @example
+ * ```ts
+ * import { createWorktreeScoped } from "@beep/sandbox/createWorktree"
+ *
+ * console.log(createWorktreeScoped)
+ * ```
  *
  * @category constructors
  * @since 0.0.0

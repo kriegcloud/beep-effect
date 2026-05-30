@@ -68,7 +68,7 @@ export const XAI_WEBSOCKET_URL = "wss://api.x.ai";
  *   managementApiKey: Redacted.make("management-test-key")
  * })
  *
- * void config
+ * console.log(config)
  * ```
  *
  * @category utilities

@@ -14,7 +14,7 @@
  *
  * const program = trackDuration(Effect.succeed("ok"), timer)
  *
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  *
  * @packageDocumentation
@@ -115,8 +115,10 @@ export const statusClass = (status: number): string => {
  *   Effect.map(([value, elapsedMs]) => ({ value, elapsedMs }))
  * )
  *
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
+ *
+ * @effects Reads the clock before and after the wrapped effect while preserving the wrapped effect's error and service channels.
  *
  * @since 0.0.0
  * @category observability
@@ -159,7 +161,7 @@ export const measureElapsedMillis = Effect.fn("measureElapsedMillis")(function* 
  *
  * const tracked = trackDuration(timer, createUser, { service: "iam" })
  *
- * void Effect.runPromise(tracked)
+ * console.log(Effect.runPromise(tracked))
  * ```
  *
  * @since 0.0.0
@@ -182,6 +184,18 @@ const trackDurationImpl = Effect.fn("trackDurationImpl")(function* <A, E, R>(
 
 /**
  * Tracks the elapsed duration of an Effect with a metric.
+ *
+ * @example
+ * ```typescript
+ * import { Effect, Metric } from "effect"
+ * import { trackDuration } from "@beep/observability"
+ *
+ * const timer = Metric.timer("task_duration")
+ * const program = trackDuration(Effect.succeed("ok"), timer)
+ * console.log(Effect.runPromise(program))
+ * ```
+ *
+ * @effects Updates the supplied metric and annotates the current span after the wrapped effect completes.
  *
  * @category observability
  * @since 0.0.0
@@ -248,7 +262,7 @@ export const trackDuration: {
  *
  * const observed = observeWorkflow()
  *
- * void Effect.runPromise(observed)
+ * console.log(Effect.runPromise(observed))
  * ```
  *
  * @since 0.0.0
@@ -305,6 +319,20 @@ const observeWorkflowImpl = Effect.fn("observeWorkflowImpl")(function* <A, E, R>
 /**
  * Observes workflow duration and outcome metrics for an Effect.
  *
+ * @example
+ * ```typescript
+ * import { Effect, Metric } from "effect"
+ * import { observeWorkflow } from "@beep/observability"
+ *
+ * const program = observeWorkflow(Effect.succeed("ok"), {
+ *   completed: Metric.counter("workflow_completed_total"),
+ *   name: "demo"
+ * })
+ * console.log(Effect.runPromise(program))
+ * ```
+ *
+ * @effects Updates workflow metrics and annotates the current span while preserving the wrapped effect's result.
+ *
  * @category observability
  * @since 0.0.0
  */
@@ -350,7 +378,7 @@ export const observeWorkflow: {
  *
  * const observed = observeHttpRequest()
  *
- * void Effect.runPromise(observed)
+ * console.log(Effect.runPromise(observed))
  * ```
  *
  * @since 0.0.0
@@ -435,6 +463,23 @@ const observeHttpRequestImpl = Effect.fn("observeHttpRequestImpl")(function* <
 
 /**
  * Observes HTTP request duration and status metrics for an Effect.
+ *
+ * @example
+ * ```typescript
+ * import { Effect, Metric } from "effect"
+ * import { observeHttpRequest } from "@beep/observability"
+ *
+ * const program = observeHttpRequest(Effect.succeed("ok"), {
+ *   method: "GET",
+ *   requestDuration: Metric.timer("http_request_duration"),
+ *   requestsTotal: Metric.counter("http_requests_total"),
+ *   route: "/health",
+ *   successStatus: 200
+ * })
+ * console.log(Effect.runPromise(program))
+ * ```
+ *
+ * @effects Updates HTTP request metrics and annotates the current span with request status and duration.
  *
  * @category observability
  * @since 0.0.0

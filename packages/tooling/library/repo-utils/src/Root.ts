@@ -33,11 +33,8 @@ const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
  * import { Effect } from "effect"
  * import { findRepoRoot } from "@beep/repo-utils/Root"
  *
- * const program = Effect.gen(function*() {
- *
- *
- * })
- * void program
+ * const program = findRepoRoot()
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0

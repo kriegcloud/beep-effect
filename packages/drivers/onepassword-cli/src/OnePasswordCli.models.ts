@@ -14,6 +14,13 @@ const $I = $OnepasswordCliId.create("OnePasswordCli.models");
 /**
  * 1Password reference probe status.
  *
+ * @example
+ * ```ts
+ * import { OnePasswordReferenceProbeStatus } from "@beep/onepassword-cli/OnePasswordCli.models"
+ *
+ * console.log(OnePasswordReferenceProbeStatus)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -34,6 +41,13 @@ export type OnePasswordReferenceProbeStatus = typeof OnePasswordReferenceProbeSt
 /**
  * Process output captured by a 1Password CLI command.
  *
+ * @example
+ * ```ts
+ * import { OnePasswordCliProcessResult } from "@beep/onepassword-cli/OnePasswordCli.models"
+ *
+ * console.log(OnePasswordCliProcessResult)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -51,6 +65,13 @@ export class OnePasswordCliProcessResult extends S.Class<OnePasswordCliProcessRe
 /**
  * 1Password account/session probe result.
  *
+ * @example
+ * ```ts
+ * import { OnePasswordCliAccount } from "@beep/onepassword-cli/OnePasswordCli.models"
+ *
+ * console.log(OnePasswordCliAccount)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -66,6 +87,13 @@ export class OnePasswordCliAccount extends S.Class<OnePasswordCliAccount>($I`One
 
 /**
  * Secret-reference validation result that does not expose the secret.
+ *
+ * @example
+ * ```ts
+ * import { OnePasswordReferenceProbe } from "@beep/onepassword-cli/OnePasswordCli.models"
+ *
+ * console.log(OnePasswordReferenceProbe)
+ * ```
  *
  * @category models
  * @since 0.0.0

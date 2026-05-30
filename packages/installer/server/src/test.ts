@@ -11,6 +11,13 @@ import { InstallerServerLive } from "./Layer.js";
 /**
  * Deterministic test layer for the installer slice.
  *
+ * @example
+ * ```ts
+ * import { InstallerServerTest } from "@beep/installer-server/test"
+ *
+ * console.log(InstallerServerTest)
+ * ```
+ *
  * @category testing
  * @since 0.0.0
  */

@@ -117,7 +117,18 @@ export function withEmptyArrayDefaults<TValue>(): <
   self: TSchema
 ) => S.withDecodingDefaultType<S.withConstructorDefault<TSchema>>;
 /**
- * Public schema module export.
+ * Apply empty readonly-array defaults directly to an array schema.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { withEmptyArrayDefaults } from "@beep/schema/SchemaUtils/withKeyDefaults"
+ *
+ * const Tags = withEmptyArrayDefaults<string>(S.Array(S.String))
+ * const Settings = S.Struct({ tags: Tags })
+ *
+ * console.log(S.decodeUnknownSync(Settings)({}).tags.length)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -128,7 +139,18 @@ export function withEmptyArrayDefaults<
     S.WithoutConstructorDefault,
 >(self: TSchema): S.withDecodingDefaultType<S.withConstructorDefault<TSchema>>;
 /**
- * Public schema module export.
+ * Apply empty readonly-array defaults in data-first or data-last form.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { withEmptyArrayDefaults } from "@beep/schema/SchemaUtils/withKeyDefaults"
+ *
+ * const Tags = S.Array(S.String).pipe(withEmptyArrayDefaults<string>())
+ * const Settings = S.Struct({ tags: Tags })
+ *
+ * console.log(S.decodeUnknownSync(Settings)({}).tags.length)
+ * ```
  *
  * @category schemas
  * @since 0.0.0

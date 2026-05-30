@@ -1087,6 +1087,9 @@
       ],
       "@beep/schema/test/Yaml": [
         "./packages/foundation/modeling/schema/src/internal/test/Yaml.test-kit.ts"
+      ],
+      "@beep/ui/components/blocks/editor-00/nodes": [
+        "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
       ]
     }
   }

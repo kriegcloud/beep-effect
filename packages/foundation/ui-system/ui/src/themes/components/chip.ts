@@ -8,6 +8,15 @@ declare module "@mui/material/Chip" {
 }
 
 /**
+ * Chip theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { chipTheme } from "@beep/ui/themes/components/chip"
+ *
+ * console.log(chipTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

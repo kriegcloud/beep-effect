@@ -15,6 +15,13 @@ import { TIER_ONE_SOURCES } from "./source-map.ts";
 /**
  * Generated schemas file path relative to the package root.
  *
+ * @example
+ * ```ts
+ * import { GENERATED_SCHEMAS_PATH } from "@beep/ai-sync/generator"
+ *
+ * console.log(GENERATED_SCHEMAS_PATH)
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */
@@ -22,6 +29,13 @@ export const GENERATED_SCHEMAS_PATH = "src/_generated/schemas.gen.ts" as const;
 
 /**
  * Generated source metadata file path relative to the package root.
+ *
+ * @example
+ * ```ts
+ * import { GENERATED_SOURCE_METADATA_PATH } from "@beep/ai-sync/generator"
+ *
+ * console.log(GENERATED_SOURCE_METADATA_PATH)
+ * ```
  *
  * @category constants
  * @since 0.0.0
@@ -97,6 +111,13 @@ export const renderGeneratedSourceMetadata = (sources: ReadonlyArray<AiSyncSourc
       ...generatedPrelude,
       "/**",
       " * Generated source metadata with content hashes for Tier-1 sources.",
+      " *",
+      " * @example",
+      " * ```ts",
+      ' * import { GENERATED_TIER_ONE_SOURCE_METADATA } from "@beep/ai-sync/_generated/source-metadata.gen"',
+      " *",
+      " * console.log(GENERATED_TIER_ONE_SOURCE_METADATA.length)",
+      " * ```",
       " *",
       " * @category constants",
       " * @since 0.0.0",
@@ -401,6 +422,13 @@ export const generateAiSyncArtifacts = Effect.fn("AiSync.generateAiSyncArtifacts
 
 /**
  * Runtime layer for generator and drift commands.
+ *
+ * @example
+ * ```ts
+ * import { AiSyncHttpLayer } from "@beep/ai-sync/generator"
+ *
+ * console.log(AiSyncHttpLayer)
+ * ```
  *
  * @category services
  * @since 0.0.0

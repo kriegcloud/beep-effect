@@ -19,6 +19,13 @@ const $I = $SandboxId.create("Template");
 /**
  * Supported scaffold template names.
  *
+ * @example
+ * ```ts
+ * import { SandboxTemplateName } from "@beep/sandbox/Template"
+ *
+ * console.log(SandboxTemplateName)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */

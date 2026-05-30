@@ -9,6 +9,13 @@
 /**
  * Package version for `@beep/installer-server`.
  *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/installer-server"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @category handlers
  * @since 0.0.0
  */

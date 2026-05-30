@@ -88,7 +88,7 @@ type DirectionalKit<
  * ```ts
  * import { MappedLiteralDuplicateError } from "@beep/schema/MappedLiteralKit"
  *
- * void MappedLiteralDuplicateError
+ * console.log(MappedLiteralDuplicateError)
  * ```
  *
  * @category models
@@ -295,7 +295,15 @@ type MappedLiteralKitBase<M extends MappedPairs> = ForwardDirectionalKit<M> & {
  * @since 0.0.0
  */
 /**
- * Public schema module export.
+ * Runtime mapped literal kit returned by {@link MappedLiteralKit}.
+ *
+ * @example
+ * ```ts
+ * import { MappedLiteralKit, type MappedLiteralKit as MappedLiteralKitType } from "@beep/schema/MappedLiteralKit"
+ *
+ * const Status = MappedLiteralKit([["OK", 200], ["NOT_FOUND", 404]] as const)
+ * console.log(Status.Pairs.length satisfies MappedLiteralKitType<typeof Status.Pairs>["Pairs"]["length"])
+ * ```
  *
  * @category schemas
  * @since 0.0.0

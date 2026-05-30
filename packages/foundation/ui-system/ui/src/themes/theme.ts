@@ -27,10 +27,17 @@ import type {} from "@mui/material/themeCssVarsAugmentation";
 import type { ThemeOptions } from "./types.ts";
 
 /**
- * Base theme options shared by `@beep/ui`.
+ * Theme options theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { themeOptions } from "@beep/ui/themes/theme"
+ *
+ * console.log(themeOptions)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const themeOptions: ThemeOptions = {
   cssVariables: {
@@ -67,17 +74,31 @@ export const themeOptions: ThemeOptions = {
 };
 
 /**
- * Creates a shared `@beep/ui` theme with optional app-level overrides.
+ * Create app theme export.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { createAppTheme } from "@beep/ui/themes/theme"
+ *
+ * console.log(createAppTheme)
+ * ```
+ *
  * @category constructors
+ * @since 0.0.0
  */
 export const createAppTheme = (overrides: ThemeOptions = {}): Theme => createTheme(themeOptions, overrides);
 
 /**
- * The shared MUI theme used by `@beep/ui`.
+ * Theme theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { theme } from "@beep/ui/themes/theme"
+ *
+ * console.log(theme)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const theme = createAppTheme();

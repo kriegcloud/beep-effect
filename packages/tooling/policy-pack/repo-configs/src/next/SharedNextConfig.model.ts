@@ -82,7 +82,7 @@ const AnalyzerLogLevel = LiteralKit(["info", "warn", "error", "silent"]).pipe(
  *   ANALYZE: "1",
  *   NEXT_DISABLE_PWA: "1"
  * })
- * void env
+ * console.log(env)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -121,7 +121,7 @@ class BeepNextBundleAnalyzerConfigOptions extends S.Class<BeepNextBundleAnalyzer
  *   analyzerMode: "static",
  *   openAnalyzer: false
  * })
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -139,7 +139,7 @@ export const BeepNextBundleAnalyzerConfig = S.Union([S.Literal(false), BeepNextB
  * ```ts
  * import type { BeepNextBundleAnalyzerConfig } from "@beep/repo-configs/next"
  * const config: BeepNextBundleAnalyzerConfig = { enabled: true }
- * void config
+ * console.log(config)
  * ```
  * @category models
  * @since 0.0.0
@@ -164,7 +164,7 @@ class BeepNextMdxConfigOptions extends S.Class<BeepNextMdxConfigOptions>($I`Beep
  * const config = BeepNextMdxConfig.make({
  *   extension: /\.(md|mdx)$/
  * })
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -182,7 +182,7 @@ export const BeepNextMdxConfig = S.Union([S.Literal(false), BeepNextMdxConfigOpt
  * ```ts
  * import type { BeepNextMdxConfig } from "@beep/repo-configs/next"
  * const config: BeepNextMdxConfig = {}
- * void config
+ * console.log(config)
  * ```
  * @category models
  * @since 0.0.0
@@ -215,7 +215,7 @@ class BeepNextPwaConfigOptions extends S.Class<BeepNextPwaConfigOptions>($I`Beep
  *   dest: "public",
  *   register: true
  * })
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -233,7 +233,7 @@ export const BeepNextPwaConfig = S.Union([S.Literal(false), BeepNextPwaConfigOpt
  * ```ts
  * import type { BeepNextPwaConfig } from "@beep/repo-configs/next"
  * const config: BeepNextPwaConfig = { enabled: false }
- * void config
+ * console.log(config)
  * ```
  * @category models
  * @since 0.0.0
@@ -252,7 +252,7 @@ export type BeepNextPwaConfig = typeof BeepNextPwaConfig.Type;
  *   repoRoot: "/repo",
  *   allowedDevOrigins: ["codedank-web.localhost"]
  * })
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -297,7 +297,7 @@ export class BeepNextConfigOptions extends S.Class<BeepNextConfigOptions>($I`Bee
  *   allowedDevOrigins: ["codedank-web.localhost"],
  *   env: { ANALYZE: "1" }
  * }
- * void options
+ * console.log(options)
  * ```
  * @category models
  * @since 0.0.0
@@ -313,7 +313,7 @@ export type BeepNextConfigOptionsInput = Omit<typeof BeepNextConfigOptions.Encod
  * ```ts
  * import type { NextConfigPlugin } from "@beep/repo-configs/next"
  * const plugin: NextConfigPlugin = (config) => config
- * void plugin
+ * console.log(plugin)
  * ```
  * @category models
  * @since 0.0.0
@@ -484,7 +484,7 @@ const makeBaseConfig = (options: BeepNextConfigOptions): NextConfigFromNext => {
  * import { Effect } from "effect"
  * import { decodeBeepNextConfigEnv } from "@beep/repo-configs/next"
  * const program = decodeBeepNextConfigEnv({ ANALYZE: "1" })
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category decoding
  * @since 0.0.0
@@ -500,7 +500,7 @@ export const decodeBeepNextConfigEnv = S.decodeUnknownEffect(BeepNextConfigEnv);
  * ```ts
  * import { defineBeepNextConfigEnv } from "@beep/repo-configs/next"
  * const env = defineBeepNextConfigEnv({ NEXT_DISABLE_PWA: "0" })
- * void env
+ * console.log(env)
  * ```
  * @category constructors
  * @since 0.0.0
@@ -517,7 +517,7 @@ export const defineBeepNextConfigEnv = (env: unknown): BeepNextConfigEnv =>
  * const config = composeNextConfig({ reactStrictMode: true }, [
  *   (current) => ({ ...current, poweredByHeader: false })
  * ])
- * void config
+ * console.log(config)
  * ```
  * @category combinators
  * @since 0.0.0
@@ -546,7 +546,7 @@ export const composeNextConfig: {
  *   repoRoot: "/repo",
  *   allowedDevOrigins: ["codedank-web.localhost"]
  * })
- * void config
+ * console.log(config)
  * ```
  * @category constructors
  * @since 0.0.0
@@ -570,7 +570,7 @@ export const makeBeepNextBaseConfig = (options: BeepNextConfigOptionsInput): Nex
  *   allowedDevOrigins: ["codedank-web.localhost"],
  *   env: { NEXT_DISABLE_PWA: "1" }
  * })
- * void config
+ * console.log(config)
  * ```
  * @category constructors
  * @since 0.0.0

@@ -24,6 +24,13 @@ const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(
 /**
  * Result returned after a repository has been copied into an isolated sandbox.
  *
+ * @example
+ * ```ts
+ * import { SyncInResult } from "@beep/sandbox/SyncIn"
+ *
+ * console.log(SyncInResult)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -175,6 +182,13 @@ const syncInWithBundle = Effect.fn("SyncIn.syncInWithBundle")(function* <R>(
 
 /**
  * Sync a host git repository into an isolated sandbox by cloning from a git bundle.
+ *
+ * @example
+ * ```ts
+ * import { syncIn } from "@beep/sandbox/SyncIn"
+ *
+ * console.log(syncIn)
+ * ```
  *
  * @category combinators
  * @since 0.0.0

@@ -13,6 +13,15 @@ import * as SchemaUtils from "../SchemaUtils/index.ts";
 const $I = $SchemaId.create("http/HttpMethod/HttpMethod");
 
 /**
+ * Base literal kit for all supported HTTP method tokens.
+ *
+ * @example
+ * ```ts
+ * import { Literal } from "@beep/schema/HttpMethod"
+ *
+ * console.log(Literal.Options)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -43,6 +52,15 @@ type HttpMethodValue = typeof HttpMethod_.Type;
 const hasBody: (method: HttpMethodValue) => method is WithBody = S.is(WithBody);
 
 /**
+ * HTTP method schema with static helpers for body support and common aliases.
+ *
+ * @example
+ * ```ts
+ * import { HttpMethod } from "@beep/schema/HttpMethod"
+ *
+ * console.log(HttpMethod.hasBody("POST"))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -73,6 +91,8 @@ export const HttpMethod = HttpMethod_.pipe(
 );
 
 /**
+ * Runtime type for supported HTTP method tokens.
+ *
  * @category models
  * @since 0.0.0
  */

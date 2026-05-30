@@ -20,6 +20,13 @@ const $I = $RunpodId.create("Runpod.errors");
 /**
  * Technical error reasons emitted by the Runpod REST API driver.
  *
+ * @example
+ * ```ts
+ * import { RunpodErrorReason } from "@beep/runpod"
+ *
+ * console.log(RunpodErrorReason.ast)
+ * ```
+ *
  * @category errors
  * @since 0.1.0
  */
@@ -38,6 +45,14 @@ export const RunpodErrorReason = LiteralKit([
 /**
  * Type for {@link RunpodErrorReason}.
  *
+ * @example
+ * ```ts
+ * import type { RunpodErrorReason } from "@beep/runpod"
+ *
+ * const reason: RunpodErrorReason = "transport"
+ * console.log(reason)
+ * ```
+ *
  * @category errors
  * @since 0.1.0
  */
@@ -45,6 +60,13 @@ export type RunpodErrorReason = typeof RunpodErrorReason.Type;
 
 /**
  * Technical error reasons emitted by the Runpod documentation index driver.
+ *
+ * @example
+ * ```ts
+ * import { RunpodDocsErrorReason } from "@beep/runpod"
+ *
+ * console.log(RunpodDocsErrorReason.ast)
+ * ```
  *
  * @category errors
  * @since 0.1.0
@@ -64,6 +86,14 @@ export const RunpodDocsErrorReason = LiteralKit([
 /**
  * Type for {@link RunpodDocsErrorReason}.
  *
+ * @example
+ * ```ts
+ * import type { RunpodDocsErrorReason } from "@beep/runpod"
+ *
+ * const reason: RunpodDocsErrorReason = "parse"
+ * console.log(reason)
+ * ```
+ *
  * @category errors
  * @since 0.1.0
  */
@@ -73,6 +103,14 @@ const isRunpodOperationDescriptor = S.is(RunpodOperationDescriptor);
 
 /**
  * Technical failure raised by the Runpod REST API driver boundary.
+ *
+ * @example
+ * ```ts
+ * import { RunpodError } from "@beep/runpod"
+ *
+ * const error = RunpodError.config("missing RUNPOD_API_KEY")
+ * console.log(error.reason)
+ * ```
  *
  * @category errors
  * @since 0.1.0
@@ -152,6 +190,14 @@ export class RunpodError extends TaggedErrorClass<RunpodError>($I`RunpodError`)(
 /**
  * Technical failure raised by the Runpod documentation index driver boundary.
  *
+ * @example
+ * ```ts
+ * import { RunpodDocsError } from "@beep/runpod"
+ *
+ * const error = RunpodDocsError.fromReason("parse")
+ * console.log(error.reason)
+ * ```
+ *
  * @category errors
  * @since 0.1.0
  */
@@ -193,6 +239,14 @@ export class RunpodDocsError extends TaggedErrorClass<RunpodDocsError>($I`Runpod
 /**
  * Options used when constructing Runpod driver errors.
  *
+ * @example
+ * ```ts
+ * import { RunpodErrorOptions } from "@beep/runpod"
+ *
+ * const options = RunpodErrorOptions.make({ status: 401 })
+ * console.log(options.status)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -208,6 +262,18 @@ export class RunpodErrorOptions extends S.Class<RunpodErrorOptions>($I`RunpodErr
 
 /**
  * Options used when constructing Runpod driver errors for raw requests.
+ *
+ * @example
+ * ```ts
+ * import { RunpodRawErrorOptions } from "@beep/runpod"
+ *
+ * const options = RunpodRawErrorOptions.make({
+ *   method: "GET",
+ *   path: "/health",
+ *   reason: "transport"
+ * })
+ * console.log(options.path)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -227,6 +293,16 @@ export class RunpodRawErrorOptions extends S.Class<RunpodRawErrorOptions>($I`Run
 
 /**
  * Options used when constructing Runpod documentation driver errors.
+ *
+ * @example
+ * ```ts
+ * import { RunpodDocsErrorOptions } from "@beep/runpod"
+ *
+ * const options = RunpodDocsErrorOptions.make({
+ *   url: "https://docs.runpod.io/llms.txt"
+ * })
+ * console.log(options.url)
+ * ```
  *
  * @category models
  * @since 0.1.0

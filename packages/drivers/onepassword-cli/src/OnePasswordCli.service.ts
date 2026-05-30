@@ -29,6 +29,14 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<str
 /**
  * Product-neutral process runner used by the 1Password CLI driver.
  *
+ * @example
+ * ```ts
+ * import type { OnePasswordCliRunner } from "@beep/onepassword-cli/OnePasswordCli.service"
+ *
+ * const value = {} as OnePasswordCliRunner
+ * console.log(value)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -134,6 +142,13 @@ const makeService = (commandPath: string, runner: OnePasswordCliRunner): OnePass
 
 /**
  * Effect service for native `op` execution.
+ *
+ * @example
+ * ```ts
+ * import { OnePasswordCli } from "@beep/onepassword-cli/OnePasswordCli.service"
+ *
+ * console.log(OnePasswordCli)
+ * ```
  *
  * @category services
  * @since 0.0.0

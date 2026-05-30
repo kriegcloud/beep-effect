@@ -368,7 +368,7 @@ const printNamespace: {
  * @example
  * ```ts
  * import { print } from "@beep/repo-docgen/Printer"
- * void print
+ * console.log(print)
  * ```
  * @category formatting
  * @since 0.0.0
@@ -416,7 +416,7 @@ const sortByName: <
  * @example
  * ```ts
  * import { printModule } from "@beep/repo-docgen/Printer"
- * void printModule
+ * console.log(printModule)
  * ```
  * @category formatting
  * @since 0.0.0
@@ -463,7 +463,7 @@ export const printModule = (module: Domain.Module) =>
  * @example
  * ```ts
  * import { printFrontMatter } from "@beep/repo-docgen/Printer"
- * void printFrontMatter
+ * console.log(printFrontMatter)
  * ```
  * @category formatting
  * @since 0.0.0
@@ -491,7 +491,7 @@ parent: Modules
  * ```ts
  * import { prettify } from "@beep/repo-docgen/Printer"
  * const rendered = prettify("# Title")
- * void rendered
+ * console.log(rendered)
  * ```
  * @category formatting
  * @since 0.0.0

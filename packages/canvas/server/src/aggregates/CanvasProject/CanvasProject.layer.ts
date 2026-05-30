@@ -17,6 +17,13 @@ const $I = $CanvasServerId.create("aggregates/CanvasProject/CanvasProject.layer"
 /**
  * Build the CanvasProject server facade.
  *
+ * @example
+ * ```ts
+ * import { makeCanvasProjectServer } from "@beep/canvas-server/aggregates/CanvasProject"
+ *
+ * console.log(makeCanvasProjectServer)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -28,6 +35,13 @@ export const makeCanvasProjectServer = Effect.fn("Canvas.CanvasProjectServer.mak
 /**
  * CanvasProject server facade service.
  *
+ * @example
+ * ```ts
+ * import { CanvasProjectServer } from "@beep/canvas-server/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectServer)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -38,6 +52,13 @@ export class CanvasProjectServer extends Context.Service<
 
 /**
  * Config-dependent CanvasProject server layer.
+ *
+ * @example
+ * ```ts
+ * import { CanvasProjectServerLayer } from "@beep/canvas-server/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectServerLayer)
+ * ```
  *
  * @category layers
  * @since 0.0.0

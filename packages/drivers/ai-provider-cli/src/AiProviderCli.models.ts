@@ -14,6 +14,13 @@ const $I = $AiProviderCliId.create("AiProviderCli.models");
 /**
  * AI provider CLI vocabulary.
  *
+ * @example
+ * ```ts
+ * import { AiProviderCliProvider } from "@beep/ai-provider-cli/AiProviderCli.models"
+ *
+ * console.log(AiProviderCliProvider)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -33,6 +40,13 @@ export type AiProviderCliProvider = typeof AiProviderCliProvider.Type;
 
 /**
  * Provider CLI authentication status.
+ *
+ * @example
+ * ```ts
+ * import { AiProviderCliAuthStatus } from "@beep/ai-provider-cli/AiProviderCli.models"
+ *
+ * console.log(AiProviderCliAuthStatus)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -54,6 +68,13 @@ export type AiProviderCliAuthStatus = typeof AiProviderCliAuthStatus.Type;
 /**
  * Provider CLI process result.
  *
+ * @example
+ * ```ts
+ * import { AiProviderCliProcessResult } from "@beep/ai-provider-cli/AiProviderCli.models"
+ *
+ * console.log(AiProviderCliProcessResult)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -70,6 +91,13 @@ export class AiProviderCliProcessResult extends S.Class<AiProviderCliProcessResu
 
 /**
  * Redacted provider CLI authentication probe.
+ *
+ * @example
+ * ```ts
+ * import { AiProviderCliAuthProbe } from "@beep/ai-provider-cli/AiProviderCli.models"
+ *
+ * console.log(AiProviderCliAuthProbe)
+ * ```
  *
  * @category models
  * @since 0.0.0

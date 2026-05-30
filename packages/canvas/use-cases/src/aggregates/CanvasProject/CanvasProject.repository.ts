@@ -18,6 +18,13 @@ const $I = $CanvasUseCasesId.create("aggregates/CanvasProject/CanvasProject.repo
 /**
  * Persistence failure raised when a CanvasProject row is absent.
  *
+ * @example
+ * ```ts
+ * import { CanvasProjectRepositoryNotFound } from "@beep/canvas-use-cases/aggregates/CanvasProject/server"
+ *
+ * console.log(CanvasProjectRepositoryNotFound)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -36,6 +43,13 @@ export class CanvasProjectRepositoryNotFound extends TaggedErrorClass<CanvasProj
 
 /**
  * Persistence failure raised when a CanvasProject write conflicts.
+ *
+ * @example
+ * ```ts
+ * import { CanvasProjectRepositoryConflict } from "@beep/canvas-use-cases/aggregates/CanvasProject/server"
+ *
+ * console.log(CanvasProjectRepositoryConflict)
+ * ```
  *
  * @category repositories
  * @since 0.0.0
@@ -57,6 +71,13 @@ export class CanvasProjectRepositoryConflict extends TaggedErrorClass<CanvasProj
 /**
  * Persistence failure raised when the CanvasProject repository is unavailable.
  *
+ * @example
+ * ```ts
+ * import { CanvasProjectRepositoryUnavailable } from "@beep/canvas-use-cases/aggregates/CanvasProject/server"
+ *
+ * console.log(CanvasProjectRepositoryUnavailable)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -75,6 +96,14 @@ export class CanvasProjectRepositoryUnavailable extends TaggedErrorClass<CanvasP
 
 /**
  * CanvasProject repository failure.
+ *
+ * @example
+ * ```ts
+ * import type { CanvasProjectRepositoryError } from "@beep/canvas-use-cases/aggregates/CanvasProject/server"
+ *
+ * const value = {} as CanvasProjectRepositoryError
+ * console.log(value)
+ * ```
  *
  * @category repositories
  * @since 0.0.0
@@ -100,6 +129,14 @@ export type CanvasProjectRepositoryError = typeof CanvasProjectRepositoryError.T
 
 /**
  * CanvasProject repository contract.
+ *
+ * @example
+ * ```ts
+ * import type { CanvasProjectRepositoryShape } from "@beep/canvas-use-cases/aggregates/CanvasProject/server"
+ *
+ * const value = {} as CanvasProjectRepositoryShape
+ * console.log(value)
+ * ```
  *
  * @category repositories
  * @since 0.0.0
@@ -128,6 +165,13 @@ export interface CanvasProjectRepositoryShape {
 
 /**
  * CanvasProject repository service.
+ *
+ * @example
+ * ```ts
+ * import { CanvasProjectRepository } from "@beep/canvas-use-cases/aggregates/CanvasProject/server"
+ *
+ * console.log(CanvasProjectRepository)
+ * ```
  *
  * @category repositories
  * @since 0.0.0

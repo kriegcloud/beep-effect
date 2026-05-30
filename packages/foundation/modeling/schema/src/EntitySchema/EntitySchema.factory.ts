@@ -44,6 +44,14 @@ import type {
 /**
  * Class factory with inherited invariant fields.
  *
+ * @example
+ * ```ts
+ * import type { ClassFactory } from "@beep/schema/EntitySchema"
+ *
+ * declare const factory: ClassFactory<unknown, {}, {}, string, undefined>
+ * console.log(factory.ast._tag)
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -534,6 +542,19 @@ const withClassFactory = <
 /**
  * Build an entity schema class factory with invariant fields.
  *
+ * @example
+ * ```ts
+ * import { ClassFactory, persist } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const Account = ClassFactory("Account")({
+ *   fields: { name: S.String },
+ *   persisted: { name: persist.text() }
+ * })
+ *
+ * console.log(Account.definition.tableName)
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -554,6 +575,19 @@ export const ClassFactory =
 
 /**
  * Retrieve entity metadata from schema annotations or class statics.
+ *
+ * @example
+ * ```ts
+ * import { ClassFactory, getDefinition, persist } from "@beep/schema/EntitySchema"
+ * import * as S from "effect/Schema"
+ *
+ * const Account = ClassFactory("Account")({
+ *   fields: { name: S.String },
+ *   persisted: { name: persist.text() }
+ * })
+ *
+ * console.log(getDefinition(Account).tableName)
+ * ```
  *
  * @since 0.0.0
  * @category getters

@@ -1,6 +1,13 @@
 /**
  * URL sanitization helpers for UI navigation.
  *
+ * @example
+ * ```ts
+ * import { sanitizeAnchorHref } from "@beep/ui/lib/url"
+ *
+ * console.log(sanitizeAnchorHref)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  * @packageDocumentation
@@ -79,12 +86,17 @@ const normalizeHrefProtocolCandidate: (value: string) => string = flow(
 );
 
 /**
- * Replaces active script URL protocols with a harmless fragment.
+ * Sanitize anchor href export.
  *
- * The original href is preserved for safe schemes and relative navigation.
+ * @example
+ * ```ts
+ * import { sanitizeAnchorHref } from "@beep/ui/lib/url"
  *
- * @since 0.0.0
+ * console.log(sanitizeAnchorHref)
+ * ```
+ *
  * @category utilities
+ * @since 0.0.0
  */
 export const sanitizeAnchorHref = (href: string): string => {
   const decodedHtml = decodeHtmlCharacterReferences(href);

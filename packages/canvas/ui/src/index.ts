@@ -9,6 +9,13 @@
 /**
  * Package version for `@beep/canvas-ui`.
  *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/canvas-ui"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

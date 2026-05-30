@@ -75,7 +75,7 @@ type TaggedErrorInstance<ErrorClass extends TaggedErrorClassLike> = ErrorClass e
  * }
  * const error = NotFound.make(input)
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category models
@@ -134,7 +134,7 @@ type TaggedErrorClassWithExtend<ErrorClass extends TaggedErrorClassLike> = (new 
  * const fromClass = (errorClass: NotFoundClass) => new errorClass({ message: "User not found" })
  * const error = fromClass(NotFound)
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category models
@@ -166,7 +166,7 @@ export type TaggedErrorClassFromFields<
  * const fromClass = (errorClass: NotFoundClass) => new errorClass({ message: "User not found" })
  * const error = fromClass(NotFound)
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category models
@@ -198,8 +198,8 @@ export type TaggedErrorClassFromSchema<
  * const original = NotFound.make({ message: "User not found" })
  * const error = new SameShapeError({ message: "User not found" })
  *
- * void original
- * void error
+ * console.log(original)
+ * console.log(error)
  * ```
  *
  * @category models
@@ -235,7 +235,7 @@ export interface TaggedErrorClassFactory<Self, Brand = {}> {
  *
  * const error = NotFound.make({ message: "User not found" })
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category constructors
@@ -267,7 +267,7 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  *
  * const program = Effect.fail(err)
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @example
@@ -285,7 +285,7 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  *   catch: () => DbError.make({ query: "select 1" })
  * })
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @category constructors

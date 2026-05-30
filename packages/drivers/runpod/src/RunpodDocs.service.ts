@@ -23,6 +23,18 @@ const $I = $RunpodId.create("RunpodDocs.service");
 /**
  * One Markdown documentation link parsed from Runpod's `llms.txt` index.
  *
+ * @example
+ * ```ts
+ * import { RunpodDocsIndexEntry } from "@beep/runpod"
+ *
+ * const entry = RunpodDocsIndexEntry.make({
+ *   section: "Pods",
+ *   title: "Create a pod",
+ *   url: "https://docs.runpod.io/pods"
+ * })
+ * console.log(entry.title)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -40,6 +52,17 @@ export class RunpodDocsIndexEntry extends S.Class<RunpodDocsIndexEntry>($I`Runpo
 
 /**
  * Parsed Runpod documentation index.
+ *
+ * @example
+ * ```ts
+ * import { RunpodDocsIndex } from "@beep/runpod"
+ *
+ * const index = RunpodDocsIndex.make({
+ *   entries: [],
+ *   title: "Runpod Documentation"
+ * })
+ * console.log(index.title)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -164,6 +187,18 @@ const parseLine = (state: DocsParseState, rawLine: string): DocsParseState => {
 /**
  * Parse Runpod's `llms.txt` Markdown index into a structured schema model.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { parseRunpodDocsIndex } from "@beep/runpod"
+ *
+ * const markdown = "# Runpod Docs\n\n## Pods\n- [Create a pod](https://docs.runpod.io/pods)"
+ * const program = parseRunpodDocsIndex(markdown)
+ * Effect.runPromise(program).then((index) => console.log(index.entries.length))
+ * ```
+ *
+ * @effects Parses text into a schema model and fails with `RunpodDocsError` when the index contains no entries.
+ *
  * @category parsing
  * @since 0.1.0
  */
@@ -256,6 +291,16 @@ const makeRunpodDocsFromEnvironment = Effect.fn("RunpodDocs.makeRunpodDocsFromEn
 
 /**
  * Effect service for the Runpod LLM documentation index.
+ *
+ * @example
+ * ```ts
+ * import { RunpodDocs, RunpodDocsConfigInput } from "@beep/runpod"
+ *
+ * const layer = RunpodDocs.makeLayer(
+ *   RunpodDocsConfigInput.make({ indexUrl: "https://docs.runpod.io/llms.txt" })
+ * )
+ * console.log(layer)
+ * ```
  *
  * @category services
  * @since 0.1.0

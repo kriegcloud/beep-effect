@@ -20,6 +20,13 @@ const $I = $ArchitectureLabDomainId.create("entities/Worker/Worker.model");
 /**
  * Architecture lab Worker identifier.
  *
+ * @example
+ * ```ts
+ * import { WorkerId } from "@beep/architecture-lab-domain/entities/Worker"
+ *
+ * console.log(WorkerId)
+ * ```
+ *
  * @category entities
  * @since 0.0.0
  */
@@ -36,6 +43,13 @@ export type WorkerId = typeof WorkerId.Type;
 /**
  * Organization identity used by the Worker proof entity.
  *
+ * @example
+ * ```ts
+ * import { WorkerOrganizationId } from "@beep/architecture-lab-domain/entities/Worker"
+ *
+ * console.log(WorkerOrganizationId)
+ * ```
+ *
  * @category entities
  * @since 0.0.0
  */
@@ -51,6 +65,13 @@ export type WorkerOrganizationId = typeof WorkerOrganizationId.Type;
 
 /**
  * Worker lifecycle status.
+ *
+ * @example
+ * ```ts
+ * import { WorkerStatus } from "@beep/architecture-lab-domain/entities/Worker"
+ *
+ * console.log(WorkerStatus)
+ * ```
  *
  * @category entities
  * @since 0.0.0
@@ -72,6 +93,13 @@ export type WorkerStatus = typeof WorkerStatus.Type;
 
 /**
  * Architecture lab Worker entity.
+ *
+ * @example
+ * ```ts
+ * import { Worker } from "@beep/architecture-lab-domain/entities/Worker"
+ *
+ * console.log(Worker)
+ * ```
  *
  * @category entities
  * @since 0.0.0
@@ -101,6 +129,13 @@ export class Worker extends BaseEntity.Class<Worker>($I`Worker`)(
 /**
  * Worker creation input.
  *
+ * @example
+ * ```ts
+ * import { CreateWorkerInput } from "@beep/architecture-lab-domain/entities/Worker"
+ *
+ * console.log(CreateWorkerInput)
+ * ```
+ *
  * @category entities
  * @since 0.0.0
  */
@@ -125,6 +160,13 @@ const decodeWorker = S.decodeUnknownResult(Worker);
 
 /**
  * Create a new active Worker entity.
+ *
+ * @example
+ * ```ts
+ * import { create } from "@beep/architecture-lab-domain/entities/Worker"
+ *
+ * console.log(create)
+ * ```
  *
  * @category entities
  * @since 0.0.0

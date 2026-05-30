@@ -1,6 +1,15 @@
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Card theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { cardTheme } from "@beep/ui/themes/components/card"
+ *
+ * console.log(cardTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

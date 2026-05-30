@@ -15,7 +15,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/AccessModifierTagValues"
  * @example
  * ```ts
  * import { AccessValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void AccessValue
+ * console.log(AccessValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -34,7 +34,7 @@ export class AccessValue extends S.TaggedClass<AccessValue>($I`AccessValue`)(
  * @example
  * ```ts
  * import { PublicValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void PublicValue
+ * console.log(PublicValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -51,7 +51,7 @@ export class PublicValue extends S.TaggedClass<PublicValue>($I`PublicValue`)(
  * @example
  * ```ts
  * import { PrivateValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void PrivateValue
+ * console.log(PrivateValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -68,7 +68,7 @@ export class PrivateValue extends S.TaggedClass<PrivateValue>($I`PrivateValue`)(
  * @example
  * ```ts
  * import { ProtectedValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void ProtectedValue
+ * console.log(ProtectedValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -85,7 +85,7 @@ export class ProtectedValue extends S.TaggedClass<ProtectedValue>($I`ProtectedVa
  * @example
  * ```ts
  * import { PackageValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void PackageValue
+ * console.log(PackageValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -102,7 +102,7 @@ export class PackageValue extends S.TaggedClass<PackageValue>($I`PackageValue`)(
  * @example
  * ```ts
  * import { ReadonlyValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void ReadonlyValue
+ * console.log(ReadonlyValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -119,7 +119,7 @@ export class ReadonlyValue extends S.TaggedClass<ReadonlyValue>($I`ReadonlyValue
  * @example
  * ```ts
  * import { AbstractValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void AbstractValue
+ * console.log(AbstractValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -136,7 +136,7 @@ export class AbstractValue extends S.TaggedClass<AbstractValue>($I`AbstractValue
  * @example
  * ```ts
  * import { FinalValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void FinalValue
+ * console.log(FinalValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -153,7 +153,7 @@ export class FinalValue extends S.TaggedClass<FinalValue>($I`FinalValue`)(
  * @example
  * ```ts
  * import { OverrideValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void OverrideValue
+ * console.log(OverrideValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -170,7 +170,7 @@ export class OverrideValue extends S.TaggedClass<OverrideValue>($I`OverrideValue
  * @example
  * ```ts
  * import { StaticValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void StaticValue
+ * console.log(StaticValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -187,7 +187,7 @@ export class StaticValue extends S.TaggedClass<StaticValue>($I`StaticValue`)(
  * @example
  * ```ts
  * import { ConstantValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void ConstantValue
+ * console.log(ConstantValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -204,7 +204,7 @@ export class ConstantValue extends S.TaggedClass<ConstantValue>($I`ConstantValue
  * @example
  * ```ts
  * import { DefaultValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void DefaultValue
+ * console.log(DefaultValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -221,7 +221,7 @@ export class DefaultValue extends S.TaggedClass<DefaultValue>($I`DefaultValue`)(
  * @example
  * ```ts
  * import { DefaultValueValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void DefaultValueValue
+ * console.log(DefaultValueValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -238,7 +238,7 @@ export class DefaultValueValue extends S.TaggedClass<DefaultValueValue>($I`Defau
  * @example
  * ```ts
  * import { ExportsValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void ExportsValue
+ * console.log(ExportsValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -255,7 +255,7 @@ export class ExportsValue extends S.TaggedClass<ExportsValue>($I`ExportsValue`)(
  * @example
  * ```ts
  * import { ExportValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void ExportValue
+ * console.log(ExportValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -272,7 +272,7 @@ export class ExportValue extends S.TaggedClass<ExportValue>($I`ExportValue`)(
  * @example
  * ```ts
  * import { SatisfiesValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void SatisfiesValue
+ * console.log(SatisfiesValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -289,7 +289,7 @@ export class SatisfiesValue extends S.TaggedClass<SatisfiesValue>($I`SatisfiesVa
  * @example
  * ```ts
  * import { ImportValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void ImportValue
+ * console.log(ImportValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -306,7 +306,7 @@ export class ImportValue extends S.TaggedClass<ImportValue>($I`ImportValue`)(
  * @example
  * ```ts
  * import { ThisValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * void ThisValue
+ * console.log(ThisValue)
  * ```
  * @category models
  * @since 0.0.0

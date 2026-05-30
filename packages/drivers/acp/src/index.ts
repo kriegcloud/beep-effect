@@ -42,7 +42,7 @@ export * as Schema from "./Acp.models.ts";
  * import { Agent } from "@beep/acp"
  *
  * const layer = Agent.layer
- * void layer
+ * console.log(layer)
  * ```
  *
  * @category services
@@ -57,7 +57,7 @@ export * as Agent from "./AcpAgent.service.ts";
  * import { Client } from "@beep/acp"
  *
  * const service = Client.AcpClient
- * void service
+ * console.log(service)
  * ```
  *
  * @category services
@@ -72,7 +72,7 @@ export * as Client from "./AcpClient.service.ts";
  * import { Protocol } from "@beep/acp"
  *
  * const make = Protocol.makeAcpPatchedProtocol
- * void make
+ * console.log(make)
  * ```
  *
  * @category protocols
@@ -87,7 +87,7 @@ export * as Protocol from "./AcpProtocol.service.ts";
  * import { Rpc } from "@beep/acp"
  *
  * const group = Rpc.AgentRpcs
- * void group
+ * console.log(group)
  * ```
  *
  * @category protocols
@@ -102,7 +102,7 @@ export * as Rpc from "./AcpRpc.models.ts";
  * import { Terminal } from "@beep/acp"
  *
  * const make = Terminal.makeTerminal
- * void make
+ * console.log(make)
  * ```
  *
  * @category resources

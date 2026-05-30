@@ -16,7 +16,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/TagKind.model");
  * @example
  * ```ts
  * import { TagKind } from "@beep/repo-utils/JSDoc/models/TagKind.model"
- * void TagKind
+ * console.log(TagKind)
  * ```
  * @category models
  * @since 0.0.0
@@ -43,7 +43,7 @@ export const TagKind = LiteralKit([
  * import type { TagKind } from "@beep/repo-utils/JSDoc/models/TagKind.model"
  * type Example = TagKind
  * const accept = <A extends Example>(value: A): A => value
- * void accept
+ * console.log(accept)
  * ```
  * @category models
  * @since 0.0.0

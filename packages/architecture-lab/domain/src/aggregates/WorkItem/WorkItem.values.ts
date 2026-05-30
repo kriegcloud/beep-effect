@@ -15,6 +15,13 @@ const $I = $ArchitectureLabDomainId.create("aggregates/WorkItem/WorkItem.values"
 /**
  * Architecture lab WorkItem identity.
  *
+ * @example
+ * ```ts
+ * import { WorkItemId } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(WorkItemId)
+ * ```
+ *
  * @category value-objects
  * @since 0.0.0
  */
@@ -38,6 +45,13 @@ export type WorkItemId = S.Schema.Type<typeof WorkItemId>;
 /**
  * Architecture lab WorkItem title.
  *
+ * @example
+ * ```ts
+ * import { WorkItemTitle } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(WorkItemTitle)
+ * ```
+ *
  * @category value-objects
  * @since 0.0.0
  */
@@ -59,6 +73,13 @@ export type WorkItemTitle = S.Schema.Type<typeof WorkItemTitle>;
 
 /**
  * Architecture lab WorkItem lifecycle values.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemStatus } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * console.log(WorkItemStatus)
+ * ```
  *
  * @category value-objects
  * @since 0.0.0

@@ -13,6 +13,15 @@ import { Context, Effect, Layer, Schema } from "effect";
 /**
  * Produces a SHA-512 digest for the provided buffer source.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { sha512 } from "@beep/schema/Cuid"
+ *
+ * const digest = Effect.runPromise(sha512(new TextEncoder().encode("beep")))
+ * console.log(digest)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -28,6 +37,15 @@ const INITIAL_COUNT_MAX = 476782367;
 /**
  * Branded schema for canonical CUID strings.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import { Cuid } from "@beep/schema/Cuid"
+ *
+ * const id = Schema.decodeUnknownSync(Cuid)("a123")
+ * console.log(id)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -39,6 +57,14 @@ export const Cuid = Schema.String.pipe(
 /**
  * Type for {@link Cuid}.
  *
+ * @example
+ * ```ts
+ * import type { Cuid } from "@beep/schema/Cuid"
+ *
+ * const id = "a123" as Cuid
+ * console.log(id)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -46,6 +72,13 @@ export type Cuid = Schema.Schema.Type<typeof Cuid>;
 
 /**
  * Type guard for {@link Cuid}.
+ *
+ * @example
+ * ```ts
+ * import { isCuid } from "@beep/schema/Cuid"
+ *
+ * console.log(isCuid("a123"))
+ * ```
  *
  * @category predicates
  * @since 0.0.0
@@ -55,6 +88,14 @@ export const isCuid: (value: string) => value is Cuid = Schema.is(Cuid);
 // Types
 /**
  * Seed data used to produce a deterministic CUID value.
+ *
+ * @example
+ * ```ts
+ * import type { CuidSeed } from "@beep/schema/Cuid"
+ *
+ * const seed: CuidSeed = { timestamp: 1, counter: 0, random: new Uint8Array([1]), fingerprint: "node" }
+ * console.log(seed.counter)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -68,6 +109,13 @@ export type CuidSeed = {
 
 /**
  * Service that produces deterministic CUID seeds.
+ *
+ * @example
+ * ```ts
+ * import { CuidState } from "@beep/schema/Cuid"
+ *
+ * console.log(CuidState.Default)
+ * ```
  *
  * @category constructors
  * @since 0.0.0
@@ -110,6 +158,18 @@ export class CuidState extends Context.Service<CuidState>()("@beep/schema/Cuid/C
 
 /**
  * Effect that generates a branded {@link Cuid}.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { cuid, CuidState } from "@beep/schema/Cuid"
+ *
+ * const id = Effect.runPromise(cuid.pipe(Effect.provide(CuidState.Default)))
+ * console.log(id)
+ * ```
+ *
+ * @effects Requires {@link CuidState}; `CuidState.Default` provides the clock
+ * and random-value services used to generate the seed.
  *
  * @category constructors
  * @since 0.0.0

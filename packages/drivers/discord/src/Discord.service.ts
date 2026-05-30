@@ -190,6 +190,13 @@ const makeService = (client: HttpClient.HttpClient, config: DiscordConfigInput):
 /**
  * Effect service for Discord REST API calls.
  *
+ * @example
+ * ```ts
+ * import { Discord } from "@beep/discord/Discord.service"
+ *
+ * console.log(Discord)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */

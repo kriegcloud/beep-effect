@@ -14,6 +14,13 @@ import { WorkerServerLayer } from "./entities/Worker/index.ts";
 /**
  * Test architecture lab server layer.
  *
+ * @example
+ * ```ts
+ * import { ArchitectureLabServerTest } from "@beep/architecture-lab-server/test"
+ *
+ * console.log(ArchitectureLabServerTest)
+ * ```
+ *
  * @category testing
  * @since 0.0.0
  */

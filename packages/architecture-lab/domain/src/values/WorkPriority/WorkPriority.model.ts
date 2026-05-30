@@ -14,6 +14,13 @@ const $I = $ArchitectureLabDomainId.create("values/WorkPriority/WorkPriority.mod
 /**
  * Reusable WorkItem priority vocabulary.
  *
+ * @example
+ * ```ts
+ * import { WorkPriority } from "@beep/architecture-lab-domain/values/WorkPriority"
+ *
+ * console.log(WorkPriority)
+ * ```
+ *
  * @category value-objects
  * @since 0.0.0
  */

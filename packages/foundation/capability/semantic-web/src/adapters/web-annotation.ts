@@ -42,7 +42,7 @@ const adapterMetadata = (canonicalName: string, overview: string) =>
  * ```ts
  * import { WebAnnotationTextQuoteSelector } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void WebAnnotationTextQuoteSelector
+ * console.log(WebAnnotationTextQuoteSelector)
  * ```
  *
  * @since 0.0.0
@@ -73,7 +73,7 @@ export class WebAnnotationTextQuoteSelector extends S.Class<WebAnnotationTextQuo
  * ```ts
  * import { WebAnnotationTextPositionSelector } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void WebAnnotationTextPositionSelector
+ * console.log(WebAnnotationTextPositionSelector)
  * ```
  *
  * @since 0.0.0
@@ -103,7 +103,7 @@ export class WebAnnotationTextPositionSelector extends S.Class<WebAnnotationText
  * ```ts
  * import { WebAnnotationFragmentSelector } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void WebAnnotationFragmentSelector
+ * console.log(WebAnnotationFragmentSelector)
  * ```
  *
  * @since 0.0.0
@@ -130,7 +130,7 @@ export class WebAnnotationFragmentSelector extends S.Class<WebAnnotationFragment
  * ```ts
  * import { WebAnnotationSelector } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void WebAnnotationSelector
+ * console.log(WebAnnotationSelector)
  * ```
  *
  * @since 0.0.0
@@ -154,7 +154,7 @@ export const WebAnnotationSelector = S.Union([
  * import type { WebAnnotationSelector } from "@beep/semantic-web/adapters/web-annotation"
  *
  * const acceptWebAnnotationSelector = (value: WebAnnotationSelector) => value
- * void acceptWebAnnotationSelector
+ * console.log(acceptWebAnnotationSelector)
  * ```
  *
  * @since 0.0.0
@@ -169,7 +169,7 @@ export type WebAnnotationSelector = typeof WebAnnotationSelector.Type;
  * ```ts
  * import { WebAnnotationTarget } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void WebAnnotationTarget
+ * console.log(WebAnnotationTarget)
  * ```
  *
  * @since 0.0.0
@@ -193,7 +193,7 @@ export class WebAnnotationTarget extends S.Class<WebAnnotationTarget>($I`WebAnno
  * ```ts
  * import { WebAnnotation } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void WebAnnotation
+ * console.log(WebAnnotation)
  * ```
  *
  * @since 0.0.0
@@ -221,7 +221,7 @@ export class WebAnnotation extends S.Class<WebAnnotation>($I`WebAnnotation`)(
  * ```ts
  * import { evidenceSelectorToWebAnnotationSelector } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void evidenceSelectorToWebAnnotationSelector
+ * console.log(evidenceSelectorToWebAnnotationSelector)
  * ```
  *
  * @since 0.0.0
@@ -259,7 +259,7 @@ export const evidenceSelectorToWebAnnotationSelector = (selector: EvidenceSelect
  * ```ts
  * import { webAnnotationSelectorToEvidenceSelector } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void webAnnotationSelectorToEvidenceSelector
+ * console.log(webAnnotationSelectorToEvidenceSelector)
  * ```
  *
  * @since 0.0.0
@@ -300,7 +300,7 @@ export const webAnnotationSelectorToEvidenceSelector = (selector: WebAnnotationS
  * ```ts
  * import { evidenceTargetToWebAnnotationTarget } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void evidenceTargetToWebAnnotationTarget
+ * console.log(evidenceTargetToWebAnnotationTarget)
  * ```
  *
  * @since 0.0.0
@@ -321,7 +321,7 @@ export const evidenceTargetToWebAnnotationTarget = (target: EvidenceTarget): Web
  * ```ts
  * import { webAnnotationTargetToEvidenceTarget } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void webAnnotationTargetToEvidenceTarget
+ * console.log(webAnnotationTargetToEvidenceTarget)
  * ```
  *
  * @since 0.0.0
@@ -342,7 +342,7 @@ export const webAnnotationTargetToEvidenceTarget = (target: WebAnnotationTarget)
  * ```ts
  * import { evidenceAnchorToWebAnnotation } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void evidenceAnchorToWebAnnotation
+ * console.log(evidenceAnchorToWebAnnotation)
  * ```
  *
  * @since 0.0.0
@@ -365,7 +365,7 @@ export const evidenceAnchorToWebAnnotation = (anchor: EvidenceAnchor): WebAnnota
  * ```ts
  * import { webAnnotationToEvidenceAnchor } from "@beep/semantic-web/adapters/web-annotation"
  *
- * void webAnnotationToEvidenceAnchor
+ * console.log(webAnnotationToEvidenceAnchor)
  * ```
  *
  * @since 0.0.0

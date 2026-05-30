@@ -19,7 +19,7 @@ const emptyArray = (): [] => [];
  * ```ts
  * import { ReuseCatalogOrigin } from "@beep/repo-utils/Reuse/Reuse.model"
  * const schema = ReuseCatalogOrigin
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -41,7 +41,7 @@ export const ReuseCatalogOrigin = S.Union([
  * ```ts
  * import type { ReuseCatalogOrigin } from "@beep/repo-utils/Reuse/Reuse.model"
  * const origin: ReuseCatalogOrigin = "repo-foundation"
- * void origin
+ * console.log(origin)
  * ```
  * @category models
  * @since 0.0.0
@@ -55,7 +55,7 @@ export type ReuseCatalogOrigin = typeof ReuseCatalogOrigin.Type;
  * ```ts
  * import { ReuseWorkUnitKind } from "@beep/repo-utils/Reuse/Reuse.model"
  * const schema = ReuseWorkUnitKind
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -73,7 +73,7 @@ export const ReuseWorkUnitKind = LiteralKit(["scout", "specialist"]).pipe(
  * ```ts
  * import type { ReuseWorkUnitKind } from "@beep/repo-utils/Reuse/Reuse.model"
  * const kind: ReuseWorkUnitKind = "scout"
- * void kind
+ * console.log(kind)
  * ```
  * @category models
  * @since 0.0.0
@@ -96,7 +96,7 @@ const REUSE_CANDIDATE_KINDS = [
  * ```ts
  * import { ReuseCandidateKind } from "@beep/repo-utils/Reuse/Reuse.model"
  * const schema = ReuseCandidateKind
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -114,7 +114,7 @@ export const ReuseCandidateKind = LiteralKit(REUSE_CANDIDATE_KINDS).pipe(
  * ```ts
  * import type { ReuseCandidateKind } from "@beep/repo-utils/Reuse/Reuse.model"
  * const kind: ReuseCandidateKind = "extract-schema"
- * void kind
+ * console.log(kind)
  * ```
  * @category models
  * @since 0.0.0
@@ -133,7 +133,7 @@ export type ReuseCandidateKind = typeof ReuseCandidateKind.Type;
  *   symbolKind: "function",
  *   symbolName: "makeExample"
  * })
- * void ref.symbolName
+ * console.log(ref.symbolName)
  * ```
  * @category models
  * @since 0.0.0
@@ -169,7 +169,7 @@ export class ReuseSourceSymbolRef extends S.Class<ReuseSourceSymbolRef>($I`Reuse
  *   symbolKind: "class",
  *   symbolName: "ReuseCatalogEntry"
  * })
- * void entry.id
+ * console.log(entry.id)
  * ```
  * @category models
  * @since 0.0.0
@@ -205,7 +205,7 @@ export class ReuseCatalogEntry extends S.Class<ReuseCatalogEntry>($I`ReuseCatalo
  *   rationale: "Find reuse candidates.",
  *   scopeSelector: "packages/tooling/library/repo-utils"
  * })
- * void unit.kind
+ * console.log(unit.kind)
  * ```
  * @category models
  * @since 0.0.0
@@ -237,7 +237,7 @@ export class ReuseWorkUnit extends S.Class<ReuseWorkUnit>($I`ReuseWorkUnit`)(
  *   catalogEntryCount: zero,
  *   scopeSelector: "packages/tooling/library/repo-utils"
  * })
- * void plan.scopeSelector
+ * console.log(plan.scopeSelector)
  * ```
  * @category models
  * @since 0.0.0
@@ -282,7 +282,7 @@ export class ReusePartitionPlan extends S.Class<ReusePartitionPlan>($I`ReusePart
  *   title: "Extract shared schema",
  *   verificationCommands: ["bun test"]
  * })
- * void candidate.candidateId
+ * console.log(candidate.candidateId)
  * ```
  * @category models
  * @since 0.0.0
@@ -325,7 +325,7 @@ export class ReuseCandidate extends S.Class<ReuseCandidate>($I`ReuseCandidate`)(
  *   generatedAt: "2026-04-21T00:00:00.000Z",
  *   scopeSelector: "packages/tooling/library/repo-utils"
  * })
- * void inventory.candidateCount
+ * console.log(inventory.candidateCount)
  * ```
  * @category models
  * @since 0.0.0
@@ -369,7 +369,7 @@ export class ReuseInventory extends S.Class<ReuseInventory>($I`ReuseInventory`)(
  *   verificationCommands: ["bun test"]
  * })
  * const packet = ReusePacket.make({ candidate })
- * void packet.candidate
+ * console.log(packet.candidate)
  * ```
  * @category models
  * @since 0.0.0
@@ -399,7 +399,7 @@ export class ReusePacket extends S.Class<ReusePacket>($I`ReusePacket`)(
  *   query: O.some("schema"),
  *   symbolId: O.none()
  * })
- * void result.filePath
+ * console.log(result.filePath)
  * ```
  * @category models
  * @since 0.0.0

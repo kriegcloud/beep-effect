@@ -9,12 +9,31 @@ import type React from "react";
 import type { ComponentProps } from "react";
 
 /**
+ * Conversation props type.
+ *
+ * @example
+ * ```ts
+ * import type { ConversationProps } from "@beep/ui/components/conversation"
+ *
+ * const value = {} as ConversationProps
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
 export type ConversationProps = ComponentProps<typeof StickToBottom>;
 
 /**
+ * Conversation component.
+ *
+ * @example
+ * ```tsx
+ * import { Conversation } from "@beep/ui/components/conversation"
+ *
+ * console.log(Conversation)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -29,12 +48,31 @@ export const Conversation = ({ className, ...props }: ConversationProps) => (
 );
 
 /**
+ * Conversation content props type.
+ *
+ * @example
+ * ```ts
+ * import type { ConversationContentProps } from "@beep/ui/components/conversation"
+ *
+ * const value = {} as ConversationContentProps
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
 export type ConversationContentProps = ComponentProps<typeof StickToBottom.Content>;
 
 /**
+ * Conversation content component.
+ *
+ * @example
+ * ```tsx
+ * import { ConversationContent } from "@beep/ui/components/conversation"
+ *
+ * console.log(ConversationContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -43,6 +81,16 @@ export const ConversationContent = ({ className, ...props }: ConversationContent
 );
 
 /**
+ * Conversation empty state props type.
+ *
+ * @example
+ * ```ts
+ * import type { ConversationEmptyStateProps } from "@beep/ui/components/conversation"
+ *
+ * const value = {} as ConversationEmptyStateProps
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -53,6 +101,15 @@ export type ConversationEmptyStateProps = Omit<ComponentProps<"div">, "title"> &
 };
 
 /**
+ * Conversation empty state component.
+ *
+ * @example
+ * ```tsx
+ * import { ConversationEmptyState } from "@beep/ui/components/conversation"
+ *
+ * console.log(ConversationEmptyState)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -81,12 +138,31 @@ export const ConversationEmptyState = ({
 );
 
 /**
+ * Conversation scroll button props type.
+ *
+ * @example
+ * ```ts
+ * import type { ConversationScrollButtonProps } from "@beep/ui/components/conversation"
+ *
+ * const value = {} as ConversationScrollButtonProps
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
 export type ConversationScrollButtonProps = ComponentProps<typeof Button>;
 
 /**
+ * Conversation scroll button component.
+ *
+ * @example
+ * ```tsx
+ * import { ConversationScrollButton } from "@beep/ui/components/conversation"
+ *
+ * console.log(ConversationScrollButton)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

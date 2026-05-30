@@ -64,13 +64,9 @@ const decodeXmlUnknown = Effect.fn("Xml.decodeXmlUnknown")(function* (content: s
  * import * as S from "effect/Schema"
  * import { XmlTextToUnknown } from "@beep/schema/Xml"
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- *
- * })
- * void program
+ * const program = S.decodeUnknownEffect(XmlTextToUnknown)("<root><name>Beep</name></root>")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @category validation
@@ -102,11 +98,9 @@ export const XmlTextToUnknown = S.String.pipe(
  * const Doc = S.Struct({ root: S.Struct({ name: S.String }) })
  * const decodeDoc = decodeXmlTextAs(Doc)
  *
- * const program = Effect.gen(function* () {
- *
- *
- * })
- * void program
+ * const program = decodeDoc("<root><name>Beep</name></root>")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @param schema - Target schema to decode parsed XML document into.

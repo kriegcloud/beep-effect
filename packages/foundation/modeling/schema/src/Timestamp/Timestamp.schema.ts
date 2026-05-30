@@ -52,6 +52,14 @@ export const ISOStr = NonEmptyTrimmedStr.check(S.makeFilter((i) => O.isSome(Date
 /**
  * Branded ISO string type extracted from {@link ISOStr}.
  *
+ * @example
+ * ```ts
+ * import type { ISOStr } from "@beep/schema/Timestamp"
+ *
+ * const iso = "2024-01-01T00:00:00Z" as ISOStr
+ * console.log(iso)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -84,6 +92,14 @@ export const EpochMillis = PosInt.pipe(
 
 /**
  * Branded epoch milliseconds type extracted from {@link EpochMillis}.
+ *
+ * @example
+ * ```ts
+ * import type { EpochMillis } from "@beep/schema/Timestamp"
+ *
+ * const millis = 1704067200000 as EpochMillis
+ * console.log(millis)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -124,6 +140,14 @@ export const ToIsoStr = S.Union([ISOStr, S.Number]).pipe(
 /**
  * Normalized ISO string type extracted from {@link ToIsoStr}.
  *
+ * @example
+ * ```ts
+ * import type { ToIsoString } from "@beep/schema/Timestamp"
+ *
+ * const iso = "2024-01-01T00:00:00Z" as ToIsoString
+ * console.log(iso)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -131,6 +155,14 @@ export type ToIsoString = typeof ToIsoStr.Type;
 
 /**
  * Namespace members for {@link ToIsoStr}.
+ *
+ * @example
+ * ```ts
+ * import type { ToIsoStr } from "@beep/schema/Timestamp"
+ *
+ * type EncodedTimestamp = ToIsoStr.Encoded
+ * console.log({} as { encoded: EncodedTimestamp })
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -237,6 +269,14 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
 /**
  * Type guard for `Timestamp` instances.
  *
+ * @example
+ * ```ts
+ * import { Timestamp, isTimestamp } from "@beep/schema/Timestamp"
+ *
+ * const timestamp = Timestamp.make({ epochMillis: 1704067200000 })
+ * console.log(isTimestamp(timestamp))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -244,6 +284,15 @@ export const isTimestamp = Schema.is(Timestamp);
 
 /**
  * Create a `Timestamp` from a `DateTime.Utc`.
+ *
+ * @example
+ * ```ts
+ * import { DateTime } from "effect"
+ * import { fromDateTime } from "@beep/schema/Timestamp"
+ *
+ * const timestamp = fromDateTime(DateTime.makeUnsafe("2024-01-01T00:00:00Z"))
+ * console.log(timestamp.epochMillis)
+ * ```
  *
  * @since 0.0.0
  * @category constructors
@@ -254,6 +303,14 @@ export const fromDateTime = (dateTime: DateTime.Utc): Timestamp =>
 /**
  * Create a `Timestamp` from a JavaScript `Date`.
  *
+ * @example
+ * ```ts
+ * import { fromDate } from "@beep/schema/Timestamp"
+ *
+ * const timestamp = fromDate(new Date("2024-01-01T00:00:00Z"))
+ * console.log(timestamp.toISOStr())
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -261,6 +318,17 @@ export const fromDate = (date: Date): Timestamp => Timestamp.make({ epochMillis:
 
 /**
  * Create a `Timestamp` from an ISO 8601 string, returning an `Effect` that fails for invalid input.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { fromString } from "@beep/schema/Timestamp"
+ *
+ * const program = fromString("2024-01-01T00:00:00Z")
+ * console.log(Effect.runPromise(program))
+ * ```
+ *
+ * @effects Parses a date string and fails with `SchemaIssue.InvalidValue` when the input is not a valid DateTime.
  *
  * @since 0.0.0
  * @category constructors
@@ -277,6 +345,14 @@ export const fromString = (dateString: string): Effect.Effect<Timestamp, SchemaI
 /**
  * Create a `Timestamp` for the current wall-clock time.
  *
+ * @example
+ * ```ts
+ * import { now } from "@beep/schema/Timestamp"
+ *
+ * const timestamp = now()
+ * console.log(timestamp.epochMillis > 0)
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -284,6 +360,16 @@ export const now = (): Timestamp => Timestamp.make({ epochMillis: DateTime.nowUn
 
 /**
  * Get the current timestamp as an `Effect` using the Clock service, testable with `TestClock`.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { nowEffect } from "@beep/schema/Timestamp"
+ *
+ * console.log(Effect.runPromise(nowEffect))
+ * ```
+ *
+ * @effects Reads the Effect Clock service and returns the current wall-clock timestamp.
  *
  * @since 0.0.0
  * @category constructors
@@ -295,6 +381,15 @@ export const nowEffect: Effect.Effect<Timestamp> = Effect.map(
 
 /**
  * Chronological `Order` for `Timestamp` values.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, Order } from "@beep/schema/Timestamp"
+ *
+ * const earlier = Timestamp.make({ epochMillis: 1 })
+ * const later = Timestamp.make({ epochMillis: 2 })
+ * console.log(Order(earlier, later))
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -308,6 +403,15 @@ export const Order: Order_.Order<Timestamp> = Order_.make((a, b) => {
 /**
  * Dual predicate returning `true` when `self` is chronologically before `that`.
  *
+ * @example
+ * ```ts
+ * import { Timestamp, isBefore } from "@beep/schema/Timestamp"
+ *
+ * const earlier = Timestamp.make({ epochMillis: 1 })
+ * const later = Timestamp.make({ epochMillis: 2 })
+ * console.log(isBefore(earlier, later))
+ * ```
+ *
  * @since 0.0.0
  * @category predicates
  */
@@ -318,6 +422,15 @@ export const isBefore: {
 
 /**
  * Dual predicate returning `true` when `self` is chronologically after `that`.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, isAfter } from "@beep/schema/Timestamp"
+ *
+ * const earlier = Timestamp.make({ epochMillis: 1 })
+ * const later = Timestamp.make({ epochMillis: 2 })
+ * console.log(isAfter(later, earlier))
+ * ```
  *
  * @since 0.0.0
  * @category predicates
@@ -330,6 +443,15 @@ export const isAfter: {
 /**
  * Check whether two timestamps represent the same point in time.
  *
+ * @example
+ * ```ts
+ * import { Timestamp, equals } from "@beep/schema/Timestamp"
+ *
+ * const a = Timestamp.make({ epochMillis: 1 })
+ * const b = Timestamp.make({ epochMillis: 1 })
+ * console.log(equals(a, b))
+ * ```
+ *
  * @since 0.0.0
  * @category predicates
  */
@@ -339,7 +461,15 @@ export const equals: {
 } = dual(2, (self: Timestamp, that: Timestamp): boolean => self.epochMillis === that.epochMillis);
 
 /**
- * Add milliseconds to a timestamp
+ * Add milliseconds to a timestamp.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, addMillis } from "@beep/schema/Timestamp"
+ *
+ * const timestamp = Timestamp.make({ epochMillis: 1 })
+ * console.log(addMillis(timestamp, 999).epochMillis)
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -350,7 +480,15 @@ export const addMillis: {
 } = dual(2, (self: Timestamp, millis: number): Timestamp => Timestamp.make({ epochMillis: self.epochMillis + millis }));
 
 /**
- * Add seconds to a timestamp
+ * Add seconds to a timestamp.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, addSeconds } from "@beep/schema/Timestamp"
+ *
+ * const timestamp = Timestamp.make({ epochMillis: 1 })
+ * console.log(addSeconds(timestamp, 1).epochMillis)
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -361,7 +499,15 @@ export const addSeconds: {
 } = dual(2, (self: Timestamp, seconds: number): Timestamp => addMillis(self, seconds * 1000));
 
 /**
- * Add minutes to a timestamp
+ * Add minutes to a timestamp.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, addMinutes } from "@beep/schema/Timestamp"
+ *
+ * const timestamp = Timestamp.make({ epochMillis: 1 })
+ * console.log(addMinutes(timestamp, 1).epochMillis)
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -372,7 +518,15 @@ export const addMinutes: {
 } = dual(2, (self: Timestamp, minutes: number): Timestamp => addMillis(self, minutes * 60 * 1000));
 
 /**
- * Add hours to a timestamp
+ * Add hours to a timestamp.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, addHours } from "@beep/schema/Timestamp"
+ *
+ * const timestamp = Timestamp.make({ epochMillis: 1 })
+ * console.log(addHours(timestamp, 1).epochMillis)
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -383,7 +537,15 @@ export const addHours: {
 } = dual(2, (self: Timestamp, hours: number): Timestamp => addMillis(self, hours * 60 * 60 * 1000));
 
 /**
- * Add days to a timestamp
+ * Add days to a timestamp.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, addDays } from "@beep/schema/Timestamp"
+ *
+ * const timestamp = Timestamp.make({ epochMillis: 1 })
+ * console.log(addDays(timestamp, 1).epochMillis)
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -394,7 +556,16 @@ export const addDays: {
 } = dual(2, (self: Timestamp, days: number): Timestamp => addMillis(self, days * 24 * 60 * 60 * 1000));
 
 /**
- * Get the difference in milliseconds between two timestamps
+ * Get the difference in milliseconds between two timestamps.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, diffInMillis } from "@beep/schema/Timestamp"
+ *
+ * const earlier = Timestamp.make({ epochMillis: 1 })
+ * const later = Timestamp.make({ epochMillis: 1001 })
+ * console.log(diffInMillis(later, earlier))
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -405,7 +576,16 @@ export const diffInMillis: {
 } = dual(2, (self: Timestamp, that: Timestamp): number => self.epochMillis - that.epochMillis);
 
 /**
- * Get the difference in seconds between two timestamps
+ * Get the difference in seconds between two timestamps.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, diffInSeconds } from "@beep/schema/Timestamp"
+ *
+ * const earlier = Timestamp.make({ epochMillis: 1 })
+ * const later = Timestamp.make({ epochMillis: 2001 })
+ * console.log(diffInSeconds(later, earlier))
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -416,7 +596,16 @@ export const diffInSeconds: {
 } = dual(2, (self: Timestamp, that: Timestamp): number => Math.floor(diffInMillis(self, that) / 1000));
 
 /**
- * Get the minimum of two timestamps
+ * Get the minimum of two timestamps.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, min } from "@beep/schema/Timestamp"
+ *
+ * const earlier = Timestamp.make({ epochMillis: 1 })
+ * const later = Timestamp.make({ epochMillis: 2 })
+ * console.log(min(earlier, later).epochMillis)
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -427,7 +616,16 @@ export const min: {
 } = dual(2, (self: Timestamp, that: Timestamp): Timestamp => (Order(self, that) <= 0 ? self : that));
 
 /**
- * Get the maximum of two timestamps
+ * Get the maximum of two timestamps.
+ *
+ * @example
+ * ```ts
+ * import { Timestamp, max } from "@beep/schema/Timestamp"
+ *
+ * const earlier = Timestamp.make({ epochMillis: 1 })
+ * const later = Timestamp.make({ epochMillis: 2 })
+ * console.log(max(earlier, later).epochMillis)
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -439,6 +637,13 @@ export const max: {
 
 /**
  * The Unix epoch timestamp representing `1970-01-01T00:00:00.000Z`.
+ *
+ * @example
+ * ```ts
+ * import { EPOCH } from "@beep/schema/Timestamp"
+ *
+ * console.log(EPOCH.toISOStr())
+ * ```
  *
  * @since 0.0.0
  * @category constructors

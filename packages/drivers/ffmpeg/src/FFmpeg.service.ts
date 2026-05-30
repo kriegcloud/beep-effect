@@ -82,7 +82,7 @@ const decodeFfprobeOutput = S.decodeUnknownEffect(S.fromJsonString(FfprobeOutput
  * import { Effect } from "effect"
  *
  * const sink: FFmpegEventSink = () => Effect.void
- * void sink
+ * console.log(sink)
  * ```
  *
  * @category events
@@ -102,7 +102,7 @@ export type FFmpegEventSink = (event: FFmpegEvent) => Effect.Effect<void>;
  *   extractFrames: () => Effect.die("not implemented"),
  *   probeVideo: () => Effect.die("not implemented")
  * }
- * void service
+ * console.log(service)
  * ```
  *
  * @category services
@@ -168,7 +168,7 @@ class TempFrame extends S.Class<TempFrame>($I`TempFrame`)(
  *   sourcePath: "/tmp/ffmpeg/frame-000001.png",
  *   targetPath: "./frames/frame-000001.png"
  * })
- * void commit
+ * console.log(commit)
  * ```
  *
  * @category models
@@ -199,7 +199,7 @@ export class PlannedFrameCommit extends S.Class<PlannedFrameCommit>($I`PlannedFr
  *   buffer: "",
  *   stdout: "frame=1\nprogress=continue\n"
  * })
- * void state
+ * console.log(state)
  * ```
  *
  * @category models
@@ -340,7 +340,7 @@ export const formatFrameFileName = (options: {
  * import { buildFfprobeArgs, ProbeVideoRequest } from "@beep/ffmpeg"
  *
  * const args = buildFfprobeArgs(ProbeVideoRequest.make({ videoPath: "./clip.mp4" }))
- * void args
+ * console.log(args)
  * ```
  *
  * @category utilities
@@ -372,7 +372,7 @@ export const buildFfprobeArgs = (request: ProbeVideoRequest): ReadonlyArray<stri
  *   outputPattern: "./frames/frame_%05d.png",
  *   videoPath: "./clip.mp4",
  * })
- * void args
+ * console.log(args)
  * ```
  *
  * @category utilities
@@ -990,7 +990,7 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
  * import { FFmpeg } from "@beep/ffmpeg"
  *
  * const service = FFmpeg
- * void service
+ * console.log(service)
  * ```
  *
  * @category services
@@ -1005,7 +1005,7 @@ export class FFmpeg extends Context.Service<FFmpeg, FFmpegShape>()($I`FFmpeg`) {
    * import { FFmpeg } from "@beep/ffmpeg"
    *
    * const layer = FFmpeg.makeLayer()
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers

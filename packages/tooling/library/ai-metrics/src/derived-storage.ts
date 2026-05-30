@@ -466,7 +466,7 @@ const derivedStorageMigrations = [
  *   cause: "boom",
  *   message: "Projection failed."
  * })
- * void error
+ * console.log(error)
  * ```
  * @category errors
  * @since 0.0.0
@@ -1063,8 +1063,8 @@ const recordTurnCount: (records: ReadonlyArray<AiMetricsDerivedTranscriptRecord>
  * } from "@beep/repo-ai-metrics"
  * const input = AiMetricsDerivedStorageWriteInput
  * const write = writeAiMetricsDerivedStorage
- * void input
- * void write
+ * console.log(input)
+ * console.log(write)
  * ```
  * @category services
  * @since 0.0.0

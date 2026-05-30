@@ -14,6 +14,13 @@ const $I = $SchemaId.create("DomCssProperties");
 /**
  * Type guard for React.CSSProperties.
  *
+ * @example
+ * ```ts
+ * import { isCSSProperties } from "@beep/schema/DomCssProperties"
+ *
+ * console.log(isCSSProperties({ color: "red" }))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -26,6 +33,15 @@ export const isCSSProperties = (u: unknown): u is React.CSSProperties => {
 
 /**
  * A React.CSSProperties object.
+ *
+ * @example
+ * ```ts
+ * import { DOMCssProperties } from "@beep/schema/DomCssProperties"
+ * import * as S from "effect/Schema"
+ *
+ * const styles = S.decodeUnknownSync(DOMCssProperties)({ color: "red" })
+ * console.log(styles)
+ * ```
  *
  * @since 0.0.0
  * @category schemas

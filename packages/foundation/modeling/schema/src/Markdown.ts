@@ -113,7 +113,7 @@ const decodeMarkdownText = Effect.fn("Markdown.decodeMarkdownText")(function* (c
  * import { Markdown } from "@beep/schema/Markdown"
  *
  * const document = S.decodeUnknownSync(Markdown)("# Hello")
- * void document
+ * console.log(document)
  * ```
  *
  * @category validation
@@ -150,13 +150,10 @@ export type Markdown = typeof Markdown.Type;
  * import * as S from "effect/Schema"
  * import { MarkdownTextToHtml } from "@beep/schema/Markdown"
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- *
- * })
- * void program
+ * const MarkdownToHtml = MarkdownTextToHtml()
+ * const program = S.decodeUnknownEffect(MarkdownToHtml)("# Hello")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @param options - Optional Bun Markdown parser options. Raw HTML tag filtering is enabled by default.
@@ -190,11 +187,9 @@ export const MarkdownTextToHtml = (options?: MarkdownRenderOptions) => {
  *
  * const decodeHtml = decodeMarkdownTextAs(S.String)
  *
- * const program = Effect.gen(function* () {
- *
- *
- * })
- * void program
+ * const program = decodeHtml("# Hello")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @param schema - Target schema to decode rendered HTML output into.

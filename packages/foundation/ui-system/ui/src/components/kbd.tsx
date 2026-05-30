@@ -2,6 +2,15 @@ import { cn } from "../lib/index.ts";
 import type React from "react";
 
 /**
+ * Kbd component.
+ *
+ * @example
+ * ```tsx
+ * import { Kbd } from "@beep/ui/components/kbd"
+ *
+ * console.log(Kbd)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -19,6 +28,15 @@ function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
 }
 
 /**
+ * Kbd group component.
+ *
+ * @example
+ * ```tsx
+ * import { KbdGroup } from "@beep/ui/components/kbd"
+ *
+ * console.log(KbdGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

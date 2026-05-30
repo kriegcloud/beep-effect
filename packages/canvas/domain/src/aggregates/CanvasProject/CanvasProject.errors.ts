@@ -16,6 +16,13 @@ const $I = $CanvasDomainId.create("aggregates/CanvasProject/CanvasProject.errors
 /**
  * Failure raised when a command attempts to mutate an archived CanvasProject.
  *
+ * @example
+ * ```ts
+ * import { CanvasProjectAlreadyArchived } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectAlreadyArchived)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -34,6 +41,13 @@ export class CanvasProjectAlreadyArchived extends TaggedErrorClass<CanvasProject
 
 /**
  * Failure raised when a command attempts an unsupported lifecycle transition.
+ *
+ * @example
+ * ```ts
+ * import { CanvasProjectInvalidTransition } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectInvalidTransition)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -74,6 +88,13 @@ export class CanvasProjectInvalidTransition extends TaggedErrorClass<CanvasProje
 /**
  * Failure raised when a CanvasNode id is already present in a CanvasProject.
  *
+ * @example
+ * ```ts
+ * import { CanvasNodeAlreadyExists } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasNodeAlreadyExists)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -91,6 +112,13 @@ export class CanvasNodeAlreadyExists extends TaggedErrorClass<CanvasNodeAlreadyE
 
 /**
  * Failure raised when a CanvasNode id is absent from a CanvasProject.
+ *
+ * @example
+ * ```ts
+ * import { CanvasNodeNotFound } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasNodeNotFound)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -110,6 +138,14 @@ export class CanvasNodeNotFound extends TaggedErrorClass<CanvasNodeNotFound>($I`
 /**
  * CanvasProject aggregate domain failure.
  *
+ * @example
+ * ```ts
+ * import type { CanvasProjectDomainError } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * const value = {} as CanvasProjectDomainError
+ * console.log(value)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -121,6 +157,13 @@ export type CanvasProjectDomainError =
 
 /**
  * CanvasProject aggregate domain failure schema.
+ *
+ * @example
+ * ```ts
+ * import { CanvasProjectDomainError } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectDomainError)
+ * ```
  *
  * @category errors
  * @since 0.0.0

@@ -22,6 +22,16 @@ const headerName = "Cross-Origin-Resource-Policy" as const;
 const CorpValueBase = LiteralKit(["same-site", "same-origin", "cross-origin"]);
 
 /**
+ * Schema for allowed `Cross-Origin-Resource-Policy` values.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CorpValue } from "@beep/schema/CrossOriginResourcePolicy"
+ *
+ * console.log(S.is(CorpValue)("same-origin")) // true
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -33,6 +43,8 @@ export const CorpValue = CorpValueBase.pipe(
 );
 
 /**
+ * Type for allowed `Cross-Origin-Resource-Policy` values.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -41,6 +53,16 @@ export type CorpValue = typeof CorpValue.Type;
 const CrossOriginResourcePolicyOptionBase = LiteralKit([false, ...CorpValueBase.Options]);
 
 /**
+ * Schema for enabled or disabled `Cross-Origin-Resource-Policy` options.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CrossOriginResourcePolicyOption } from "@beep/schema/CrossOriginResourcePolicy"
+ *
+ * console.log(S.decodeUnknownSync(CrossOriginResourcePolicyOption)("same-site"))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -52,12 +74,28 @@ export const CrossOriginResourcePolicyOption = CrossOriginResourcePolicyOptionBa
 );
 
 /**
+ * Type for enabled or disabled `Cross-Origin-Resource-Policy` options.
+ *
  * @category models
  * @since 0.0.0
  */
 export type CrossOriginResourcePolicyOption = typeof CrossOriginResourcePolicyOption.Type;
 
 /**
+ * Model for a rendered `Cross-Origin-Resource-Policy` response header.
+ *
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { CrossOriginResourcePolicyResponseHeader } from "@beep/schema/CrossOriginResourcePolicy"
+ *
+ * const header = CrossOriginResourcePolicyResponseHeader.make({
+ *   name: "Cross-Origin-Resource-Policy",
+ *   value: O.some("same-origin"),
+ * })
+ * console.log(header.name)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -76,6 +114,17 @@ export class CrossOriginResourcePolicyResponseHeader extends S.Class<CrossOrigin
 type CrossOriginResourcePolicyResponseHeaderEncoded = typeof CrossOriginResourcePolicyResponseHeader.Encoded;
 
 /**
+ * Schema that renders CORP options into a response header.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CrossOriginResourcePolicyHeader } from "@beep/schema/CrossOriginResourcePolicy"
+ *
+ * const header = S.decodeUnknownSync(CrossOriginResourcePolicyHeader)("same-origin")
+ * console.log(header.name)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -134,6 +183,8 @@ export const CrossOriginResourcePolicyHeader = S.Union([CrossOriginResourcePolic
 );
 
 /**
+ * Type for rendered `Cross-Origin-Resource-Policy` response headers.
+ *
  * @category models
  * @since 0.0.0
  */

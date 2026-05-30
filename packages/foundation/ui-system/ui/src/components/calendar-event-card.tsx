@@ -6,11 +6,31 @@ import { cn } from "../lib/index.ts";
 import type { ReactNode } from "react";
 
 /**
+ * Event status type.
+ *
+ * @example
+ * ```ts
+ * import type { EventStatus } from "@beep/ui/components/calendar-event-card"
+ *
+ * const value = {} as EventStatus
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
 export type EventStatus = "idle" | "loading" | "completed";
 /**
+ * Event variant type.
+ *
+ * @example
+ * ```ts
+ * import type { EventVariant } from "@beep/ui/components/calendar-event-card"
+ *
+ * const value = {} as EventVariant
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -31,6 +51,15 @@ interface CalendarEventCardProps {
 }
 
 /**
+ * Calendar event card component.
+ *
+ * @example
+ * ```tsx
+ * import { CalendarEventCard } from "@beep/ui/components/calendar-event-card"
+ *
+ * console.log(CalendarEventCard)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -132,6 +161,15 @@ interface EventTitleProps {
 }
 
 /**
+ * Event title component.
+ *
+ * @example
+ * ```tsx
+ * import { EventTitle } from "@beep/ui/components/calendar-event-card"
+ *
+ * console.log(EventTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -146,6 +184,15 @@ interface EventTimeProps {
 }
 
 /**
+ * Event time component.
+ *
+ * @example
+ * ```tsx
+ * import { EventTime } from "@beep/ui/components/calendar-event-card"
+ *
+ * console.log(EventTime)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -166,6 +213,15 @@ interface EventLocationProps {
 }
 
 /**
+ * Event location component.
+ *
+ * @example
+ * ```tsx
+ * import { EventLocation } from "@beep/ui/components/calendar-event-card"
+ *
+ * console.log(EventLocation)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

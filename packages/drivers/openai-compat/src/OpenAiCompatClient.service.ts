@@ -44,7 +44,7 @@ const moduleName = "OpenAiCompatClient";
  *   apiUrl: "https://provider.example/v1"
  * })
  *
- * void options
+ * console.log(options)
  * ```
  *
  * @category models
@@ -78,7 +78,7 @@ export class OpenAiCompatClientOptions extends S.Class<OpenAiCompatClientOptions
  *   streamChatCompletion: () => Stream.empty
  * }
  *
- * void client.createChatCompletion
+ * console.log(client.createChatCompletion)
  * ```
  *
  * @category services
@@ -332,7 +332,7 @@ const makeService = (client: HttpClient.HttpClient, options: OpenAiCompatClientO
  *   return client
  * })
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @category services
@@ -353,7 +353,7 @@ export class OpenAiCompatClient extends Context.Service<OpenAiCompatClient, Open
    *   OpenAiCompatClientOptions.make({ apiKey: Redacted.make("test-key") })
    * )
    *
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers
@@ -379,7 +379,7 @@ export class OpenAiCompatClient extends Context.Service<OpenAiCompatClient, Open
    *
    * const layer = OpenAiCompatClient.layer
    *
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers

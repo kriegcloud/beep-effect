@@ -1,6 +1,15 @@
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Layout theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { layoutTheme } from "@beep/ui/themes/components/layout"
+ *
+ * console.log(layoutTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

@@ -1,8 +1,15 @@
 /**
- * Used by: text-field, date-picker, select, autocomplete, button
+ * Control heights theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { CONTROL_HEIGHTS } from "@beep/ui/themes/scales"
+ *
+ * console.log(CONTROL_HEIGHTS)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const CONTROL_HEIGHTS = {
   sm: 32,
@@ -11,10 +18,17 @@ export const CONTROL_HEIGHTS = {
 };
 
 /**
- * Touch device heights (+ for better touch targets)
+ * Control touch heights theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { CONTROL_TOUCH_HEIGHTS } from "@beep/ui/themes/scales"
+ *
+ * console.log(CONTROL_TOUCH_HEIGHTS)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const CONTROL_TOUCH_HEIGHTS = {
   sm: 34,
@@ -23,23 +37,32 @@ export const CONTROL_TOUCH_HEIGHTS = {
 };
 
 /**
- * Media query for touch device sizing.
- * Default: touch input + mobile viewport (hybrid approach)
- * Alternatives:
- * - "(pointer: coarse)" - all touch devices regardless of screen size
- * - "(max-width: 768px)" - breakpoint only
+ * Touch media query theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { TOUCH_MEDIA_QUERY } from "@beep/ui/themes/scales"
+ *
+ * console.log(TOUCH_MEDIA_QUERY)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const TOUCH_MEDIA_QUERY = "@media (max-width: 768px)";
 
 /**
- * Used by: controls (MuiSwitch)
- * inset: space between track edge and thumb
+ * Switch sizes theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { SWITCH_SIZES } from "@beep/ui/themes/scales"
+ *
+ * console.log(SWITCH_SIZES)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const SWITCH_SIZES = {
   sm: { height: 22, width: 36, inset: 2 },
@@ -48,10 +71,17 @@ export const SWITCH_SIZES = {
 };
 
 /**
- * Touch-sized switch dimensions.
+ * Switch touch sizes theme value.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { SWITCH_TOUCH_SIZES } from "@beep/ui/themes/scales"
+ *
+ * console.log(SWITCH_TOUCH_SIZES)
+ * ```
+ *
  * @category themes
+ * @since 0.0.0
  */
 export const SWITCH_TOUCH_SIZES = {
   sm: { height: 28, width: 44, inset: 2 },

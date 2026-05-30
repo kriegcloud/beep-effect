@@ -32,7 +32,7 @@ type PostgresDrizzleSchemaPhantom<TSchema> = {
  * import type { PostgresDrizzleDatabase } from "@beep/postgres"
  *
  * const readClient = (db: PostgresDrizzleDatabase) => db.$client
- * void readClient
+ * console.log(readClient)
  * ```
  *
  * @category models
@@ -54,7 +54,7 @@ export type PostgresDrizzleDatabase<
  * import type { PostgresDrizzleConfig } from "@beep/postgres"
  *
  * const config: PostgresDrizzleConfig = {}
- * void config
+ * console.log(config)
  * ```
  *
  * @category models
@@ -73,7 +73,7 @@ export type PostgresDrizzleConfig<
  * import { PostgresDrizzle } from "@beep/postgres"
  *
  * const service = PostgresDrizzle
- * void service
+ * console.log(service)
  * ```
  *
  * @category services
@@ -89,7 +89,7 @@ export class PostgresDrizzle extends Context.Service<PostgresDrizzle, PostgresDr
  * import { makeDrizzle } from "@beep/postgres"
  *
  * const effect = makeDrizzle()
- * void effect
+ * console.log(effect)
  * ```
  *
  * @category constructors
@@ -114,7 +114,7 @@ export const makeDrizzle = <
  * import { makeDrizzleLayer } from "@beep/postgres"
  *
  * const layer = makeDrizzleLayer()
- * void layer
+ * console.log(layer)
  * ```
  *
  * @category layers
@@ -137,7 +137,7 @@ export const makeDrizzleLayer = (
  *   const deferred = migrate({ migrationsFolder: "./drizzle" })(db)
  *   return { deferred, effect }
  * }
- * void runMigration
+ * console.log(runMigration)
  * ```
  *
  * @category constructors

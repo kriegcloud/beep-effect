@@ -15,7 +15,7 @@ import { makeNamedNode } from "../rdf.ts";
  * ```ts
  * import { RDF_NAMESPACE } from "@beep/semantic-web/vocab/rdf"
  *
- * void RDF_NAMESPACE
+ * console.log(RDF_NAMESPACE)
  * ```
  *
  * @since 0.0.0
@@ -30,7 +30,7 @@ export const RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as co
  * ```ts
  * import { RDF_TYPE } from "@beep/semantic-web/vocab/rdf"
  *
- * void RDF_TYPE
+ * console.log(RDF_TYPE)
  * ```
  *
  * @since 0.0.0
@@ -45,7 +45,7 @@ export const RDF_TYPE = makeNamedNode(`${RDF_NAMESPACE}type`);
  * ```ts
  * import { RDF_FIRST } from "@beep/semantic-web/vocab/rdf"
  *
- * void RDF_FIRST
+ * console.log(RDF_FIRST)
  * ```
  *
  * @since 0.0.0
@@ -60,7 +60,7 @@ export const RDF_FIRST = makeNamedNode(`${RDF_NAMESPACE}first`);
  * ```ts
  * import { RDF_REST } from "@beep/semantic-web/vocab/rdf"
  *
- * void RDF_REST
+ * console.log(RDF_REST)
  * ```
  *
  * @since 0.0.0
@@ -75,7 +75,7 @@ export const RDF_REST = makeNamedNode(`${RDF_NAMESPACE}rest`);
  * ```ts
  * import { RDF_NIL } from "@beep/semantic-web/vocab/rdf"
  *
- * void RDF_NIL
+ * console.log(RDF_NIL)
  * ```
  *
  * @since 0.0.0

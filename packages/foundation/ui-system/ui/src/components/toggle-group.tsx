@@ -20,6 +20,15 @@ const ToggleGroupContext = React.createContext<
 });
 
 /**
+ * Toggle group component.
+ *
+ * @example
+ * ```tsx
+ * import { ToggleGroup } from "@beep/ui/components/toggle-group"
+ *
+ * console.log(ToggleGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -58,6 +67,15 @@ function ToggleGroup({
 }
 
 /**
+ * Toggle group item component.
+ *
+ * @example
+ * ```tsx
+ * import { ToggleGroupItem } from "@beep/ui/components/toggle-group"
+ *
+ * console.log(ToggleGroupItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

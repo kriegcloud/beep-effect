@@ -12,6 +12,13 @@ const $I = $SchemaId.create("DomHtmlElement");
 /**
  * Type guard for HTMLElement.
  *
+ * @example
+ * ```ts
+ * import { isHTMLElement } from "@beep/schema/DomHtmlElement"
+ *
+ * console.log(isHTMLElement(document.createElement("div")))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -19,6 +26,15 @@ export const isHTMLElement = (u: unknown): u is HTMLElement => u instanceof HTML
 
 /**
  * An HTMLElement.
+ *
+ * @example
+ * ```ts
+ * import { DOMHtmlElement } from "@beep/schema/DomHtmlElement"
+ * import * as S from "effect/Schema"
+ *
+ * const element = S.decodeUnknownSync(DOMHtmlElement)(document.createElement("div"))
+ * console.log(element.tagName)
+ * ```
  *
  * @since 0.0.0
  * @category schemas

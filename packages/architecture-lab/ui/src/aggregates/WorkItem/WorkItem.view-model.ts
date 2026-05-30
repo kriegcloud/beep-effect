@@ -21,6 +21,13 @@ const $I = $ArchitectureLabUiId.create("aggregates/WorkItem/WorkItem.view-model"
 /**
  * UI action values for the WorkItem proof surface.
  *
+ * @example
+ * ```ts
+ * import { WorkItemVisibleAction } from "@beep/architecture-lab-ui/aggregates/WorkItem"
+ *
+ * console.log(WorkItemVisibleAction)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -41,6 +48,13 @@ export type WorkItemVisibleAction = typeof WorkItemVisibleAction.Type;
 
 /**
  * UI-facing WorkItem summary.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemSummaryViewModel } from "@beep/architecture-lab-ui/aggregates/WorkItem"
+ *
+ * console.log(WorkItemSummaryViewModel)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -80,6 +94,13 @@ const makeVisibleActions = (
 
 /**
  * Create the UI-facing WorkItem summary view model.
+ *
+ * @example
+ * ```ts
+ * import { toWorkItemSummaryViewModel } from "@beep/architecture-lab-ui/aggregates/WorkItem"
+ *
+ * console.log(toWorkItemSummaryViewModel)
+ * ```
  *
  * @category models
  * @since 0.0.0

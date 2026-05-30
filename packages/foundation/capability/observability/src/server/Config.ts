@@ -29,6 +29,7 @@ const $I = $ObservabilityId.create("server/Config");
  *   serviceName: "beep",
  *   serviceVersion: "0.0.0"
  * })
+ * console.log(config.serviceName)
  * ```
  *
  * @since 0.0.0
@@ -61,6 +62,7 @@ export class ServerObservabilityConfig extends S.Class<ServerObservabilityConfig
  *
  * declare const config: ServerObservabilityConfig
  * const resource = toOtlpResource(config)
+ * console.log(resource.serviceName)
  * ```
  *
  * @since 0.0.0

@@ -15,7 +15,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/RemainingTagValues");
  * @example
  * ```ts
  * import { AliasValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void AliasValue
+ * console.log(AliasValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -32,7 +32,7 @@ export class AliasValue extends S.TaggedClass<AliasValue>($I`AliasValue`)(
  * @example
  * ```ts
  * import { BorrowsValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void BorrowsValue
+ * console.log(BorrowsValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -49,7 +49,7 @@ export class BorrowsValue extends S.TaggedClass<BorrowsValue>($I`BorrowsValue`)(
  * @example
  * ```ts
  * import { ClassdescValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void ClassdescValue
+ * console.log(ClassdescValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -66,7 +66,7 @@ export class ClassdescValue extends S.TaggedClass<ClassdescValue>($I`ClassdescVa
  * @example
  * ```ts
  * import { ConstructsValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void ConstructsValue
+ * console.log(ConstructsValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -83,7 +83,7 @@ export class ConstructsValue extends S.TaggedClass<ConstructsValue>($I`Construct
  * @example
  * ```ts
  * import { CopyrightValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void CopyrightValue
+ * console.log(CopyrightValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -100,7 +100,7 @@ export class CopyrightValue extends S.TaggedClass<CopyrightValue>($I`CopyrightVa
  * @example
  * ```ts
  * import { LicenseValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void LicenseValue
+ * console.log(LicenseValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -117,7 +117,7 @@ export class LicenseValue extends S.TaggedClass<LicenseValue>($I`LicenseValue`)(
  * @example
  * ```ts
  * import { ExternalValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void ExternalValue
+ * console.log(ExternalValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -134,7 +134,7 @@ export class ExternalValue extends S.TaggedClass<ExternalValue>($I`ExternalValue
  * @example
  * ```ts
  * import { FileValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void FileValue
+ * console.log(FileValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -151,7 +151,7 @@ export class FileValue extends S.TaggedClass<FileValue>($I`FileValue`)(
  * @example
  * ```ts
  * import { GlobalValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void GlobalValue
+ * console.log(GlobalValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -168,7 +168,7 @@ export class GlobalValue extends S.TaggedClass<GlobalValue>($I`GlobalValue`)(
  * @example
  * ```ts
  * import { HideconstructorValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void HideconstructorValue
+ * console.log(HideconstructorValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -185,7 +185,7 @@ export class HideconstructorValue extends S.TaggedClass<HideconstructorValue>($I
  * @example
  * ```ts
  * import { IgnoreValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void IgnoreValue
+ * console.log(IgnoreValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -202,7 +202,7 @@ export class IgnoreValue extends S.TaggedClass<IgnoreValue>($I`IgnoreValue`)(
  * @example
  * ```ts
  * import { InnerValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void InnerValue
+ * console.log(InnerValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -219,7 +219,7 @@ export class InnerValue extends S.TaggedClass<InnerValue>($I`InnerValue`)(
  * @example
  * ```ts
  * import { InstanceValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void InstanceValue
+ * console.log(InstanceValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -236,7 +236,7 @@ export class InstanceValue extends S.TaggedClass<InstanceValue>($I`InstanceValue
  * @example
  * ```ts
  * import { KindValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void KindValue
+ * console.log(KindValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -267,7 +267,7 @@ export class KindValue extends S.TaggedClass<KindValue>($I`KindValue`)(
  * @example
  * ```ts
  * import { LendsValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void LendsValue
+ * console.log(LendsValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -284,7 +284,7 @@ export class LendsValue extends S.TaggedClass<LendsValue>($I`LendsValue`)(
  * @example
  * ```ts
  * import { MixinValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void MixinValue
+ * console.log(MixinValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -301,7 +301,7 @@ export class MixinValue extends S.TaggedClass<MixinValue>($I`MixinValue`)(
  * @example
  * ```ts
  * import { MixesValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void MixesValue
+ * console.log(MixesValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -318,7 +318,7 @@ export class MixesValue extends S.TaggedClass<MixesValue>($I`MixesValue`)(
  * @example
  * ```ts
  * import { NameValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void NameValue
+ * console.log(NameValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -335,7 +335,7 @@ export class NameValue extends S.TaggedClass<NameValue>($I`NameValue`)(
  * @example
  * ```ts
  * import { VariationValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void VariationValue
+ * console.log(VariationValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -352,7 +352,7 @@ export class VariationValue extends S.TaggedClass<VariationValue>($I`VariationVa
  * @example
  * ```ts
  * import { TutorialValue } from "@beep/repo-utils/JSDoc/models/tag-values/RemainingTagValues"
- * void TutorialValue
+ * console.log(TutorialValue)
  * ```
  * @category models
  * @since 0.0.0

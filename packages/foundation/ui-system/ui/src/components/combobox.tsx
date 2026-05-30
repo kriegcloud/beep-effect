@@ -8,12 +8,30 @@ import * as React from "react";
 import { cn } from "../lib/index.ts";
 
 /**
+ * Combobox component.
+ *
+ * @example
+ * ```tsx
+ * import { Combobox } from "@beep/ui/components/combobox"
+ *
+ * console.log(Combobox)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
 const Combobox = ComboboxPrimitive.Root;
 
 /**
+ * Combobox value component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxValue } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxValue)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -22,6 +40,15 @@ function ComboboxValue({ ...props }: ComboboxPrimitive.Value.Props) {
 }
 
 /**
+ * Combobox trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxTrigger } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -52,6 +79,15 @@ function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
 }
 
 /**
+ * Combobox input component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxInput } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxInput)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -88,6 +124,15 @@ function ComboboxInput({
 }
 
 /**
+ * Combobox content component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxContent } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -128,6 +173,15 @@ function ComboboxContent({
 }
 
 /**
+ * Combobox list component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxList } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxList)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -145,6 +199,15 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
 }
 
 /**
+ * Combobox item component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxItem } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -169,6 +232,15 @@ function ComboboxItem({ className, children, ...props }: ComboboxPrimitive.Item.
 }
 
 /**
+ * Combobox group component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxGroup } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -177,6 +249,15 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
 }
 
 /**
+ * Combobox label component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxLabel } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxLabel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -191,6 +272,15 @@ function ComboboxLabel({ className, ...props }: ComboboxPrimitive.GroupLabel.Pro
 }
 
 /**
+ * Combobox collection component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxCollection } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxCollection)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -199,6 +289,15 @@ function ComboboxCollection({ ...props }: ComboboxPrimitive.Collection.Props) {
 }
 
 /**
+ * Combobox empty component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxEmpty } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxEmpty)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -216,6 +315,15 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
 }
 
 /**
+ * Combobox separator component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxSeparator } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -230,6 +338,15 @@ function ComboboxSeparator({ className, ...props }: ComboboxPrimitive.Separator.
 }
 
 /**
+ * Combobox chips component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxChips } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxChips)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -250,6 +367,15 @@ function ComboboxChips({
 }
 
 /**
+ * Combobox chip component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxChip } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxChip)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -285,6 +411,15 @@ function ComboboxChip({
 }
 
 /**
+ * Combobox chips input component.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxChipsInput } from "@beep/ui/components/combobox"
+ *
+ * console.log(ComboboxChipsInput)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -299,6 +434,15 @@ function ComboboxChipsInput({ className, ...props }: ComboboxPrimitive.Input.Pro
 }
 
 /**
+ * Use combobox anchor hook.
+ *
+ * @example
+ * ```tsx
+ * import { useComboboxAnchor } from "@beep/ui/components/combobox"
+ *
+ * console.log(useComboboxAnchor)
+ * ```
+ *
  * @category hooks
  * @since 0.0.0
  */

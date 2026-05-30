@@ -15,6 +15,13 @@ const $I = $InstallerDomainId.create("aggregates/HostDependency/HostDependency.m
 /**
  * Host dependency family recognized by the dry-run installer.
  *
+ * @example
+ * ```ts
+ * import { HostDependencyKind } from "@beep/installer-domain/aggregates/HostDependency"
+ *
+ * console.log(HostDependencyKind)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -35,6 +42,13 @@ export type HostDependencyKind = typeof HostDependencyKind.Type;
 /**
  * Validation status for a host dependency.
  *
+ * @example
+ * ```ts
+ * import { HostDependencyStatus } from "@beep/installer-domain/aggregates/HostDependency"
+ *
+ * console.log(HostDependencyStatus)
+ * ```
+ *
  * @category aggregates
  * @since 0.0.0
  */
@@ -54,6 +68,13 @@ export type HostDependencyStatus = typeof HostDependencyStatus.Type;
 
 /**
  * Host dependency required by the AI stack installer.
+ *
+ * @example
+ * ```ts
+ * import { HostDependency } from "@beep/installer-domain/aggregates/HostDependency"
+ *
+ * console.log(HostDependency)
+ * ```
  *
  * @category aggregates
  * @since 0.0.0

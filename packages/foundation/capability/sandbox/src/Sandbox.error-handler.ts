@@ -51,6 +51,13 @@ const formatErrorMessageUnsafe = Match.type<SandboxError>().pipe(
 /**
  * Format a sandbox error with secret-shaped text redacted.
  *
+ * @example
+ * ```ts
+ * import { formatErrorMessage } from "@beep/sandbox/Sandbox.error-handler"
+ *
+ * console.log(formatErrorMessage)
+ * ```
+ *
  * @category error-handling
  * @since 0.0.0
  */

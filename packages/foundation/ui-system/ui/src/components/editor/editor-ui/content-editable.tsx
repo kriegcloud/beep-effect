@@ -12,10 +12,17 @@ class Props extends S.Class<Props>($I`Props`)({
 }) {}
 
 /**
- * Shared Lexical content-editable surface with package theme defaults.
+ * Content editable component.
  *
- * @since 0.0.0
+ * @example
+ * ```tsx
+ * import { ContentEditable } from "@beep/ui/components/editor/editor-ui/content-editable"
+ *
+ * console.log(ContentEditable)
+ * ```
+ *
  * @category components
+ * @since 0.0.0
  */
 export function ContentEditable({ placeholder, className, placeholderClassName }: Props): JSX.Element {
   return (

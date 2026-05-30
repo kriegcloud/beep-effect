@@ -7,6 +7,15 @@ import { Button } from "./button";
 import type * as React from "react";
 
 /**
+ * Dialog component.
+ *
+ * @example
+ * ```tsx
+ * import { Dialog } from "@beep/ui/components/dialog"
+ *
+ * console.log(Dialog)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -15,6 +24,15 @@ function Dialog({ ...props }: DialogPrimitive.Root.Props) {
 }
 
 /**
+ * Dialog trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { DialogTrigger } from "@beep/ui/components/dialog"
+ *
+ * console.log(DialogTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -23,6 +41,15 @@ function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
 }
 
 /**
+ * Dialog portal component.
+ *
+ * @example
+ * ```tsx
+ * import { DialogPortal } from "@beep/ui/components/dialog"
+ *
+ * console.log(DialogPortal)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -31,6 +58,15 @@ function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
 }
 
 /**
+ * Dialog close component.
+ *
+ * @example
+ * ```tsx
+ * import { DialogClose } from "@beep/ui/components/dialog"
+ *
+ * console.log(DialogClose)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -39,6 +75,15 @@ function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
 }
 
 /**
+ * Dialog overlay component.
+ *
+ * @example
+ * ```tsx
+ * import { DialogOverlay } from "@beep/ui/components/dialog"
+ *
+ * console.log(DialogOverlay)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -56,6 +101,15 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
 }
 
 /**
+ * Dialog content component.
+ *
+ * @example
+ * ```tsx
+ * import { DialogContent } from "@beep/ui/components/dialog"
+ *
+ * console.log(DialogContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -96,6 +150,15 @@ function DialogContent({
 }
 
 /**
+ * Dialog header component.
+ *
+ * @example
+ * ```tsx
+ * import { DialogHeader } from "@beep/ui/components/dialog"
+ *
+ * console.log(DialogHeader)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -104,6 +167,15 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Dialog footer component.
+ *
+ * @example
+ * ```tsx
+ * import { DialogFooter } from "@beep/ui/components/dialog"
+ *
+ * console.log(DialogFooter)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -131,6 +203,15 @@ function DialogFooter({
 }
 
 /**
+ * Dialog title component.
+ *
+ * @example
+ * ```tsx
+ * import { DialogTitle } from "@beep/ui/components/dialog"
+ *
+ * console.log(DialogTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -145,6 +226,15 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
 }
 
 /**
+ * Dialog description component.
+ *
+ * @example
+ * ```tsx
+ * import { DialogDescription } from "@beep/ui/components/dialog"
+ *
+ * console.log(DialogDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

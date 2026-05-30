@@ -25,7 +25,7 @@ const $I = $SharedDomainId.create("entities/Organization/Organization.values");
  *   const tier = yield* S.decodeUnknownEffect(Organization.LicenseTier)("enterprise")
  *   return Organization.LicenseTier.is.enterprise(tier)
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category schemas
@@ -45,7 +45,7 @@ export const LicenseTier = LiteralKit(["solo", "team", "enterprise"]).pipe(
  * import { Organization } from "@beep/shared-domain/entities"
  *
  * const printTier = (tier: Organization.LicenseTier) => console.log(tier)
- * void printTier
+ * console.log(printTier)
  * ```
  *
  * @category models
@@ -70,7 +70,7 @@ export type LicenseTier = typeof LicenseTier.Type;
  *   })
  *   return settings.allowAgentActions
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category models

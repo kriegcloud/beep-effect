@@ -61,7 +61,7 @@ const mapDocumentErrorToSerializeError = (error: JsonLdDocumentError): JsonLdStr
  * ```ts
  * import { JsonLdStreamSerializeServiceLive } from "@beep/semantic-web/adapters/jsonld-stream-serialize"
  *
- * void JsonLdStreamSerializeServiceLive
+ * console.log(JsonLdStreamSerializeServiceLive)
  * ```
  *
  * @since 0.0.0

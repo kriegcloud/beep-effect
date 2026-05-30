@@ -62,7 +62,7 @@ export const VENICE_CHAT_MODEL = "venice-uncensored-1-2";
  * import type { VeniceAIHttpMethod } from "@beep/venice-ai"
  *
  * const method: VeniceAIHttpMethod = "GET"
- * void method
+ * console.log(method)
  * ```
  *
  * @category models
@@ -82,7 +82,7 @@ export const VeniceAIHttpMethod = LiteralKit(["DELETE", "GET", "PATCH", "POST"])
  * import type { VeniceAIHttpMethod } from "@beep/venice-ai"
  *
  * const method: VeniceAIHttpMethod = "POST"
- * void method
+ * console.log(method)
  * ```
  *
  * @category models
@@ -98,7 +98,7 @@ export type VeniceAIHttpMethod = typeof VeniceAIHttpMethod.Type;
  * import type { VeniceAIOperationId } from "@beep/venice-ai"
  *
  * const operation: VeniceAIOperationId = "listModels"
- * void operation
+ * console.log(operation)
  * ```
  *
  * @category models
@@ -167,7 +167,7 @@ export const VeniceAIOperationId = LiteralKit([
  * import type { VeniceAIOperationId } from "@beep/venice-ai"
  *
  * const operation: VeniceAIOperationId = "createChatCompletion"
- * void operation
+ * console.log(operation)
  * ```
  *
  * @category models
@@ -183,7 +183,7 @@ export type VeniceAIOperationId = typeof VeniceAIOperationId.Type;
  * import type { VeniceAIErrorReason } from "@beep/venice-ai"
  *
  * const reason: VeniceAIErrorReason = "response status"
- * void reason
+ * console.log(reason)
  * ```
  *
  * @category errors
@@ -211,7 +211,7 @@ export const VeniceAIErrorReason = LiteralKit([
  * import type { VeniceAIErrorReason } from "@beep/venice-ai"
  *
  * const reason: VeniceAIErrorReason = "transport"
- * void reason
+ * console.log(reason)
  * ```
  *
  * @category errors
@@ -227,7 +227,7 @@ export type VeniceAIErrorReason = typeof VeniceAIErrorReason.Type;
  * import type { VeniceAIQueryValue } from "@beep/venice-ai"
  *
  * const value: VeniceAIQueryValue = ["image", "text"]
- * void value
+ * console.log(value)
  * ```
  *
  * @category models
@@ -252,7 +252,7 @@ export const VeniceAIQueryValue = S.Union([
  * import type { VeniceAIQueryValue } from "@beep/venice-ai"
  *
  * const query: VeniceAIQueryValue = 10
- * void query
+ * console.log(query)
  * ```
  *
  * @category models
@@ -275,7 +275,7 @@ export type VeniceAIQueryValue = typeof VeniceAIQueryValue.Type;
  *   query: { limit: 10 }
  * })
  *
- * void request
+ * console.log(request)
  * ```
  *
  * @category models
@@ -308,7 +308,7 @@ export class VeniceAIRequestOptions extends S.Class<VeniceAIRequestOptions>($I`V
  *   baseUrl: "https://api.venice.ai/api/v1"
  * })
  *
- * void config
+ * console.log(config)
  * ```
  *
  * @category models
@@ -366,7 +366,7 @@ export class VeniceAIOperationDescriptor extends S.Class<VeniceAIOperationDescri
  *   status: 200
  * })
  *
- * void response
+ * console.log(response)
  * ```
  *
  * @category models
@@ -399,7 +399,7 @@ export class VeniceAIJsonResponse extends S.TaggedClass<VeniceAIJsonResponse>($I
  *   text: "ok"
  * })
  *
- * void response
+ * console.log(response)
  * ```
  *
  * @category models
@@ -432,7 +432,7 @@ export class VeniceAITextResponse extends S.TaggedClass<VeniceAITextResponse>($I
  *   status: 200
  * })
  *
- * void response
+ * console.log(response)
  * ```
  *
  * @category models
@@ -459,7 +459,7 @@ export class VeniceAIBinaryResponse extends S.TaggedClass<VeniceAIBinaryResponse
  * import type { VeniceAIResponse } from "@beep/venice-ai"
  *
  * const tag = (response: VeniceAIResponse) => response._tag
- * void tag
+ * console.log(tag)
  * ```
  *
  * @category models
@@ -480,7 +480,7 @@ export const VeniceAIResponse = S.Union([VeniceAIBinaryResponse, VeniceAIJsonRes
  * import type { VeniceAIResponse } from "@beep/venice-ai"
  *
  * const getStatus = (response: VeniceAIResponse) => response.status
- * void getStatus
+ * console.log(getStatus)
  * ```
  *
  * @category models
@@ -501,7 +501,7 @@ export type VeniceAIResponse = typeof VeniceAIResponse.Type;
  *   index: 0
  * })
  *
- * void event
+ * console.log(event)
  * ```
  *
  * @category models
@@ -535,7 +535,7 @@ const isVeniceAIOperationDescriptor = S.is(VeniceAIOperationDescriptor);
  *   status: 500
  * })
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category errors
@@ -563,7 +563,7 @@ export class VeniceAIError extends TaggedErrorClass<VeniceAIError>($I`VeniceAIEr
    * import { VeniceAIError, VENICE_AI_OPERATION_DESCRIPTORS } from "@beep/venice-ai"
    *
    * const error = VeniceAIError.fromDescriptor(VENICE_AI_OPERATION_DESCRIPTORS[0], "transport")
-   * void error
+   * console.log(error)
    * ```
    *
    * @category errors
@@ -608,7 +608,7 @@ export class VeniceAIError extends TaggedErrorClass<VeniceAIError>($I`VeniceAIEr
    * import { VeniceAIError } from "@beep/venice-ai"
    *
    * const error = VeniceAIError.config()
-   * void error.reason
+   * console.log(error.reason)
    * ```
    *
    * @category errors
@@ -631,7 +631,7 @@ export class VeniceAIError extends TaggedErrorClass<VeniceAIError>($I`VeniceAIEr
  * import { VeniceAiChatError } from "@beep/venice-ai"
  *
  * const error = VeniceAiChatError.config()
- * void error
+ * console.log(error)
  * ```
  *
  * @category errors
@@ -647,7 +647,7 @@ export const VeniceAiChatError = VeniceAIError;
  * import type { VeniceAiChatError } from "@beep/venice-ai"
  *
  * const reason = (error: VeniceAiChatError) => error.reason
- * void reason
+ * console.log(reason)
  * ```
  *
  * @category errors
@@ -1183,7 +1183,7 @@ const webSearchOperation = VeniceAIOperationDescriptor.make({
  *   VENICE_AI_OPERATION_DESCRIPTORS,
  *   A.map((operation) => operation.operationId)
  * )
- * void operationIds
+ * console.log(operationIds)
  * ```
  *
  * @category models
@@ -1248,7 +1248,7 @@ export const VENICE_AI_OPERATION_DESCRIPTORS: ReadonlyArray<VeniceAIOperationDes
  * import type { VeniceAIMethod } from "@beep/venice-ai"
  *
  * const operation = (method: VeniceAIMethod) => method
- * void operation
+ * console.log(operation)
  * ```
  *
  * @category services
@@ -1264,7 +1264,7 @@ export type VeniceAIMethod = (request?: VeniceAIRequestOptions) => Effect.Effect
  * import type { VeniceAIStreamMethod } from "@beep/venice-ai"
  *
  * const operation = (stream: VeniceAIStreamMethod) => stream
- * void operation
+ * console.log(operation)
  * ```
  *
  * @category services
@@ -1286,7 +1286,7 @@ type VeniceAINonStreamingShape = {
  * import type { VeniceAIShape } from "@beep/venice-ai"
  *
  * const operation = (venice: VeniceAIShape) => venice.listModels()
- * void operation
+ * console.log(operation)
  * ```
  *
  * @category services
@@ -1824,7 +1824,7 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedVeniceAIConf
  *   const venice = yield* VeniceAI
  *   return yield* venice.listModels()
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category services
@@ -1840,7 +1840,7 @@ export class VeniceAI extends Context.Service<VeniceAI, VeniceAIShape>()($I`Veni
    * import { VeniceAI, VeniceAIConfigInput } from "@beep/venice-ai"
    *
    * const layer = VeniceAI.makeLayer(VeniceAIConfigInput.make({ apiKey: Redacted.make("test-key") }))
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers
@@ -1865,7 +1865,7 @@ export class VeniceAI extends Context.Service<VeniceAI, VeniceAIShape>()($I`Veni
    * import { VeniceAI } from "@beep/venice-ai"
    *
    * const layer = VeniceAI.layer
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers
@@ -1893,7 +1893,7 @@ export class VeniceAI extends Context.Service<VeniceAI, VeniceAIShape>()($I`Veni
  *   const venice = yield* VeniceAiChat
  *   return yield* venice.chat("What is your favorite joke?")
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category services
@@ -1914,7 +1914,7 @@ export class VeniceAiChat extends Context.Service<
    * import { VeniceAI, VeniceAiChat } from "@beep/venice-ai"
    *
    * const layer = VeniceAiChat.makeLayer.pipe(Layer.provide(VeniceAI.layer))
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers
@@ -1955,7 +1955,7 @@ export class VeniceAiChat extends Context.Service<
    * import { VeniceAiChat } from "@beep/venice-ai"
    *
    * const layer = VeniceAiChat.layer
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers

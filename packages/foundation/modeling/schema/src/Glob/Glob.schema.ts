@@ -96,7 +96,7 @@ const GlobChecks = S.makeFilterGroup(
  * import { Glob } from "@beep/schema/Glob"
  *
  * const pattern = S.decodeUnknownSync(Glob)("src/*.ts")
- * void pattern
+ * console.log(pattern)
  * ```
  *
  * @since 0.0.0
@@ -120,6 +120,13 @@ export type Glob = typeof Glob.Type;
 /**
  * Primary glob schema role alias.
  *
+ * @example
+ * ```ts
+ * import { Schema } from "@beep/schema/Glob"
+ *
+ * console.log(Schema.ast._tag)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -127,6 +134,14 @@ export const Schema = Glob;
 
 /**
  * Runtime type extracted from {@link Schema}.
+ *
+ * @example
+ * ```ts
+ * import type { Schema as GlobValue } from "@beep/schema/Glob"
+ *
+ * const pattern = "src/*.ts" as GlobValue
+ * console.log(pattern)
+ * ```
  *
  * @category models
  * @since 0.0.0
