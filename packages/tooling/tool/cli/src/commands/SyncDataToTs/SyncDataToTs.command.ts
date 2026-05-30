@@ -438,10 +438,8 @@ const renderSyncDataError = (error: SyncDataToTsError): string =>
  * @example
  * ```ts
  * import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs"
- *
  * console.log(syncDataToTsCommand)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */

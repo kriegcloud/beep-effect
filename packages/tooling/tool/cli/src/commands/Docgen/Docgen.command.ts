@@ -1104,10 +1104,8 @@ const printDocgenIndex = () =>
  * @example
  * ```ts
  * import { docgenCommand } from "@beep/repo-cli/commands/Docgen"
- *
  * console.log(docgenCommand)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */

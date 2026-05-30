@@ -36,10 +36,8 @@ const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
  * @example
  * ```ts
  * import { ConfigUpdateResult } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(ConfigUpdateResult)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -63,7 +61,6 @@ export class ConfigUpdateResult extends S.Class<ConfigUpdateResult>($I`ConfigUpd
  *
  * console.log(ConfigUpdateTarget)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -85,10 +82,8 @@ export class ConfigUpdateTarget extends S.Class<ConfigUpdateTarget>($I`ConfigUpd
  * @example
  * ```ts
  * import { ConfigUpdateTargetResult } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(ConfigUpdateTargetResult)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -115,10 +110,8 @@ const DefaultedConfigUpdateTargetResults = S.Array(ConfigUpdateTargetResult).pip
  * @example
  * ```ts
  * import { ConfigUpdateBatchResult } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(ConfigUpdateBatchResult)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -323,10 +316,8 @@ const modifyFileString: {
  * @example
  * ```ts
  * import { updateTsconfigPackages } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(updateTsconfigPackages)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -371,10 +362,8 @@ export const updateTsconfigPackages: {
  * @example
  * ```ts
  * import { updateTsconfigPaths } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(updateTsconfigPaths)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -432,10 +421,8 @@ export const updateTsconfigPaths: {
  * @example
  * ```ts
  * import { updateTstycheConfig } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(updateTstycheConfig)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -549,10 +536,8 @@ const checkConfigNeedsUpdateForTarget: {
  * @example
  * ```ts
  * import { updateRootConfigsForTargets } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(updateRootConfigsForTargets)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -596,10 +581,8 @@ export const updateRootConfigsForTargets: {
  * @example
  * ```ts
  * import { checkConfigNeedsUpdateForTargets } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(checkConfigNeedsUpdateForTargets)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -648,7 +631,6 @@ export const checkConfigNeedsUpdateForTargets: {
  *
  * console.log(updateRootConfigs)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -683,7 +665,6 @@ export const updateRootConfigs: {
  *
  * console.log(checkConfigNeedsUpdate)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */

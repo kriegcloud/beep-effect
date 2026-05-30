@@ -20,10 +20,8 @@ const clearCurrentLine = "\r\x1b[2K";
  * @example
  * ```ts
  * import { FilesConcurrency } from "@beep/repo-cli/commands/Files"
- *
  * console.log(FilesConcurrency)
  * ```
- *
  * @category constants
  * @since 0.0.0
  */
@@ -77,10 +75,8 @@ const progressPercent = (completed: number, total: number): string =>
  * @example
  * ```ts
  * import { isFilesProgressEnabled } from "@beep/repo-cli/commands/Files"
- *
  * console.log(isFilesProgressEnabled)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -94,10 +90,8 @@ export const isFilesProgressEnabled = (enabled = true): boolean => enabled && pr
  * @example
  * ```ts
  * import { renderFilesProgressBar } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderFilesProgressBar)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -122,10 +116,8 @@ export const renderFilesProgressBar = (options: FilesProgressRenderOptions): str
  * @example
  * ```ts
  * import { runFilesProgressAll } from "@beep/repo-cli/commands/Files"
- *
  * console.log(runFilesProgressAll)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -197,10 +189,8 @@ export const runFilesProgressAll: {
  * @example
  * ```ts
  * import { runFilesProgressForEach } from "@beep/repo-cli/commands/Files"
- *
  * console.log(runFilesProgressForEach)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */

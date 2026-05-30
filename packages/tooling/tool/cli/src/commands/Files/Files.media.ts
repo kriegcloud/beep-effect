@@ -274,10 +274,8 @@ const scanBorderSide = (
  * @example
  * ```ts
  * import { isImageFileExtension } from "@beep/repo-cli/commands/Files"
- *
  * console.log(isImageFileExtension)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -289,10 +287,8 @@ export const isImageFileExtension = S.is(ImageFileExtension);
  * @example
  * ```ts
  * import { isVideoFileExtension } from "@beep/repo-cli/commands/Files"
- *
  * console.log(isVideoFileExtension)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -304,10 +300,8 @@ export const isVideoFileExtension = S.is(VideoFileExtension);
  * @example
  * ```ts
  * import { isSupportedMetadataImageExtension } from "@beep/repo-cli/commands/Files"
- *
  * console.log(isSupportedMetadataImageExtension)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -319,10 +313,8 @@ export const isSupportedMetadataImageExtension = S.is(SupportedMetadataImageExte
  * @example
  * ```ts
  * import { bySizeDescendingThenNameAscending } from "@beep/repo-cli/commands/Files"
- *
  * console.log(bySizeDescendingThenNameAscending)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -337,10 +329,8 @@ export const bySizeDescendingThenNameAscending: Order.Order<SortableFile> = Orde
  * @example
  * ```ts
  * import { byNameAscending } from "@beep/repo-cli/commands/Files"
- *
  * console.log(byNameAscending)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -357,10 +347,8 @@ export const byNameAscending: Order.Order<SortableFile> = Order.mapInput(
  * @example
  * ```ts
  * import { normalizeBareExtension } from "@beep/repo-cli/commands/Files"
- *
  * console.log(normalizeBareExtension)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -374,10 +362,8 @@ export const normalizeBareExtension: (extension: string) => string = flow(Str.re
  * @example
  * ```ts
  * import { mediaKindFromExtension } from "@beep/repo-cli/commands/Files"
- *
  * console.log(mediaKindFromExtension)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -404,10 +390,8 @@ export const mediaKindFromExtension = (extension: string): O.Option<MediaKind> =
  * @example
  * ```ts
  * import { formatIndex } from "@beep/repo-cli/commands/Files"
- *
  * console.log(formatIndex)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -424,10 +408,8 @@ export const formatIndex: {
  * @example
  * ```ts
  * import { collectText } from "@beep/repo-cli/commands/Files"
- *
  * console.log(collectText)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -449,10 +431,8 @@ export const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
  * @example
  * ```ts
  * import { isExifOrientationRotated } from "@beep/repo-cli/commands/Files"
- *
  * console.log(isExifOrientationRotated)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -466,10 +446,8 @@ export const isExifOrientationRotated = (orientation: number): boolean => A.cont
  * @example
  * ```ts
  * import { isQuarterTurnRotation } from "@beep/repo-cli/commands/Files"
- *
  * console.log(isQuarterTurnRotation)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -487,10 +465,8 @@ export const isQuarterTurnRotation = (rotation: number): boolean => {
  * @example
  * ```ts
  * import { maybeSwapDimensions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(maybeSwapDimensions)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -516,10 +492,8 @@ export const maybeSwapDimensions: {
  * @example
  * ```ts
  * import { rotationFromStream } from "@beep/repo-cli/commands/Files"
- *
  * console.log(rotationFromStream)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -544,10 +518,8 @@ export const rotationFromStream = (stream: FfprobeStream): O.Option<number> => {
  * @example
  * ```ts
  * import { targetNameForEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(targetNameForEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -575,10 +547,8 @@ export const targetNameForEntry: {
  * @example
  * ```ts
  * import { hasSkippedFiles } from "@beep/repo-cli/commands/Files"
- *
  * console.log(hasSkippedFiles)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -592,10 +562,8 @@ export const hasSkippedFiles = (skippedCount: number): boolean => skippedCount >
  * @example
  * ```ts
  * import { selectedCanonicalPathSet } from "@beep/repo-cli/commands/Files"
- *
  * console.log(selectedCanonicalPathSet)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -615,10 +583,8 @@ export const selectedCanonicalPathSet = (plan: ReadonlyArray<RenamePlanEntry>): 
  * @example
  * ```ts
  * import { renderPlanEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderPlanEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -632,10 +598,8 @@ export const renderPlanEntry = (entry: RenamePlanEntry): string => `${entry.sour
  * @example
  * ```ts
  * import { renderStripMetadataPlanEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderStripMetadataPlanEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -650,10 +614,8 @@ export const renderStripMetadataPlanEntry = (entry: StripMetadataPlanEntry): str
  * @example
  * ```ts
  * import { renderCreateCaptionFilesPlanEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderCreateCaptionFilesPlanEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -668,10 +630,8 @@ export const renderCreateCaptionFilesPlanEntry = (entry: CreateCaptionFilesPlanE
  * @example
  * ```ts
  * import { renderCreateCaptionFilesSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderCreateCaptionFilesSkippedEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -686,10 +646,8 @@ export const renderCreateCaptionFilesSkippedEntry = (entry: CreateCaptionFilesSk
  * @example
  * ```ts
  * import { renderNormalizePlanEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderNormalizePlanEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -704,10 +662,8 @@ export const renderNormalizePlanEntry = (entry: NormalizePlanEntry): string =>
  * @example
  * ```ts
  * import { renderNormalizeSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderNormalizeSkippedEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -722,10 +678,8 @@ export const renderNormalizeSkippedEntry = (entry: NormalizeSkippedEntry): strin
  * @example
  * ```ts
  * import { normalizeOutputExtension } from "@beep/repo-cli/commands/Files"
- *
  * console.log(normalizeOutputExtension)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -739,10 +693,8 @@ export const normalizeOutputExtension = (format: NormalizeImageFormat): string =
  * @example
  * ```ts
  * import { sharpFormatForNormalize } from "@beep/repo-cli/commands/Files"
- *
  * console.log(sharpFormatForNormalize)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -758,10 +710,8 @@ export const sharpFormatForNormalize = (format: NormalizeImageFormat): "jpeg" | 
  * @example
  * ```ts
  * import { normalizeOutputDimensions } from "@beep/repo-cli/commands/Files"
- *
  * console.log(normalizeOutputDimensions)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -794,10 +744,8 @@ export const normalizeOutputDimensions: {
  * @example
  * ```ts
  * import { mediaDimensionsChanged } from "@beep/repo-cli/commands/Files"
- *
  * console.log(mediaDimensionsChanged)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -817,10 +765,8 @@ export const mediaDimensionsChanged: {
  * @example
  * ```ts
  * import { roundCandidateMetric } from "@beep/repo-cli/commands/Files"
- *
  * console.log(roundCandidateMetric)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -835,10 +781,8 @@ export const roundCandidateMetric = (value: number): number => Math.round(value 
  * @example
  * ```ts
  * import { assessImageCandidate } from "@beep/repo-cli/commands/Files"
- *
  * console.log(assessImageCandidate)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -887,10 +831,8 @@ export const assessImageCandidate: {
  * @example
  * ```ts
  * import { renderArchivePoorCandidatesEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderArchivePoorCandidatesEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -911,10 +853,8 @@ export const renderArchivePoorCandidatesEntry = (entry: ArchivePoorCandidatesEnt
  * @example
  * ```ts
  * import { renderArchivePoorCandidatesSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderArchivePoorCandidatesSkippedEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -929,10 +869,8 @@ export const renderArchivePoorCandidatesSkippedEntry = (entry: ArchivePoorCandid
  * @example
  * ```ts
  * import { rgbToHex } from "@beep/repo-cli/commands/Files"
- *
  * console.log(rgbToHex)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -947,10 +885,8 @@ export const rgbToHex = (color: RgbColor): string =>
  * @example
  * ```ts
  * import { classifyBorderSides } from "@beep/repo-cli/commands/Files"
- *
  * console.log(classifyBorderSides)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1000,10 +936,8 @@ export const classifyBorderSides = (sides: ReadonlyArray<DetectBorderSideMeasure
  * @example
  * ```ts
  * import { analyzeSolidBorders } from "@beep/repo-cli/commands/Files"
- *
  * console.log(analyzeSolidBorders)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1027,10 +961,8 @@ export const analyzeSolidBorders: {
  * @example
  * ```ts
  * import { renderDetectBordersEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderDetectBordersEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1053,10 +985,8 @@ export const renderDetectBordersEntry = (entry: DetectBordersEntry): string => {
  * @example
  * ```ts
  * import { renderDetectBordersSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderDetectBordersSkippedEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1071,10 +1001,8 @@ export const renderDetectBordersSkippedEntry = (entry: DetectBordersSkippedEntry
  * @example
  * ```ts
  * import { renderDetectFacesEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderDetectFacesEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1101,10 +1029,8 @@ export const renderDetectFacesEntry = (entry: DetectFacesEntry): string => {
  * @example
  * ```ts
  * import { renderDetectFacesSkippedEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderDetectFacesSkippedEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1128,10 +1054,8 @@ const borderWidthForSide = (entry: DetectBordersEntry, side: BorderSide): number
  * @example
  * ```ts
  * import { cropBordersPlanEntryFromDetection } from "@beep/repo-cli/commands/Files"
- *
  * console.log(cropBordersPlanEntryFromDetection)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1173,10 +1097,8 @@ export const cropBordersPlanEntryFromDetection = (entry: DetectBordersEntry): O.
  * @example
  * ```ts
  * import { renderCropBordersPlanEntry } from "@beep/repo-cli/commands/Files"
- *
  * console.log(renderCropBordersPlanEntry)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1193,10 +1115,8 @@ export const renderCropBordersPlanEntry = (entry: CropBordersPlanEntry): string 
  * @example
  * ```ts
  * import { makeStripMetadataTempEntries } from "@beep/repo-cli/commands/Files"
- *
  * console.log(makeStripMetadataTempEntries)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1227,10 +1147,8 @@ export const makeStripMetadataTempEntries: {
  * @example
  * ```ts
  * import { isSupportedMetadataImageFile } from "@beep/repo-cli/commands/Files"
- *
  * console.log(isSupportedMetadataImageFile)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */

@@ -20,10 +20,8 @@ const $I = $RepoCliId.create("commands/CreatePackage/TsMorphIntegrationService")
  * @example
  * ```ts
  * import { TsMorphMutationKind } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(TsMorphMutationKind)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -118,10 +116,8 @@ class TsMorphMutationWireDataAccess extends S.Class<TsMorphMutationWireDataAcces
  * @example
  * ```ts
  * import { TsMorphMutation } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(TsMorphMutation)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -203,10 +199,8 @@ export type TsMorphMutationOutcome = typeof TsMorphMutationOutcome.Type;
  * @example
  * ```ts
  * import { TsMorphIntegrationResult } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(TsMorphIntegrationResult)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -228,11 +222,9 @@ export class TsMorphIntegrationResult extends S.Class<TsMorphIntegrationResult>(
  * @example
  * ```ts
  * import type { TsMorphMutationAdapter } from "@beep/repo-cli/commands/CreatePackage"
- *
  * const value = {} as TsMorphMutationAdapter
  * console.log(value)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -246,11 +238,9 @@ export type TsMorphMutationAdapter = {
  * @example
  * ```ts
  * import type { TsMorphIntegrationServiceShape } from "@beep/repo-cli/commands/CreatePackage"
- *
  * const value = {} as TsMorphIntegrationServiceShape
  * console.log(value)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -267,10 +257,8 @@ export type TsMorphIntegrationServiceShape = {
  * @example
  * ```ts
  * import { TsMorphIntegrationService } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(TsMorphIntegrationService)
  * ```
- *
  * @category ports
  * @since 0.0.0
  */
@@ -298,10 +286,8 @@ const UnsupportedTsMorphAdapter: TsMorphMutationAdapter = {
  * @example
  * ```ts
  * import { createTsMorphIntegrationService } from "@beep/repo-cli/commands/CreatePackage"
- *
  * console.log(createTsMorphIntegrationService)
  * ```
- *
  * @category models
  * @since 0.0.0
  */

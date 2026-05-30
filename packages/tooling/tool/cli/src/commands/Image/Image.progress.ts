@@ -21,10 +21,8 @@ import type { Terminal } from "effect";
  * @example
  * ```ts
  * import { renderExtractFramesEvent } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderExtractFramesEvent)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -57,10 +55,8 @@ export const renderExtractFramesEvent: {
  * @example
  * ```ts
  * import { makeExtractFramesEvents } from "@beep/repo-cli/commands/Image"
- *
  * console.log(makeExtractFramesEvents)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */

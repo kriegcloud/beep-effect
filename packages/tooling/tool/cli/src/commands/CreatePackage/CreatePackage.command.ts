@@ -16,7 +16,6 @@ import { createPackageCommand as createPackageCommandFromHandler } from "./Handl
  *
  * console.log(createPackageCommand)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */

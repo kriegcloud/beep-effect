@@ -336,10 +336,8 @@ export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMor
  * @example
  * ```ts
  * import { NamedDeclaration } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * console.log(NamedDeclaration)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
