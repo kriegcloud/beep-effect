@@ -248,16 +248,18 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
               onError={() => setValidFavicon(false)}
             />
           ) : (
-            <ArrowSquareOutIcon size={18} className="text-zinc-400" />
+            <ArrowSquareOutIcon size={18} className="text-muted-foreground" />
           )}
 
           {websiteName !== undefined && <div className="truncate text-sm font-semibold">{websiteName}</div>}
         </div>
       )}
 
-      {title !== undefined && <div className="truncate text-sm font-medium text-white">{title}</div>}
+      {title !== undefined && <div className="truncate text-sm font-medium text-foreground">{title}</div>}
 
-      {description !== undefined && <div className="line-clamp-3 w-full text-xs text-gray-400">{description}</div>}
+      {description !== undefined && (
+        <div className="line-clamp-3 w-full text-xs text-muted-foreground">{description}</div>
+      )}
 
       <div className="truncate text-xs text-primary">{pipe(href, Str.replace(/^https?:\/\//, ""))}</div>
     </div>
@@ -266,12 +268,12 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
   if (isLoading) {
     tooltipContent = (
       <div className="flex justify-center p-5">
-        <div className="size-5 animate-spin rounded-full border-2 border-zinc-700 border-t-white" />
+        <div className="size-5 animate-spin rounded-full border-2 border-border border-t-foreground" />
       </div>
     );
   } else if (error !== null || !isValidUrl) {
     tooltipContent = (
-      <div className="flex items-center gap-2 p-3 text-red-400">
+      <div className="flex items-center gap-2 p-3 text-destructive">
         <InfoIcon size={16} weight="fill" />
         <span className="text-sm">{errorMessage}</span>
       </div>
@@ -280,22 +282,24 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
 
   return (
     <Tooltip>
-      <TooltipTrigger>
-        <a
-          ref={elementRef}
-          href={safeHref}
-          className={cn(
-            "cursor-pointer rounded-sm bg-primary/20 px-1 text-sm font-medium text-primary transition-all hover:text-white hover:underline",
-            className
-          )}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          {children}
-        </a>
-      </TooltipTrigger>
+      <TooltipTrigger
+        render={
+          <a
+            ref={elementRef}
+            href={safeHref}
+            className={cn(
+              "cursor-pointer rounded-sm bg-primary/20 px-1 text-sm font-medium text-primary transition-all hover:text-white hover:underline",
+              className
+            )}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {children}
+          </a>
+        }
+      />
 
-      <TooltipContent className="max-w-[280px] border border-zinc-700 bg-zinc-900 p-3 text-white shadow-lg">
+      <TooltipContent className="max-w-[280px] border border-border bg-popover p-3 text-popover-foreground shadow-lg">
         {tooltipContent}
       </TooltipContent>
     </Tooltip>

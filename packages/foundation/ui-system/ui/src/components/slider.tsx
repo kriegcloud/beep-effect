@@ -8,18 +8,25 @@ import { cn } from "../lib/index.ts";
 const sliderValues = (
   value: SliderPrimitive.Root.Props["value"],
   defaultValue: SliderPrimitive.Root.Props["defaultValue"],
-  min: number,
-  max: number
+  min: number
 ) => {
   if (A.isArray(value)) {
     return value;
+  }
+
+  if (typeof value === "number") {
+    return A.make(value);
   }
 
   if (A.isArray(defaultValue)) {
     return defaultValue;
   }
 
-  return A.make(min, max);
+  if (typeof defaultValue === "number") {
+    return A.make(defaultValue);
+  }
+
+  return A.make(min);
 };
 
 /**
@@ -36,7 +43,7 @@ const sliderValues = (
  * @since 0.0.0
  */
 function Slider({ className, defaultValue, value, min = 0, max = 100, ref, ...props }: SliderPrimitive.Root.Props) {
-  const _values = React.useMemo(thunk(sliderValues(value, defaultValue, min, max)), [value, defaultValue, min, max]);
+  const _values = React.useMemo(thunk(sliderValues(value, defaultValue, min)), [value, defaultValue, min]);
 
   return (
     <SliderPrimitive.Root

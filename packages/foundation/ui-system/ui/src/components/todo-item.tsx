@@ -151,8 +151,6 @@ export function TodoItem({
 
   return (
     <div
-      role="button"
-      tabIndex={0}
       className={cn(
         "group pointer-events-auto mb-0 w-full cursor-pointer rounded-lg p-4 pl-5 text-left transition-all",
         isSelected ? "bg-sky-500/5 ring-2 ring-blue-500" : "hover:bg-zinc-100 dark:hover:bg-zinc-800/70",
@@ -160,12 +158,6 @@ export function TodoItem({
         className
       )}
       onClick={() => onClick?.(id)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onClick?.(id);
-        }
-      }}
     >
       <div className="flex items-start gap-3">
         <button

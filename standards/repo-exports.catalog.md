@@ -12421,6 +12421,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/drawer` | `DrawerTitle` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:189` | Drawer title component. |
 | `@beep/ui/components/drawer` | `DrawerTrigger` | function | `packages/foundation/ui-system/ui/src/components/drawer.tsx:37` | Drawer trigger component. |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenu` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:22` | Dropdown menu component. |
+| `@beep/ui/components/dropdown-menu` | `DropdownMenu` | Identifier | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:415` |  |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenu` | Identifier | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:416` |  |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenu` | Identifier | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:417` |  |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenu` | Identifier | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:418` |  |
@@ -12434,17 +12435,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/dropdown-menu` | `DropdownMenu` | Identifier | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:426` |  |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenu` | Identifier | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:427` |  |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenu` | Identifier | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:428` |  |
-| `@beep/ui/components/dropdown-menu` | `DropdownMenu` | Identifier | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:429` |  |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenuCheckboxItem` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:290` | Dropdown menu checkbox item component. |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenuContent` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:73` | Dropdown menu content component. |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenuGroup` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:116` | Dropdown menu group component. |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenuItem` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:163` | Dropdown menu item component. |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenuLabel` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:133` | Dropdown menu label component. |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenuPortal` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:39` | Dropdown menu portal component. |
-| `@beep/ui/components/dropdown-menu` | `DropdownMenuRadioGroup` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:327` | Dropdown menu radio group component. |
-| `@beep/ui/components/dropdown-menu` | `DropdownMenuRadioItem` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:344` | Dropdown menu radio item component. |
-| `@beep/ui/components/dropdown-menu` | `DropdownMenuSeparator` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:380` | Dropdown menu separator component. |
-| `@beep/ui/components/dropdown-menu` | `DropdownMenuShortcut` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:403` | Dropdown menu shortcut component. |
+| `@beep/ui/components/dropdown-menu` | `DropdownMenuRadioGroup` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:326` | Dropdown menu radio group component. |
+| `@beep/ui/components/dropdown-menu` | `DropdownMenuRadioItem` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:343` | Dropdown menu radio item component. |
+| `@beep/ui/components/dropdown-menu` | `DropdownMenuSeparator` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:379` | Dropdown menu separator component. |
+| `@beep/ui/components/dropdown-menu` | `DropdownMenuShortcut` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:402` | Dropdown menu shortcut component. |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenuSub` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:199` | Dropdown menu sub component. |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenuSubContent` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:253` | Dropdown menu sub content component. |
 | `@beep/ui/components/dropdown-menu` | `DropdownMenuSubTrigger` | function | `packages/foundation/ui-system/ui/src/components/dropdown-menu.tsx:216` | Dropdown menu sub trigger component. |
@@ -12555,9 +12555,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/popover` | `PopoverTrigger` | function | `packages/foundation/ui-system/ui/src/components/popover.tsx:37` | Popover trigger component. |
 | `@beep/ui/components/progress` | `Progress` | function | `packages/foundation/ui-system/ui/src/components/progress.tsx:19` | Progress component. |
 | `@beep/ui/components/progress` | `ProgressIndicator` | function | `packages/foundation/ui-system/ui/src/components/progress.tsx:71` | Progress indicator component. |
-| `@beep/ui/components/progress` | `ProgressLabel` | function | `packages/foundation/ui-system/ui/src/components/progress.tsx:94` | Progress label component. |
+| `@beep/ui/components/progress` | `ProgressLabel` | function | `packages/foundation/ui-system/ui/src/components/progress.tsx:97` | Progress label component. |
 | `@beep/ui/components/progress` | `ProgressTrack` | function | `packages/foundation/ui-system/ui/src/components/progress.tsx:48` | Progress track component. |
-| `@beep/ui/components/progress` | `ProgressValue` | function | `packages/foundation/ui-system/ui/src/components/progress.tsx:113` | Progress value component. |
+| `@beep/ui/components/progress` | `ProgressValue` | function | `packages/foundation/ui-system/ui/src/components/progress.tsx:116` | Progress value component. |
 | `@beep/ui/components/radio-group` | `RadioGroup` | function | `packages/foundation/ui-system/ui/src/components/radio-group.tsx:21` | Radio group component. |
 | `@beep/ui/components/radio-group` | `RadioGroupItem` | function | `packages/foundation/ui-system/ui/src/components/radio-group.tsx:38` | Radio group item component. |
 | `@beep/ui/components/resizable` | `ResizableHandle` | function | `packages/foundation/ui-system/ui/src/components/resizable.tsx:59` | Resizable handle component. |
@@ -12609,7 +12609,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/sidebar` | `SidebarTrigger` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:367` | Sidebar trigger component. |
 | `@beep/ui/components/sidebar` | `useSidebar` | function | `packages/foundation/ui-system/ui/src/components/sidebar.tsx:53` | Use sidebar hook. |
 | `@beep/ui/components/skeleton` | `Skeleton` | function | `packages/foundation/ui-system/ui/src/components/skeleton.tsx:17` | Skeleton component. |
-| `@beep/ui/components/slider` | `Slider` | function | `packages/foundation/ui-system/ui/src/components/slider.tsx:38` | Slider component. |
+| `@beep/ui/components/slider` | `Slider` | function | `packages/foundation/ui-system/ui/src/components/slider.tsx:45` | Slider component. |
 | `@beep/ui/components/sonner` | `Toaster` | const | `packages/foundation/ui-system/ui/src/components/sonner.tsx:22` | Toaster component. |
 | `@beep/ui/components/speech-input` | `SpeechInput` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:166` | Speech input component. |
 | `@beep/ui/components/speech-input` | `SpeechInputCancelButton` | const | `packages/foundation/ui-system/ui/src/components/speech-input.tsx:453` | Speech input cancel button component. |
@@ -12657,7 +12657,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/toggle` | `Toggle` | function | `packages/foundation/ui-system/ui/src/components/toggle.tsx:55` | Toggle component. |
 | `@beep/ui/components/toggle` | `toggleVariants` | const | `packages/foundation/ui-system/ui/src/components/toggle.tsx:21` | Toggle variants component. |
 | `@beep/ui/components/toggle-group` | `ToggleGroup` | function | `packages/foundation/ui-system/ui/src/components/toggle-group.tsx:35` | Toggle group component. |
-| `@beep/ui/components/toggle-group` | `ToggleGroupItem` | function | `packages/foundation/ui-system/ui/src/components/toggle-group.tsx:82` | Toggle group item component. |
+| `@beep/ui/components/toggle-group` | `ToggleGroupItem` | function | `packages/foundation/ui-system/ui/src/components/toggle-group.tsx:83` | Toggle group item component. |
 | `@beep/ui/components/toolbar` | `Toolbar` | function | `packages/foundation/ui-system/ui/src/components/toolbar.tsx:30` | Toolbar component. |
 | `@beep/ui/components/toolbar` | `ToolbarButton` | const | `packages/foundation/ui-system/ui/src/components/toolbar.tsx:189` | Toolbar button component. |
 | `@beep/ui/components/toolbar` | `ToolbarGroup` | function | `packages/foundation/ui-system/ui/src/components/toolbar.tsx:370` | Toolbar group component. |
