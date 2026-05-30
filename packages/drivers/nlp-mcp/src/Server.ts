@@ -20,12 +20,11 @@ import * as Backend from "@beep/nlp/Backend/NLPBackend";
 import { WinkBackendLive } from "@beep/nlp/Backend/WinkBackend";
 import * as WinkEngine from "@beep/nlp/Wink/WinkEngine";
 import { A } from "@beep/utils";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { Effect, Layer } from "effect";
+import type { Stdio } from "effect/Stdio";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import * as Schemas from "./Schemas.ts";
 import { NlpToolkit } from "./Tools.ts";
-import type { Stdio } from "effect/Stdio";
 
 const toToolError =
   (operation: string) =>

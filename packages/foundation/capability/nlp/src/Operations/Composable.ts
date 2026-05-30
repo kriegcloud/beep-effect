@@ -27,7 +27,7 @@
  */
 
 import { A } from "@beep/utils";
-import * as Effect from "effect/Effect";
+import { Effect } from "effect";
 import type * as S from "effect/Schema";
 import type * as Monoid from "../Algebra/Monoid.ts";
 import type { OperationDefinition } from "./Definition.ts";

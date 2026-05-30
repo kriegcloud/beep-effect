@@ -25,13 +25,12 @@
  */
 
 import { A } from "@beep/utils";
-import * as Effect from "effect/Effect";
+import { Effect, Struct } from "effect";
 import * as O from "effect/Option";
-import * as Struct from "effect/Struct";
 import * as Backend from "../../Backend/NLPBackend.ts";
 import { makeNode } from "../EffectGraph.ts";
-import * as Op from "./Operation.ts";
 import type { DependencyNode, EntityNode, LemmaNode, POSNode, RelationNode } from "../Schema.ts";
+import * as Op from "./Operation.ts";
 
 /**
  * Split text into sentences (free functor `Text -> [Sentence]`).

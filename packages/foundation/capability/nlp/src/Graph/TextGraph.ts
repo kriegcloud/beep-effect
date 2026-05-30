@@ -22,10 +22,7 @@
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { A } from "@beep/utils";
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
-import * as Graph from "effect/Graph";
-import * as MutableHashMap from "effect/MutableHashMap";
+import { Clock, Effect, Graph, MutableHashMap } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Tok from "../Core/Tokenization.ts";

@@ -20,12 +20,8 @@
  */
 
 import { A } from "@beep/utils";
-import * as Brand from "effect/Brand";
-import * as Clock from "effect/Clock";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
+import { Brand, Clock, Duration, Effect, Random } from "effect";
 import * as O from "effect/Option";
-import * as Random from "effect/Random";
 import type { GraphNode } from "../EffectGraph.ts";
 
 // =============================================================================

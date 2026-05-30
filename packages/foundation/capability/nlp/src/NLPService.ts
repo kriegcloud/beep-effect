@@ -16,13 +16,11 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import * as Context from "effect/Context";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Backend from "./Backend/NLPBackend.ts";
-import * as ATG from "./Graph/AnnotatedTextGraph.ts";
+import { Context, Effect, Layer } from "effect";
 import type { NLPBackendError, NLPBackendShape } from "./Backend/NLPBackend.ts";
+import * as Backend from "./Backend/NLPBackend.ts";
 import type { AnnotatedTextGraph } from "./Graph/AnnotatedTextGraph.ts";
+import * as ATG from "./Graph/AnnotatedTextGraph.ts";
 import type { EntityNode, POSNode, RelationNode } from "./Graph/Schema.ts";
 
 const $I = $NlpId.create("NLPService");

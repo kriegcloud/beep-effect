@@ -18,12 +18,10 @@
  */
 
 import { A } from "@beep/utils";
-import * as Cache from "effect/Cache";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
-import { NLPBackend } from "./NLPBackend.ts";
+import { Cache, Duration, Effect } from "effect";
 import type * as O from "effect/Option";
 import type { BackendCapabilities, NLPBackendShape } from "./NLPBackend.ts";
+import { NLPBackend } from "./NLPBackend.ts";
 
 /**
  * Compose two backends so each operation tries `primary` first, then `secondary`

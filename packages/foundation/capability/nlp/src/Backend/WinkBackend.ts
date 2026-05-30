@@ -23,15 +23,13 @@
  */
 
 import { A } from "@beep/utils";
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
+import { Clock, Effect, Layer } from "effect";
 import * as O from "effect/Option";
+import type { Detail, ItsFunction } from "wink-nlp";
 import * as Schema from "../Graph/Schema.ts";
 import { WinkEngine } from "../Wink/WinkEngine.ts";
-import { NLPBackend, notSupported, operationError } from "./NLPBackend.ts";
-import type { Detail, ItsFunction } from "wink-nlp";
 import type { BackendCapabilities } from "./NLPBackend.ts";
+import { NLPBackend, notSupported, operationError } from "./NLPBackend.ts";
 
 const BACKEND_NAME = "wink-nlp";
 

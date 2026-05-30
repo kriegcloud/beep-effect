@@ -21,13 +21,8 @@
 
 import { $NlpId } from "@beep/identity";
 import { A } from "@beep/utils";
-import * as Clock from "effect/Clock";
-import * as Context from "effect/Context";
-import * as Effect from "effect/Effect";
-import * as HashMap from "effect/HashMap";
-import * as Layer from "effect/Layer";
+import { Clock, Context, Effect, HashMap, Layer, Ref } from "effect";
 import * as O from "effect/Option";
-import * as Ref from "effect/Ref";
 import type { NodeId } from "../EffectGraph.ts";
 import type { StorageError } from "./Errors.ts";
 import type { OperationResult } from "./Types.ts";

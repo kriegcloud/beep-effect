@@ -27,15 +27,8 @@
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { A } from "@beep/utils";
-import * as Brand from "effect/Brand";
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
-import * as Graph from "effect/Graph";
-import * as HashMap from "effect/HashMap";
-import * as MutableHashMap from "effect/MutableHashMap";
-import * as MutableHashSet from "effect/MutableHashSet";
+import { Brand, Clock, Effect, Graph, HashMap, MutableHashMap, MutableHashSet, Random } from "effect";
 import * as O from "effect/Option";
-import * as Random from "effect/Random";
 import * as S from "effect/Schema";
 
 const $I = $NlpId.create("Graph/EffectGraph");

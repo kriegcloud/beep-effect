@@ -26,9 +26,7 @@
  */
 
 import { A } from "@beep/utils";
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
-import * as Graph from "effect/Graph";
+import { Clock, Effect, Graph } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Backend from "../Backend/NLPBackend.ts";

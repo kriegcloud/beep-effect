@@ -21,14 +21,9 @@
  */
 
 import { A } from "@beep/utils";
-import * as Effect from "effect/Effect";
+import { Effect, Graph, HashMap, HashSet, MutableHashMap, Stream } from "effect";
 import { identity } from "effect/Function";
-import * as Graph from "effect/Graph";
-import * as HashMap from "effect/HashMap";
-import * as HashSet from "effect/HashSet";
-import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
-import * as Stream from "effect/Stream";
 
 // =============================================================================
 // Type Definitions

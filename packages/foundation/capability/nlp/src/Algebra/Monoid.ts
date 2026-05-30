@@ -1,32 +1,4 @@
-/**
- * Algebra/Monoid - Algebraic structures for aggregation operations
- *
- * This module defines monoids and their laws, providing a mathematical
- * foundation for aggregation operations in the categorical NLP framework.
- *
- * A Monoid is an algebraic structure (M, ⊕, ∅) where:
- * - M is a set (the carrier type)
- * - ⊕ : M × M → M is an associative binary operation (combine)
- * - ∅ ∈ M is the identity element (empty)
- *
- * Laws:
- * 1. Associativity: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z)
- * 2. Left identity: ∅ ⊕ x = x
- * 3. Right identity: x ⊕ ∅ = x
- *
- * Category theory: Monoids can be viewed as categories with a single object,
- * where morphisms are elements of the monoid and composition is the monoid operation.
- *
- * For forgetful functors: The monoid structure determines how multiple nodes
- * are aggregated into a single parent node.
- *
- * Ported from the `adjunct` repo (Effect v3) to Effect v4 / `@beep/nlp`.
- *
- * @since 0.0.0
- * @packageDocumentation
- */
-
-import * as HashMap from "effect/HashMap";
+import { HashMap } from "effect";
 import * as O from "effect/Option";
 
 // =============================================================================

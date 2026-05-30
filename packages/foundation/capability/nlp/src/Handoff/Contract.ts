@@ -20,8 +20,7 @@
 
 import { $NlpId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
+import { Clock, Effect } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $NlpId.create("Handoff/Contract");
