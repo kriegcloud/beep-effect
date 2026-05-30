@@ -154,9 +154,14 @@
       "persistent": true,
       "cache": false
     },
-    "build-storybook": {
+    "storybook:build": {
       "dependsOn": ["^build"],
       "outputs": ["storybook-static/**"]
+    },
+    "storybook:start": {
+      "persistent": true,
+      "cache": false,
+      "dependsOn": ["storybook:build"]
     },
     "test:storybook": {
       "cache": false

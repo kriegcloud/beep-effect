@@ -6,8 +6,9 @@
  */
 
 import { $PhoenixId } from "@beep/identity";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, SchemaUtils } from "@beep/schema";
 import { Effect } from "effect";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $PhoenixId.create("Phoenix.models");
@@ -455,14 +456,8 @@ export class PhoenixDatasetAppendResult extends S.Class<PhoenixDatasetAppendResu
 export class PhoenixDatasetInfoResult extends S.Class<PhoenixDatasetInfoResult>($I`PhoenixDatasetInfoResult`)(
   {
     datasetId: S.String,
-    description: S.NullOr(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(null)),
-      S.withDecodingDefaultKey(Effect.succeed(null))
-    ),
-    metadata: S.Record(S.String, S.Unknown).pipe(
-      S.withConstructorDefault(Effect.succeed({})),
-      S.withDecodingDefaultKey(Effect.succeed({}))
-    ),
+    description: S.NullOr(S.String).pipe(SchemaUtils.withKeyDefaults(null)),
+    metadata: S.Record(S.String, S.Unknown).pipe(SchemaUtils.withKeyDefaults(R.empty())),
     name: S.String,
   },
   $I.annote("PhoenixDatasetInfoResult", {
@@ -542,20 +537,13 @@ export class PhoenixPromptChatMessage extends S.Class<PhoenixPromptChatMessage>(
 export class PhoenixPromptCreateInput extends S.Class<PhoenixPromptCreateInput>($I`PhoenixPromptCreateInput`)(
   {
     description: S.optionalKey(S.String),
-    metadata: S.Record(S.String, S.Unknown).pipe(
-      S.withConstructorDefault(Effect.succeed({})),
-      S.withDecodingDefaultKey(Effect.succeed({}))
-    ),
+    metadata: S.Record(S.String, S.Unknown).pipe(SchemaUtils.withKeyDefaults(R.empty())),
     modelName: S.String,
-    modelProvider: PhoenixPromptModelProvider.pipe(
-      S.withConstructorDefault(Effect.succeed(PhoenixPromptModelProvider.Enum.OPENAI)),
-      S.withDecodingDefaultKey(Effect.succeed(PhoenixPromptModelProvider.Enum.OPENAI))
-    ),
+    modelProvider: PhoenixPromptModelProvider.pipe(SchemaUtils.withKeyDefaults(PhoenixPromptModelProvider.Enum.OPENAI)),
     name: S.String,
     template: S.Array(PhoenixPromptChatMessage),
     templateFormat: PhoenixPromptTemplateFormat.pipe(
-      S.withConstructorDefault(Effect.succeed(PhoenixPromptTemplateFormat.Enum.MUSTACHE)),
-      S.withDecodingDefaultKey(Effect.succeed(PhoenixPromptTemplateFormat.Enum.MUSTACHE))
+      SchemaUtils.withKeyDefaults(PhoenixPromptTemplateFormat.Enum.MUSTACHE)
     ),
     versionDescription: S.optionalKey(S.String),
   },
@@ -662,15 +650,9 @@ export class PhoenixExperimentCreateInput extends S.Class<PhoenixExperimentCreat
     datasetId: S.String,
     datasetVersionId: S.optionalKey(S.String),
     experimentDescription: S.optionalKey(S.String),
-    experimentMetadata: S.Record(S.String, S.Unknown).pipe(
-      S.withConstructorDefault(Effect.succeed({})),
-      S.withDecodingDefaultKey(Effect.succeed({}))
-    ),
+    experimentMetadata: S.Record(S.String, S.Unknown).pipe(SchemaUtils.withKeyDefaults(R.empty())),
     experimentName: S.optionalKey(S.String),
-    repetitions: S.Number.pipe(
-      S.withConstructorDefault(Effect.succeed(1)),
-      S.withDecodingDefaultKey(Effect.succeed(1))
-    ),
+    repetitions: S.Number.pipe(SchemaUtils.withKeyDefaults(1)),
     splits: S.Array(S.String).pipe(S.optionalKey),
   },
   $I.annote("PhoenixExperimentCreateInput", {
@@ -708,15 +690,9 @@ export class PhoenixExperimentInfoResult extends S.Class<PhoenixExperimentInfoRe
     exampleCount: S.Number,
     experimentId: S.String,
     failedRunCount: S.Number,
-    metadata: S.Record(S.String, S.Unknown).pipe(
-      S.withConstructorDefault(Effect.succeed({})),
-      S.withDecodingDefaultKey(Effect.succeed({}))
-    ),
+    metadata: S.Record(S.String, S.Unknown).pipe(SchemaUtils.withKeyDefaults(R.empty())),
     missingRunCount: S.Number,
-    projectName: S.NullOr(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(null)),
-      S.withDecodingDefaultKey(Effect.succeed(null))
-    ),
+    projectName: S.NullOr(S.String).pipe(SchemaUtils.withKeyDefaults(null)),
     repetitions: S.Number,
     successfulRunCount: S.Number,
   },
@@ -746,23 +722,14 @@ export class PhoenixExperimentInfoResult extends S.Class<PhoenixExperimentInfoRe
  */
 export class PhoenixAnnotationInput extends S.Class<PhoenixAnnotationInput>($I`PhoenixAnnotationInput`)(
   {
-    annotatorKind: PhoenixAnnotatorKind.pipe(
-      S.withConstructorDefault(Effect.succeed(PhoenixAnnotatorKind.Enum.CODE)),
-      S.withDecodingDefaultKey(Effect.succeed(PhoenixAnnotatorKind.Enum.CODE))
-    ),
+    annotatorKind: PhoenixAnnotatorKind.pipe(SchemaUtils.withKeyDefaults(PhoenixAnnotatorKind.Enum.CODE)),
     explanation: S.optionalKey(S.String),
     identifier: S.optionalKey(S.String),
     label: S.optionalKey(S.String),
-    metadata: S.Record(S.String, S.Unknown).pipe(
-      S.withConstructorDefault(Effect.succeed({})),
-      S.withDecodingDefaultKey(Effect.succeed({}))
-    ),
+    metadata: S.Record(S.String, S.Unknown).pipe(SchemaUtils.withKeyDefaults(R.empty())),
     name: S.String,
     score: S.optionalKey(S.Number),
-    sync: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(true)),
-      S.withDecodingDefaultKey(Effect.succeed(true))
-    ),
+    sync: S.Boolean.pipe(SchemaUtils.withKeyDefaults(true)),
     targetId: S.String,
     targetKind: PhoenixAnnotationTargetKind,
   },

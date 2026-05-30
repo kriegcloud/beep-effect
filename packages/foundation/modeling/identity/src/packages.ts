@@ -107,7 +107,6 @@ const composers = $I.compose(
   "billing-use-cases",
   "billing-server",
   "sandbox",
-  "openai",
   "venice-ai",
   "xai",
   "acp",
@@ -970,22 +969,6 @@ export const $ScratchpadId: Identity.IdentityComposer<"@beep/scratchpad"> = comp
  * @category configuration
  */
 export const $SandboxId: Identity.IdentityComposer<"@beep/sandbox"> = composers.$SandboxId;
-
-/**
- * $openai id export.
- *
- * @since 0.0.0
- *
- * @example
- * ```ts
- * import { $OpenaiId } from "@beep/identity/packages"
- *
- * console.log($OpenaiId)
- * ```
- *
- * @category configuration
- */
-export const $OpenaiId: Identity.IdentityComposer<"@beep/openai"> = composers.$OpenaiId;
 
 /**
  * $venice ai id export.

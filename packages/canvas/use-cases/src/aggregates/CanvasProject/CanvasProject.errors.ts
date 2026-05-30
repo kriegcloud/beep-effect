@@ -9,6 +9,8 @@
 import * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
 import { $CanvasUseCasesId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { Match } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $CanvasUseCasesId.create("aggregates/CanvasProject/CanvasProject.errors");
@@ -65,7 +67,25 @@ export class CanvasProjectNotFound extends TaggedErrorClass<CanvasProjectNotFoun
     title: "CanvasProject not found",
     description: "The requested canvas CanvasProject does not exist.",
   })
-) {}
+) {
+  /**
+   * Create a new CanvasProjectNotFound error for the given project ID.
+   *
+   * @example
+   * ```ts
+   * import { CanvasProjectNotFound } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+   * import { CanvasProjectId } from "@beep/canvas-domain/aggregates/CanvasProject"
+   *
+   * const error = CanvasProjectNotFound.new(CanvasProjectId.make("project-123"))
+   * console.log(error._tag)
+   * ```
+   *
+   * @category errors
+   * @since 0.0.0
+   */
+  static readonly new = (canvasProjectId: DomainCanvasProject.CanvasProjectId): CanvasProjectNotFound =>
+    CanvasProjectNotFound.make({ canvasProjectId });
+}
 
 /**
  * Public failure raised when a command conflicts with persisted state.
@@ -90,7 +110,46 @@ export class CanvasProjectConflict extends TaggedErrorClass<CanvasProjectConflic
     title: "CanvasProject conflict",
     description: "The requested CanvasProject command conflicts with persisted state.",
   })
-) {}
+) {
+  /**
+   * Create a new CanvasProjectConflict error, optionally inheriting the project ID from an existing error.
+   *
+   * @example
+   * ```ts
+   * import { CanvasProjectConflict } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+   * import { CanvasProjectId } from "@beep/canvas-domain/aggregates/CanvasProject"
+   *
+   * const error = CanvasProjectConflict.new(CanvasProjectId.make("project-123"), "Duplicate name")
+   * const updated = CanvasProjectConflict.new("Updated reason")(error)
+   * console.log(updated.reason)
+   * ```
+   *
+   * @category errors
+   * @since 0.0.0
+   */
+  static readonly new: {
+    (errorOrId: CanvasProjectConflict | DomainCanvasProject.CanvasProjectId, reason: string): CanvasProjectConflict;
+    (reason: string): (errorOrId: CanvasProjectConflict | DomainCanvasProject.CanvasProjectId) => CanvasProjectConflict;
+  } = dual(
+    2,
+    (errorOrId: DomainCanvasProject.CanvasProjectId, reason: string): CanvasProjectConflict =>
+      Match.value(errorOrId).pipe(
+        Match.when(S.is(DomainCanvasProject.CanvasProjectId), (canvasProjectId) =>
+          CanvasProjectConflict.make({
+            canvasProjectId,
+            reason,
+          })
+        ),
+        Match.when(S.is(CanvasProjectConflict), (errorOrId) =>
+          CanvasProjectConflict.make({
+            canvasProjectId: errorOrId.canvasProjectId,
+            reason,
+          })
+        ),
+        Match.orElseAbsurd
+      )
+  );
+}
 
 /**
  * Public failure raised when the domain rejects a CanvasProject action.
@@ -183,4 +242,9 @@ export const CanvasProjectActionError = S.Union([
   CanvasProjectConflict,
   CanvasProjectActionRejected,
   CanvasProjectActionFailed,
-]);
+]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("CanvasProjectActionError", {
+    description: "Public CanvasProject use-case failure.",
+  })
+);

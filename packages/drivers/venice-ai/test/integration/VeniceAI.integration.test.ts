@@ -25,7 +25,7 @@ pipe(
         });
       }),
     onSome: (key) =>
-      describe.sequential("VeniceAI live integration", () => {
+      describe.concurrent("VeniceAI live integration", () => {
         layer(makeLiveLayer(key), { timeout: "30 seconds" })((it) => {
           it.effect(
             "lists models through the live Venice API",

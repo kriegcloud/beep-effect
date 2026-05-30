@@ -1,4 +1,9 @@
-import { makeOipWebStackArgsFromConfigValues, OipWebPulumiConfigValues } from "@beep/infra";
+import {
+  makeOipWebStackArgsFromConfigValues,
+  OipPulumiStateBackendConfig,
+  OipWebPulumiConfigValues,
+  OipWebStackArgs,
+} from "@beep/infra";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
@@ -78,6 +83,17 @@ describe("@beep/infra OipWeb", () => {
     expect(args.vercel.stagingBranch).toBe("develop");
     expect(args.vercel.teamId).toBe("team_123");
     expect(args.vercel.vercelAuthenticationDeploymentType).toBe("onlyPreviewDeployments");
+  });
+
+  it("derives lock table defaults from custom state bucket names", () => {
+    const state = OipPulumiStateBackendConfig.make({
+      bucketName: "custom-pulumi-state",
+      createDynamoDbLockTable: true,
+    });
+    const args = OipWebStackArgs.make({ state });
+
+    expect(state.lockTableName).toBe("custom-pulumi-state-locks");
+    expect(args.state.lockTableName).toBe("custom-pulumi-state-locks");
   });
 
   it("decodes optional Pulumi config shape", () => {

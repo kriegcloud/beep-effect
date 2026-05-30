@@ -93,7 +93,7 @@ const readBodies = (rows: DrizzleRows) =>
 if (!shouldRunPgliteIntegration) {
   describe.skip("Drizzle PgLite integration", () => {});
 } else {
-  describe.sequential("Drizzle PgLite integration", () => {
+  describe.concurrent("Drizzle PgLite integration", () => {
     layer(DrizzlePgliteLayer, { timeout: "2 minutes" })((it) => {
       it.effect(
         "runs execute and transaction flows against a PgLite-backed adapter",

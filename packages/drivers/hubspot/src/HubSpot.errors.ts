@@ -7,8 +7,9 @@
 
 import { $HubspotId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { O } from "@beep/utils";
-import { pipe, Result } from "effect";
+import { O, thunkUndefined } from "@beep/utils";
+import { Effect, flow, pipe, Result } from "effect";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
@@ -115,6 +116,38 @@ export class HubSpotError extends TaggedErrorClass<HubSpotError>($I`HubSpotError
         url: O.fromUndefinedOr(options.url),
       }),
     });
+
+  /**
+   * Create a failed Effect containing a HubSpot driver error.
+   *
+   * @example
+   * ```ts
+   * import { HubSpotError } from "@beep/hubspot"
+   *
+   * const effect = HubSpotError.failEffectFromReason("transport")
+   * console.log(effect)
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static readonly failEffectFromReason = flow(this.fromReason, Effect.fail);
+
+  /**
+   * Create a thunk returning a failed Effect containing a HubSpot driver error.
+   *
+   * @example
+   * ```ts
+   * import { HubSpotError } from "@beep/hubspot"
+   *
+   * const thunk = HubSpotError.failEffectFromReasonThunk("transport")
+   * console.log(thunk)
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static readonly failEffectFromReasonThunk = flow(this.failEffectFromReason, (effect) => () => effect);
 }
 
 /**
@@ -156,13 +189,15 @@ const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
   return O.fromUndefinedOr(
     Result.getOrElse(
       Result.try(() => Reflect.get(value, key)),
-      () => undefined
+      thunkUndefined
     )
   );
 };
 
-const readString = (value: unknown, key: PropertyKey): O.Option<string> =>
-  O.filter(readProperty(value, key), P.isString);
+const readString: {
+  (value: unknown, key: PropertyKey): O.Option<string>;
+  (key: PropertyKey): (value: unknown) => O.Option<string>;
+} = dual(2, (value: unknown, key: PropertyKey): O.Option<string> => O.filter(readProperty(value, key), P.isString));
 
 const safeBoolean = (evaluate: () => boolean): boolean => Result.getOrElse(Result.try(evaluate), () => false);
 
@@ -170,7 +205,7 @@ const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
   safeBoolean(() => HttpClientError.isHttpClientError(cause))
     ? pipe(
         readProperty(cause, "reason"),
-        O.flatMap((reason) => readString(reason, "_tag")),
+        O.flatMap(readString("_tag")),
         O.map((tag) => `HttpClientError:${tag}`)
       )
     : O.none();

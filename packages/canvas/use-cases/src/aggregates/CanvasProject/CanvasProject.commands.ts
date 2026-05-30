@@ -58,7 +58,7 @@ export class CreateCanvasProjectCommand extends S.Class<CreateCanvasProjectComma
  * const commandEffect = Effect.gen(function* () {
  *   const id = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId)("scene-1")
  *   const title = yield* S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectTitle)("Scene 1")
- *   const scene = DomainCanvasProject.CanvasProject.make({ id, title, status: "open", nodes: [] })
+ *   const scene = DomainCanvasProject.create(DomainCanvasProject.CreateCanvasProjectInput.make({ id, title }))
  *   return CanvasProject.RestoreCanvasProjectCommand.make({ scene })
  * })
  * ```

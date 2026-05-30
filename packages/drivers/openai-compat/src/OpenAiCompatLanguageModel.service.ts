@@ -21,6 +21,7 @@ import * as Response from "effect/unstable/ai/Response";
 import * as Tool from "effect/unstable/ai/Tool";
 import {
   OpenAiCompatAssistantChatMessage,
+  OpenAiCompatChatCompletionChunk,
   OpenAiCompatChatCompletionRequest,
   OpenAiCompatFunctionTool,
   OpenAiCompatJsonSchemaResponseFormat,
@@ -33,7 +34,6 @@ import {
 import { OpenAiCompatClient } from "./OpenAiCompatClient.service.ts";
 import type * as Prompt from "effect/unstable/ai/Prompt";
 import type {
-  OpenAiCompatChatCompletionChunk,
   OpenAiCompatChatCompletionResponse,
   OpenAiCompatChatMessage,
   OpenAiCompatResponseFormat,
@@ -161,29 +161,34 @@ export class OpenAiCompatLanguageModelClientOptions extends S.Class<OpenAiCompat
   })
 ) {}
 
-type ActiveToolCall = {
-  readonly arguments: string;
-  readonly id: string;
-  readonly name: string;
-};
+class ActiveToolCall extends S.Class<ActiveToolCall>($I`ActiveToolCall`)(
+  {
+    arguments: S.String,
+    id: S.String,
+    name: S.String,
+  },
+  $I.annote("ActiveToolCall", {
+    description: "A tool call that is currently active.",
+  })
+) {}
 
-type StreamState = {
-  readonly activeToolCalls: Readonly<Record<string, ActiveToolCall>>;
-  readonly finishReason: O.Option<string>;
-  readonly finished: boolean;
-  readonly textEnded: boolean;
-  readonly textStarted: boolean;
-  readonly usage: OpenAiCompatChatCompletionChunk["usage"];
-};
-
-const initialStreamState = (): StreamState => ({
-  activeToolCalls: {},
-  finishReason: O.none(),
-  finished: false,
-  textEnded: false,
-  textStarted: false,
-  usage: O.none(),
-});
+class StreamState extends S.Class<StreamState>($I`StreamState`)({
+  activeToolCalls: S.Record(S.String, ActiveToolCall),
+  finishReason: S.Option(S.String),
+  finished: S.Boolean,
+  textEnded: S.Boolean,
+  textStarted: S.Boolean,
+  usage: OpenAiCompatChatCompletionChunk.fields.usage,
+}) {
+  static readonly initial = (): StreamState => ({
+    activeToolCalls: {},
+    finishReason: O.none(),
+    finished: false,
+    textEnded: false,
+    textStarted: false,
+    usage: O.none(),
+  });
+}
 
 const makeAiError = (moduleName: string, method: string, reason: AiError.AiErrorReason): AiError.AiError =>
   AiError.make({ method, module: moduleName, reason });
@@ -405,13 +410,25 @@ const prepareMessage = (
   message: Prompt.Message
 ): Effect.Effect<ReadonlyArray<OpenAiCompatChatMessage>, AiError.AiError> => {
   if (message.role === "system") {
-    return Effect.succeed([OpenAiCompatSystemChatMessage.make({ content: message.content, role: "system" })]);
+    return Effect.succeed(
+      A.of(
+        OpenAiCompatSystemChatMessage.make({
+          content: message.content,
+          role: "system",
+        })
+      )
+    );
   }
   if (message.role === "user") {
     return pipe(
       message.content,
       Effect.forEach((part) => userContentPart(moduleName, part)),
-      Effect.map((content) => [OpenAiCompatUserChatMessage.make({ content, role: "user" })])
+      Effect.map((content) => [
+        OpenAiCompatUserChatMessage.make({
+          content,
+          role: "user",
+        }),
+      ])
     );
   }
   if (message.role === "assistant") {
@@ -444,7 +461,19 @@ const prepareMessages = (
     Effect.forEach((message) => prepareMessage(moduleName, toolNameMapper, message)),
     Effect.map(A.flatten),
     Effect.map((messages) =>
-      A.isReadonlyArrayNonEmpty(messages) ? messages : [OpenAiCompatUserChatMessage.make({ content: "", role: "user" })]
+      pipe(
+        messages,
+        A.match({
+          onEmpty: () =>
+            A.of(
+              OpenAiCompatUserChatMessage.make({
+                content: "",
+                role: "user",
+              })
+            ),
+          onNonEmpty: (messages) => messages,
+        })
+      )
     )
   );
 
@@ -641,9 +670,22 @@ const makeToolCallDeltaParts = (
   };
   const parts: ReadonlyArray<Response.StreamPartEncoded> = [
     ...(activeToolCall === undefined
-      ? [Response.makePart("tool-params-start", { id, name, providerExecuted: false })]
+      ? [
+          Response.makePart("tool-params-start", {
+            id,
+            name,
+            providerExecuted: false,
+          }),
+        ]
       : []),
-    ...(Str.isNonEmpty(argumentsDelta) ? [Response.makePart("tool-params-delta", { delta: argumentsDelta, id })] : []),
+    ...(Str.isNonEmpty(argumentsDelta)
+      ? [
+          Response.makePart("tool-params-delta", {
+            delta: argumentsDelta,
+            id,
+          }),
+        ]
+      : []),
   ];
   return Tuple.make(R.set(activeToolCalls, toolIndex, nextToolCall), parts);
 };
@@ -807,7 +849,17 @@ const makeStreamChoiceParts = Effect.fn("OpenAiCompatLanguageModel.makeStreamCho
       A.some((part) => part.type === "text-end")
     );
   const finished = state.finished || shouldFinish;
-  return Tuple.make({ activeToolCalls, finishReason, finished, textEnded, textStarted, usage }, allParts);
+  return Tuple.make(
+    {
+      activeToolCalls,
+      finishReason,
+      finished,
+      textEnded,
+      textStarted,
+      usage,
+    },
+    allParts
+  );
 });
 
 const makeStreamResponse = (
@@ -817,7 +869,7 @@ const makeStreamResponse = (
 ): Stream.Stream<Response.StreamPartEncoded, AiError.AiError> =>
   stream.pipe(
     Stream.mapAccumEffect(
-      initialStreamState,
+      StreamState.initial,
       (state, chunk) => makeStreamChoiceParts(moduleName, toolNameMapper, state, chunk),
       { onHalt: finishStreamParts }
     )
@@ -972,5 +1024,12 @@ export const model = (
   AiModel.make(
     "openai-compat",
     modelName,
-    layer(config === undefined ? { model: modelName } : { config, model: modelName })
+    layer(
+      config === undefined
+        ? { model: modelName }
+        : {
+            config,
+            model: modelName,
+          }
+    )
   );

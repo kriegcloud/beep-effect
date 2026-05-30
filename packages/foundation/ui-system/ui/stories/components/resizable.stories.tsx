@@ -38,7 +38,7 @@ const meta = {
   },
   args: {
     orientation: "horizontal",
-    className: "max-w-md rounded-lg border md:min-w-[450px]",
+    className: "h-[200px] max-w-md rounded-lg border md:min-w-[450px]",
   },
 } satisfies Meta<typeof ResizablePanelGroup>;
 
@@ -78,22 +78,27 @@ export const Default: Story = {
 export const Vertical: Story = {
   args: {
     orientation: "vertical",
-    className: "h-[400px] max-w-md rounded-lg border md:min-w-[450px]",
+    className: "max-w-md rounded-lg border md:min-w-[450px]",
   },
+  // react-resizable-panels forces an inline `height: 100%` on the group, so a height
+  // class on the group is ignored; for a vertical split the height must come from a
+  // sized parent or the flex-grow panels collapse to zero.
   render: (args) => (
-    <ResizablePanelGroup {...args}>
-      <ResizablePanel defaultSize="35%">
-        <div className="flex h-full items-center justify-center p-6">
-          <span className="font-semibold">Header</span>
-        </div>
-      </ResizablePanel>
-      <ResizableHandle orientation="vertical" />
-      <ResizablePanel defaultSize="65%">
-        <div className="flex h-full items-center justify-center p-6">
-          <span className="font-semibold">Body</span>
-        </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+    <div className="h-[400px]">
+      <ResizablePanelGroup {...args}>
+        <ResizablePanel defaultSize="35%">
+          <div className="flex h-full items-center justify-center p-6">
+            <span className="font-semibold">Header</span>
+          </div>
+        </ResizablePanel>
+        <ResizableHandle orientation="vertical" />
+        <ResizablePanel defaultSize="65%">
+          <div className="flex h-full items-center justify-center p-6">
+            <span className="font-semibold">Body</span>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </div>
   ),
 };
 
@@ -156,6 +161,9 @@ export const Collapsible: Story = {
 
 /** Nesting a vertical group inside a horizontal panel builds a three-pane editor shell. */
 export const NestedGroups: Story = {
+  args: {
+    className: "h-[260px] max-w-md rounded-lg border md:min-w-[450px]",
+  },
   render: (args) => (
     <ResizablePanelGroup {...args}>
       <ResizablePanel defaultSize="50%">

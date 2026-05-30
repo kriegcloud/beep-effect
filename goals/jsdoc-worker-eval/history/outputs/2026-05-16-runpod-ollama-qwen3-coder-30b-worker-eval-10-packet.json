@@ -82,23 +82,6 @@
     },
     "packets": [
       {
-        "packetId": "4fe87ff720b2c8ebd7caa6eeba29fa1c07afc86bb04d9a51b325e6127a2a3e6f:jsdoc-quality",
-        "subjectId": "@beep/openai:packages/drivers/openai/src/index.ts:const:VERSION:4fe87ff720b2",
-        "sourceAnchor": "packages/drivers/openai/src/index.ts:12",
-        "packageName": "@beep/openai",
-        "packagePath": "packages/drivers/openai",
-        "findingCodes": ["missing-description", "missing-example"],
-        "status": "completed",
-        "localScore": 8,
-        "rationale": "The JSDoc block addresses the missing description and adds a meaningful example. The example shows the VERSION constant being used in a practical context (logging to console) which demonstrates its purpose clearly. The example follows the policy requirements by using canonical aliases (S, A, O, P, R) and avoiding deprecated patterns like 'any' or type assertions. The example also avoids empty Effect.gen bodies and declare statements. The score reflects good improvement but could be slightly better with more specific documentation of the version's meaning.",
-        "draftJsDoc": "/**\n * The version of the OpenAI driver package.\n *\n * @example\n * ```ts\n * import { VERSION } from \"@beep/openai\"\n * import { console } from \"effect/Console\"\n * import { Effect } from \"effect/Effect\"\n *\n * Effect.runSync(console.log(VERSION)) // prints: 0.0.0\n * ```\n *\n * @category package-info\n * @since 0.0.0\n */",
-        "expectedVerificationCommand": "bun run beep docgen quality -p 'packages/drivers/openai' --json",
-        "policyViolationCodes": [],
-        "reviewDisposition": "candidate",
-        "durationMs": 66866,
-        "error": null
-      },
-      {
         "packetId": "6541f8407da97af2faf8ead36c71e0b22e7c9ee581ec78165866ec32f97b270e:jsdoc-quality",
         "subjectId": "@beep/nlp:packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:function:entity:6541f8407da9",
         "sourceAnchor": "packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:126",

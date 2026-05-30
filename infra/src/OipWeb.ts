@@ -6,14 +6,14 @@
  */
 
 import { $InfraId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, SchemaUtils } from "@beep/schema";
 import { A, Str, Struct } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as aws from "@pulumi/aws";
 import * as cloudflare from "@pulumi/cloudflare";
 import * as pulumi from "@pulumi/pulumi";
 import * as vercel from "@pulumiverse/vercel";
-import { Effect, pipe } from "effect";
+import { pipe } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $InfraId.create("OipWeb");
@@ -152,31 +152,41 @@ export const OipWebPulumiConfigValues = S.Class<OipWebPulumiConfigValues>($I`Oip
  */
 export class OipPulumiStateBackendConfig extends S.Class<OipPulumiStateBackendConfig>($I`OipPulumiStateBackendConfig`)(
   {
-    bucketName: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultPulumiStateBucketName)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultPulumiStateBucketName))
-    ),
-    createDynamoDbLockTable: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    lockTableName: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(`${defaultPulumiStateBucketName}-locks`)),
-      S.withDecodingDefaultKey(Effect.succeed(`${defaultPulumiStateBucketName}-locks`))
-    ),
-    protect: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(true)),
-      S.withDecodingDefaultKey(Effect.succeed(true))
-    ),
-    region: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultAwsRegion)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultAwsRegion))
-    ),
+    bucketName: S.String.pipe(SchemaUtils.withKeyDefaults(defaultPulumiStateBucketName)),
+    createDynamoDbLockTable: S.Boolean.pipe(SchemaUtils.withKeyDefaults(false)),
+    lockTableName: S.optionalKey(S.String),
+    protect: S.Boolean.pipe(SchemaUtils.withKeyDefaults(true)),
+    region: S.String.pipe(SchemaUtils.withKeyDefaults(defaultAwsRegion)),
   },
   $I.annote("OipPulumiStateBackendConfig", {
     description: "Pulumi DIY state backend settings for OIP.",
   })
-) {}
+) {
+  static override make(
+    input: void | {
+      readonly bucketName?: string | undefined;
+      readonly createDynamoDbLockTable?: boolean | undefined;
+      readonly lockTableName?: string | undefined;
+      readonly protect?: boolean | undefined;
+      readonly region?: string | undefined;
+    },
+    options?: S.MakeOptions
+  ): OipPulumiStateBackendConfig {
+    const normalizedInput = input ?? {};
+    return super.make(
+      O.getSomesStruct({
+        bucketName: O.fromUndefinedOr(normalizedInput.bucketName),
+        createDynamoDbLockTable: O.fromUndefinedOr(normalizedInput.createDynamoDbLockTable),
+        lockTableName: O.some(
+          normalizedInput.lockTableName ?? `${normalizedInput.bucketName ?? defaultPulumiStateBucketName}-locks`
+        ),
+        protect: O.fromUndefinedOr(normalizedInput.protect),
+        region: O.fromUndefinedOr(normalizedInput.region),
+      }),
+      options
+    );
+  }
+}
 
 /**
  * S3 asset bucket resources for OIP-controlled media.
@@ -193,18 +203,9 @@ export class OipPulumiStateBackendConfig extends S.Class<OipPulumiStateBackendCo
  */
 export class OipAssetsBucketConfig extends S.Class<OipAssetsBucketConfig>($I`OipAssetsBucketConfig`)(
   {
-    bucketName: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultAssetsBucketName)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultAssetsBucketName))
-    ),
-    protect: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(true)),
-      S.withDecodingDefaultKey(Effect.succeed(true))
-    ),
-    region: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultAwsRegion)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultAwsRegion))
-    ),
+    bucketName: S.String.pipe(SchemaUtils.withKeyDefaults(defaultAssetsBucketName)),
+    protect: S.Boolean.pipe(SchemaUtils.withKeyDefaults(true)),
+    region: S.String.pipe(SchemaUtils.withKeyDefaults(defaultAwsRegion)),
   },
   $I.annote("OipAssetsBucketConfig", {
     description: "S3 asset bucket resources for OIP-controlled media.",
@@ -226,51 +227,21 @@ export class OipAssetsBucketConfig extends S.Class<OipAssetsBucketConfig>($I`Oip
  */
 export class OipDnsConfig extends S.Class<OipDnsConfig>($I`OipDnsConfig`)(
   {
-    attachProductionDomains: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    attachStagingDomain: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(true)),
-      S.withDecodingDefaultKey(Effect.succeed(true))
-    ),
+    attachProductionDomains: S.Boolean.pipe(SchemaUtils.withKeyDefaults(false)),
+    attachStagingDomain: S.Boolean.pipe(SchemaUtils.withKeyDefaults(true)),
     cloudflareZoneId: S.optionalKey(S.String),
     legacyCloudflareZoneId: S.optionalKey(S.String),
     legacyProductionDnsRecordImportId: S.optionalKey(S.String),
-    legacyProductionDomain: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultLegacyProductionDomain)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultLegacyProductionDomain))
-    ),
-    legacyStagingDomain: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultLegacyStagingDomain)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultLegacyStagingDomain))
-    ),
+    legacyProductionDomain: S.String.pipe(SchemaUtils.withKeyDefaults(defaultLegacyProductionDomain)),
+    legacyStagingDomain: S.String.pipe(SchemaUtils.withKeyDefaults(defaultLegacyStagingDomain)),
     legacyWwwDnsRecordImportId: S.optionalKey(S.String),
-    legacyWwwDomain: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultLegacyWwwDomain)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultLegacyWwwDomain))
-    ),
+    legacyWwwDomain: S.String.pipe(SchemaUtils.withKeyDefaults(defaultLegacyWwwDomain)),
     productionDnsRecordImportId: S.optionalKey(S.String),
-    productionDomain: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultProductionDomain)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultProductionDomain))
-    ),
-    stagingDomain: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultStagingDomain)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultStagingDomain))
-    ),
-    vercelApexTarget: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultVercelApexTarget)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultVercelApexTarget))
-    ),
-    vercelCnameTarget: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultVercelCnameTarget)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultVercelCnameTarget))
-    ),
-    wwwDomain: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultWwwDomain)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultWwwDomain))
-    ),
+    productionDomain: S.String.pipe(SchemaUtils.withKeyDefaults(defaultProductionDomain)),
+    stagingDomain: S.String.pipe(SchemaUtils.withKeyDefaults(defaultStagingDomain)),
+    vercelApexTarget: S.String.pipe(SchemaUtils.withKeyDefaults(defaultVercelApexTarget)),
+    vercelCnameTarget: S.String.pipe(SchemaUtils.withKeyDefaults(defaultVercelCnameTarget)),
+    wwwDomain: S.String.pipe(SchemaUtils.withKeyDefaults(defaultWwwDomain)),
   },
   $I.annote("OipDnsConfig", {
     description: "DNS configuration for Cloudflare-managed OIP records.",
@@ -294,32 +265,16 @@ export class OipVercelProjectConfig extends S.Class<OipVercelProjectConfig>($I`O
   {
     hubSpotAccountId: S.optionalKey(S.String),
     hubSpotFormGuid: S.optionalKey(S.String),
-    projectName: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultProjectName)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultProjectName))
-    ),
-    productionBranch: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultProductionBranch)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultProductionBranch))
-    ),
-    repository: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultRepository)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultRepository))
-    ),
-    rootDirectory: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultRootDirectory)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultRootDirectory))
-    ),
+    projectName: S.String.pipe(SchemaUtils.withKeyDefaults(defaultProjectName)),
+    productionBranch: S.String.pipe(SchemaUtils.withKeyDefaults(defaultProductionBranch)),
+    repository: S.String.pipe(SchemaUtils.withKeyDefaults(defaultRepository)),
+    rootDirectory: S.String.pipe(SchemaUtils.withKeyDefaults(defaultRootDirectory)),
     sanityDataset: S.optionalKey(S.String),
     sanityProjectId: S.optionalKey(S.String),
-    stagingBranch: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultStagingBranch)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultStagingBranch))
-    ),
+    stagingBranch: S.String.pipe(SchemaUtils.withKeyDefaults(defaultStagingBranch)),
     teamId: S.optionalKey(S.String),
     vercelAuthenticationDeploymentType: VercelAuthenticationDeploymentType.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultVercelAuthenticationDeploymentType)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultVercelAuthenticationDeploymentType))
+      SchemaUtils.withKeyDefaults(defaultVercelAuthenticationDeploymentType)
     ),
   },
   $I.annote("OipVercelProjectConfig", {
@@ -366,22 +321,10 @@ export type OipWebRuntimeSecrets = {
  */
 export class OipWebStackArgs extends S.Class<OipWebStackArgs>($I`OipWebStackArgs`)(
   {
-    assets: OipAssetsBucketConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(OipAssetsBucketConfig.make({}))),
-      S.withDecodingDefaultKey(Effect.succeed(OipAssetsBucketConfig.make({})))
-    ),
-    dns: OipDnsConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(OipDnsConfig.make({}))),
-      S.withDecodingDefaultKey(Effect.succeed(OipDnsConfig.make({})))
-    ),
-    state: OipPulumiStateBackendConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(OipPulumiStateBackendConfig.make({}))),
-      S.withDecodingDefaultKey(Effect.succeed(OipPulumiStateBackendConfig.make({})))
-    ),
-    vercel: OipVercelProjectConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(OipVercelProjectConfig.make({}))),
-      S.withDecodingDefaultKey(Effect.succeed(OipVercelProjectConfig.make({})))
-    ),
+    assets: OipAssetsBucketConfig.pipe(SchemaUtils.withKeyDefaults(OipAssetsBucketConfig.make())),
+    dns: OipDnsConfig.pipe(SchemaUtils.withKeyDefaults(OipDnsConfig.make())),
+    state: OipPulumiStateBackendConfig.pipe(SchemaUtils.withKeyDefaults(OipPulumiStateBackendConfig.make())),
+    vercel: OipVercelProjectConfig.pipe(SchemaUtils.withKeyDefaults(OipVercelProjectConfig.make())),
   },
   $I.annote("OipWebStackArgs", {
     description: "Pulumi-facing args for the OIP web stack.",
@@ -441,53 +384,57 @@ export const makeOipWebStackArgsFromConfigValues = ({
   wwwDomain,
 }: OipWebPulumiConfigValues = {}): OipWebStackArgs =>
   OipWebStackArgs.make({
-    assets: OipAssetsBucketConfig.make({
-      ...O.getSomesStruct({ bucketName: O.fromUndefinedOr(assetsBucketName) }),
-      ...O.getSomesStruct({ region: O.fromUndefinedOr(awsRegion) }),
-    }),
-    dns: OipDnsConfig.make({
-      ...O.getSomesStruct({ attachProductionDomains: O.fromUndefinedOr(attachProductionDomains) }),
-      ...O.getSomesStruct({ attachStagingDomain: O.fromUndefinedOr(attachStagingDomain) }),
-      ...O.getSomesStruct({ cloudflareZoneId: O.fromUndefinedOr(cloudflareZoneId) }),
-      ...O.getSomesStruct({ legacyCloudflareZoneId: O.fromUndefinedOr(legacyCloudflareZoneId) }),
-      ...O.getSomesStruct({ legacyProductionDnsRecordImportId: O.fromUndefinedOr(legacyProductionDnsRecordImportId) }),
-      ...O.getSomesStruct({ legacyProductionDomain: O.fromUndefinedOr(legacyProductionDomain) }),
-      ...O.getSomesStruct({ legacyStagingDomain: O.fromUndefinedOr(legacyStagingDomain) }),
-      ...O.getSomesStruct({ legacyWwwDnsRecordImportId: O.fromUndefinedOr(legacyWwwDnsRecordImportId) }),
-      ...O.getSomesStruct({ legacyWwwDomain: O.fromUndefinedOr(legacyWwwDomain) }),
-      ...O.getSomesStruct({ productionDnsRecordImportId: O.fromUndefinedOr(productionDnsRecordImportId) }),
-      ...O.getSomesStruct({ productionDomain: O.fromUndefinedOr(productionDomain) }),
-      ...O.getSomesStruct({ stagingDomain: O.fromUndefinedOr(stagingDomain) }),
-      ...O.getSomesStruct({ vercelApexTarget: O.fromUndefinedOr(vercelApexTarget) }),
-      ...O.getSomesStruct({ vercelCnameTarget: O.fromUndefinedOr(vercelCnameTarget) }),
-      ...O.getSomesStruct({ wwwDomain: O.fromUndefinedOr(wwwDomain) }),
-    }),
-    state: OipPulumiStateBackendConfig.make({
-      ...O.getSomesStruct({ region: O.fromUndefinedOr(awsRegion) }),
-      ...O.getSomesStruct({ createDynamoDbLockTable: O.fromUndefinedOr(createDynamoDbLockTable) }),
-      ...O.getSomesStruct({ bucketName: O.fromUndefinedOr(pulumiStateBucketName) }),
-      ...O.getSomesStruct({
+    assets: OipAssetsBucketConfig.make(
+      O.getSomesStruct({
+        region: O.fromUndefinedOr(awsRegion),
+        bucketName: O.fromUndefinedOr(assetsBucketName),
+      })
+    ),
+    dns: OipDnsConfig.make(
+      O.getSomesStruct({
+        attachProductionDomains: O.fromUndefinedOr(attachProductionDomains),
+        attachStagingDomain: O.fromUndefinedOr(attachStagingDomain),
+        cloudflareZoneId: O.fromUndefinedOr(cloudflareZoneId),
+        legacyCloudflareZoneId: O.fromUndefinedOr(legacyCloudflareZoneId),
+        legacyProductionDnsRecordImportId: O.fromUndefinedOr(legacyProductionDnsRecordImportId),
+        legacyProductionDomain: O.fromUndefinedOr(legacyProductionDomain),
+        legacyStagingDomain: O.fromUndefinedOr(legacyStagingDomain),
+        legacyWwwDnsRecordImportId: O.fromUndefinedOr(legacyWwwDnsRecordImportId),
+        legacyWwwDomain: O.fromUndefinedOr(legacyWwwDomain),
+        productionDnsRecordImportId: O.fromUndefinedOr(productionDnsRecordImportId),
+        productionDomain: O.fromUndefinedOr(productionDomain),
+        stagingDomain: O.fromUndefinedOr(stagingDomain),
+        vercelApexTarget: O.fromUndefinedOr(vercelApexTarget),
+        vercelCnameTarget: O.fromUndefinedOr(vercelCnameTarget),
+        wwwDomain: O.fromUndefinedOr(wwwDomain),
+      })
+    ),
+    state: OipPulumiStateBackendConfig.make(
+      O.getSomesStruct({
+        region: O.fromUndefinedOr(awsRegion),
+        createDynamoDbLockTable: O.fromUndefinedOr(createDynamoDbLockTable),
+        bucketName: O.fromUndefinedOr(pulumiStateBucketName),
         lockTableName: O.map(
           O.fromUndefinedOr(pulumiStateBucketName),
           (pulumiStateBucketName) => `${pulumiStateBucketName}-locks`
         ),
-      }),
-    }),
-    vercel: OipVercelProjectConfig.make({
-      ...O.getSomesStruct({ hubSpotAccountId: O.fromUndefinedOr(hubSpotAccountId) }),
-      ...O.getSomesStruct({ hubSpotFormGuid: O.fromUndefinedOr(hubSpotFormGuid) }),
-      ...O.getSomesStruct({ projectName: O.fromUndefinedOr(projectName) }),
-      ...O.getSomesStruct({ productionBranch: O.fromUndefinedOr(productionBranch) }),
-      ...O.getSomesStruct({ repository: O.fromUndefinedOr(repository) }),
-      ...O.getSomesStruct({ rootDirectory: O.fromUndefinedOr(rootDirectory) }),
-      ...O.getSomesStruct({ sanityDataset: O.fromUndefinedOr(sanityDataset) }),
-      ...O.getSomesStruct({ sanityProjectId: O.fromUndefinedOr(sanityProjectId) }),
-      ...O.getSomesStruct({ stagingBranch: O.fromUndefinedOr(stagingBranch) }),
-      ...O.getSomesStruct({
+      })
+    ),
+    vercel: OipVercelProjectConfig.make(
+      O.getSomesStruct({
+        hubSpotAccountId: O.fromUndefinedOr(hubSpotAccountId),
+        hubSpotFormGuid: O.fromUndefinedOr(hubSpotFormGuid),
+        projectName: O.fromUndefinedOr(projectName),
+        productionBranch: O.fromUndefinedOr(productionBranch),
+        repository: O.fromUndefinedOr(repository),
+        rootDirectory: O.fromUndefinedOr(rootDirectory),
+        sanityDataset: O.fromUndefinedOr(sanityDataset),
+        sanityProjectId: O.fromUndefinedOr(sanityProjectId),
+        stagingBranch: O.fromUndefinedOr(stagingBranch),
         vercelAuthenticationDeploymentType: O.fromUndefinedOr(vercelAuthenticationDeploymentType),
-      }),
-      ...O.getSomesStruct({ teamId: O.fromUndefinedOr(vercelTeamId) }),
-    }),
+        teamId: O.fromUndefinedOr(vercelTeamId),
+      })
+    ),
   });
 
 /**

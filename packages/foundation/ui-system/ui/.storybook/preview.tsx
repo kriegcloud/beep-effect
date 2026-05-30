@@ -1,3 +1,12 @@
+// Polyfill the `process` global for the Storybook dev server. Stories that import
+// `next/link` reference the bare `process` global at eval time, which Vite's browser
+// runtime does not define (the vitest test runner does, so test:storybook passes
+// while the dev server throws `ReferenceError: process is not defined`). This preview
+// config module body evaluates before any story module is loaded, so the shim is in
+// place in time. (The ES imports below are hoisted and run before this line, which is
+// fine: none of them reference `process` at eval time. `??=` never clobbers a real one.)
+globalThis.process ??= { env: { NODE_ENV: "development" } } as never;
+
 import { AppThemeProvider, ThemeMode, useThemeMode } from "@beep/ui/themes";
 import { DecoratorHelpers } from "@storybook/addon-themes";
 import * as React from "react";

@@ -40,8 +40,8 @@ function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
  * @category components
  * @since 0.0.0
  */
-function KbdGroup({ className, ...props }: React.ComponentProps<"div">) {
-  return <kbd data-slot="kbd-group" className={cn("gap-1 inline-flex items-center", className)} {...props} />;
+function KbdGroup({ className, ...props }: React.ComponentProps<"span">) {
+  return <span data-slot="kbd-group" className={cn("gap-1 inline-flex items-center", className)} {...props} />;
 }
 
 /**

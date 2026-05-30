@@ -42,7 +42,7 @@ const makePgliteLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTes
 if (!shouldRunPgliteIntegration) {
   describe.skip("db-admin architecture-lab migration PgLite integration", () => {});
 } else {
-  describe.sequential("db-admin architecture-lab migration PgLite integration", () => {
+  describe.concurrent("db-admin architecture-lab migration PgLite integration", () => {
     layer(makePgliteLayer(), { timeout: "2 minutes" })((it) => {
       it.effect(
         "runs the architecture-lab migration target SQL",

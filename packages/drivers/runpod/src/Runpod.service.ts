@@ -8,6 +8,7 @@
 import { $RunpodId } from "@beep/identity";
 import { A, Str } from "@beep/utils";
 import { Config, Context, Effect, Layer, Match, pipe, Result } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -309,14 +310,20 @@ const decodeRequest = Effect.fnUntraced(function* <Request>(
   );
 });
 
-const queryEntry = (request: unknown, key: string): O.Option<readonly [string, string | ReadonlyArray<string>]> =>
-  pipe(
-    readProperty(request, key),
-    O.flatMap(decodeQueryValueOption),
-    O.map(queryValueToStrings),
-    O.filter(A.isReadonlyArrayNonEmpty),
-    O.map((values) => [key, A.length(values) === 1 ? values[0] : values] as const)
-  );
+const queryEntry: {
+  (request: unknown, key: string): O.Option<readonly [string, string | ReadonlyArray<string>]>;
+  (key: string): (request: unknown) => O.Option<readonly [string, string | ReadonlyArray<string>]>;
+} = dual(
+  2,
+  (request: unknown, key: string): O.Option<readonly [string, string | ReadonlyArray<string>]> =>
+    pipe(
+      readProperty(request, key),
+      O.flatMap(decodeQueryValueOption),
+      O.map(queryValueToStrings),
+      O.filter(A.isReadonlyArrayNonEmpty),
+      O.map((values) => [key, A.length(values) === 1 ? values[0] : values] as const)
+    )
+);
 
 const requestQuery = (descriptor: G.RunpodOperationDescriptor, request: unknown): RunpodUrlParams =>
   pipe(
@@ -329,7 +336,7 @@ const requestQuery = (descriptor: G.RunpodOperationDescriptor, request: unknown)
 const selectToken = Effect.fnUntraced(function* (
   config: ResolvedRunpodConfig,
   descriptor: G.RunpodOperationDescriptor
-): Effect.fn.Return<O.Option<Redacted.Redacted<string>>, RunpodError> {
+): Effect.fn.Return<O.Option<Redacted.Redacted>, RunpodError> {
   if (!descriptor.authenticated) {
     return O.none();
   }
@@ -356,7 +363,7 @@ const addHeaders = (
   request: HttpClientRequest.HttpClientRequest,
   config: ResolvedRunpodConfig,
   descriptor: G.RunpodOperationDescriptor,
-  token: O.Option<Redacted.Redacted<string>>,
+  token: O.Option<Redacted.Redacted>,
   headers: Readonly<Record<string, string>> = {}
 ): HttpClientRequest.HttpClientRequest =>
   pipe(
@@ -627,7 +634,7 @@ const addRawBody = Effect.fnUntraced(function* (
 const rawToken = Effect.fnUntraced(function* (
   config: ResolvedRunpodConfig,
   request: RunpodRawRequest
-): Effect.fn.Return<O.Option<Redacted.Redacted<string>>, RunpodError> {
+): Effect.fn.Return<O.Option<Redacted.Redacted>, RunpodError> {
   if (request.authenticated === false) {
     return O.none();
   }

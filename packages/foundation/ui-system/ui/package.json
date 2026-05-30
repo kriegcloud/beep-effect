@@ -1,14 +1,15 @@
 {
   "name": "@beep/ui",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Shared UI component library with shadcn, Tailwind v4 theme, and Storybook",
   "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "bun run beep:build",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "storybook": "portless storybook.beep sh -c 'storybook dev -p \"${PORT:-6006}\"'",
+    "storybook:build": "storybook build",
+    "storybook:start": "portless storybook.beep sh -c 'vite preview --host 0.0.0.0 --port \"${PORT:-6006}\" --outDir storybook-static'",
     "check": "bun run beep:check",
     "test": "bun run beep:test",
     "coverage": "bunx --bun vitest run --coverage",

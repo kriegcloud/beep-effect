@@ -223,7 +223,7 @@ function TourOverlay({
 
         for (const element of elements) {
           const rect = element.getBoundingClientRect();
-          if (rect.width === 0 && rect.height === 0) return;
+          if (rect.width === 0 && rect.height === 0) continue;
 
           const style = window.getComputedStyle(element);
           const radius = Number(style.borderRadius) || 4;

@@ -104,7 +104,6 @@
     "@beep/konva",
     "@beep/shared-client",
     "@beep/canvas-client",
-    "@beep/openai",
     "@beep/canvas-ui",
     "@beep/shared-ui"
   ],
@@ -852,16 +851,6 @@
     "@beep/canvas-client": {
       "path": "packages/canvas/client",
       "sanitized": "beep__canvas-client",
-      "canImportUtils": true,
-      "discovery": "done",
-      "remediation": "done",
-      "categoriesWithFindings": [],
-      "needsHumanDecision": 0,
-      "triageWeight": "clean"
-    },
-    "@beep/openai": {
-      "path": "packages/drivers/openai",
-      "sanitized": "beep__openai",
       "canImportUtils": true,
       "discovery": "done",
       "remediation": "done",
