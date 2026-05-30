@@ -142,7 +142,7 @@ const mapHttpClientError: {
   (method: string): (error: HttpClientError.HttpClientError) => Effect.Effect<never, AiError.AiError>;
 } = dual(
   2,
-  (method: string, error: HttpClientError.HttpClientError): Effect.Effect<never, AiError.AiError> =>
+  (error: HttpClientError.HttpClientError, method: string): Effect.Effect<never, AiError.AiError> =>
     Match.value(error.reason).pipe(
       Match.tags({
         StatusCodeError: (reason) => mapStatusError(method, reason),

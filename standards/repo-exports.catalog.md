@@ -132,7 +132,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/hubspot` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
 | `@beep/hubspot` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
 | `@beep/hubspot` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:143` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:171` | Options used when constructing HubSpot driver errors. |
 | `@beep/hubspot` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
 | `@beep/hubspot` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
 | `@beep/hubspot` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
@@ -147,7 +147,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/hubspot/HubSpot.config` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
 | `@beep/hubspot/HubSpot.config` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
 | `@beep/hubspot/HubSpot.errors` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:143` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot/HubSpot.errors` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:171` | Options used when constructing HubSpot driver errors. |
 | `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
 | `@beep/hubspot/HubSpot.errors` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
 | `@beep/hubspot/HubSpot.service` | `HubSpot` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:464` | Effect service for HubSpot Forms API submissions. |
@@ -164,7 +164,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/hubspot/index` | `HUBSPOT_FORMS_API_URL` | const | `packages/drivers/hubspot/src/HubSpot.config.ts:26` | Default HubSpot Forms API base URL. |
 | `@beep/hubspot/index` | `HubSpotConfigInput` | class | `packages/drivers/hubspot/src/HubSpot.config.ts:61` | Runtime configuration accepted by {@link HubSpot.makeLayer}. |
 | `@beep/hubspot/index` | `HubSpotError` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:80` | Technical failure raised by the HubSpot driver boundary. |
-| `@beep/hubspot/index` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:143` | Options used when constructing HubSpot driver errors. |
+| `@beep/hubspot/index` | `HubSpotErrorOptions` | class | `packages/drivers/hubspot/src/HubSpot.errors.ts:171` | Options used when constructing HubSpot driver errors. |
 | `@beep/hubspot/index` | `HubSpotErrorReason` | const | `packages/drivers/hubspot/src/HubSpot.errors.ts:34` | Technical error reasons emitted by the HubSpot driver. |
 | `@beep/hubspot/index` | `HubSpotErrorReason` | type | `packages/drivers/hubspot/src/HubSpot.errors.ts:60` | Type for {@link HubSpotErrorReason}. |
 | `@beep/hubspot/index` | `HubSpotFormContext` | class | `packages/drivers/hubspot/src/HubSpot.service.ts:69` | HubSpot form submission context. |
@@ -2675,13 +2675,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectServer` | class | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts:48` | CanvasProject server facade service. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectServerLayer` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts:66` | Config-dependent CanvasProject server layer. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `CanvasProjectToolNames` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts:24` | CanvasProject tool names exposed by the canvas bootstrap proof. |
-| `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectHttpHandlers` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:141` | Build HTTP-style CanvasProject handlers from the public use-case facade. |
+| `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectHttpHandlers` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:151` | Build HTTP-style CanvasProject handlers from the public use-case facade. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectRepository` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.repo.ts:97` | Build the default CanvasProject repository for normal slice tests. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectRpcHandlers` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.rpc.ts:27` | Build RPC-style CanvasProject handlers from the public use-case facade. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectServer` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts:30` | Build the CanvasProject server facade. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `makeCanvasProjectToolHandlers` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts:50` | Build tool-style CanvasProject handlers from the public use-case facade. |
 | `@beep/canvas-server/aggregates/CanvasProject` | `makeInMemoryCanvasProjectRepository` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.repo.ts:46` | Build the in-memory CanvasProject repository used by the fast canvas proof. |
-| `@beep/canvas-server/aggregates/CanvasProject` | `toCanvasProjectHttpError` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:111` | Convert a public CanvasProject failure to an HTTP response envelope. |
+| `@beep/canvas-server/aggregates/CanvasProject` | `toCanvasProjectHttpError` | const | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts:126` | Convert a public CanvasProject failure to an HTTP response envelope. |
 | `@beep/canvas-server/layer` | `CanvasProjectServer` | class | `packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts:48` | CanvasProject server facade service. |
 | `@beep/canvas-server/layer` | `CanvasServerLive` | const | `packages/canvas/server/src/Layer.ts:39` | Live canvas server layer. |
 | `@beep/canvas-server/test` | `CanvasServerTest` | const | `packages/canvas/server/src/test.ts:24` | Test canvas server layer. |
@@ -4024,11 +4024,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `ArchiveCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:97` | Archive CanvasProject command. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:31` | Generic public reason used when internal CanvasProject repository details are redacted. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CANVAS_PROJECT_CONFLICT_REASON` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:46` | Generic public reason used when internal CanvasProject conflict details are redacted. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectActionError` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:209` | Public CanvasProject use-case failure schema. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectActionError` | type | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:190` | Public CanvasProject use-case failure. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectActionFailed` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:163` | Public failure raised when an action cannot be completed. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectActionRejected` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:136` | Public failure raised when the domain rejects a CanvasProject action. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectConflict` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:88` | Public failure raised when a command conflicts with persisted state. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectActionError` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:240` | Public CanvasProject use-case failure schema. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectActionError` | type | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:221` | Public CanvasProject use-case failure. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectActionFailed` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:194` | Public failure raised when an action cannot be completed. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectActionRejected` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:167` | Public failure raised when the domain rejects a CanvasProject action. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectConflict` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:103` | Public failure raised when a command conflicts with persisted state. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectNotFound` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:61` | Public failure raised when a requested CanvasProject is absent. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectUseCases` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts:78` | Public CanvasProject use-case service. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject` | `CanvasProjectUseCasesShape` | interface | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.use-cases.ts:41` | Public CanvasProject use-case contract. |
@@ -4041,11 +4041,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `ArchiveCanvasProjectCommand` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts:97` | Archive CanvasProject command. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:31` | Generic public reason used when internal CanvasProject repository details are redacted. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CANVAS_PROJECT_CONFLICT_REASON` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:46` | Generic public reason used when internal CanvasProject conflict details are redacted. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectActionError` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:209` | Public CanvasProject use-case failure schema. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectActionError` | type | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:190` | Public CanvasProject use-case failure. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectActionFailed` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:163` | Public failure raised when an action cannot be completed. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectActionRejected` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:136` | Public failure raised when the domain rejects a CanvasProject action. |
-| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectConflict` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:88` | Public failure raised when a command conflicts with persisted state. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectActionError` | const | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:240` | Public CanvasProject use-case failure schema. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectActionError` | type | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:221` | Public CanvasProject use-case failure. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectActionFailed` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:194` | Public failure raised when an action cannot be completed. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectActionRejected` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:167` | Public failure raised when the domain rejects a CanvasProject action. |
+| `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectConflict` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:103` | Public failure raised when a command conflicts with persisted state. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectNotFound` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.errors.ts:61` | Public failure raised when a requested CanvasProject is absent. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectRepository` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts:179` | CanvasProject repository service. |
 | `@beep/canvas-use-cases/aggregates/CanvasProject/server` | `CanvasProjectRepositoryConflict` | class | `packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts:57` | Persistence failure raised when a CanvasProject write conflicts. |
@@ -6842,11 +6842,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/openai-compat` | `decodeChatCompletionChunk` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:1003` | Decodes an unknown value into an OpenAI-compatible chat completion stream chunk. |
 | `@beep/openai-compat` | `decodeChatCompletionResponse` | const | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:985` | Decodes an unknown value into an OpenAI-compatible chat completion response. |
-| `@beep/openai-compat` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:993` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:942` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
-| `@beep/openai-compat` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:961` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
-| `@beep/openai-compat` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:894` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
-| `@beep/openai-compat` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:1013` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
+| `@beep/openai-compat` | `layer` | const | `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:1000` | Builds a language-model layer backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat` | `layerFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:949` | Builds a layer for an OpenAI-compatible language model from provider callbacks. |
+| `@beep/openai-compat` | `make` | const | `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:968` | Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}. |
+| `@beep/openai-compat` | `makeFromProvider` | const | `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:901` | Builds an Effect AI language-model service from OpenAI-compatible provider callbacks. |
+| `@beep/openai-compat` | `model` | const | `packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts:1020` | Builds an Effect AI model value for a generic OpenAI-compatible provider. |
 | `@beep/openai-compat` | `OpenAiCompatAssistantChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:372` | Assistant chat message accepted by OpenAI-compatible chat completion endpoints. |
 | `@beep/openai-compat` | `OpenAiCompatAssistantDelta` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:766` | Delta message returned by OpenAI-compatible chat completion streams. |
 | `@beep/openai-compat` | `OpenAiCompatAssistantMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:730` | Assistant message returned by OpenAI-compatible chat completion endpoints. |
@@ -7031,8 +7031,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/acp/agent` | `AcpAgent` | class | `packages/drivers/acp/src/AcpAgent.service.ts:234` | Context service tag for an ACP agent. |
 | `@beep/acp/agent` | `AcpAgentOptions` | interface | `packages/drivers/acp/src/AcpAgent.service.ts:45` | Options for constructing an ACP agent service. |
 | `@beep/acp/agent` | `AcpAgentShape` | interface | `packages/drivers/acp/src/AcpAgent.service.ts:63` | Service shape implemented by the ACP agent driver. |
-| `@beep/acp/agent` | `layer` | const | `packages/drivers/acp/src/AcpAgent.service.ts:608` | Constructs a layer for an ACP agent over the provided transport. |
-| `@beep/acp/agent` | `layerStdio` | const | `packages/drivers/acp/src/AcpAgent.service.ts:624` | Constructs a layer that reads its transport from the `Stdio` service. |
+| `@beep/acp/agent` | `layer` | const | `packages/drivers/acp/src/AcpAgent.service.ts:611` | Constructs a layer for an ACP agent over the provided transport. |
+| `@beep/acp/agent` | `layerStdio` | const | `packages/drivers/acp/src/AcpAgent.service.ts:627` | Constructs a layer that reads its transport from the `Stdio` service. |
 | `@beep/acp/agent` | `make` | const | `packages/drivers/acp/src/AcpAgent.service.ts:286` | Constructs an ACP agent from an Effect `Stdio` transport. |
 | `@beep/acp/client` | `AcpClient` | class | `packages/drivers/acp/src/AcpClient.service.ts:303` | Context service tag for an ACP client. |
 | `@beep/acp/client` | `AcpClientOptions` | interface | `packages/drivers/acp/src/AcpClient.service.ts:49` | Options for constructing an ACP client service. |
@@ -8025,24 +8025,24 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
 | `@beep/infra` | `AIMetricsPulumiConfigValues` | const | `infra/src/AIMetrics.ts:233` | Raw optional Pulumi config values before target-aware defaults are applied. |
-| `@beep/infra` | `AIMetricsRemoteDeploymentConfig` | class | `infra/src/AIMetrics.ts:293` | Remote deployment inputs for the dankserver AI metrics Phoenix backend. |
+| `@beep/infra` | `AIMetricsRemoteDeploymentConfig` | class | `infra/src/AIMetrics.ts:290` | Remote deployment inputs for the dankserver AI metrics Phoenix backend. |
 | `@beep/infra` | `AIMetricsRemoteSshConfig` | class | `infra/src/AIMetrics.ts:266` | SSH connection inputs for native Pulumi command resources. |
-| `@beep/infra` | `AIMetricsStack` | class | `infra/src/AIMetrics.ts:465` | Import-safe Pulumi component for the AI metrics target contract. |
-| `@beep/infra` | `AIMetricsStackArgs` | class | `infra/src/AIMetrics.ts:321` | Pulumi-facing args for the AI metrics component. |
+| `@beep/infra` | `AIMetricsStack` | class | `infra/src/AIMetrics.ts:462` | Import-safe Pulumi component for the AI metrics target contract. |
+| `@beep/infra` | `AIMetricsStackArgs` | class | `infra/src/AIMetrics.ts:318` | Pulumi-facing args for the AI metrics component. |
 | `@beep/infra` | `infraProjectName` | const | `infra/src/index.ts:28` | Canonical project name for this repository's infrastructure workspace. |
-| `@beep/infra` | `loadAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:430` | Load AI metrics args from Pulumi config. |
-| `@beep/infra` | `loadOipWebRuntimeSecrets` | const | `infra/src/OipWeb.ts:499` | Load OIP web runtime secrets from Pulumi secret config. |
-| `@beep/infra` | `loadOipWebStackArgs` | const | `infra/src/OipWeb.ts:445` | Load OIP web stack args from Pulumi config. |
-| `@beep/infra` | `makeAIMetricsStackArgsFromConfigValues` | const | `infra/src/AIMetrics.ts:369` | Build AI metrics stack args from decoded Pulumi config values. |
-| `@beep/infra` | `makeOipWebStackArgsFromConfigValues` | const | `infra/src/OipWeb.ts:344` | Build OIP web stack args from decoded Pulumi config values. |
-| `@beep/infra` | `OipAssetsBucketConfig` | class | `infra/src/OipWeb.ts:194` | S3 asset bucket resources for OIP-controlled media. |
-| `@beep/infra` | `OipDnsConfig` | class | `infra/src/OipWeb.ts:218` | DNS configuration for Cloudflare-managed OIP records. |
+| `@beep/infra` | `loadAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:427` | Load AI metrics args from Pulumi config. |
+| `@beep/infra` | `loadOipWebRuntimeSecrets` | const | `infra/src/OipWeb.ts:509` | Load OIP web runtime secrets from Pulumi secret config. |
+| `@beep/infra` | `loadOipWebStackArgs` | const | `infra/src/OipWeb.ts:455` | Load OIP web stack args from Pulumi config. |
+| `@beep/infra` | `makeAIMetricsStackArgsFromConfigValues` | const | `infra/src/AIMetrics.ts:366` | Build AI metrics stack args from decoded Pulumi config values. |
+| `@beep/infra` | `makeOipWebStackArgsFromConfigValues` | const | `infra/src/OipWeb.ts:354` | Build OIP web stack args from decoded Pulumi config values. |
+| `@beep/infra` | `OipAssetsBucketConfig` | class | `infra/src/OipWeb.ts:204` | S3 asset bucket resources for OIP-controlled media. |
+| `@beep/infra` | `OipDnsConfig` | class | `infra/src/OipWeb.ts:228` | DNS configuration for Cloudflare-managed OIP records. |
 | `@beep/infra` | `OipPulumiStateBackendConfig` | class | `infra/src/OipWeb.ts:153` | Pulumi DIY state backend settings for OIP. |
-| `@beep/infra` | `OipVercelProjectConfig` | class | `infra/src/OipWeb.ts:254` | Vercel project configuration for `@beep/oip-web`. |
+| `@beep/infra` | `OipVercelProjectConfig` | class | `infra/src/OipWeb.ts:264` | Vercel project configuration for `@beep/oip-web`. |
 | `@beep/infra` | `OipWebPulumiConfigValues` | const | `infra/src/OipWeb.ts:102` | Optional Pulumi config values before OIP deploy defaults are applied. |
-| `@beep/infra` | `OipWebRuntimeSecrets` | type | `infra/src/OipWeb.ts:294` | Secret runtime values for OIP deploy targets. |
-| `@beep/infra` | `OipWebStack` | class | `infra/src/OipWeb.ts:671` | Import-safe Pulumi component for OIP production web infrastructure. |
-| `@beep/infra` | `OipWebStackArgs` | class | `infra/src/OipWeb.ts:312` | Pulumi-facing args for the OIP web stack. |
+| `@beep/infra` | `OipWebRuntimeSecrets` | type | `infra/src/OipWeb.ts:304` | Secret runtime values for OIP deploy targets. |
+| `@beep/infra` | `OipWebStack` | class | `infra/src/OipWeb.ts:681` | Import-safe Pulumi component for OIP production web infrastructure. |
+| `@beep/infra` | `OipWebStackArgs` | class | `infra/src/OipWeb.ts:322` | Pulumi-facing args for the OIP web stack. |
 
 ### @beep/installer-use-cases
 

@@ -13,7 +13,7 @@ import * as aws from "@pulumi/aws";
 import * as cloudflare from "@pulumi/cloudflare";
 import * as pulumi from "@pulumi/pulumi";
 import * as vercel from "@pulumiverse/vercel";
-import { Effect, pipe } from "effect";
+import { pipe } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $InfraId.create("OipWeb");
@@ -152,31 +152,41 @@ export const OipWebPulumiConfigValues = S.Class<OipWebPulumiConfigValues>($I`Oip
  */
 export class OipPulumiStateBackendConfig extends S.Class<OipPulumiStateBackendConfig>($I`OipPulumiStateBackendConfig`)(
   {
-    bucketName: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultPulumiStateBucketName)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultPulumiStateBucketName))
-    ),
-    createDynamoDbLockTable: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefaultKey(Effect.succeed(false))
-    ),
-    lockTableName: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(`${defaultPulumiStateBucketName}-locks`)),
-      S.withDecodingDefaultKey(Effect.succeed(`${defaultPulumiStateBucketName}-locks`))
-    ),
-    protect: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(true)),
-      S.withDecodingDefaultKey(Effect.succeed(true))
-    ),
-    region: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultAwsRegion)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultAwsRegion))
-    ),
+    bucketName: S.String.pipe(SchemaUtils.withKeyDefaults(defaultPulumiStateBucketName)),
+    createDynamoDbLockTable: S.Boolean.pipe(SchemaUtils.withKeyDefaults(false)),
+    lockTableName: S.optionalKey(S.String),
+    protect: S.Boolean.pipe(SchemaUtils.withKeyDefaults(true)),
+    region: S.String.pipe(SchemaUtils.withKeyDefaults(defaultAwsRegion)),
   },
   $I.annote("OipPulumiStateBackendConfig", {
     description: "Pulumi DIY state backend settings for OIP.",
   })
-) {}
+) {
+  static override make(
+    input: void | {
+      readonly bucketName?: string | undefined;
+      readonly createDynamoDbLockTable?: boolean | undefined;
+      readonly lockTableName?: string | undefined;
+      readonly protect?: boolean | undefined;
+      readonly region?: string | undefined;
+    },
+    options?: S.MakeOptions
+  ): OipPulumiStateBackendConfig {
+    const normalizedInput = input ?? {};
+    return super.make(
+      O.getSomesStruct({
+        bucketName: O.fromUndefinedOr(normalizedInput.bucketName),
+        createDynamoDbLockTable: O.fromUndefinedOr(normalizedInput.createDynamoDbLockTable),
+        lockTableName: O.some(
+          normalizedInput.lockTableName ?? `${normalizedInput.bucketName ?? defaultPulumiStateBucketName}-locks`
+        ),
+        protect: O.fromUndefinedOr(normalizedInput.protect),
+        region: O.fromUndefinedOr(normalizedInput.region),
+      }),
+      options
+    );
+  }
+}
 
 /**
  * S3 asset bucket resources for OIP-controlled media.

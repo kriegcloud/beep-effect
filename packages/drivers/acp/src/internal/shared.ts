@@ -1,4 +1,3 @@
-import { P } from "@beep/utils";
 import { Effect, SchemaIssue } from "effect";
 import * as S from "effect/Schema";
 import * as AcpSchema from "../_generated/schema.gen.ts";
@@ -43,7 +42,7 @@ interface DecodeExtNotificationRegistrationOptions<A, I> {
 }
 
 export const runHandler = Effect.fnUntraced(function* <A, B>({ handler, method, payload }: RunHandlerOptions<A, B>) {
-  if (P.isUndefined(handler)) {
+  if (handler === undefined) {
     return yield* Effect.fail(AcpError.AcpRequestError.methodNotFound(method).toProtocolError());
   }
   return yield* handler(payload).pipe(

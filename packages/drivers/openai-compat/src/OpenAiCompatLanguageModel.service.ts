@@ -410,12 +410,14 @@ const prepareMessage = (
   message: Prompt.Message
 ): Effect.Effect<ReadonlyArray<OpenAiCompatChatMessage>, AiError.AiError> => {
   if (message.role === "system") {
-    return Effect.succeed([
-      OpenAiCompatSystemChatMessage.make({
-        content: message.content,
-        role: "system",
-      }),
-    ]);
+    return Effect.succeed(
+      A.of(
+        OpenAiCompatSystemChatMessage.make({
+          content: message.content,
+          role: "system",
+        })
+      )
+    );
   }
   if (message.role === "user") {
     return pipe(
@@ -459,14 +461,19 @@ const prepareMessages = (
     Effect.forEach((message) => prepareMessage(moduleName, toolNameMapper, message)),
     Effect.map(A.flatten),
     Effect.map((messages) =>
-      A.isReadonlyArrayNonEmpty(messages)
-        ? messages
-        : [
-            OpenAiCompatUserChatMessage.make({
-              content: "",
-              role: "user",
-            }),
-          ]
+      pipe(
+        messages,
+        A.match({
+          onEmpty: () =>
+            A.of(
+              OpenAiCompatUserChatMessage.make({
+                content: "",
+                role: "user",
+              })
+            ),
+          onNonEmpty: (messages) => messages,
+        })
+      )
     )
   );
 

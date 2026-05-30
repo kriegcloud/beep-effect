@@ -338,8 +338,11 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
         ExtNotification: (value) => {
           if (value.method === AGENT_METHODS.session_cancel) {
             return decodeCancelNotification(value.params).pipe(
-              Effect.mapError(
-                AcpError.AcpProtocolParseError.new(`Invalid ${AGENT_METHODS.session_cancel} notification payload`)
+              Effect.mapError((error) =>
+                AcpError.AcpProtocolParseError.new(
+                  error,
+                  `Invalid ${AGENT_METHODS.session_cancel} notification payload`
+                )
               ),
               Effect.flatMap((decoded) =>
                 Effect.forEach(cancelHandlers, (handler) => handler(decoded), {

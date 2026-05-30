@@ -68,6 +68,21 @@ export class CanvasProjectNotFound extends TaggedErrorClass<CanvasProjectNotFoun
     description: "The requested canvas CanvasProject does not exist.",
   })
 ) {
+  /**
+   * Create a new CanvasProjectNotFound error for the given project ID.
+   *
+   * @example
+   * ```ts
+   * import { CanvasProjectNotFound } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+   * import { CanvasProjectId } from "@beep/canvas-domain/aggregates/CanvasProject"
+   *
+   * const error = CanvasProjectNotFound.new(CanvasProjectId.make("project-123"))
+   * console.log(error._tag)
+   * ```
+   *
+   * @category errors
+   * @since 0.0.0
+   */
   static readonly new = (canvasProjectId: DomainCanvasProject.CanvasProjectId): CanvasProjectNotFound =>
     CanvasProjectNotFound.make({ canvasProjectId });
 }
@@ -96,6 +111,22 @@ export class CanvasProjectConflict extends TaggedErrorClass<CanvasProjectConflic
     description: "The requested CanvasProject command conflicts with persisted state.",
   })
 ) {
+  /**
+   * Create a new CanvasProjectConflict error, optionally inheriting the project ID from an existing error.
+   *
+   * @example
+   * ```ts
+   * import { CanvasProjectConflict } from "@beep/canvas-use-cases/aggregates/CanvasProject"
+   * import { CanvasProjectId } from "@beep/canvas-domain/aggregates/CanvasProject"
+   *
+   * const error = CanvasProjectConflict.new(CanvasProjectId.make("project-123"), "Duplicate name")
+   * const updated = CanvasProjectConflict.new("Updated reason")(error)
+   * console.log(updated.reason)
+   * ```
+   *
+   * @category errors
+   * @since 0.0.0
+   */
   static readonly new: {
     (errorOrId: CanvasProjectConflict | DomainCanvasProject.CanvasProjectId, reason: string): CanvasProjectConflict;
     (reason: string): (errorOrId: CanvasProjectConflict | DomainCanvasProject.CanvasProjectId) => CanvasProjectConflict;

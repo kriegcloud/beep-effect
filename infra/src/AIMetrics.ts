@@ -267,10 +267,7 @@ export class AIMetricsRemoteSshConfig extends S.Class<AIMetricsRemoteSshConfig>(
   {
     agentSocketPath: S.optionalKey(S.String),
     host: S.String.pipe(SchemaUtils.withKeyDefaults(defaultSshHost)),
-    user: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultSshUser)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultSshUser))
-    ),
+    user: S.String.pipe(SchemaUtils.withKeyDefaults(defaultSshUser)),
   },
   $I.annote("AIMetricsRemoteSshConfig", {
     description: "Pulumi SSH connection inputs for deploying the AI metrics Phoenix backend with the local SSH agent.",

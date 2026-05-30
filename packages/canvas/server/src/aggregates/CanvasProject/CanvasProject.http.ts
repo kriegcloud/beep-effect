@@ -76,6 +76,21 @@ export class CanvasProjectHttpResponse extends S.Class<CanvasProjectHttpResponse
     description: "Minimal protocol response envelope used by the canvas bootstrap proof.",
   })
 ) {
+  /**
+   * Construct a CanvasProject HTTP response envelope.
+   *
+   * @example
+   * ```ts
+   * import { CanvasProject } from "@beep/canvas-server"
+   *
+   * const response = CanvasProject.CanvasProjectHttpResponse.new({ ok: true }, 200)
+   * const curried = CanvasProject.CanvasProjectHttpResponse.new(201)({ id: "abc" })
+   * console.log(response.status, curried.status)
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
   static readonly new: {
     (body: unknown, status: CanvasProjectHttpStatus): CanvasProjectHttpResponse;
     (status: CanvasProjectHttpStatus): (body: unknown) => CanvasProjectHttpResponse;
@@ -116,11 +131,6 @@ export const toCanvasProjectHttpError = Match.type<CanvasProjectUseCases.CanvasP
   }),
   Match.orElse(() => CanvasProjectHttpResponse.new(CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON, 503))
 );
-
-const toSuccess =
-  (status: 200 | 201) =>
-  (body: unknown): CanvasProjectHttpResponse =>
-    CanvasProjectHttpResponse.make({ status, body });
 
 /**
  * Build HTTP-style CanvasProject handlers from the public use-case facade.
@@ -185,7 +195,7 @@ export const makeCanvasProjectHttpHandlers = (useCases: CanvasProjectUseCases.Ca
     useCases.restore,
     Effect.match({
       onFailure: toCanvasProjectHttpError,
-      onSuccess: toSuccess(200),
+      onSuccess: CanvasProjectHttpResponse.new(200),
     })
   ),
 });
