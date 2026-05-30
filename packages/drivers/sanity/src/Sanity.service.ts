@@ -8,6 +8,7 @@
 import { $SanityId } from "@beep/identity";
 import { Str } from "@beep/utils";
 import { Config, Context, Effect, Layer, pipe, Redacted } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -207,19 +208,26 @@ const projectScopedApiHost = (config: ResolvedSanityConfig): string => {
   return config.apiHost;
 };
 
-const addHeaders = (
-  request: HttpClientRequest.HttpClientRequest,
-  config: ResolvedSanityConfig
-): HttpClientRequest.HttpClientRequest =>
-  pipe(request, HttpClientRequest.accept("application/json"), HttpClientRequest.setHeaders(config.headers), (current) =>
+const addHeaders: {
+  (request: HttpClientRequest.HttpClientRequest, config: ResolvedSanityConfig): HttpClientRequest.HttpClientRequest;
+  (config: ResolvedSanityConfig): (request: HttpClientRequest.HttpClientRequest) => HttpClientRequest.HttpClientRequest;
+} = dual(
+  2,
+  (request: HttpClientRequest.HttpClientRequest, config: ResolvedSanityConfig): HttpClientRequest.HttpClientRequest =>
     pipe(
-      config.apiToken,
-      O.match({
-        onNone: () => current,
-        onSome: (token: RedactedType.Redacted<string>) => HttpClientRequest.bearerToken(current, token),
-      })
+      request,
+      HttpClientRequest.accept("application/json"),
+      HttpClientRequest.setHeaders(config.headers),
+      (current) =>
+        pipe(
+          config.apiToken,
+          O.match({
+            onNone: () => current,
+            onSome: (token: RedactedType.Redacted) => HttpClientRequest.bearerToken(current, token),
+          })
+        )
     )
-  );
+);
 
 const makeRequest = Effect.fn("Sanity.makeRequest")(function* (
   config: ResolvedSanityConfig,
@@ -233,7 +241,7 @@ const makeRequest = Effect.fn("Sanity.makeRequest")(function* (
 
   return yield* pipe(
     HttpClientRequest.post(url),
-    (base) => addHeaders(base, config),
+    addHeaders(config),
     (base) =>
       HttpClientRequest.bodyJson(base, {
         query: decoded.query,

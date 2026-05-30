@@ -7,6 +7,7 @@
 
 import { $AcpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -101,6 +102,18 @@ export class AcpProtocolParseError extends TaggedErrorClass<AcpProtocolParseErro
   override get message() {
     return `Failed to parse ACP protocol message: ${this.detail}`;
   }
+
+  static readonly new: {
+    (cause: unknown, detail: string): AcpProtocolParseError;
+    (detail: string): (cause: unknown) => AcpProtocolParseError;
+  } = dual(
+    2,
+    (cause: unknown, detail: string): AcpProtocolParseError =>
+      AcpProtocolParseError.make({
+        cause,
+        detail,
+      })
+  );
 }
 
 /**

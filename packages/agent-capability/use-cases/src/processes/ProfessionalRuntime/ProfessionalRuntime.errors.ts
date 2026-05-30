@@ -7,6 +7,7 @@
 
 import { $AgentCapabilityUseCasesId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { Effect, flow } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $AgentCapabilityUseCasesId.create("processes/ProfessionalRuntime/ProfessionalRuntime.errors");
@@ -34,4 +35,14 @@ export class ProfessionalRuntimeValidationError extends TaggedErrorClass<Profess
   $I.annote("ProfessionalRuntimeValidationError", {
     description: "Raised when runtime request or proposal data violates SDK validation rules.",
   })
-) {}
+) {
+  static readonly new = (message: string) => ProfessionalRuntimeValidationError.make({ message });
+
+  static readonly failEffect = flow(this.new, Effect.fail);
+
+  static readonly throwError = flow(this.new, (e) => {
+    throw e;
+  });
+
+  static readonly failEffectThunk = flow(this.failEffect, (effect) => () => effect);
+}

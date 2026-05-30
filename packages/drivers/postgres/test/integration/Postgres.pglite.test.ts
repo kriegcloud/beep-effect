@@ -86,7 +86,7 @@ const bodiesWithRatings = (rows: ReadonlyArray<{ readonly body: string; readonly
 if (!shouldRunPgliteIntegration) {
   describe.skip("Postgres PgLite integration", () => {});
 } else {
-  describe.sequential("Postgres PgLite integration", () => {
+  describe.concurrent("Postgres PgLite integration", () => {
     layer(makePostgresClientLayer(), { timeout: "2 minutes" })((it) => {
       it.effect(
         "provides PostgresClient over the PgLite PgClient",

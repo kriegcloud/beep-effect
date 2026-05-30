@@ -16,7 +16,6 @@ import type {
 import type { Effect } from "effect";
 
 declare const fixture: RuntimeFixtureInput;
-declare const outputSet: CandidateOutputSet;
 declare const query: GetContextPacket;
 declare const command: ProposeCandidateOutputSet;
 
@@ -25,16 +24,14 @@ describe("@beep/agent-capability-use-cases", () => {
     expect(
       RuntimeScope.make({ organizationId: "org", threadId: "thread", workspaceId: "workspace" })
     ).type.toBe<RuntimeScope>();
-    expect(S.decodeUnknownEffect(CandidateOutputSet)({})).type.toBe<
-      Effect.Effect<CandidateOutputSet, S.SchemaError, never>
-    >();
+    expect(S.decodeUnknownEffect(CandidateOutputSet)({})).type.toBe<Effect.Effect<CandidateOutputSet, S.SchemaError>>();
     expect(GetContextPacket.make(query)).type.toBe<GetContextPacket>();
     expect(ProposeCandidateOutputSet.make(command)).type.toBe<ProposeCandidateOutputSet>();
   });
 
   it("preserves fixture runner types", () => {
     expect(runRuntimeFixture(fixture)).type.toBe<
-      Effect.Effect<CandidateOutputSet, ProfessionalRuntimeValidationError, never>
+      Effect.Effect<CandidateOutputSet, ProfessionalRuntimeValidationError>
     >();
   });
 
@@ -43,10 +40,10 @@ describe("@beep/agent-capability-use-cases", () => {
 
     expect(sdk).type.toBe<ProfessionalRuntimeSdk>();
     expect(sdk.getContextPacket(query)).type.toBe<
-      Effect.Effect<SdkContextPacket, ProfessionalRuntimeValidationError, never>
+      Effect.Effect<SdkContextPacket, ProfessionalRuntimeValidationError>
     >();
     expect(sdk.proposeCandidateOutputSet(command)).type.toBe<
-      Effect.Effect<CandidateOutputSet, ProfessionalRuntimeValidationError, never>
+      Effect.Effect<CandidateOutputSet, ProfessionalRuntimeValidationError>
     >();
   });
 });

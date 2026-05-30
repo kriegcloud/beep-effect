@@ -76,7 +76,7 @@ Runpod strategy:
 - Provision duration: 1699 ms
 - Cleanup duration: 1332 ms
 
-The selected packets covered `@beep/openai`, `@beep/nlp`, `@beep/identity`,
+The selected packets covered `@beep/nlp`, `@beep/identity`,
 and `@beep/schema`.
 
 ## Interpretation

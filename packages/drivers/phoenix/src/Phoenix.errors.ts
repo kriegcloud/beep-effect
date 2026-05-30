@@ -7,6 +7,7 @@
 
 import { $PhoenixId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { thunkUndefined } from "@beep/utils";
 import { Result } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -180,7 +181,7 @@ const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
   return O.fromUndefinedOr(
     Result.getOrElse(
       Result.try(() => Reflect.get(value, key)),
-      () => undefined
+      thunkUndefined
     )
   );
 };

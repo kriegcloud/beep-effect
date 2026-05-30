@@ -5,8 +5,10 @@
  * @since 0.0.0
  */
 
+import { $AgentCapabilityUseCasesId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 
+const $I = $AgentCapabilityUseCasesId.create("processes/ProfessionalRuntime/ProfessionalRuntime.values");
 /**
  * Candidate lifecycle vocabulary used by runtime output sections.
  *
@@ -20,7 +22,11 @@ import { LiteralKit } from "@beep/schema";
  * @category models
  * @since 0.0.0
  */
-export const RuntimeCandidateLifecycle = LiteralKit(["candidate"]);
+export const RuntimeCandidateLifecycle = LiteralKit(["candidate"]).annotate(
+  $I.annote("RuntimeCandidateLifecycle", {
+    description: "Candidate lifecycle vocabulary used by runtime output sections.",
+  })
+);
 
 /**
  * Confidence vocabulary for candidate claims.
@@ -35,7 +41,11 @@ export const RuntimeCandidateLifecycle = LiteralKit(["candidate"]);
  * @category models
  * @since 0.0.0
  */
-export const RuntimeClaimConfidence = LiteralKit(["high", "medium", "low"]);
+export const RuntimeClaimConfidence = LiteralKit(["high", "medium", "low"]).annotate(
+  $I.annote("RuntimeClaimConfidence", {
+    description: "Confidence vocabulary for candidate claims.",
+  })
+);
 
 /**
  * Approval decision vocabulary for candidate approval gates.
@@ -50,7 +60,11 @@ export const RuntimeClaimConfidence = LiteralKit(["high", "medium", "low"]);
  * @category models
  * @since 0.0.0
  */
-export const RuntimeApprovalDecision = LiteralKit(["pending"]);
+export const RuntimeApprovalDecision = LiteralKit(["pending"]).annotate(
+  $I.annote("RuntimeApprovalDecision", {
+    description: "Approval decision vocabulary for candidate approval gates.",
+  })
+);
 
 /**
  * Runtime request kinds represented in context packets.
@@ -65,7 +79,11 @@ export const RuntimeApprovalDecision = LiteralKit(["pending"]);
  * @category models
  * @since 0.0.0
  */
-export const RuntimeRequestKind = LiteralKit(["email_to_candidate_work"]);
+export const RuntimeRequestKind = LiteralKit(["email_to_candidate_work"]).annotate(
+  $I.annote("RuntimeRequestKind", {
+    description: "Runtime request kinds represented in context packets.",
+  })
+);
 
 /**
  * Source artifact kinds represented in context packets.
@@ -80,7 +98,11 @@ export const RuntimeRequestKind = LiteralKit(["email_to_candidate_work"]);
  * @category models
  * @since 0.0.0
  */
-export const RuntimeSourceKind = LiteralKit(["email"]);
+export const RuntimeSourceKind = LiteralKit(["email"]).annotate(
+  $I.annote("RuntimeSourceKind", {
+    description: "Source artifact kinds represented in context packets.",
+  })
+);
 
 /**
  * Activity types emitted by deterministic runtime fixtures.
@@ -95,7 +117,11 @@ export const RuntimeSourceKind = LiteralKit(["email"]);
  * @category models
  * @since 0.0.0
  */
-export const RuntimeActivityType = LiteralKit(["artifact_ingested", "candidate_work_proposed"]);
+export const RuntimeActivityType = LiteralKit(["artifact_ingested", "candidate_work_proposed"]).annotate(
+  $I.annote("RuntimeActivityType", {
+    description: "Activity types emitted by deterministic runtime fixtures.",
+  })
+);
 
 /**
  * Usage modes emitted by deterministic runtime fixtures.
@@ -110,4 +136,8 @@ export const RuntimeActivityType = LiteralKit(["artifact_ingested", "candidate_w
  * @category models
  * @since 0.0.0
  */
-export const RuntimeUsageMode = LiteralKit(["deterministic_fixture"]);
+export const RuntimeUsageMode = LiteralKit(["deterministic_fixture"]).annotate(
+  $I.annote("RuntimeUsageMode", {
+    description: "Usage modes emitted by deterministic runtime fixtures.",
+  })
+);

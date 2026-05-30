@@ -326,9 +326,11 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
   const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
     stdio,
     serverRequestMethods: HashSet.fromIterable(AcpRpcs.AgentRpcs.requests.keys()),
-    ...O.getSomesStruct({ logIncoming: O.fromUndefinedOr(options.logIncoming) }),
-    ...O.getSomesStruct({ logOutgoing: O.fromUndefinedOr(options.logOutgoing) }),
-    ...O.getSomesStruct({ logger: O.fromUndefinedOr(options.logger) }),
+    ...O.getSomesStruct({
+      logger: O.fromUndefinedOr(options.logger),
+      logIncoming: O.fromUndefinedOr(options.logIncoming),
+      logOutgoing: O.fromUndefinedOr(options.logOutgoing),
+    }),
     onNotification: (notification) =>
       AcpProtocol.AcpIncomingNotification.match(notification, {
         SessionUpdate: thunkEffectVoid,
@@ -337,10 +339,10 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
           if (value.method === AGENT_METHODS.session_cancel) {
             return decodeCancelNotification(value.params).pipe(
               Effect.mapError((error) =>
-                AcpError.AcpProtocolParseError.make({
-                  detail: `Invalid ${AGENT_METHODS.session_cancel} notification payload`,
-                  cause: error,
-                })
+                AcpError.AcpProtocolParseError.new(
+                  error,
+                  `Invalid ${AGENT_METHODS.session_cancel} notification payload`
+                )
               ),
               Effect.flatMap((decoded) =>
                 Effect.forEach(cancelHandlers, (handler) => handler(decoded), {

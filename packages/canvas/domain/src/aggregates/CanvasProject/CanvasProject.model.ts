@@ -7,7 +7,7 @@
  */
 
 import { $CanvasDomainId } from "@beep/identity/packages";
-import { Effect, pipe } from "effect";
+import { Effect, pipe, Tuple } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -53,6 +53,32 @@ export class CanvasNode extends S.Class<CanvasNode>($I`CanvasNode`)(
   })
 ) {}
 
+class OpenCanvasProject extends S.Class<OpenCanvasProject>($I`OpenCanvasProject`)(
+  {
+    id: CanvasProjectId,
+    title: CanvasProjectTitle,
+    status: S.tag("open"),
+    nodes: S.Array(CanvasNode),
+  },
+  $I.annote("OpenCanvasProject", {
+    title: "Open CanvasProject",
+    description: "Mutable scene container aggregate for the bootstrap canvas slice.",
+  })
+) {}
+
+class ArchivedCanvasProject extends S.Class<ArchivedCanvasProject>($I`ArchivedCanvasProject`)(
+  {
+    id: CanvasProjectId,
+    title: CanvasProjectTitle,
+    status: S.tag("archived"),
+    nodes: S.Array(CanvasNode),
+  },
+  $I.annote("ArchivedCanvasProject", {
+    title: "Archived CanvasProject",
+    description: "Archived scene container aggregate for the bootstrap canvas slice.",
+  })
+) {}
+
 /**
  * CanvasProject aggregate.
  *
@@ -66,18 +92,26 @@ export class CanvasNode extends S.Class<CanvasNode>($I`CanvasNode`)(
  * @category aggregates
  * @since 0.0.0
  */
-export class CanvasProject extends S.Class<CanvasProject>($I`CanvasProject`)(
-  {
-    id: CanvasProjectId,
-    title: CanvasProjectTitle,
-    status: CanvasProjectStatus,
-    nodes: S.Array(CanvasNode),
-  },
-  $I.annote("CanvasProject", {
+export const CanvasProject = CanvasProjectStatus.mapMembers(
+  Tuple.evolve([() => OpenCanvasProject, () => ArchivedCanvasProject])
+).pipe(
+  S.toTaggedUnion("status"),
+  $I.annoteSchema("CanvasProject", {
     title: "CanvasProject",
     description: "Scene container aggregate for the bootstrap canvas slice.",
   })
-) {}
+);
+
+/**
+ * CanvasProject aggregate type.
+ *
+ * @category aggregates
+ * @since 0.0.0
+ */
+export type CanvasProject = typeof CanvasProject.Type;
+
+const makeCanvasProject = (canvasProject: CanvasProject): CanvasProject =>
+  canvasProject.status === "open" ? OpenCanvasProject.make(canvasProject) : ArchivedCanvasProject.make(canvasProject);
 
 /**
  * CanvasProject creation input.
@@ -122,11 +156,11 @@ export class CreateCanvasProjectInput extends S.Class<CreateCanvasProjectInput>(
  * @since 0.0.0
  */
 export const create = (input: CreateCanvasProjectInput): CanvasProject =>
-  CanvasProject.make({
+  OpenCanvasProject.make({
     id: input.id,
     title: input.title,
     status: "open",
-    nodes: O.getOrElse(input.nodes, () => []),
+    nodes: O.getOrElse(input.nodes, A.empty<CanvasNode>),
   });
 
 const requireMutable = (canvasProject: CanvasProject): Effect.Effect<void, CanvasProjectAlreadyArchived> =>
@@ -164,8 +198,9 @@ export const addNode = Effect.fn("CanvasProject.addNode")(function* (
       canvasNodeId: canvasNode.id,
     });
   }
-  return CanvasProject.make({
+  return OpenCanvasProject.make({
     ...canvasProject,
+    status: "open",
     nodes: A.append(canvasProject.nodes, canvasNode),
   });
 });
@@ -194,8 +229,9 @@ export const removeNode = Effect.fn("CanvasProject.removeNode")(function* (
       canvasNodeId,
     });
   }
-  return CanvasProject.make({
+  return OpenCanvasProject.make({
     ...canvasProject,
+    status: "open",
     nodes: A.filter(canvasProject.nodes, (node) => node.id !== canvasNodeId),
   });
 });
@@ -215,7 +251,7 @@ export const removeNode = Effect.fn("CanvasProject.removeNode")(function* (
  */
 export const archive = Effect.fn("CanvasProject.archive")(function* (canvasProject: CanvasProject) {
   yield* requireMutable(canvasProject);
-  return CanvasProject.make({
+  return ArchivedCanvasProject.make({
     ...canvasProject,
     status: "archived",
   });
@@ -242,7 +278,7 @@ export const reopen = Effect.fn("CanvasProject.reopen")(function* (canvasProject
       to: "open",
     });
   }
-  return CanvasProject.make({
+  return makeCanvasProject({
     ...canvasProject,
     status: "open",
   });

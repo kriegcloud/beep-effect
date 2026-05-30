@@ -3,6 +3,7 @@ import { CanvasProject } from "@beep/canvas-use-cases/public";
 import * as CanvasProjectServer from "@beep/canvas-use-cases/server";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const decodeCanvasProjectId = S.decodeUnknownEffect(DomainCanvasProject.CanvasProjectId);
@@ -176,18 +177,19 @@ describe("CanvasProject use-cases", () => {
       const canvasProjectId = yield* decodeCanvasProjectId("canvas-project-1");
       const canvasNodeId = yield* decodeCanvasNodeId("restored-node");
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(makeRepository(canvasProjectId));
-      const restoredScene = DomainCanvasProject.CanvasProject.make({
-        id: canvasProjectId,
-        nodes: [
-          DomainCanvasProject.CanvasNode.make({
-            id: canvasNodeId,
-            kind: "asset",
-            label: "Restored node",
-          }),
-        ],
-        status: "open",
-        title: "Restored scene",
-      });
+      const restoredScene = DomainCanvasProject.create(
+        DomainCanvasProject.CreateCanvasProjectInput.make({
+          id: canvasProjectId,
+          nodes: O.some([
+            DomainCanvasProject.CanvasNode.make({
+              id: canvasNodeId,
+              kind: "asset",
+              label: "Restored node",
+            }),
+          ]),
+          title: "Restored scene",
+        })
+      );
 
       const restored = yield* useCases.restore(
         CanvasProject.RestoreCanvasProjectCommand.make({ scene: restoredScene })
@@ -207,12 +209,12 @@ describe("CanvasProject use-cases", () => {
       const useCases = CanvasProjectServer.CanvasProject.makeCanvasProjectUseCases(
         makeRepository(existingCanvasProjectId)
       );
-      const importedScene = DomainCanvasProject.CanvasProject.make({
-        id: importedCanvasProjectId,
-        nodes: [],
-        status: "open",
-        title: "Imported scene",
-      });
+      const importedScene = DomainCanvasProject.create(
+        DomainCanvasProject.CreateCanvasProjectInput.make({
+          id: importedCanvasProjectId,
+          title: "Imported scene",
+        })
+      );
 
       const imported = yield* useCases.restore(
         CanvasProject.RestoreCanvasProjectCommand.make({ scene: importedScene })

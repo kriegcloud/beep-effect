@@ -7,21 +7,6 @@
  */
 
 /**
- * Package version for the canvas server role.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/canvas-server"
- *
- * console.log(VERSION)
- * ```
- *
- * @category handlers
- * @since 0.0.0
- */
-export const VERSION = "0.0.1" as const;
-
-/**
  * Direct CanvasProject server namespace export.
  *
  * @category handlers

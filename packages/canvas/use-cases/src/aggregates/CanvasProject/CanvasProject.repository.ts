@@ -108,10 +108,24 @@ export class CanvasProjectRepositoryUnavailable extends TaggedErrorClass<CanvasP
  * @category repositories
  * @since 0.0.0
  */
-export type CanvasProjectRepositoryError =
-  | CanvasProjectRepositoryNotFound
-  | CanvasProjectRepositoryConflict
-  | CanvasProjectRepositoryUnavailable;
+export const CanvasProjectRepositoryError = S.Union([
+  CanvasProjectRepositoryNotFound,
+  CanvasProjectRepositoryConflict,
+  CanvasProjectRepositoryUnavailable,
+]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("CanvasProjectRepositoryError", {
+    description: "CanvasProject repository failure.",
+  })
+);
+
+/**
+ * CanvasProject repository failure type.
+ *
+ * @category repositories
+ * @since 0.0.0
+ */
+export type CanvasProjectRepositoryError = typeof CanvasProjectRepositoryError.Type;
 
 /**
  * CanvasProject repository contract.

@@ -34,12 +34,9 @@ describe("CanvasProject server", () => {
       });
 
       const response = yield* handlers.get(CanvasProjectUseCases.GetCanvasProjectQuery.make({ id }));
-      const body = response.body as CanvasProjectUseCases.CanvasProjectActionFailed;
 
       expect(response.status).toBe(503);
-      expect(body._tag).toBe("CanvasProjectActionFailed");
-      expect(body.reason).toBe(CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON);
-      expect(body.reason).not.toContain("canvas_project");
+      expect(response.body).toBe(CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON);
     })
   );
 

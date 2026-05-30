@@ -16,29 +16,49 @@ import { ProfessionalRuntimeValidationError } from "./ProfessionalRuntime.errors
 
 const $I = $AgentCapabilityUseCasesId.create("processes/ProfessionalRuntime/ProfessionalRuntime.fixtures");
 
-class RuntimeFixtureEmailInput extends S.Class<RuntimeFixtureEmailInput>($I`RuntimeFixtureEmailInput`)({
-  artifactId: S.String,
-  scenarioId: S.String,
-  sourceSpans: S.Array(S.String),
-  subject: S.String,
-  threadId: S.String,
-}) {}
+class RuntimeFixtureEmailInput extends S.Class<RuntimeFixtureEmailInput>($I`RuntimeFixtureEmailInput`)(
+  {
+    artifactId: S.String,
+    scenarioId: S.String,
+    sourceSpans: S.Array(S.String),
+    subject: S.String,
+    threadId: S.String,
+  },
+  $I.annote("RuntimeFixtureEmailInput", {
+    description: "Email artifact metadata and declared source spans for a deterministic runtime fixture.",
+  })
+) {}
 
 class RuntimeFixtureOrganizationInput extends S.Class<RuntimeFixtureOrganizationInput>(
   $I`RuntimeFixtureOrganizationInput`
-)({
-  organizationId: S.String,
-}) {}
+)(
+  {
+    organizationId: S.String,
+  },
+  $I.annote("RuntimeFixtureOrganizationInput", {
+    description: "Organization seed values used to scope a deterministic runtime fixture.",
+  })
+) {}
 
-class RuntimeFixtureWorkspaceInput extends S.Class<RuntimeFixtureWorkspaceInput>($I`RuntimeFixtureWorkspaceInput`)({
-  workspaceId: S.String,
-}) {}
+class RuntimeFixtureWorkspaceInput extends S.Class<RuntimeFixtureWorkspaceInput>($I`RuntimeFixtureWorkspaceInput`)(
+  {
+    workspaceId: S.String,
+  },
+  $I.annote("RuntimeFixtureWorkspaceInput", {
+    description: "Workspace seed values used to scope a deterministic runtime fixture.",
+  })
+) {}
 
-class RuntimeFixtureSeedInput extends S.Class<RuntimeFixtureSeedInput>($I`RuntimeFixtureSeedInput`)({
-  organization: RuntimeFixtureOrganizationInput,
-  scenarioId: S.String,
-  workspace: RuntimeFixtureWorkspaceInput,
-}) {}
+class RuntimeFixtureSeedInput extends S.Class<RuntimeFixtureSeedInput>($I`RuntimeFixtureSeedInput`)(
+  {
+    organization: RuntimeFixtureOrganizationInput,
+    scenarioId: S.String,
+    workspace: RuntimeFixtureWorkspaceInput,
+  },
+  $I.annote("RuntimeFixtureSeedInput", {
+    description: "Scenario seed values used to build deterministic runtime fixture scope.",
+  })
+) {}
 
 /**
  * Parsed fixture inputs for one runtime data-loop scenario.
@@ -53,21 +73,24 @@ class RuntimeFixtureSeedInput extends S.Class<RuntimeFixtureSeedInput>($I`Runtim
  * @category models
  * @since 0.0.0
  */
-export class RuntimeFixtureInput extends S.Class<RuntimeFixtureInput>($I`RuntimeFixtureInput`)({
-  body: S.String,
-  email: RuntimeFixtureEmailInput,
-  seed: RuntimeFixtureSeedInput,
-}) {}
+export class RuntimeFixtureInput extends S.Class<RuntimeFixtureInput>($I`RuntimeFixtureInput`)(
+  {
+    body: S.String,
+    email: RuntimeFixtureEmailInput,
+    seed: RuntimeFixtureSeedInput,
+  },
+  $I.annote("RuntimeFixtureInput", {
+    description: "Parsed fixture input combining the email body, email metadata, and scenario seed.",
+  })
+) {}
 
 const decodeOutputSet = S.decodeUnknownSync(CandidateOutputSet);
 
-const failValidation = (message: string): never => {
-  throw ProfessionalRuntimeValidationError.make({ message });
-};
-
 const assertScenario = (input: RuntimeFixtureInput): void => {
   if (input.seed.scenarioId !== input.email.scenarioId) {
-    failValidation(`Mismatched seed/email scenario ids: ${input.seed.scenarioId} !== ${input.email.scenarioId}`);
+    ProfessionalRuntimeValidationError.throwError(
+      `Mismatched seed/email scenario ids: ${input.seed.scenarioId} !== ${input.email.scenarioId}`
+    );
   }
 };
 
@@ -75,7 +98,9 @@ const assertSpanRefs = (input: RuntimeFixtureInput, spanIds: ReadonlyArray<strin
   const missing = A.filter(spanIds, (spanId) => !Str.includes(`[span:${spanId}]`)(input.body));
 
   if (missing.length > 0) {
-    failValidation(`${input.email.scenarioId}: missing body spans: ${A.join(missing, ", ")}`);
+    ProfessionalRuntimeValidationError.throwError(
+      `${input.email.scenarioId}: missing body spans: ${A.join(missing, ", ")}`
+    );
   }
 };
 
@@ -648,7 +673,10 @@ const fixtureRunnerForScenario: (scenarioId: string) => (input: RuntimeFixtureIn
   Match.type<string>().pipe(
     Match.when("law-patent-intake", () => runLawPatentIntake),
     Match.when("wealth-cash-request", () => runWealthCashRequest),
-    Match.orElse((scenarioId) => () => failValidation(`Unknown runtime fixture scenario: ${scenarioId}`))
+    Match.orElse(
+      (scenarioId) => () =>
+        ProfessionalRuntimeValidationError.throwError(`Unknown runtime fixture scenario: ${scenarioId}`)
+    )
   );
 
 /**

@@ -73,7 +73,6 @@
     "packages/canvas/client",
     "packages/canvas/ui",
     "packages/drivers/konva",
-    "packages/drivers/openai",
     "packages/shared/client",
     "packages/shared/config",
     "packages/shared/server",

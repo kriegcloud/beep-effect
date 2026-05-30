@@ -1307,10 +1307,7 @@ type VeniceAIEncodedQuery = Readonly<Record<string, VeniceAIQueryValue>>;
 
 const normalizeBaseUrl = Str.replace(/\/+$/, "");
 
-const resolveConfig = (
-  config: VeniceAIConfigInput,
-  redactedApiKey?: Redacted.Redacted<string>
-): ResolvedVeniceAIConfig => ({
+const resolveConfig = (config: VeniceAIConfigInput, redactedApiKey?: Redacted.Redacted): ResolvedVeniceAIConfig => ({
   apiKey: pipe(
     O.fromUndefinedOr(redactedApiKey),
     O.orElse(() => O.fromUndefinedOr(config.apiKey))

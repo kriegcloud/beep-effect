@@ -26,18 +26,3 @@ export * from "./HubSpot.errors.ts";
  * @since 0.0.0
  */
 export * from "./HubSpot.service.ts";
-
-/**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/hubspot"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;

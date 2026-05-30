@@ -8,7 +8,7 @@
 
 import * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
 import { A } from "@beep/utils";
-import { Effect, Match, pipe } from "effect";
+import { Effect, flow, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
@@ -27,7 +27,6 @@ import {
 import type {
   AddCanvasNodeCommand,
   ArchiveCanvasProjectCommand,
-  CreateCanvasProjectCommand,
   GetCanvasProjectQuery,
   ListCanvasProjectsQuery,
   RemoveCanvasNodeCommand,
@@ -86,12 +85,9 @@ const mutateStoredCanvasProject = (
     canvasProject: DomainCanvasProject.CanvasProject
   ) => Effect.Effect<DomainCanvasProject.CanvasProject, DomainCanvasProject.CanvasProjectDomainError>
 ): Effect.Effect<DomainCanvasProject.CanvasProject, CanvasProjectActionError> =>
-  pipe(
-    repository.get(id),
-    Effect.flatMap(transition),
-    Effect.flatMap(repository.save),
-    Effect.mapError(toCanvasProjectActionError)
-  );
+  repository
+    .get(id)
+    .pipe(Effect.flatMap(transition), Effect.flatMap(repository.save), Effect.mapError(toCanvasProjectActionError));
 
 /**
  * Build CanvasProject use-cases from the server repository port.
@@ -117,16 +113,17 @@ export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositorySha
   archive: Effect.fn("Canvas.CanvasProjectUseCases.archive")(function* (command: ArchiveCanvasProjectCommand) {
     return yield* mutateStoredCanvasProject(repository, command.id, DomainCanvasProject.archive);
   }),
-  create: Effect.fn("Canvas.CanvasProjectUseCases.create")(function* (command: CreateCanvasProjectCommand) {
-    return yield* pipe(
-      Effect.succeed(DomainCanvasProject.create(DomainCanvasProject.CreateCanvasProjectInput.make(command))),
-      Effect.flatMap(repository.create),
-      Effect.mapError(toCanvasProjectActionError)
-    );
-  }),
+  create: flow(
+    (command) => DomainCanvasProject.CreateCanvasProjectInput.make(command),
+    DomainCanvasProject.create,
+    Effect.succeed,
+    Effect.flatMap(repository.create),
+    Effect.mapError(toCanvasProjectActionError),
+    Effect.withSpan("Canvas.CanvasProjectUseCases.create")
+  ),
   get: Effect.fn("Canvas.CanvasProjectUseCases.get")(function* (query: GetCanvasProjectQuery) {
-    return yield* pipe(repository.get(query.id), Effect.mapError(toCanvasProjectActionError));
-  }),
+    return yield* repository.get(query.id);
+  }, Effect.mapError(toCanvasProjectActionError)),
   list: Effect.fn("Canvas.CanvasProjectUseCases.list")(function* (query: ListCanvasProjectsQuery) {
     return yield* pipe(
       repository.list,
@@ -148,9 +145,8 @@ export const makeCanvasProjectUseCases = (repository: CanvasProjectRepositorySha
     );
   }),
   restore: Effect.fn("Canvas.CanvasProjectUseCases.restore")(function* (command: RestoreCanvasProjectCommand) {
-    return yield* repository.save(command.scene).pipe(
-      Effect.catchTag("CanvasProjectRepositoryNotFound", () => repository.create(command.scene)),
-      Effect.mapError(toCanvasProjectActionError)
-    );
-  }),
+    return yield* repository
+      .save(command.scene)
+      .pipe(Effect.catchTag("CanvasProjectRepositoryNotFound", () => repository.create(command.scene)));
+  }, Effect.mapError(toCanvasProjectActionError)),
 });
