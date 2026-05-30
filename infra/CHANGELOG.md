@@ -1,5 +1,11 @@
 # @beep/infra
 
+## 0.0.4
+
+### Patch Changes
+
+- [#194](https://github.com/kriegcloud/beep-effect/pull/194) [`e7c58a3`](https://github.com/kriegcloud/beep-effect/commit/e7c58a30c52a5bca8c5698d3a5224b27c8547e45) Thanks [@kriegcloud](https://github.com/kriegcloud)! - Repair PR quality follow-ups for schema constructors, HTTP error mapping, and defaulted configuration schemas.
+
 ## 0.0.3
 
 ### Patch Changes

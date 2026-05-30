@@ -1,5 +1,12 @@
 # @beep/venice-ai
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`e7c58a3`](https://github.com/kriegcloud/beep-effect/commit/e7c58a30c52a5bca8c5698d3a5224b27c8547e45)]:
+  - @beep/openai-compat@0.0.3
+
 ## 0.0.2
 
 ### Patch Changes
