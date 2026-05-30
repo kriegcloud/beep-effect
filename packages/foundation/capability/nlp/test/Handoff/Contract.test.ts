@@ -51,7 +51,7 @@ const sampleDocument = Contract.AnnotatedDocument.make({
 describe("AnnotatedDocument round-trip", () => {
   it.effect(
     "encode then decode preserves the document",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const encoded = yield* S.encodeUnknownEffect(Contract.AnnotatedDocument)(sampleDocument);
       const decoded = yield* S.decodeUnknownEffect(Contract.AnnotatedDocument)(encoded);
       expect(decoded.version).toBe("nlp-ir/1.0");
@@ -64,7 +64,7 @@ describe("AnnotatedDocument round-trip", () => {
 
   it.effect(
     "every chunk, entity, and relation carries provenance",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const encoded = yield* S.encodeUnknownEffect(Contract.AnnotatedDocument)(sampleDocument);
       const decoded = yield* S.decodeUnknownEffect(Contract.AnnotatedDocument)(encoded);
       expect(decoded.chunks.every((c) => typeof c.provenance.source === "string")).toBe(true);
@@ -90,7 +90,7 @@ describe("Span", () => {
 describe("makeProvenance", () => {
   it.effect(
     "stamps timestamp from the clock and omits absent confidence",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const prov = yield* Contract.makeProvenance("doc-9", "wink-nlp");
       expect(prov.source).toBe("doc-9");
       expect(prov.generatedBy).toBe("wink-nlp");
@@ -101,7 +101,7 @@ describe("makeProvenance", () => {
 
   it.effect(
     "carries confidence when provided",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const prov = yield* Contract.makeProvenance("doc-9", "wink-nlp", 0.9);
       expect(prov.confidence).toBe(0.9);
     })

@@ -49,17 +49,19 @@ const patternElementToBracketString = (pattern: Pattern): ReadonlyArray<string> 
   );
 
 /**
- * Branded identifier for a wink custom-entity group.
+ * Branded identifier for a learned wink custom-entity group.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { EntityGroupName } from "@beep/nlp/Wink/WinkPattern"
  *
- * console.log(EntityGroupName)
+ * const entityGroupName = S.decodeSync(EntityGroupName)("ProductName")
+ * console.log(entityGroupName)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const EntityGroupName = S.NonEmptyString.pipe(
   S.brand("EntityGroupName"),
@@ -69,32 +71,41 @@ export const EntityGroupName = S.NonEmptyString.pipe(
 );
 
 /**
- * Runtime type for {@link EntityGroupName}.
+ * Runtime TypeScript type produced by {@link EntityGroupName}.
  *
  * @example
  * ```ts
- * import type { EntityGroupName } from "@beep/nlp/Wink/WinkPattern"
+ * import { EntityGroupName } from "@beep/nlp/Wink/WinkPattern"
+ * import type { EntityGroupName as EntityGroupNameType } from "@beep/nlp/Wink/WinkPattern"
  *
- * type Example = EntityGroupName
+ * const groupName: EntityGroupNameType = EntityGroupName.make("ProductName")
+ * console.log(groupName)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export type EntityGroupName = typeof EntityGroupName.Type;
 
 /**
- * One custom-entity example expressed as ordered bracket-pattern elements.
+ * One wink custom-entity training example expressed as bracket-pattern elements.
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import { CustomEntityExample } from "@beep/nlp/Wink/WinkPattern"
  *
- * console.log(CustomEntityExample)
+ * const example = CustomEntityExample.make({
+ *   mark: O.none(),
+ *   name: "ProductName",
+ *   patterns: ["[PROPN]", "[NOUN]"]
+ * })
+ *
+ * console.log(example.toWinkExample().patterns)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class CustomEntityExample extends S.Class<CustomEntityExample>($I`CustomEntityExample`)(
   {
@@ -128,17 +139,29 @@ export class CustomEntityExample extends S.Class<CustomEntityExample>($I`CustomE
 }
 
 /**
- * Collection of learned custom-entity examples tracked as one logical group.
+ * Collection of custom-entity examples learned as one logical wink entity group.
  *
  * @example
  * ```ts
- * import { WinkEngineCustomEntities } from "@beep/nlp/Wink/WinkPattern"
+ * import * as O from "effect/Option"
+ * import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "@beep/nlp/Wink/WinkPattern"
  *
- * console.log(WinkEngineCustomEntities)
+ * const customEntities = WinkEngineCustomEntities.make({
+ *   name: EntityGroupName.make("ProductName"),
+ *   patterns: [
+ *     CustomEntityExample.make({
+ *       mark: O.none(),
+ *       name: "ProductName",
+ *       patterns: ["[PROPN]", "[NOUN]"]
+ *     })
+ *   ]
+ * })
+ *
+ * console.log(customEntities.toWinkFormat()[0]?.name)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>($I`WinkEngineCustomEntities`)(
   {

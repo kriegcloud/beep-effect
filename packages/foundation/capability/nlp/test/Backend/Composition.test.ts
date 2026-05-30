@@ -43,7 +43,7 @@ const stub = (
 describe("withFallback", () => {
   it.effect(
     "uses the secondary backend when the primary fails",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const primary = stub("primary", { ...baseCapabilities, tokenization: true }, () =>
         Effect.fail(Backend.operationError("primary", "tokenize", new Error("boom")))
       );
@@ -59,7 +59,7 @@ describe("withFallback", () => {
 
   it.effect(
     "keeps the primary result when it succeeds",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const primary = stub("primary", baseCapabilities, () => Effect.succeed(["primary"]));
       const secondary = stub("secondary", baseCapabilities, () => Effect.succeed(["secondary"]));
       const composed = Composition.withFallback(primary, secondary);
@@ -71,7 +71,7 @@ describe("withFallback", () => {
 describe("withCaching", () => {
   it.effect(
     "memoizes a lookup so the backend runs once per key",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       let calls = 0;
       const backend = stub("counting", { ...baseCapabilities, tokenization: true }, (text) =>
         Effect.sync(() => {

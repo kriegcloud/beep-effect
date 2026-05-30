@@ -16,7 +16,7 @@ import * as O from "effect/Option";
 describe("EffectGraph construction", () => {
   it.effect(
     "singleton has one root node",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g = yield* EG.singleton("root");
       expect(EG.size(g)).toBe(1);
       const roots = EG.getRoots(g);
@@ -27,7 +27,7 @@ describe("EffectGraph construction", () => {
 
   it.effect(
     "addNode links a child under its parent",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* EG.singleton("parent");
       const parent = EG.getRoots(g0)[0]!;
       const childNode = yield* EG.makeNode("child", O.some(parent.id));
@@ -42,7 +42,7 @@ describe("EffectGraph construction", () => {
 
   it.effect(
     "generates distinct node ids",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const a = yield* EG.makeNode("a");
       const b = yield* EG.makeNode("b");
       expect(a.id).not.toBe(b.id);
@@ -53,7 +53,7 @@ describe("EffectGraph construction", () => {
 describe("Catamorphism", () => {
   it.effect(
     "counts nodes via a bottom-up fold (1 + sum of children)",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* EG.singleton("root");
       const root = EG.getRoots(g0)[0]!;
       const c1 = yield* EG.makeNode("c1", O.some(root.id));
@@ -73,7 +73,7 @@ describe("Catamorphism", () => {
 
   it.effect(
     "collects data bottom-up",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* EG.singleton("root");
       const root = EG.getRoots(g0)[0]!;
       const c1 = yield* EG.makeNode("a", O.some(root.id));
@@ -91,7 +91,7 @@ describe("Catamorphism", () => {
 describe("Anamorphism", () => {
   it.effect(
     "unfolds a bounded tree from a numeric seed",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g = yield* EG.ana<string, number>(2, (n) => Effect.succeed([`n${n}`, n > 0 ? [n - 1] : []] as const));
       expect(EG.size(g)).toBe(3);
       expect(EG.getRoots(g)).toHaveLength(1);
@@ -102,7 +102,7 @@ describe("Anamorphism", () => {
 describe("Functor map", () => {
   it.effect(
     "map preserves structure and transforms data",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* EG.singleton("root");
       const root = EG.getRoots(g0)[0]!;
       const c1 = yield* EG.makeNode("child", O.some(root.id));

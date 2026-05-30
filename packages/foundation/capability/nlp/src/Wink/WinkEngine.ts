@@ -36,17 +36,19 @@ type WinkCustomEntityRecord = {
 };
 
 /**
- * Branded runtime identifier for one live wink engine instance.
+ * Branded runtime identifier for one initialized wink engine instance.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { InstanceId } from "@beep/nlp/Wink/WinkEngine"
  *
- * console.log(InstanceId)
+ * const instanceId = S.decodeSync(InstanceId)("wink-engine-example-1")
+ * console.log(instanceId)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const InstanceId = S.NonEmptyString.pipe(
   S.brand("InstanceId"),
@@ -56,32 +58,40 @@ export const InstanceId = S.NonEmptyString.pipe(
 );
 
 /**
- * Runtime type for {@link InstanceId}.
+ * Runtime TypeScript type produced by the {@link InstanceId} schema.
  *
  * @example
  * ```ts
- * import type { InstanceId } from "@beep/nlp/Wink/WinkEngine"
+ * import { InstanceId } from "@beep/nlp/Wink/WinkEngine"
+ * import type { InstanceId as InstanceIdType } from "@beep/nlp/Wink/WinkEngine"
  *
- * type Example = InstanceId
+ * const instanceId: InstanceIdType = InstanceId.make("wink-engine-example-2")
+ * console.log(instanceId)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export type InstanceId = typeof InstanceId.Type;
 
 /**
- * Serializable wink engine state metadata.
+ * Serializable metadata for the current wink runtime and learned entity set.
  *
  * @example
  * ```ts
- * import { WinkEngineState } from "@beep/nlp/Wink/WinkEngine"
+ * import * as O from "effect/Option"
+ * import { InstanceId, WinkEngineState } from "@beep/nlp/Wink/WinkEngine"
  *
- * console.log(WinkEngineState)
+ * const state = WinkEngineState.make({
+ *   customEntities: O.none(),
+ *   instanceId: InstanceId.make("wink-engine-example-3")
+ * })
+ *
+ * console.log(state.customEntities._tag)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class WinkEngineState extends S.Class<WinkEngineState>($I`WinkEngineState`)(
   {
@@ -94,18 +104,34 @@ export class WinkEngineState extends S.Class<WinkEngineState>($I`WinkEngineState
 ) {}
 
 /**
- * In-memory wink engine runtime state including the live wink runtime.
+ * In-memory state held by the live wink engine ref.
+ *
+ * @remarks
+ * This type intentionally includes the live `wink-nlp` runtime object and is
+ * therefore not serializable. Use {@link WinkEngineState} for metadata that can
+ * cross process or persistence boundaries.
  *
  * @example
  * ```ts
+ * import { Effect, Ref } from "effect"
+ * import { WinkEngine, WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
  * import type { WinkEngineRuntimeState } from "@beep/nlp/Wink/WinkEngine"
  *
- * type Example = WinkEngineRuntimeState
+ * const readState = Effect.gen(function* () {
+ *   const engine = yield* WinkEngine
+ *   const ref = yield* engine.getRef
+ *   return yield* Ref.get(ref)
+ * }).pipe(Effect.provide(WinkEngineLive))
+ *
+ * Effect.runPromise(readState).then((state: WinkEngineRuntimeState) =>
+ *   console.log(state.instanceId)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
+
 export type WinkEngineRuntimeState = {
   readonly customEntities: O.Option<WinkEngineCustomEntities>;
   readonly instanceId: InstanceId;
@@ -223,31 +249,45 @@ const makeWinkEngine = Effect.gen(function* () {
 }).pipe(Effect.withSpan("Nlp.Wink.WinkEngine.make"));
 
 /**
- * Wink engine service tag.
+ * Service tag for direct access to the loaded `wink-nlp` runtime.
  *
  * @example
  * ```ts
- * import { WinkEngine } from "@beep/nlp/Wink/WinkEngine"
+ * import { Effect } from "effect"
+ * import { WinkEngine, WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
  *
- * console.log(WinkEngine)
+ * const tokenCount = Effect.gen(function* () {
+ *   const engine = yield* WinkEngine
+ *   return yield* engine.getWinkTokenCount("Wink engine counts these tokens.")
+ * })
+ *
+ * Effect.runPromise(tokenCount.pipe(Effect.provide(WinkEngineLive))).then(console.log)
  * ```
  *
- * @since 0.0.0
  * @category services
+ * @since 0.0.0
  */
 export class WinkEngine extends Context.Service<WinkEngine, WinkEngineShape>()($I`WinkEngine`) {}
 
 /**
- * Live wink engine layer.
+ * Live layer that loads `wink-nlp` with the bundled English lite web model.
  *
  * @example
  * ```ts
- * import { WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
+ * import { Effect } from "effect"
+ * import { WinkEngine, WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
  *
- * console.log(WinkEngineLive)
+ * const readRuntimeHelpers = Effect.gen(function* () {
+ *   const engine = yield* WinkEngine
+ *   return yield* engine.as
+ * })
+ *
+ * Effect.runPromise(readRuntimeHelpers.pipe(Effect.provide(WinkEngineLive))).then((helpers) =>
+ *   console.log(Object.keys(helpers).length)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkEngineLive = Layer.effect(WinkEngine, makeWinkEngine);

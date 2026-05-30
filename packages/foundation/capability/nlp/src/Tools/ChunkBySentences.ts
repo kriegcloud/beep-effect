@@ -42,17 +42,27 @@ class ChunkBySentencesSuccess extends S.Class<ChunkBySentencesSuccess>($I`ChunkB
 ) {}
 
 /**
- * Tool for chunking text along sentence boundaries.
+ * Defines the agent-facing tool contract for splitting text into chunks that
+ * preserve sentence boundaries.
+ *
+ * Use this tool for retrieval, summarization, or prompt-packing workflows that
+ * need bounded chunks without cutting through detected sentences.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ChunkBySentences } from "@beep/nlp/Tools/ChunkBySentences"
  *
- * console.log(ChunkBySentences)
+ * const parameters = S.decodeUnknownSync(ChunkBySentences.parametersSchema)({
+ *   maxChunkChars: 1200,
+ *   text: "First sentence. Second sentence. Third sentence."
+ * })
+ *
+ * parameters.maxChunkChars
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const ChunkBySentences = Tool.make("ChunkBySentences", {
   description: "Split text into sentence-aligned chunks, targeting a maximum character size per chunk.",

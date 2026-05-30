@@ -28,6 +28,19 @@ import * as Monoid from "./Monoid.ts";
 /**
  * Bag-of-words frequency map carrier: term -\> frequency.
  *
+ * @example
+ * ```ts
+ * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const bow: NLPMonoid.BagOfWords = new Map([
+ *   ["effect", 2],
+ *   ["schema", 1]
+ * ])
+ *
+ * console.log(Array.from(bow.entries()))
+ * // [["effect", 2], ["schema", 1]]
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -42,6 +55,17 @@ export type BagOfWords = Map<string, number>;
  *
  * This is the forgetful functor `Token* -> Text` in the adjunction.
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const text = Monoid.fold(NLPMonoid.TokenConcat)(["effect", "schema", "docs"])
+ *
+ * console.log(text)
+ * // "effect schema docs"
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -51,6 +75,18 @@ export const TokenConcat: Monoid.Monoid<string> = Monoid.StringJoin(" ");
  * Token bag-of-words monoid (union with frequency addition).
  *
  * A monoid homomorphism from the free monoid `Token*` to the multiset monoid.
+ *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const left = new Map([["effect", 2]])
+ * const right = new Map([["effect", 1], ["schema", 1]])
+ * const counts = NLPMonoid.TokenBagOfWords.combine(left, right)
+ *
+ * console.log(Array.from(counts.entries()))
+ * // [["effect", 3], ["schema", 1]]
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -69,6 +105,20 @@ export const TokenBagOfWords: Monoid.Monoid<BagOfWords> = {
 /**
  * Token set-union monoid (collect unique tokens; useful for vocabulary).
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const vocabulary = Monoid.fold(NLPMonoid.TokenSetUnion)([
+ *   new Set(["effect", "schema"]),
+ *   new Set(["schema", "docs"])
+ * ])
+ *
+ * console.log(Array.from(vocabulary).sort())
+ * // ["docs", "effect", "schema"]
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -86,6 +136,17 @@ export const TokenSetUnion: Monoid.Monoid<ReadonlySet<string>> = Monoid.SetUnion
  * associativity (punctuation normalization is not associative), so it is a
  * pragmatic near-monoid for text joining.
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const paragraph = Monoid.fold(NLPMonoid.SentenceConcat)(["Effect parses text", "Schemas validate output"])
+ *
+ * console.log(paragraph)
+ * // "Effect parses text. Schemas validate output"
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -102,6 +163,20 @@ export const SentenceConcat: Monoid.Monoid<string> = {
 /**
  * Sentence array monoid (concatenation; preserves order and boundaries).
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const sentences = Monoid.fold(NLPMonoid.SentenceArray)([
+ *   ["First sentence."],
+ *   ["Second sentence.", "Third sentence."]
+ * ])
+ *
+ * console.log(sentences)
+ * // ["First sentence.", "Second sentence.", "Third sentence."]
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -114,6 +189,17 @@ export const SentenceArray: Monoid.Monoid<ReadonlyArray<string>> = Monoid.ArrayC
 /**
  * Document text monoid (join paragraphs with a blank line).
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const document = Monoid.fold(NLPMonoid.DocumentText)(["Intro paragraph.", "Details paragraph."])
+ *
+ * console.log(document)
+ * // "Intro paragraph.\n\nDetails paragraph."
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -121,6 +207,20 @@ export const DocumentText: Monoid.Monoid<string> = Monoid.StringJoin("\n\n");
 
 /**
  * Document statistics carrier.
+ *
+ * @example
+ * ```ts
+ * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const stats: NLPMonoid.DocumentStatistics = {
+ *   charCount: 42,
+ *   sentenceCount: 2,
+ *   wordCount: 7
+ * }
+ *
+ * console.log(stats.wordCount)
+ * // 7
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -133,6 +233,19 @@ export interface DocumentStatistics {
 
 /**
  * Document statistics monoid (sum counts component-wise).
+ *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const totals = NLPMonoid.DocumentStats.combine(
+ *   { charCount: 12, sentenceCount: 1, wordCount: 3 },
+ *   { charCount: 18, sentenceCount: 2, wordCount: 4 }
+ * )
+ *
+ * console.log(totals)
+ * // { wordCount: 7, sentenceCount: 3, charCount: 30 }
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -156,6 +269,17 @@ export const DocumentStats: Monoid.Monoid<DocumentStatistics> = {
  * On key conflict the first (left) value wins. Useful for combining POS tags,
  * NER labels, dependency parses, etc. keyed by position.
  *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const Tags = NLPMonoid.AnnotationMap<number, string>()
+ * const tags = Tags.combine(new Map([[0, "NOUN"]]), new Map([[0, "PROPN"], [1, "VERB"]]))
+ *
+ * console.log(Array.from(tags.entries()))
+ * // [[0, "NOUN"], [1, "VERB"]]
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -175,6 +299,21 @@ export const AnnotationMap = <K, V>(): Monoid.Monoid<Map<K, V>> => ({
 /**
  * Named entity carrier.
  *
+ * @example
+ * ```ts
+ * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const entity: NLPMonoid.NamedEntity = {
+ *   endPos: 13,
+ *   startPos: 0,
+ *   text: "Effect Schema",
+ *   type: "PRODUCT"
+ * }
+ *
+ * console.log(entity.type)
+ * // "PRODUCT"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -188,6 +327,19 @@ export interface NamedEntity {
 /**
  * Named entity list monoid (concatenation; preserves order, allows duplicates).
  *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const entities = NLPMonoid.NamedEntityList.combine(
+ *   [{ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" }],
+ *   [{ endPos: 19, startPos: 7, text: "Schema", type: "MODULE" }]
+ * )
+ *
+ * console.log(entities.map((entity) => entity.text))
+ * // ["Effect", "Schema"]
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -195,6 +347,20 @@ export const NamedEntityList: Monoid.Monoid<ReadonlyArray<NamedEntity>> = Monoid
 
 /**
  * Dependency parse edge carrier: a syntactic dependency (head, dependent, relation).
+ *
+ * @example
+ * ```ts
+ * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const edge: NLPMonoid.DependencyEdge = {
+ *   dependent: 2,
+ *   head: 1,
+ *   relation: "amod"
+ * }
+ *
+ * console.log(edge.relation)
+ * // "amod"
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -208,6 +374,19 @@ export interface DependencyEdge {
 /**
  * Dependency parse monoid (concatenate edges).
  *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const edges = NLPMonoid.DependencyParse.combine(
+ *   [{ dependent: 1, head: 0, relation: "nsubj" }],
+ *   [{ dependent: 2, head: 0, relation: "obj" }]
+ * )
+ *
+ * console.log(edges.map((edge) => edge.relation))
+ * // ["nsubj", "obj"]
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -220,6 +399,19 @@ export const DependencyParse: Monoid.Monoid<ReadonlyArray<DependencyEdge>> = Mon
 /**
  * Term frequency monoid (alias of {@link TokenBagOfWords}; semantic distinction).
  *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const termCounts = NLPMonoid.TermFrequency.combine(
+ *   new Map([["effect", 1]]),
+ *   new Map([["effect", 2], ["docs", 1]])
+ * )
+ *
+ * console.log(Array.from(termCounts.entries()))
+ * // [["effect", 3], ["docs", 1]]
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -227,6 +419,19 @@ export const TermFrequency: Monoid.Monoid<BagOfWords> = TokenBagOfWords;
 
 /**
  * Document frequency monoid (counts presence across documents; union with addition).
+ *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const frequencies = NLPMonoid.DocumentFrequency.combine(
+ *   new Map([["effect", 2], ["schema", 1]]),
+ *   new Map([["effect", 1], ["nlp", 1]])
+ * )
+ *
+ * console.log(Array.from(frequencies.entries()))
+ * // [["effect", 3], ["schema", 1], ["nlp", 1]]
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -245,6 +450,19 @@ export const DocumentFrequency: Monoid.Monoid<Map<string, number>> = {
 /**
  * Vocabulary monoid (unique terms; alias of {@link TokenSetUnion}).
  *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const vocabulary = NLPMonoid.Vocabulary.combine(
+ *   new Set(["effect", "schema"]),
+ *   new Set(["schema", "nlp"])
+ * )
+ *
+ * console.log(Array.from(vocabulary).sort())
+ * // ["effect", "nlp", "schema"]
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -256,6 +474,19 @@ export const Vocabulary: Monoid.Monoid<ReadonlySet<string>> = TokenSetUnion;
 
 /**
  * Weighted token monoid (combine weights additively per token).
+ *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const weights = NLPMonoid.WeightedTokens.combine(
+ *   new Map([["effect", 0.4], ["schema", 0.8]]),
+ *   new Map([["effect", 0.3]])
+ * )
+ *
+ * console.log(Array.from(weights.entries()))
+ * // [["effect", 0.7], ["schema", 0.8]]
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -273,6 +504,19 @@ export const WeightedTokens: Monoid.Monoid<Map<string, number>> = {
 
 /**
  * N-gram frequency monoid (bag-of-words over space-joined n-gram keys).
+ *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const ngrams = NLPMonoid.NGramFrequency.combine(
+ *   new Map([["effect schema", 2]]),
+ *   new Map([["effect schema", 1], ["schema docs", 1]])
+ * )
+ *
+ * console.log(Array.from(ngrams.entries()))
+ * // [["effect schema", 3], ["schema docs", 1]]
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -295,6 +539,21 @@ export const NGramFrequency: Monoid.Monoid<Map<string, number>> = {
 /**
  * Combined text analysis carrier (bag-of-words + entities + sentence count + vocabulary).
  *
+ * @example
+ * ```ts
+ * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const analysis: NLPMonoid.TextAnalysis = {
+ *   bow: new Map([["effect", 2]]),
+ *   entities: [{ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" }],
+ *   sentenceCount: 1,
+ *   vocabulary: new Set(["effect"])
+ * }
+ *
+ * console.log(analysis.sentenceCount)
+ * // 1
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -307,6 +566,33 @@ export interface TextAnalysis {
 
 /**
  * Text analysis monoid (product monoid over the linguistic features).
+ *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const combined = NLPMonoid.TextAnalysisMonoid.combine(
+ *   {
+ *     bow: new Map([["effect", 1]]),
+ *     entities: [{ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" }],
+ *     sentenceCount: 1,
+ *     vocabulary: new Set(["effect"])
+ *   },
+ *   {
+ *     bow: new Map([["schema", 2]]),
+ *     entities: [],
+ *     sentenceCount: 2,
+ *     vocabulary: new Set(["schema"])
+ *   }
+ * )
+ *
+ * console.log({
+ *   bow: Array.from(combined.bow.entries()),
+ *   sentenceCount: combined.sentenceCount,
+ *   vocabulary: Array.from(combined.vocabulary).sort()
+ * })
+ * // { bow: [["effect", 1], ["schema", 2]], sentenceCount: 3, vocabulary: ["effect", "schema"] }
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -333,6 +619,16 @@ export const TextAnalysisMonoid: Monoid.Monoid<TextAnalysis> = {
 /**
  * Convert a bag of words to term frequency (each count normalized by the total).
  *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const tf = NLPMonoid.bagOfWordsToTF(new Map([["effect", 3], ["schema", 1]]))
+ *
+ * console.log(Array.from(tf.entries()))
+ * // [["effect", 0.75], ["schema", 0.25]]
+ * ```
+ *
  * @since 0.0.0
  * @category utilities
  */
@@ -354,6 +650,20 @@ export const bagOfWordsToTF = (bow: BagOfWords): Map<string, number> => {
  * Compute TF-IDF scores from term frequency and document frequency.
  *
  * `TF-IDF(t, d) = TF(t, d) * log(N / DF(t))`.
+ *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const scores = NLPMonoid.computeTFIDF(
+ *   new Map([["effect", 0.5], ["schema", 0.5]]),
+ *   new Map([["effect", 2], ["schema", 1]]),
+ *   4
+ * )
+ *
+ * console.log(Array.from(scores.entries()))
+ * // [["effect", 0.34657359027997264], ["schema", 0.6931471805599453]]
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -379,6 +689,16 @@ export const computeTFIDF = (
 /**
  * Aggregate tokens into a bag of words.
  *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const counts = NLPMonoid.aggregateTokens(["effect", "schema", "effect"])
+ *
+ * console.log(Array.from(counts.entries()))
+ * // [["effect", 2], ["schema", 1]]
+ * ```
+ *
  * @since 0.0.0
  * @category utilities
  */
@@ -394,6 +714,16 @@ export const aggregateTokens = (tokens: ReadonlyArray<string>): BagOfWords =>
 /**
  * Aggregate sentences into a single document string.
  *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const text = NLPMonoid.aggregateSentences(["Effect parses text", "Schemas validate output"])
+ *
+ * console.log(text)
+ * // "Effect parses text. Schemas validate output"
+ * ```
+ *
  * @since 0.0.0
  * @category utilities
  */
@@ -401,6 +731,19 @@ export const aggregateSentences = (sentences: ReadonlyArray<string>): string => 
 
 /**
  * Aggregate document statistics.
+ *
+ * @example
+ * ```ts
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ *
+ * const totals = NLPMonoid.aggregateStats([
+ *   { charCount: 10, sentenceCount: 1, wordCount: 2 },
+ *   { charCount: 25, sentenceCount: 2, wordCount: 5 }
+ * ])
+ *
+ * console.log(totals)
+ * // { wordCount: 7, sentenceCount: 3, charCount: 35 }
+ * ```
  *
  * @since 0.0.0
  * @category utilities

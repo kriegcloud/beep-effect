@@ -77,17 +77,36 @@ const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
 };
 
 /**
- * Error raised while exporting or executing positional NLP tools.
+ * Typed failure for the positional tool export adapter.
+ *
+ * The error preserves the tool name, a caller-facing message, and the original
+ * unknown cause when parameter decoding, toolkit startup, stream execution, or
+ * result extraction fails.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { ExportedToolError } from "@beep/nlp/Tools/ToolExport"
  *
- * console.log(ExportedToolError)
+ * const recovered = await Effect.runPromise(
+ *   Effect.fail(
+ *     ExportedToolError.fromCause(new Error("missing text"), "Tokenize", {
+ *       message: "Invalid parameters for Tokenize"
+ *     })
+ *   ).pipe(
+ *     Effect.catchTag("ExportedToolError", (error) =>
+ *       Effect.succeed(`${error.toolName}: ${error.message}`)
+ *     )
+ *   )
+ * )
+ *
+ * if (recovered !== "Tokenize: Invalid parameters for Tokenize") {
+ *   throw new Error(recovered)
+ * }
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`ExportedToolError`)(
   "ExportedToolError",
@@ -123,17 +142,33 @@ export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`Ex
 }
 
 /**
- * Runtime descriptor for an exported positional tool.
+ * Runtime descriptor for a tool exported as a positional function contract.
+ *
+ * The descriptor exposes stable argument ordering, JSON schemas, examples, and
+ * an Effectful `handle` function that validates positional arguments before
+ * delegating to the toolkit handler.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import type { ExportedTool } from "@beep/nlp/Tools/ToolExport"
  *
- * type Example = ExportedTool
+ * const tokenizeDescriptor = {
+ *   description: "Tokenize text",
+ *   handle: (args: ReadonlyArray<unknown>) => Effect.succeed(args[0]),
+ *   name: "Tokenize",
+ *   parameterNames: ["text"],
+ *   parametersJsonSchema: {},
+ *   returnsJsonSchema: {},
+ *   timeoutMs: 30_000,
+ *   usageExamples: ['const result = await Tokenize("Hello world.")']
+ * } satisfies ExportedTool
+ *
+ * tokenizeDescriptor.parameterNames
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export interface ExportedTool {
   readonly description: string;
@@ -268,16 +303,29 @@ const exportToolsEffect: Effect.Effect<
   )
 );
 /**
- * Export tools export.
+ * Effect that exports every NLP toolkit tool as a positional descriptor.
+ *
+ * Use this adapter when an integration cannot call Effect AI toolkit handlers
+ * directly and instead needs ordered argument names, JSON schemas, timeouts,
+ * usage snippets, and a single Effectful handler per tool.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import { NlpToolkitLive } from "@beep/nlp/Tools/NlpToolkit"
  * import { exportTools } from "@beep/nlp/Tools/ToolExport"
  *
- * console.log(exportTools)
+ * const toolNames = await Effect.runPromise(
+ *   exportTools.pipe(
+ *     Effect.map((tools) => tools.map((tool) => tool.name)),
+ *     Effect.provide(NlpToolkitLive)
+ *   )
+ * )
+ *
+ * toolNames.includes("Tokenize")
  * ```
  *
- * @since 0.0.0
  * @category adapters
+ * @since 0.0.0
  */
 export const exportTools: typeof exportToolsEffect = exportToolsEffect;

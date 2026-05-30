@@ -16,7 +16,7 @@ import * as Effect from "effect/Effect";
 describe("TypeClass pure operations", () => {
   it.effect(
     "pureOperation mints a child per produced value",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("hello world");
       const splitOp = TC.pureOperation("split", (s: string) => s.split(" "));
       const out = yield* splitOp.apply(node);
@@ -27,7 +27,7 @@ describe("TypeClass pure operations", () => {
 
   it.effect(
     "mapOperation transforms data 1:1",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("abc");
       const upper = TC.mapOperation("upper", (s: string) => s.toUpperCase());
       const out = yield* upper.apply(node);
@@ -38,7 +38,7 @@ describe("TypeClass pure operations", () => {
 
   it.effect(
     "filterOperation keeps or drops by predicate",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("keep");
       const keepLong = TC.filterOperation("keepLong", (s: string) => s.length > 3);
       expect((yield* keepLong.apply(node)).length).toBe(1);
@@ -51,7 +51,7 @@ describe("TypeClass pure operations", () => {
 describe("TypeClass functor laws", () => {
   it.effect(
     "map identity: map(op, id) = op",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("x");
       const op = TC.pureOperation("dup", (s: string) => [s, s]);
       const mapped = TC.map(op, (s) => s);
@@ -63,7 +63,7 @@ describe("TypeClass functor laws", () => {
 
   it.effect(
     "map composition: map(op, f∘g) = map(map(op, g), f)",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("ab");
       const op = TC.pureOperation("id", (s: string) => [s]);
       const f = (s: string): string => s.toUpperCase();
@@ -78,7 +78,7 @@ describe("TypeClass functor laws", () => {
 describe("TypeClass monad & applicative", () => {
   it.effect(
     "chain sequences dependent operations",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("a b");
       const split = TC.pureOperation("split", (s: string) => s.split(" "));
       const chained = TC.chain(split, (token) => TC.mapOperation(`up-${token}`, (s: string) => s.toUpperCase()));
@@ -89,7 +89,7 @@ describe("TypeClass monad & applicative", () => {
 
   it.effect(
     "ap forms the Cartesian product of functions and values",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("seed");
       const fns = TC.pureOperation<string, (s: string) => string>("fns", () => [(s) => `${s}1`, (s) => `${s}2`]);
       const vals = TC.pureOperation("vals", () => ["x", "y"]);
@@ -100,7 +100,7 @@ describe("TypeClass monad & applicative", () => {
 
   it.effect(
     "pure lifts a constant value",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("ignored");
       const out = yield* TC.pure<string, number>(42).apply(node);
       expect(out.length).toBe(1);
@@ -112,7 +112,7 @@ describe("TypeClass monad & applicative", () => {
 describe("TypeClass alt & combinators", () => {
   it.effect(
     "alt collects results from both operations",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("x");
       const one = TC.pureOperation("one", (s: string) => [s]);
       const two = TC.pureOperation("two", (s: string) => [`${s}${s}`]);
@@ -123,7 +123,7 @@ describe("TypeClass alt & combinators", () => {
 
   it.effect(
     "empty is the identity for alt",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("x");
       const out = yield* TC.empty<string, string>().apply(node);
       expect(out.length).toBe(0);
@@ -132,7 +132,7 @@ describe("TypeClass alt & combinators", () => {
 
   it.effect(
     "when / unless gate on the predicate",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("hello");
       const op = TC.mapOperation("id", (s: string) => s);
       expect((yield* TC.when((s: string) => s.length > 3, op).apply(node)).length).toBe(1);
@@ -142,7 +142,7 @@ describe("TypeClass alt & combinators", () => {
 
   it.effect(
     "replicate applies an operation n times",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const node = yield* EG.makeNode("x");
       const op = TC.pureOperation("id", (s: string) => [s]);
       const out = yield* TC.replicate(op, 3).apply(node);
@@ -154,7 +154,7 @@ describe("TypeClass alt & combinators", () => {
 describe("TypeClass graph execution & folding", () => {
   it.effect(
     "executeOperation adds a child layer to leaves",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* EG.singleton("root text");
       const split = TC.pureOperation("split", (s: string) => s.split(" "));
       const g1 = yield* TC.executeOperation(g0, split);
@@ -164,7 +164,7 @@ describe("TypeClass graph execution & folding", () => {
 
   it.effect(
     "foldableGraph folds over all node data",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* EG.singleton("aaa");
       const split = TC.pureOperation("chars", (s: string) => s.split(""));
       const g1 = yield* TC.executeOperation(g0, split);

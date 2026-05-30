@@ -27,7 +27,8 @@
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, thunk0 } from "@beep/utils";
-import { Brand, Clock, Effect, Graph, HashMap, MutableHashMap, MutableHashSet, Random } from "effect";
+import { Clock, Effect, Graph, HashMap, MutableHashMap, MutableHashSet, Random } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -39,62 +40,73 @@ const $I = $NlpId.create("Graph/EffectGraph");
 // =============================================================================
 
 /**
- * Unique identifier for graph nodes.
+ * Branded identifier for graph nodes.
  *
  * @example
  * ```ts
- * import type { NodeId } from "@beep/nlp/Graph/EffectGraph"
+ * import { NodeId } from "@beep/nlp/Graph/EffectGraph"
  *
- * type Example = NodeId
+ * const nodeId = NodeId.make("node-example")
+ * console.log(nodeId.startsWith("node-")) // true
  * ```
  *
  * @since 0.0.0
  * @category models
  */
-export type NodeId = string & Brand.Brand<"NodeId">;
+export const NodeId = S.String.pipe(
+  S.brand("NodeId"),
+  $I.annoteSchema("NodeId", {
+    description: "Unique identifier for graph nodes.",
+  })
+);
 
 /**
- * Constructor for {@link NodeId}.
+ * Companion type for {@link NodeId}.
  *
  * @example
  * ```ts
- * import { makeNodeId } from "@beep/nlp/Graph/EffectGraph"
+ * import { NodeId } from "@beep/nlp/Graph/EffectGraph"
  *
- * console.log(makeNodeId("node-1"))
+ * const nodeId = NodeId.make("node-example")
+ * console.log(nodeId)
  * ```
  *
+ * @category models
  * @since 0.0.0
- * @category constructors
  */
-export const makeNodeId: Brand.Constructor<NodeId> = Brand.nominal<NodeId>();
+export type NodeId = typeof NodeId.Type;
 
 /**
- * Generate a fresh, unique {@link NodeId} (timestamp + random suffix).
+ * Generate a fresh node id from the Effect clock and random service.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { generateNodeId } from "@beep/nlp/Graph/EffectGraph"
  *
- * console.log(generateNodeId)
+ * const program = Effect.map(generateNodeId, (id) => id.startsWith("node-"))
+ * console.log(Effect.runSync(program)) // true
  * ```
  *
- * @since 0.0.0
+ * @effects Reads the Effect `Clock` and random service to include timestamp and entropy in the generated id.
  * @category constructors
+ * @since 0.0.0
  */
 export const generateNodeId: Effect.Effect<NodeId> = Effect.gen(function* () {
   const ms = yield* Clock.currentTimeMillis;
   const rand = yield* Random.nextInt;
-  return makeNodeId(`node-${ms}-${rand}`);
+  return NodeId.make(`node-${ms}-${rand}`);
 });
 
 /**
- * Error raised when a node is not found in the graph.
+ * Error raised when traversal cannot resolve a node id.
  *
  * @example
  * ```ts
  * import { NodeNotFoundError } from "@beep/nlp/Graph/EffectGraph"
  *
- * console.log(NodeNotFoundError)
+ * const error = NodeNotFoundError.make({ nodeId: "node-missing" })
+ * console.log(error._tag) // "NodeNotFoundError"
  * ```
  *
  * @since 0.0.0
@@ -111,20 +123,52 @@ export class NodeNotFoundError extends TaggedErrorClass<NodeNotFoundError>($I`No
 ) {}
 
 /**
- * Per-node processing metadata.
+ * Per-node metadata recorded by graph constructors and operations.
+ *
+ * @example
+ * ```ts
+ * import { NodeMetadata } from "@beep/nlp/Graph/EffectGraph"
+ * import * as O from "effect/Option"
+ *
+ * const metadata = NodeMetadata.make({
+ *   depth: 0,
+ *   operation: O.none(),
+ *   timestamp: 0
+ * })
+ *
+ * console.log(metadata.depth) // 0
+ * ```
  *
  * @since 0.0.0
  * @category models
  */
-export interface NodeMetadata {
-  readonly depth: number;
-  readonly operation: O.Option<string>;
-  readonly timestamp: number;
-}
+export class NodeMetadata extends S.Class<NodeMetadata>($I`NodeMetadata`)(
+  {
+    depth: S.Number,
+    operation: S.Option(S.String),
+    timestamp: S.Number,
+  },
+  $I.annote("NodeMetadata", {
+    description: "Metadata associated with each graph node, tracking traversal depth, operation, and timestamp.",
+  })
+) {}
 
 /**
- * A node in the directed acyclic graph: an id, a data payload, an optional parent
- * reference, and processing metadata.
+ * Node payload plus graph lineage metadata.
+ *
+ * @remarks
+ * `parentId` points to the source node that produced this node. `metadata.depth`
+ * is recalculated by {@link addNode} when a parent exists, so callers can create
+ * nodes before they know their final graph depth.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { makeNode, type GraphNode } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const node: GraphNode<string> = Effect.runSync(makeNode("root"))
+ * console.log(node.data) // "root"
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -136,13 +180,44 @@ export interface GraphNode<A> {
   readonly parentId: O.Option<NodeId>;
 }
 
-interface GraphEdge {
-  readonly relation: "child";
-}
+/**
+ * Directed child edge between two graph nodes.
+ *
+ * @example
+ * ```ts
+ * import { GraphEdge } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const edge = GraphEdge.make({ relation: "child" })
+ * console.log(edge.relation) // "child"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GraphEdge extends S.Class<GraphEdge>($I`GraphEdge`)(
+  {
+    relation: S.Literal("child"),
+  },
+  $I.annote("GraphEdge", {
+    description: "Represents a directed edge in the graph, indicating a 'child' relationship.",
+  })
+) {}
 
 /**
- * A directed acyclic graph of {@link GraphNode}s, backed by `effect/Graph` with
- * id\<-\>index mappings maintained alongside.
+ * NLP operation graph backed by `effect/Graph` plus node-id index maps.
+ *
+ * @remarks
+ * Callers should use {@link addNode}, {@link getNode}, and traversal helpers
+ * rather than mutating the backing graph directly; the side maps are what let
+ * operation code address nodes by stable {@link NodeId}s.
+ *
+ * @example
+ * ```ts
+ * import { empty, size, type EffectGraph } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const graph: EffectGraph<string> = empty()
+ * console.log(size(graph)) // 0
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -158,46 +233,55 @@ export interface EffectGraph<A> {
 // =============================================================================
 
 /**
- * Create a new {@link GraphNode} (effectful: reads `Clock` + a random id).
+ * Create a graph node with generated id, timestamp, parent, and operation metadata.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { makeNode } from "@beep/nlp/Graph/EffectGraph"
  *
- * console.log(makeNode("hello"))
+ * const node = Effect.runSync(makeNode("hello"))
+ * console.log(node.data) // "hello"
  * ```
  *
  * @since 0.0.0
  * @category constructors
  */
-export const makeNode = Effect.fn("makeNode")(function* <A>(
-  data: A,
-  parentId: O.Option<NodeId> = O.none(),
-  operation: O.Option<string> = O.none()
-): Effect.fn.Return<GraphNode<A>> {
-  const timestamp = yield* Clock.currentTimeMillis;
-  const id = yield* generateNodeId;
-  return {
-    id,
-    data,
-    parentId,
-    metadata: {
-      operation,
-      timestamp,
-      // recalculated when added to a graph under a parent
-      depth: O.match(parentId, { onNone: thunk0, onSome: () => 1 }),
-    },
-  };
-});
+export const makeNode: {
+  <A>(data: A, parentId?: O.Option<NodeId>, operation?: O.Option<string>): Effect.Effect<GraphNode<A>>;
+  (parentId?: O.Option<NodeId>, operation?: O.Option<string>): <A>(data: A) => Effect.Effect<GraphNode<A>>;
+} = dual(
+  (args) => args.length >= 2 || !O.isOption(args[0]),
+  Effect.fn("makeNode")(function* <A>(
+    data: A,
+    parentId: O.Option<NodeId> = O.none(),
+    operation: O.Option<string> = O.none()
+  ): Effect.fn.Return<GraphNode<A>> {
+    const timestamp = yield* Clock.currentTimeMillis;
+    const id = yield* generateNodeId;
+    return {
+      id,
+      data,
+      parentId,
+      metadata: {
+        operation,
+        timestamp,
+        // recalculated when added to a graph under a parent
+        depth: O.match(parentId, { onNone: thunk0, onSome: () => 1 }),
+      },
+    };
+  })
+);
 
 /**
- * Create an empty {@link EffectGraph}.
+ * Create an empty graph with no nodes, edges, or id-index mappings.
  *
  * @example
  * ```ts
- * import { empty } from "@beep/nlp/Graph/EffectGraph"
+ * import { empty, size } from "@beep/nlp/Graph/EffectGraph"
  *
- * console.log(empty<string>())
+ * const graph = empty<string>()
+ * console.log(size(graph)) // 0
  * ```
  *
  * @since 0.0.0
@@ -210,17 +294,20 @@ export const empty = <A>(): EffectGraph<A> => ({
 });
 
 /**
- * Create an {@link EffectGraph} with a single root node (effectful via {@link makeNode}).
+ * Create a graph containing one generated root node.
  *
  * @example
  * ```ts
- * import { singleton } from "@beep/nlp/Graph/EffectGraph"
+ * import { Effect } from "effect"
+ * import { singleton, size } from "@beep/nlp/Graph/EffectGraph"
  *
- * console.log(singleton("root"))
+ * const graph = Effect.runSync(singleton("root"))
+ * console.log(size(graph)) // 1
  * ```
  *
- * @since 0.0.0
+ * @effects Generates a root node via `makeNode`, which reads the Effect `Clock` and random service for metadata and id fields.
  * @category constructors
+ * @since 0.0.0
  */
 export const singleton = Effect.fn("singleton")(function* <A>(data: A): Effect.fn.Return<EffectGraph<A>> {
   const node = yield* makeNode(data);
@@ -246,10 +333,29 @@ export const singleton = Effect.fn("singleton")(function* <A>(data: A): Effect.f
  * Add a node to the graph, recalculating its depth from its parent and linking
  * the parent-\>child edge when a parent is present.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { addNode, getRoots, makeNode, singleton } from "@beep/nlp/Graph/EffectGraph"
+ * import * as O from "effect/Option"
+ *
+ * const program = Effect.gen(function* () {
+ *   const graph = yield* singleton("root")
+ *   const root = getRoots(graph)[0]
+ *   const child = yield* makeNode("child", O.some(root.id))
+ *   return addNode(graph, child)
+ * })
+ *
+ * console.log(Effect.runSync(program).nodeIdToIndex)
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
-export const addNode = <A>(effectGraph: EffectGraph<A>, node: GraphNode<A>): EffectGraph<A> => {
+export const addNode: {
+  <A>(effectGraph: EffectGraph<A>, node: GraphNode<A>): EffectGraph<A>;
+  <A>(node: GraphNode<A>): (effectGraph: EffectGraph<A>) => EffectGraph<A>;
+} = dual(2, <A>(effectGraph: EffectGraph<A>, node: GraphNode<A>): EffectGraph<A> => {
   // Recalculate depth from the parent (pure: takes a pre-made node).
   const updatedNode: GraphNode<A> = O.match(node.parentId, {
     onNone: () => node,
@@ -285,32 +391,80 @@ export const addNode = <A>(effectGraph: EffectGraph<A>, node: GraphNode<A>): Eff
       indexToNodeId: HashMap.set(effectGraph.indexToNodeId, idx, updatedNode.id),
     }),
   });
-};
+});
 
 /**
- * Get a node by id.
+ * Look up a node by stable node id.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { getNode, getRoots, singleton } from "@beep/nlp/Graph/EffectGraph"
+ * import * as O from "effect/Option"
+ *
+ * const program = Effect.map(singleton("root"), (graph) => {
+ *   const root = getRoots(graph)[0]
+ *   return O.isSome(getNode(graph, root.id))
+ * })
+ *
+ * console.log(Effect.runSync(program)) // true
+ * ```
  *
  * @since 0.0.0
  * @category getters
  */
-export const getNode = <A>(graph: EffectGraph<A>, nodeId: NodeId): O.Option<GraphNode<A>> =>
-  O.flatMap(HashMap.get(graph.nodeIdToIndex, nodeId), (idx) => Graph.getNode(graph.graph, idx));
+export const getNode: {
+  <A>(graph: EffectGraph<A>, nodeId: NodeId): O.Option<GraphNode<A>>;
+  <A>(nodeId: NodeId): (graph: EffectGraph<A>) => O.Option<GraphNode<A>>;
+} = dual(
+  2,
+  <A>(graph: EffectGraph<A>, nodeId: NodeId): O.Option<GraphNode<A>> =>
+    O.flatMap(HashMap.get(graph.nodeIdToIndex, nodeId), (idx) => Graph.getNode(graph.graph, idx))
+);
 
 /**
- * Get all children of a node.
+ * Read the direct child nodes for a parent id.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { getChildren, getRoots, singleton } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const program = Effect.map(singleton("root"), (graph) => {
+ *   const root = getRoots(graph)[0]
+ *   return getChildren(graph, root.id).length
+ * })
+ *
+ * console.log(Effect.runSync(program)) // 0
+ * ```
  *
  * @since 0.0.0
  * @category getters
  */
-export const getChildren = <A>(graph: EffectGraph<A>, nodeId: NodeId): ReadonlyArray<GraphNode<A>> =>
-  O.match(HashMap.get(graph.nodeIdToIndex, nodeId), {
-    onNone: A.empty<GraphNode<A>>,
-    onSome: (idx) =>
-      A.getSomes(A.map(Graph.neighbors(graph.graph, idx), (childIdx) => Graph.getNode(graph.graph, childIdx))),
-  });
+export const getChildren: {
+  <A>(graph: EffectGraph<A>, nodeId: NodeId): ReadonlyArray<GraphNode<A>>;
+  <A>(nodeId: NodeId): (graph: EffectGraph<A>) => ReadonlyArray<GraphNode<A>>;
+} = dual(
+  2,
+  <A>(graph: EffectGraph<A>, nodeId: NodeId): ReadonlyArray<GraphNode<A>> =>
+    O.match(HashMap.get(graph.nodeIdToIndex, nodeId), {
+      onNone: A.empty<GraphNode<A>>,
+      onSome: (idx) =>
+        A.getSomes(A.map(Graph.neighbors(graph.graph, idx), (childIdx) => Graph.getNode(graph.graph, childIdx))),
+    })
+);
 
 /**
- * Get all root nodes (those with no incoming edges).
+ * Get all root nodes, defined as nodes with no incoming parent edge.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { getRoots, singleton } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const program = Effect.map(singleton("root"), (graph) => getRoots(graph).length)
+ * console.log(Effect.runSync(program)) // 1
+ * ```
  *
  * @since 0.0.0
  * @category getters
@@ -327,7 +481,17 @@ export const getRoots = <A>(graph: EffectGraph<A>): ReadonlyArray<GraphNode<A>> 
 // =============================================================================
 
 /**
- * F-algebra: collapse a node and its already-processed children into a result.
+ * Algebra used by {@link cata} to collapse a node after its children.
+ *
+ * @example
+ * ```ts
+ * import type { GraphAlgebra } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const countSubtree: GraphAlgebra<string, number> = (_node, children) =>
+ *   1 + children.reduce((sum, count) => sum + count, 0)
+ *
+ * console.log(countSubtree)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -335,60 +499,106 @@ export const getRoots = <A>(graph: EffectGraph<A>): ReadonlyArray<GraphNode<A>> 
 export type GraphAlgebra<A, B> = (node: GraphNode<A>, children: ReadonlyArray<B>) => B;
 
 /**
- * Catamorphism: bottom-up fold over the graph (children before parents).
+ * Fold a graph bottom-up, visiting children before their parents.
+ *
+ * @remarks
+ * Results are returned once per root, so a forest produces multiple folded
+ * values. Traversal memoizes by node id to avoid recomputing shared subgraphs.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { cata, singleton } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const program = Effect.flatMap(
+ *   singleton("root"),
+ *   cata((node, children: ReadonlyArray<number>) => node.data.length + children.length)
+ * )
+ *
+ * console.log(Effect.runSync(program)) // [4]
+ * ```
  *
  * @since 0.0.0
  * @category folding
  */
-export const cata = <A, B>(
-  graph: EffectGraph<A>,
-  algebra: GraphAlgebra<A, B>
-): Effect.Effect<ReadonlyArray<B>, NodeNotFoundError> => {
-  const memo = MutableHashMap.empty<NodeId, B>();
+export const cata: {
+  <A, B>(graph: EffectGraph<A>, algebra: GraphAlgebra<A, B>): Effect.Effect<ReadonlyArray<B>, NodeNotFoundError>;
+  <A, B>(algebra: GraphAlgebra<A, B>): (graph: EffectGraph<A>) => Effect.Effect<ReadonlyArray<B>, NodeNotFoundError>;
+} = dual(
+  2,
+  <A, B>(graph: EffectGraph<A>, algebra: GraphAlgebra<A, B>): Effect.Effect<ReadonlyArray<B>, NodeNotFoundError> => {
+    const memo = MutableHashMap.empty<NodeId, B>();
 
-  const go = Effect.fnUntraced(function* (nodeId: NodeId): Effect.fn.Return<B, NodeNotFoundError> {
-    const cached = MutableHashMap.get(memo, nodeId);
-    if (O.isSome(cached)) {
-      return cached.value;
-    }
-    const node = yield* O.match(getNode(graph, nodeId), {
-      onNone: () => Effect.fail(NodeNotFoundError.make({ nodeId })),
-      onSome: (n) => Effect.succeed(n),
+    const go = Effect.fnUntraced(function* (nodeId: NodeId): Effect.fn.Return<B, NodeNotFoundError> {
+      const cached = MutableHashMap.get(memo, nodeId);
+      if (O.isSome(cached)) {
+        return cached.value;
+      }
+      const node = yield* O.match(getNode(graph, nodeId), {
+        onNone: () => Effect.fail(NodeNotFoundError.make({ nodeId })),
+        onSome: (n) => Effect.succeed(n),
+      });
+      // children first (bottom-up); sequential to bound memory on deep graphs
+      const processedChildren = yield* Effect.all(
+        A.map(getChildren(graph, nodeId), (child) => go(child.id)),
+        { concurrency: 1 }
+      );
+      const result = algebra(node, processedChildren);
+      MutableHashMap.set(memo, nodeId, result);
+      return result;
     });
-    // children first (bottom-up); sequential to bound memory on deep graphs
-    const processedChildren = yield* Effect.all(
-      A.map(getChildren(graph, nodeId), (child) => go(child.id)),
+
+    return Effect.all(
+      A.map(getRoots(graph), (root) => go(root.id)),
       { concurrency: 1 }
     );
-    const result = algebra(node, processedChildren);
-    MutableHashMap.set(memo, nodeId, result);
-    return result;
-  });
-
-  return Effect.all(
-    A.map(getRoots(graph), (root) => go(root.id)),
-    { concurrency: 1 }
-  );
-};
+  }
+);
 
 /**
- * Coalgebra: from a seed, produce node data and child seeds.
+ * Coalgebra used by {@link ana} to unfold a seed into node data and child seeds.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import type { GraphCoalgebra } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const countdown: GraphCoalgebra<number, number> = (n) =>
+ *   Effect.succeed([n, n > 0 ? [n - 1] : []])
+ *
+ * const [value, children] = Effect.runSync(countdown(2))
+ * console.log(`${value}:${children.length}`) // "2:1"
+ * ```
+ *
+ * @effects Implementations return an `Effect` for each seed expansion; callers such as `ana` sequence those effects while unfolding the graph.
  * @category models
+ * @since 0.0.0
  */
 export type GraphCoalgebra<A, B> = (seed: B) => Effect.Effect<readonly [A, ReadonlyArray<B>]>;
 
 /**
- * Anamorphism: top-down unfold building a graph from a seed (dual of {@link cata}).
+ * Unfold a seed into a graph by recursively producing child seeds.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { ana, size } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const program = Effect.map(
+ *   ana(2, (n) => Effect.succeed([n, n > 0 ? [n - 1] : []])),
+ *   size
+ * )
+ *
+ * console.log(Effect.runSync(program)) // 3
+ * ```
  *
  * @since 0.0.0
  * @category folding
  */
-export const ana = Effect.fn("ana")(function* <A, B>(
-  seed: B,
-  coalgebra: GraphCoalgebra<A, B>
-): Effect.fn.Return<EffectGraph<A>> {
+export const ana: {
+  <A, B>(seed: B, coalgebra: GraphCoalgebra<A, B>): Effect.Effect<EffectGraph<A>, NodeNotFoundError>;
+  <A, B>(coalgebra: GraphCoalgebra<A, B>): (seed: B) => Effect.Effect<EffectGraph<A>, NodeNotFoundError>;
+} = dual(2, function* <A, B>(seed: B, coalgebra: GraphCoalgebra<A, B>): Effect.fn.Return<EffectGraph<A>> {
   let graph = empty<A>();
 
   const go = Effect.fnUntraced(function* (currentSeed: B, parentId: O.Option<NodeId>): Effect.fn.Return<NodeId> {
@@ -411,12 +621,27 @@ export const ana = Effect.fn("ana")(function* <A, B>(
 // =============================================================================
 
 /**
- * Map over all node data, preserving graph structure (the Functor instance).
+ * Map every node payload while preserving ids, metadata, and edge structure.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { map, singleton, toArray } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const program = Effect.map(singleton("root"), (graph) =>
+ *   toArray(map(graph, (text) => text.length))[0].data
+ * )
+ *
+ * console.log(Effect.runSync(program)) // 4
+ * ```
  *
  * @since 0.0.0
  * @category mapping
  */
-export const map = <A, B>(graph: EffectGraph<A>, f: (a: A) => B): EffectGraph<B> => {
+export const map: {
+  <A, B>(graph: EffectGraph<A>, f: (a: A) => B): EffectGraph<B>;
+  <A, B>(f: (a: A) => B): (graph: EffectGraph<A>) => EffectGraph<B>;
+} = dual(2, <A, B>(graph: EffectGraph<A>, f: (a: A) => B): EffectGraph<B> => {
   const nodeMap = MutableHashMap.empty<NodeId, Graph.NodeIndex>();
   const indexMap = MutableHashMap.empty<Graph.NodeIndex, Graph.NodeIndex>();
 
@@ -449,10 +674,19 @@ export const map = <A, B>(graph: EffectGraph<A>, f: (a: A) => B): EffectGraph<B>
     nodeIdToIndex: HashMap.fromIterable(A.map(entries, ([id, idx]) => [id, idx] as const)),
     indexToNodeId: HashMap.fromIterable(A.map(entries, ([id, idx]) => [idx, id] as const)),
   };
-};
+});
 
 /**
- * Collect all nodes as an array (topologically ordered by the backing graph).
+ * Collect all graph nodes in the backing graph's node order.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { singleton, toArray } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const program = Effect.map(singleton("root"), (graph) => toArray(graph).length)
+ * console.log(Effect.runSync(program)) // 1
+ * ```
  *
  * @since 0.0.0
  * @category getters
@@ -461,7 +695,14 @@ export const toArray = <A>(graph: EffectGraph<A>): ReadonlyArray<GraphNode<A>> =
   A.fromIterable(graph.graph.pipe(Graph.nodes, Graph.values));
 
 /**
- * Number of nodes in the graph.
+ * Count graph nodes.
+ *
+ * @example
+ * ```ts
+ * import { empty, size } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * console.log(size(empty<string>())) // 0
+ * ```
  *
  * @since 0.0.0
  * @category getters
@@ -469,12 +710,28 @@ export const toArray = <A>(graph: EffectGraph<A>): ReadonlyArray<GraphNode<A>> =
 export const size = <A>(graph: EffectGraph<A>): number => Graph.nodeCount(graph.graph);
 
 /**
- * Render the graph as an indented plain-text tree.
+ * Render roots and descendants as an indented plain-text tree.
+ *
+ * @remarks
+ * Each line includes the operation metadata in brackets. Nodes already visited
+ * are skipped, which prevents repeated output for shared descendants.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { show, singleton } from "@beep/nlp/Graph/EffectGraph"
+ *
+ * const program = Effect.map(singleton("root"), show((text) => text))
+ * console.log(Effect.runSync(program)) // "[root] root"
+ * ```
  *
  * @since 0.0.0
  * @category formatting
  */
-export const show = <A>(graph: EffectGraph<A>, showData: (a: A) => string): string => {
+export const show: {
+  <A>(graph: EffectGraph<A>, showData: (a: A) => string): string;
+  <A>(showData: (a: A) => string): (graph: EffectGraph<A>) => string;
+} = dual(2, <A>(graph: EffectGraph<A>, showData: (a: A) => string): string => {
   const lines = A.empty<string>();
   const visited = MutableHashSet.empty<NodeId>();
 
@@ -497,4 +754,4 @@ export const show = <A>(graph: EffectGraph<A>, showData: (a: A) => string): stri
     visit(root.id, 0);
   }
   return A.join(lines, "\n");
-};
+});

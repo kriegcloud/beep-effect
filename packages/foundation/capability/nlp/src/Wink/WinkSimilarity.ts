@@ -62,17 +62,18 @@ const loadSimilarityRuntime = (): SimilarityRuntime => require("wink-nlp/utiliti
 const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => new Set(terms);
 
 /**
- * Parameters controlling the asymmetric Tversky index.
+ * Weights controlling the asymmetric Tversky set similarity index.
  *
  * @example
  * ```ts
  * import { TverskyParams } from "@beep/nlp/Wink/WinkSimilarity"
  *
- * console.log(TverskyParams)
+ * const params = TverskyParams.make({ alpha: 0.7, beta: 0.3 })
+ * console.log(params.alpha + params.beta)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class TverskyParams extends S.Class<TverskyParams>($I`TverskyParams`)(
   {
@@ -89,17 +90,23 @@ export class TverskyParams extends S.Class<TverskyParams>($I`TverskyParams`)(
 }
 
 /**
- * Set of normalized document terms used for set-based similarity.
+ * Normalized terms for one document in set-based similarity comparisons.
  *
  * @example
  * ```ts
+ * import { DocumentId } from "@beep/nlp/Core/Document"
  * import { DocumentTermSet } from "@beep/nlp/Wink/WinkSimilarity"
  *
- * console.log(DocumentTermSet)
+ * const terms = DocumentTermSet.make({
+ *   documentId: DocumentId.make("doc-a"),
+ *   terms: ["effect", "schema", "nlp"]
+ * })
+ *
+ * console.log(terms.terms.length)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet`)(
   {
@@ -116,17 +123,27 @@ export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet
 }
 
 /**
- * Similarity score returned from a wink-backed comparison.
+ * Normalized similarity score returned from a wink-backed comparison.
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
+ * import { DocumentId } from "@beep/nlp/Core/Document"
  * import { SimilarityScore } from "@beep/nlp/Wink/WinkSimilarity"
  *
- * console.log(SimilarityScore)
+ * const score = SimilarityScore.make({
+ *   document1Id: DocumentId.make("doc-a"),
+ *   document2Id: DocumentId.make("doc-b"),
+ *   method: "set.tversky",
+ *   parameters: O.some({ alpha: 0.7, beta: 0.3 }),
+ *   score: 0.8
+ * })
+ *
+ * console.log(score.method)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore`)(
   {
@@ -146,17 +163,18 @@ export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore
 }
 
 /**
- * Error raised while computing wink-backed similarity.
+ * Typed failure for wink-backed vector, set, or bag-of-words similarity.
  *
  * @example
  * ```ts
  * import { SimilarityError } from "@beep/nlp/Wink/WinkSimilarity"
  *
- * console.log(SimilarityError)
+ * const error = SimilarityError.fromCause(new Error("bad vector"), "vectorCosine")
+ * console.log(error.operation)
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`SimilarityError`)(
   "SimilarityError",
@@ -178,7 +196,7 @@ export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`Simila
    */
   static readonly fromCause: {
     (cause: unknown, operation: string): SimilarityError;
-    (cause: unknown): (operation: string) => SimilarityError;
+    (operation: string): (cause: unknown) => SimilarityError;
   } = dual(
     2,
     (cause: unknown, operation: string): SimilarityError =>
@@ -209,7 +227,7 @@ const sanitizeScore = (score: number): number => {
 const makeWinkSimilarity = Effect.gen(function* () {
   const similarity = yield* Effect.try({
     try: loadSimilarityRuntime,
-    catch: (cause) => SimilarityError.fromCause(cause, "initialize"),
+    catch: SimilarityError.fromCause("initialize"),
   });
 
   return WinkSimilarity.of({
@@ -223,7 +241,7 @@ const makeWinkSimilarity = Effect.gen(function* () {
             parameters: O.none(),
             score: sanitizeScore(similarity.bow.cosine(left.bow, right.bow)),
           }),
-        catch: (cause) => SimilarityError.fromCause(cause, "bowCosine"),
+        catch: SimilarityError.fromCause("bowCosine"),
       });
     }),
     setTversky: Effect.fn("Nlp.Wink.WinkSimilarity.setTversky")(function* (
@@ -250,7 +268,7 @@ const makeWinkSimilarity = Effect.gen(function* () {
               )
             ),
           }),
-        catch: (cause) => SimilarityError.fromCause(cause, "setTversky"),
+        catch: SimilarityError.fromCause("setTversky"),
       });
     }),
     vectorCosine: Effect.fn("Nlp.Wink.WinkSimilarity.vectorCosine")(function* (
@@ -266,38 +284,69 @@ const makeWinkSimilarity = Effect.gen(function* () {
             parameters: O.none(),
             score: sanitizeScore(similarity.vector.cosine(left.vector, right.vector)),
           }),
-        catch: (cause) => SimilarityError.fromCause(cause, "vectorCosine"),
+        catch: SimilarityError.fromCause("vectorCosine"),
       });
     }),
   });
 }).pipe(Effect.withSpan("Nlp.Wink.WinkSimilarity.make"));
 
 /**
- * Wink similarity service.
+ * Service for computing cosine and Tversky scores using wink similarity helpers.
  *
  * @example
  * ```ts
- * import { WinkSimilarity } from "@beep/nlp/Wink/WinkSimilarity"
+ * import { Effect } from "effect"
+ * import { DocumentId } from "@beep/nlp/Core/Document"
+ * import {
+ *   DocumentTermSet,
+ *   TverskyParams,
+ *   WinkSimilarity,
+ *   WinkSimilarityLive
+ * } from "@beep/nlp/Wink/WinkSimilarity"
  *
- * console.log(WinkSimilarity)
+ * const compare = Effect.gen(function* () {
+ *   const similarity = yield* WinkSimilarity
+ *   return yield* similarity.setTversky(
+ *     DocumentTermSet.make({ documentId: DocumentId.make("doc-a"), terms: ["effect", "schema"] }),
+ *     DocumentTermSet.make({ documentId: DocumentId.make("doc-b"), terms: ["effect", "docs"] }),
+ *     TverskyParams.make({ alpha: 0.5, beta: 0.5 })
+ *   )
+ * })
+ *
+ * Effect.runPromise(compare.pipe(Effect.provide(WinkSimilarityLive))).then((score) =>
+ *   console.log(score.score)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category services
+ * @since 0.0.0
  */
 export class WinkSimilarity extends Context.Service<WinkSimilarity, WinkSimilarityShape>()($I`WinkSimilarity`) {}
 
 /**
- * Live wink similarity layer.
+ * Live layer for wink similarity utilities.
  *
  * @example
  * ```ts
- * import { WinkSimilarityLive } from "@beep/nlp/Wink/WinkSimilarity"
+ * import { Effect } from "effect"
+ * import { DocumentId } from "@beep/nlp/Core/Document"
+ * import { DocumentTermSet, TverskyParams, WinkSimilarity, WinkSimilarityLive } from "@beep/nlp/Wink/WinkSimilarity"
  *
- * console.log(WinkSimilarityLive)
+ * const program = Effect.gen(function* () {
+ *   const similarity = yield* WinkSimilarity
+ *   return yield* similarity.setTversky(
+ *     DocumentTermSet.make({ documentId: DocumentId.make("left"), terms: ["nlp"] }),
+ *     DocumentTermSet.make({ documentId: DocumentId.make("right"), terms: ["nlp", "search"] }),
+ *     TverskyParams.make({ alpha: 0.5, beta: 0.5 })
+ *   )
+ * })
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(WinkSimilarityLive))).then((score) =>
+ *   console.log(score.method)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkSimilarityLive = Layer.effect(WinkSimilarity, makeWinkSimilarity);

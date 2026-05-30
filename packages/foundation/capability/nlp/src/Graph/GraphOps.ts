@@ -23,8 +23,8 @@
 import { $NlpId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { A, O, thunkTrue } from "@beep/utils";
-import { Effect, Graph, HashMap, HashSet, MutableHashMap, Stream } from "effect";
-import { identity } from "effect/Function";
+import { Effect, flow, Graph, HashMap, HashSet, MutableHashMap, Stream } from "effect";
+import { dual, identity } from "effect/Function";
 import * as R from "effect/Record";
 
 const $I = $NlpId.create("Graph/GraphOps");
@@ -34,7 +34,15 @@ const $I = $NlpId.create("Graph/GraphOps");
 // =============================================================================
 
 /**
- * A directed graph with node data `A` and edge data `E`.
+ * Alias for Effect's directed graph type used by generic graph utilities.
+ *
+ * @example
+ * ```ts
+ * import { empty, nodeCount, type DirectedGraph } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph: DirectedGraph<string, string> = empty()
+ * console.log(nodeCount(graph)) // 0
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -42,7 +50,17 @@ const $I = $NlpId.create("Graph/GraphOps");
 export type DirectedGraph<A, E> = Graph.DirectedGraph<A, E>;
 
 /**
- * A node index within a graph.
+ * Stable node index allocated by the backing `effect/Graph`.
+ *
+ * @example
+ * ```ts
+ * import { getRoots, singleton, type NodeIndex } from "@beep/nlp/Graph/GraphOps"
+ * import * as A from "effect/Array"
+ * import * as O from "effect/Option"
+ *
+ * const firstRoot: O.Option<NodeIndex> = A.head(getRoots(singleton<string, string>("root")))
+ * console.log(O.isSome(firstRoot)) // true
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -50,7 +68,15 @@ export type DirectedGraph<A, E> = Graph.DirectedGraph<A, E>;
 export type NodeIndex = Graph.NodeIndex;
 
 /**
- * A graph walker for ordered traversals.
+ * Effect graph walker used for ordered graph traversals.
+ *
+ * @example
+ * ```ts
+ * import type { NodeWalker } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const consume = <A>(walker: NodeWalker<A>) => walker
+ * console.log(consume)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -61,6 +87,18 @@ export type NodeWalker<A> = Graph.NodeWalker<A>;
  * An immutable search index mapping search keys to node indices, paired with the
  * key-extraction function that produced it (the `index` side of `query ⊣ index`).
  *
+ * @example
+ * ```ts
+ * import { buildIndex, singleton, type SearchIndex } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const index: SearchIndex<string, string> = buildIndex(
+ *   singleton<string, string>("Root"),
+ *   (node) => [node.toLowerCase()]
+ * )
+ *
+ * console.log(index.keyFn("Root")) // ["root"]
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -70,7 +108,14 @@ export interface SearchIndex<K, A> {
 }
 
 /**
- * Traversal order for ordered folds and walks.
+ * Traversal order for ordered folds, walkers, streams, and batches.
+ *
+ * @example
+ * ```ts
+ * import { TraversalOrder } from "@beep/nlp/Graph/GraphOps"
+ *
+ * console.log(TraversalOrder.is.dfs("dfs")) // true
+ * ```
  *
  * @since 0.0.0
  * @category schemas
@@ -149,107 +194,242 @@ const createWalker = <A, E>(
 // =============================================================================
 
 /**
- * Map over node data, preserving edges (Functor; obeys identity/composition).
+ * Map node data while preserving every surviving edge.
+ *
+ * @remarks
+ * The graph is reconstructed because the backing `effect/Graph` node mapper
+ * cannot change the node type in place. Node indices are reallocated in the
+ * returned graph; use node payloads, not old indices, across this boundary.
+ *
+ * @example
+ * ```ts
+ * import { collectNodes, mapNodes, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = mapNodes(singleton<string, string>("root"), (node) => node.length)
+ * console.log(collectNodes(graph)) // [4]
+ * ```
  *
  * @since 0.0.0
  * @category mapping
  */
-export const mapNodes = <A, B, E>(graph: DirectedGraph<A, E>, f: (node: A) => B): DirectedGraph<B, E> =>
-  reconstruct<A, E, B, E>(graph, thunkTrue, f, thunkTrue, identity);
+export const mapNodes: {
+  <A, B, E>(graph: DirectedGraph<A, E>, f: (node: A) => B): DirectedGraph<B, E>;
+  <A, B, E>(f: (node: A) => B): (graph: DirectedGraph<A, E>) => DirectedGraph<B, E>;
+} = dual(
+  2,
+  <A, B, E>(graph: DirectedGraph<A, E>, f: (node: A) => B): DirectedGraph<B, E> =>
+    reconstruct<A, E, B, E>(graph, thunkTrue, f, thunkTrue, identity)
+);
 
 /**
- * Map over edge data, preserving nodes (Functor).
+ * Map edge data while preserving node payloads and connectivity.
+ *
+ * @example
+ * ```ts
+ * import { edgeCount, mapEdges, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = mapEdges(singleton<string, string>("root"), (edge) => edge.toUpperCase())
+ * console.log(edgeCount(graph)) // 0
+ * ```
  *
  * @since 0.0.0
  * @category mapping
  */
-export const mapEdges = <A, E, F>(graph: DirectedGraph<A, E>, f: (edge: E) => F): DirectedGraph<A, F> =>
-  reconstruct<A, E, A, F>(graph, thunkTrue, identity, thunkTrue, (edge) => f(edge));
+export const mapEdges: {
+  <A, E, F>(graph: DirectedGraph<A, E>, f: (edge: E) => F): DirectedGraph<A, F>;
+  <A, E, F>(f: (edge: E) => F): (graph: DirectedGraph<A, E>) => DirectedGraph<A, F>;
+} = dual(
+  2,
+  <A, E, F>(graph: DirectedGraph<A, E>, f: (edge: E) => F): DirectedGraph<A, F> =>
+    reconstruct<A, E, A, F>(graph, thunkTrue, identity, thunkTrue, (edge) => f(edge))
+);
 
 /**
- * Map over both node and edge data simultaneously (Bifunctor).
+ * Map node and edge data in one reconstruction pass.
+ *
+ * @example
+ * ```ts
+ * import { bimap, collectNodes, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = bimap(
+ *   singleton<string, string>("root"),
+ *   (node) => node.length,
+ *   (edge) => edge.length
+ * )
+ *
+ * console.log(collectNodes(graph)) // [4]
+ * ```
  *
  * @since 0.0.0
  * @category mapping
  */
-export const bimap = <A, B, E, F>(
-  graph: DirectedGraph<A, E>,
-  nodeF: (node: A) => B,
-  edgeF: (edge: E) => F
-): DirectedGraph<B, F> =>
-  reconstruct<A, E, B, F>(
-    graph,
-    thunkTrue,
-    (node) => nodeF(node),
-    thunkTrue,
-    (edge) => edgeF(edge)
-  );
+export const bimap: {
+  <A, B, E, F>(graph: DirectedGraph<A, E>, nodeF: (node: A) => B, edgeF: (edge: E) => F): DirectedGraph<B, F>;
+  <A, B, E, F>(nodeF: (node: A) => B, edgeF: (edge: E) => F): (graph: DirectedGraph<A, E>) => DirectedGraph<B, F>;
+} = dual(
+  3,
+  <A, B, E, F>(graph: DirectedGraph<A, E>, nodeF: (node: A) => B, edgeF: (edge: E) => F): DirectedGraph<B, F> =>
+    reconstruct<A, E, B, F>(
+      graph,
+      thunkTrue,
+      (node) => nodeF(node),
+      thunkTrue,
+      (edge) => edgeF(edge)
+    )
+);
 
 // =============================================================================
 // Filtering and Selection
 // =============================================================================
 
 /**
- * Keep only nodes matching the predicate; edges touching dropped nodes are removed.
+ * Keep matching nodes and remove edges touching dropped nodes.
+ *
+ * @example
+ * ```ts
+ * import { filterNodes, nodeCount, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = filterNodes(singleton<string, string>("root"), (node) => node.startsWith("r"))
+ * console.log(nodeCount(graph)) // 1
+ * ```
  *
  * @since 0.0.0
  * @category filtering
  */
-export const filterNodes = <A, E>(graph: DirectedGraph<A, E>, predicate: (node: A) => boolean): DirectedGraph<A, E> =>
-  reconstruct<A, E, A, E>(graph, (node) => predicate(node), identity, thunkTrue, identity);
+export const filterNodes: {
+  <A, E>(graph: DirectedGraph<A, E>, predicate: (node: A) => boolean): DirectedGraph<A, E>;
+  <A, E>(predicate: (node: A) => boolean): (graph: DirectedGraph<A, E>) => DirectedGraph<A, E>;
+} = dual(
+  2,
+  <A, E>(graph: DirectedGraph<A, E>, predicate: (node: A) => boolean): DirectedGraph<A, E> =>
+    reconstruct<A, E, A, E>(graph, (node) => predicate(node), identity, thunkTrue, identity)
+);
 
 /**
- * Keep only edges matching the predicate; all nodes are preserved.
+ * Keep matching edges while preserving all nodes.
+ *
+ * @example
+ * ```ts
+ * import { filterEdges, nodeCount, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = filterEdges(singleton<string, string>("root"), (edge) => edge === "contains")
+ * console.log(nodeCount(graph)) // 1
+ * ```
  *
  * @since 0.0.0
  * @category filtering
  */
-export const filterEdges = <A, E>(graph: DirectedGraph<A, E>, predicate: (edge: E) => boolean): DirectedGraph<A, E> =>
-  reconstruct<A, E, A, E>(graph, thunkTrue, identity, (edge) => predicate(edge), identity);
+export const filterEdges: {
+  <A, E>(graph: DirectedGraph<A, E>, predicate: (edge: E) => boolean): DirectedGraph<A, E>;
+  <A, E>(predicate: (edge: E) => boolean): (graph: DirectedGraph<A, E>) => DirectedGraph<A, E>;
+} = dual(
+  2,
+  <A, E>(graph: DirectedGraph<A, E>, predicate: (edge: E) => boolean): DirectedGraph<A, E> =>
+    reconstruct<A, E, A, E>(graph, thunkTrue, identity, (edge) => predicate(edge), identity)
+);
 
 /**
- * Find all node indices whose data matches the predicate.
+ * Find node indices whose payload matches a predicate.
+ *
+ * @example
+ * ```ts
+ * import { findNodes, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const indices = findNodes(singleton<string, string>("root"), (node) => node === "root")
+ * console.log(indices.length) // 1
+ * ```
  *
  * @since 0.0.0
  * @category getters
  */
-export const findNodes = <A, E>(
-  graph: DirectedGraph<A, E>,
-  predicate: (node: A) => boolean
-): ReadonlyArray<NodeIndex> => Graph.findNodes(graph, predicate);
+export const findNodes: {
+  <A, E>(graph: DirectedGraph<A, E>, predicate: (node: A) => boolean): ReadonlyArray<NodeIndex>;
+  <A, E>(predicate: (node: A) => boolean): (graph: DirectedGraph<A, E>) => ReadonlyArray<NodeIndex>;
+} = dual(
+  2,
+  <A, E>(graph: DirectedGraph<A, E>, predicate: (node: A) => boolean): ReadonlyArray<NodeIndex> =>
+    Graph.findNodes(graph, predicate)
+);
 
 // =============================================================================
 // Folds and Aggregations (Monoid Homomorphisms)
 // =============================================================================
 
 /**
- * Fold over all node data in unspecified order.
+ * Fold all node payloads in the backing graph's iteration order.
+ *
+ * @example
+ * ```ts
+ * import { foldNodes, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const total = foldNodes(singleton<string, string>("root"), 0, (sum, node) => sum + node.length)
+ * console.log(total) // 4
+ * ```
  *
  * @since 0.0.0
  * @category folding
  */
-export const foldNodes = <A, E, B>(graph: DirectedGraph<A, E>, initial: B, f: (acc: B, node: A) => B): B =>
-  A.reduce(A.fromIterable(graph.pipe(Graph.nodes, Graph.values)), initial, (acc, node) => f(acc, node));
+export const foldNodes: {
+  <A, E, B>(graph: DirectedGraph<A, E>, initial: B, f: (acc: B, node: A) => B): B;
+  <A, E, B>(initial: B, f: (acc: B, node: A) => B): (graph: DirectedGraph<A, E>) => B;
+} = dual(
+  3,
+  <A, E, B>(graph: DirectedGraph<A, E>, initial: B, f: (acc: B, node: A) => B): B =>
+    A.reduce(A.fromIterable(graph.pipe(Graph.nodes, Graph.values)), initial, (acc, node) => f(acc, node))
+);
 
 /**
- * Fold over node data in a specific traversal order.
+ * Fold node payloads in `dfs`, `bfs`, or topological traversal order.
+ *
+ * @example
+ * ```ts
+ * import { foldTraversal, getRoots, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = singleton<string, string>("root")
+ * const total = foldTraversal(graph, getRoots(graph), "dfs", 0, (sum, node) => sum + node.length)
+ * console.log(total) // 4
+ * ```
  *
  * @since 0.0.0
  * @category folding
  */
-export const foldTraversal = <A, E, B>(
-  graph: DirectedGraph<A, E>,
-  start: ReadonlyArray<NodeIndex>,
-  order: TraversalOrder,
-  initial: B,
-  f: (acc: B, node: A, index: NodeIndex) => B
-): B =>
-  A.reduce(A.fromIterable(Graph.entries(createWalker(graph, start, order))), initial, (acc, [index, node]) =>
-    f(acc, node, index)
-  );
+export const foldTraversal: {
+  <A, E, B>(
+    graph: DirectedGraph<A, E>,
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    initial: B,
+    f: (acc: B, node: A, index: NodeIndex) => B
+  ): B;
+  <A, E, B>(
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    initial: B,
+    f: (acc: B, node: A, index: NodeIndex) => B
+  ): (graph: DirectedGraph<A, E>) => B;
+} = dual(
+  5,
+  <A, E, B>(
+    graph: DirectedGraph<A, E>,
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    initial: B,
+    f: (acc: B, node: A, index: NodeIndex) => B
+  ): B =>
+    A.reduce(A.fromIterable(Graph.entries(createWalker(graph, start, order))), initial, (acc, [index, node]) =>
+      f(acc, node, index)
+    )
+);
 
 /**
- * Collect all node data into an array (order unspecified).
+ * Collect every node payload in the backing graph's iteration order.
+ *
+ * @example
+ * ```ts
+ * import { collectNodes, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * console.log(collectNodes(singleton<string, string>("root"))) // ["root"]
+ * ```
  *
  * @since 0.0.0
  * @category getters
@@ -258,23 +438,41 @@ export const collectNodes = <A, E>(graph: DirectedGraph<A, E>): ReadonlyArray<A>
   A.fromIterable(graph.pipe(Graph.nodes, Graph.values));
 
 /**
- * Collect node data in a traversal order.
+ * Collect node payloads in `dfs`, `bfs`, or topological traversal order.
+ *
+ * @example
+ * ```ts
+ * import { collectTraversal, getRoots, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = singleton<string, string>("root")
+ * console.log(collectTraversal(graph, getRoots(graph), "dfs")) // ["root"]
+ * ```
  *
  * @since 0.0.0
  * @category getters
  */
-export const collectTraversal = <A, E>(
-  graph: DirectedGraph<A, E>,
-  start: ReadonlyArray<NodeIndex>,
-  order: TraversalOrder
-): ReadonlyArray<A> => foldTraversal(graph, start, order, A.empty<A>(), (acc, node) => A.append(acc, node));
+export const collectTraversal: {
+  <A, E>(graph: DirectedGraph<A, E>, start: ReadonlyArray<NodeIndex>, order: TraversalOrder): ReadonlyArray<A>;
+  <A, E>(start: ReadonlyArray<NodeIndex>, order: TraversalOrder): (graph: DirectedGraph<A, E>) => ReadonlyArray<A>;
+} = dual(
+  3,
+  <A, E>(graph: DirectedGraph<A, E>, start: ReadonlyArray<NodeIndex>, order: TraversalOrder): ReadonlyArray<A> =>
+    foldTraversal(graph, start, order, A.empty<A>(), (acc, node) => A.append(acc, node))
+);
 
 // =============================================================================
 // Traversal Utilities
 // =============================================================================
 
 /**
- * Root node indices (no incoming edges).
+ * Return node indices with no incoming edges.
+ *
+ * @example
+ * ```ts
+ * import { getRoots, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * console.log(getRoots(singleton<string, string>("root")).length) // 1
+ * ```
  *
  * @since 0.0.0
  * @category getters
@@ -283,7 +481,14 @@ export const getRoots = <A, E>(graph: DirectedGraph<A, E>): ReadonlyArray<NodeIn
   A.fromIterable(Graph.indices(Graph.externals(graph, { direction: "incoming" })));
 
 /**
- * Leaf node indices (no outgoing edges).
+ * Return node indices with no outgoing edges.
+ *
+ * @example
+ * ```ts
+ * import { getLeaves, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * console.log(getLeaves(singleton<string, string>("root")).length) // 1
+ * ```
  *
  * @since 0.0.0
  * @category getters
@@ -292,37 +497,84 @@ export const getLeaves = <A, E>(graph: DirectedGraph<A, E>): ReadonlyArray<NodeI
   A.fromIterable(Graph.indices(Graph.externals(graph, { direction: "outgoing" })));
 
 /**
- * Child node indices of a node.
+ * Return direct outgoing neighbor indices for a node.
+ *
+ * @example
+ * ```ts
+ * import { getChildren, getRoots, singleton } from "@beep/nlp/Graph/GraphOps"
+ * import * as A from "effect/Array"
+ * import * as O from "effect/Option"
+ *
+ * const graph = singleton<string, string>("root")
+ * const children = O.match(A.head(getRoots(graph)), {
+ *   onNone: () => [],
+ *   onSome: (root) => getChildren(graph, root)
+ * })
+ *
+ * console.log(children.length) // 0
+ * ```
  *
  * @since 0.0.0
  * @category getters
  */
-export const getChildren = <A, E>(graph: DirectedGraph<A, E>, nodeIndex: NodeIndex): ReadonlyArray<NodeIndex> =>
-  Graph.neighbors(graph, nodeIndex);
+export const getChildren: {
+  <A, E>(graph: DirectedGraph<A, E>, nodeIndex: NodeIndex): ReadonlyArray<NodeIndex>;
+  <A, E>(nodeIndex: NodeIndex): (graph: DirectedGraph<A, E>) => ReadonlyArray<NodeIndex>;
+} = dual(
+  2,
+  <A, E>(graph: DirectedGraph<A, E>, nodeIndex: NodeIndex): ReadonlyArray<NodeIndex> =>
+    Graph.neighbors(graph, nodeIndex)
+);
 
 /**
- * Node data at an index, if present.
+ * Return node payload at an index, when the index exists.
+ *
+ * @example
+ * ```ts
+ * import { getNode, getRoots, singleton } from "@beep/nlp/Graph/GraphOps"
+ * import * as A from "effect/Array"
+ * import * as O from "effect/Option"
+ *
+ * const graph = singleton<string, string>("root")
+ * const rootText = O.flatMap(A.head(getRoots(graph)), (root) => getNode(graph, root))
+ *
+ * console.log(O.getOrElse(rootText, () => "missing")) // "root"
+ * ```
  *
  * @since 0.0.0
  * @category getters
  */
-export const getNode = <A, E>(graph: DirectedGraph<A, E>, nodeIndex: NodeIndex): O.Option<A> =>
-  Graph.getNode(graph, nodeIndex);
+export const getNode: {
+  <A, E>(graph: DirectedGraph<A, E>, nodeIndex: NodeIndex): O.Option<A>;
+  <A, E>(nodeIndex: NodeIndex): (graph: DirectedGraph<A, E>) => O.Option<A>;
+} = dual(2, <A, E>(graph: DirectedGraph<A, E>, nodeIndex: NodeIndex): O.Option<A> => Graph.getNode(graph, nodeIndex));
 
 // =============================================================================
 // Search Operations (Adjoint Functors: Query ⊣ Index)
 // =============================================================================
 
 /**
- * Build a search index from a graph (the `index` functor of `query ⊣ index`).
+ * Build a search index from keys extracted from each node payload.
+ *
+ * @remarks
+ * A single node can contribute multiple keys. The stored node indices belong to
+ * the indexed graph, so rebuild the index after reconstructing or merging graphs.
+ *
+ * @example
+ * ```ts
+ * import { buildIndex, queryIndex, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const index = buildIndex(singleton<string, string>("Root"), (node) => [node.toLowerCase()])
+ * console.log(queryIndex(index, "root").length) // 1
+ * ```
  *
  * @since 0.0.0
  * @category queries
  */
-export const buildIndex = <A, E, K>(
-  graph: DirectedGraph<A, E>,
-  keyFn: (node: A) => ReadonlyArray<K>
-): SearchIndex<K, A> => {
+export const buildIndex: {
+  <A, E, K>(graph: DirectedGraph<A, E>, keyFn: (node: A) => ReadonlyArray<K>): SearchIndex<K, A>;
+  <A, E, K>(keyFn: (node: A) => ReadonlyArray<K>): (graph: DirectedGraph<A, E>) => SearchIndex<K, A>;
+} = dual(2, <A, E, K>(graph: DirectedGraph<A, E>, keyFn: (node: A) => ReadonlyArray<K>): SearchIndex<K, A> => {
   const index = A.reduce(
     A.fromIterable(graph.pipe(Graph.nodes, Graph.entries)),
     HashMap.empty<K, ReadonlyArray<NodeIndex>>(),
@@ -337,168 +589,358 @@ export const buildIndex = <A, E, K>(
       )
   );
   return { index, keyFn };
-};
+});
 
 /**
- * Query a search index for a single key (the `query` functor of `query ⊣ index`).
+ * Query a search index for one key.
+ *
+ * @example
+ * ```ts
+ * import { buildIndex, queryIndex, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const index = buildIndex(singleton<string, string>("Root"), (node) => [node.toLowerCase()])
+ * console.log(queryIndex(index, "missing").length) // 0
+ * ```
  *
  * @since 0.0.0
  * @category queries
  */
-export const queryIndex = <K, A>(searchIndex: SearchIndex<K, A>, key: K): ReadonlyArray<NodeIndex> =>
-  O.getOrElse(HashMap.get(searchIndex.index, key), A.empty<NodeIndex>);
+export const queryIndex: {
+  <K, A>(searchIndex: SearchIndex<K, A>, key: K): ReadonlyArray<NodeIndex>;
+  <K, A>(key: K): (searchIndex: SearchIndex<K, A>) => ReadonlyArray<NodeIndex>;
+} = dual(
+  2,
+  <K, A>(searchIndex: SearchIndex<K, A>, key: K): ReadonlyArray<NodeIndex> =>
+    O.getOrElse(HashMap.get(searchIndex.index, key), A.empty<NodeIndex>)
+);
 
 /**
- * Query a search index for any of several keys (union semantics, deduplicated).
+ * Query a search index for any matching key, returning deduplicated indices.
+ *
+ * @example
+ * ```ts
+ * import { buildIndex, queryIndexUnion, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const index = buildIndex(singleton<string, string>("Root"), (node) => [node, node.toLowerCase()])
+ * console.log(queryIndexUnion(index, ["Root", "root"]).length) // 1
+ * ```
  *
  * @since 0.0.0
  * @category queries
  */
-export const queryIndexUnion = <K, A>(
-  searchIndex: SearchIndex<K, A>,
-  keys: ReadonlyArray<K>
-): ReadonlyArray<NodeIndex> =>
-  A.fromIterable(
-    A.reduce(keys, HashSet.empty<NodeIndex>(), (set, key) =>
-      A.reduce(queryIndex(searchIndex, key), set, (acc, nodeIndex) => HashSet.add(acc, nodeIndex))
+export const queryIndexUnion: {
+  <K, A>(searchIndex: SearchIndex<K, A>, keys: ReadonlyArray<K>): ReadonlyArray<NodeIndex>;
+  <K, A>(keys: ReadonlyArray<K>): (searchIndex: SearchIndex<K, A>) => ReadonlyArray<NodeIndex>;
+} = dual(
+  2,
+  <K, A>(searchIndex: SearchIndex<K, A>, keys: ReadonlyArray<K>): ReadonlyArray<NodeIndex> =>
+    A.fromIterable(
+      A.reduce(keys, HashSet.empty<NodeIndex>(), (set, key) =>
+        A.reduce(queryIndex(searchIndex, key), set, (acc, nodeIndex) => HashSet.add(acc, nodeIndex))
+      )
     )
-  );
+);
 
 /**
- * Query a search index for all of several keys (intersection semantics).
+ * Query a search index for indices present under every supplied key.
+ *
+ * @example
+ * ```ts
+ * import { buildIndex, queryIndexIntersection, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const index = buildIndex(singleton<string, string>("Root"), (node) => [node, node.toLowerCase()])
+ * console.log(queryIndexIntersection(index, ["Root", "root"]).length) // 1
+ * ```
  *
  * @since 0.0.0
  * @category queries
  */
-export const queryIndexIntersection = <K, A>(
-  searchIndex: SearchIndex<K, A>,
-  keys: ReadonlyArray<K>
-): ReadonlyArray<NodeIndex> =>
-  O.match(A.head(keys), {
-    onNone: A.empty<NodeIndex>,
-    onSome: (firstKey) => {
-      const firstResults = A.fromIterable(HashSet.fromIterable(queryIndex(searchIndex, firstKey)));
-      const restSets = A.map(A.drop(keys, 1), (key) => HashSet.fromIterable(queryIndex(searchIndex, key)));
-      return A.filter(firstResults, (nodeIndex) =>
-        A.reduce(restSets, true, (ok, set) => ok && HashSet.has(set, nodeIndex))
-      );
-    },
-  });
+export const queryIndexIntersection: {
+  <K, A>(searchIndex: SearchIndex<K, A>, keys: ReadonlyArray<K>): ReadonlyArray<NodeIndex>;
+  <K, A>(keys: ReadonlyArray<K>): (searchIndex: SearchIndex<K, A>) => ReadonlyArray<NodeIndex>;
+} = dual(
+  2,
+  <K, A>(searchIndex: SearchIndex<K, A>, keys: ReadonlyArray<K>): ReadonlyArray<NodeIndex> =>
+    O.match(A.head(keys), {
+      onNone: A.empty<NodeIndex>,
+      onSome: (firstKey) => {
+        const firstResults = A.fromIterable(HashSet.fromIterable(queryIndex(searchIndex, firstKey)));
+        const restSets = A.map(A.drop(keys, 1), (key) => HashSet.fromIterable(queryIndex(searchIndex, key)));
+        return A.filter(firstResults, (nodeIndex) =>
+          A.reduce(restSets, true, (ok, set) => ok && HashSet.has(set, nodeIndex))
+        );
+      },
+    })
+);
 
 // =============================================================================
 // Effect-Based Operations
 // =============================================================================
 
 /**
- * Traverse the graph in order, running an effect per node (effects sequenced).
+ * Traverse nodes in order, running one effect per visited node.
+ *
+ * @remarks
+ * Effects are sequenced in walker order. Use this for side-effecting visitors
+ * where the return values are intentionally discarded.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { getRoots, singleton, traverseNodes } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = singleton<string, string>("root")
+ * const program = traverseNodes(graph, getRoots(graph), "dfs", () => Effect.void)
+ *
+ * console.log(Effect.runSync(program))
+ * ```
  *
  * @since 0.0.0
  * @category sequencing
  */
-export const traverseNodes = <A, E, R, Err>(
-  graph: DirectedGraph<A, E>,
-  start: ReadonlyArray<NodeIndex>,
-  order: TraversalOrder,
-  f: (node: A, index: NodeIndex) => Effect.Effect<void, Err, R>
-): Effect.Effect<void, Err, R> =>
-  Effect.forEach(A.fromIterable(Graph.entries(createWalker(graph, start, order))), ([index, node]) => f(node, index), {
-    discard: true,
-  });
+export const traverseNodes: {
+  <A, E, R, Err>(
+    graph: DirectedGraph<A, E>,
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    f: (node: A, index: NodeIndex) => Effect.Effect<void, Err, R>
+  ): Effect.Effect<void, Err, R>;
+  <A, E, R, Err>(
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    f: (node: A, index: NodeIndex) => Effect.Effect<void, Err, R>
+  ): (graph: DirectedGraph<A, E>) => Effect.Effect<void, Err, R>;
+} = dual(
+  4,
+  <A, E, R, Err>(
+    graph: DirectedGraph<A, E>,
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    f: (node: A, index: NodeIndex) => Effect.Effect<void, Err, R>
+  ): Effect.Effect<void, Err, R> =>
+    Effect.forEach(
+      A.fromIterable(Graph.entries(createWalker(graph, start, order))),
+      ([index, node]) => f(node, index),
+      {
+        discard: true,
+      }
+    )
+);
 
 /**
- * Traverse the graph in order, running an effect per node and collecting results.
+ * Traverse nodes in order and collect each effect result.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { getRoots, singleton, traverseNodesCollect } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = singleton<string, string>("root")
+ * const program = traverseNodesCollect(graph, getRoots(graph), "dfs", (node) =>
+ *   Effect.succeed(node.length)
+ * )
+ *
+ * console.log(Effect.runSync(program)) // [4]
+ * ```
  *
  * @since 0.0.0
  * @category sequencing
  */
-export const traverseNodesCollect = <A, E, B, Err, R>(
-  graph: DirectedGraph<A, E>,
-  start: ReadonlyArray<NodeIndex>,
-  order: TraversalOrder,
-  f: (node: A, index: NodeIndex) => Effect.Effect<B, Err, R>
-): Effect.Effect<ReadonlyArray<B>, Err, R> =>
-  Effect.forEach(A.fromIterable(Graph.entries(createWalker(graph, start, order))), ([index, node]) => f(node, index));
+export const traverseNodesCollect: {
+  <A, E, B, Err, R>(
+    graph: DirectedGraph<A, E>,
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    f: (node: A, index: NodeIndex) => Effect.Effect<B, Err, R>
+  ): Effect.Effect<ReadonlyArray<B>, Err, R>;
+  <A, E, B, Err, R>(
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    f: (node: A, index: NodeIndex) => Effect.Effect<B, Err, R>
+  ): (graph: DirectedGraph<A, E>) => Effect.Effect<ReadonlyArray<B>, Err, R>;
+} = dual(
+  4,
+  <A, E, B, Err, R>(
+    graph: DirectedGraph<A, E>,
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    f: (node: A, index: NodeIndex) => Effect.Effect<B, Err, R>
+  ): Effect.Effect<ReadonlyArray<B>, Err, R> =>
+    Effect.forEach(A.fromIterable(Graph.entries(createWalker(graph, start, order))), ([index, node]) => f(node, index))
+);
 
 /**
- * Map over node data with an effectful function, returning a new graph.
+ * Map node payloads with an effectful function and reconstruct the graph.
+ *
+ * @remarks
+ * The returned graph has reallocated node indices, while edge connectivity is
+ * preserved through an internal old-to-new index remap.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { collectNodes, mapNodesEffect, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const program = Effect.map(
+ *   mapNodesEffect(singleton<string, string>("root"), (node) => Effect.succeed(node.length)),
+ *   collectNodes
+ * )
+ *
+ * console.log(Effect.runSync(program)) // [4]
+ * ```
  *
  * @since 0.0.0
  * @category mapping
  */
-export const mapNodesEffect = Effect.fn("mapNodesEffect")(function* <A, B, E, Err, R>(
-  graph: DirectedGraph<A, E>,
-  f: (node: A, index: NodeIndex) => Effect.Effect<B, Err, R>
-): Effect.fn.Return<DirectedGraph<B, E>, Err, R> {
-  const pairs = yield* Effect.forEach(A.fromIterable(graph.pipe(Graph.nodes, Graph.entries)), ([index, node]) =>
-    Effect.map(f(node, index), (transformed) => [index, transformed] as const)
-  );
-  const indexMap = MutableHashMap.empty<NodeIndex, NodeIndex>();
-  return Graph.directed<B, E>((mutable) => {
-    A.forEach(pairs, ([oldIndex, transformed]) => {
-      MutableHashMap.set(indexMap, oldIndex, Graph.addNode(mutable, transformed));
-    });
-    for (const edgeIndex of Graph.indices(graph.pipe(Graph.edges))) {
-      O.match(Graph.getEdge(graph, edgeIndex), {
-        onNone: () => {},
-        onSome: (edge) => {
-          const from = MutableHashMap.get(indexMap, edge.source);
-          const to = MutableHashMap.get(indexMap, edge.target);
-          if (O.isSome(from) && O.isSome(to)) {
-            Graph.addEdge(mutable, from.value, to.value, edge.data);
-          }
-        },
+export const mapNodesEffect: {
+  <A, B, E, Err, R>(
+    graph: DirectedGraph<A, E>,
+    f: (node: A, index: NodeIndex) => Effect.Effect<B, Err, R>
+  ): Effect.Effect<DirectedGraph<B, E>, Err, R>;
+  <A, B, E, Err, R>(
+    f: (node: A, index: NodeIndex) => Effect.Effect<B, Err, R>
+  ): (graph: DirectedGraph<A, E>) => Effect.Effect<DirectedGraph<B, E>, Err, R>;
+} = dual(
+  2,
+  Effect.fn("mapNodesEffect")(function* <A, B, E, Err, R>(
+    graph: DirectedGraph<A, E>,
+    f: (node: A, index: NodeIndex) => Effect.Effect<B, Err, R>
+  ): Effect.fn.Return<DirectedGraph<B, E>, Err, R> {
+    const pairs = yield* Effect.forEach(A.fromIterable(graph.pipe(Graph.nodes, Graph.entries)), ([index, node]) =>
+      Effect.map(f(node, index), (transformed) => [index, transformed] as const)
+    );
+    const indexMap = MutableHashMap.empty<NodeIndex, NodeIndex>();
+    return Graph.directed<B, E>((mutable) => {
+      A.forEach(pairs, ([oldIndex, transformed]) => {
+        MutableHashMap.set(indexMap, oldIndex, Graph.addNode(mutable, transformed));
       });
-    }
-  });
-});
+      for (const edgeIndex of Graph.indices(graph.pipe(Graph.edges))) {
+        O.match(Graph.getEdge(graph, edgeIndex), {
+          onNone: () => {},
+          onSome: (edge) => {
+            const from = MutableHashMap.get(indexMap, edge.source);
+            const to = MutableHashMap.get(indexMap, edge.target);
+            if (O.isSome(from) && O.isSome(to)) {
+              Graph.addEdge(mutable, from.value, to.value, edge.data);
+            }
+          },
+        });
+      }
+    });
+  })
+);
 
 // =============================================================================
 // Streaming Operations
 // =============================================================================
 
 /**
- * Stream node data in a traversal order.
+ * Stream node payloads in traversal order.
+ *
+ * @example
+ * ```ts
+ * import { Effect, Stream } from "effect"
+ * import { getRoots, singleton, streamNodes } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = singleton<string, string>("root")
+ * const program = Stream.runCollect(streamNodes(graph, getRoots(graph), "dfs"))
+ *
+ * console.log(Effect.runSync(program))
+ * ```
  *
  * @since 0.0.0
  * @category streams
  */
-export const streamNodes = <A, E>(
-  graph: DirectedGraph<A, E>,
-  start: ReadonlyArray<NodeIndex>,
-  order: TraversalOrder
-): Stream.Stream<A> => Stream.fromIterable(Graph.values(createWalker(graph, start, order)));
+export const streamNodes: {
+  <A, E>(graph: DirectedGraph<A, E>, start: ReadonlyArray<NodeIndex>, order: TraversalOrder): Stream.Stream<A>;
+  <A, E>(start: ReadonlyArray<NodeIndex>, order: TraversalOrder): (graph: DirectedGraph<A, E>) => Stream.Stream<A>;
+} = dual(
+  3,
+  <A, E>(graph: DirectedGraph<A, E>, start: ReadonlyArray<NodeIndex>, order: TraversalOrder): Stream.Stream<A> =>
+    Stream.fromIterable(Graph.values(createWalker(graph, start, order)))
+);
 
 /**
- * Stream `[index, node]` entries in a traversal order.
+ * Stream node-index and payload pairs in traversal order.
+ *
+ * @example
+ * ```ts
+ * import { Effect, Stream } from "effect"
+ * import { getRoots, singleton, streamNodesWithIndex } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = singleton<string, string>("root")
+ * const program = Stream.runCollect(streamNodesWithIndex(graph, getRoots(graph), "dfs"))
+ *
+ * console.log(Effect.runSync(program).length) // 1
+ * ```
  *
  * @since 0.0.0
  * @category streams
  */
-export const streamNodesWithIndex = <A, E>(
-  graph: DirectedGraph<A, E>,
-  start: ReadonlyArray<NodeIndex>,
-  order: TraversalOrder
-): Stream.Stream<readonly [NodeIndex, A]> => Stream.fromIterable(Graph.entries(createWalker(graph, start, order)));
+export const streamNodesWithIndex: {
+  <A, E>(
+    graph: DirectedGraph<A, E>,
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder
+  ): Stream.Stream<readonly [NodeIndex, A]>;
+  (
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder
+  ): <A, E>(graph: DirectedGraph<A, E>) => Stream.Stream<readonly [NodeIndex, A]>;
+} = dual(3, flow(createWalker, Graph.entries, Stream.fromIterable));
 
 /**
- * Stream node data in fixed-size batches.
+ * Stream node payloads in fixed-size traversal batches.
+ *
+ * @example
+ * ```ts
+ * import { Effect, Stream } from "effect"
+ * import { batchNodes, getRoots, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const graph = singleton<string, string>("root")
+ * const program = Stream.runCollect(batchNodes(graph, getRoots(graph), "dfs", 2))
+ *
+ * console.log(Effect.runSync(program).length) // 1
+ * ```
  *
  * @since 0.0.0
  * @category streams
  */
-export const batchNodes = <A, E>(
-  graph: DirectedGraph<A, E>,
-  start: ReadonlyArray<NodeIndex>,
-  order: TraversalOrder,
-  batchSize: number
-): Stream.Stream<ReadonlyArray<A>> => Stream.grouped(streamNodes(graph, start, order), batchSize);
+export const batchNodes: {
+  <A, E>(
+    graph: DirectedGraph<A, E>,
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    batchSize: number
+  ): Stream.Stream<ReadonlyArray<A>>;
+  <A, E>(
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    batchSize: number
+  ): (graph: DirectedGraph<A, E>) => Stream.Stream<ReadonlyArray<A>>;
+} = dual(
+  4,
+  <A, E>(
+    graph: DirectedGraph<A, E>,
+    start: ReadonlyArray<NodeIndex>,
+    order: TraversalOrder,
+    batchSize: number
+  ): Stream.Stream<ReadonlyArray<A>> => Stream.grouped(streamNodes(graph, start, order), batchSize)
+);
 
 // =============================================================================
 // Graph Properties and Validation
 // =============================================================================
 
 /**
- * Whether the graph is acyclic (a DAG).
+ * Check whether a graph has no directed cycles.
+ *
+ * @example
+ * ```ts
+ * import { isAcyclic, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * console.log(isAcyclic(singleton<string, string>("root"))) // true
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -506,7 +948,15 @@ export const batchNodes = <A, E>(
 export const isAcyclic = <A, E>(graph: DirectedGraph<A, E>): boolean => Graph.isAcyclic(graph);
 
 /**
- * Strongly connected components.
+ * Compute strongly connected components as node-index groups.
+ *
+ * @example
+ * ```ts
+ * import { singleton, stronglyConnectedComponents } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const components = stronglyConnectedComponents(singleton<string, string>("root"))
+ * console.log(components.length) // 1
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -516,7 +966,14 @@ export const stronglyConnectedComponents = <A, E>(
 ): ReadonlyArray<ReadonlyArray<NodeIndex>> => Graph.stronglyConnectedComponents(graph);
 
 /**
- * Number of nodes.
+ * Count nodes in the graph.
+ *
+ * @example
+ * ```ts
+ * import { nodeCount, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * console.log(nodeCount(singleton<string, string>("root"))) // 1
+ * ```
  *
  * @since 0.0.0
  * @category getters
@@ -524,7 +981,14 @@ export const stronglyConnectedComponents = <A, E>(
 export const nodeCount = <A, E>(graph: DirectedGraph<A, E>): number => Graph.nodeCount(graph);
 
 /**
- * Number of edges.
+ * Count edges in the graph.
+ *
+ * @example
+ * ```ts
+ * import { edgeCount, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * console.log(edgeCount(singleton<string, string>("root"))) // 0
+ * ```
  *
  * @since 0.0.0
  * @category getters
@@ -532,7 +996,14 @@ export const nodeCount = <A, E>(graph: DirectedGraph<A, E>): number => Graph.nod
 export const edgeCount = <A, E>(graph: DirectedGraph<A, E>): number => Graph.edgeCount(graph);
 
 /**
- * Whether the graph has no nodes.
+ * Check whether a graph has no nodes.
+ *
+ * @example
+ * ```ts
+ * import { empty, isEmpty } from "@beep/nlp/Graph/GraphOps"
+ *
+ * console.log(isEmpty(empty<string, string>())) // true
+ * ```
  *
  * @since 0.0.0
  * @category getters
@@ -546,13 +1017,27 @@ export const isEmpty = <A, E>(graph: DirectedGraph<A, E>): boolean => nodeCount(
 /**
  * Create an empty directed graph.
  *
+ * @example
+ * ```ts
+ * import { empty, nodeCount } from "@beep/nlp/Graph/GraphOps"
+ *
+ * console.log(nodeCount(empty<string, string>())) // 0
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
 export const empty = <A, E>(): DirectedGraph<A, E> => Graph.directed<A, E>();
 
 /**
- * Create a graph with a single node.
+ * Create a graph with one root node and no edges.
+ *
+ * @example
+ * ```ts
+ * import { collectNodes, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * console.log(collectNodes(singleton<string, string>("root"))) // ["root"]
+ * ```
  *
  * @since 0.0.0
  * @category constructors
@@ -566,10 +1051,21 @@ export const singleton = <A, E>(node: A): DirectedGraph<A, E> =>
  * Merge two graphs, copying the second graph's nodes and edges into the first
  * with a fresh index remap (the second graph's indices are reallocated).
  *
+ * @example
+ * ```ts
+ * import { merge, nodeCount, singleton } from "@beep/nlp/Graph/GraphOps"
+ *
+ * const merged = merge(singleton<string, string>("left"), singleton<string, string>("right"))
+ * console.log(nodeCount(merged)) // 2
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
-export const merge = <A, E>(g1: DirectedGraph<A, E>, g2: DirectedGraph<A, E>): DirectedGraph<A, E> => {
+export const merge: {
+  <A, E>(g1: DirectedGraph<A, E>, g2: DirectedGraph<A, E>): DirectedGraph<A, E>;
+  <A, E>(g2: DirectedGraph<A, E>): (g1: DirectedGraph<A, E>) => DirectedGraph<A, E>;
+} = dual(2, <A, E>(g1: DirectedGraph<A, E>, g2: DirectedGraph<A, E>): DirectedGraph<A, E> => {
   const indexMap = MutableHashMap.empty<NodeIndex, NodeIndex>();
   return Graph.mutate(g1, (mutable) => {
     for (const [oldIndex, node] of Graph.nodes(g2)) {
@@ -588,4 +1084,4 @@ export const merge = <A, E>(g1: DirectedGraph<A, E>, g2: DirectedGraph<A, E>): D
       });
     }
   });
-};
+});

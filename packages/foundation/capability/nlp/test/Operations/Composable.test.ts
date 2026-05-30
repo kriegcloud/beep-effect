@@ -21,7 +21,7 @@ const dbl = Composable.makeOperation("dbl", S.Number, S.Number, (n) => Effect.su
 describe("Functor laws", () => {
   it.effect(
     "identity: map(id) = id",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const mapped = yield* len.map((n) => n, S.Number).run("hello");
       const direct = yield* len.run("hello");
       expect(mapped).toBe(direct);
@@ -30,7 +30,7 @@ describe("Functor laws", () => {
 
   it.effect(
     "composition: map(g ∘ f) = map(g) ∘ map(f)",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const f = (n: number) => n + 1;
       const g = (n: number) => n * 3;
       const composed = yield* len.map((n) => g(f(n)), S.Number).run("abcd");
@@ -43,7 +43,7 @@ describe("Functor laws", () => {
 describe("Monad laws", () => {
   it.effect(
     "left identity: pure(a).flatMap(f) = f(a)",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const viaFlatMap = yield* len.flatMap(inc).run("hey");
       const direct = yield* inc.run("hey".length);
       expect(viaFlatMap).toBe(direct);
@@ -52,7 +52,7 @@ describe("Monad laws", () => {
 
   it.effect(
     "right identity: m.flatMap(pure) = m",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const idOp = Composable.identity(S.Number);
       const viaFlatMap = yield* len.flatMap(idOp).run("hello");
       const direct = yield* len.run("hello");
@@ -62,7 +62,7 @@ describe("Monad laws", () => {
 
   it.effect(
     "associativity: (m.flatMap(f)).flatMap(g) = m.flatMap(x => f(x).flatMap(g))",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const left = yield* len.flatMap(inc).flatMap(dbl).run("abcd");
       const right = yield* len.flatMap(inc.flatMap(dbl)).run("abcd");
       expect(left).toBe(right);
@@ -73,7 +73,7 @@ describe("Monad laws", () => {
 describe("Applicative", () => {
   it.effect(
     "product runs both operations on the same input",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const lenA = Composable.makeOperation("lenA", S.String, S.Number, (s) => Effect.succeed(s.length));
       const lenB = Composable.makeOperation("lenB", S.String, S.Number, (s) => Effect.succeed(s.length * 10));
       const paired = lenA.product(lenB, S.Tuple([S.Number, S.Number]));
@@ -86,7 +86,7 @@ describe("Applicative", () => {
 
   it.effect(
     "zipWith combines both results with a function",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const lenA = Composable.makeOperation("lenA", S.String, S.Number, (s) => Effect.succeed(s.length));
       const lenB = Composable.makeOperation("lenB", S.String, S.Number, (s) => Effect.succeed(s.length * 10));
       const summed = lenA.zipWith(lenB, (a, b) => a + b, S.Number);
@@ -98,7 +98,7 @@ describe("Applicative", () => {
 describe("compose + traverse + aggregate", () => {
   it.effect(
     "compose threads output into the next operation's input",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const pipeline = Composable.compose(len, inc);
       expect(yield* pipeline.run("hello")).toBe(6);
     })
@@ -106,7 +106,7 @@ describe("compose + traverse + aggregate", () => {
 
   it.effect(
     "traverse maps an operation over an array of inputs",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const lengths = yield* Composable.traverse(len)(["a", "bb", "ccc"]);
       expect(lengths).toEqual([1, 2, 3]);
     })

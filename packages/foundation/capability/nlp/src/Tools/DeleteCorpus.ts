@@ -33,17 +33,26 @@ class DeleteCorpusSuccess extends S.Class<DeleteCorpusSuccess>($I`DeleteCorpusSu
 ) {}
 
 /**
- * Tool for deleting a corpus session.
+ * Defines the agent-facing tool contract for deleting a managed corpus session
+ * and releasing its in-memory index state.
+ *
+ * Use this tool when a temporary corpus is no longer needed or a caller must
+ * discard learned documents before recreating the corpus id.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { DeleteCorpus } from "@beep/nlp/Tools/DeleteCorpus"
  *
- * console.log(DeleteCorpus)
+ * const parameters = S.decodeUnknownSync(DeleteCorpus.parametersSchema)({
+ *   corpusId: "support-docs"
+ * })
+ *
+ * parameters.corpusId
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const DeleteCorpus = Tool.make("DeleteCorpus", {
   description: "Delete a corpus session and release its in-memory index state.",

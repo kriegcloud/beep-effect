@@ -331,17 +331,28 @@ const NlpToolkitLiveError = S.Union([
 type NlpToolkitLiveError = typeof NlpToolkitLiveError.Type;
 
 /**
- * Canonical ordered NLP tool list used to build the toolkit and export adapters.
+ * Canonical ordered NLP tool list used to build the toolkit and export
+ * adapters.
+ *
+ * The order is stable for export adapters that present tools to non-Effect
+ * runtimes and for agents that need to inspect the available NLP surface.
  *
  * @example
  * ```ts
  * import { NlpTools } from "@beep/nlp/Tools/NlpToolkit"
  *
- * console.log(NlpTools)
+ * const toolNames = NlpTools.map((tool) => tool.name)
+ * const summary = {
+ *   count: toolNames.length,
+ *   hasTokenize: toolNames.includes("Tokenize")
+ * }
+ *
+ * console.log(summary)
+ * // { count: 19, hasTokenize: true }
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const NlpTools: NlpToolList = [
   BowCosineSimilarity,
@@ -366,32 +377,52 @@ export const NlpTools: NlpToolList = [
 ] as const;
 
 /**
- * NLP toolkit definition containing the full tool surface.
+ * Effect AI toolkit definition containing the full NLP tool surface.
+ *
+ * Use this toolkit when an agent runtime can call named Effect AI tools
+ * directly instead of using the positional export adapter.
  *
  * @example
  * ```ts
- * import { NlpToolkit } from "@beep/nlp/Tools/NlpToolkit"
+ * import { NlpToolkit, NlpTools } from "@beep/nlp/Tools/NlpToolkit"
  *
- * console.log(NlpToolkit)
+ * const toolkitToolNames = Object.keys(NlpToolkit.tools)
+ * const summary = {
+ *   hasTokenize: toolkitToolNames.includes("Tokenize"),
+ *   sameToolCount: toolkitToolNames.length === NlpTools.length
+ * }
+ *
+ * console.log(summary)
+ * // { hasTokenize: true, sameToolCount: true }
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const NlpToolkit: Toolkit.Toolkit<NlpToolkitTools> = Toolkit.make(...NlpTools);
 
 /**
- * Live toolkit handlers backed by the wink runtime layers.
+ * Live toolkit handler layer backed by the wink NLP runtime.
+ *
+ * Provide this layer to programs that execute `NlpToolkit` tools; it wires
+ * tokenization, similarity, vectorization, corpus management, and utility
+ * services behind the typed toolkit handlers.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { NlpToolkitLive } from "@beep/nlp/Tools/NlpToolkit"
+ * import { exportTools } from "@beep/nlp/Tools/ToolExport"
  *
- * console.log(NlpToolkitLive)
+ * const exported = await Effect.runPromise(
+ *   exportTools.pipe(Effect.provide(NlpToolkitLive))
+ * )
+ *
+ * exported.some((tool) => tool.name === "Tokenize")
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const NlpToolkitLive: Layer.Layer<
   Tool.HandlersFor<typeof NlpToolkit.tools>,

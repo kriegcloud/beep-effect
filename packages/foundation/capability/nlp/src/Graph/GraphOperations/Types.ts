@@ -19,270 +19,622 @@
  * @packageDocumentation
  */
 
+import { $NlpId } from "@beep/identity";
+import { LiteralKit, SchemaUtils } from "@beep/schema";
 import { A } from "@beep/utils";
-import { Brand, Clock, Duration, Effect, Random } from "effect";
+import { Brand, Clock, Duration, Effect, Random, Tuple } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import type { GraphNode } from "../EffectGraph.ts";
+
+const $I = $NlpId.create("Graph/GraphOperations/Types");
 
 // =============================================================================
 // Execution Strategy
 // =============================================================================
 
 /**
- * Strategy determining how an operation is executed across the graph's nodes.
+ * Strategy describing how an operation is scheduled across the current leaf set.
  *
- * @since 0.0.0
- * @category models
- */
-export type ExecutionStrategy =
-  | { readonly _tag: "Sequential" }
-  | { readonly _tag: "Parallel"; readonly concurrency: number }
-  | { readonly _tag: "Batch"; readonly batchSize: number }
-  | { readonly _tag: "Streaming" };
-
-/**
- * Constructors for the {@link ExecutionStrategy} variants.
+ * @remarks
+ * The executor currently honors sequential execution and parallel execution with
+ * bounded concurrency. Batch and streaming variants are part of the public model
+ * so callers can persist intent, but execution falls back to the sequential
+ * behavior until dedicated schedulers are introduced.
  *
  * @example
  * ```ts
  * import { ExecutionStrategy } from "@beep/nlp/Graph/GraphOperations/Types"
  *
- * console.log(ExecutionStrategy.Parallel(4))
+ * const strategy = ExecutionStrategy.Parallel(4)
+ * console.log(strategy.concurrency) // 4
  * ```
  *
  * @since 0.0.0
- * @category constructors
+ * @category models
  */
-export const ExecutionStrategy = {
-  Sequential: { _tag: "Sequential" } as ExecutionStrategy,
-  Parallel: (concurrency: number): ExecutionStrategy => ({ _tag: "Parallel", concurrency }),
-  Batch: (batchSize: number): ExecutionStrategy => ({ _tag: "Batch", batchSize }),
-  Streaming: { _tag: "Streaming" } as ExecutionStrategy,
-};
+export const ExecutionStrategy = S.TaggedUnion({
+  Sequential: {},
+  Parallel: { concurrency: S.Number },
+  Batch: { batchSize: S.Number },
+  Streaming: {},
+}).pipe(
+  SchemaUtils.withStatics((schema) => ({
+    Sequential: schema.cases.Sequential.make({}),
+    Parallel: (concurrency: number) =>
+      schema.cases.Parallel.make({
+        concurrency,
+      }),
+    Batch: (batchSize: number) =>
+      schema.cases.Batch.make({
+        batchSize,
+      }),
+    Streaming: schema.cases.Streaming.make({}),
+  })),
+  $I.annoteSchema("ExecutionStrategy", {
+    description: "Strategy determining how an operation is executed across the graph's nodes.",
+  })
+);
+
+/**
+ * Runtime type represented by {@link ExecutionStrategy}.
+ *
+ * @example
+ * ```ts
+ * import { ExecutionStrategy } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const strategy: ExecutionStrategy = ExecutionStrategy.Sequential
+ * console.log(strategy._tag) // "Sequential"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ExecutionStrategy = typeof ExecutionStrategy.Type;
 
 // =============================================================================
 // Execution Metrics (Monoid)
 // =============================================================================
 
 /**
- * Metrics collected while executing an operation.
+ * Metrics accumulated while applying an operation to graph leaves.
  *
- * @since 0.0.0
- * @category models
- */
-export interface ExecutionMetrics {
-  readonly cacheHits: number;
-  readonly cacheMisses: number;
-  readonly duration: Duration.Duration;
-  readonly nodesCreated: number;
-  readonly nodesProcessed: number;
-  /** Tokens consumed by LLM-backed operations. */
-  readonly tokensConsumed: number;
-}
-
-/**
- * The {@link ExecutionMetrics} monoid: {@link ExecutionMetrics.empty} is the
- * identity and {@link ExecutionMetrics.combine} the associative aggregation.
+ * @remarks
+ * Metrics form a monoid: `empty` is the identity and `combine` adds counters
+ * and durations. Executors use this to aggregate per-leaf applications into one
+ * run summary.
  *
  * @example
  * ```ts
  * import { ExecutionMetrics } from "@beep/nlp/Graph/GraphOperations/Types"
  *
- * console.log(ExecutionMetrics.combine(ExecutionMetrics.empty(), ExecutionMetrics.empty()))
+ * const combined = ExecutionMetrics.combine(
+ *   ExecutionMetrics.empty(),
+ *   ExecutionMetrics.make({ ...ExecutionMetrics.empty(), nodesProcessed: 2 })
+ * )
+ *
+ * console.log(combined.nodesProcessed) // 2
  * ```
  *
  * @since 0.0.0
- * @category combinators
+ * @category models
  */
-export const ExecutionMetrics = {
-  empty: (): ExecutionMetrics => ({
-    cacheHits: 0,
-    cacheMisses: 0,
-    duration: Duration.zero,
-    nodesCreated: 0,
-    nodesProcessed: 0,
-    tokensConsumed: 0,
+export class ExecutionMetrics extends S.Class<ExecutionMetrics>($I`ExecutionMetrics`)({
+  cacheHits: S.Number,
+  cacheMisses: S.Number,
+  duration: S.Duration,
+  nodesCreated: S.Number,
+  nodesProcessed: S.Number,
+  /** Tokens consumed by LLM-backed operations. */
+  tokensConsumed: S.Number.annotateKey({
+    description: "Tokens consumed by LLM-backed operations.",
   }),
-  combine: (m1: ExecutionMetrics, m2: ExecutionMetrics): ExecutionMetrics => ({
-    cacheHits: m1.cacheHits + m2.cacheHits,
-    cacheMisses: m1.cacheMisses + m2.cacheMisses,
-    duration: Duration.sum(m1.duration, m2.duration),
-    nodesCreated: m1.nodesCreated + m2.nodesCreated,
-    nodesProcessed: m1.nodesProcessed + m2.nodesProcessed,
-    tokensConsumed: m1.tokensConsumed + m2.tokensConsumed,
-  }),
-};
+}) {
+  static readonly empty = () =>
+    ExecutionMetrics.make({
+      cacheHits: 0,
+      cacheMisses: 0,
+      duration: Duration.zero,
+      nodesCreated: 0,
+      nodesProcessed: 0,
+      tokensConsumed: 0,
+    });
+
+  static readonly combine: {
+    (m1: ExecutionMetrics, m2: ExecutionMetrics): ExecutionMetrics;
+    (m2: ExecutionMetrics): (m1: ExecutionMetrics) => ExecutionMetrics;
+  } = dual(
+    2,
+    (m1: ExecutionMetrics, m2: ExecutionMetrics): ExecutionMetrics => ({
+      cacheHits: m1.cacheHits + m2.cacheHits,
+      cacheMisses: m1.cacheMisses + m2.cacheMisses,
+      duration: Duration.sum(m1.duration, m2.duration),
+      nodesCreated: m1.nodesCreated + m2.nodesCreated,
+      nodesProcessed: m1.nodesProcessed + m2.nodesProcessed,
+      tokensConsumed: m1.tokensConsumed + m2.tokensConsumed,
+    })
+  );
+}
 
 // =============================================================================
 // Operation Cost Estimation
 // =============================================================================
 
 /**
- * Asymptotic complexity class used to scale an {@link OperationCost}.
- *
- * @since 0.0.0
- * @category models
- */
-export type Complexity = "O(1)" | "O(n)" | "O(n log n)" | "O(n^2)";
-
-/**
- * Estimated cost of applying an operation.
- *
- * @since 0.0.0
- * @category models
- */
-export interface OperationCost {
-  readonly complexity: Complexity;
-  readonly estimatedTime: Duration.Duration;
-  /** Memory cost in bytes. */
-  readonly memoryCost: number;
-  /** LLM token cost. */
-  readonly tokenCost: number;
-}
-
-/**
- * Constructors/combinators for {@link OperationCost}.
+ * Asymptotic complexity vocabulary used when scaling operation cost estimates.
  *
  * @example
  * ```ts
- * import { OperationCost } from "@beep/nlp/Graph/GraphOperations/Types"
+ * import { Complexity } from "@beep/nlp/Graph/GraphOperations/Types"
  *
- * console.log(OperationCost.scale(OperationCost.zero(), 10))
+ * console.log(Complexity.is["O(n)"]("O(n)")) // true
  * ```
  *
  * @since 0.0.0
- * @category constructors
+ * @category models
  */
-export const OperationCost = {
-  zero: (): OperationCost => ({
-    complexity: "O(1)",
-    estimatedTime: Duration.zero,
-    memoryCost: 0,
-    tokenCost: 0,
-  }),
-  scale: (cost: OperationCost, nodeCount: number): OperationCost => {
-    const timeMultiplier =
-      cost.complexity === "O(1)"
-        ? 1
-        : cost.complexity === "O(n)"
-          ? nodeCount
-          : cost.complexity === "O(n log n)"
-            ? nodeCount * Math.log2(nodeCount)
-            : nodeCount * nodeCount;
-    return {
-      complexity: cost.complexity,
-      estimatedTime: Duration.times(cost.estimatedTime, timeMultiplier),
-      memoryCost: cost.memoryCost * nodeCount,
-      tokenCost: cost.tokenCost * nodeCount,
-    };
+export const Complexity = LiteralKit(["O(1)", "O(n)", "O(n log n)", "O(n^2)"]).pipe(
+  $I.annoteSchema("Complexity", {
+    description: "Asymptotic complexity class used to scale an OperationCost.",
+  })
+);
+
+/**
+ * Runtime type represented by {@link Complexity}.
+ *
+ * @example
+ * ```ts
+ * import type { Complexity } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const complexity: Complexity = "O(n log n)"
+ * console.log(complexity)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type Complexity = typeof Complexity.Type;
+
+/**
+ * Cost estimate for an operation whose time does not grow with leaf count.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { ConstantOperationCost } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const cost = ConstantOperationCost.make({
+ *   complexity: "O(1)",
+ *   estimatedTime: Duration.millis(1),
+ *   memoryCost: 0,
+ *   tokenCost: 0
+ * })
+ *
+ * console.log(cost.complexity) // "O(1)"
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class ConstantOperationCost extends S.Class<ConstantOperationCost>($I`ConstantOperationCost`)(
+  {
+    complexity: S.tag("O(1)"),
+    estimatedTime: S.Duration,
+    /** Memory cost in bytes. */
+    memoryCost: S.Number.annotateKey({
+      description: "Memory cost in bytes.",
+    }),
+    /** LLM token cost. */
+    tokenCost: S.Number.annotateKey({
+      description: "LLM token cost in tokens.",
+    }),
   },
-};
+  $I.annote("ConstantOperationCost", {
+    description: "Cost estimate for an operation whose time complexity is constant.",
+  })
+) {}
+
+/**
+ * Cost estimate for work that grows linearly with leaf count.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { LinearOperationCost } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const cost = LinearOperationCost.make({
+ *   complexity: "O(n)",
+ *   estimatedTime: Duration.millis(2),
+ *   memoryCost: 128,
+ *   tokenCost: 4
+ * })
+ *
+ * console.log(cost.tokenCost) // 4
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class LinearOperationCost extends S.Class<LinearOperationCost>($I`LinearOperationCost`)(
+  {
+    complexity: S.tag("O(n)"),
+    estimatedTime: S.Duration,
+    /** Memory cost in bytes. */
+    memoryCost: S.Number.annotateKey({
+      description: "Memory cost in bytes.",
+    }),
+    /** LLM token cost. */
+    tokenCost: S.Number.annotateKey({
+      description: "LLM token cost in tokens.",
+    }),
+  },
+  $I.annote("LinearOperationCost", {
+    description: "Cost estimate for an operation whose time complexity is linear.",
+  })
+) {}
+
+/**
+ * Cost estimate for work that grows at `n log n`.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { LinearithmicOperationCost } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const cost = LinearithmicOperationCost.make({
+ *   complexity: "O(n log n)",
+ *   estimatedTime: Duration.millis(3),
+ *   memoryCost: 256,
+ *   tokenCost: 0
+ * })
+ *
+ * console.log(cost.memoryCost) // 256
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class LinearithmicOperationCost extends S.Class<LinearithmicOperationCost>($I`LinearithmicOperationCost`)(
+  {
+    complexity: S.tag("O(n log n)"),
+    estimatedTime: S.Duration,
+    /** Memory cost in bytes. */
+    memoryCost: S.Number.annotateKey({
+      description: "Memory cost in bytes.",
+    }),
+    /** LLM token cost. */
+    tokenCost: S.Number.annotateKey({
+      description: "LLM token cost in tokens.",
+    }),
+  },
+  $I.annote("LinearithmicOperationCost", {
+    description: "Cost estimate for an operation whose time complexity is linearithmic.",
+  })
+) {}
+
+/**
+ * Cost estimate for pairwise or otherwise quadratic graph work.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { QuadraticOperationCost } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const cost = QuadraticOperationCost.make({
+ *   complexity: "O(n^2)",
+ *   estimatedTime: Duration.millis(5),
+ *   memoryCost: 512,
+ *   tokenCost: 0
+ * })
+ *
+ * console.log(cost.complexity) // "O(n^2)"
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class QuadraticOperationCost extends S.Class<QuadraticOperationCost>($I`QuadraticOperationCost`)(
+  {
+    complexity: S.tag("O(n^2)"),
+    estimatedTime: S.Duration,
+    /** Memory cost in bytes. */
+    memoryCost: S.Number.annotateKey({
+      description: "Memory cost in bytes.",
+    }),
+    /** LLM token cost. */
+    tokenCost: S.Number.annotateKey({
+      description: "LLM token cost in tokens.",
+    }),
+  },
+  $I.annote("QuadraticOperationCost", {
+    description: "Cost estimate for an operation whose time complexity is quadratic.",
+  })
+) {}
+
+/**
+ * Tagged union of operation cost estimates with scaling helpers.
+ *
+ * @remarks
+ * `scale` multiplies the estimate for the number of leaves the executor will
+ * process. Time uses the selected complexity class, while memory and token costs
+ * are currently scaled linearly by leaf count.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { OperationCost } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const cost = OperationCost.cases["O(n)"].make({
+ *   estimatedTime: Duration.millis(2),
+ *   memoryCost: 10,
+ *   tokenCost: 1
+ * })
+ *
+ * console.log(OperationCost.scale(cost, 3).memoryCost) // 30
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const OperationCost = Complexity.mapMembers(
+  Tuple.evolve([
+    () => ConstantOperationCost,
+    () => LinearOperationCost,
+    () => LinearithmicOperationCost,
+    () => QuadraticOperationCost,
+  ])
+).pipe(
+  S.toTaggedUnion("complexity"),
+  SchemaUtils.withStatics(() => {
+    const scale: {
+      (cost: OperationCost, nodeCount: number): OperationCost;
+      (nodeCount: number): (cost: OperationCost) => OperationCost;
+    } = dual(2, (cost: OperationCost, nodeCount: number): OperationCost => {
+      const timeMultiplier =
+        cost.complexity === "O(1)"
+          ? 1
+          : cost.complexity === "O(n)"
+            ? nodeCount
+            : cost.complexity === "O(n log n)"
+              ? nodeCount * Math.log2(nodeCount)
+              : nodeCount * nodeCount;
+      return {
+        complexity: cost.complexity,
+        estimatedTime: Duration.times(cost.estimatedTime, timeMultiplier),
+        memoryCost: cost.memoryCost * nodeCount,
+        tokenCost: cost.tokenCost * nodeCount,
+      };
+    });
+
+    return {
+      zero: () =>
+        OperationCost.cases["O(1)"].make({
+          estimatedTime: Duration.zero,
+          memoryCost: 0,
+          tokenCost: 0,
+        }),
+      scale,
+    };
+  }),
+  $I.annoteSchema("OperationCost", {
+    description: "Cost of a graph operation",
+  })
+);
+
+/**
+ * Companion type for {@link OperationCost}.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { OperationCost } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const cost: OperationCost = OperationCost.cases["O(1)"].make({
+ *   estimatedTime: Duration.millis(1),
+ *   memoryCost: 0,
+ *   tokenCost: 0,
+ * })
+ *
+ * console.log(cost.complexity) // "O(1)"
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type OperationCost = typeof OperationCost.Type;
 
 // =============================================================================
 // Validation Result
 // =============================================================================
 
 /**
- * Result of validating that an operation can be applied.
+ * Result of checking whether an operation may run against graph leaves.
  *
- * @since 0.0.0
- * @category models
- */
-export interface ValidationResult {
-  readonly errors: ReadonlyArray<string>;
-  readonly valid: boolean;
-  readonly warnings: ReadonlyArray<string>;
-}
-
-/**
- * Constructors/combinators for {@link ValidationResult}.
+ * @remarks
+ * `valid` is false when any errors are present. Warnings preserve non-blocking
+ * diagnostics, such as running against a graph with no leaves.
  *
  * @example
  * ```ts
  * import { ValidationResult } from "@beep/nlp/Graph/GraphOperations/Types"
  *
- * console.log(ValidationResult.valid())
+ * const result = ValidationResult.withWarnings(
+ *   ValidationResult.valid(),
+ *   ["No leaf nodes to process"]
+ * )
+ *
+ * console.log(result.warnings.length) // 1
  * ```
  *
  * @since 0.0.0
- * @category constructors
+ * @category models
  */
-export const ValidationResult = {
-  valid: (): ValidationResult => ({ errors: A.empty<string>(), valid: true, warnings: A.empty<string>() }),
-  invalid: (errors: ReadonlyArray<string>): ValidationResult => ({ errors, valid: false, warnings: A.empty<string>() }),
-  withWarnings: (result: ValidationResult, warnings: ReadonlyArray<string>): ValidationResult => ({
-    ...result,
-    warnings: A.appendAll(result.warnings, warnings),
-  }),
-};
+export class ValidationResult extends S.Class<ValidationResult>($I`ValidationResult`)(
+  {
+    errors: S.Array(S.String),
+    valid: S.Boolean,
+    warnings: S.Array(S.String),
+  },
+  $I.annote("ValidationResult", {
+    description: "Result of validating that an operation can be applied",
+  })
+) {
+  static readonly valid = () => ({
+    errors: A.empty<string>(),
+    valid: true,
+    warnings: A.empty<string>(),
+  });
+
+  static invalid = (errors: ReadonlyArray<string>): ValidationResult => ({
+    errors,
+    valid: false,
+    warnings: A.empty<string>(),
+  });
+  static readonly withWarnings: {
+    (result: ValidationResult, warnings: ReadonlyArray<string>): ValidationResult;
+    (warnings: ReadonlyArray<string>): (result: ValidationResult) => ValidationResult;
+  } = dual(
+    2,
+    (result: ValidationResult, warnings: ReadonlyArray<string>): ValidationResult => ({
+      ...result,
+      warnings: A.appendAll(result.warnings, warnings),
+    })
+  );
+}
 
 // =============================================================================
 // Operation Category
 // =============================================================================
 
 /**
- * Category of an operation (its morphism shape).
+ * Operation category vocabulary describing a graph morphism's shape.
+ *
+ * @example
+ * ```ts
+ * import { OperationCategory } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * console.log(OperationCategory.is.expansion("expansion")) // true
+ * ```
  *
  * @since 0.0.0
  * @category models
  */
-export type OperationCategory = "transformation" | "expansion" | "aggregation" | "filtering" | "composition" | "llm";
+export const OperationCategory = LiteralKit([
+  "transformation",
+  "expansion",
+  "aggregation",
+  "filtering",
+  "composition",
+  "llm",
+]);
+
+/**
+ * Runtime type represented by {@link OperationCategory}.
+ *
+ * @example
+ * ```ts
+ * import type { OperationCategory } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const category: OperationCategory = "transformation"
+ * console.log(category)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type OperationCategory = typeof OperationCategory.Type;
 
 // =============================================================================
 // Execution Options
 // =============================================================================
 
 /**
- * Options controlling a single execution.
+ * Options controlling one executor run.
  *
- * @since 0.0.0
- * @category models
- */
-export interface ExecutionOptions {
-  readonly cache: boolean;
-  readonly strategy: ExecutionStrategy;
-  readonly timeout: O.Option<Duration.Duration>;
-  readonly trace: boolean;
-}
-
-/**
- * Constructors for {@link ExecutionOptions}.
+ * @remarks
+ * `cache` toggles result-store lookup and write-through. `strategy` controls
+ * scheduling over the current leaf set. `timeout` and `trace` are retained in
+ * the options model for orchestration layers that enforce time limits or emit
+ * diagnostics around execution.
  *
  * @example
  * ```ts
  * import { ExecutionOptions } from "@beep/nlp/Graph/GraphOperations/Types"
  *
- * console.log(ExecutionOptions.parallel(4))
+ * const options = ExecutionOptions.parallel(8)
+ * console.log(options.strategy._tag) // "Parallel"
  * ```
  *
  * @since 0.0.0
- * @category constructors
+ * @category models
  */
-export const ExecutionOptions = {
-  default: (): ExecutionOptions => ({
-    cache: true,
-    strategy: ExecutionStrategy.Sequential,
-    timeout: O.none(),
-    trace: false,
-  }),
-  sequential: (): ExecutionOptions => ({ ...ExecutionOptions.default(), strategy: ExecutionStrategy.Sequential }),
-  parallel: (concurrency = 4): ExecutionOptions => ({
+export class ExecutionOptions extends S.Class<ExecutionOptions>($I`ExecutionOptions`)(
+  {
+    cache: S.Boolean,
+    strategy: ExecutionStrategy,
+    timeout: S.Option(S.Duration),
+    trace: S.Boolean,
+  },
+  $I.annote("ExecutionOptions", {
+    description: "Options controlling a single execution.",
+  })
+) {
+  static readonly default = () =>
+    ExecutionOptions.make({
+      cache: true,
+      strategy: ExecutionStrategy.Sequential,
+      timeout: O.none(),
+      trace: false,
+    });
+  static readonly sequential = () =>
+    ExecutionOptions.make({
+      ...ExecutionOptions.default(),
+      strategy: ExecutionStrategy.cases.Sequential.make({}),
+    });
+  static readonly parallel = (concurrency = 4) => ({
     ...ExecutionOptions.default(),
     strategy: ExecutionStrategy.Parallel(concurrency),
-  }),
-};
+  });
+}
 
 // =============================================================================
 // Execution ID
 // =============================================================================
 
 /**
- * Unique identifier for one execution.
+ * Branded identifier for one graph-operation execution.
  *
+ * @example
+ * ```ts
+ * import { ExecutionId } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const id: ExecutionId = ExecutionId.make("exec-1")
+ * console.log(id)
+ * ```
  * @since 0.0.0
  * @category models
  */
-export type ExecutionId = string & Brand.Brand<"ExecutionId">;
+export const ExecutionId = S.String.pipe(
+  S.brand("ExecutionId"),
+  $I.annoteSchema("ExecutionId", {
+    description: "Unique identifier for one execution.",
+  })
+);
+
+/**
+ * Runtime type represented by {@link ExecutionId}.
+ *
+ * @example
+ * ```ts
+ * import { ExecutionId } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const id: ExecutionId = ExecutionId.make("exec-1")
+ * console.log(id)
+ * ```
+ * @since 0.0.0
+ * @category models
+ */
+export type ExecutionId = typeof ExecutionId.Type;
 
 /**
  * Constructor for {@link ExecutionId}.
@@ -300,17 +652,20 @@ export type ExecutionId = string & Brand.Brand<"ExecutionId">;
 export const makeExecutionId: Brand.Constructor<ExecutionId> = Brand.nominal<ExecutionId>();
 
 /**
- * Generate a fresh {@link ExecutionId} (timestamp + random suffix).
+ * Generate a fresh execution id from the Effect clock and random service.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { generateExecutionId } from "@beep/nlp/Graph/GraphOperations/Types"
  *
- * console.log(generateExecutionId)
+ * const program = Effect.map(generateExecutionId, (id) => id.startsWith("exec-"))
+ * console.log(Effect.runSync(program)) // true
  * ```
  *
- * @since 0.0.0
+ * @effects Reads the Effect `Clock` and random service to include timestamp and entropy in the generated id.
  * @category constructors
+ * @since 0.0.0
  */
 export const generateExecutionId: Effect.Effect<ExecutionId> = Effect.gen(function* () {
   const ms = yield* Clock.currentTimeMillis;
@@ -323,7 +678,21 @@ export const generateExecutionId: Effect.Effect<ExecutionId> = Effect.gen(functi
 // =============================================================================
 
 /**
- * Result of executing an operation over a graph.
+ * Result of applying one operation to the sampled graph leaves.
+ *
+ * @remarks
+ * `newNodes` contains only nodes emitted by the operation, not a rewritten graph.
+ * `errors` contains per-leaf operation failures captured during application.
+ * `originalGraph` is intentionally opaque so callers can carry provenance
+ * without forcing this type to know the graph's payload type.
+ *
+ * @example
+ * ```ts
+ * import type { OperationResult } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * const createdCount = <A, E>(result: OperationResult<A, E>) => result.newNodes.length
+ * console.log(createdCount)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -339,26 +708,59 @@ export interface OperationResult<B, E> {
 }
 
 /**
- * Build an {@link OperationResult} (effectful: reads `Clock` for the timestamp).
+ * Build an operation result and stamp it with the current Effect clock time.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { ExecutionMetrics, makeOperationResult, makeExecutionId } from "@beep/nlp/Graph/GraphOperations/Types"
  *
- * console.log(makeOperationResult(makeExecutionId("e"), null, [], [], ExecutionMetrics.empty()))
+ * const program = makeOperationResult(
+ *   makeExecutionId("exec-example"),
+ *   "source graph",
+ *   [],
+ *   [],
+ *   ExecutionMetrics.empty()
+ * )
+ *
+ * console.log(Effect.runSync(program).newNodes.length) // 0
  * ```
  *
  * @since 0.0.0
  * @category constructors
  */
-export const makeOperationResult = <B, E>(
-  executionId: ExecutionId,
-  originalGraph: unknown,
-  newNodes: ReadonlyArray<GraphNode<B>>,
-  errors: ReadonlyArray<E>,
-  metrics: ExecutionMetrics
-): Effect.Effect<OperationResult<B, E>> =>
-  Effect.map(
-    Clock.currentTimeMillis,
-    (timestamp): OperationResult<B, E> => ({ errors, executionId, metrics, newNodes, originalGraph, timestamp })
-  );
+export const makeOperationResult: {
+  <B, E>(
+    executionId: ExecutionId,
+    originalGraph: unknown,
+    newNodes: ReadonlyArray<GraphNode<B>>,
+    errors: ReadonlyArray<E>,
+    metrics: ExecutionMetrics
+  ): Effect.Effect<OperationResult<B, E>>;
+  <B, E>(
+    originalGraph: unknown,
+    newNodes: ReadonlyArray<GraphNode<B>>,
+    errors: ReadonlyArray<E>,
+    metrics: ExecutionMetrics
+  ): (executionId: ExecutionId) => Effect.Effect<OperationResult<B, E>>;
+} = dual(
+  5,
+  <B, E>(
+    executionId: ExecutionId,
+    originalGraph: unknown,
+    newNodes: ReadonlyArray<GraphNode<B>>,
+    errors: ReadonlyArray<E>,
+    metrics: ExecutionMetrics
+  ): Effect.Effect<OperationResult<B, E>> =>
+    Effect.map(
+      Clock.currentTimeMillis,
+      (timestamp): OperationResult<B, E> => ({
+        errors,
+        executionId,
+        metrics,
+        newNodes,
+        originalGraph,
+        timestamp,
+      })
+    )
+);

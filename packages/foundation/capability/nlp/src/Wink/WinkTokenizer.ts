@@ -6,8 +6,8 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { A, thunkEmptyStr } from "@beep/utils";
-import { Chunk, Clock, Effect, Layer, pipe, Ref } from "effect";
+import { A, thunkEmptyStr, thunkUndefined } from "@beep/utils";
+import { Chunk, Clock, Effect, Layer, pipe, Ref, Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -29,17 +29,23 @@ const makeTokenizationError =
     });
 
 /**
- * Failure raised when wink sentence spans cannot be derived from the token stream.
+ * Typed failure used when wink sentence spans cannot be aligned to token indexes.
  *
  * @example
  * ```ts
  * import { SentenceSpanFailure } from "@beep/nlp/Wink/WinkTokenizer"
  *
- * console.log(SentenceSpanFailure)
+ * const failure = SentenceSpanFailure.make({
+ *   reason: "Unable to derive a stable sentence token span.",
+ *   sentenceIndex: 0,
+ *   sentenceText: "Hello world."
+ * })
+ *
+ * console.log(failure.reason)
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class SentenceSpanFailure extends S.TaggedClass<SentenceSpanFailure>($I`SentenceSpanFailure`)(
   "SentenceSpanFailure",
@@ -103,13 +109,14 @@ const resolveSentenceSpan = (
     O.orElse(() => deriveSequentialSentenceSpan(sentence, nextTokenStart, totalTokenCount))
   );
 
-const tryOut = (token: ItemToken, itsFunction: unknown): unknown => {
-  try {
-    return Reflect.apply(token.out, token, [itsFunction]);
-  } catch {
-    return undefined;
-  }
-};
+const tryOut = (token: ItemToken, itsFunction: unknown): unknown =>
+  Result.getOrElse(
+    Result.try({
+      try: () => Reflect.apply(token.out, token, [itsFunction]),
+      catch: thunkUndefined,
+    }),
+    thunkUndefined
+  );
 
 const optionFromTokenString = (token: ItemToken, itsFunction: unknown): O.Option<string> => {
   const value = tryOut(token, itsFunction);
@@ -328,31 +335,48 @@ const makeWinkTokenization = Effect.gen(function* () {
 }).pipe(Effect.withSpan("Nlp.Wink.WinkTokenizer.make"));
 
 /**
- * Wink-backed tokenization layer.
+ * Engine-dependent layer implementing the core tokenization service with wink.
  *
  * @example
  * ```ts
+ * import { Effect, Layer } from "effect"
+ * import { Tokenization } from "@beep/nlp/Core"
+ * import { WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
  * import { WinkTokenization } from "@beep/nlp/Wink/WinkTokenizer"
  *
- * console.log(WinkTokenization)
+ * const program = Effect.gen(function* () {
+ *   const tokenization = yield* Tokenization
+ *   return yield* tokenization.sentences("One sentence. Then another.")
+ * })
+ *
+ * Effect.runPromise(
+ *   program.pipe(Effect.provide(WinkTokenization.pipe(Layer.provide(WinkEngineLive))))
+ * ).then((sentences) => console.log(sentences.length))
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkTokenization = Layer.effect(Tokenization, makeWinkTokenization);
 
 /**
- * Wink-backed tokenization layer with the live engine provided.
+ * Live tokenization layer with the wink engine already provided.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import { Tokenization } from "@beep/nlp/Core"
  * import { WinkTokenizationLive } from "@beep/nlp/Wink/WinkTokenizer"
  *
- * console.log(WinkTokenizationLive)
+ * const program = Effect.gen(function* () {
+ *   const tokenization = yield* Tokenization
+ *   return yield* tokenization.tokenCount("Count these wink tokens.")
+ * })
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(WinkTokenizationLive))).then(console.log)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkTokenizationLive = WinkTokenization.pipe(Layer.provide(WinkEngineLive));

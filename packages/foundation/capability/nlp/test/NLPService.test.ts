@@ -20,7 +20,7 @@ const TestLayer = Layer.provide(NLPService.layer(WinkBackendLive), WinkEngine.Wi
 describe("NLPService", () => {
   it.effect(
     "processText builds an annotated text graph with a document root",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const graph = yield* NLPService.processText("The cat sat. The dog ran.");
       expect(EffectGraph.nodeCount(graph)).toBeGreaterThan(0);
       const docs = Graph.getTextNodes(graph).filter((entry) => entry.node.type === "document");
@@ -30,7 +30,7 @@ describe("NLPService", () => {
 
   it.effect(
     "tagPartsOfSpeech delegates to the backend",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const tagged = yield* NLPService.tagPartsOfSpeech("dogs run");
       expect(tagged.length).toBe(2);
     }, provideScopedLayer(TestLayer))
@@ -38,7 +38,7 @@ describe("NLPService", () => {
 
   it.effect(
     "extractEntities delegates to the backend",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const entities = yield* NLPService.extractEntities("Meet me at 5pm.");
       for (const entity of entities) {
         expect(typeof entity.entityType).toBe("string");

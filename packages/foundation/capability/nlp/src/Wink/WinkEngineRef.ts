@@ -41,74 +41,115 @@ const makeWinkEngineRef = Effect.gen(function* () {
 }).pipe(Effect.withSpan("Nlp.Wink.WinkEngineRef.make"));
 
 /**
- * Compatibility service for inspecting and updating the shared wink runtime state ref.
+ * Compatibility service for reading the live wink runtime ref and updating custom entities.
+ *
+ * @remarks
+ * Prefer {@link WinkEngineRef} when code needs stable access to the shared `Ref`
+ * itself, such as cache invalidation or compatibility bridges. For normal NLP
+ * operations use the higher-level `WinkEngine` service.
  *
  * @example
  * ```ts
- * import { WinkEngineRef } from "@beep/nlp/Wink/WinkEngineRef"
+ * import { Effect, Layer, Ref } from "effect"
+ * import { WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
+ * import { WinkEngineRef, WinkEngineRefLive } from "@beep/nlp/Wink/WinkEngineRef"
  *
- * console.log(WinkEngineRef)
+ * const program = Effect.gen(function* () {
+ *   const ref = yield* WinkEngineRef
+ *   const stateRef = ref.getRef()
+ *   const state = yield* Ref.get(stateRef)
+ *   return state.instanceId
+ * })
+ *
+ * Effect.runPromise(
+ *   program.pipe(Effect.provide(WinkEngineRefLive.pipe(Layer.provide(WinkEngineLive))))
+ * ).then(console.log)
  * ```
  *
- * @since 0.0.0
  * @category services
+ * @since 0.0.0
  */
 export class WinkEngineRef extends Context.Service<WinkEngineRef, WinkEngineRefShape>()($I`WinkEngineRef`) {}
 
 /**
- * Live layer for {@link WinkEngineRef}.
+ * Live compatibility layer backed by the shared wink engine runtime.
  *
  * @example
  * ```ts
- * import { WinkEngineRefLive } from "@beep/nlp/Wink/WinkEngineRef"
+ * import { Effect, Layer, Ref } from "effect"
+ * import { WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
+ * import { WinkEngineRef, WinkEngineRefLive } from "@beep/nlp/Wink/WinkEngineRef"
  *
- * console.log(WinkEngineRefLive)
+ * const readInstance = Effect.gen(function* () {
+ *   const ref = yield* WinkEngineRef
+ *   const state = yield* Ref.get(ref.getRef())
+ *   return state.instanceId
+ * })
+ *
+ * Effect.runPromise(
+ *   readInstance.pipe(Effect.provide(WinkEngineRefLive.pipe(Layer.provide(WinkEngineLive))))
+ * ).then(console.log)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkEngineRefLive = Layer.effect(WinkEngineRef, makeWinkEngineRef);
 
 /**
- * Wink engine runtime state type.
+ * Runtime state stored inside the shared wink engine ref.
  *
  * @example
  * ```ts
+ * import { Effect, Layer, Ref } from "effect"
  * import type { WinkEngineRuntimeState } from "@beep/nlp/Wink/WinkEngineRef"
+ * import { WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
+ * import { WinkEngineRef, WinkEngineRefLive } from "@beep/nlp/Wink/WinkEngineRef"
  *
- * type Example = WinkEngineRuntimeState
+ * const readState = Effect.gen(function* () {
+ *   const ref = yield* WinkEngineRef
+ *   return yield* Ref.get(ref.getRef())
+ * }).pipe(Effect.provide(WinkEngineRefLive.pipe(Layer.provide(WinkEngineLive))))
+ *
+ * Effect.runPromise(readState).then((state) => console.log(state.instanceId))
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export type WinkEngineRuntimeState = WinkEngineRuntimeStateType;
 /**
- * Instance id export.
+ * Branded schema for live wink engine instance identifiers.
  *
  * @example
  * ```ts
  * import { InstanceId } from "@beep/nlp/Wink/WinkEngineRef"
  *
- * console.log(InstanceId)
+ * const instanceId = InstanceId.make("wink-engine-example-1")
+ * console.log(instanceId)
  * ```
  *
- * @since 0.0.0
  * @category identifiers
+ * @since 0.0.0
  */
 export const InstanceId = InstanceIdService;
 /**
- * Wink engine state export.
+ * Serializable schema for wink engine state metadata.
  *
  * @example
  * ```ts
- * import { WinkEngineState } from "@beep/nlp/Wink/WinkEngineRef"
+ * import * as O from "effect/Option"
+ * import { InstanceId, WinkEngineState } from "@beep/nlp/Wink/WinkEngineRef"
  *
- * console.log(WinkEngineState)
+ * const state = WinkEngineState.make({
+ *   customEntities: O.none(),
+ *   instanceId: InstanceId.make("wink-engine-example-1")
+ * })
+ *
+ * console.log(state.instanceId)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const WinkEngineState = WinkEngineStateService;

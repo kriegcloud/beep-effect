@@ -25,6 +25,23 @@ import type * as S from "effect/Schema";
  * input/output schemas (type contract), and an Effect-returning implementation
  * whose `R`/`E` are inferred from its body.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import type { OperationDefinition } from "@beep/nlp/Operations/Definition"
+ *
+ * const definition: OperationDefinition<string, number> = {
+ *   name: "length",
+ *   description: "Count Unicode code units in a string.",
+ *   inputSchema: S.String,
+ *   outputSchema: S.Number,
+ *   implementation: (input) => Effect.succeed(input.length)
+ * }
+ *
+ * Effect.runPromise(definition.implementation("Effect")).then(console.log) // 6
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -42,9 +59,19 @@ export interface OperationDefinition<A, B, R = never, E = never> {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  * import type { OperationDefinition, OperationInput } from "@beep/nlp/Operations/Definition"
  *
- * type Example<D extends OperationDefinition<unknown, unknown, unknown, unknown>> = OperationInput<D>
+ * const definition: OperationDefinition<unknown, number> = {
+ *   name: "length",
+ *   inputSchema: S.String,
+ *   outputSchema: S.Number,
+ *   implementation: (input) => Effect.succeed(String(input).length)
+ * }
+ *
+ * const input: OperationInput<typeof definition> = "Effect"
+ * console.log(String(input).toUpperCase()) // "EFFECT"
  * ```
  *
  * @since 0.0.0
@@ -58,9 +85,19 @@ export type OperationInput<D extends OperationDefinition<unknown, unknown, unkno
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  * import type { OperationDefinition, OperationOutput } from "@beep/nlp/Operations/Definition"
  *
- * type Example<D extends OperationDefinition<unknown, unknown, unknown, unknown>> = OperationOutput<D>
+ * const definition: OperationDefinition<unknown, number> = {
+ *   name: "length",
+ *   inputSchema: S.String,
+ *   outputSchema: S.Number,
+ *   implementation: (input) => Effect.succeed(String(input).length)
+ * }
+ *
+ * const output: OperationOutput<typeof definition> = 6
+ * console.log(output + 1) // 7
  * ```
  *
  * @since 0.0.0

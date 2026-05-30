@@ -35,6 +35,19 @@ import type { OperationDefinition } from "./Definition.ts";
 /**
  * An effectful arrow from `A` to `B` requiring context `R` and failing with `E`.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import type { NLPOperation } from "@beep/nlp/Operations/Composable"
+ *
+ * const length: NLPOperation<string, number> = (input) => Effect.succeed(input.length)
+ * Effect.runPromise(length("Effect")).then(console.log) // 6
+ * ```
+ *
+ * @effects The returned `Effect` performs the operation when executed; any
+ * required services and typed failures are represented by its `R` and `E`
+ * channels.
+ *
  * @since 0.0.0
  * @category models
  */
@@ -43,6 +56,22 @@ export type NLPOperation<A, B, R = never, E = never> = (input: A) => Effect.Effe
 /**
  * A composable operation carrying its input/output schemas alongside its arrow,
  * parameterized by the decoded value types `A` (input) and `B` (output).
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { OperationBuilder } from "@beep/nlp/Operations/Composable"
+ *
+ * const operation = new OperationBuilder(
+ *   (input: string) => Effect.succeed(input.toUpperCase()),
+ *   S.String,
+ *   S.String,
+ *   "upper"
+ * )
+ *
+ * Effect.runPromise(operation.run("effect")).then(console.log) // "EFFECT"
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -63,6 +92,16 @@ export class OperationBuilder<A, B, R = never, E = never> {
   /**
    * Execute the operation on a typed input.
    *
+   * @example
+   * ```ts
+   * import { Effect } from "effect"
+   * import * as S from "effect/Schema"
+   * import { makePureOperation } from "@beep/nlp/Operations/Composable"
+   *
+   * const operation = makePureOperation("trim", S.String, S.String, (input) => input.trim())
+   * Effect.runPromise(operation.run("  Effect  ")).then(console.log) // "Effect"
+   * ```
+   *
    * @since 0.0.0
    * @category use-cases
    */
@@ -72,6 +111,17 @@ export class OperationBuilder<A, B, R = never, E = never> {
 
   /**
    * Functor map: transform the result, supplying the new output schema.
+   *
+   * @example
+   * ```ts
+   * import { Effect } from "effect"
+   * import * as S from "effect/Schema"
+   * import { makePureOperation } from "@beep/nlp/Operations/Composable"
+   *
+   * const words = makePureOperation("words", S.String, S.Array(S.String), (input) => input.split(" "))
+   * const count = words.map((tokens) => tokens.length, S.Number)
+   * Effect.runPromise(count.run("typed effects compose")).then(console.log) // 3
+   * ```
    *
    * @since 0.0.0
    * @category combinators
@@ -89,6 +139,18 @@ export class OperationBuilder<A, B, R = never, E = never> {
    * Monad flatMap: sequence into a dependent operation whose input is this
    * operation's output. The next operation's output schema becomes the result's.
    *
+   * @example
+   * ```ts
+   * import { Effect } from "effect"
+   * import * as S from "effect/Schema"
+   * import { makePureOperation } from "@beep/nlp/Operations/Composable"
+   *
+   * const trim = makePureOperation("trim", S.String, S.String, (input) => input.trim())
+   * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+   * const pipeline = trim.flatMap(length)
+   * Effect.runPromise(pipeline.run(" Effect ")).then(console.log) // 6
+   * ```
+   *
    * @since 0.0.0
    * @category combinators
    */
@@ -103,6 +165,18 @@ export class OperationBuilder<A, B, R = never, E = never> {
 
   /**
    * Applicative product: run both operations on the same input, pairing results.
+   *
+   * @example
+   * ```ts
+   * import { Effect } from "effect"
+   * import * as S from "effect/Schema"
+   * import { makePureOperation } from "@beep/nlp/Operations/Composable"
+   *
+   * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+   * const upper = makePureOperation("upper", S.String, S.String, (input) => input.toUpperCase())
+   * const summary = length.product(upper, S.Tuple([S.Number, S.String]))
+   * Effect.runPromise(summary.run("nlp")).then(console.log) // [3, "NLP"]
+   * ```
    *
    * @since 0.0.0
    * @category combinators
@@ -121,6 +195,18 @@ export class OperationBuilder<A, B, R = never, E = never> {
 
   /**
    * Applicative zipWith: run both operations on the same input, combining results.
+   *
+   * @example
+   * ```ts
+   * import { Effect } from "effect"
+   * import * as S from "effect/Schema"
+   * import { makePureOperation } from "@beep/nlp/Operations/Composable"
+   *
+   * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+   * const upper = makePureOperation("upper", S.String, S.String, (input) => input.toUpperCase())
+   * const label = length.zipWith(upper, (size, text) => `${text}:${size}`, S.String)
+   * Effect.runPromise(label.run("nlp")).then(console.log) // "NLP:3"
+   * ```
    *
    * @since 0.0.0
    * @category combinators
@@ -146,9 +232,10 @@ export class OperationBuilder<A, B, R = never, E = never> {
  * ```ts
  * import { makeOperation } from "@beep/nlp/Operations/Composable"
  * import * as S from "effect/Schema"
- * import * as Effect from "effect/Effect"
+ * import { Effect } from "effect"
  *
- * console.log(makeOperation("len", S.String, S.Number, (s) => Effect.succeed(s.length)).name)
+ * const length = makeOperation("len", S.String, S.Number, (s) => Effect.succeed(s.length))
+ * Effect.runPromise(length.run("Effect")).then(console.log) // 6
  * ```
  *
  * @since 0.0.0
@@ -167,10 +254,17 @@ export const makeOperation = <A, B, R = never, E = never>(
  * @example
  * ```ts
  * import { fromDefinition } from "@beep/nlp/Operations/Composable"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
- * import * as Effect from "effect/Effect"
  *
- * console.log(fromDefinition({ name: "id", inputSchema: S.String, outputSchema: S.String, implementation: Effect.succeed }).name)
+ * const operation = fromDefinition({
+ *   name: "id",
+ *   inputSchema: S.String,
+ *   outputSchema: S.String,
+ *   implementation: Effect.succeed
+ * })
+ *
+ * Effect.runPromise(operation.run("Effect")).then(console.log) // "Effect"
  * ```
  *
  * @since 0.0.0
@@ -186,8 +280,10 @@ export const fromDefinition = <A, B, R, E>(definition: OperationDefinition<A, B,
  * ```ts
  * import { makePureOperation } from "@beep/nlp/Operations/Composable"
  * import * as S from "effect/Schema"
+ * import { Effect } from "effect"
  *
- * console.log(makePureOperation("upper", S.String, S.String, (s) => s.toUpperCase()).name)
+ * const upper = makePureOperation("upper", S.String, S.String, (s) => s.toUpperCase())
+ * Effect.runPromise(upper.run("effect")).then(console.log) // "EFFECT"
  * ```
  *
  * @since 0.0.0
@@ -203,6 +299,19 @@ export const makePureOperation = <A, B>(
 /**
  * Sequential composition: feed the first operation's output into the second.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { compose, makePureOperation } from "@beep/nlp/Operations/Composable"
+ *
+ * const trim = makePureOperation("trim", S.String, S.String, (input) => input.trim())
+ * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+ * const pipeline = compose(trim, length)
+ *
+ * Effect.runPromise(pipeline.run(" Effect ")).then(console.log) // 6
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -217,9 +326,10 @@ export const compose = <A, B, C, R1, E1, R2, E2>(
  * @example
  * ```ts
  * import { identity } from "@beep/nlp/Operations/Composable"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
- * console.log(identity(S.String).name)
+ * Effect.runPromise(identity(S.String).run("same")).then(console.log) // "same"
  * ```
  *
  * @since 0.0.0
@@ -231,6 +341,18 @@ export const identity = <A>(schema: S.Schema<A>): OperationBuilder<A, A> =>
 /**
  * Traverse an array of inputs through an operation, collecting decoded results.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { makePureOperation, traverse } from "@beep/nlp/Operations/Composable"
+ *
+ * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+ * const program = traverse(length)(["typed", "nlp"])
+ *
+ * Effect.runPromise(program).then(console.log) // [5, 3]
+ * ```
+ *
  * @since 0.0.0
  * @category sequencing
  */
@@ -241,6 +363,16 @@ export const traverse =
 
 /**
  * Aggregate an array of values into a single value using a {@link Monoid.Monoid}.
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import { aggregate } from "@beep/nlp/Operations/Composable"
+ *
+ * const totalCharacters = aggregate(Monoid.NumberSum, (text: string) => text.length)
+ *
+ * console.log(totalCharacters(["typed", "nlp"])) // 8
+ * ```
  *
  * @since 0.0.0
  * @category folding

@@ -22,7 +22,8 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $NlpId.create("Ontology/Kind");
@@ -84,17 +85,18 @@ export const TextKind = LiteralKit([
 export type TextKind = typeof TextKind.Type;
 
 /**
- * Schema for {@link TextKind} (alias of the LiteralKit schema).
+ * Runtime schema for validating values at the ontology kind boundary.
  *
  * @example
  * ```ts
  * import { TextKindSchema } from "@beep/nlp/Ontology/Kind"
  *
- * console.log(TextKindSchema)
+ * const kind = TextKindSchema.make("Sentence")
+ * console.log(kind) // "Sentence"
  * ```
  *
- * @since 0.0.0
  * @category schemas
+ * @since 0.0.0
  */
 export const TextKindSchema: S.Schema<TextKind> = TextKind.pipe(
   $I.annoteSchema("TextKindSchema", {
@@ -131,17 +133,20 @@ export interface TypedText<K extends TextKind> {
 }
 
 /**
- * Runtime validation schema for {@link TypedText} of a given kind.
+ * Build a schema for text payloads constrained to one ontology kind schema.
  *
  * @example
  * ```ts
- * import { TypedTextSchema, TextKind } from "@beep/nlp/Ontology/Kind"
+ * import * as S from "effect/Schema"
+ * import { TypedTextSchema } from "@beep/nlp/Ontology/Kind"
  *
- * console.log(TypedTextSchema(TextKind))
+ * const schema = TypedTextSchema(S.Literal("Token"))
+ * const token = schema.make({ kind: "Token", content: "Effect" })
+ * console.log(token.kind) // "Token"
  * ```
  *
- * @since 0.0.0
  * @category schemas
+ * @since 0.0.0
  */
 export const TypedTextSchema = <K extends TextKind>(kind: S.Schema<K>) =>
   S.Struct({
@@ -164,7 +169,7 @@ const makeTyped =
     metadata !== undefined ? { kind, content, metadata } : { kind, content };
 
 /**
- * Create a Document-level typed text (top of the structural hierarchy).
+ * Create document-level typed text at the top of the structural hierarchy.
  *
  * @example
  * ```ts
@@ -180,7 +185,7 @@ export const Document: (content: string, metadata?: Record<string, unknown>) => 
   makeTyped("Document");
 
 /**
- * Create a Paragraph-level typed text (logical grouping within a document).
+ * Create paragraph-level typed text for a logical block in a document.
  *
  * @example
  * ```ts
@@ -196,7 +201,7 @@ export const Paragraph: (content: string, metadata?: Record<string, unknown>) =>
   makeTyped("Paragraph");
 
 /**
- * Create a Sentence-level typed text (fundamental unit of meaning).
+ * Create sentence-level typed text for a complete utterance or statement.
  *
  * @example
  * ```ts
@@ -212,7 +217,7 @@ export const Sentence: (content: string, metadata?: Record<string, unknown>) => 
   makeTyped("Sentence");
 
 /**
- * Create a Token-level typed text (an individual word or punctuation mark).
+ * Create token-level typed text for one word, symbol, or punctuation mark.
  *
  * @example
  * ```ts
@@ -227,7 +232,7 @@ export const Sentence: (content: string, metadata?: Record<string, unknown>) => 
 export const Token: (content: string, metadata?: Record<string, unknown>) => TypedText<"Token"> = makeTyped("Token");
 
 /**
- * Create a Character-level typed text (atomic element of text).
+ * Create character-level typed text for the atomic textual stratum.
  *
  * @example
  * ```ts
@@ -243,7 +248,7 @@ export const Character: (content: string, metadata?: Record<string, unknown>) =>
   makeTyped("Character");
 
 /**
- * Create an Entity-level typed text (named entity from NER).
+ * Create entity-level typed text for a semantic mention extracted from prose.
  *
  * @example
  * ```ts
@@ -258,7 +263,7 @@ export const Character: (content: string, metadata?: Record<string, unknown>) =>
 export const Entity: (content: string, metadata?: Record<string, unknown>) => TypedText<"Entity"> = makeTyped("Entity");
 
 /**
- * Create a Relation-level typed text (semantic connection between entities).
+ * Create relation-level typed text for a semantic edge between entities.
  *
  * @example
  * ```ts
@@ -274,7 +279,7 @@ export const Relation: (content: string, metadata?: Record<string, unknown>) => 
   makeTyped("Relation");
 
 /**
- * Create an Embedding-level typed text (vector-space representation).
+ * Create embedding-level typed text for vector-space metadata about content.
  *
  * @example
  * ```ts
@@ -290,7 +295,7 @@ export const Embedding: (content: string, metadata?: Record<string, unknown>) =>
   makeTyped("Embedding");
 
 /**
- * Create a Dependency-level typed text (syntactic dependency arc).
+ * Create dependency-level typed text for syntactic dependency arcs.
  *
  * @example
  * ```ts
@@ -306,7 +311,7 @@ export const Dependency: (content: string, metadata?: Record<string, unknown>) =
   makeTyped("Dependency");
 
 /**
- * Create a Chunk-level typed text (shallow-parsing constituent: NP, VP, ...).
+ * Create chunk-level typed text for shallow-parsing constituents.
  *
  * @example
  * ```ts
@@ -321,7 +326,7 @@ export const Dependency: (content: string, metadata?: Record<string, unknown>) =
 export const Chunk: (content: string, metadata?: Record<string, unknown>) => TypedText<"Chunk"> = makeTyped("Chunk");
 
 /**
- * Create a POS-level typed text (part-of-speech annotation).
+ * Create POS-level typed text for part-of-speech annotations.
  *
  * @example
  * ```ts
@@ -336,7 +341,7 @@ export const Chunk: (content: string, metadata?: Record<string, unknown>) => Typ
 export const POS: (content: string, metadata?: Record<string, unknown>) => TypedText<"POS"> = makeTyped("POS");
 
 /**
- * Create a Lemma-level typed text (canonical/dictionary form of a token).
+ * Create lemma-level typed text for canonical token forms.
  *
  * @example
  * ```ts
@@ -355,42 +360,69 @@ export const Lemma: (content: string, metadata?: Record<string, unknown>) => Typ
 // =============================================================================
 
 /**
- * Structural containment hierarchy: which kinds can contain which others.
+ * Structural containment hierarchy for valid parent-child kind relationships.
  *
- * Forms a poset where `A` containing `B` means `A > B`.
+ * @remarks
+ * The static `containment` record is the authoritative runtime poset used by
+ * {@link canContain} and {@link getValidChildren}. Structural kinds form the
+ * main hierarchy, while annotation kinds are attached at appropriate strata.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { KindContainment } from "@beep/nlp/Ontology/Kind"
+ *
+ * console.log(KindContainment.containment.Sentence.includes("Token")) // true
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
-export interface KindContainment {
-  readonly Character: ReadonlyArray<TextKind>;
-  readonly Chunk: ReadonlyArray<TextKind>;
-  readonly Dependency: ReadonlyArray<TextKind>;
-  readonly Document: ReadonlyArray<TextKind>;
-  readonly Embedding: ReadonlyArray<TextKind>;
-  readonly Entity: ReadonlyArray<TextKind>;
-  readonly Lemma: ReadonlyArray<TextKind>;
-  readonly Paragraph: ReadonlyArray<TextKind>;
-  readonly POS: ReadonlyArray<TextKind>;
-  readonly Relation: ReadonlyArray<TextKind>;
-  readonly Sentence: ReadonlyArray<TextKind>;
-  readonly Token: ReadonlyArray<TextKind>;
+export class KindContainment extends S.Class<KindContainment>($I`KindContainment`)(
+  {
+    Character: TextKind.pipe(
+      S.Array,
+      S.optionalKey,
+      SchemaUtils.withKeyDefaults(TextKind.pickOptions(["Paragraph", "Sentence"]))
+    ),
+    Chunk: TextKind.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults(TextKind.pickOptions(["Sentence"]))),
+    Dependency: TextKind.pipe(
+      S.Array,
+      S.optionalKey,
+      SchemaUtils.withKeyDefaults(TextKind.pickOptions(["Token", "Chunk", "Dependency", "Entity", "Relation"]))
+    ),
+    Document: TextKind.pipe(
+      S.Array,
+      S.optionalKey,
+      SchemaUtils.withKeyDefaults(TextKind.pickOptions(["Character", "POS", "Lemma"]))
+    ),
+    Embedding: TextKind.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    Entity: TextKind.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    Lemma: TextKind.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    Paragraph: TextKind.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    POS: TextKind.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    Relation: TextKind.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    Sentence: TextKind.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults(["Token"])),
+    Token: TextKind.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
+  },
+  $I.annote("KindContainment", {
+    description: "Represents the containment relationships between different kinds of text elements in the ontology.",
+  })
+) {
+  static readonly containment: Readonly<Record<TextKind, ReadonlyArray<TextKind>>> = {
+    Document: ["Paragraph", "Sentence"],
+    Paragraph: ["Sentence"],
+    Sentence: ["Token", "Chunk", "Dependency", "Entity", "Relation"],
+    Token: ["Character", "POS", "Lemma"],
+    Character: [],
+    POS: [],
+    Lemma: [],
+    Entity: [],
+    Relation: [],
+    Dependency: [],
+    Chunk: ["Token"],
+    Embedding: [],
+  };
 }
-
-const containment: KindContainment = {
-  Document: ["Paragraph", "Sentence"],
-  Paragraph: ["Sentence"],
-  Sentence: ["Token", "Chunk", "Dependency", "Entity", "Relation"],
-  Token: ["Character", "POS", "Lemma"],
-  Character: [],
-  POS: [],
-  Lemma: [],
-  Entity: [],
-  Relation: [],
-  Dependency: [],
-  Chunk: ["Token"],
-  Embedding: [],
-};
 
 /**
  * Check whether `parent` can contain `child` per the containment poset.
@@ -406,7 +438,10 @@ const containment: KindContainment = {
  * @since 0.0.0
  * @category predicates
  */
-export const canContain = (parent: TextKind, child: TextKind): boolean => containment[parent].includes(child);
+export const canContain: {
+  (parent: TextKind, child: TextKind): boolean;
+  (child: TextKind): (parent: TextKind) => boolean;
+} = dual(2, (parent: TextKind, child: TextKind): boolean => KindContainment.containment[parent].includes(child));
 
 /**
  * Get all valid child kinds for a given parent kind.
@@ -421,7 +456,7 @@ export const canContain = (parent: TextKind, child: TextKind): boolean => contai
  * @since 0.0.0
  * @category getters
  */
-export const getValidChildren = (kind: TextKind): ReadonlyArray<TextKind> => containment[kind];
+export const getValidChildren = (kind: TextKind): ReadonlyArray<TextKind> => KindContainment.containment[kind];
 
 // =============================================================================
 // Utility Functions
@@ -470,10 +505,16 @@ export const kindOf = <K extends TextKind>(text: TypedText<K>): K => text.kind;
  * @since 0.0.0
  * @category mapping
  */
-export const mapContent = <K extends TextKind>(text: TypedText<K>, f: (content: string) => string): TypedText<K> => ({
-  ...text,
-  content: f(text.content),
-});
+export const mapContent: {
+  <K extends TextKind>(text: TypedText<K>, f: (content: string) => string): TypedText<K>;
+  <K extends TextKind>(f: (content: string) => string): (text: TypedText<K>) => TypedText<K>;
+} = dual(
+  2,
+  <K extends TextKind>(text: TypedText<K>, f: (content: string) => string): TypedText<K> => ({
+    ...text,
+    content: f(text.content),
+  })
+);
 
 /**
  * Merge additional metadata into typed text.
@@ -488,10 +529,16 @@ export const mapContent = <K extends TextKind>(text: TypedText<K>, f: (content: 
  * @since 0.0.0
  * @category mapping
  */
-export const withMetadata = <K extends TextKind>(
-  text: TypedText<K>,
-  metadata: Record<string, unknown>
-): TypedText<K> => ({ ...text, metadata: { ...text.metadata, ...metadata } });
+export const withMetadata: {
+  <K extends TextKind>(text: TypedText<K>, metadata: Record<string, unknown>): TypedText<K>;
+  (metadata: Record<string, unknown>): <K extends TextKind>(text: TypedText<K>) => TypedText<K>;
+} = dual(
+  2,
+  <K extends TextKind>(text: TypedText<K>, metadata: Record<string, unknown>): TypedText<K> => ({
+    ...text,
+    metadata: { ...text.metadata, ...metadata },
+  })
+);
 
 /**
  * Type guard: whether a value is a {@link TypedText} of a specific kind.
@@ -524,7 +571,13 @@ export const isKind =
  * @since 0.0.0
  * @category mapping
  */
-export const recast = <K extends TextKind>(text: TypedText<TextKind>, newKind: K): TypedText<K> => ({
-  ...text,
-  kind: newKind,
-});
+export const recast: {
+  <K extends TextKind>(text: TypedText<TextKind>, newKind: K): TypedText<K>;
+  <K extends TextKind>(newKind: K): (text: TypedText<TextKind>) => TypedText<K>;
+} = dual(
+  2,
+  <K extends TextKind>(text: TypedText<TextKind>, newKind: K): TypedText<K> => ({
+    ...text,
+    kind: newKind,
+  })
+);

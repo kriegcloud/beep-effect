@@ -52,17 +52,32 @@ const AiPhoneticAlgorithm = AiPhoneticAlgorithmKit.pipe(
 );
 
 /**
- * Flat token model for tool outputs.
+ * Output schema for one token emitted by tokenization-oriented tools.
+ *
+ * The model keeps both linguistic annotations and source offsets so callers can
+ * map normalized NLP data back to the original text.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiToken } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiToken)
+ * const token = S.decodeUnknownSync(AiToken)({
+ *   end: 5,
+ *   isPunctuation: false,
+ *   isStopWord: false,
+ *   lemma: "quick",
+ *   pos: "ADJ",
+ *   start: 1,
+ *   stem: "quick",
+ *   text: "quick"
+ * })
+ *
+ * token.lemma
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiToken extends S.Class<AiToken>($I`AiToken`)(
   {
@@ -83,17 +98,29 @@ export class AiToken extends S.Class<AiToken>($I`AiToken`)(
 ) {}
 
 /**
- * Flat sentence model for tool outputs.
+ * Output schema for a detected sentence with source offsets and token count.
+ *
+ * Use this model when an NLP result needs sentence text plus enough metadata to
+ * preserve ordering and trace each sentence back to the source document.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiSentence } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiSentence)
+ * const sentence = S.decodeUnknownSync(AiSentence)({
+ *   end: 12,
+ *   index: 0,
+ *   start: 0,
+ *   text: "Hello world.",
+ *   tokenCount: 3
+ * })
+ *
+ * sentence.index
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiSentence extends S.Class<AiSentence>($I`AiSentence`)(
   {
@@ -109,17 +136,26 @@ export class AiSentence extends S.Class<AiSentence>($I`AiSentence`)(
 ) {}
 
 /**
- * Flat keyword model for tool outputs.
+ * Output schema for a keyword candidate and its importance score.
+ *
+ * Higher scores represent stronger keyword relevance within the extraction
+ * result returned by `ExtractKeywords`.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiKeyword } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiKeyword)
+ * const keyword = S.decodeUnknownSync(AiKeyword)({
+ *   score: 0.87,
+ *   term: "structured concurrency"
+ * })
+ *
+ * keyword.score
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiKeyword extends S.Class<AiKeyword>($I`AiKeyword`)(
   {
@@ -132,17 +168,28 @@ export class AiKeyword extends S.Class<AiKeyword>($I`AiKeyword`)(
 ) {}
 
 /**
- * Flat document-stats model for tool outputs.
+ * Output schema for high-level document statistics.
+ *
+ * The counts are intended for routing and sizing decisions, such as deciding
+ * whether a text should be chunked before retrieval or summarization.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiDocumentStats } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiDocumentStats)
+ * const stats = S.decodeUnknownSync(AiDocumentStats)({
+ *   avgSentenceLength: 4,
+ *   charCount: 31,
+ *   sentenceCount: 2,
+ *   wordCount: 8
+ * })
+ *
+ * stats.wordCount
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiDocumentStats extends S.Class<AiDocumentStats>($I`AiDocumentStats`)(
   {
@@ -157,17 +204,29 @@ export class AiDocumentStats extends S.Class<AiDocumentStats>($I`AiDocumentStats
 ) {}
 
 /**
- * Flat sentence-chunk model for tool outputs.
+ * Output schema for a sentence-aligned text chunk.
+ *
+ * Chunk boundaries are expressed in sentence indexes so callers can preserve
+ * document order and avoid slicing through a sentence.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiSentenceChunk } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiSentenceChunk)
+ * const chunk = S.decodeUnknownSync(AiSentenceChunk)({
+ *   charCount: 28,
+ *   endSentenceIndex: 1,
+ *   sentenceCount: 2,
+ *   startSentenceIndex: 0,
+ *   text: "First sentence. Second one."
+ * })
+ *
+ * chunk.sentenceCount
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiSentenceChunk extends S.Class<AiSentenceChunk>($I`AiSentenceChunk`)(
   {
@@ -183,17 +242,26 @@ export class AiSentenceChunk extends S.Class<AiSentenceChunk>($I`AiSentenceChunk
 ) {}
 
 /**
- * Flat ranked-text model for tool outputs.
+ * Output schema for one ranked text candidate.
+ *
+ * The `index` points back to the caller-provided candidate array and `score`
+ * ranks the candidate relative to the query.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiRankedText } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiRankedText)
+ * const ranked = S.decodeUnknownSync(AiRankedText)({
+ *   index: 1,
+ *   score: 0.92
+ * })
+ *
+ * ranked.index
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiRankedText extends S.Class<AiRankedText>($I`AiRankedText`)(
   {
@@ -206,17 +274,31 @@ export class AiRankedText extends S.Class<AiRankedText>($I`AiRankedText`)(
 ) {}
 
 /**
- * Flat entity model for tool outputs.
+ * Output schema for an extracted named entity.
+ *
+ * The model carries entity text, type labels, token boundaries, character
+ * offsets, and whether the match came from built-in or custom entity logic.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiEntity } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiEntity)
+ * const entity = S.decodeUnknownSync(AiEntity)({
+ *   end: 20,
+ *   endTokenIndex: 2,
+ *   source: "builtin",
+ *   start: 4,
+ *   startTokenIndex: 1,
+ *   type: "EMAIL",
+ *   value: "john@example.com"
+ * })
+ *
+ * entity.type
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiEntity extends S.Class<AiEntity>($I`AiEntity`)(
   {
@@ -234,17 +316,26 @@ export class AiEntity extends S.Class<AiEntity>($I`AiEntity`)(
 ) {}
 
 /**
- * Flat n-gram model for tool outputs.
+ * Output schema for an extracted n-gram and its frequency count.
+ *
+ * Use this model for entries returned by the `NGrams` tool in bag, edge, or
+ * set modes.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiNGram } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiNGram)
+ * const ngram = S.decodeUnknownSync(AiNGram)({
+ *   count: 2,
+ *   value: "ref"
+ * })
+ *
+ * ngram.value
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiNGram extends S.Class<AiNGram>($I`AiNGram`)(
   {
@@ -257,17 +348,29 @@ export class AiNGram extends S.Class<AiNGram>($I`AiNGram`)(
 ) {}
 
 /**
- * Flat phonetic-match model for tool outputs.
+ * Output schema for phonetic overlap between two text inputs.
+ *
+ * The code arrays show which phonetic keys were generated for each side and
+ * which keys contributed to the overlap score.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiPhoneticMatch } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiPhoneticMatch)
+ * const match = S.decodeUnknownSync(AiPhoneticMatch)({
+ *   algorithm: "soundex",
+ *   leftCodes: ["S315"],
+ *   rightCodes: ["S315"],
+ *   score: 1,
+ *   sharedCodes: ["S315"]
+ * })
+ *
+ * match.sharedCodes
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiPhoneticMatch extends S.Class<AiPhoneticMatch>($I`AiPhoneticMatch`)(
   {
@@ -283,17 +386,28 @@ export class AiPhoneticMatch extends S.Class<AiPhoneticMatch>($I`AiPhoneticMatch
 ) {}
 
 /**
- * BM25 corpus configuration model for tool outputs.
+ * Output schema for the resolved BM25 configuration of a managed corpus.
+ *
+ * The values reflect the configuration actually used by the corpus after
+ * defaults and caller overrides are applied.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiCorpusConfig } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiCorpusConfig)
+ * const config = S.decodeUnknownSync(AiCorpusConfig)({
+ *   b: 0.75,
+ *   k: 1,
+ *   k1: 1.2,
+ *   norm: "none"
+ * })
+ *
+ * config.k1
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiCorpusConfig extends S.Class<AiCorpusConfig>($I`AiCorpusConfig`)(
   {
@@ -308,17 +422,29 @@ export class AiCorpusConfig extends S.Class<AiCorpusConfig>($I`AiCorpusConfig`)(
 ) {}
 
 /**
- * Corpus summary model for tool outputs.
+ * Output schema for a managed corpus session summary.
+ *
+ * Returned by corpus creation and useful for confirming the stable corpus id,
+ * resolved BM25 config, current document count, and vocabulary size.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiCorpusSummary } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiCorpusSummary)
+ * const summary = S.decodeUnknownSync(AiCorpusSummary)({
+ *   config: { b: 0.75, k: 1, k1: 1.2, norm: "l2" },
+ *   corpusId: "support-docs",
+ *   createdAtMs: 1_783_000_000_000,
+ *   documentCount: 12,
+ *   vocabularySize: 480
+ * })
+ *
+ * summary.corpusId
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiCorpusSummary extends S.Class<AiCorpusSummary>($I`AiCorpusSummary`)(
   {
@@ -334,17 +460,28 @@ export class AiCorpusSummary extends S.Class<AiCorpusSummary>($I`AiCorpusSummary
 ) {}
 
 /**
- * Ranked corpus document model for tool outputs.
+ * Output schema for one ranked document returned from a corpus query.
+ *
+ * The optional `text` field is present only when the query requested source
+ * text inclusion.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiCorpusRankedDocument } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiCorpusRankedDocument)
+ * const document = S.decodeUnknownSync(AiCorpusRankedDocument)({
+ *   id: "refunds",
+ *   index: 0,
+ *   score: 0.94,
+ *   text: "Refund policy details."
+ * })
+ *
+ * document.score
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiCorpusRankedDocument extends S.Class<AiCorpusRankedDocument>($I`AiCorpusRankedDocument`)(
   {
@@ -359,17 +496,25 @@ export class AiCorpusRankedDocument extends S.Class<AiCorpusRankedDocument>($I`A
 ) {}
 
 /**
- * Corpus IDF value model for tool outputs.
+ * Output schema for an inverse document frequency value in a corpus.
+ *
+ * IDF entries help explain why specific terms influence retrieval scores.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiCorpusIdf } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiCorpusIdf)
+ * const idf = S.decodeUnknownSync(AiCorpusIdf)({
+ *   idf: 2.31,
+ *   term: "refund"
+ * })
+ *
+ * idf.term
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiCorpusIdf extends S.Class<AiCorpusIdf>($I`AiCorpusIdf`)(
   {
@@ -382,17 +527,26 @@ export class AiCorpusIdf extends S.Class<AiCorpusIdf>($I`AiCorpusIdf`)(
 ) {}
 
 /**
- * Corpus matrix-shape model for tool outputs.
+ * Output schema for the dimensions of an optional document-term matrix.
+ *
+ * Rows correspond to learned documents and columns correspond to vocabulary
+ * terms in the matrix payload.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiCorpusMatrixShape } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiCorpusMatrixShape)
+ * const shape = S.decodeUnknownSync(AiCorpusMatrixShape)({
+ *   cols: 480,
+ *   rows: 12
+ * })
+ *
+ * shape.rows
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiCorpusMatrixShape extends S.Class<AiCorpusMatrixShape>($I`AiCorpusMatrixShape`)(
   {
@@ -405,17 +559,32 @@ export class AiCorpusMatrixShape extends S.Class<AiCorpusMatrixShape>($I`AiCorpu
 ) {}
 
 /**
- * Corpus stats model for tool outputs.
+ * Output schema for detailed corpus diagnostics and retrieval statistics.
+ *
+ * Use this model for corpus inspection responses that may include vocabulary,
+ * IDF values, and the optional document-term matrix.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AiCorpusStats } from "@beep/nlp/Tools/_schemas"
  *
- * console.log(AiCorpusStats)
+ * const stats = S.decodeUnknownSync(AiCorpusStats)({
+ *   averageDocumentLength: 8.5,
+ *   corpusId: "support-docs",
+ *   documentTermMatrix: [[0.2, 0.8]],
+ *   idfValues: [{ idf: 2.31, term: "refund" }],
+ *   matrixShape: { cols: 2, rows: 1 },
+ *   terms: ["refund", "policy"],
+ *   totalDocuments: 1,
+ *   vocabularySize: 2
+ * })
+ *
+ * stats.terms
  * ```
  *
- * @since 0.0.0
  * @category tool-schemas
+ * @since 0.0.0
  */
 export class AiCorpusStats extends S.Class<AiCorpusStats>($I`AiCorpusStats`)(
   {

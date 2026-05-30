@@ -25,7 +25,7 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { A } from "@beep/utils";
+import { A, dual } from "@beep/utils";
 import { Clock, Context, Duration, Effect, Layer, Match, Result } from "effect";
 import * as O from "effect/Option";
 import { getChildren, toArray } from "../EffectGraph.ts";
@@ -54,9 +54,22 @@ interface ExecutionFold {
 }
 
 /**
- * Structural shape of the {@link GraphExecutor} service. Results are type-erased
- * ({@link Types.OperationResult}`<unknown, unknown>`) because the cache stores
- * results without their concrete node/error types; callers re-decode as needed.
+ * Structural service contract for applying operations to graph leaves.
+ *
+ * @remarks
+ * `execute` samples the current leaf set, applies the operation to those leaves,
+ * and returns a type-erased result because cached values may come from different
+ * concrete operations. Operation failures are collected in the result's `errors`
+ * array; storage failures surface through the `ExecutionError` channel.
+ *
+ * @example
+ * ```ts
+ * import type { GraphExecutorShape } from "@beep/nlp/Graph/GraphOperations/Executor"
+ *
+ * const readExecute = (executor: GraphExecutorShape) => executor.execute
+ *
+ * console.log(readExecute)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -78,7 +91,12 @@ export interface GraphExecutorShape {
 }
 
 /**
- * Service tag for the {@link GraphExecutorShape} engine.
+ * Service tag for the graph-operation execution engine.
+ *
+ * @remarks
+ * Provide this service together with a {@link ResultStore.ResultStore} when
+ * calling `execute`, because execution reads the store at run time to reuse or
+ * write cached leaf results.
  *
  * @example
  * ```ts
@@ -106,95 +124,142 @@ const concurrencyOf = (strategy: Types.ExecutionStrategy): number =>
   );
 
 /** Apply the operation to one node, caching on success, yielding nodes + errors. */
-const applyOne = Effect.fn("applyOne")(function* <A, B, R, E>(
-  store: ResultStore.ResultStoreShape,
-  operation: GraphOperation<A, B, R, E>,
-  cache: boolean,
-  leafNode: GraphNode<A>
-): Effect.fn.Return<Application, ExecutionError, R> {
-  const key = ResultStore.ResultKey.make(operation.name, leafNode.id);
-  const cached = cache
-    ? yield* Effect.mapError(store.get(key), (e) =>
-        ExecutionError.make({
-          cause: O.some(e),
-          message: "Storage retrieve failed",
-        })
-      )
-    : O.none<ResultStore.AnyOperationResult>();
+const applyOne: {
+  <A, B, R, E>(
+    store: ResultStore.ResultStoreShape,
+    operation: GraphOperation<A, B, R, E>,
+    cache: boolean,
+    leafNode: GraphNode<A>
+  ): Effect.Effect<Application, ExecutionError, R>;
+  <A, B, R, E>(
+    operation: GraphOperation<A, B, R, E>,
+    cache: boolean,
+    leafNode: GraphNode<A>
+  ): (store: ResultStore.ResultStoreShape) => Effect.Effect<Application, ExecutionError, R>;
+} = dual(
+  4,
+  Effect.fn("applyOne")(function* <A, B, R, E>(
+    store: ResultStore.ResultStoreShape,
+    operation: GraphOperation<A, B, R, E>,
+    cache: boolean,
+    leafNode: GraphNode<A>
+  ): Effect.fn.Return<Application, ExecutionError, R> {
+    const key = ResultStore.ResultKey.new(operation.name, leafNode.id);
+    const cached = cache
+      ? yield* Effect.mapError(store.get(key), (e) =>
+          ExecutionError.make({
+            cause: O.some(e),
+            message: "Storage retrieve failed",
+          })
+        )
+      : O.none<ResultStore.AnyOperationResult>();
 
-  if (O.isSome(cached)) {
-    return {
-      errors: cached.value.errors,
-      fromCache: true,
-      newNodes: cached.value.newNodes,
-    };
-  }
+    if (O.isSome(cached)) {
+      return {
+        errors: cached.value.errors,
+        fromCache: true,
+        newNodes: cached.value.newNodes,
+      };
+    }
 
-  const result = yield* Effect.result(operation.apply(leafNode));
-  return yield* Result.match(result, {
-    onFailure: (failure): Effect.Effect<Application, ExecutionError> =>
-      Effect.succeed({
-        errors: A.of(failure),
-        fromCache: false,
-        newNodes: A.empty<GraphNode<unknown>>(),
-      }),
-    onSuccess: (newNodes): Effect.Effect<Application, ExecutionError> =>
-      Effect.as(cache ? cacheResult(store, key, newNodes) : Effect.void, {
-        errors: A.empty<unknown>(),
-        fromCache: false,
-        newNodes,
-      }),
-  });
-});
+    const result = yield* Effect.result(operation.apply(leafNode));
+    return yield* Result.match(result, {
+      onFailure: (failure): Effect.Effect<Application, ExecutionError> =>
+        Effect.succeed({
+          errors: A.of(failure),
+          fromCache: false,
+          newNodes: A.empty<GraphNode<unknown>>(),
+        }),
+      onSuccess: (newNodes): Effect.Effect<Application, ExecutionError> =>
+        Effect.as(cache ? cacheResult(store, key, newNodes) : Effect.void, {
+          errors: A.empty<unknown>(),
+          fromCache: false,
+          newNodes,
+        }),
+    });
+  })
+);
 
-const cacheResult = Effect.fn("cacheResult")(function* <B>(
-  store: ResultStore.ResultStoreShape,
-  key: ResultStore.ResultKey,
-  newNodes: ReadonlyArray<GraphNode<B>>
-): Effect.fn.Return<void, ExecutionError> {
-  const opResult = yield* Types.makeOperationResult(
-    yield* Types.generateExecutionId,
-    O.none(),
-    newNodes,
-    A.empty<unknown>(),
-    Types.ExecutionMetrics.empty()
-  );
-  yield* Effect.mapError(store.store(key, opResult), (e) =>
-    ExecutionError.make({ cause: O.some(e), message: "Storage store failed" })
-  );
-});
+const cacheResult: {
+  <B>(
+    store: ResultStore.ResultStoreShape,
+    key: ResultStore.ResultKey,
+    newNodes: ReadonlyArray<GraphNode<B>>
+  ): Effect.Effect<void, ExecutionError>;
+  <B>(
+    key: ResultStore.ResultKey,
+    newNodes: ReadonlyArray<GraphNode<B>>
+  ): (store: ResultStore.ResultStoreShape) => Effect.Effect<void, ExecutionError>;
+} = dual(
+  3,
+  Effect.fn("cacheResult")(function* <B>(
+    store: ResultStore.ResultStoreShape,
+    key: ResultStore.ResultKey,
+    newNodes: ReadonlyArray<GraphNode<B>>
+  ): Effect.fn.Return<void, ExecutionError> {
+    const opResult = yield* Types.makeOperationResult(
+      yield* Types.generateExecutionId,
+      O.none(),
+      newNodes,
+      A.empty<unknown>(),
+      Types.ExecutionMetrics.empty()
+    );
+    yield* Effect.mapError(store.store(key, opResult), (e) =>
+      ExecutionError.make({ cause: O.some(e), message: "Storage store failed" })
+    );
+  })
+);
 
-const foldApplications = (
-  applications: ReadonlyArray<Application>,
-  nodesProcessed: number,
-  durationMs: number
-): ExecutionFold => ({
-  errors: A.flatMap(applications, (r) => r.errors),
-  metrics: {
-    cacheHits: A.length(A.filter(applications, (r) => r.fromCache)),
-    cacheMisses: A.length(A.filter(applications, (r) => !r.fromCache)),
-    duration: Duration.millis(durationMs),
-    nodesCreated: A.reduce(applications, 0, (sum, r) => sum + A.length(r.newNodes)),
-    nodesProcessed,
-    tokensConsumed: 0,
-  },
-  newNodes: A.flatMap(applications, (r) => r.newNodes),
-});
+const foldApplications: {
+  (applications: ReadonlyArray<Application>, nodesProcessed: number, durationMs: number): ExecutionFold;
+  (nodesProcessed: number, durationMs: number): (applications: ReadonlyArray<Application>) => ExecutionFold;
+} = dual(
+  3,
+  (applications: ReadonlyArray<Application>, nodesProcessed: number, durationMs: number): ExecutionFold => ({
+    errors: A.flatMap(applications, (r) => r.errors),
+    metrics: {
+      cacheHits: A.length(A.filter(applications, (r) => r.fromCache)),
+      cacheMisses: A.length(A.filter(applications, (r) => !r.fromCache)),
+      duration: Duration.millis(durationMs),
+      nodesCreated: A.reduce(applications, 0, (sum, r) => sum + A.length(r.newNodes)),
+      nodesProcessed,
+      tokensConsumed: 0,
+    },
+    newNodes: A.flatMap(applications, (r) => r.newNodes),
+  })
+);
 
-const runStrategy = Effect.fn("runStrategy")(function* <A, B, R, E>(
-  store: ResultStore.ResultStoreShape,
-  leafNodes: ReadonlyArray<GraphNode<A>>,
-  operation: GraphOperation<A, B, R, E>,
-  cache: boolean,
-  concurrency: number
-): Effect.fn.Return<ExecutionFold, ExecutionError, R> {
-  const startTime = yield* Clock.currentTimeMillis;
-  const applications = yield* Effect.forEach(leafNodes, (leafNode) => applyOne(store, operation, cache, leafNode), {
-    concurrency,
-  });
-  const endTime = yield* Clock.currentTimeMillis;
-  return foldApplications(applications, A.length(leafNodes), endTime - startTime);
-});
+const runStrategy: {
+  <A, B, R, E>(
+    store: ResultStore.ResultStoreShape,
+    leafNodes: ReadonlyArray<GraphNode<A>>,
+    operation: GraphOperation<A, B, R, E>,
+    cache: boolean,
+    concurrency: number
+  ): Effect.Effect<ExecutionFold, ExecutionError, R>;
+  <A, B, R, E>(
+    leafNodes: ReadonlyArray<GraphNode<A>>,
+    operation: GraphOperation<A, B, R, E>,
+    cache: boolean,
+    concurrency: number
+  ): (store: ResultStore.ResultStoreShape) => Effect.Effect<ExecutionFold, ExecutionError, R>;
+} = dual(
+  5,
+  Effect.fn("runStrategy")(function* <A, B, R, E>(
+    store: ResultStore.ResultStoreShape,
+    leafNodes: ReadonlyArray<GraphNode<A>>,
+    operation: GraphOperation<A, B, R, E>,
+    cache: boolean,
+    concurrency: number
+  ): Effect.fn.Return<ExecutionFold, ExecutionError, R> {
+    const startTime = yield* Clock.currentTimeMillis;
+    const applications = yield* Effect.forEach(leafNodes, (leafNode) => applyOne(store, operation, cache, leafNode), {
+      concurrency,
+    });
+    const endTime = yield* Clock.currentTimeMillis;
+    return foldApplications(applications, A.length(leafNodes), endTime - startTime);
+  })
+);
 
 // =============================================================================
 // Implementation
@@ -247,7 +312,12 @@ const makeGraphExecutor = Effect.succeed(
 );
 
 /**
- * Live {@link GraphExecutor} layer (requires a {@link ResultStore.ResultStore}).
+ * Live {@link GraphExecutor} layer.
+ *
+ * @remarks
+ * The layer constructs only the executor service. Effects returned from
+ * `GraphExecutor.execute` still require a {@link ResultStore.ResultStore}
+ * environment so callers can choose the cache implementation per run.
  *
  * @example
  * ```ts
@@ -262,9 +332,12 @@ const makeGraphExecutor = Effect.succeed(
 export const GraphExecutorLive: Layer.Layer<GraphExecutor> = Layer.effect(GraphExecutor, makeGraphExecutor);
 
 /**
- * Test layer providing both {@link GraphExecutor} and the {@link ResultStore.ResultStore}
- * it reads at execution time. The executor's `execute` requires `ResultStore` in its
- * environment (not as a build-time layer dependency), so both are merged here.
+ * Test layer providing both the executor and its in-memory result store.
+ *
+ * @remarks
+ * Use this layer for examples and tests that run `execute` directly. It starts
+ * with an empty cache and satisfies the executor's run-time
+ * {@link ResultStore.ResultStore} requirement.
  *
  * @example
  * ```ts

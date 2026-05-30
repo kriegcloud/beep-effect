@@ -35,11 +35,16 @@ const renderCause = (cause: unknown): string => Inspectable.toStringUnknown(caus
  * ```ts
  * import { BackendNotSupported } from "@beep/nlp/Backend/NLPBackend"
  *
- * console.log(BackendNotSupported)
+ * const error = BackendNotSupported.make({
+ *   backend: "minimal",
+ *   operation: "parseDependencies",
+ *   message: "Dependency parsing is unavailable"
+ * })
+ * console.log(error._tag) // "BackendNotSupported"
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class BackendNotSupported extends TaggedErrorClass<BackendNotSupported>($I`BackendNotSupported`)(
   "BackendNotSupported",
@@ -60,11 +65,16 @@ export class BackendNotSupported extends TaggedErrorClass<BackendNotSupported>($
  * ```ts
  * import { BackendInitError } from "@beep/nlp/Backend/NLPBackend"
  *
- * console.log(BackendInitError)
+ * const error = BackendInitError.make({
+ *   backend: "wink-nlp",
+ *   cause: new Error("model load failed"),
+ *   message: "Backend wink-nlp failed to initialize"
+ * })
+ * console.log(error.backend) // "wink-nlp"
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class BackendInitError extends TaggedErrorClass<BackendInitError>($I`BackendInitError`)(
   "BackendInitError",
@@ -85,11 +95,17 @@ export class BackendInitError extends TaggedErrorClass<BackendInitError>($I`Back
  * ```ts
  * import { BackendOperationError } from "@beep/nlp/Backend/NLPBackend"
  *
- * console.log(BackendOperationError)
+ * const error = BackendOperationError.make({
+ *   backend: "wink-nlp",
+ *   operation: "posTag",
+ *   cause: new Error("tokenizer failed"),
+ *   message: "Backend wink-nlp operation posTag failed"
+ * })
+ * console.log(error.operation) // "posTag"
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class BackendOperationError extends TaggedErrorClass<BackendOperationError>($I`BackendOperationError`)(
   "BackendOperationError",
@@ -105,17 +121,19 @@ export class BackendOperationError extends TaggedErrorClass<BackendOperationErro
 ) {}
 
 /**
- * Union of all backend failures.
+ * Tagged schema union for every recoverable backend failure.
  *
  * @example
  * ```ts
- * import type { NLPBackendError } from "@beep/nlp/Backend/NLPBackend"
+ * import * as S from "effect/Schema"
+ * import { notSupported, NLPBackendError } from "@beep/nlp/Backend/NLPBackend"
  *
- * type Example = NLPBackendError
+ * const error = notSupported("minimal", "ner")
+ * console.log(S.is(NLPBackendError)(error)) // true
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export const NLPBackendError = S.Union([BackendNotSupported, BackendInitError, BackendOperationError]).pipe(
   S.toTaggedUnion("_tag"),
@@ -125,7 +143,7 @@ export const NLPBackendError = S.Union([BackendNotSupported, BackendInitError, B
 );
 
 /**
- * Runtime type for backend failures.
+ * Runtime TypeScript type represented by the {@link NLPBackendError} schema.
  *
  * @example
  * ```ts
@@ -141,11 +159,28 @@ export const NLPBackendError = S.Union([BackendNotSupported, BackendInitError, B
 export type NLPBackendError = typeof NLPBackendError.Type;
 
 /**
- * Capabilities a backend may or may not support, enabling runtime capability
- * detection and graceful degradation.
+ * Capability bitmap that describes which operations a backend can perform.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import type { BackendCapabilities } from "@beep/nlp/Backend/NLPBackend"
+ *
+ * const capabilities: BackendCapabilities = {
+ *   constituencyParsing: false,
+ *   coreferenceResolution: false,
+ *   dependencyParsing: false,
+ *   lemmatization: true,
+ *   ner: true,
+ *   posTagging: true,
+ *   relationExtraction: false,
+ *   sentencization: true,
+ *   tokenization: true
+ * }
+ * console.log(capabilities.tokenization) // true
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export interface BackendCapabilities {
   /** Constituency parsing (phrase structure). */
@@ -176,8 +211,37 @@ export interface BackendCapabilities {
  * `posTag`/`lemmatize` preserve token structure, `extractEntities`/
  * `extractRelations` surface semantic spans.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import type { NLPBackendShape } from "@beep/nlp/Backend/NLPBackend"
+ *
+ * const backend: NLPBackendShape = {
+ *   name: "minimal",
+ *   capabilities: {
+ *     constituencyParsing: false,
+ *     coreferenceResolution: false,
+ *     dependencyParsing: false,
+ *     lemmatization: false,
+ *     ner: false,
+ *     posTagging: false,
+ *     relationExtraction: false,
+ *     sentencization: true,
+ *     tokenization: true
+ *   },
+ *   tokenize: (text) => Effect.succeed(text.split(" ")),
+ *   sentencize: (text) => Effect.succeed([text]),
+ *   posTag: () => Effect.succeed([]),
+ *   lemmatize: () => Effect.succeed([]),
+ *   extractEntities: () => Effect.succeed([]),
+ *   parseDependencies: () => Effect.succeed([]),
+ *   extractRelations: () => Effect.succeed([])
+ * }
+ * console.log(backend.name) // "minimal"
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export interface NLPBackendShape {
   /** Capabilities this backend supports. */
@@ -218,19 +282,79 @@ export interface NLPBackendShape {
 export class NLPBackend extends Context.Service<NLPBackend, NLPBackendShape>()($I`NLPBackend`) {}
 
 /**
- * Check whether a backend supports a specific capability.
+ * Check whether a backend advertises support for a single capability.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { supportsCapability } from "@beep/nlp/Backend/NLPBackend"
+ * import type { NLPBackendShape } from "@beep/nlp/Backend/NLPBackend"
+ *
+ * const backend: NLPBackendShape = {
+ *   name: "minimal",
+ *   capabilities: {
+ *     constituencyParsing: false,
+ *     coreferenceResolution: false,
+ *     dependencyParsing: false,
+ *     lemmatization: false,
+ *     ner: false,
+ *     posTagging: false,
+ *     relationExtraction: false,
+ *     sentencization: true,
+ *     tokenization: true
+ *   },
+ *   tokenize: (text) => Effect.succeed(text.split(" ")),
+ *   sentencize: (text) => Effect.succeed([text]),
+ *   posTag: () => Effect.succeed([]),
+ *   lemmatize: () => Effect.succeed([]),
+ *   extractEntities: () => Effect.succeed([]),
+ *   parseDependencies: () => Effect.succeed([]),
+ *   extractRelations: () => Effect.succeed([])
+ * }
+ * console.log(supportsCapability(backend, "tokenization")) // true
+ * ```
+ *
  * @category utilities
+ * @since 0.0.0
  */
 export const supportsCapability = (backend: NLPBackendShape, capability: keyof BackendCapabilities): boolean =>
   backend.capabilities[capability];
 
 /**
- * List all capabilities a backend supports.
+ * List supported capability keys in schema order.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { getSupportedCapabilities } from "@beep/nlp/Backend/NLPBackend"
+ * import type { NLPBackendShape } from "@beep/nlp/Backend/NLPBackend"
+ *
+ * const backend: NLPBackendShape = {
+ *   name: "minimal",
+ *   capabilities: {
+ *     constituencyParsing: false,
+ *     coreferenceResolution: false,
+ *     dependencyParsing: false,
+ *     lemmatization: false,
+ *     ner: false,
+ *     posTagging: false,
+ *     relationExtraction: false,
+ *     sentencization: true,
+ *     tokenization: true
+ *   },
+ *   tokenize: (text) => Effect.succeed(text.split(" ")),
+ *   sentencize: (text) => Effect.succeed([text]),
+ *   posTag: () => Effect.succeed([]),
+ *   lemmatize: () => Effect.succeed([]),
+ *   extractEntities: () => Effect.succeed([]),
+ *   parseDependencies: () => Effect.succeed([]),
+ *   extractRelations: () => Effect.succeed([])
+ * }
+ * console.log(getSupportedCapabilities(backend)) // ["tokenization"]
+ * ```
+ *
  * @category utilities
+ * @since 0.0.0
  */
 export const getSupportedCapabilities = (backend: NLPBackendShape): ReadonlyArray<keyof BackendCapabilities> =>
   pipe(
@@ -239,10 +363,18 @@ export const getSupportedCapabilities = (backend: NLPBackendShape): ReadonlyArra
   );
 
 /**
- * Construct a {@link BackendNotSupported} failure.
+ * Construct a {@link BackendNotSupported} failure with a default message.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { notSupported } from "@beep/nlp/Backend/NLPBackend"
+ *
+ * const error = notSupported("minimal", "dependencyParsing")
+ * console.log(error.message.includes("dependencyParsing")) // true
+ * ```
+ *
  * @category constructors
+ * @since 0.0.0
  */
 export const notSupported = (backend: string, operation: string, message?: string): BackendNotSupported =>
   BackendNotSupported.make({
@@ -252,10 +384,18 @@ export const notSupported = (backend: string, operation: string, message?: strin
   });
 
 /**
- * Construct a {@link BackendInitError} from an unknown cause.
+ * Construct a {@link BackendInitError} from an unknown initialization cause.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { initError } from "@beep/nlp/Backend/NLPBackend"
+ *
+ * const error = initError("wink-nlp", new Error("missing model"))
+ * console.log(error.backend) // "wink-nlp"
+ * ```
+ *
  * @category constructors
+ * @since 0.0.0
  */
 export const initError = (backend: string, cause: unknown): BackendInitError =>
   BackendInitError.make({
@@ -265,10 +405,18 @@ export const initError = (backend: string, cause: unknown): BackendInitError =>
   });
 
 /**
- * Construct a {@link BackendOperationError} from an unknown cause.
+ * Construct a {@link BackendOperationError} for a failed backend operation.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { operationError } from "@beep/nlp/Backend/NLPBackend"
+ *
+ * const error = operationError("wink-nlp", "tokenize", new Error("bad input"))
+ * console.log(error.operation) // "tokenize"
+ * ```
+ *
  * @category constructors
+ * @since 0.0.0
  */
 export const operationError = (backend: string, operation: string, cause: unknown): BackendOperationError =>
   BackendOperationError.make({

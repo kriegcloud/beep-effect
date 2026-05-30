@@ -28,7 +28,29 @@ import type { OperationCategory, OperationCost, ValidationResult } from "./Types
 // =============================================================================
 
 /**
- * A categorical morphism in the category of graphs: `Node<A> -> Effect<[Node<B>], E, R>`.
+ * Operation contract for expanding one graph node into zero or more child nodes.
+ *
+ * @remarks
+ * `apply` is the only field allowed to create child nodes. The executor calls it
+ * for leaf nodes and records operation failures per leaf instead of throwing away
+ * the whole execution result. `validate` and `estimateCost` are advisory hooks
+ * used before execution and for planning; the default constructor supplies a
+ * valid result and zero cost when they are omitted.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { make, type GraphOperation } from "@beep/nlp/Graph/GraphOperations/Operation"
+ *
+ * const operation: GraphOperation<string, string> = make({
+ *   name: "drop-empty",
+ *   description: "Keep only non-empty leaf text.",
+ *   category: "filtering",
+ *   apply: () => Effect.succeed([])
+ * })
+ *
+ * console.log(operation.category) // "filtering"
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -50,14 +72,26 @@ export interface GraphOperation<A, B, R = never, E = never> {
 // =============================================================================
 
 /**
- * Build a {@link GraphOperation} from a config, defaulting validate/estimateCost.
+ * Build a graph operation while filling in safe validation and cost defaults.
+ *
+ * @remarks
+ * Use this constructor when the operation already owns node creation, validation,
+ * or backend effects. Omitted validation means the executor may apply the
+ * operation to every leaf; omitted cost means a zero-cost planning estimate.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { make } from "@beep/nlp/Graph/GraphOperations/Operation"
- * import * as Effect from "effect/Effect"
  *
- * console.log(make({ name: "noop", description: "", category: "transformation", apply: () => Effect.succeed([]) }).name)
+ * const operation = make<string, string>({
+ *   name: "emit-none",
+ *   description: "Suppress every matched leaf.",
+ *   category: "filtering",
+ *   apply: () => Effect.succeed([])
+ * })
+ *
+ * console.log(operation.name) // "emit-none"
  * ```
  *
  * @since 0.0.0
@@ -80,14 +114,25 @@ export const make = <A, B, R = never, E = never>(config: {
 });
 
 /**
- * A pure operation: map node data to new data values, minting a child node per
- * produced value (effectful only via the node id/clock).
+ * Create an operation from a pure data function that emits child payloads.
+ *
+ * @remarks
+ * The supplied function never receives the full node. Parent linkage, generated
+ * child node ids, timestamps, and operation metadata are added by this helper via
+ * {@link makeNode}. Returning an empty array is the filtering case.
  *
  * @example
  * ```ts
  * import { pure } from "@beep/nlp/Graph/GraphOperations/Operation"
  *
- * console.log(pure({ name: "dup", description: "", category: "expansion", f: (s: string) => [s, s] }).name)
+ * const duplicate = pure({
+ *   name: "duplicate",
+ *   description: "Emit two child payloads for each input.",
+ *   category: "expansion",
+ *   f: (text: string) => [text, text]
+ * })
+ *
+ * console.log(duplicate.category) // "expansion"
  * ```
  *
  * @since 0.0.0
@@ -107,13 +152,23 @@ export const pure = <A, B>(config: {
   });
 
 /**
- * A transformation operation (`A -> B`).
+ * Create a one-to-one transformation operation.
+ *
+ * @remarks
+ * Each input leaf produces exactly one child node. The child node is linked to
+ * the input leaf and records this operation's name in its metadata.
  *
  * @example
  * ```ts
  * import { transform } from "@beep/nlp/Graph/GraphOperations/Operation"
  *
- * console.log(transform({ name: "up", description: "", f: (s: string) => s.toUpperCase() }).category)
+ * const normalize = transform({
+ *   name: "normalize-case",
+ *   description: "Lowercase a text leaf.",
+ *   f: (text: string) => text.toLowerCase()
+ * })
+ *
+ * console.log(normalize.category) // "transformation"
  * ```
  *
  * @since 0.0.0
@@ -132,13 +187,24 @@ export const transform = <A, B>(config: {
   });
 
 /**
- * An expansion operation (`A -> [B]`).
+ * Create a one-to-many expansion operation.
+ *
+ * @remarks
+ * Expansion preserves all emitted values as sibling children of the source leaf.
+ * The executor treats every produced child as a new candidate leaf for later
+ * operation passes.
  *
  * @example
  * ```ts
  * import { expand } from "@beep/nlp/Graph/GraphOperations/Operation"
  *
- * console.log(expand({ name: "chars", description: "", f: (s: string) => s.split("") }).category)
+ * const splitWords = expand({
+ *   name: "split-words",
+ *   description: "Emit one child payload per whitespace-delimited token.",
+ *   f: (text: string) => text.split(/\s+/).filter((token) => token.length > 0)
+ * })
+ *
+ * console.log(splitWords.category) // "expansion"
  * ```
  *
  * @since 0.0.0
@@ -152,13 +218,23 @@ export const expand = <A, B>(config: {
   pure({ category: "expansion", description: config.description, f: config.f, name: config.name });
 
 /**
- * A filter operation (`A -> Option<A>`, modeled as `A -> [A]`).
+ * Create a predicate operation that keeps or drops leaf payloads.
+ *
+ * @remarks
+ * Kept payloads are emitted as fresh child nodes; dropped payloads emit no
+ * children. The original graph is not mutated by the operation itself.
  *
  * @example
  * ```ts
  * import { filter } from "@beep/nlp/Graph/GraphOperations/Operation"
  *
- * console.log(filter({ name: "nonEmpty", description: "", predicate: (s: string) => s.length > 0 }).category)
+ * const nonEmpty = filter({
+ *   name: "non-empty",
+ *   description: "Keep only leaves containing text.",
+ *   predicate: (text: string) => text.trim().length > 0
+ * })
+ *
+ * console.log(nonEmpty.category) // "filtering"
  * ```
  *
  * @since 0.0.0
@@ -181,15 +257,18 @@ export const filter = <A>(config: {
 // =============================================================================
 
 /**
- * The identity operation: re-emits the node under a fresh id (effectful id).
+ * Re-emit a leaf payload under a fresh child node id.
  *
- * Law: `id ∘ f = f = f ∘ id`.
+ * @remarks
+ * This is identity for payload values, not for node identity: the child keeps the
+ * same data but receives a new id and points back to the original node as parent.
  *
  * @example
  * ```ts
  * import { identity } from "@beep/nlp/Graph/GraphOperations/Operation"
  *
- * console.log(identity<string>().name)
+ * const passthrough = identity<string>()
+ * console.log(passthrough.name) // "identity"
  * ```
  *
  * @since 0.0.0
@@ -204,13 +283,14 @@ export const identity = <A>(): GraphOperation<A, A> =>
   });
 
 /**
- * Map operation - transform data without changing structure.
+ * Build a named `map` transformation for leaf payloads.
  *
  * @example
  * ```ts
  * import { map } from "@beep/nlp/Graph/GraphOperations/Operation"
  *
- * console.log(map((s: string) => s.length).name)
+ * const lengths = map((text: string) => text.length)
+ * console.log(lengths.category) // "transformation"
  * ```
  *
  * @since 0.0.0
@@ -220,13 +300,14 @@ export const map = <A, B>(f: (a: A) => B): GraphOperation<A, B> =>
   transform({ description: "Map with function", f, name: "map" });
 
 /**
- * FlatMap operation - map and flatten.
+ * Build a named `flatMap` expansion for leaf payloads.
  *
  * @example
  * ```ts
  * import { flatMap } from "@beep/nlp/Graph/GraphOperations/Operation"
  *
- * console.log(flatMap((s: string) => s.split("")).name)
+ * const characters = flatMap((text: string) => text.split(""))
+ * console.log(characters.category) // "expansion"
  * ```
  *
  * @since 0.0.0
@@ -240,7 +321,15 @@ export const flatMap = <A, B>(f: (a: A) => ReadonlyArray<B>): GraphOperation<A, 
 // =============================================================================
 
 /**
- * Get an operation's category.
+ * Read an operation's morphism category.
+ *
+ * @example
+ * ```ts
+ * import { getCategory, map } from "@beep/nlp/Graph/GraphOperations/Operation"
+ *
+ * const category = getCategory(map((text: string) => text.length))
+ * console.log(category) // "transformation"
+ * ```
  *
  * @since 0.0.0
  * @category getters

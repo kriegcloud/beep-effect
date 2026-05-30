@@ -40,17 +40,27 @@ class ExtractKeywordsSuccess extends S.Class<ExtractKeywordsSuccess>($I`ExtractK
 ) {}
 
 /**
- * Tool for extracting ranked keywords from text.
+ * Defines the agent-facing tool contract for extracting ranked keyword terms
+ * from a text.
+ *
+ * Use this tool when a caller needs compact topical terms for tagging,
+ * routing, search facets, or retrieval hints.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ExtractKeywords } from "@beep/nlp/Tools/ExtractKeywords"
  *
- * console.log(ExtractKeywords)
+ * const parameters = S.decodeUnknownSync(ExtractKeywords.parametersSchema)({
+ *   text: "Effect provides typed errors and structured concurrency.",
+ *   topN: 3
+ * })
+ *
+ * parameters.topN
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const ExtractKeywords = Tool.make("ExtractKeywords", {
   description: "Extract keywords from text ranked by TF-IDF-style importance.",

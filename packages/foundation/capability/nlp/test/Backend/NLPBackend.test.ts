@@ -97,7 +97,7 @@ describe("Failure constructors", () => {
 describe("Tagged errors are schema-decodable", () => {
   it.effect(
     "BackendNotSupported round-trips through encode/decode",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const err = Backend.notSupported("wink", "posTag");
       const encoded = yield* S.encodeEffect(Backend.BackendNotSupported)(err);
       const decoded = yield* S.decodeUnknownEffect(Backend.BackendNotSupported)(encoded);

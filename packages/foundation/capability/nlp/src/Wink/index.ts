@@ -8,31 +8,48 @@ import { WinkLayerAllLive as WinkLayerAllLiveSource, WinkLayerLive as WinkLayerL
 import { WinkEngineRefLive as WinkEngineRefLiveSource, WinkEngineRef as WinkEngineRefSource } from "./WinkEngineRef.ts";
 
 /**
- * Wink layer all live layer.
+ * Full live Wink integration layer exported from the module entry point.
  *
  * @example
  * ```ts
- * import { WinkLayerAllLive } from "@beep/nlp/Wink"
+ * import { Effect } from "effect"
+ * import { WinkCorpusManager, WinkLayerAllLive } from "@beep/nlp/Wink"
  *
- * console.log(WinkLayerAllLive)
+ * const createCorpus = Effect.gen(function* () {
+ *   const manager = yield* WinkCorpusManager
+ *   return yield* manager.createCorpus({ corpusId: "docs" })
+ * })
+ *
+ * Effect.runPromise(createCorpus.pipe(Effect.provide(WinkLayerAllLive))).then((summary) =>
+ *   console.log(summary.corpusId)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkLayerAllLive = WinkLayerAllLiveSource;
 /**
- * Wink layer live layer.
+ * Live entry-point layer for the engine-backed tokenization surface.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import { Tokenization } from "@beep/nlp/Core"
  * import { WinkLayerLive } from "@beep/nlp/Wink"
  *
- * console.log(WinkLayerLive)
+ * const tokenize = Effect.gen(function* () {
+ *   const tokenization = yield* Tokenization
+ *   return yield* tokenization.tokenize("Entry point wink layer.")
+ * })
+ *
+ * Effect.runPromise(tokenize.pipe(Effect.provide(WinkLayerLive))).then((tokens) =>
+ *   console.log(tokens.length)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkLayerLive = WinkLayerLiveSource;
 /**
@@ -46,31 +63,50 @@ export * from "./WinkCorpusManager.ts";
  */
 export * from "./WinkEngine.ts";
 /**
- * Wink engine ref service.
+ * Compatibility service for reading and updating the shared wink engine ref.
  *
  * @example
  * ```ts
- * import { WinkEngineRef } from "@beep/nlp/Wink"
+ * import { Effect, Layer, Ref } from "effect"
+ * import { WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
+ * import { WinkEngineRef, WinkEngineRefLive } from "@beep/nlp/Wink"
  *
- * console.log(WinkEngineRef)
+ * const readInstanceId = Effect.gen(function* () {
+ *   const engineRef = yield* WinkEngineRef
+ *   const state = yield* Ref.get(engineRef.getRef())
+ *   return state.instanceId
+ * })
+ *
+ * Effect.runPromise(
+ *   readInstanceId.pipe(Effect.provide(WinkEngineRefLive.pipe(Layer.provide(WinkEngineLive))))
+ * ).then(console.log)
  * ```
  *
- * @since 0.0.0
  * @category services
+ * @since 0.0.0
  */
 export const WinkEngineRef = WinkEngineRefSource;
 /**
- * Wink engine ref live layer.
+ * Live entry-point layer for {@link WinkEngineRef}.
  *
  * @example
  * ```ts
- * import { WinkEngineRefLive } from "@beep/nlp/Wink"
+ * import { Effect, Layer, Ref } from "effect"
+ * import { WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
+ * import { WinkEngineRef, WinkEngineRefLive } from "@beep/nlp/Wink"
  *
- * console.log(WinkEngineRefLive)
+ * const readState = Effect.gen(function* () {
+ *   const engineRef = yield* WinkEngineRef
+ *   return yield* Ref.get(engineRef.getRef())
+ * })
+ *
+ * Effect.runPromise(
+ *   readState.pipe(Effect.provide(WinkEngineRefLive.pipe(Layer.provide(WinkEngineLive))))
+ * ).then((state) => console.log(state.instanceId))
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkEngineRefLive = WinkEngineRefLiveSource;
 /**

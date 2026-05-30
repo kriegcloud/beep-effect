@@ -19,8 +19,14 @@ const $I = $NlpId.create("Wink/WinkUtils");
 const require = createRequire(import.meta.url);
 
 type StringUtilities = {
-  readonly bagOfNGrams: (text: string, size: number) => Record<string, number>;
-  readonly edgeNGrams: (text: string, size: number) => ReadonlyArray<string>;
+  readonly bagOfNGrams: {
+    (text: string, size: number): Record<string, number>;
+    (size: number): (text: string) => Record<string, number>;
+  };
+  readonly edgeNGrams: {
+    (text: string, size: number): ReadonlyArray<string>;
+    (size: number): (text: string) => ReadonlyArray<string>;
+  };
   readonly lowerCase: (text: string) => string;
   readonly removeElisions: (text: string) => string;
   readonly removeExtraSpaces: (text: string) => string;
@@ -29,7 +35,10 @@ type StringUtilities = {
   readonly removeSplChars: (text: string) => string;
   readonly retainAlphaNums: (text: string) => string;
   readonly sentences: (text: string) => ReadonlyArray<string>;
-  readonly setOfNGrams: (text: string, size: number) => ReadonlySet<string>;
+  readonly setOfNGrams: {
+    (text: string, size: number): ReadonlySet<string>;
+    (size: number): (text: string) => ReadonlySet<string>;
+  };
   readonly trim: (text: string) => string;
   readonly upperCase: (text: string) => string;
 };
@@ -55,8 +64,14 @@ const isStringArray = (value: unknown): value is ReadonlyArray<string> =>
   A.isArray(value) && A.every(value, P.isString);
 
 type WinkUtilsShape = {
-  readonly bagOfNGrams: (text: string, size: number) => Effect.Effect<NGramResult, WinkUtilsError>;
-  readonly edgeNGrams: (text: string, size: number) => Effect.Effect<NGramResult, WinkUtilsError>;
+  readonly bagOfNGrams: {
+    (text: string, size: number): Effect.Effect<NGramResult, WinkUtilsError>;
+    (size: number): (text: string) => Effect.Effect<NGramResult, WinkUtilsError>;
+  };
+  readonly edgeNGrams: {
+    (text: string, size: number): Effect.Effect<NGramResult, WinkUtilsError>;
+    (size: number): (text: string) => Effect.Effect<NGramResult, WinkUtilsError>;
+  };
   readonly lowerCase: (text: string) => Effect.Effect<string, WinkUtilsError>;
   readonly phonetize: (tokens: ReadonlyArray<string>) => Effect.Effect<ReadonlyArray<string>, WinkUtilsError>;
   readonly removeElisions: (text: string) => Effect.Effect<string, WinkUtilsError>;
@@ -66,14 +81,19 @@ type WinkUtilsShape = {
   readonly removeSplChars: (text: string) => Effect.Effect<string, WinkUtilsError>;
   readonly retainAlphaNums: (text: string) => Effect.Effect<string, WinkUtilsError>;
   readonly sentences: (text: string) => Effect.Effect<ReadonlyArray<string>, WinkUtilsError>;
-  readonly setOfNGrams: (text: string, size: number) => Effect.Effect<NGramResult, WinkUtilsError>;
+  readonly setOfNGrams: {
+    (text: string, size: number): Effect.Effect<NGramResult, WinkUtilsError>;
+    (size: number): (text: string) => Effect.Effect<NGramResult, WinkUtilsError>;
+  };
   readonly soundex: (tokens: ReadonlyArray<string>) => Effect.Effect<ReadonlyArray<string>, WinkUtilsError>;
   readonly trim: (text: string) => Effect.Effect<string, WinkUtilsError>;
   readonly upperCase: (text: string) => Effect.Effect<string, WinkUtilsError>;
 };
 
-const loadWinkUtils = (): { readonly string: StringUtilities; readonly tokens: TokenUtilities } =>
-  require("wink-nlp-utils");
+const loadWinkUtils = (): {
+  readonly string: StringUtilities;
+  readonly tokens: TokenUtilities;
+} => require("wink-nlp-utils");
 
 const renderCause = (cause: unknown): string => Inspectable.toStringUnknown(cause);
 
@@ -108,17 +128,18 @@ const sanitizeNGramResult = (
 };
 
 /**
- * Error raised while calling wink utility helpers.
+ * Typed failure for `wink-nlp-utils` string, token, and n-gram helpers.
  *
  * @example
  * ```ts
  * import { WinkUtilsError } from "@beep/nlp/Wink/WinkUtils"
  *
- * console.log(WinkUtilsError)
+ * const error = WinkUtilsError.fromCause(new Error("bad helper output"), "bagOfNGrams")
+ * console.log(error.operation)
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtilsError`)(
   "WinkUtilsError",
@@ -140,7 +161,7 @@ export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtil
    */
   static readonly fromCause: {
     (cause: unknown, operation: string): WinkUtilsError;
-    (cause: unknown): (operation: string) => WinkUtilsError;
+    (operation: string): (cause: unknown) => WinkUtilsError;
   } = dual(
     2,
     (cause: unknown, operation: string): WinkUtilsError =>
@@ -155,19 +176,19 @@ export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtil
 const makeWinkUtils = Effect.gen(function* () {
   const utils = yield* Effect.try({
     try: loadWinkUtils,
-    catch: (cause) => WinkUtilsError.fromCause(cause, "initialize"),
+    catch: WinkUtilsError.fromCause("initialize"),
   });
 
   const runString = (operation: string, f: (helpers: StringUtilities) => string) =>
     Effect.try({
       try: () => f(utils.string),
-      catch: (cause) => WinkUtilsError.fromCause(cause, operation),
+      catch: WinkUtilsError.fromCause(operation),
     });
 
   const runTokens = (operation: string, f: (helpers: TokenUtilities) => ReadonlyArray<string>) =>
     Effect.try({
       try: () => f(utils.tokens),
-      catch: (cause) => WinkUtilsError.fromCause(cause, operation),
+      catch: WinkUtilsError.fromCause(operation),
     });
 
   const runNGrams = (
@@ -176,16 +197,22 @@ const makeWinkUtils = Effect.gen(function* () {
   ) =>
     Effect.try({
       try: () => sanitizeNGramResult(f(utils.string)),
-      catch: (cause) => WinkUtilsError.fromCause(cause, operation),
+      catch: WinkUtilsError.fromCause(operation),
     });
 
   return WinkUtils.of({
-    bagOfNGrams: Effect.fn("Nlp.Wink.WinkUtils.bagOfNGrams")(function* (text: string, size: number) {
-      return yield* runNGrams("bagOfNGrams", (helpers) => helpers.bagOfNGrams(text, size));
-    }),
-    edgeNGrams: Effect.fn("Nlp.Wink.WinkUtils.edgeNGrams")(function* (text: string, size: number) {
-      return yield* runNGrams("edgeNGrams", (helpers) => helpers.edgeNGrams(text, size));
-    }),
+    bagOfNGrams: dual(
+      2,
+      Effect.fn("Nlp.Wink.WinkUtils.bagOfNGrams")(function* (text: string, size: number) {
+        return yield* runNGrams("bagOfNGrams", (helpers) => helpers.bagOfNGrams(text, size));
+      })
+    ),
+    edgeNGrams: dual(
+      2,
+      Effect.fn("Nlp.Wink.WinkUtils.edgeNGrams")(function* (text: string, size: number) {
+        return yield* runNGrams("edgeNGrams", (helpers) => helpers.edgeNGrams(text, size));
+      })
+    ),
     lowerCase: Effect.fn("Nlp.Wink.WinkUtils.lowerCase")(function* (text: string) {
       return yield* runString("lowerCase", (helpers) => helpers.lowerCase(text));
     }),
@@ -213,12 +240,15 @@ const makeWinkUtils = Effect.gen(function* () {
     sentences: Effect.fn("Nlp.Wink.WinkUtils.sentences")(function* (text: string) {
       return yield* Effect.try({
         try: () => utils.string.sentences(text),
-        catch: (cause) => WinkUtilsError.fromCause(cause, "sentences"),
+        catch: WinkUtilsError.fromCause("sentences"),
       });
     }),
-    setOfNGrams: Effect.fn("Nlp.Wink.WinkUtils.setOfNGrams")(function* (text: string, size: number) {
-      return yield* runNGrams("setOfNGrams", (helpers) => helpers.setOfNGrams(text, size));
-    }),
+    setOfNGrams: dual(
+      2,
+      Effect.fn("Nlp.Wink.WinkUtils.setOfNGrams")(function* (text: string, size: number) {
+        return yield* runNGrams("setOfNGrams", (helpers) => helpers.setOfNGrams(text, size));
+      })
+    ),
     soundex: Effect.fn("Nlp.Wink.WinkUtils.soundex")(function* (tokens: ReadonlyArray<string>) {
       return yield* runTokens("soundex", (helpers) => helpers.soundex(A.fromIterable(tokens)));
     }),
@@ -232,31 +262,45 @@ const makeWinkUtils = Effect.gen(function* () {
 }).pipe(Effect.withSpan("Nlp.Wink.WinkUtils.make"));
 
 /**
- * Wink utility service.
+ * Service wrapping `wink-nlp-utils` string cleanup, phonetic, and n-gram helpers.
  *
  * @example
  * ```ts
- * import { WinkUtils } from "@beep/nlp/Wink/WinkUtils"
+ * import { Effect } from "effect"
+ * import { WinkUtils, WinkUtilsLive } from "@beep/nlp/Wink/WinkUtils"
  *
- * console.log(WinkUtils)
+ * const cleanup = Effect.gen(function* () {
+ *   const utils = yield* WinkUtils
+ *   return yield* utils.removeHTMLTags("<p>Effect NLP</p>")
+ * })
+ *
+ * Effect.runPromise(cleanup.pipe(Effect.provide(WinkUtilsLive))).then(console.log)
  * ```
  *
- * @since 0.0.0
  * @category services
+ * @since 0.0.0
  */
 export class WinkUtils extends Context.Service<WinkUtils, WinkUtilsShape>()($I`WinkUtils`) {}
 
 /**
- * Live wink utility layer.
+ * Live layer for the `wink-nlp-utils` wrappers.
  *
  * @example
  * ```ts
- * import { WinkUtilsLive } from "@beep/nlp/Wink/WinkUtils"
+ * import { Effect } from "effect"
+ * import { WinkUtils, WinkUtilsLive } from "@beep/nlp/Wink/WinkUtils"
  *
- * console.log(WinkUtilsLive)
+ * const ngrams = Effect.gen(function* () {
+ *   const utils = yield* WinkUtils
+ *   return yield* utils.bagOfNGrams("effect schema effect", 1)
+ * })
+ *
+ * Effect.runPromise(ngrams.pipe(Effect.provide(WinkUtilsLive))).then((result) =>
+ *   console.log(result.uniqueNGrams)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkUtilsLive = Layer.effect(WinkUtils, makeWinkUtils);

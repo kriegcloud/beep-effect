@@ -24,18 +24,49 @@ import type * as O from "effect/Option";
 import type { BackendCapabilities, NLPBackendShape } from "./NLPBackend.ts";
 
 /**
- * Compose two backends so each operation tries `primary` first, then `secondary`
- * on failure. Capabilities are the union of both.
+ * Compose two backends so each operation falls back to a secondary backend.
+ *
+ * @remarks
+ * The wrapper catches any failure from the primary operation and retries the
+ * same operation on the secondary backend. Advertised capabilities are the
+ * boolean union of both inputs, so capability selection can see the composed
+ * surface.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { withFallback } from "@beep/nlp/Backend/Composition"
+ * import { notSupported } from "@beep/nlp/Backend/NLPBackend"
+ * import type { NLPBackendShape } from "@beep/nlp/Backend/NLPBackend"
  *
- * console.log(typeof withFallback)
+ * const capabilities = {
+ *   constituencyParsing: false,
+ *   coreferenceResolution: false,
+ *   dependencyParsing: false,
+ *   lemmatization: false,
+ *   ner: false,
+ *   posTagging: false,
+ *   relationExtraction: false,
+ *   sentencization: false,
+ *   tokenization: true
+ * }
+ * const primary: NLPBackendShape = {
+ *   name: "primary",
+ *   capabilities,
+ *   tokenize: () => Effect.fail(notSupported("primary", "tokenize")),
+ *   sentencize: () => Effect.succeed([]),
+ *   posTag: () => Effect.succeed([]),
+ *   lemmatize: () => Effect.succeed([]),
+ *   extractEntities: () => Effect.succeed([]),
+ *   parseDependencies: () => Effect.succeed([]),
+ *   extractRelations: () => Effect.succeed([])
+ * }
+ * const secondary: NLPBackendShape = { ...primary, name: "secondary", tokenize: (text) => Effect.succeed([text]) }
+ * console.log(withFallback(primary, secondary).name) // "primary+secondary"
  * ```
  *
- * @since 0.0.0
  * @category combinators
+ * @since 0.0.0
  */
 export const withFallback = (primary: NLPBackendShape, secondary: NLPBackendShape): NLPBackendShape => {
   const capabilities: BackendCapabilities = {
@@ -78,10 +109,19 @@ export const withFallback = (primary: NLPBackendShape, secondary: NLPBackendShap
 };
 
 /**
- * Options controlling {@link withCaching}.
+ * Cache settings for memoized backend composition.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import type { CachingOptions } from "@beep/nlp/Backend/Composition"
+ *
+ * const options: CachingOptions = { capacity: 64, timeToLive: Duration.minutes(5) }
+ * console.log(options.capacity) // 64
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export interface CachingOptions {
   readonly capacity?: number;
@@ -89,18 +129,50 @@ export interface CachingOptions {
 }
 
 /**
- * Wrap a backend so each text-keyed operation is memoized behind an `effect/Cache`
- * with a capacity bound and time-to-live.
+ * Wrap a backend with per-operation `effect/Cache` memoization.
+ *
+ * @remarks
+ * Each backend operation gets its own cache keyed by the input text or sentence.
+ * The wrapper preserves the backend's capability bitmap and renames it as
+ * `cached(<name>)`.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { withCaching } from "@beep/nlp/Backend/Composition"
+ * import type { NLPBackendShape } from "@beep/nlp/Backend/NLPBackend"
  *
- * console.log(typeof withCaching)
+ * const backend: NLPBackendShape = {
+ *   name: "minimal",
+ *   capabilities: {
+ *     constituencyParsing: false,
+ *     coreferenceResolution: false,
+ *     dependencyParsing: false,
+ *     lemmatization: false,
+ *     ner: false,
+ *     posTagging: false,
+ *     relationExtraction: false,
+ *     sentencization: true,
+ *     tokenization: true
+ *   },
+ *   tokenize: (text) => Effect.succeed(text.split(" ")),
+ *   sentencize: (text) => Effect.succeed([text]),
+ *   posTag: () => Effect.succeed([]),
+ *   lemmatize: () => Effect.succeed([]),
+ *   extractEntities: () => Effect.succeed([]),
+ *   parseDependencies: () => Effect.succeed([]),
+ *   extractRelations: () => Effect.succeed([])
+ * }
+ * const program = Effect.flatMap(withCaching(backend, { capacity: 16 }), (cached) => cached.tokenize("typed effects"))
+ * Effect.runPromise(program).then(console.log) // ["typed", "effects"]
  * ```
  *
- * @since 0.0.0
+ * @effects Allocates per-operation `effect/Cache` instances when the wrapper
+ * effect runs; operations on the returned backend read and populate those
+ * caches through `Cache.get`.
+ *
  * @category combinators
+ * @since 0.0.0
  */
 export const withCaching = Effect.fn("withCaching")(function* (
   backend: NLPBackendShape,
@@ -144,17 +216,46 @@ export const withCaching = Effect.fn("withCaching")(function* (
 });
 
 /**
- * Select the first backend that supports a given capability.
+ * Select the first backend whose capability bitmap enables a requested feature.
+ *
+ * @remarks
+ * The input order is the preference order. This is useful before building a
+ * layer when a caller has several concrete engines but only one operation
+ * requires a specialized capability.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
  * import { selectByCapability } from "@beep/nlp/Backend/Composition"
+ * import type { NLPBackendShape } from "@beep/nlp/Backend/NLPBackend"
  *
- * console.log(typeof selectByCapability)
+ * const backend: NLPBackendShape = {
+ *   name: "tokenizer",
+ *   capabilities: {
+ *     constituencyParsing: false,
+ *     coreferenceResolution: false,
+ *     dependencyParsing: false,
+ *     lemmatization: false,
+ *     ner: false,
+ *     posTagging: false,
+ *     relationExtraction: false,
+ *     sentencization: true,
+ *     tokenization: true
+ *   },
+ *   tokenize: (text) => Effect.succeed(text.split(" ")),
+ *   sentencize: (text) => Effect.succeed([text]),
+ *   posTag: () => Effect.succeed([]),
+ *   lemmatize: () => Effect.succeed([]),
+ *   extractEntities: () => Effect.succeed([]),
+ *   parseDependencies: () => Effect.succeed([]),
+ *   extractRelations: () => Effect.succeed([])
+ * }
+ * console.log(O.map(selectByCapability("tokenization", [backend]), (selected) => selected.name))
  * ```
  *
- * @since 0.0.0
  * @category combinators
+ * @since 0.0.0
  */
 export const selectByCapability = (
   capability: keyof BackendCapabilities,

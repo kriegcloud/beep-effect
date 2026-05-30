@@ -558,14 +558,6 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/AnnotatedTextGraph.ts",
-      "symbol": "AnnotationOptions",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
       "file": "packages/foundation/capability/nlp/src/Graph/EffectGraph.ts",
       "symbol": "EffectGraph",
       "kind": "exported-interface",
@@ -580,14 +572,6 @@
       "status": "exception",
       "owner": "@beep/nlp",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/EffectGraph.ts",
-      "symbol": "NodeMetadata",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts",
@@ -607,22 +591,6 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts",
-      "symbol": "CacheStats",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts",
-      "symbol": "ResultKey",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts",
       "symbol": "ResultStoreShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -639,43 +607,11 @@
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-      "symbol": "ExecutionMetrics",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-      "symbol": "ExecutionOptions",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-      "symbol": "OperationCost",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
       "symbol": "OperationResult",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/nlp",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-      "symbol": "ValidationResult",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/GraphOps.ts",
@@ -788,14 +724,6 @@
       "status": "exception",
       "owner": "@beep/nlp",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Ontology/Kind.ts",
-      "symbol": "KindContainment",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
     },
     {
       "file": "packages/foundation/capability/nlp/src/Ontology/Kind.ts",

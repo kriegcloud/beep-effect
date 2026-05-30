@@ -2,24 +2,44 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { $RepoCliId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
+import { Result } from "effect";
+import { dual } from "effect/Function";
+import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
 import { Node } from "ts-morph";
 
+const $I = $RepoCliId.create("support/_shared");
+
 export type JsonRecord = Record<string, unknown>;
 
-export type PackageJson = JsonRecord & {
-  readonly name: string;
-  readonly workspaces?: unknown;
-  readonly exports?: unknown;
-};
+export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
+  {
+    name: S.String,
+    workspaces: S.optionalKey(S.Unknown),
+    exports: S.optionalKey(S.Unknown),
+  },
+  $I.annote("PackageJson", {
+    description: "Package manifest fields used by repo CLI support scripts.",
+  })
+) {}
 
-export type WorkspacePackageInfo = {
-  readonly name: string;
-  readonly path: string;
-  readonly absolutePath: string;
-  readonly packageJson: PackageJson;
-};
+export class WorkspacePackageInfo extends S.Class<WorkspacePackageInfo>($I`WorkspacePackageInfo`)(
+  {
+    name: S.String,
+    path: S.String,
+    absolutePath: S.String,
+    packageJson: PackageJson,
+  },
+  $I.annote("WorkspacePackageInfo", {
+    description: "Discovered workspace package metadata used by repo CLI support scripts.",
+  })
+) {}
+
+const decodePackageJsonResult = S.decodeUnknownResult(PackageJson);
+
+const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -65,7 +85,8 @@ export const repoRelative = (absolutePath: string): string =>
 
 export const escapeRegExp = (value: string): string => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 
-export const readPackageJson = (filePath: string): PackageJson => readJsonc(filePath) as PackageJson;
+export const readPackageJson = (filePath: string): PackageJson =>
+  Result.getOrThrowWith(decodePackageJsonResult(readJsonc(filePath)), schemaIssueToError);
 
 export const readRootPackage = (): PackageJson => readPackageJson(path.join(rootDir, "package.json"));
 
@@ -115,22 +136,28 @@ export const discoverWorkspacePackages = (): Map<string, WorkspacePackageInfo> =
   const rootPackage = readRootPackage();
   const packages = new Map<string, WorkspacePackageInfo>();
 
-  packages.set(rootPackage.name, {
-    name: rootPackage.name,
-    path: ".",
-    absolutePath: rootDir,
-    packageJson: rootPackage,
-  });
+  packages.set(
+    rootPackage.name,
+    WorkspacePackageInfo.make({
+      name: rootPackage.name,
+      path: ".",
+      absolutePath: rootDir,
+      packageJson: rootPackage,
+    })
+  );
 
   for (const pattern of workspacePatternsFrom(rootPackage.workspaces)) {
     for (const packagePath of expandWorkspacePattern(pattern)) {
       const packageJson = readPackageJson(path.join(packagePath, "package.json"));
-      packages.set(packageJson.name, {
-        name: packageJson.name,
-        path: repoRelative(packagePath),
-        absolutePath: packagePath,
-        packageJson,
-      });
+      packages.set(
+        packageJson.name,
+        WorkspacePackageInfo.make({
+          name: packageJson.name,
+          path: repoRelative(packagePath),
+          absolutePath: packagePath,
+          packageJson,
+        })
+      );
     }
   }
 
@@ -232,7 +259,10 @@ export const tagsFromComment = (commentText: string): ReadonlyArray<string> => {
   return [...new Set(tags)];
 };
 
-export const valuesForTag = (commentText: string, tagName: string): ReadonlyArray<string> => {
+export const valuesForTag: {
+  (tagName: string): (commentText: string) => ReadonlyArray<string>;
+  (commentText: string, tagName: string): ReadonlyArray<string>;
+} = dual(2, (commentText: string, tagName: string): ReadonlyArray<string> => {
   const values: Array<string> = [];
   const pattern = new RegExp(`^\\s*${escapeRegExp(tagName)}\\b\\s*(.*)$`);
 
@@ -244,7 +274,7 @@ export const valuesForTag = (commentText: string, tagName: string): ReadonlyArra
   }
 
   return values;
-};
+});
 
 export const getDocNode = (node: Node): Node => {
   if (Node.isVariableDeclaration(node)) {

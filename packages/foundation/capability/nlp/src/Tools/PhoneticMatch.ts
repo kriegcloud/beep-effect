@@ -47,17 +47,29 @@ class PhoneticMatchParameters extends S.Class<PhoneticMatchParameters>($I`Phonet
 ) {}
 
 /**
- * Tool for comparing texts by phonetic overlap.
+ * Defines the agent-facing tool contract for comparing two texts by phonetic
+ * encodings.
+ *
+ * Use this tool for fuzzy name or phrase matching where spelling differences
+ * should still match similar-sounding tokens.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { PhoneticMatch } from "@beep/nlp/Tools/PhoneticMatch"
  *
- * console.log(PhoneticMatch)
+ * const parameters = S.decodeUnknownSync(PhoneticMatch.parametersSchema)({
+ *   algorithm: "soundex",
+ *   minTokenLength: 2,
+ *   text1: "Stephen Hawking",
+ *   text2: "Steven Hocking"
+ * })
+ *
+ * parameters.algorithm
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const PhoneticMatch = Tool.make("PhoneticMatch", {
   description: "Compute phonetic overlap between two texts using Soundex or phonetization.",

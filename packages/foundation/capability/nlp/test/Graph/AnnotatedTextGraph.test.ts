@@ -65,14 +65,14 @@ const StubBackend = Layer.succeed(
 describe("AnnotatedTextGraph construction", () => {
   it.effect(
     "empty has no nodes",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       expect(ATG.nodeCount(ATG.empty())).toBe(0);
     })
   );
 
   it.effect(
     "fromDocumentAnnotated builds doc + sentences + annotations",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g = yield* ATG.fromDocumentAnnotated("Apple makes phones. Steve founded it.").pipe(
         provideScopedLayer(StubBackend)
       );
@@ -88,7 +88,7 @@ describe("AnnotatedTextGraph construction", () => {
 describe("AnnotatedTextGraph annotation passes are idempotent", () => {
   it.effect(
     "re-running addPOSAnnotations does not duplicate",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* ATG.fromDocumentAnnotated("One two three.", {
         includePOS: true,
         includeLemmas: false,
@@ -102,7 +102,7 @@ describe("AnnotatedTextGraph annotation passes are idempotent", () => {
 
   it.effect(
     "re-running addEntityAnnotations does not duplicate",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* ATG.fromDocumentAnnotated("Apple Steve Jobs.", {
         includePOS: false,
         includeLemmas: false,
@@ -119,7 +119,7 @@ describe("AnnotatedTextGraph annotation passes are idempotent", () => {
 describe("AnnotatedTextGraph queries", () => {
   it.effect(
     "countNodesByType sums to total node count",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g = yield* ATG.fromDocumentAnnotated("Hello world.").pipe(provideScopedLayer(StubBackend));
       const counts = ATG.countNodesByType(g);
       const sum = counts.text + counts.pos + counts.entity + counts.lemma + counts.dependency + counts.relation;
@@ -129,7 +129,7 @@ describe("AnnotatedTextGraph queries", () => {
 
   it.effect(
     "filterByPOSTag returns only matching nodes",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g = yield* ATG.fromDocumentAnnotated("Alpha beta gamma.", {
         includePOS: true,
         includeLemmas: false,
@@ -144,7 +144,7 @@ describe("AnnotatedTextGraph queries", () => {
 
   it.effect(
     "type guards discriminate the node union",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g = yield* ATG.fromDocumentAnnotated("Hi.", {
         includePOS: true,
         includeLemmas: false,

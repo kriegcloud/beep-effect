@@ -56,17 +56,29 @@ class TverskySimilaritySuccess extends S.Class<TverskySimilaritySuccess>($I`Tver
 ) {}
 
 /**
- * Tool for computing asymmetric set similarity.
+ * Defines the agent-facing tool contract for asymmetric Tversky similarity
+ * over token sets.
+ *
+ * Use this tool when one text should be treated as the reference and omission
+ * versus extra-token penalties need separate `alpha` and `beta` weights.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { TverskySimilarity } from "@beep/nlp/Tools/TverskySimilarity"
  *
- * console.log(TverskySimilarity)
+ * const parameters = S.decodeUnknownSync(TverskySimilarity.parametersSchema)({
+ *   alpha: 0.7,
+ *   beta: 0.3,
+ *   text1: "refund policy shipping",
+ *   text2: "refund policy"
+ * })
+ *
+ * parameters.alpha
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const TverskySimilarity = Tool.make("TverskySimilarity", {
   description:

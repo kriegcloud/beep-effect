@@ -74,17 +74,23 @@ const WinkEntityTypeKit = LiteralKit([
 const renderBracketString = (values: ReadonlyArray<string>): string => `[${A.join(values, "|")}]`;
 
 /**
- * Supported wink part-of-speech tags.
+ * Universal part-of-speech tags accepted by wink-backed pattern matching.
+ *
+ * @remarks
+ * These tags follow wink-nlp's Universal POS vocabulary and are used only for
+ * grammatical pattern positions. Literal token text belongs in
+ * {@link LiteralPatternElement}.
  *
  * @example
  * ```ts
  * import { WinkPOSTag } from "@beep/nlp/Core/Pattern"
  *
- * console.log(WinkPOSTag)
+ * console.log(WinkPOSTag.is.NOUN("NOUN")) // true
+ * console.log(WinkPOSTag.is.NOUN("VERB")) // false
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const WinkPOSTag = WinkPOSTagKit.pipe(
   $I.annoteSchema("WinkPOSTag", {
@@ -94,32 +100,34 @@ export const WinkPOSTag = WinkPOSTagKit.pipe(
 );
 
 /**
- * Runtime type for {@link WinkPOSTag}.
+ * Runtime TypeScript union decoded by {@link WinkPOSTag}.
  *
  * @example
  * ```ts
  * import type { WinkPOSTag } from "@beep/nlp/Core/Pattern"
  *
- * type Example = WinkPOSTag
+ * const describe = (tag: WinkPOSTag): string => `pos:${tag}`
+ * console.log(typeof describe) // "function"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export type WinkPOSTag = typeof WinkPOSTag.Type;
 
 /**
- * Supported wink entity types.
+ * Named-entity labels accepted by wink-backed entity pattern matching.
  *
  * @example
  * ```ts
  * import { WinkEntityType } from "@beep/nlp/Core/Pattern"
  *
- * console.log(WinkEntityType)
+ * console.log(WinkEntityType.is.EMAIL("EMAIL")) // true
+ * console.log(WinkEntityType.is.EMAIL("URL")) // false
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const WinkEntityType = WinkEntityTypeKit.pipe(
   $I.annoteSchema("WinkEntityType", {
@@ -129,17 +137,18 @@ export const WinkEntityType = WinkEntityTypeKit.pipe(
 );
 
 /**
- * Runtime type for {@link WinkEntityType}.
+ * Runtime TypeScript union decoded by {@link WinkEntityType}.
  *
  * @example
  * ```ts
  * import type { WinkEntityType } from "@beep/nlp/Core/Pattern"
  *
- * type Example = WinkEntityType
+ * const describe = (entityType: WinkEntityType): string => `entity:${entityType}`
+ * console.log(typeof describe) // "function"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export type WinkEntityType = typeof WinkEntityType.Type;
 
@@ -155,17 +164,23 @@ const DisambiguatedLiteralPatternOptionChoice = S.makeFilter(
 );
 
 /**
- * POS alternatives for a single pattern position.
+ * Non-empty set of POS choices for one pattern slot.
+ *
+ * @remarks
+ * The empty string is allowed as one alternative so bracket syntax can express
+ * wildcard-ish optional choices, but every option set must include at least one
+ * meaningful POS tag.
  *
  * @example
  * ```ts
  * import { POSPatternOption } from "@beep/nlp/Core/Pattern"
  *
- * console.log(POSPatternOption)
+ * const option = POSPatternOption.make(["NOUN", "PROPN"])
+ * console.log(option.includes("NOUN")) // true
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const POSPatternOption = S.NonEmptyArray(S.Union([WinkPOSTag, EmptyPatternChoice]))
   .check(MeaningfulPatternOptionChoice)
@@ -191,17 +206,18 @@ export const POSPatternOption = S.NonEmptyArray(S.Union([WinkPOSTag, EmptyPatter
 export type POSPatternOption = typeof POSPatternOption.Type;
 
 /**
- * Entity alternatives for a single pattern position.
+ * Non-empty set of entity-type choices for one pattern slot.
  *
  * @example
  * ```ts
  * import { EntityPatternOption } from "@beep/nlp/Core/Pattern"
  *
- * console.log(EntityPatternOption)
+ * const option = EntityPatternOption.make(["EMAIL", "URL"])
+ * console.log(option.includes("URL")) // true
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const EntityPatternOption = S.NonEmptyArray(S.Union([WinkEntityType, EmptyPatternChoice]))
   .check(MeaningfulPatternOptionChoice)
@@ -227,17 +243,22 @@ export const EntityPatternOption = S.NonEmptyArray(S.Union([WinkEntityType, Empt
 export type EntityPatternOption = typeof EntityPatternOption.Type;
 
 /**
- * Literal alternatives for a single pattern position.
+ * Non-empty set of literal token-text choices for one pattern slot.
+ *
+ * @remarks
+ * At least one choice must be a non-reserved literal so a literal pattern cannot
+ * be confused with a POS tag, entity label, or empty wildcard placeholder.
  *
  * @example
  * ```ts
  * import { LiteralPatternOption } from "@beep/nlp/Core/Pattern"
  *
- * console.log(LiteralPatternOption)
+ * const option = LiteralPatternOption.make(["Effect", "effect-ts"])
+ * console.log(option[0]) // "Effect"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const LiteralPatternOption = S.NonEmptyArray(S.Union([S.NonEmptyString, EmptyPatternChoice]))
   .check(MeaningfulPatternOptionChoice)
@@ -264,17 +285,18 @@ export const LiteralPatternOption = S.NonEmptyArray(S.Union([S.NonEmptyString, E
 export type LiteralPatternOption = typeof LiteralPatternOption.Type;
 
 /**
- * Pattern element matching one or more POS tags.
+ * Tagged pattern element that matches grammatical POS alternatives.
  *
  * @example
  * ```ts
  * import { POSPatternElement } from "@beep/nlp/Core/Pattern"
  *
- * console.log(POSPatternElement)
+ * const element = POSPatternElement.make({ value: ["NOUN"] })
+ * console.log(element._tag) // "POSPatternElement"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class POSPatternElement extends S.TaggedClass<POSPatternElement>($I`POSPatternElement`)(
   "POSPatternElement",
@@ -287,17 +309,18 @@ export class POSPatternElement extends S.TaggedClass<POSPatternElement>($I`POSPa
 ) {}
 
 /**
- * Pattern element matching one or more entity types.
+ * Tagged pattern element that matches named-entity alternatives.
  *
  * @example
  * ```ts
  * import { EntityPatternElement } from "@beep/nlp/Core/Pattern"
  *
- * console.log(EntityPatternElement)
+ * const element = EntityPatternElement.make({ value: ["EMAIL"] })
+ * console.log(element._tag) // "EntityPatternElement"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class EntityPatternElement extends S.TaggedClass<EntityPatternElement>($I`EntityPatternElement`)(
   "EntityPatternElement",
@@ -310,17 +333,18 @@ export class EntityPatternElement extends S.TaggedClass<EntityPatternElement>($I
 ) {}
 
 /**
- * Pattern element matching one or more literal strings.
+ * Tagged pattern element that matches literal token text alternatives.
  *
  * @example
  * ```ts
  * import { LiteralPatternElement } from "@beep/nlp/Core/Pattern"
  *
- * console.log(LiteralPatternElement)
+ * const element = LiteralPatternElement.make({ value: ["Effect"] })
+ * console.log(element.value[0]) // "Effect"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class LiteralPatternElement extends S.TaggedClass<LiteralPatternElement>($I`LiteralPatternElement`)(
   "LiteralPatternElement",
@@ -333,17 +357,18 @@ export class LiteralPatternElement extends S.TaggedClass<LiteralPatternElement>(
 ) {}
 
 /**
- * Union of supported pattern elements.
+ * Schema union for every pattern element variant supported by this package.
  *
  * @example
  * ```ts
  * import { PatternElement } from "@beep/nlp/Core/Pattern"
  *
- * console.log(PatternElement)
+ * const element = PatternElement.make({ _tag: "LiteralPatternElement", value: ["Effect"] })
+ * console.log(element._tag) // "LiteralPatternElement"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const PatternElement = S.Union([POSPatternElement, EntityPatternElement, LiteralPatternElement]).pipe(
   $I.annoteSchema("PatternElement", {
@@ -367,17 +392,18 @@ export const PatternElement = S.Union([POSPatternElement, EntityPatternElement, 
 export type PatternElement = typeof PatternElement.Type;
 
 /**
- * Branded pattern identifier.
+ * Non-empty identifier for a reusable pattern definition.
  *
  * @example
  * ```ts
  * import { PatternId } from "@beep/nlp/Core/Pattern"
  *
- * console.log(PatternId)
+ * const id = PatternId.make("package-name")
+ * console.log(id) // "package-name"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const PatternId = S.NonEmptyString.pipe(
   S.brand("PatternId"),
@@ -402,17 +428,23 @@ export const PatternId = S.NonEmptyString.pipe(
 export type PatternId = typeof PatternId.Type;
 
 /**
- * Inclusive mark range over pattern element positions.
+ * Inclusive `[start, end]` element-index range selected by a pattern.
+ *
+ * @remarks
+ * Mark ranges let a broader pattern match context while highlighting a narrower
+ * span for extraction.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { MarkRange } from "@beep/nlp/Core/Pattern"
  *
- * console.log(MarkRange)
+ * const range = S.decodeUnknownSync(MarkRange)([1, 2])
+ * console.log(range[0]) // 1
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const MarkRange = S.Tuple([NonNegativeInt, NonNegativeInt]).pipe(
   $I.annoteSchema("MarkRange", {
@@ -436,17 +468,30 @@ export const MarkRange = S.Tuple([NonNegativeInt, NonNegativeInt]).pipe(
 export type MarkRange = typeof MarkRange.Type;
 
 /**
- * Immutable NLP pattern.
+ * Ordered pattern of POS, entity, and literal slots with an optional mark.
+ *
+ * @remarks
+ * Patterns model bracket-style NLP matchers as schema values. Each element is a
+ * token-position choice set; `mark` can select the subrange to emit after the
+ * full pattern matches.
  *
  * @example
  * ```ts
- * import { Pattern } from "@beep/nlp/Core/Pattern"
+ * import { Chunk } from "effect"
+ * import * as O from "effect/Option"
+ * import { LiteralPatternElement, Pattern, PatternId } from "@beep/nlp/Core/Pattern"
  *
- * console.log(Pattern)
+ * const pattern = Pattern.make({
+ *   _tag: "Pattern",
+ *   id: PatternId.make("effect-token"),
+ *   elements: Chunk.of(LiteralPatternElement.make({ value: ["Effect"] })),
+ *   mark: O.none()
+ * })
+ * console.log(Pattern.is(pattern)) // true
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
   "Pattern",

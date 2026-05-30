@@ -20,7 +20,9 @@
 
 import { $NlpId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { dual } from "@beep/utils";
 import { Clock, Effect } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $NlpId.create("Handoff/Contract");
@@ -354,9 +356,15 @@ export class AnnotatedDocument extends S.Class<AnnotatedDocument>($I`AnnotatedDo
  * @since 0.0.0
  * @category constructors
  */
-export const makeProvenance = (source: string, generatedBy: string, confidence?: number): Effect.Effect<Provenance> =>
-  Effect.map(Clock.currentTimeMillis, (timestamp) =>
-    confidence === undefined
-      ? Provenance.make({ generatedBy, source, timestamp })
-      : Provenance.make({ confidence, generatedBy, source, timestamp })
-  );
+export const makeProvenance: {
+  (source: string, generatedBy: string, confidence?: number): Effect.Effect<Provenance>;
+  (generatedBy: string, confidence?: number): (source: string) => Effect.Effect<Provenance>;
+} = dual(
+  (args) => args.length >= 3 || (args.length === 2 && !P.isNumber(args[1])),
+  (source: string, generatedBy: string, confidence?: number): Effect.Effect<Provenance> =>
+    Effect.map(Clock.currentTimeMillis, (timestamp) =>
+      confidence === undefined
+        ? Provenance.make({ generatedBy, source, timestamp })
+        : Provenance.make({ confidence, generatedBy, source, timestamp })
+    )
+);

@@ -10,75 +10,92 @@ import { WinkTokenization } from "../Wink/index.ts";
 import { WinkEngineLive as WinkEngineLiveService, WinkEngine as WinkEngineService } from "../Wink/WinkEngine.ts";
 
 /**
- * Base runtime layer exposing the shared wink engine service.
+ * Base NLP runtime layer that provides the shared wink engine service.
+ *
+ * @remarks
+ * Use this when lower-level modules need direct wink engine access without the
+ * tokenization service facade.
  *
  * @example
  * ```ts
  * import { NLPBaseLive } from "@beep/nlp/Layers"
  *
- * console.log(NLPBaseLive)
+ * const layer = NLPBaseLive
+ * console.log(layer)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const NLPBaseLive = WinkEngineLiveService;
 
 /**
- * Tokenization module layer exposing both the wink engine and tokenization service.
+ * Layer bundle for wink-backed tokenization services.
+ *
+ * @remarks
+ * The layer provides the shared wink engine and merges in the tokenization
+ * module so callers can run token, sentence, and document tokenization effects.
  *
  * @example
  * ```ts
  * import { TokenizationModuleLive } from "@beep/nlp/Layers"
  *
- * console.log(TokenizationModuleLive)
+ * const layer = TokenizationModuleLive
+ * console.log(layer)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const TokenizationModuleLive = WinkTokenization.pipe(Layer.provideMerge(WinkEngineLiveService));
 
 /**
- * Compatibility application layer matching the legacy tokenization-focused bundle.
+ * Legacy-compatible application layer for the tokenization-focused NLP bundle.
+ *
+ * @remarks
+ * This currently aliases {@link TokenizationModuleLive}; keeping the name lets
+ * older composition code depend on a stable application-layer export while the
+ * package grows additional modules.
  *
  * @example
  * ```ts
  * import { NLPAppLive } from "@beep/nlp/Layers"
  *
- * console.log(NLPAppLive)
+ * const layer = NLPAppLive
+ * console.log(layer)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const NLPAppLive = TokenizationModuleLive;
 
 /**
- * Wink engine service.
+ * Service tag for direct access to the shared wink engine.
  *
  * @example
  * ```ts
  * import { WinkEngine } from "@beep/nlp/Layers"
  *
- * console.log(WinkEngine)
+ * console.log(WinkEngine.key)
  * ```
  *
- * @since 0.0.0
  * @category services
+ * @since 0.0.0
  */
 export const WinkEngine = WinkEngineService;
 /**
- * Wink engine live layer.
+ * Live layer that initializes and provides the wink engine service.
  *
  * @example
  * ```ts
  * import { WinkEngineLive } from "@beep/nlp/Layers"
  *
- * console.log(WinkEngineLive)
+ * const layer = WinkEngineLive
+ * console.log(layer)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkEngineLive = WinkEngineLiveService;

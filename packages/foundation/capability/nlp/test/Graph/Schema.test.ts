@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 describe("TextNode", () => {
   it.effect(
     "decodes a valid node and round-trips",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const decoded = yield* S.decodeUnknownEffect(GraphSchema.TextNode)({
         text: "Hello world.",
         type: "sentence",
@@ -31,7 +31,7 @@ describe("TextNode", () => {
 
   it.effect(
     "rejects an unknown node type",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(
         S.decodeUnknownEffect(GraphSchema.TextNode)({ text: "x", type: "bogus", timestamp: 0 })
       );
@@ -43,7 +43,7 @@ describe("TextNode", () => {
 describe("TextEdge", () => {
   it.effect(
     "accepts every declared relation",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const relations = [
         "contains",
         "follows",
@@ -65,7 +65,7 @@ describe("TextEdge", () => {
 
   it.effect(
     "rejects an unknown relation",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const result = yield* Effect.exit(S.decodeUnknownEffect(GraphSchema.TextEdge)({ relation: "nope" }));
       expect(result._tag).toBe("Failure");
     })
@@ -75,7 +75,7 @@ describe("TextEdge", () => {
 describe("Annotation nodes round-trip", () => {
   it.effect(
     "EntityNode preserves span and type",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const decoded = yield* S.decodeUnknownEffect(GraphSchema.EntityNode)({
         text: "Apple Inc.",
         entityType: "ORG",
@@ -92,7 +92,7 @@ describe("Annotation nodes round-trip", () => {
 
   it.effect(
     "POSNode and LemmaNode decode",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const pos = yield* S.decodeUnknownEffect(GraphSchema.POSNode)({
         text: "runs",
         tag: "VBZ",
@@ -112,7 +112,7 @@ describe("Annotation nodes round-trip", () => {
 
   it.effect(
     "DependencyNode and RelationNode decode",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const dep = yield* S.decodeUnknownEffect(GraphSchema.DependencyNode)({
         relation: "nsubj",
         head: { text: "runs", position: 2 },
@@ -135,7 +135,7 @@ describe("Annotation nodes round-trip", () => {
 describe("NLPAnalysis", () => {
   it.effect(
     "decodes a summary",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const decoded = yield* S.decodeUnknownEffect(GraphSchema.NLPAnalysis)({
         text: "Hi there. Bye.",
         sentences: ["Hi there.", "Bye."],

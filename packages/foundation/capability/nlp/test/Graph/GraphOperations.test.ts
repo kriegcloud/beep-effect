@@ -90,7 +90,7 @@ describe("OperationCost", () => {
 describe("ExecutionId", () => {
   it.effect(
     "generates distinct ids",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const a = yield* Types.generateExecutionId;
       const b = yield* Types.generateExecutionId;
       expect(a).not.toBe(b);
@@ -101,7 +101,7 @@ describe("ExecutionId", () => {
 describe("Operation constructors", () => {
   it.effect(
     "pure mints one child node per produced value",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const op = Operation.expand({ name: "chars", description: "", f: (s: string) => s.split("") });
       const root = yield* EG.makeNode("ab");
       const children = yield* op.apply(root);
@@ -113,7 +113,7 @@ describe("Operation constructors", () => {
 
   it.effect(
     "transform produces a single mapped child",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const op = Operation.transform({ name: "len", description: "", f: (s: string) => s.length });
       const root = yield* EG.makeNode("hello");
       const children = yield* op.apply(root);
@@ -123,7 +123,7 @@ describe("Operation constructors", () => {
 
   it.effect(
     "filter keeps or drops based on the predicate",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const op = Operation.filter({ name: "nonEmpty", description: "", predicate: (s: string) => s.length > 0 });
       const keep = yield* op.apply(yield* EG.makeNode("x"));
       const drop = yield* op.apply(yield* EG.makeNode(""));
@@ -134,7 +134,7 @@ describe("Operation constructors", () => {
 
   it.effect(
     "identity re-emits the node under a fresh id",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const op = Operation.identity<string>();
       const root = yield* EG.makeNode("z");
       const [child] = yield* op.apply(root);
@@ -159,10 +159,10 @@ describe("ResultStore", () => {
 
   it.effect(
     "stores and retrieves a result, incrementing hits",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const store = yield* ResultStore.ResultStore;
-      const nodeId = EG.makeNodeId("n1");
-      const key = ResultStore.ResultKey.make("op", nodeId);
+      const nodeId = EG.NodeId.make("n1");
+      const key = ResultStore.ResultKey.new("op", nodeId);
       const result = yield* mkResult;
       expect(yield* store.has(key)).toBe(false);
       yield* store.store(key, result);
@@ -177,13 +177,13 @@ describe("ResultStore", () => {
 
   it.effect(
     "delete and clear remove entries",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const store = yield* ResultStore.ResultStore;
-      const key = ResultStore.ResultKey.make("op", EG.makeNodeId("n2"));
+      const key = ResultStore.ResultKey.new("op", EG.NodeId.make("n2"));
       yield* store.store(key, yield* mkResult);
       yield* store.delete(key);
       expect(yield* store.has(key)).toBe(false);
-      yield* store.store(ResultStore.ResultKey.make("op", EG.makeNodeId("n3")), yield* mkResult);
+      yield* store.store(ResultStore.ResultKey.new("op", EG.NodeId.make("n3")), yield* mkResult);
       yield* store.clear;
       expect((yield* store.stats).size).toBe(0);
     }, provideScopedLayer(ResultStore.ResultStoreTest))
@@ -195,7 +195,7 @@ describe("GraphExecutor", () => {
 
   it.effect(
     "applies an operation to leaf nodes, producing new nodes",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const graph = yield* EG.singleton("hello");
       const executor = yield* Executor.GraphExecutor;
       const result = yield* executor.execute(graph, upper);
@@ -208,7 +208,7 @@ describe("GraphExecutor", () => {
 
   it.effect(
     "reports a cache miss then a cache hit for the same node",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const graph = yield* EG.singleton("hi");
       const executor = yield* Executor.GraphExecutor;
       const first = yield* executor.execute(graph, upper);
@@ -221,7 +221,7 @@ describe("GraphExecutor", () => {
 
   it.effect(
     "validate warns when there are no leaf nodes",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const executor = yield* Executor.GraphExecutor;
       const result = yield* executor.validate(EG.empty<string>(), upper);
       expect(result.valid).toBe(true);
@@ -231,7 +231,7 @@ describe("GraphExecutor", () => {
 
   it.effect(
     "estimateCost scales by the number of leaf nodes",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const graph = yield* EG.singleton("x");
       const executor = yield* Executor.GraphExecutor;
       const cost = yield* executor.estimateCost(graph, upper);
@@ -241,7 +241,7 @@ describe("GraphExecutor", () => {
 
   it.effect(
     "surfaces a per-node error without failing the run",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const boom = Operation.make<string, string, never, Errors.OperationError>({
         name: "boom",
         description: "",

@@ -72,17 +72,28 @@ class LearnCustomEntitiesSuccess extends S.Class<LearnCustomEntitiesSuccess>($I`
 ) {}
 
 /**
- * Tool for teaching custom pattern-based entities.
+ * Defines the agent-facing tool contract for learning custom entity patterns
+ * that augment built-in entity extraction.
+ *
+ * Use this tool before `ExtractEntities` when a domain needs bracket-token
+ * patterns such as `[PROPN]`, `[CARDINAL]`, or `[$]` to identify custom labels.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { LearnCustomEntities } from "@beep/nlp/Tools/LearnCustomEntities"
  *
- * console.log(LearnCustomEntities)
+ * const parameters = S.decodeUnknownSync(LearnCustomEntities.parametersSchema)({
+ *   entities: [{ name: "PRODUCT_CODE", patterns: ["[PROPN]", "[CARDINAL]"] }],
+ *   groupName: "support-entities",
+ *   mode: "append"
+ * })
+ *
+ * parameters.entities[0]?.name
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const LearnCustomEntities = Tool.make("LearnCustomEntities", {
   description: "Learn custom entity patterns using bracket-string elements such as [PROPN], [CARDINAL], or [$].",

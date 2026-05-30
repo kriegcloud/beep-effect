@@ -19,6 +19,19 @@ import { dual } from "effect/Function";
  * - An identity element (empty)
  * - An associative binary operation (combine)
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import { dual } from "effect/Function"
+ *
+ * const combineScores: Monoid.Monoid<number>["combine"] = dual(2, (left, right) => left + right)
+ * const Sum: Monoid.Monoid<number> = Monoid.make(0, combineScores)
+ * const total = Monoid.fold(Sum)([2, 3, 5])
+ *
+ * console.log(total)
+ * // 10
+ * ```
+ *
  * @typeParam A - The carrier type
  *
  * @since 0.0.0
@@ -43,6 +56,19 @@ export interface Monoid<A> {
 /**
  * Helper to create a Monoid instance
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import { dual } from "effect/Function"
+ *
+ * const combineScores: Monoid.Monoid<number>["combine"] = dual(2, (left, right) => left + right)
+ * const scoreMonoid = Monoid.make(0, combineScores)
+ * const score = scoreMonoid.combine(7, 4)
+ *
+ * console.log(score)
+ * // 11
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -56,6 +82,16 @@ export const make = <A>(empty: A, combine: Monoid<A>["combine"]): Monoid<A> => (
  * This is the fundamental aggregation operation.
  *
  * Category theory: This is a catamorphism from the list functor to the monoid.
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const totalCharacters = Monoid.fold(Monoid.NumberSum)([5, 8, 13])
+ *
+ * console.log(totalCharacters)
+ * // 26
+ * ```
  *
  * @since 0.0.0
  * @category folding
@@ -72,6 +108,16 @@ export const fold =
 
 /**
  * Combine an array of values using a monoid, seeded with the identity.
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const joined = Monoid.combineAll(Monoid.StringJoin(" / "))(["title", "summary", "body"])
+ *
+ * console.log(joined)
+ * // "title / summary / body"
+ * ```
  *
  * @since 0.0.0
  * @category folding
@@ -91,6 +137,16 @@ export const combineAll =
  * - Empty: ""
  * - Combine: (x, y) =\> x + y
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const token = Monoid.fold(Monoid.StringConcat)(["sub", "word"])
+ *
+ * console.log(token)
+ * // "subword"
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -103,6 +159,16 @@ export const StringConcat: Monoid<string> = {
  * String join with separator monoid.
  *
  * Combines strings with a separator, intelligently handling empty strings.
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const phrase = Monoid.fold(Monoid.StringJoin(" "))(["effect", "", "schemas"])
+ *
+ * console.log(phrase)
+ * // "effect schemas"
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -118,6 +184,16 @@ export const StringJoin = (separator: string): Monoid<string> => ({
 
 /**
  * String join with prefix and suffix, useful for creating delimited lists.
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const list = Monoid.fold(Monoid.StringDelimited("[", "]", ", "))(["alpha", "beta", "gamma"])
+ *
+ * console.log(list)
+ * // "[alpha, beta, gamma]"
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -140,6 +216,16 @@ export const StringDelimited = (prefix: string, suffix: string, separator: strin
 /**
  * Addition monoid for numbers (empty: 0).
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const wordCount = Monoid.fold(Monoid.NumberSum)([120, 80, 30])
+ *
+ * console.log(wordCount)
+ * // 230
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -150,6 +236,16 @@ export const NumberSum: Monoid<number> = {
 
 /**
  * Multiplication monoid for numbers (empty: 1).
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const combinedWeight = Monoid.fold(Monoid.NumberProduct)([0.8, 0.5, 0.25])
+ *
+ * console.log(combinedWeight)
+ * // 0.1
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -162,6 +258,16 @@ export const NumberProduct: Monoid<number> = {
 /**
  * Max monoid for numbers (empty: -Infinity).
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const peakScore = Monoid.fold(Monoid.NumberMax)([0.42, 0.91, 0.73])
+ *
+ * console.log(peakScore)
+ * // 0.91
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -172,6 +278,16 @@ export const NumberMax: Monoid<number> = {
 
 /**
  * Min monoid for numbers (empty: Infinity).
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const nearestDistance = Monoid.fold(Monoid.NumberMin)([12, 4, 19])
+ *
+ * console.log(nearestDistance)
+ * // 4
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -187,6 +303,16 @@ export const NumberMin: Monoid<number> = {
 
 /**
  * Array concatenation monoid (empty: []).
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const tokens = Monoid.fold(Monoid.ArrayConcat<string>())([["effect"], ["schema", "model"]])
+ *
+ * console.log(tokens)
+ * // ["effect", "schema", "model"]
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -206,6 +332,19 @@ export const ArrayConcat = <A>(): Monoid<ReadonlyArray<A>> => ({
  * A multiset is a collection where elements can appear multiple times.
  * Union adds the multiplicities.
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import { HashMap } from "effect"
+ *
+ * const first = HashMap.make(["effect", 2], ["schema", 1])
+ * const second = HashMap.make(["effect", 3], ["nlp", 1])
+ * const counts = Monoid.MultiSet<string>().combine(first, second)
+ *
+ * console.log(HashMap.get(counts, "effect"))
+ * // Option.some(5)
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -220,6 +359,19 @@ export const MultiSet = <K>(): Monoid<HashMap.HashMap<K, number>> => ({
 
 /**
  * Set union monoid (empty: ∅).
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const vocabulary = Monoid.fold(Monoid.SetUnion<string>())([
+ *   new Set(["effect", "schema"]),
+ *   new Set(["schema", "nlp"])
+ * ])
+ *
+ * console.log(Array.from(vocabulary).sort())
+ * // ["effect", "nlp", "schema"]
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -236,6 +388,20 @@ export const SetUnion = <A>(): Monoid<ReadonlySet<A>> => ({
  * unbounded universe, so we model the identity as the "universal set" via
  * `Option.none()` (intersecting with the universal set is the identity).
  * Only use when all elements come from a finite universe.
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import * as O from "effect/Option"
+ *
+ * const commonTags = Monoid.fold(Monoid.SetIntersection<string>())([
+ *   O.some(new Set(["noun", "topic", "entity"])),
+ *   O.some(new Set(["topic", "entity"]))
+ * ])
+ *
+ * console.log(O.map(commonTags, (tags) => Array.from(tags).sort()))
+ * // Option.some(["entity", "topic"])
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -261,6 +427,19 @@ export const SetIntersection: <A>() => Monoid<O.Option<ReadonlySet<A>>> = <A>():
 /**
  * Vector addition monoid (element-wise addition; empty: zero vector).
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const embeddingSum = Monoid.fold(Monoid.VectorAdd(3))([
+ *   [1, 2, 3],
+ *   [4, 5, 6]
+ * ])
+ *
+ * console.log(embeddingSum)
+ * // [5, 7, 9]
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -271,6 +450,20 @@ export const VectorAdd = (dimension: number): Monoid<ReadonlyArray<number>> => (
 
 /**
  * Vector average monoid (tracks sum and count to compute a running average).
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const accumulated = Monoid.fold(Monoid.VectorAverage(2))([
+ *   { sum: [2, 4], count: 1 },
+ *   { sum: [4, 8], count: 1 }
+ * ])
+ * const average = Monoid.getAverage(accumulated)
+ *
+ * console.log(average)
+ * // [3, 6]
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -288,6 +481,16 @@ export const VectorAverage = (
 /**
  * Extract the average from a {@link VectorAverage} result.
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const average = Monoid.getAverage({ sum: [12, 18], count: 3 })
+ *
+ * console.log(average)
+ * // [4, 6]
+ * ```
+ *
  * @since 0.0.0
  * @category accessors
  */
@@ -303,6 +506,20 @@ export const getAverage = (result: {
 /**
  * Product monoid: combine two monoids component-wise.
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const Stats = Monoid.Product(Monoid.NumberSum, Monoid.NumberMax)
+ * const result = Monoid.fold(Stats)([
+ *   [10, 0.4],
+ *   [15, 0.9]
+ * ])
+ *
+ * console.log(result)
+ * // [25, 0.9]
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -313,6 +530,20 @@ export const Product = <A, B>(ma: Monoid<A>, mb: Monoid<B>): Monoid<readonly [A,
 
 /**
  * Triple product monoid.
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const CorpusStats = Monoid.Product3(Monoid.NumberSum, Monoid.NumberSum, Monoid.NumberMax)
+ * const result = Monoid.fold(CorpusStats)([
+ *   [100, 4, 0.71],
+ *   [80, 3, 0.92]
+ * ])
+ *
+ * console.log(result)
+ * // [180, 7, 0.92]
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -328,6 +559,18 @@ export const Product3 = <A, B, C>(ma: Monoid<A>, mb: Monoid<B>, mc: Monoid<C>): 
 
 /**
  * Lift a monoid through Option: combine point-wise, treating `None` as the identity.
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ * import * as O from "effect/Option"
+ *
+ * const OptionalScores = Monoid.Option(Monoid.NumberSum)
+ * const score = Monoid.fold(OptionalScores)([O.some(2), O.none(), O.some(5)])
+ *
+ * console.log(score)
+ * // Option.some(7)
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -349,6 +592,20 @@ export const Option = <A>(monoid: Monoid<A>): Monoid<O.Option<A>> => ({
 /**
  * Endomorphism monoid: functions from A to A under composition (empty: identity).
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const normalize = Monoid.fold(Monoid.Endo<string>())([
+ *   (value) => value.trim(),
+ *   (value) => value.toLowerCase()
+ * ])
+ * const result = normalize("  EFFECT  ")
+ *
+ * console.log(result)
+ * // "effect"
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -363,6 +620,16 @@ export const Endo = <A>(): Monoid<(a: A) => A> => ({
 
 /**
  * Dual monoid: reverse the order of combination (x ⊕' y = y ⊕ x).
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const reversed = Monoid.fold(Monoid.Dual(Monoid.StringJoin(" -> ")))(["parse", "rank", "answer"])
+ *
+ * console.log(reversed)
+ * // "answer -> rank -> parse"
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -379,6 +646,16 @@ export const Dual = <A>(monoid: Monoid<A>): Monoid<A> => ({
 /**
  * Logical AND monoid (empty: true).
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const allChecksPassed = Monoid.fold(Monoid.BooleanAll)([true, true, false])
+ *
+ * console.log(allChecksPassed)
+ * // false
+ * ```
+ *
  * @since 0.0.0
  * @category combinators
  */
@@ -389,6 +666,16 @@ export const BooleanAll: Monoid<boolean> = {
 
 /**
  * Logical OR monoid (empty: false).
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const anyMatch = Monoid.fold(Monoid.BooleanAny)([false, false, true])
+ *
+ * console.log(anyMatch)
+ * // true
+ * ```
  *
  * @since 0.0.0
  * @category combinators
@@ -405,6 +692,16 @@ export const BooleanAny: Monoid<boolean> = {
 /**
  * Check left identity law: empty ⊕ x = x
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const valid = Monoid.checkLeftIdentity(Monoid.StringJoin(" "), "token")
+ *
+ * console.log(valid)
+ * // true
+ * ```
+ *
  * @since 0.0.0
  * @category predicates
  */
@@ -417,6 +714,16 @@ export const checkLeftIdentity = <A>(
 /**
  * Check right identity law: x ⊕ empty = x
  *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const valid = Monoid.checkRightIdentity(Monoid.NumberSum, 42)
+ *
+ * console.log(valid)
+ * // true
+ * ```
+ *
  * @since 0.0.0
  * @category predicates
  */
@@ -428,6 +735,16 @@ export const checkRightIdentity = <A>(
 
 /**
  * Check associativity law: (x ⊕ y) ⊕ z = x ⊕ (y ⊕ z)
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const valid = Monoid.checkAssociativity(Monoid.NumberProduct, 2, 3, 4)
+ *
+ * console.log(valid)
+ * // true
+ * ```
  *
  * @since 0.0.0
  * @category predicates
@@ -446,6 +763,16 @@ export const checkAssociativity = <A>(
 
 /**
  * Check all monoid laws against a representative triple.
+ *
+ * @example
+ * ```ts
+ * import * as Monoid from "@beep/nlp/Algebra/Monoid"
+ *
+ * const valid = Monoid.checkLaws(Monoid.NumberSum, [1, 2, 3])
+ *
+ * console.log(valid)
+ * // true
+ * ```
  *
  * @since 0.0.0
  * @category predicates

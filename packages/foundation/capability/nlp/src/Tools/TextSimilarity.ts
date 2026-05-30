@@ -43,17 +43,27 @@ class TextSimilaritySuccess extends S.Class<TextSimilaritySuccess>($I`TextSimila
 ) {}
 
 /**
- * Tool for computing similarity between two texts.
+ * Defines the agent-facing tool contract for comparing two texts with BM25
+ * vectorization and cosine similarity.
+ *
+ * Use this tool when the caller needs a normalized semantic-ish similarity
+ * score for two standalone texts without creating a persistent corpus.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { TextSimilarity } from "@beep/nlp/Tools/TextSimilarity"
  *
- * console.log(TextSimilarity)
+ * const parameters = S.decodeUnknownSync(TextSimilarity.parametersSchema)({
+ *   text1: "Cats are wonderful pets.",
+ *   text2: "Felines make great companions."
+ * })
+ *
+ * parameters.text1
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const TextSimilarity = Tool.make("TextSimilarity", {
   description:

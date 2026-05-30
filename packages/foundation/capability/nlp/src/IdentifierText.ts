@@ -19,7 +19,12 @@ const normalizeIdentifierWords = flow(
 );
 
 /**
- * Convert a candidate identifier phrase into lowercase word tokens.
+ * Split a source identifier or symbol-like phrase into normalized words.
+ *
+ * @remarks
+ * Handles camelCase, PascalCase, snake_case, and kebab-case as equivalent word
+ * boundaries. The returned tokens are lowercase because callers use them as the
+ * canonical basis for deterministic lookup variants.
  *
  * @example
  * ```typescript
@@ -29,13 +34,19 @@ const normalizeIdentifierWords = flow(
  * console.log(result) // ["my", "variable", "name"]
  * ```
  *
- * @since 0.0.0
  * @category parsing
+ * @since 0.0.0
  */
 export const tokens = flow(normalizeIdentifierWords, Str.split(" "), A.map(Str.toLowerCase), A.filter(Str.isNonEmpty));
 
 /**
- * Generate deterministic identifier variants for symbol lookup.
+ * Generate common source-code spellings for a symbol phrase.
+ *
+ * @remarks
+ * Variants preserve first occurrence order and cover human text, spaced words,
+ * camelCase, PascalCase, snake_case, kebab-case, and compact joined text. This
+ * lets query code match a user phrase against exported symbols without guessing
+ * which naming convention the source used.
  *
  * @example
  * ```typescript
@@ -48,8 +59,8 @@ export const tokens = flow(normalizeIdentifierWords, Str.split(" "), A.map(Str.t
  * console.log(result.includes("user_name")) // true
  * ```
  *
- * @since 0.0.0
  * @category normalization
+ * @since 0.0.0
  */
 export const variants = (input: string): ReadonlyArray<string> => {
   const normalized = QueryText.normalizePhrase(input);

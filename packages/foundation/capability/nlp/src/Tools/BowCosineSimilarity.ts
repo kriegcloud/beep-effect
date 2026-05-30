@@ -43,17 +43,27 @@ class BowCosineSimilaritySuccess extends S.Class<BowCosineSimilaritySuccess>($I`
 ) {}
 
 /**
- * Tool for computing bag-of-words cosine similarity.
+ * Defines the agent-facing tool contract for comparing two texts by
+ * bag-of-words cosine similarity.
+ *
+ * Use this tool when exact lexical overlap matters more than corpus-weighted
+ * BM25 similarity, such as duplicate detection or keyword-overlap checks.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { BowCosineSimilarity } from "@beep/nlp/Tools/BowCosineSimilarity"
  *
- * console.log(BowCosineSimilarity)
+ * const parameters = S.decodeUnknownSync(BowCosineSimilarity.parametersSchema)({
+ *   text1: "shipping refund policy",
+ *   text2: "refund and shipping rules"
+ * })
+ *
+ * parameters.text2
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const BowCosineSimilarity = Tool.make("BowCosineSimilarity", {
   description:

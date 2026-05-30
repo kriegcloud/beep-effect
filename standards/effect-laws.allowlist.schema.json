@@ -20,9 +20,24 @@
         "additionalProperties": false,
         "required": ["rule", "file", "kind", "reason", "owner", "issue"],
         "properties": {
-          "rule": { "type": "string", "minLength": 1 },
+          "rule": { "const": "beep-laws/no-native-runtime" },
           "file": { "type": "string", "minLength": 1 },
-          "kind": { "type": "string", "minLength": 1 },
+          "kind": {
+            "enum": [
+              "array-static",
+              "date-static",
+              "native-error",
+              "native-fetch",
+              "native-sort",
+              "native-switch",
+              "new-date",
+              "new-map-set",
+              "node-runtime-import",
+              "object-method",
+              "string-method",
+              "typeof-runtime"
+            ]
+          },
           "reason": { "type": "string", "minLength": 1 },
           "owner": { "type": "string", "minLength": 1 },
           "issue": { "type": "string", "minLength": 1 },

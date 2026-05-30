@@ -35,17 +35,27 @@ class TokenizeSuccess extends S.Class<TokenizeSuccess>($I`TokenizeSuccess`)(
 ) {}
 
 /**
- * Tool for tokenizing text into annotated linguistic tokens.
+ * Defines the agent-facing tool contract for tokenizing text into annotated
+ * linguistic tokens.
+ *
+ * Use this tool when a caller needs token text, lemmas, stems, part-of-speech
+ * tags, stop-word flags, punctuation flags, and character offsets for each
+ * token in a document.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Tokenize } from "@beep/nlp/Tools/Tokenize"
  *
- * console.log(Tokenize)
+ * const parameters = S.decodeUnknownSync(Tokenize.parametersSchema)({
+ *   text: "The quick brown fox jumps."
+ * })
+ *
+ * parameters.text
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const Tokenize = Tool.make("Tokenize", {
   description: "Tokenize text into linguistic tokens with part-of-speech tags, lemmas, and character positions.",

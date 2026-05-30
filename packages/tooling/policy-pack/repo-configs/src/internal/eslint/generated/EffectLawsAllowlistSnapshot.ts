@@ -22,14 +22,6 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/foundation/ui-system/ui/src/lib/react-invariant.ts",
-      "kind": "native-error",
-      "reason": "React context hooks need synchronous invariant failures during render so provider misuse is surfaced immediately by React's error boundary/dev overlay path.",
-      "owner": "@beep/ui",
-      "issue": "UI-REACT-CONTEXT-INVARIANT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts",
       "kind": "new-map-set",
       "reason": "wink-nlp similarity.set.tversky requires native Set inputs because it reads Set size and membership directly as part of its third-party API contract.",
@@ -41,14 +33,6 @@ export const ALLOWLIST_SNAPSHOT = {
       "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
       "kind": "new-map-set",
       "reason": "The JSDoc inventory support generator is a standalone Bun/ts-morph workspace scanner that uses native Set and Map collections to mirror parser traversal state deterministically outside package runtime code.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
-      "kind": "native-error",
-      "reason": "The JSDoc inventory support generator is invoked as a direct CLI script and throws native Error values for malformed workspace metadata before emitting generated inventory artifacts.",
       "owner": "@beep/repo-cli",
       "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
     },
@@ -81,14 +65,6 @@ export const ALLOWLIST_SNAPSHOT = {
       "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
       "kind": "new-map-set",
       "reason": "The repo export catalog support generator is a standalone Bun/ts-morph workspace scanner that uses native Set and Map collections to mirror parser traversal state deterministically outside package runtime code.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
-      "kind": "native-error",
-      "reason": "The repo export catalog support generator is invoked as a direct CLI script and throws native Error values for malformed workspace metadata before emitting generated catalog artifacts.",
       "owner": "@beep/repo-cli",
       "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
     },

@@ -8,19 +8,18 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { A, thunkEffectVoid } from "@beep/utils";
+import { A, thunk0, thunkEffectVoid } from "@beep/utils";
 import { Chunk, Clock, Context, Effect, HashMap, HashSet, Layer, pipe, Ref } from "effect";
 import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { DocumentId } from "../Core/Document.ts";
+import { Document, DocumentId } from "../Core/Document.ts";
 import { ascendingNumber, ascendingString, descendingNumber } from "../internal/order.ts";
 import { WinkEngine } from "./WinkEngine.ts";
 import { WinkSimilarity } from "./WinkSimilarity.ts";
-import { BM25Config, DefaultBM25Config, DocumentVector } from "./WinkVectorizer.ts";
-import type { Document } from "../Core/Document.ts";
+import { BM25Config, BM25Norm, DefaultBM25Config, DocumentVector } from "./WinkVectorizer.ts";
 import type { Token } from "../Core/Token.ts";
 
 const $I = $NlpId.create("Wink/WinkCorpusManager");
@@ -29,7 +28,9 @@ const require = createRequire(import.meta.url);
 type BM25Accessor<T> = (...args: ReadonlyArray<never>) => T;
 
 type BM25VectorizerInstance = {
-  readonly doc: (index: number) => { readonly out: <T>(accessor: BM25Accessor<T>) => T };
+  readonly doc: (index: number) => {
+    readonly out: <T>(accessor: BM25Accessor<T>) => T;
+  };
   readonly learn: (tokens: Array<string>) => void;
   readonly out: <T>(accessor: BM25Accessor<T>) => T;
   readonly vectorOf: (tokens: Array<string>) => Array<number>;
@@ -42,87 +43,151 @@ type BM25VectorizerFactory = (config?: {
   readonly norm?: "none" | "l1" | "l2";
 }) => BM25VectorizerInstance;
 
-type CreateCorpusParams = {
-  readonly bm25Config?:
-    | Partial<{
-        readonly b: number;
-        readonly k: number;
-        readonly k1: number;
-        readonly norm: "none" | "l1" | "l2";
-      }>
-    | undefined;
-  readonly corpusId?: string | undefined;
-};
+class CreateCorpusBM25Config extends S.Class<CreateCorpusBM25Config>($I`CreateCorpusBM25Config`)(
+  {
+    b: S.Number.pipe(S.UndefinedOr, S.optionalKey),
+    k: S.Number.pipe(S.UndefinedOr, S.optionalKey),
+    k1: S.Number.pipe(S.UndefinedOr, S.optionalKey),
+    norm: BM25Norm.pipe(S.UndefinedOr, S.optionalKey),
+  },
+  $I.annote("CreateCorpusBM25Config", {
+    description: "Optional BM25 hyperparameter overrides used when creating a managed corpus.",
+  })
+) {}
 
-type LearnCorpusParams = {
-  readonly corpusId: string;
-  readonly dedupeById?: boolean | undefined;
-  readonly documents: ReadonlyArray<Document>;
-};
+class CreateCorpusParams extends S.Class<CreateCorpusParams>($I`CreateCorpusParams`)(
+  {
+    bm25Config: CreateCorpusBM25Config.pipe(S.UndefinedOr, S.optionalKey),
+    corpusId: S.String.pipe(S.UndefinedOr, S.optionalKey),
+  },
+  $I.annote("CreateCorpusParams", {
+    description: "Parameters for creating a managed Wink BM25 corpus session.",
+  })
+) {}
 
-type QueryCorpusParams = {
-  readonly corpusId: string;
-  readonly includeText?: boolean | undefined;
-  readonly query: string;
-  readonly topN?: number | undefined;
-};
+class LearnCorpusParams extends S.Class<LearnCorpusParams>($I`LearnCorpusParams`)(
+  {
+    corpusId: S.String,
+    dedupeById: S.Boolean.pipe(S.UndefinedOr, S.optionalKey),
+    documents: S.Array(Document),
+  },
+  $I.annote("LearnCorpusParams", {
+    description: "Parameters for learning a corpus with Wink.",
+  })
+) {}
 
-type CorpusStatsParams = {
-  readonly corpusId: string;
-  readonly includeIdf?: boolean | undefined;
-  readonly includeMatrix?: boolean | undefined;
-  readonly topIdfTerms?: number | undefined;
-};
+class QueryCorpusParams extends S.Class<QueryCorpusParams>($I`QueryCorpusParams`)(
+  {
+    corpusId: S.String,
+    includeText: S.Boolean.pipe(S.UndefinedOr, S.optionalKey),
+    query: S.String,
+    topN: S.Number.pipe(S.UndefinedOr, S.optionalKey),
+  },
+  $I.annote("QueryCorpusParams", {
+    description: "Parameters for querying a managed Wink BM25 corpus session.",
+  })
+) {}
 
-type CorpusSummary = {
-  readonly config: BM25Config;
-  readonly corpusId: string;
-  readonly createdAtMs: number;
-  readonly documentCount: number;
-  readonly vocabularySize: number;
-};
+class CorpusStatsParams extends S.Class<CorpusStatsParams>($I`CorpusStatsParams`)(
+  {
+    corpusId: S.String,
+    includeIdf: S.Boolean.pipe(S.UndefinedOr, S.optionalKey),
+    includeMatrix: S.Boolean.pipe(S.UndefinedOr, S.optionalKey),
+    topIdfTerms: S.Number.pipe(S.UndefinedOr, S.optionalKey),
+  },
+  $I.annote("CorpusStatsParams", {
+    description: "Parameters for retrieving corpus statistics with Wink.",
+  })
+) {}
 
-type LearnCorpusResult = {
-  readonly corpusId: string;
-  readonly learnedCount: number;
-  readonly reindexRequired: boolean;
-  readonly skippedCount: number;
-  readonly totalDocuments: number;
-  readonly vocabularySize: number;
-};
+class CorpusSummary extends S.Class<CorpusSummary>($I`CorpusSummary`)(
+  {
+    config: BM25Config,
+    corpusId: S.String,
+    createdAtMs: S.Number,
+    documentCount: S.Number,
+    vocabularySize: S.Number,
+  },
+  $I.annote("CorpusSummary", {
+    description: "Summary of a corpus learned with Wink.",
+  })
+) {}
 
-type RankedCorpusDocument = {
-  readonly id: string;
-  readonly index: number;
-  readonly score: number;
-  readonly text?: string;
-};
+class LearnCorpusResult extends S.Class<LearnCorpusResult>($I`LearnCorpusResult`)(
+  {
+    corpusId: S.String,
+    learnedCount: S.Number,
+    reindexRequired: S.Boolean,
+    skippedCount: S.Number,
+    totalDocuments: S.Number,
+    vocabularySize: S.Number,
+  },
+  $I.annote("LearnCorpusResult", {
+    description: "Result metadata returned after learning documents into a managed corpus.",
+  })
+) {}
 
-type QueryCorpusResult = {
-  readonly corpusId: string;
-  readonly method: "vector.cosine";
-  readonly query: string;
-  readonly ranked: ReadonlyArray<RankedCorpusDocument>;
-  readonly returned: number;
-  readonly totalDocuments: number;
-};
+class RankedCorpusDocument extends S.Class<RankedCorpusDocument>($I`RankedCorpusDocument`)(
+  {
+    id: S.String,
+    index: S.Number,
+    score: S.Number,
+    text: S.optionalKey(S.String),
+  },
+  $I.annote("RankedCorpusDocument", {
+    description: "Single ranked corpus document returned from a corpus query.",
+  })
+) {}
 
-type CorpusStatsResult = {
-  readonly averageDocumentLength: number;
-  readonly corpusId: string;
-  readonly documentTermMatrix: ReadonlyArray<ReadonlyArray<number>>;
-  readonly idfValues: ReadonlyArray<{
-    readonly idf: number;
-    readonly term: string;
-  }>;
-  readonly matrixShape: {
-    readonly cols: number;
-    readonly rows: number;
-  };
-  readonly terms: ReadonlyArray<string>;
-  readonly totalDocuments: number;
-  readonly vocabularySize: number;
-};
+class QueryCorpusResult extends S.Class<QueryCorpusResult>($I`QueryCorpusResult`)(
+  {
+    corpusId: S.String,
+    method: S.Literal("vector.cosine"),
+    query: S.String,
+    ranked: S.Array(RankedCorpusDocument),
+    returned: S.Number,
+    totalDocuments: S.Number,
+  },
+  $I.annote("QueryCorpusResult", {
+    description: "Ranked corpus query results and result-count metadata.",
+  })
+) {}
+
+class CorpusIdfValue extends S.Class<CorpusIdfValue>($I`CorpusIdfValue`)(
+  {
+    idf: S.Number,
+    term: S.String,
+  },
+  $I.annote("CorpusIdfValue", {
+    description: "Inverse document frequency value for a corpus term.",
+  })
+) {}
+
+class CorpusMatrixShape extends S.Class<CorpusMatrixShape>($I`CorpusMatrixShape`)(
+  {
+    cols: S.Number,
+    rows: S.Number,
+  },
+  $I.annote("CorpusMatrixShape", {
+    description: "Shape metadata for a corpus document-term matrix.",
+  })
+) {}
+
+class CorpusStatsResult extends S.Class<CorpusStatsResult>($I`CorpusStatsResult`)(
+  {
+    averageDocumentLength: S.Number,
+    corpusId: S.String,
+    documentTermMatrix: S.Array(S.Number).pipe(S.Array),
+    idfValues: S.Array(CorpusIdfValue),
+    matrixShape: CorpusMatrixShape,
+    terms: S.Array(S.String),
+    totalDocuments: S.Number,
+    vocabularySize: S.Number,
+  },
+  $I.annote("CorpusStatsResult", {
+    description: "Detailed statistics for a managed Wink BM25 corpus session.",
+  })
+) {}
 
 type CompiledCorpus = {
   readonly documentVectors: ReadonlyArray<ReadonlyArray<number>>;
@@ -247,17 +312,18 @@ const removeCorpusSession = (
 };
 
 /**
- * Error raised while managing a live corpus session.
+ * Typed failure for creating, learning, querying, or inspecting a managed corpus.
  *
  * @example
  * ```ts
  * import { CorpusManagerError } from "@beep/nlp/Wink/WinkCorpusManager"
  *
- * console.log(CorpusManagerError)
+ * const error = CorpusManagerError.fromMessage("Corpus does not exist", "support-docs")
+ * console.log(error.corpusId._tag)
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class CorpusManagerError extends TaggedErrorClass<CorpusManagerError>($I`CorpusManagerError`)(
   "CorpusManagerError",
@@ -312,7 +378,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
   const similarity = yield* WinkSimilarity;
   const bm25 = yield* Effect.try({
     try: loadBM25Vectorizer,
-    catch: (cause) => CorpusManagerError.fromCause(cause, "Failed to initialize BM25 vectorizer", {}),
+    catch: CorpusManagerError.fromCause("Failed to initialize BM25 vectorizer", {}),
   });
   const sessionsRef = yield* Ref.make(HashMap.empty<string, CorpusSessionState>());
   const idCounterRef = yield* Ref.make(0);
@@ -355,9 +421,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
     state: CorpusSessionState
   ): Effect.fn.Return<CompiledCorpus, CorpusManagerError> {
     const its = yield* engine.its.pipe(
-      Effect.mapError((cause) =>
-        CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId: state.corpusId })
-      )
+      Effect.mapError(CorpusManagerError.fromCause("Failed to access wink helpers", { corpusId: state.corpusId }))
     );
     const vectorizer = bm25(state.config);
 
@@ -376,8 +440,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
     const terms = yield* Effect.try({
       try: () => vectorizer.out(its.terms),
-      catch: (cause) =>
-        CorpusManagerError.fromCause(cause, "Failed to compute corpus terms", { corpusId: state.corpusId }),
+      catch: CorpusManagerError.fromCause("Failed to compute corpus terms", { corpusId: state.corpusId }),
     }).pipe(
       Effect.flatMap(
         Effect.fnUntraced(function* (raw) {
@@ -496,9 +559,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       }
 
       const its = yield* engine.its.pipe(
-        Effect.mapError((cause) =>
-          CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId: request.corpusId })
-        )
+        Effect.mapError(CorpusManagerError.fromCause("Failed to access wink helpers", { corpusId: request.corpusId }))
       );
 
       const idfValues = yield* Bool.match(request.includeIdf ?? false, {
@@ -506,10 +567,9 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         onTrue: Effect.fn("Nlp.Wink.WinkCorpusManager.getStats.idfValues")(function* () {
           const raw = yield* Effect.try({
             try: () => compiled.vectorizer.out(its.idf),
-            catch: (cause) =>
-              CorpusManagerError.fromCause(cause, "Failed to compute corpus idf values", {
-                corpusId: request.corpusId,
-              }),
+            catch: CorpusManagerError.fromCause("Failed to compute corpus idf values", {
+              corpusId: request.corpusId,
+            }),
           });
           const decoded = yield* decodeTermScorePairs(raw, "corpus idf output", request.corpusId);
           return pipe(
@@ -532,8 +592,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         onTrue: Effect.fn("Nlp.Wink.WinkCorpusManager.getStats.documentTermMatrix")(function* () {
           const raw = yield* Effect.try({
             try: () => compiled.vectorizer.out(its.docTermMatrix),
-            catch: (cause) =>
-              CorpusManagerError.fromCause(cause, "Failed to compute corpus matrix", { corpusId: request.corpusId }),
+            catch: CorpusManagerError.fromCause("Failed to compute corpus matrix", { corpusId: request.corpusId }),
           });
 
           if (!A.isArray(raw)) {
@@ -549,7 +608,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       return {
         averageDocumentLength: Bool.match(compiledState.documents.length === 0, {
           onFalse: () => compiledState.totalTokenCount / compiledState.documents.length,
-          onTrue: () => 0,
+          onTrue: thunk0,
         }),
         corpusId: request.corpusId,
         documentTermMatrix,
@@ -633,16 +692,12 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       }
 
       const its = yield* engine.its.pipe(
-        Effect.mapError((cause) =>
-          CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId: request.corpusId })
-        )
+        Effect.mapError(CorpusManagerError.fromCause("Failed to access wink helpers", { corpusId: request.corpusId }))
       );
       const queryDoc = yield* engine
         .getWinkDoc(request.query)
         .pipe(
-          Effect.mapError((cause) =>
-            CorpusManagerError.fromCause(cause, "Failed to tokenize query text", { corpusId: request.corpusId })
-          )
+          Effect.mapError(CorpusManagerError.fromCause("Failed to tokenize query text", { corpusId: request.corpusId }))
         );
       const queryTokens = yield* decodeStringArray(
         queryDoc.tokens().out(its.normal),
@@ -665,8 +720,8 @@ const makeWinkCorpusManager = Effect.gen(function* () {
             vector: compiled.documentVectors[index] ?? [],
           });
           const score = yield* similarity.vectorCosine(queryVector, candidateVector).pipe(
-            Effect.mapError((cause) =>
-              CorpusManagerError.fromCause(cause, "Failed to compute query similarity", {
+            Effect.mapError(
+              CorpusManagerError.fromCause("Failed to compute query similarity", {
                 corpusId: request.corpusId,
               })
             )
@@ -712,33 +767,58 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 }).pipe(Effect.withSpan("Nlp.Wink.WinkCorpusManager.make"));
 
 /**
- * Wink corpus manager service.
+ * Service for managing stateful BM25 corpora and query sessions.
+ *
+ * @remarks
+ * Each corpus is stored in memory by `corpusId`. Learning documents invalidates
+ * the compiled vector index; the next stats or query call recompiles it.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import { WinkLayerAllLive } from "@beep/nlp/Wink/Layer"
  * import { WinkCorpusManager } from "@beep/nlp/Wink/WinkCorpusManager"
  *
- * console.log(WinkCorpusManager)
+ * const createCorpus = Effect.gen(function* () {
+ *   const manager = yield* WinkCorpusManager
+ *   return yield* manager.createCorpus({ corpusId: "support-docs" })
+ * })
+ *
+ * Effect.runPromise(createCorpus.pipe(Effect.provide(WinkLayerAllLive))).then((summary) =>
+ *   console.log(summary.documentCount)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category services
+ * @since 0.0.0
  */
 export class WinkCorpusManager extends Context.Service<WinkCorpusManager, WinkCorpusManagerShape>()(
   $I`WinkCorpusManager`
 ) {}
 
 /**
- * Live wink corpus manager layer.
+ * Live corpus manager layer requiring the wink engine and similarity services.
  *
  * @example
  * ```ts
- * import { WinkCorpusManagerLive } from "@beep/nlp/Wink/WinkCorpusManager"
+ * import { Effect, Layer } from "effect"
+ * import { WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
+ * import { WinkSimilarityLive } from "@beep/nlp/Wink/WinkSimilarity"
+ * import { WinkCorpusManager, WinkCorpusManagerLive } from "@beep/nlp/Wink/WinkCorpusManager"
  *
- * console.log(WinkCorpusManagerLive)
+ * const createCorpus = Effect.gen(function* () {
+ *   const manager = yield* WinkCorpusManager
+ *   return yield* manager.createCorpus({ corpusId: "support-docs" })
+ * })
+ *
+ * Effect.runPromise(
+ *   createCorpus.pipe(
+ *     Effect.provide(WinkCorpusManagerLive.pipe(Layer.provideMerge(Layer.mergeAll(WinkEngineLive, WinkSimilarityLive))))
+ *   )
+ * ).then((summary) => console.log(summary.corpusId))
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkCorpusManagerLive = Layer.effect(WinkCorpusManager, makeWinkCorpusManager);

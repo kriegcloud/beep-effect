@@ -18,7 +18,7 @@ import * as Graph from "effect/Graph";
 describe("TextGraph construction", () => {
   it.effect(
     "singleton builds a one-node graph",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g = yield* TG.singleton("Hello world.", "document");
       expect(TG.nodeCount(g)).toBe(1);
       expect(TG.findNodesByType(g, "document")).toHaveLength(1);
@@ -27,7 +27,7 @@ describe("TextGraph construction", () => {
 
   it.effect(
     "empty graph has no nodes",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       expect(TG.nodeCount(TG.empty())).toBe(0);
     })
   );
@@ -36,7 +36,7 @@ describe("TextGraph construction", () => {
 describe("TextGraph acyclicity", () => {
   it.effect(
     "addChildren keeps the graph acyclic",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* TG.singleton("doc", "document");
       const roots = TG.getRoots(g0);
       const child = TextNode.make({ text: "a sentence", type: "sentence", timestamp: 0 });
@@ -51,7 +51,7 @@ describe("TextGraph acyclicity", () => {
 describe("TextGraph from document (service-backed)", () => {
   it.effect(
     "fromDocument creates a doc root with sentence children",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g = yield* TG.fromDocument("Hello there. How are you?").pipe(provideScopedLayer(WinkTokenizationLive));
       expect(TG.findNodesByType(g, "document")).toHaveLength(1);
       const sentences = TG.findNodesByType(g, "sentence");
@@ -61,7 +61,7 @@ describe("TextGraph from document (service-backed)", () => {
 
   it.effect(
     "tokenizeNodes is idempotent",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* TG.fromDocument("Hello there.").pipe(provideScopedLayer(WinkTokenizationLive));
       const g1 = yield* TG.tokenizeNodes(g0).pipe(provideScopedLayer(WinkTokenizationLive));
       const tokensAfterFirst = TG.findNodesByType(g1, "token").length;
@@ -75,7 +75,7 @@ describe("TextGraph from document (service-backed)", () => {
 describe("TextGraph traversal & queries", () => {
   it.effect(
     "getRoots / getLeaves reflect structure",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* TG.singleton("doc", "document");
       const root = TG.getRoots(g0)[0]!;
       const child = TextNode.make({ text: "leaf", type: "sentence", timestamp: 0 });
@@ -87,7 +87,7 @@ describe("TextGraph traversal & queries", () => {
 
   it.effect(
     "topo walker yields all nodes",
-    Effect.fn(function* () {
+    Effect.fnUntraced(function* () {
       const g0 = yield* TG.singleton("doc", "document");
       const root = TG.getRoots(g0)[0]!;
       const child = TextNode.make({ text: "s", type: "sentence", timestamp: 0 });

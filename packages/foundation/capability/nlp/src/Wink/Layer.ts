@@ -18,17 +18,24 @@ import { WinkUtilsLive as WinkUtilsLiveService } from "./WinkUtils.ts";
 import { WinkVectorizerLive as WinkVectorizerLiveService } from "./WinkVectorizer.ts";
 
 /**
- * Live wink layer bundle for the currently ported runtime surface.
+ * Live layer bundle for the engine-backed tokenization surface.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import { Tokenization } from "@beep/nlp/Core"
  * import { WinkLayerLive } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkLayerLive)
+ * const count = Effect.gen(function* () {
+ *   const tokenization = yield* Tokenization
+ *   return yield* tokenization.tokenCount("Wink tokenizes this sentence.")
+ * })
+ *
+ * Effect.runPromise(count.pipe(Effect.provide(WinkLayerLive))).then(console.log)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkLayerLive = WinkTokenizationService.pipe(Layer.provideMerge(WinkEngineLiveService));
 
@@ -41,143 +48,209 @@ const WinkLayerCoreLive = Layer.mergeAll(WinkEngineBackedLive, WinkSimilarityLiv
 const WinkLayerSharedLive = WinkEngineRefLiveService.pipe(Layer.provideMerge(WinkLayerCoreLive));
 
 /**
- * Full live wink layer bundle including corpus management.
+ * Full live wink layer bundle including corpus management and shared utilities.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import { WinkCorpusManager } from "@beep/nlp/Wink/WinkCorpusManager"
  * import { WinkLayerAllLive } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkLayerAllLive)
+ * const create = Effect.gen(function* () {
+ *   const corpus = yield* WinkCorpusManager
+ *   return yield* corpus.createCorpus({ corpusId: "docs" })
+ * })
+ *
+ * Effect.runPromise(create.pipe(Effect.provide(WinkLayerAllLive))).then((summary) =>
+ *   console.log(summary.corpusId)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkLayerAllLive = WinkCorpusManagerLiveService.pipe(Layer.provideMerge(WinkLayerSharedLive));
 
 /**
- * Wink corpus manager live layer.
+ * Live layer for stateful corpus indexing and query services.
  *
  * @example
  * ```ts
- * import { WinkCorpusManagerLive } from "@beep/nlp/Wink/Layer"
+ * import { Layer } from "effect"
+ * import { WinkCorpusManagerLive, WinkEngineLive, WinkSimilarityLive } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkCorpusManagerLive)
+ * const runnable = WinkCorpusManagerLive.pipe(
+ *   Layer.provideMerge(Layer.mergeAll(WinkEngineLive, WinkSimilarityLive))
+ * )
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkCorpusManagerLive = WinkCorpusManagerLiveService;
 /**
- * Wink engine service.
+ * Service tag for direct access to the underlying wink runtime.
  *
  * @example
  * ```ts
- * import { WinkEngine } from "@beep/nlp/Wink/Layer"
+ * import { Effect } from "effect"
+ * import { WinkEngine, WinkEngineLive } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkEngine)
+ * const count = Effect.gen(function* () {
+ *   const engine = yield* WinkEngine
+ *   return yield* engine.getWinkTokenCount("Direct wink engine access.")
+ * })
+ *
+ * Effect.runPromise(count.pipe(Effect.provide(WinkEngineLive))).then(console.log)
  * ```
  *
- * @since 0.0.0
  * @category services
+ * @since 0.0.0
  */
 export const WinkEngine = WinkEngineService;
 /**
- * Wink engine live layer.
+ * Live layer that initializes `wink-nlp` with the English lite web model.
  *
  * @example
  * ```ts
- * import { WinkEngineLive } from "@beep/nlp/Wink/Layer"
+ * import { Effect } from "effect"
+ * import { WinkEngine, WinkEngineLive } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkEngineLive)
+ * const readHelpers = Effect.gen(function* () {
+ *   const engine = yield* WinkEngine
+ *   return yield* engine.its
+ * })
+ *
+ * Effect.runPromise(readHelpers.pipe(Effect.provide(WinkEngineLive))).then((its) =>
+ *   console.log(typeof its.normal)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkEngineLive = WinkEngineLiveService;
 /**
- * Wink engine ref live layer.
+ * Live layer for compatibility access to the shared wink engine state ref.
  *
  * @example
  * ```ts
- * import { WinkEngineRefLive } from "@beep/nlp/Wink/Layer"
+ * import { Effect, Layer } from "effect"
+ * import { WinkEngineRef } from "@beep/nlp/Wink/WinkEngineRef"
+ * import { WinkEngineLive, WinkEngineRefLive } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkEngineRefLive)
+ * const readRef = Effect.gen(function* () {
+ *   const ref = yield* WinkEngineRef
+ *   return ref.getRef()
+ * })
+ *
+ * const runnable = readRef.pipe(Effect.provide(WinkEngineRefLive.pipe(Layer.provide(WinkEngineLive))))
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkEngineRefLive = WinkEngineRefLiveService;
 /**
- * Wink similarity live layer.
+ * Live layer for wink-backed vector, set, and bag-of-words similarity.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import { WinkSimilarity } from "@beep/nlp/Wink/WinkSimilarity"
  * import { WinkSimilarityLive } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkSimilarityLive)
+ * const program = Effect.gen(function* () {
+ *   const similarity = yield* WinkSimilarity
+ *   return similarity
+ * })
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(WinkSimilarityLive))).then((service) =>
+ *   console.log(typeof service.vectorCosine)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkSimilarityLive = WinkSimilarityLiveService;
 /**
- * Wink tokenization layer.
+ * Engine-dependent layer that implements the core tokenization service.
  *
  * @example
  * ```ts
- * import { WinkTokenization } from "@beep/nlp/Wink/Layer"
+ * import { Layer } from "effect"
+ * import { WinkEngineLive, WinkTokenization } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkTokenization)
+ * const runnable = WinkTokenization.pipe(Layer.provide(WinkEngineLive))
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkTokenization = WinkTokenizationService;
 /**
- * Wink tokenization live layer.
+ * Live tokenization layer with the wink engine already provided.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import { Tokenization } from "@beep/nlp/Core"
  * import { WinkTokenizationLive } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkTokenizationLive)
+ * const program = Effect.gen(function* () {
+ *   const tokenization = yield* Tokenization
+ *   return yield* tokenization.tokenize("Tokenize this.")
+ * })
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(WinkTokenizationLive))).then((tokens) =>
+ *   console.log(tokens.length)
+ * )
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkTokenizationLive = WinkTokenizationLiveService;
 /**
- * Wink utils live layer.
+ * Live layer for `wink-nlp-utils` string and token helper wrappers.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import { WinkUtils } from "@beep/nlp/Wink/WinkUtils"
  * import { WinkUtilsLive } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkUtilsLive)
+ * const program = Effect.gen(function* () {
+ *   const utils = yield* WinkUtils
+ *   return yield* utils.removeExtraSpaces("too    much")
+ * })
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(WinkUtilsLive))).then(console.log)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkUtilsLive = WinkUtilsLiveService;
 /**
- * Wink vectorizer live layer.
+ * Live layer for BM25 vectorization backed by the wink engine.
  *
  * @example
  * ```ts
- * import { WinkVectorizerLive } from "@beep/nlp/Wink/Layer"
+ * import { Effect, Layer } from "effect"
+ * import { WinkVectorizer } from "@beep/nlp/Wink/WinkVectorizer"
+ * import { WinkEngineLive, WinkVectorizerLive } from "@beep/nlp/Wink/Layer"
  *
- * console.log(WinkVectorizerLive)
+ * const readConfig = Effect.gen(function* () {
+ *   const vectorizer = yield* WinkVectorizer
+ *   return yield* vectorizer.getConfig
+ * })
+ *
+ * const runnable = readConfig.pipe(Effect.provide(WinkVectorizerLive.pipe(Layer.provide(WinkEngineLive))))
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const WinkVectorizerLive = WinkVectorizerLiveService;

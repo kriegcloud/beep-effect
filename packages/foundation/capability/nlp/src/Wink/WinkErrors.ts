@@ -22,17 +22,18 @@ const getEntityNameOption = (options: { readonly entityName?: string | undefined
   O.fromNullishOr(P.isString(options) ? options : options.entityName);
 
 /**
- * Failure raised while creating or accessing the wink runtime.
+ * Typed failure for initializing or reading from the wink runtime.
  *
  * @example
  * ```ts
  * import { WinkEngineError } from "@beep/nlp/Wink/WinkErrors"
  *
- * console.log(WinkEngineError)
+ * const error = WinkEngineError.fromCause(new Error("missing model"), "initialize")
+ * console.log(error.operation)
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEngineError`)(
   "WinkEngineError",
@@ -67,17 +68,21 @@ export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEn
 }
 
 /**
- * Failure raised while reading or tokenizing text through wink.
+ * Typed failure for wink document reads, token collection, and token counts.
  *
  * @example
  * ```ts
  * import { WinkTokenizationError } from "@beep/nlp/Wink/WinkErrors"
  *
- * console.log(WinkTokenizationError)
+ * const error = WinkTokenizationError.fromCause(new Error("bad input"), "tokens", {
+ *   text: "raw text"
+ * })
+ *
+ * console.log(error.text._tag)
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationError>($I`WinkTokenizationError`)(
   "WinkTokenizationError",
@@ -116,17 +121,21 @@ export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationErro
 }
 
 /**
- * Failure raised while learning or managing custom entity patterns.
+ * Typed failure for learning or updating wink custom entity patterns.
  *
  * @example
  * ```ts
  * import { WinkEntityError } from "@beep/nlp/Wink/WinkErrors"
  *
- * console.log(WinkEntityError)
+ * const error = WinkEntityError.fromCause(new Error("invalid pattern"), "learnCustomEntities", {
+ *   entityName: "ProductName"
+ * })
+ *
+ * console.log(error.entityName._tag)
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEntityError`)(
   "WinkEntityError",
@@ -165,16 +174,42 @@ export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEn
 }
 
 /**
- * Union of wink runtime errors.
+ * Tagged schema union for all wink runtime failures exposed by this module.
  *
  * @example
  * ```ts
- * import type { WinkError } from "@beep/nlp/Wink/WinkErrors"
+ * import * as S from "effect/Schema"
+ * import { WinkEngineError, WinkError } from "@beep/nlp/Wink/WinkErrors"
  *
- * type Example = WinkError
+ * const isWinkError = S.is(WinkError)
+ * const error = WinkEngineError.fromCause(new Error("missing model"), "initialize")
+ *
+ * console.log(isWinkError(error))
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
-export type WinkError = WinkEngineError | WinkEntityError | WinkTokenizationError;
+export const WinkError = S.Union([WinkEngineError, WinkEntityError, WinkTokenizationError]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("WinkError", {
+    description: "Union of wink runtime errors.",
+  })
+);
+
+/**
+ * Type-level companion for the {@link WinkError} schema union.
+ *
+ * @example
+ * ```ts
+ * import { WinkError } from "@beep/nlp/Wink/WinkErrors"
+ * import type { WinkError as WinkErrorSchema } from "@beep/nlp/Wink/WinkErrors"
+ *
+ * const schema: WinkErrorSchema = WinkError
+ * console.log(typeof schema)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export type WinkError = typeof WinkError;

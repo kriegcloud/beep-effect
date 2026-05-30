@@ -126,6 +126,141 @@ describe("allowlist-check", () => {
       ).pipe(provideScopedLayer(testLayer), Effect.orDie)
     ));
 
+  it("fails when allowlist entries repeat the same rule, file, and kind", () =>
+    Effect.runPromise(
+      withTempRepo((tmpDir) =>
+        Effect.gen(function* () {
+          yield* writeRepoFile(
+            tmpDir,
+            "packages/demo/src/index.ts",
+            "export const value = Object.keys({ ok: true });\n"
+          );
+          yield* writeRepoFile(
+            tmpDir,
+            ALLOWLIST_PATH,
+            A.join(
+              [
+                "{",
+                '  "$schema": "./effect-laws.allowlist.schema.json",',
+                '  "version": 1,',
+                '  "entries": [',
+                "    {",
+                '      "rule": "beep-laws/no-native-runtime",',
+                '      "file": "packages/demo/src/index.ts",',
+                '      "kind": "object-method",',
+                '      "reason": "test",',
+                '      "owner": "@beep/test",',
+                '      "issue": "TEST-ALLOWLIST"',
+                "    },",
+                "    {",
+                '      "rule": "beep-laws/no-native-runtime",',
+                '      "file": "packages/demo/src/index.ts",',
+                '      "kind": "object-method",',
+                '      "reason": "test duplicate",',
+                '      "owner": "@beep/test",',
+                '      "issue": "TEST-ALLOWLIST-DUPLICATE"',
+                "    }",
+                "  ]",
+                "}",
+              ],
+              "\n"
+            )
+          );
+
+          const summary = yield* runAllowlistCheck(
+            AllowlistCheckOptions.make({
+              cwd: tmpDir,
+            })
+          );
+
+          expect(summary.ok).toBe(false);
+          expect(summary.diagnostics).toEqual([
+            "entries.1: Duplicate allowlist key beep-laws/no-native-runtime::packages/demo/src/index.ts::object-method",
+          ]);
+        })
+      ).pipe(provideScopedLayer(testLayer), Effect.orDie)
+    ));
+
+  it("fails when an allowlist entry uses an unsupported rule id", () =>
+    Effect.runPromise(
+      withTempRepo((tmpDir) =>
+        Effect.gen(function* () {
+          yield* writeRepoFile(
+            tmpDir,
+            ALLOWLIST_PATH,
+            A.join(
+              [
+                "{",
+                '  "$schema": "./effect-laws.allowlist.schema.json",',
+                '  "version": 1,',
+                '  "entries": [',
+                "    {",
+                '      "rule": "beep-laws/unknown-rule",',
+                '      "file": "packages/demo/src/index.ts",',
+                '      "kind": "object-method",',
+                '      "reason": "test",',
+                '      "owner": "@beep/test",',
+                '      "issue": "TEST-ALLOWLIST"',
+                "    }",
+                "  ]",
+                "}",
+              ],
+              "\n"
+            )
+          );
+
+          const summary = yield* runAllowlistCheck(
+            AllowlistCheckOptions.make({
+              cwd: tmpDir,
+            })
+          );
+
+          expect(summary.ok).toBe(false);
+          expect(summary.diagnostics).toEqual([expect.stringContaining("entries.0.rule")]);
+        })
+      ).pipe(provideScopedLayer(testLayer), Effect.orDie)
+    ));
+
+  it("fails when a native-runtime allowlist entry uses an unsupported kind", () =>
+    Effect.runPromise(
+      withTempRepo((tmpDir) =>
+        Effect.gen(function* () {
+          yield* writeRepoFile(
+            tmpDir,
+            ALLOWLIST_PATH,
+            A.join(
+              [
+                "{",
+                '  "$schema": "./effect-laws.allowlist.schema.json",',
+                '  "version": 1,',
+                '  "entries": [',
+                "    {",
+                '      "rule": "beep-laws/no-native-runtime",',
+                '      "file": "packages/demo/src/index.ts",',
+                '      "kind": "unknown-kind",',
+                '      "reason": "test",',
+                '      "owner": "@beep/test",',
+                '      "issue": "TEST-ALLOWLIST"',
+                "    }",
+                "  ]",
+                "}",
+              ],
+              "\n"
+            )
+          );
+
+          const summary = yield* runAllowlistCheck(
+            AllowlistCheckOptions.make({
+              cwd: tmpDir,
+            })
+          );
+
+          expect(summary.ok).toBe(false);
+          expect(summary.diagnostics).toEqual([expect.stringContaining("entries.0.kind")]);
+        })
+      ).pipe(provideScopedLayer(testLayer), Effect.orDie)
+    ));
+
   it("resolves allowlist paths from the repository root when started in a subdirectory", () =>
     Effect.runPromise(
       withTempRepo((tmpDir) =>

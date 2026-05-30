@@ -68,17 +68,28 @@ class TransformTextSuccess extends S.Class<TransformTextSuccess>($I`TransformTex
 ) {}
 
 /**
- * Tool for applying text cleaning and normalization operations.
+ * Defines the agent-facing tool contract for applying ordered text
+ * normalization operations.
+ *
+ * Use this tool when a caller needs deterministic cleanup such as lowercasing,
+ * trimming, whitespace normalization, punctuation removal, or stop-word
+ * removal before another NLP operation.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { TransformText } from "@beep/nlp/Tools/TransformText"
  *
- * console.log(TransformText)
+ * const parameters = S.decodeUnknownSync(TransformText.parametersSchema)({
+ *   operations: ["trim", "lowercase", "removeExtraSpaces"],
+ *   text: "  Refund   POLICY  "
+ * })
+ *
+ * parameters.operations
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const TransformText = Tool.make("TransformText", {
   description: "Apply text transformation operations in sequence for cleaning and normalization.",

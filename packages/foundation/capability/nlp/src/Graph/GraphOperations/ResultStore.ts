@@ -22,16 +22,31 @@
 import { $NlpId } from "@beep/identity";
 import { A } from "@beep/utils";
 import { Clock, Context, Effect, HashMap, Layer, Ref } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import type { NodeId } from "../EffectGraph.ts";
+import * as S from "effect/Schema";
+import { NodeId } from "../EffectGraph.ts";
 import type { StorageError } from "./Errors.ts";
 import type { OperationResult } from "./Types.ts";
 
 const $I = $NlpId.create("Graph/GraphOperations/ResultStore");
 
 /**
- * An {@link OperationResult} with its concrete type parameters erased, as stored
- * in the cache. Callers re-decode the payload at their known types.
+ * Type-erased operation result stored in the cache.
+ *
+ * @remarks
+ * The result store is heterogeneous: one execution may cache string children and
+ * the next may cache entity nodes. Values therefore cross the cache boundary as
+ * `unknown`; callers should rely on the operation they are running, or decode
+ * with a schema, before treating cached payloads as a concrete node type.
+ *
+ * @example
+ * ```ts
+ * import type { AnyOperationResult } from "@beep/nlp/Graph/GraphOperations/ResultStore"
+ *
+ * const countErrors = (result: AnyOperationResult) => result.errors.length
+ * console.log(countErrors)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -43,37 +58,54 @@ export type AnyOperationResult = OperationResult<unknown, unknown>;
 // =============================================================================
 
 /**
- * Cache key: an operation name paired with a node id.
+ * Cache key pairing the operation name with the source node id.
+ *
+ * @remarks
+ * Re-running the same operation against the same leaf can reuse a cached result.
+ * Changing either the operation name or the node id creates an independent cache
+ * entry, which keeps sibling operation pipelines from colliding.
+ *
+ * @example
+ * ```ts
+ * import { NodeId } from "@beep/nlp/Graph/EffectGraph"
+ * import { ResultKey } from "@beep/nlp/Graph/GraphOperations/ResultStore"
+ *
+ * const nodeId = NodeId.make("node-example")
+ * const key = ResultKey.new("tokenize", nodeId)
+ *
+ * console.log(ResultKey.toString(key)) // "tokenize:node-example"
+ * ```
  *
  * @since 0.0.0
  * @category models
  */
-export interface ResultKey {
-  readonly nodeId: NodeId;
-  readonly operationName: string;
+export class ResultKey extends S.Class<ResultKey>($I`ResultKey`)(
+  {
+    nodeId: NodeId,
+    operationName: S.String,
+  },
+  $I.annote("ResultKey", {
+    description: "Cache key: an operation name paired with a node id.",
+  })
+) {
+  static readonly new: {
+    (operationName: string, nodeId: NodeId): ResultKey;
+    (nodeId: NodeId): (operationName: string) => ResultKey;
+  } = dual(2, (operationName: string, nodeId: NodeId): ResultKey => ({ nodeId, operationName }));
+
+  static override readonly toString = (key: ResultKey): string => `${key.operationName}:${key.nodeId}`;
 }
 
 /**
- * Constructors for {@link ResultKey}.
+ * Stored cache entry plus hit-count and insertion timestamp metadata.
  *
  * @example
  * ```ts
- * import { ResultKey } from "@beep/nlp/Graph/GraphOperations/ResultStore"
- * import { makeNodeId } from "@beep/nlp/Graph/EffectGraph"
+ * import type { StoredResult } from "@beep/nlp/Graph/GraphOperations/ResultStore"
  *
- * console.log(ResultKey.toString(ResultKey.make("op", makeNodeId("n1"))))
+ * const hits = (entry: StoredResult) => entry.hits
+ * console.log(hits)
  * ```
- *
- * @since 0.0.0
- * @category constructors
- */
-export const ResultKey = {
-  make: (operationName: string, nodeId: NodeId): ResultKey => ({ nodeId, operationName }),
-  toString: (key: ResultKey): string => `${key.operationName}:${key.nodeId}`,
-};
-
-/**
- * A cached result with metadata.
  *
  * @since 0.0.0
  * @category models
@@ -86,24 +118,59 @@ export interface StoredResult {
 }
 
 /**
- * Cache statistics.
+ * Snapshot of the in-memory result-store cache.
+ *
+ * @example
+ * ```ts
+ * import { CacheStats } from "@beep/nlp/Graph/GraphOperations/ResultStore"
+ * import * as O from "effect/Option"
+ *
+ * const emptyStats = CacheStats.make({
+ *   size: 0,
+ *   totalHits: 0,
+ *   oldestEntry: O.none(),
+ *   newestEntry: O.none()
+ * })
+ *
+ * console.log(emptyStats.size) // 0
+ * ```
  *
  * @since 0.0.0
  * @category models
  */
-export interface CacheStats {
-  readonly newestEntry: O.Option<number>;
-  readonly oldestEntry: O.Option<number>;
-  readonly size: number;
-  readonly totalHits: number;
-}
+export class CacheStats extends S.Class<CacheStats>($I`CacheStats`)(
+  {
+    newestEntry: S.Option(S.Number),
+    oldestEntry: S.Option(S.Number),
+    size: S.Number,
+    totalHits: S.Number,
+  },
+  $I.annote("CacheStats", {
+    description: "Statistics about the cache.",
+  })
+) {}
 
 // =============================================================================
 // Service Shape & Tag
 // =============================================================================
 
 /**
- * Structural shape of the {@link ResultStore} service.
+ * Structural service contract for caching graph-operation results.
+ *
+ * @remarks
+ * `get` increments a hit counter when an entry is present. `gc` removes entries
+ * older than the supplied age in milliseconds, measured from the service clock.
+ * The live implementation is in-memory and starts empty for every layer build.
+ *
+ * @example
+ * ```ts
+ * import type { ResultStoreShape } from "@beep/nlp/Graph/GraphOperations/ResultStore"
+ *
+ * const hasCacheEntry = (store: ResultStoreShape, key: Parameters<ResultStoreShape["has"]>[0]) =>
+ *   store.has(key)
+ *
+ * console.log(hasCacheEntry)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -116,11 +183,14 @@ export interface ResultStoreShape {
   readonly get: (key: ResultKey) => Effect.Effect<O.Option<AnyOperationResult>, StorageError>;
   readonly has: (key: ResultKey) => Effect.Effect<boolean>;
   readonly stats: Effect.Effect<CacheStats>;
-  readonly store: (key: ResultKey, result: AnyOperationResult) => Effect.Effect<void, StorageError>;
+  readonly store: {
+    (key: ResultKey, result: AnyOperationResult): Effect.Effect<void, StorageError>;
+    (result: AnyOperationResult): (key: ResultKey) => Effect.Effect<void, StorageError>;
+  };
 }
 
 /**
- * Service tag for the {@link ResultStoreShape} cache.
+ * Service tag for retrieving the result cache from an Effect environment.
  *
  * @example
  * ```ts
@@ -163,7 +233,12 @@ const makeResultStore = Effect.gen(function* () {
         onNone: () => Effect.succeed(O.none<AnyOperationResult>()),
         onSome: (stored) =>
           Effect.as(
-            Ref.update(storeRef, (m) => HashMap.set(m, keyStr, { ...stored, hits: stored.hits + 1 })),
+            Ref.update(storeRef, (m) =>
+              HashMap.set(m, keyStr, {
+                ...stored,
+                hits: stored.hits + 1,
+              })
+            ),
             O.some(stored.result)
           ),
       });
@@ -192,16 +267,24 @@ const makeResultStore = Effect.gen(function* () {
       };
     }),
 
-    store: Effect.fn("ResultStore.store")(function* (key: ResultKey, result: AnyOperationResult) {
-      const timestamp = yield* Clock.currentTimeMillis;
-      const stored: StoredResult = { hits: 0, key, result, timestamp };
-      yield* Ref.update(storeRef, (map) => HashMap.set(map, ResultKey.toString(key), stored));
-    }),
+    store: dual(
+      2,
+      Effect.fn("ResultStore.store")(function* (key: ResultKey, result: AnyOperationResult) {
+        const timestamp = yield* Clock.currentTimeMillis;
+        const stored: StoredResult = { hits: 0, key, result, timestamp };
+        yield* Ref.update(storeRef, (map) => HashMap.set(map, ResultKey.toString(key), stored));
+      })
+    ),
   });
 });
 
 /**
  * Live in-memory {@link ResultStore} layer.
+ *
+ * @remarks
+ * This layer keeps cache state in a `Ref<HashMap>` scoped to the layer instance.
+ * It is suitable for process-local reuse during a pipeline run, but it is not a
+ * durable or cross-process cache.
  *
  * @example
  * ```ts
@@ -216,7 +299,7 @@ const makeResultStore = Effect.gen(function* () {
 export const ResultStoreLive: Layer.Layer<ResultStore> = Layer.effect(ResultStore, makeResultStore);
 
 /**
- * Test {@link ResultStore} layer (starts empty; same as {@link ResultStoreLive}).
+ * Test {@link ResultStore} layer backed by the same empty in-memory store.
  *
  * @example
  * ```ts
