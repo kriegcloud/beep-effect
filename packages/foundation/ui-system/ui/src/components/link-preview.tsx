@@ -288,7 +288,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
             ref={elementRef}
             href={safeHref}
             className={cn(
-              "cursor-pointer rounded-sm bg-primary/20 px-1 text-sm font-medium text-primary transition-all hover:text-white hover:underline",
+              "cursor-pointer rounded-sm bg-primary/20 px-1 text-sm font-medium text-primary transition-all hover:text-foreground hover:underline",
               className
             )}
             rel="noopener noreferrer"
