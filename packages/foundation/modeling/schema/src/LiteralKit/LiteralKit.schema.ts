@@ -32,6 +32,14 @@ type EnumMappings<L extends Literals = Literals> = A.NonEmptyReadonlyArray<EnumM
  * - number: `"number${value}"` (e.g., `200` becomes `"number200"`)
  * - string: as-is (e.g., `"pending"` stays `"pending"`)
  *
+ * @example
+ * ```ts
+ * import type { LiteralToKey } from "@beep/schema/LiteralKit"
+ *
+ * const key = "number200" satisfies LiteralToKey<200>
+ * console.log(key)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -370,7 +378,7 @@ const LiteralKitTaggedUnionLiteralErrorBase: TaggedErrorClassFromFields<
  * ```ts
  * import { LiteralNotInSetError } from "@beep/schema/LiteralKit"
  *
- * void LiteralNotInSetError
+ * console.log(LiteralNotInSetError)
  * ```
  *
  * @category models
@@ -386,7 +394,7 @@ export class LiteralNotInSetError extends LiteralNotInSetErrorBase {}
  * ```ts
  * import { LiteralKitKeyCollisionError } from "@beep/schema/LiteralKit"
  *
- * void LiteralKitKeyCollisionError
+ * console.log(LiteralKitKeyCollisionError)
  * ```
  *
  * @category models
@@ -404,7 +412,7 @@ type SeenLiteralKeys = HashMap.HashMap<string, SchemaAST.LiteralValue>;
  * ```ts
  * import { LiteralKitEnumMappingDuplicateLiteralError } from "@beep/schema/LiteralKit"
  *
- * void LiteralKitEnumMappingDuplicateLiteralError
+ * console.log(LiteralKitEnumMappingDuplicateLiteralError)
  * ```
  *
  * @category models
@@ -420,7 +428,7 @@ export class LiteralKitEnumMappingDuplicateLiteralError extends LiteralKitEnumMa
  * ```ts
  * import { LiteralKitEnumMappingCoverageError } from "@beep/schema/LiteralKit"
  *
- * void LiteralKitEnumMappingCoverageError
+ * console.log(LiteralKitEnumMappingCoverageError)
  * ```
  *
  * @category models
@@ -436,7 +444,7 @@ export class LiteralKitEnumMappingCoverageError extends LiteralKitEnumMappingCov
  * ```ts
  * import { LiteralKitTaggedUnionLiteralError } from "@beep/schema/LiteralKit"
  *
- * void LiteralKitTaggedUnionLiteralError
+ * console.log(LiteralKitTaggedUnionLiteralError)
  * ```
  *
  * @category models
@@ -644,7 +652,15 @@ type LiteralKitBase<L extends Literals, M extends EnumMappings<L> | undefined = 
  * @since 0.0.0
  */
 /**
- * Public schema module export.
+ * Runtime literal kit returned by {@link LiteralKit}.
+ *
+ * @example
+ * ```ts
+ * import { LiteralKit, type LiteralKit as LiteralKitType } from "@beep/schema/LiteralKit"
+ *
+ * const Status = LiteralKit(["ready", "blocked"])
+ * console.log(Status.Enum.ready satisfies LiteralKitType<readonly ["ready", "blocked"]>["Enum"]["ready"])
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -677,7 +693,7 @@ export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | unde
  *   false: () => "no",
  *   hello: () => "greeting",
  * });
- * void result;
+ * console.log(result)
  *
  * const EventKind = LiteralKit(["created", "deleted"]);
  *
@@ -689,7 +705,7 @@ export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | unde
  *     id: S.String
  *   }
  * });
- * void Event;
+ * console.log(Event)
  *
  * const StatusKeys = LiteralKit(
  *   ["one", "two"],

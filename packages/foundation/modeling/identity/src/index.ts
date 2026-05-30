@@ -7,7 +7,7 @@
  *
  * const { $MyPkgId } = make("my-pkg")
  * const id = $MyPkgId.make("Service")
- * void id // "@beep/my-pkg/Service"
+ * console.log(id)// "@beep/my-pkg/Service"
  * ```
  *
  * @packageDocumentation

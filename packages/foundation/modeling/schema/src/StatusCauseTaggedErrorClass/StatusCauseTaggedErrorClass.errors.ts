@@ -161,7 +161,7 @@ type StatusCauseTaggedErrorExtendMethod<
  *
  * const error = fromClass(ExampleError)
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category models
@@ -210,8 +210,8 @@ export type StatusCauseTaggedErrorClassWithStatics<
  *   StatusCauseTaggedErrorClass<ExampleError>($I`ExampleErrorFactory`)
  * const error = ExampleError.noCause("Missing", 404)
  *
- * void factory
- * void error
+ * console.log(factory)
+ * console.log(error)
  * ```
  *
  * @category models
@@ -256,7 +256,7 @@ export interface StatusCauseTaggedErrorClassFactory<Self, Brand = {}> {
  *
  * const error = ExampleError.noCause("Missing", 404)
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category constructors
@@ -492,8 +492,8 @@ const attachStatusCauseTaggedErrorStatics = <
  * )
  * const notFound = HttpError.noCause("Missing resource", 404)
  *
- * void program
- * void notFound
+ * console.log(program)
+ * console.log(notFound)
  * ```
  *
  * @example
@@ -518,7 +518,7 @@ const attachStatusCauseTaggedErrorStatics = <
  *   provider: "local"
  * })(new Error("unavailable"))
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @since 0.0.0

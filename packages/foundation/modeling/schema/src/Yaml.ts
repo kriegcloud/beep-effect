@@ -64,7 +64,7 @@ const decodeYamlUnknown = (input: string): Effect.Effect<unknown, SchemaIssue.Is
  * import { parseYaml } from "@beep/schema/Yaml"
  *
  * const value = parseYaml("name: Alice\nage: 30")
- * void value
+ * console.log(value)
  * ```
  *
  * @category utilities
@@ -81,13 +81,9 @@ export const parseYaml = makeParseYaml(yamlRuntime, loadYamlModule);
  * import * as S from "effect/Schema"
  * import { YamlTextToUnknown } from "@beep/schema/Yaml"
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- *
- * })
- * void program
+ * const program = S.decodeUnknownEffect(YamlTextToUnknown)("name: Beep")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @category validation
@@ -116,11 +112,9 @@ export const YamlTextToUnknown = S.String.pipe(
  * const Config = S.Struct({ name: S.String, age: S.Number })
  * const decodeConfig = decodeYamlTextAs(Config)
  *
- * const program = Effect.gen(function* () {
- *
- *
- * })
- * void program
+ * const program = decodeConfig("name: Beep\nage: 1")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @param schema - Target schema to decode parsed YAML document into.

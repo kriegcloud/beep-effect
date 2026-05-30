@@ -26,6 +26,13 @@ const $I = $RunpodId.create("Runpod.service");
 /**
  * Scalar query values accepted by Runpod request models and raw requests.
  *
+ * @example
+ * ```ts
+ * import { RunpodQueryScalar } from "@beep/runpod"
+ *
+ * console.log(RunpodQueryScalar.ast)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -38,6 +45,14 @@ export const RunpodQueryScalar = S.Union([S.Boolean, S.Number, S.String]).pipe(
 /**
  * Type for {@link RunpodQueryScalar}.
  *
+ * @example
+ * ```ts
+ * import type { RunpodQueryScalar } from "@beep/runpod"
+ *
+ * const value: RunpodQueryScalar = "running"
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -48,6 +63,13 @@ const isRunpodQueryScalarArray = S.is(RunpodQueryScalarArray);
 
 /**
  * Query value accepted by the raw Runpod request escape hatch.
+ *
+ * @example
+ * ```ts
+ * import { RunpodQueryValue } from "@beep/runpod"
+ *
+ * console.log(RunpodQueryValue.ast)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -61,6 +83,14 @@ export const RunpodQueryValue = S.Union([RunpodQueryScalar, RunpodQueryScalarArr
 /**
  * Type for {@link RunpodQueryValue}.
  *
+ * @example
+ * ```ts
+ * import type { RunpodQueryValue } from "@beep/runpod"
+ *
+ * const value: RunpodQueryValue = ["running", "stopped"]
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -68,6 +98,17 @@ export type RunpodQueryValue = typeof RunpodQueryValue.Type;
 
 /**
  * Raw Runpod HTTP request escape hatch for endpoints ahead of the checked-in OpenAPI document.
+ *
+ * @example
+ * ```ts
+ * import { RunpodRawRequest } from "@beep/runpod"
+ *
+ * const request = RunpodRawRequest.make({
+ *   method: "GET",
+ *   path: "/health"
+ * })
+ * console.log(request.path)
+ * ```
  *
  * @category models
  * @since 0.1.0
@@ -89,6 +130,18 @@ export class RunpodRawRequest extends S.Class<RunpodRawRequest>($I`RunpodRawRequ
 /**
  * Raw Runpod HTTP response returned by {@link Runpod.raw}.
  *
+ * @example
+ * ```ts
+ * import { RunpodRawResponse } from "@beep/runpod"
+ *
+ * const response = RunpodRawResponse.make({
+ *   headers: {},
+ *   status: 200,
+ *   text: "ok"
+ * })
+ * console.log(response.status)
+ * ```
+ *
  * @category models
  * @since 0.1.0
  */
@@ -106,6 +159,15 @@ export class RunpodRawResponse extends S.Class<RunpodRawResponse>($I`RunpodRawRe
 
 /**
  * Public service shape for generated Runpod operations plus the raw request escape hatch.
+ *
+ * @example
+ * ```ts
+ * import type { RunpodShape } from "@beep/runpod"
+ *
+ * type RawRequest = Parameters<RunpodShape["raw"]>[0]
+ * type RawResponse = Awaited<ReturnType<RunpodShape["raw"]>>
+ * console.log({} as { request: RawRequest; response: RawResponse })
+ * ```
  *
  * @category services
  * @since 0.1.0
@@ -778,6 +840,16 @@ const makeRunpodFromEnvironment = Effect.fn("Runpod.makeRunpodFromEnvironment")(
 
 /**
  * Effect service for all documented Runpod REST API v1 operations.
+ *
+ * @example
+ * ```ts
+ * import { Runpod, RunpodConfigInput } from "@beep/runpod"
+ *
+ * const layer = Runpod.makeLayer(
+ *   RunpodConfigInput.make({ apiUrl: "https://rest.runpod.io/v1" })
+ * )
+ * console.log(layer)
+ * ```
  *
  * @category services
  * @since 0.1.0

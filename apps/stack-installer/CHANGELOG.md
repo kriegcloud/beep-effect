@@ -1,5 +1,16 @@
 # @beep/stack-installer
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @beep/schema@0.1.2
+  - @beep/ui@0.1.1
+  - @beep/shared-domain@0.0.2
+  - @beep/installer-server@0.0.3
+  - @beep/installer-use-cases@0.0.2
+
 ## 0.0.3
 
 ### Patch Changes

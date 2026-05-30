@@ -68,7 +68,7 @@ const AiMetricsForwarderTimerCommand = AiMetricsForwarderTimerCommandBase.pipe(
  *   cause: "boom",
  *   message: "Forwarder failed."
  * })
- * void error
+ * console.log(error)
  * ```
  * @category errors
  * @since 0.0.0
@@ -742,7 +742,7 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
  *   repoRoot: "/work/repo"
  * })
  * const program = runAiMetricsForwarder(input)
- * void program
+ * console.log(program)
  * ```
  * @category services
  * @since 0.0.0
@@ -846,7 +846,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
  *   turnCount: 0
  * })
  * const program = forwarderRunResultToJson(result)
- * void program
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0

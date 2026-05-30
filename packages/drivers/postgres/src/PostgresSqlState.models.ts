@@ -22,7 +22,7 @@ const $I = $PostgresId.create("PostgresSqlState.models");
  * import { PostgresErrorCodeByName } from "@beep/postgres"
  *
  * const code = PostgresErrorCodeByName.UNIQUE_VIOLATION
- * void code
+ * console.log(code)
  * ```
  *
  * @category models
@@ -837,7 +837,7 @@ const PgErrorNameValues = [
  * import type { PgErrorName } from "@beep/postgres"
  *
  * const name: PgErrorName = "UNIQUE_VIOLATION"
- * void name
+ * console.log(name)
  * ```
  *
  * @category models
@@ -853,7 +853,7 @@ export type PgErrorName = keyof typeof PostgresErrorCodeByName;
  * import type { PgErrorCode } from "@beep/postgres"
  *
  * const code: PgErrorCode = "23505"
- * void code
+ * console.log(code)
  * ```
  *
  * @category models
@@ -869,7 +869,7 @@ export type PgErrorCode = (typeof PostgresErrorCodeByName)[PgErrorName];
  * import { pgErrorEntries } from "@beep/postgres"
  *
  * const first = pgErrorEntries[0]
- * void first
+ * console.log(first)
  * ```
  *
  * @category models
@@ -887,7 +887,7 @@ export const pgErrorEntries = R.toEntries(PostgresErrorCodeByName) as unknown as
  * import { PgErrorAliasesByCode } from "@beep/postgres"
  *
  * const aliases = PgErrorAliasesByCode["23505"]
- * void aliases
+ * console.log(aliases)
  * ```
  *
  * @category models
@@ -1169,7 +1169,7 @@ export const PgErrorAliasesByCode = {
  * import { PgErrorCanonicalNameByCode } from "@beep/postgres"
  *
  * const name = PgErrorCanonicalNameByCode["23505"]
- * void name
+ * console.log(name)
  * ```
  *
  * @category models
@@ -1452,7 +1452,7 @@ const PgErrorAliasesLookup: Readonly<Record<string, A.NonEmptyReadonlyArray<PgEr
  *
  * const decode = S.decodeUnknownSync(PgErrorCode)
  * const code = decode("23505")
- * void code
+ * console.log(code)
  * ```
  *
  * @category schemas
@@ -1474,7 +1474,7 @@ export const PgErrorCode = LiteralKit(PgErrorCodeValues).pipe(
  *
  * const decode = S.decodeUnknownSync(PgErrorName)
  * const name = decode("UNIQUE_VIOLATION")
- * void name
+ * console.log(name)
  * ```
  *
  * @category schemas
@@ -1494,7 +1494,7 @@ export const PgErrorName = LiteralKit(PgErrorNameValues).pipe(
  * import { isPgErrorCode } from "@beep/postgres"
  *
  * const known = isPgErrorCode("23505")
- * void known
+ * console.log(known)
  * ```
  *
  * @category predicates
@@ -1510,7 +1510,7 @@ export const isPgErrorCode = S.is(PgErrorCode);
  * import { getPgErrorName } from "@beep/postgres"
  *
  * const name = getPgErrorName("23505")
- * void name
+ * console.log(name)
  * ```
  *
  * @category getters
@@ -1527,7 +1527,7 @@ export const getPgErrorName = (code: string): O.Option<PgErrorName> =>
  * import { getPgErrorAliases } from "@beep/postgres"
  *
  * const aliases = getPgErrorAliases("22008")
- * void aliases
+ * console.log(aliases)
  * ```
  *
  * @category getters

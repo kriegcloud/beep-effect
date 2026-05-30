@@ -13,6 +13,15 @@ import { $I, windowsDriveRootRegExp, windowsUncRootRegExp } from "./FilePath.sha
 /**
  * Branded schema for Windows drive roots such as `C:` and `C:\\`.
  *
+ * @example
+ * ```ts
+ * import { WindowsDriveRoot } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const root = S.decodeUnknownSync(WindowsDriveRoot)("C:\\")
+ * console.log(root)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -40,6 +49,15 @@ export type WindowsDriveRoot = typeof WindowsDriveRoot.Type;
 
 /**
  * Branded schema for UNC roots such as `\\\\server\\share`.
+ *
+ * @example
+ * ```ts
+ * import { WindowsUncRoot } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const root = S.decodeUnknownSync(WindowsUncRoot)("\\\\server\\share")
+ * console.log(root)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -72,6 +90,15 @@ const isWindowsUncRoot = S.is(WindowsUncRoot);
 
 /**
  * Branded schema for path strings that include a non-root leaf segment.
+ *
+ * @example
+ * ```ts
+ * import { HasLeafSegment } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const path = S.decodeUnknownSync(HasLeafSegment)("src/index.ts")
+ * console.log(path)
+ * ```
  *
  * @since 0.0.0
  * @category validation

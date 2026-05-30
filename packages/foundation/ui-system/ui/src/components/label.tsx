@@ -4,6 +4,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Label component.
+ *
+ * @example
+ * ```tsx
+ * import { Label } from "@beep/ui/components/label"
+ *
+ * console.log(Label)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

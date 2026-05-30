@@ -12,6 +12,13 @@ const $I = $SchemaId.create("DomDragEvent");
 /**
  * Type guard for DragEvent.
  *
+ * @example
+ * ```ts
+ * import { isDragEvent } from "@beep/schema/DomDragEvent"
+ *
+ * console.log(isDragEvent(new DragEvent("dragstart")))
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -19,6 +26,15 @@ export const isDragEvent = (u: unknown): u is DragEvent => u instanceof DragEven
 
 /**
  * A DragEvent.
+ *
+ * @example
+ * ```ts
+ * import { DOMDragEvent } from "@beep/schema/DomDragEvent"
+ * import * as S from "effect/Schema"
+ *
+ * const event = S.decodeUnknownSync(DOMDragEvent)(new DragEvent("dragstart"))
+ * console.log(event.type)
+ * ```
  *
  * @since 0.0.0
  * @category schemas

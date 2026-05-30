@@ -21,6 +21,13 @@ const $I = $RepoCliId.create("commands/Architecture/OperationPlan");
 /**
  * Canonical architecture domain-kind folders.
  *
+ * @example
+ * ```ts
+ * import { ArchitectureDomainKind } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(ArchitectureDomainKind)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -41,6 +48,13 @@ export type ArchitectureDomainKind = typeof ArchitectureDomainKind.Type;
 /**
  * Staged architecture proof targets.
  *
+ * @example
+ * ```ts
+ * import { ArchitecturePlanStage } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(ArchitecturePlanStage)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -60,6 +74,13 @@ export type ArchitecturePlanStage = typeof ArchitecturePlanStage.Type;
 
 /**
  * Canonical architecture slice roles.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureSliceRole } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(ArchitectureSliceRole)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -171,6 +192,13 @@ export type ArchitectureOperationKind = typeof ArchitectureOperationKind.Type;
 
 /**
  * Writer families selected from normalized architecture operations.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureWriterKind } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(ArchitectureWriterKind)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -380,6 +408,13 @@ const OperationSource = ArchitectureOperationSource.pipe(
 /**
  * Role package entry in a canonical architecture slice operation plan.
  *
+ * @example
+ * ```ts
+ * import { ArchitectureSliceRolePlan } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(ArchitectureSliceRolePlan)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -397,6 +432,13 @@ export class ArchitectureSliceRolePlan extends S.Class<ArchitectureSliceRolePlan
 
 /**
  * Normalized architecture creation target.
+ *
+ * @example
+ * ```ts
+ * import { ArchitecturePlanTarget } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(ArchitecturePlanTarget)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -416,6 +458,13 @@ export class ArchitecturePlanTarget extends S.Class<ArchitecturePlanTarget>($I`A
 
 /**
  * Operation that writes a repo-relative file when absent.
+ *
+ * @example
+ * ```ts
+ * import { WriteFileOperation } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(WriteFileOperation)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -487,6 +536,13 @@ export class WritePackageJsonOperation extends S.Class<WritePackageJsonOperation
 /**
  * Operation that proves a repo-relative file must exist.
  *
+ * @example
+ * ```ts
+ * import { EnsureFileOperation } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(EnsureFileOperation)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -509,6 +565,13 @@ export class EnsureFileOperation extends S.Class<EnsureFileOperation>($I`EnsureF
 /**
  * Operation that proves a legacy repo-relative path must not exist.
  *
+ * @example
+ * ```ts
+ * import { EnsureAbsentPathOperation } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(EnsureAbsentPathOperation)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -529,6 +592,13 @@ export class EnsureAbsentPathOperation extends S.Class<EnsureAbsentPathOperation
 
 /**
  * Canonical operation-plan operation.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureOperation } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(ArchitectureOperation)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -581,6 +651,13 @@ export class ArchitectureOperationCheck extends S.Class<ArchitectureOperationChe
 /**
  * Schema-versioned canonical architecture slice operation plan.
  *
+ * @example
+ * ```ts
+ * import { CanonicalSliceOperationPlan } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(CanonicalSliceOperationPlan)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -618,6 +695,13 @@ export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperation
 /**
  * Result of validating a canonical operation plan against a checkout.
  *
+ * @example
+ * ```ts
+ * import { OperationPlanCheckResult } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(OperationPlanCheckResult)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -638,6 +722,13 @@ export class OperationPlanCheckResult extends S.Class<OperationPlanCheckResult>(
 
 /**
  * Result of applying a canonical operation plan.
+ *
+ * @example
+ * ```ts
+ * import { OperationPlanApplyResult } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(OperationPlanApplyResult)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -2358,6 +2449,13 @@ const decodeOperationPlanJson = S.decodeUnknownEffect(S.fromJsonString(Canonical
  * Build the canonical architecture lab WorkItem operation plan.
  *
  * @returns Schema-versioned operations for the canonical WorkItem proof slice.
+ * @example
+ * ```ts
+ * import { makeCanonicalSliceOperationPlan } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(makeCanonicalSliceOperationPlan)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -2402,6 +2500,13 @@ export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =
 
 /**
  * Build a write-capable operation plan from the accepted WorkItem proof files.
+ *
+ * @example
+ * ```ts
+ * import { makeArchitectureOperationPlan } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(makeArchitectureOperationPlan)
+ * ```
  *
  * @category constructors
  * @since 0.0.0
@@ -2509,6 +2614,13 @@ export const makeArchitecturePackageOperationPlan = Effect.fn(function* (input: 
 /**
  * Encode an operation plan as JSON text.
  *
+ * @example
+ * ```ts
+ * import { encodeCanonicalSliceOperationPlanJson } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(encodeCanonicalSliceOperationPlanJson)
+ * ```
+ *
  * @category codecs
  * @since 0.0.0
  */
@@ -2516,6 +2628,13 @@ export const encodeCanonicalSliceOperationPlanJson = encodeOperationPlanJson;
 
 /**
  * Decode operation-plan JSON text.
+ *
+ * @example
+ * ```ts
+ * import { decodeCanonicalSliceOperationPlanJson } from "@beep/repo-cli/commands/Architecture"
+ *
+ * console.log(decodeCanonicalSliceOperationPlanJson)
+ * ```
  *
  * @category codecs
  * @since 0.0.0

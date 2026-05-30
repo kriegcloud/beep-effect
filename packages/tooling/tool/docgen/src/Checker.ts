@@ -91,7 +91,7 @@ function checkFunction(model: Domain.Function) {
  * ```ts
  * import { checkFunctions } from "@beep/repo-docgen/Checker"
  * const checked = checkFunctions([])
- * void checked
+ * console.log(checked)
  * ```
  * @category predicates
  * @since 0.0.0
@@ -117,7 +117,7 @@ const checkClass = Effect.fn("checkClass")(function* (model: Domain.Class) {
  * ```ts
  * import { checkClasses } from "@beep/repo-docgen/Checker"
  * const checked = checkClasses([])
- * void checked
+ * console.log(checked)
  * ```
  * @category predicates
  * @since 0.0.0
@@ -139,7 +139,7 @@ function checkConstant(model: Domain.Constant) {
  * ```ts
  * import { checkConstants } from "@beep/repo-docgen/Checker"
  * const checked = checkConstants([])
- * void checked
+ * console.log(checked)
  * ```
  * @category predicates
  * @since 0.0.0
@@ -161,7 +161,7 @@ function checkInterface(model: Domain.Interface) {
  * ```ts
  * import { checkInterfaces } from "@beep/repo-docgen/Checker"
  * const checked = checkInterfaces([])
- * void checked
+ * console.log(checked)
  * ```
  * @category predicates
  * @since 0.0.0
@@ -183,7 +183,7 @@ function checkTypeAlias(model: Domain.TypeAlias) {
  * ```ts
  * import { checkTypeAliases } from "@beep/repo-docgen/Checker"
  * const checked = checkTypeAliases([])
- * void checked
+ * console.log(checked)
  * ```
  * @category predicates
  * @since 0.0.0
@@ -211,7 +211,7 @@ const checkNamespace = Effect.fn("checkNamespace")(function* (
  * ```ts
  * import { checkNamespaces } from "@beep/repo-docgen/Checker"
  * const checked = checkNamespaces([])
- * void checked
+ * console.log(checked)
  * ```
  * @category predicates
  * @since 0.0.0
@@ -233,7 +233,7 @@ function checkExport(model: Domain.Export) {
  * ```ts
  * import { checkExports } from "@beep/repo-docgen/Checker"
  * const checked = checkExports([])
- * void checked
+ * console.log(checked)
  * ```
  * @category predicates
  * @since 0.0.0
@@ -250,7 +250,7 @@ export function checkExports(models: ReadonlyArray<Domain.Export>) {
  * @example
  * ```ts
  * import { checkModule } from "@beep/repo-docgen/Checker"
- * void checkModule
+ * console.log(checkModule)
  * ```
  * @category predicates
  * @since 0.0.0
@@ -294,7 +294,7 @@ export function checkModule(module: Domain.Module) {
  * ```ts
  * import { checkModules } from "@beep/repo-docgen/Checker"
  * const checked = checkModules([])
- * void checked
+ * console.log(checked)
  * ```
  * @category predicates
  * @since 0.0.0

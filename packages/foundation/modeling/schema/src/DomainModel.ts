@@ -24,7 +24,7 @@ const $I = $SchemaId.create("DomainModel");
  *
  * const fieldNames = Object.keys(defaultFields)
  *
- * void fieldNames
+ * console.log(fieldNames)
  * ```
  *
  * @since 0.0.0
@@ -56,7 +56,7 @@ export const defaultFields = {
  *   id: Model.Generated(OrganizationId)
  * }) {}
  *
- * void Organization.insert
+ * console.log(Organization.insert)
  * ```
  *
  * @since 0.0.0

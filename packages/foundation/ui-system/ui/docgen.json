@@ -46,6 +46,9 @@
       "@beep/ui/components/blocks/editor-00/editor": [
         "../../../../packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx"
       ],
+      "@beep/ui/components/blocks/editor-00/nodes": [
+        "../../../../packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
+      ],
       "@beep/ui/components/editor/editor-ui/content-editable": [
         "../../../../packages/foundation/ui-system/ui/src/components/editor/editor-ui/content-editable.tsx"
       ],

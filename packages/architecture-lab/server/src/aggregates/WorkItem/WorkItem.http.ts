@@ -24,6 +24,13 @@ const serviceUnavailableBody = WorkItemUseCases.WorkItemActionFailed.make({
 /**
  * HTTP status values emitted by the WorkItem proof protocol adapter.
  *
+ * @example
+ * ```ts
+ * import { WorkItemHttpStatus } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(WorkItemHttpStatus)
+ * ```
+ *
  * @category handlers
  * @since 0.0.0
  */
@@ -45,6 +52,13 @@ export type WorkItemHttpStatus = typeof WorkItemHttpStatus.Type;
 /**
  * Minimal HTTP response envelope used by the architecture lab proof.
  *
+ * @example
+ * ```ts
+ * import { WorkItemHttpResponse } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(WorkItemHttpResponse)
+ * ```
+ *
  * @category handlers
  * @since 0.0.0
  */
@@ -61,6 +75,13 @@ export class WorkItemHttpResponse extends S.Class<WorkItemHttpResponse>($I`WorkI
 
 /**
  * Convert a public WorkItem failure to an HTTP response envelope.
+ *
+ * @example
+ * ```ts
+ * import { toWorkItemHttpError } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(toWorkItemHttpError)
+ * ```
  *
  * @category handlers
  * @since 0.0.0
@@ -85,6 +106,13 @@ const toSuccess =
 
 /**
  * Build HTTP-style WorkItem handlers from the public use-case facade.
+ *
+ * @example
+ * ```ts
+ * import { makeWorkItemHttpHandlers } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * console.log(makeWorkItemHttpHandlers)
+ * ```
  *
  * @category handlers
  * @since 0.0.0

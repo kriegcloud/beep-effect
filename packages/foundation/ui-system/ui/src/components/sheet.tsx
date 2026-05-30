@@ -7,6 +7,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Sheet component.
+ *
+ * @example
+ * ```tsx
+ * import { Sheet } from "@beep/ui/components/sheet"
+ *
+ * console.log(Sheet)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -15,6 +24,15 @@ function Sheet({ ...props }: SheetPrimitive.Root.Props) {
 }
 
 /**
+ * Sheet trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { SheetTrigger } from "@beep/ui/components/sheet"
+ *
+ * console.log(SheetTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -23,6 +41,15 @@ function SheetTrigger({ ...props }: SheetPrimitive.Trigger.Props) {
 }
 
 /**
+ * Sheet close component.
+ *
+ * @example
+ * ```tsx
+ * import { SheetClose } from "@beep/ui/components/sheet"
+ *
+ * console.log(SheetClose)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -48,6 +75,15 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
 }
 
 /**
+ * Sheet content component.
+ *
+ * @example
+ * ```tsx
+ * import { SheetContent } from "@beep/ui/components/sheet"
+ *
+ * console.log(SheetContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -89,6 +125,15 @@ function SheetContent({
 }
 
 /**
+ * Sheet header component.
+ *
+ * @example
+ * ```tsx
+ * import { SheetHeader } from "@beep/ui/components/sheet"
+ *
+ * console.log(SheetHeader)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -97,6 +142,15 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Sheet footer component.
+ *
+ * @example
+ * ```tsx
+ * import { SheetFooter } from "@beep/ui/components/sheet"
+ *
+ * console.log(SheetFooter)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -105,6 +159,15 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
+ * Sheet title component.
+ *
+ * @example
+ * ```tsx
+ * import { SheetTitle } from "@beep/ui/components/sheet"
+ *
+ * console.log(SheetTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -119,6 +182,15 @@ function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
 }
 
 /**
+ * Sheet description component.
+ *
+ * @example
+ * ```tsx
+ * import { SheetDescription } from "@beep/ui/components/sheet"
+ *
+ * console.log(SheetDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

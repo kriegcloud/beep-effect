@@ -31,7 +31,7 @@ const existingDuckDbError = (cause: unknown): O.Option<DuckDbError> =>
  *   databasePath: "metrics.duckdb",
  *   statement: "select 1"
  * })
- * void options
+ * console.log(options)
  * ```
  *
  * @category errors
@@ -63,7 +63,7 @@ export class DuckDbErrorFromUnknownOptions extends S.Class<DuckDbErrorFromUnknow
  *   operation: "query"
  * })
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category errors
@@ -93,7 +93,7 @@ export class DuckDbError extends TaggedErrorClass<DuckDbError>($I`DuckDbError`)(
    *   statement: "select 1"
    * })
    *
-   * void error
+   * console.log(error)
    * ```
    *
    * @category errors

@@ -241,7 +241,7 @@ const getCanonicalDataset = (
  * ```ts
  * import { CanonicalizationServiceLive } from "@beep/semantic-web/adapters/canonicalization"
  *
- * void CanonicalizationServiceLive
+ * console.log(CanonicalizationServiceLive)
  * ```
  *
  * @since 0.0.0

@@ -40,7 +40,7 @@ class EntityRefInvariantError extends TaggedErrorClass<EntityRefInvariantError>(
  *   const entityType = yield* S.decodeUnknownEffect(EntityType)("SharedOrganization")
  *   return entityType
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -61,7 +61,7 @@ export const EntityType = S.NonEmptyString.pipe(
  * import type { EntityType } from "@beep/shared-domain/entity/EntityRef"
  *
  * const printEntityType = (entityType: EntityType) => console.log(entityType)
- * void printEntityType
+ * console.log(printEntityType)
  * ```
  *
  * @since 0.0.0
@@ -86,7 +86,7 @@ export type EntityType = typeof EntityType.Type;
  *   })
  *   return ref.entityType
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -159,7 +159,7 @@ function assertEntityRefFor<const Entity extends EntityId.Any>(
  *   const ref = makeResult(OrganizationId, id)
  *   return Result.isSuccess(ref)
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -207,7 +207,7 @@ export const makeResult: {
  *   const ref = make(OrganizationId, id)
  *   return ref.entityType
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0

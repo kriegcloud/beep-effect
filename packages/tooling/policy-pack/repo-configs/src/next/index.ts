@@ -12,7 +12,7 @@
  * ```ts
  * import { NextConfig } from "@beep/repo-configs/next"
  * const schema = NextConfig
- * void schema
+ * console.log(schema)
  * ```
  * @category models
  * @since 0.0.0
@@ -25,7 +25,7 @@ export * from "./models/index.ts";
  * ```ts
  * import { defineNextConfig } from "@beep/repo-configs/next"
  * const config = defineNextConfig({ reactStrictMode: true })
- * void config
+ * console.log(config)
  * ```
  * @category models
  * @since 0.0.0
@@ -41,7 +41,7 @@ export * from "./NextConfig.model.ts";
  *   repoRoot: "/repo",
  *   allowedDevOrigins: ["codedank-web.localhost"]
  * })
- * void config
+ * console.log(config)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -54,7 +54,7 @@ export * from "./SharedNextConfig.model.ts";
  * ```ts
  * import { withSecureHeaders } from "@beep/repo-configs/next"
  * const config = withSecureHeaders({ reactStrictMode: true })
- * void config
+ * console.log(config)
  * ```
  * @category configuration
  * @since 0.0.0

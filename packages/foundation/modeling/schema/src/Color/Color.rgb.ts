@@ -24,6 +24,15 @@ const RgbChannelRangeCheck = S.isBetween(
 /**
  * Branded finite RGB input channel.
  *
+ * @example
+ * ```ts
+ * import { RgbInputChannel } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const channel = S.decodeUnknownSync(RgbInputChannel)(1.25)
+ * console.log(channel)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -44,6 +53,15 @@ export type RgbInputChannel = typeof RgbInputChannel.Type;
 
 /**
  * Branded normalized RGB channel in the range 0 through 1.
+ *
+ * @example
+ * ```ts
+ * import { RgbChannel } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const channel = S.decodeUnknownSync(RgbChannel)(0.5)
+ * console.log(channel)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -67,6 +85,15 @@ export type RgbChannel = typeof RgbChannel.Type;
 /**
  * RGB object with finite channel inputs.
  *
+ * @example
+ * ```ts
+ * import { RgbInput } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const color = S.decodeUnknownSync(RgbInput)({ r: 1.2, g: 0.5, b: -0.1 })
+ * console.log(color.r)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -83,6 +110,15 @@ export class RgbInput extends S.Class<RgbInput>($I`RgbInput`)(
 
 /**
  * RGB object with normalized channels.
+ *
+ * @example
+ * ```ts
+ * import { Rgb } from "@beep/schema/Color"
+ * import * as S from "effect/Schema"
+ *
+ * const color = S.decodeUnknownSync(Rgb)({ r: 0.23, g: 0.51, b: 0.96 })
+ * console.log(color.g)
+ * ```
  *
  * @since 0.0.0
  * @category validation

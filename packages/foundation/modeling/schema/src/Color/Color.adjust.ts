@@ -77,6 +77,14 @@ const withAlphaValue = ({ color, alpha }: WithAlphaInput): RgbaColorString => {
 /**
  * CSS rgba color string produced by with-alpha helpers.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { RgbaColorString } from "@beep/schema/Color"
+ *
+ * console.log(S.decodeUnknownSync(RgbaColorString)("rgba(255, 255, 255, 1)"))
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -97,6 +105,14 @@ export type RgbaColorString = typeof RgbaColorString.Type;
 
 /**
  * Shared finite amount used by color helper request schemas.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ColorAmount } from "@beep/schema/Color"
+ *
+ * console.log(S.decodeUnknownSync(ColorAmount)(0.25))
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -119,6 +135,15 @@ export type ColorAmount = typeof ColorAmount.Type;
 /**
  * Request schema for mixing two colors.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { MixColorsInput } from "@beep/schema/Color"
+ *
+ * const input = S.decodeUnknownSync(MixColorsInput)({ color1: "#000000", color2: "#ffffff", amount: 0.5 })
+ * console.log(input.amount)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -135,6 +160,15 @@ export class MixColorsInput extends S.Class<MixColorsInput>($I`MixColorsInput`)(
 
 /**
  * One-way schema for mixing two colors.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { MixColors } from "@beep/schema/Color"
+ *
+ * const color = S.decodeUnknownSync(MixColors)({ color1: "#000000", color2: "#ffffff", amount: 0.5 })
+ * console.log(color)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -160,6 +194,15 @@ export type MixColors = typeof MixColors.Type;
 /**
  * Request schema for lightening a color.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { LightenInput } from "@beep/schema/Color"
+ *
+ * const input = S.decodeUnknownSync(LightenInput)({ color: "#336699", amount: 0.1 })
+ * console.log(input.color)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -175,6 +218,15 @@ export class LightenInput extends S.Class<LightenInput>($I`LightenInput`)(
 
 /**
  * One-way schema for lightening a color.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Lighten } from "@beep/schema/Color"
+ *
+ * const color = S.decodeUnknownSync(Lighten)({ color: "#336699", amount: 0.1 })
+ * console.log(color)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -200,6 +252,15 @@ export type Lighten = typeof Lighten.Type;
 /**
  * Request schema for darkening a color.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { DarkenInput } from "@beep/schema/Color"
+ *
+ * const input = S.decodeUnknownSync(DarkenInput)({ color: "#336699", amount: 0.1 })
+ * console.log(input.amount)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -215,6 +276,15 @@ export class DarkenInput extends S.Class<DarkenInput>($I`DarkenInput`)(
 
 /**
  * One-way schema for darkening a color.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Darken } from "@beep/schema/Color"
+ *
+ * const color = S.decodeUnknownSync(Darken)({ color: "#336699", amount: 0.1 })
+ * console.log(color)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -240,6 +310,15 @@ export type Darken = typeof Darken.Type;
 /**
  * Request schema for converting a color plus alpha to an rgba string.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { WithAlphaInput } from "@beep/schema/Color"
+ *
+ * const input = S.decodeUnknownSync(WithAlphaInput)({ color: "#336699", alpha: 0.5 })
+ * console.log(input.alpha)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -255,6 +334,15 @@ export class WithAlphaInput extends S.Class<WithAlphaInput>($I`WithAlphaInput`)(
 
 /**
  * One-way schema for rendering an rgba string.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { WithAlpha } from "@beep/schema/Color"
+ *
+ * const rgba = S.decodeUnknownSync(WithAlpha)({ color: "#336699", alpha: 0.5 })
+ * console.log(rgba)
+ * ```
  *
  * @since 0.0.0
  * @category validation

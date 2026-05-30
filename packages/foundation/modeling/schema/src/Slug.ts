@@ -98,6 +98,15 @@ export type Slug = typeof Slug.Type;
 /**
  * Non-empty string schema used as the source input for {@link Slug}.
  *
+ * @example
+ * ```ts
+ * import { SlugFromStr } from "@beep/schema/Slug"
+ * import * as S from "effect/Schema"
+ *
+ * const input = S.decodeUnknownSync(SlugFromStr)("my-post")
+ * console.log(input)
+ * ```
+ *
  * @category constructors
  * @since 0.0.0
  */

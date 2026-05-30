@@ -24,7 +24,7 @@ const $I = $RepoUtilsId.create("errors/DomainError");
  * const error = DomainError.make({
  *   message: "Operation failed"
  * })
- * void error.message
+ * console.log(error.message)
  * ```
  * @category error-handling
  * @since 0.0.0

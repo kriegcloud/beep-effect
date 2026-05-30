@@ -127,7 +127,7 @@ const imageExtractFramesDirCommand = Command.make(
  * @example
  * ```ts
  * import { imageCommand } from "@beep/repo-cli"
- * void imageCommand
+ * console.log(imageCommand)
  * ```
  * @category use-cases
  * @since 0.0.0

@@ -49,6 +49,14 @@ const defaultOptions = TextDeltaBufferOptions.make({
 /**
  * Callback invoked whenever buffered text is flushed.
  *
+ * @example
+ * ```ts
+ * import type { TextDeltaFlush } from "@beep/sandbox/TextDeltaBuffer"
+ *
+ * const value = {} as TextDeltaFlush
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

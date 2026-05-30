@@ -26,7 +26,7 @@ const textDecoder = new TextDecoder();
  * ```typescript
  * import { OtlpPacketKind } from "@beep/observability/experimental/server"
  *
- * void OtlpPacketKind
+ * console.log(OtlpPacketKind)
  * ```
  *
  * @since 0.0.0
@@ -46,7 +46,7 @@ export const OtlpPacketKind = LiteralKit(["logs", "metrics", "traces"]).pipe(
  * import type { OtlpPacketKind } from "@beep/observability/experimental/server"
  *
  * const kind: OtlpPacketKind = "traces"
- * void kind
+ * console.log(kind)
  * ```
  *
  * @category models
@@ -61,7 +61,7 @@ export type OtlpPacketKind = typeof OtlpPacketKind.Type;
  * ```typescript
  * import { OtlpPacketEncoding } from "@beep/observability/experimental/server"
  *
- * void OtlpPacketEncoding
+ * console.log(OtlpPacketEncoding)
  * ```
  *
  * @since 0.0.0
@@ -81,7 +81,7 @@ export const OtlpPacketEncoding = LiteralKit(["json", "protobuf"]).pipe(
  * import type { OtlpPacketEncoding } from "@beep/observability/experimental/server"
  *
  * const encoding: OtlpPacketEncoding = "json"
- * void encoding
+ * console.log(encoding)
  * ```
  *
  * @category models
@@ -96,7 +96,7 @@ export type OtlpPacketEncoding = typeof OtlpPacketEncoding.Type;
  * ```typescript
  * import { OtlpPacket } from "@beep/observability/experimental/server"
  *
- * void OtlpPacket
+ * console.log(OtlpPacket)
  * ```
  *
  * @since 0.0.0
@@ -125,12 +125,11 @@ export class OtlpPacket extends S.Class<OtlpPacket>($I`OtlpPacket`)(
  * import { OtlpPacketLab } from "@beep/observability/experimental/server"
  *
  * const program = Effect.gen(function* () {
- *
- *
- *
+ *   const lab = yield* OtlpPacketLab
+ *   return yield* lab.snapshot
  * })
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -264,7 +263,7 @@ const makeLayer = (encoding: OtlpPacketEncoding, baseLayer: Layer.Layer<OtlpSeri
  * ```typescript
  * import { layerJson } from "@beep/observability/experimental/server"
  *
- * void layerJson
+ * console.log(layerJson)
  * ```
  *
  * @since 0.0.0
@@ -279,7 +278,7 @@ export const layerJson = makeLayer("json", OtlpSerialization.layerJson);
  * ```typescript
  * import { layerProtobuf } from "@beep/observability/experimental/server"
  *
- * void layerProtobuf
+ * console.log(layerProtobuf)
  * ```
  *
  * @since 0.0.0

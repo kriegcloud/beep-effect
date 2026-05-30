@@ -23,6 +23,7 @@ import type { DevToolsSpanFilter } from "./DevTools.ts";
  *
  * declare const config: ServerObservabilityConfig
  * const ObservabilityLive = layerLocalLgtmServer(config)
+ * console.log(ObservabilityLive)
  * ```
  *
  * @since 0.0.0

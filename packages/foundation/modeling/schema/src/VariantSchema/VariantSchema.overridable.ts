@@ -9,12 +9,34 @@ import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import type { Brand } from "effect/Brand";
 /**
+ * Marks a value as an explicit override for an overridable schema field.
+ *
+ * @example
+ * ```ts
+ * import * as VariantSchema from "@beep/schema/VariantSchema"
+ *
+ * const value = VariantSchema.Override("custom")
+ * console.log(value)
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
 export const Override = <A>(value: A): A & Brand<"Override"> => value as A & Brand<"Override">;
 
 /**
+ * Schema type for fields that receive an Effect-backed constructor default but
+ * can still be supplied explicitly as overrides.
+ *
+ * @example
+ * ```ts
+ * import type { Overridable } from "@beep/schema/VariantSchema"
+ * import * as S from "effect/Schema"
+ *
+ * declare const field: Overridable<typeof S.String>
+ * console.log(field.ast._tag)
+ * ```
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -38,6 +60,22 @@ export interface Overridable<S extends S.Top & S.WithoutConstructorDefault>
   > {}
 
 /**
+ * Adds an Effect-backed constructor default while preserving explicit override
+ * values.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import * as VariantSchema from "@beep/schema/VariantSchema"
+ *
+ * const field = VariantSchema.Overridable(S.String, {
+ *   defaultValue: Effect.succeed("generated")
+ * })
+ *
+ * console.log(field.ast._tag)
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -70,6 +108,15 @@ export const Overridable: {
  *
  * @example
  * ```ts
+ * import type { Overrideable } from "@beep/schema/VariantSchema"
+ * import * as S from "effect/Schema"
+ *
+ * declare const field: Overrideable<typeof S.String>
+ * console.log(field.ast._tag)
+ * ```
+ *
+ * @example
+ * ```ts
  * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
  * import * as VariantSchema from "@beep/schema/VariantSchema"
@@ -78,7 +125,7 @@ export const Overridable: {
  *   defaultValue: Effect.succeed("generated")
  * })
  *
- * void field
+ * console.log(field)
  * ```
  *
  * @since 0.0.0
@@ -88,6 +135,19 @@ export interface Overrideable<S extends S.Top & S.WithoutConstructorDefault> ext
 
 /**
  * Upstream-compatible alias for {@link Overridable}.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import * as VariantSchema from "@beep/schema/VariantSchema"
+ *
+ * const field = VariantSchema.Overrideable(S.String, {
+ *   defaultValue: Effect.succeed("generated")
+ * })
+ *
+ * console.log(field.ast._tag)
+ * ```
  *
  * @since 0.0.0
  * @category constructors

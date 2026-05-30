@@ -19,7 +19,7 @@ const $I = $RepoConfigsId.create("next/models/Routes.schema");
  * import * as S from "effect/Schema"
  * import { RouteHasType } from "@beep/repo-configs/next/models/Routes.schema"
  * const program = S.decodeUnknownEffect(RouteHasType)("header")
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -37,7 +37,7 @@ export const RouteHasType = LiteralKit(["header", "cookie", "query", "host"]).pi
  * ```ts
  * import type { RouteHasType } from "@beep/repo-configs/next/models/Routes.schema"
  * const type = "header" satisfies RouteHasType
- * void type
+ * console.log(type)
  * ```
  * @category models
  * @since 0.0.0
@@ -57,7 +57,7 @@ export type RouteHasType = typeof RouteHasType.Type;
  *   key: "x-beep",
  *   value: "1"
  * })
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -92,7 +92,7 @@ export const RouteHas = RouteHasType.toTaggedUnion("type")({
  * ```ts
  * import type { RouteHas } from "@beep/repo-configs/next/models/Routes.schema"
  * const predicate: RouteHas = { type: "host", value: "example.com" }
- * void predicate
+ * console.log(predicate)
  * ```
  * @category models
  * @since 0.0.0
@@ -210,7 +210,7 @@ class MiddlewareRoute extends S.Class<MiddlewareRoute>($I`Middleware`)(
  *   source: "/old",
  *   destination: "/new"
  * })
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -224,7 +224,7 @@ export const Rewrite = RewriteRoute;
  * ```ts
  * import type { Rewrite } from "@beep/repo-configs/next/models/Routes.schema"
  * const rewrite: Rewrite = { source: "/old", destination: "/new" }
- * void rewrite
+ * console.log(rewrite)
  * ```
  * @category models
  * @since 0.0.0
@@ -243,7 +243,7 @@ export type Rewrite = typeof Rewrite.Type;
  *   source: "/secure",
  *   headers: [{ key: "x-frame-options", value: "deny" }]
  * })
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -260,7 +260,7 @@ export const Header = HeaderRoute;
  *   source: "/secure",
  *   headers: [{ key: "x-frame-options", value: "deny" }]
  * }
- * void header
+ * console.log(header)
  * ```
  * @category models
  * @since 0.0.0
@@ -280,7 +280,7 @@ export type Header = typeof Header.Type;
  *   destination: "/new",
  *   permanent: true
  * })
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -303,7 +303,7 @@ export const Redirect = S.Union([RedirectPermanent, RedirectStatusCode]).pipe(
  *   destination: "/new",
  *   statusCode: 307
  * }
- * void redirect
+ * console.log(redirect)
  * ```
  * @category models
  * @since 0.0.0
@@ -322,7 +322,7 @@ export type Redirect = typeof Redirect.Type;
  *   source: "/admin/:path*",
  *   locale: false
  * })
- * void Effect.runPromise(program)
+ * console.log(Effect.runPromise(program))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -336,7 +336,7 @@ export const Middleware = MiddlewareRoute;
  * ```ts
  * import type { Middleware } from "@beep/repo-configs/next/models/Routes.schema"
  * const middleware: Middleware = { source: "/admin/:path*", locale: false }
- * void middleware
+ * console.log(middleware)
  * ```
  * @category models
  * @since 0.0.0

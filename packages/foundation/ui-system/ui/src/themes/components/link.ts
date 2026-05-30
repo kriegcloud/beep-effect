@@ -1,6 +1,15 @@
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Link theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { linkTheme } from "@beep/ui/themes/components/link"
+ *
+ * console.log(linkTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

@@ -2,6 +2,16 @@
   "$schema": "../../../../packages/tooling/tool/docgen/schema.json",
   "exclude": [
     "src/internal/**/*.ts",
+    "src/**/internal/**/*.ts",
+    "src/commands/CreatePackage/ConfigUpdater.ts",
+    "src/commands/CreatePackage/FileGenerationPlanService.ts",
+    "src/commands/CreatePackage/Handler.ts",
+    "src/commands/CreatePackage/TemplateService.ts",
+    "src/commands/CreatePackage/TsMorphIntegrationService.ts",
+    "src/commands/Image/Image.progress.ts",
+    "src/commands/Image/Image.render.ts",
+    "src/commands/Quality/Tasks.ts",
+    "src/commands/SyncDataToTs/targets/**/*.ts",
     "src/test/**/*.ts",
     "src/**/*.test.ts",
     "src/**/*.spec.ts"

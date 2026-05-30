@@ -23,6 +23,13 @@ const $I = $ArchitectureLabConfigId.create("WorkItemConfigLayer");
 /**
  * WorkItem configuration value.
  *
+ * @example
+ * ```ts
+ * import { WorkItemConfigValue } from "@beep/architecture-lab-config/aggregates/WorkItem"
+ *
+ * console.log(WorkItemConfigValue)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -41,6 +48,14 @@ export class WorkItemConfigValue extends S.Class<WorkItemConfigValue>($I`WorkIte
 /**
  * WorkItem configuration service contract.
  *
+ * @example
+ * ```ts
+ * import type { WorkItemConfigShape } from "@beep/architecture-lab-config/aggregates/WorkItem"
+ *
+ * const value = {} as WorkItemConfigShape
+ * console.log(value)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -48,6 +63,13 @@ export type WorkItemConfigShape = WorkItemConfigValue;
 
 /**
  * WorkItem configuration service.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemConfig } from "@beep/architecture-lab-config/aggregates/WorkItem"
+ *
+ * console.log(WorkItemConfig)
+ * ```
  *
  * @category layers
  * @since 0.0.0
@@ -81,6 +103,13 @@ const readWorkItemConfig = Effect.fn("ArchitectureLab.WorkItemConfig.read")(func
 /**
  * Test WorkItem configuration value.
  *
+ * @example
+ * ```ts
+ * import { testWorkItemConfig } from "@beep/architecture-lab-config/aggregates/WorkItem"
+ *
+ * console.log(testWorkItemConfig)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -93,6 +122,13 @@ export const testWorkItemConfig = WorkItemConfigValue.make({
 /**
  * Live WorkItem configuration layer.
  *
+ * @example
+ * ```ts
+ * import { ArchitectureLabConfigLive } from "@beep/architecture-lab-config/aggregates/WorkItem"
+ *
+ * console.log(ArchitectureLabConfigLive)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -100,6 +136,13 @@ export const ArchitectureLabConfigLive = Layer.effect(WorkItemConfig, readWorkIt
 
 /**
  * Test WorkItem configuration layer.
+ *
+ * @example
+ * ```ts
+ * import { ArchitectureLabConfigTest } from "@beep/architecture-lab-config/aggregates/WorkItem"
+ *
+ * console.log(ArchitectureLabConfigTest)
+ * ```
  *
  * @category layers
  * @since 0.0.0

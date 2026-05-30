@@ -15,6 +15,13 @@ const $I = $CanvasDomainId.create("aggregates/CanvasProject/CanvasProject.values
 /**
  * CanvasProject identity.
  *
+ * @example
+ * ```ts
+ * import { CanvasProjectId } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectId)
+ * ```
+ *
  * @category value-objects
  * @since 0.0.0
  */
@@ -38,6 +45,13 @@ export type CanvasProjectId = typeof CanvasProjectId.Type;
 /**
  * CanvasProject title.
  *
+ * @example
+ * ```ts
+ * import { CanvasProjectTitle } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectTitle)
+ * ```
+ *
  * @category value-objects
  * @since 0.0.0
  */
@@ -60,6 +74,13 @@ export type CanvasProjectTitle = typeof CanvasProjectTitle.Type;
 /**
  * CanvasProject lifecycle values.
  *
+ * @example
+ * ```ts
+ * import { CanvasProjectStatus } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasProjectStatus)
+ * ```
+ *
  * @category value-objects
  * @since 0.0.0
  */
@@ -80,6 +101,13 @@ export type CanvasProjectStatus = typeof CanvasProjectStatus.Type;
 
 /**
  * CanvasNode identity.
+ *
+ * @example
+ * ```ts
+ * import { CanvasNodeId } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasNodeId)
+ * ```
  *
  * @category value-objects
  * @since 0.0.0
@@ -104,6 +132,13 @@ export type CanvasNodeId = typeof CanvasNodeId.Type;
 /**
  * Bootstrap CanvasNode kinds.
  *
+ * @example
+ * ```ts
+ * import { CanvasNodeKind } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasNodeKind)
+ * ```
+ *
  * @category value-objects
  * @since 0.0.0
  */
@@ -124,6 +159,13 @@ export type CanvasNodeKind = typeof CanvasNodeKind.Type;
 
 /**
  * CanvasNode label.
+ *
+ * @example
+ * ```ts
+ * import { CanvasNodeLabel } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(CanvasNodeLabel)
+ * ```
  *
  * @category value-objects
  * @since 0.0.0

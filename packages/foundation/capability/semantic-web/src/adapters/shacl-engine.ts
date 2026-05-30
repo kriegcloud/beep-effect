@@ -40,7 +40,7 @@ const makeViolation = (
  * ```ts
  * import { BoundedShaclValidationServiceLive } from "@beep/semantic-web/adapters/shacl-engine"
  *
- * void BoundedShaclValidationServiceLive
+ * console.log(BoundedShaclValidationServiceLive)
  * ```
  *
  * @since 0.0.0
@@ -165,7 +165,7 @@ export const BoundedShaclValidationServiceLive = Layer.succeed(
  * ```ts
  * import { ShaclValidationServiceLive } from "@beep/semantic-web/adapters/shacl-engine"
  *
- * void ShaclValidationServiceLive
+ * console.log(ShaclValidationServiceLive)
  * ```
  *
  * @since 0.0.0

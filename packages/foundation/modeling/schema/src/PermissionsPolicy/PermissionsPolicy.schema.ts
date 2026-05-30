@@ -52,6 +52,16 @@ const PermissionsPolicyDirectiveBase = LiteralKit([
 ]);
 
 /**
+ * Schema for supported `Permissions-Policy` directive names.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermissionsPolicyDirective } from "@beep/schema/PermissionsPolicy"
+ *
+ * console.log(S.is(PermissionsPolicyDirective)("camera")) // true
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -63,12 +73,24 @@ export const PermissionsPolicyDirective = PermissionsPolicyDirectiveBase.pipe(
 );
 
 /**
+ * Type for supported `Permissions-Policy` directive names.
+ *
  * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyDirective = typeof PermissionsPolicyDirective.Type;
 
 /**
+ * Schema for record keys accepted by `PermissionsPolicyDirectives`.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermissionsPolicyDirectiveKey } from "@beep/schema/PermissionsPolicy"
+ *
+ * console.log(S.decodeUnknownSync(PermissionsPolicyDirectiveKey)("fullscreen"))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -86,12 +108,24 @@ export const PermissionsPolicyDirectiveKey = S.String.check(
 );
 
 /**
+ * Type for record keys accepted by `PermissionsPolicyDirectives`.
+ *
  * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyDirectiveKey = typeof PermissionsPolicyDirectiveKey.Type;
 
 /**
+ * Schema for quoted origin values in directive allowlists.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { QuotedOrigin } from "@beep/schema/PermissionsPolicy"
+ *
+ * console.log(S.decodeUnknownSync(QuotedOrigin)("\"https://example.com\""))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -108,6 +142,8 @@ export const QuotedOrigin = S.String.check(
 );
 
 /**
+ * Type for quoted origin values in directive allowlists.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -116,6 +152,16 @@ export type QuotedOrigin = typeof QuotedOrigin.Type;
 const PermissionsPolicyDirectiveValueSingleBase = LiteralKit(["*", "self", "none"]);
 
 /**
+ * Schema for single-token directive allowlist values.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermissionsPolicyDirectiveValueSingle } from "@beep/schema/PermissionsPolicy"
+ *
+ * console.log(S.is(PermissionsPolicyDirectiveValueSingle)("self")) // true
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -127,12 +173,24 @@ export const PermissionsPolicyDirectiveValueSingle = PermissionsPolicyDirectiveV
 );
 
 /**
+ * Type for single-token directive allowlist values.
+ *
  * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyDirectiveValueSingle = typeof PermissionsPolicyDirectiveValueSingle.Type;
 
 /**
+ * Schema for origins accepted inside list-valued directives.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermissionsPolicyAllowlistedOrigin } from "@beep/schema/PermissionsPolicy"
+ *
+ * console.log(S.decodeUnknownSync(PermissionsPolicyAllowlistedOrigin)("self"))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -143,12 +201,24 @@ export const PermissionsPolicyAllowlistedOrigin = S.Union([S.Literal("self"), Qu
 );
 
 /**
+ * Type for origins accepted inside list-valued directives.
+ *
  * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyAllowlistedOrigin = typeof PermissionsPolicyAllowlistedOrigin.Type;
 
 /**
+ * Schema for any directive value accepted by `Permissions-Policy`.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermissionsPolicyDirectiveValue } from "@beep/schema/PermissionsPolicy"
+ *
+ * console.log(S.decodeUnknownSync(PermissionsPolicyDirectiveValue)(["self"]))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -163,12 +233,25 @@ export const PermissionsPolicyDirectiveValue = S.Union([
 );
 
 /**
+ * Type for any directive value accepted by `Permissions-Policy`.
+ *
  * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyDirectiveValue = typeof PermissionsPolicyDirectiveValue.Type;
 
 /**
+ * Schema for a directive map used to build the header value.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermissionsPolicyDirectives } from "@beep/schema/PermissionsPolicy"
+ *
+ * const directives = S.decodeUnknownSync(PermissionsPolicyDirectives)({ camera: "none" })
+ * console.log(directives.camera)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -182,12 +265,24 @@ export const PermissionsPolicyDirectives = S.Record(
 );
 
 /**
+ * Type for a directive map used to build the header value.
+ *
  * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyDirectives = typeof PermissionsPolicyDirectives.Type;
 
 /**
+ * Structured configuration for the `Permissions-Policy` header.
+ *
+ * @example
+ * ```ts
+ * import { PermissionsPolicyOptionStruct } from "@beep/schema/PermissionsPolicy"
+ *
+ * const option = PermissionsPolicyOptionStruct.make({ directives: { camera: "none" } })
+ * console.log(option.directives.camera)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -203,6 +298,16 @@ export class PermissionsPolicyOptionStruct extends S.Class<PermissionsPolicyOpti
 ) {}
 
 /**
+ * Schema for enabled or disabled `Permissions-Policy` configuration.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermissionsPolicyOption } from "@beep/schema/PermissionsPolicy"
+ *
+ * console.log(S.decodeUnknownSync(PermissionsPolicyOption)(false))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -213,12 +318,25 @@ export const PermissionsPolicyOption = S.Union([S.Literal(false), PermissionsPol
 );
 
 /**
+ * Type for enabled or disabled `Permissions-Policy` configuration.
+ *
  * @category models
  * @since 0.0.0
  */
 export type PermissionsPolicyOption = typeof PermissionsPolicyOption.Type;
 
 /**
+ * Model for the rendered `Permissions-Policy` response header.
+ *
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { PermissionsPolicyResponseHeader } from "@beep/schema/PermissionsPolicy"
+ *
+ * const header = PermissionsPolicyResponseHeader.make({ name: "Permissions-Policy", value: O.some("camera=()") })
+ * console.log(header.name)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -267,6 +385,17 @@ const buildHeaderValue = (directives: PermissionsPolicyDirectives): O.Option<str
   );
 
 /**
+ * Schema that renders options into a `Permissions-Policy` response header.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PermissionsPolicyHeader } from "@beep/schema/PermissionsPolicy"
+ *
+ * const header = S.decodeUnknownSync(PermissionsPolicyHeader)({ directives: { camera: "none" } })
+ * console.log(header.value)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -328,6 +457,8 @@ export const PermissionsPolicyHeader = S.Union([PermissionsPolicyOption, S.Undef
 );
 
 /**
+ * Type for rendered `Permissions-Policy` response headers.
+ *
  * @category models
  * @since 0.0.0
  */

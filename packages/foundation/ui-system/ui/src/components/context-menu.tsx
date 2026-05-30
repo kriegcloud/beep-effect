@@ -6,6 +6,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Context menu component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenu } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenu)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -14,6 +23,15 @@ function ContextMenu({ ...props }: ContextMenuPrimitive.Root.Props) {
 }
 
 /**
+ * Context menu portal component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuPortal } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuPortal)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -22,6 +40,15 @@ function ContextMenuPortal({ ...props }: ContextMenuPrimitive.Portal.Props) {
 }
 
 /**
+ * Context menu trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuTrigger } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -36,6 +63,15 @@ function ContextMenuTrigger({ className, ...props }: ContextMenuPrimitive.Trigge
 }
 
 /**
+ * Context menu content component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuContent } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -71,6 +107,15 @@ function ContextMenuContent({
 }
 
 /**
+ * Context menu group component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuGroup } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -79,6 +124,15 @@ function ContextMenuGroup({ ...props }: ContextMenuPrimitive.Group.Props) {
 }
 
 /**
+ * Context menu label component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuLabel } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuLabel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -100,6 +154,15 @@ function ContextMenuLabel({
 }
 
 /**
+ * Context menu item component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuItem } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -127,6 +190,15 @@ function ContextMenuItem({
 }
 
 /**
+ * Context menu sub component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuSub } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuSub)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -135,6 +207,15 @@ function ContextMenuSub({ ...props }: ContextMenuPrimitive.SubmenuRoot.Props) {
 }
 
 /**
+ * Context menu sub trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuSubTrigger } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuSubTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -163,6 +244,15 @@ function ContextMenuSubTrigger({
 }
 
 /**
+ * Context menu sub content component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuSubContent } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuSubContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -171,6 +261,15 @@ function ContextMenuSubContent({ ...props }: React.ComponentProps<typeof Context
 }
 
 /**
+ * Context menu checkbox item component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuCheckboxItem } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuCheckboxItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -196,6 +295,15 @@ function ContextMenuCheckboxItem({ className, children, checked, ...props }: Con
 }
 
 /**
+ * Context menu radio group component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuRadioGroup } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuRadioGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -204,6 +312,15 @@ function ContextMenuRadioGroup({ ...props }: ContextMenuPrimitive.RadioGroup.Pro
 }
 
 /**
+ * Context menu radio item component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuRadioItem } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuRadioItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -228,6 +345,15 @@ function ContextMenuRadioItem({ className, children, ...props }: ContextMenuPrim
 }
 
 /**
+ * Context menu separator component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuSeparator } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -242,6 +368,15 @@ function ContextMenuSeparator({ className, ...props }: ContextMenuPrimitive.Sepa
 }
 
 /**
+ * Context menu shortcut component.
+ *
+ * @example
+ * ```tsx
+ * import { ContextMenuShortcut } from "@beep/ui/components/context-menu"
+ *
+ * console.log(ContextMenuShortcut)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

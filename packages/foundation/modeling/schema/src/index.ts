@@ -8,6 +8,15 @@
 export * from "./Number.ts";
 
 /**
+ * Package version.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/schema"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */

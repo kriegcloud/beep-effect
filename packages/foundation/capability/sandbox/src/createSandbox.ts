@@ -20,6 +20,14 @@ const $I = $SandboxId.create("createSandbox");
 /**
  * Options for creating a sandbox handle directly.
  *
+ * @example
+ * ```ts
+ * import type { CreateSandboxOptions } from "@beep/sandbox/createSandbox"
+ *
+ * const value = {} as CreateSandboxOptions
+ * console.log(value)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -33,6 +41,13 @@ export interface CreateSandboxOptions<R = never> {
 
 /**
  * Result of direct sandbox creation.
+ *
+ * @example
+ * ```ts
+ * import { CreateSandboxResult } from "@beep/sandbox/createSandbox"
+ *
+ * console.log(CreateSandboxResult)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -49,6 +64,13 @@ export class CreateSandboxResult extends S.Class<CreateSandboxResult>($I`CreateS
 
 /**
  * Create a sandbox handle from a provider.
+ *
+ * @example
+ * ```ts
+ * import { createSandbox } from "@beep/sandbox/createSandbox"
+ *
+ * console.log(createSandbox)
+ * ```
  *
  * @category constructors
  * @since 0.0.0

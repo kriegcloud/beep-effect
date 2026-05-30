@@ -56,7 +56,7 @@ const decodeUnknownRecordOption = S.decodeUnknownOption(S.Record(S.String, S.Unk
  *   temperature: 0.2
  * }
  *
- * void config
+ * console.log(config)
  * ```
  *
  * @category models
@@ -93,7 +93,7 @@ export class OpenAiCompatLanguageModelConfig extends S.Class<OpenAiCompatLanguag
  *   streamChatCompletion: () => Stream.empty
  * }
  *
- * void provider
+ * console.log(provider)
  * ```
  *
  * @category models
@@ -120,7 +120,7 @@ export type OpenAiCompatProvider = OpenAiCompatClientShape;
  *   provider
  * }
  *
- * void options
+ * console.log(options)
  * ```
  *
  * @category models
@@ -143,7 +143,7 @@ export type OpenAiCompatLanguageModelOptions = OpenAiCompatLanguageModelClientOp
  *   model: "gpt-compatible"
  * }
  *
- * void options
+ * console.log(options)
  * ```
  *
  * @category models
@@ -840,7 +840,7 @@ const makeStreamResponse = (
  *   }
  * })
  *
- * void model
+ * console.log(model)
  * ```
  *
  * @category constructors
@@ -888,7 +888,7 @@ export const makeFromProvider: (options: OpenAiCompatLanguageModelOptions) => Ef
  *   }
  * })
  *
- * void layer
+ * console.log(layer)
  * ```
  *
  * @category layers
@@ -907,7 +907,7 @@ export const layerFromProvider = (
  *
  * const model = make({ model: "gpt-compatible" })
  *
- * void model
+ * console.log(model)
  * ```
  *
  * @category constructors
@@ -939,7 +939,7 @@ export const make: (
  *
  * const modelLayer = layer({ model: "gpt-compatible" })
  *
- * void modelLayer
+ * console.log(modelLayer)
  * ```
  *
  * @category layers
@@ -959,7 +959,7 @@ export const layer = (
  *
  * const aiModel = model("gpt-compatible")
  *
- * void aiModel
+ * console.log(aiModel)
  * ```
  *
  * @category constructors

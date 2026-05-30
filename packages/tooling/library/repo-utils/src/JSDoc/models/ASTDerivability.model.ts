@@ -22,7 +22,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/ASTDerivability.model");
  * ```ts
  * import { ASTDerivability } from "@beep/repo-utils/JSDoc/models/ASTDerivability.model"
  *
- * void ASTDerivability
+ * console.log(ASTDerivability)
  * ```
  * @category models
  * @since 0.0.0
@@ -44,7 +44,7 @@ export const ASTDerivability = LiteralKit(["full", "partial", "none"]).pipe(
  *
  * type Example = ASTDerivability
  * const accept = <A extends Example>(value: A): A => value
- * void accept
+ * console.log(accept)
  * ```
  * @category models
  * @since 0.0.0

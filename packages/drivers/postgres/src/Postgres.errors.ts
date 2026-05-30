@@ -30,7 +30,7 @@ const REDACTED_SQL_PARAMETER = "<redacted>";
  *   sqlStateName: "UNIQUE_VIOLATION"
  * })
  *
- * void context
+ * console.log(context)
  * ```
  *
  * @category errors
@@ -293,7 +293,7 @@ const optionFromSafeDefect = (value: unknown): O.Option<unknown> =>
  * import { PostgresError } from "@beep/postgres"
  *
  * const error = PostgresError.fromUnknown("connect", new Error("boom"))
- * void error
+ * console.log(error)
  * ```
  *
  * @category errors
@@ -331,7 +331,7 @@ export class PostgresError extends TaggedErrorClass<PostgresError>($I`PostgresEr
    * import { PostgresError } from "@beep/postgres"
    *
    * const error = PostgresError.fromUnknown("query", new Error("failed"))
-   * void error.operation
+   * console.log(error.operation)
    * ```
    *
    * @category errors
@@ -387,7 +387,7 @@ export class PostgresError extends TaggedErrorClass<PostgresError>($I`PostgresEr
  * import { extractPostgresDiagnostics } from "@beep/postgres"
  *
  * const diagnostics = extractPostgresDiagnostics(new Error("failed"))
- * void diagnostics
+ * console.log(diagnostics)
  * ```
  *
  * @category error-handling

@@ -51,7 +51,7 @@ export const Text = S.TaggedStruct("text", {
  * import type { Text } from "@beep/md/Md.model"
  *
  * const accept = (node: Text) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -89,7 +89,7 @@ export const RawMarkdown = S.TaggedStruct("rawMarkdown", {
  * import type { RawMarkdown } from "@beep/md/Md.model"
  *
  * const accept = (node: RawMarkdown) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -130,7 +130,7 @@ export const RawHtml = S.TaggedStruct("rawHtml", {
  * import type { RawHtml } from "@beep/md/Md.model"
  *
  * const accept = (node: RawHtml) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -168,7 +168,7 @@ export const Strong: S.Codec<Strong> = S.TaggedStruct("strong", {
  * import type { Strong } from "@beep/md/Md.model"
  *
  * const accept = (node: Strong) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -209,7 +209,7 @@ export const Em: S.Codec<Em> = S.TaggedStruct("em", {
  * import type { Em } from "@beep/md/Md.model"
  *
  * const accept = (node: Em) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -250,7 +250,7 @@ export const Del: S.Codec<Del> = S.TaggedStruct("del", {
  * import type { Del } from "@beep/md/Md.model"
  *
  * const accept = (node: Del) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -291,7 +291,7 @@ export const Code = S.TaggedStruct("code", {
  * import type { Code } from "@beep/md/Md.model"
  *
  * const accept = (node: Code) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -330,7 +330,7 @@ export const A: S.Codec<A> = S.TaggedStruct("a", {
  * import type { A } from "@beep/md/Md.model"
  *
  * const accept = (node: A) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -373,7 +373,7 @@ export const Img = S.TaggedStruct("img", {
  * import type { Img } from "@beep/md/Md.model"
  *
  * const accept = (node: Img) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -409,7 +409,7 @@ export const Br = S.TaggedStruct("br", {}).pipe(
  * import type { Br } from "@beep/md/Md.model"
  *
  * const accept = (node: Br) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -447,7 +447,7 @@ export const Inline: S.Codec<Inline> = S.Union([Text, RawMarkdown, RawHtml, Stro
  * import type { Inline } from "@beep/md/Md.model"
  *
  * const accept = (node: Inline) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -485,7 +485,7 @@ export const P: S.Codec<P> = S.TaggedStruct("p", {
  * import type { P } from "@beep/md/Md.model"
  *
  * const accept = (node: P) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -529,7 +529,7 @@ export const H1: S.Codec<H1> = makeHeadingSchema("h1").pipe(
  * import type { H1 } from "@beep/md/Md.model"
  *
  * const accept = (node: H1) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -568,7 +568,7 @@ export const H2: S.Codec<H2> = makeHeadingSchema("h2").pipe(
  * import type { H2 } from "@beep/md/Md.model"
  *
  * const accept = (node: H2) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -607,7 +607,7 @@ export const H3: S.Codec<H3> = makeHeadingSchema("h3").pipe(
  * import type { H3 } from "@beep/md/Md.model"
  *
  * const accept = (node: H3) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -646,7 +646,7 @@ export const H4: S.Codec<H4> = makeHeadingSchema("h4").pipe(
  * import type { H4 } from "@beep/md/Md.model"
  *
  * const accept = (node: H4) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -685,7 +685,7 @@ export const H5: S.Codec<H5> = makeHeadingSchema("h5").pipe(
  * import type { H5 } from "@beep/md/Md.model"
  *
  * const accept = (node: H5) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -724,7 +724,7 @@ export const H6: S.Codec<H6> = makeHeadingSchema("h6").pipe(
  * import type { H6 } from "@beep/md/Md.model"
  *
  * const accept = (node: H6) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -765,7 +765,7 @@ export const Li: S.Codec<Li> = S.TaggedStruct("li", {
  * import type { Li } from "@beep/md/Md.model"
  *
  * const accept = (node: Li) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -812,7 +812,7 @@ export const Ul: S.Codec<Ul> = S.TaggedStruct("ul", {
  * import type { Ul } from "@beep/md/Md.model"
  *
  * const accept = (node: Ul) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -853,7 +853,7 @@ export const Ol: S.Codec<Ol> = S.TaggedStruct("ol", {
  * import type { Ol } from "@beep/md/Md.model"
  *
  * const accept = (node: Ol) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -895,7 +895,7 @@ export const TaskItem: S.Codec<TaskItem> = S.TaggedStruct("taskItem", {
  * import type { TaskItem } from "@beep/md/Md.model"
  *
  * const accept = (node: TaskItem) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -937,7 +937,7 @@ export const TaskList: S.Codec<TaskList> = S.TaggedStruct("taskList", {
  * import type { TaskList } from "@beep/md/Md.model"
  *
  * const accept = (node: TaskList) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -978,7 +978,7 @@ export const BlockQuote: S.Codec<BlockQuote> = S.TaggedStruct("blockquote", {
  * import type { BlockQuote } from "@beep/md/Md.model"
  *
  * const accept = (node: BlockQuote) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -1021,7 +1021,7 @@ export const Pre = S.TaggedStruct("pre", {
  * import type { Pre } from "@beep/md/Md.model"
  *
  * const accept = (node: Pre) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -1057,7 +1057,7 @@ export const Hr = S.TaggedStruct("hr", {}).pipe(
  * import type { Hr } from "@beep/md/Md.model"
  *
  * const accept = (node: Hr) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -1110,7 +1110,7 @@ export const Block: S.Codec<Block> = S.Union([
  * import type { Block } from "@beep/md/Md.model"
  *
  * const accept = (node: Block) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models
@@ -1148,7 +1148,7 @@ export const Document: S.Codec<Document> = S.TaggedStruct("document", {
  * import type { Document } from "@beep/md/Md.model"
  *
  * const accept = (node: Document) => node
- * void accept
+ * console.log(accept)
  * ```
  *
  * @category models

@@ -29,6 +29,15 @@ const isValidWindowsUncSegments = S.is(ValidWindowsUncSegments);
 /**
  * Branded schema for Windows drive paths with a leaf segment.
  *
+ * @example
+ * ```ts
+ * import { WindowsDrivePath } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const path = S.decodeUnknownSync(WindowsDrivePath)("C:\\Users\\Ada")
+ * console.log(path)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -84,6 +93,15 @@ export type WindowsDrivePath = typeof WindowsDrivePath.Type;
 /**
  * Branded schema for Windows UNC file paths with server, share, and leaf
  * segments.
+ *
+ * @example
+ * ```ts
+ * import { WindowsUncPath } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const path = S.decodeUnknownSync(WindowsUncPath)("\\\\server\\share\\folder")
+ * console.log(path)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -146,6 +164,15 @@ export type WindowsUncPath = typeof WindowsUncPath.Type;
 /**
  * Branded schema for Windows relative paths that use backslash separators and
  * include a leaf segment.
+ *
+ * @example
+ * ```ts
+ * import { WindowsRelativePath } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const path = S.decodeUnknownSync(WindowsRelativePath)("Users\\Ada")
+ * console.log(path)
+ * ```
  *
  * @since 0.0.0
  * @category validation

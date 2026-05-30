@@ -2,6 +2,15 @@ import type {} from "@mui/x-tree-view/themeAugmentation";
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Tree view theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { treeViewTheme } from "@beep/ui/themes/components/tree-view"
+ *
+ * console.log(treeViewTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

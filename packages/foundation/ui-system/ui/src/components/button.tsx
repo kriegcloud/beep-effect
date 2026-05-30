@@ -5,6 +5,15 @@ import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
 
 /**
+ * Button variants component.
+ *
+ * @example
+ * ```tsx
+ * import { buttonVariants } from "@beep/ui/components/button"
+ *
+ * console.log(buttonVariants)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -44,6 +53,15 @@ const buttonVariants = cva(
 );
 
 /**
+ * Button component.
+ *
+ * @example
+ * ```tsx
+ * import { Button } from "@beep/ui/components/button"
+ *
+ * console.log(Button)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

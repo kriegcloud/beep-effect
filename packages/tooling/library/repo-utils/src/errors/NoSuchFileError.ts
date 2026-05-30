@@ -24,7 +24,7 @@ const $I = $RepoUtilsId.create("errors/NoSuchFileError");
  *   message: "Path does not exist",
  *   path: "/missing"
  * })
- * void error.path
+ * console.log(error.path)
  * ```
  * @category error-handling
  * @since 0.0.0

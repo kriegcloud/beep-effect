@@ -67,7 +67,7 @@ export const isEffect = Effect.isEffect;
  * const program = Effect.succeed("done")
  * const decoded = S.decodeUnknownSync(EffectSchema)(program)
  *
- * void decoded
+ * console.log(decoded)
  * ```
  *
  * @category validation
@@ -89,7 +89,7 @@ export const EffectSchema = S.declare<Effect.Effect<unknown, unknown, unknown>>(
  *
  * const program: EffectSchema = Effect.succeed("done")
  *
- * void program
+ * console.log(program)
  * ```
  *
  * @category models

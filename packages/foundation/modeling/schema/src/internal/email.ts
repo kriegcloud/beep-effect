@@ -22,7 +22,7 @@ const $I = $SchemaId.create("Email");
  *
  * const matchesEmail = emailRegex.test("admin@example.com")
  *
- * void matchesEmail
+ * console.log(matchesEmail)
  * ```
  *
  * @category utilities
@@ -65,7 +65,7 @@ const EmailBranded = NormalizedString.check(emailChecks).pipe(S.brand("Email"));
  * const decode = S.decodeUnknownSync(Email)
  * const email = decode("admin@example.com")
  *
- * void email
+ * console.log(email)
  * ```
  *
  * @category constructors
@@ -86,7 +86,7 @@ export const Email = S.RedactedFromValue(EmailBranded, { label: "Email" }).pipe(
  * const decode = S.decodeUnknownSync(Email)
  * const email: EmailValue = decode("admin@example.com")
  *
- * void email
+ * console.log(email)
  * ```
  *
  * @category models

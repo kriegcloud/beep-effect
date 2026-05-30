@@ -92,8 +92,9 @@ const decodeJsonlUnknown = Effect.fn("Jsonl.decodeJsonlUnknown")(function* (cont
  * import * as S from "effect/Schema"
  * import { JsonlTextToUnknown } from "@beep/schema/Jsonl"
  *
- * const program = Effect.gen(function* () {})
- * void program
+ * const program = S.decodeUnknownEffect(JsonlTextToUnknown)('{"a":1}\n')
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @category validation
@@ -122,8 +123,9 @@ export const JsonlTextToUnknown = S.String.pipe(
  * const Row = S.Struct({ a: S.Number })
  * const decodeRows = decodeJsonlTextAs(S.Array(Row))
  *
- * const program = Effect.gen(function* () {})
- * void program
+ * const program = decodeRows('{"a":1}\n')
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @param schema - Target schema to decode the parsed JSONL value array into.

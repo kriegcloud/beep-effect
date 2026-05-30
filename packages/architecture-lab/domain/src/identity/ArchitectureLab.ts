@@ -15,6 +15,13 @@ const make = EntityId.factory("architecture_lab", $I);
 /**
  * Architecture lab Worker entity identifier.
  *
+ * @example
+ * ```ts
+ * import { WorkerId } from "@beep/architecture-lab-domain/identity/ArchitectureLab"
+ *
+ * console.log(WorkerId)
+ * ```
+ *
  * @category entity-ids
  * @since 0.0.0
  */

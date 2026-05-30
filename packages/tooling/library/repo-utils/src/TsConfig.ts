@@ -36,12 +36,8 @@ const ROOT_KEY = "@beep/root";
  * import { Effect } from "effect"
  * import { collectTsConfigPaths } from "@beep/repo-utils/TsConfig"
  *
- * const program = Effect.gen(function*() {
- *
- *
- *
- * })
- * void program
+ * const program = collectTsConfigPaths(".")
+ * console.log(program)
  * ```
  * @category utilities
  * @since 0.0.0

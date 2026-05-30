@@ -26,6 +26,13 @@ const SHELL_BLOCK_PATTERN = /!`([^`]+)`/gu;
 /**
  * Marker inserted before literal shell blocks in prompt templates.
  *
+ * @example
+ * ```ts
+ * import { SHELL_BLOCK_MARKER } from "@beep/sandbox/Prompt"
+ *
+ * console.log(SHELL_BLOCK_MARKER)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -36,6 +43,13 @@ const DEFAULT_PROMPT_EXPANSION_TIMEOUT = Duration.millis(30_000);
 /**
  * Built-in prompt argument keys injected by run orchestration.
  *
+ * @example
+ * ```ts
+ * import { BUILT_IN_PROMPT_ARG_KEYS } from "@beep/sandbox/Prompt"
+ *
+ * console.log(BUILT_IN_PROMPT_ARG_KEYS)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -44,6 +58,13 @@ export const BUILT_IN_PROMPT_ARG_KEYS = ["SOURCE_BRANCH", "TARGET_BRANCH"] as co
 /**
  * Built-in prompt argument keys as a `HashSet` for membership checks.
  *
+ * @example
+ * ```ts
+ * import { BUILT_IN_PROMPT_ARG_KEY_SET } from "@beep/sandbox/Prompt"
+ *
+ * console.log(BUILT_IN_PROMPT_ARG_KEY_SET)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -51,6 +72,13 @@ export const BUILT_IN_PROMPT_ARG_KEY_SET: HashSet.HashSet<string> = HashSet.from
 
 /**
  * Built-in prompt argument key domain.
+ *
+ * @example
+ * ```ts
+ * import { BuiltInPromptArgKey } from "@beep/sandbox/Prompt"
+ *
+ * console.log(BuiltInPromptArgKey)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -72,6 +100,13 @@ export type BuiltInPromptArgKey = typeof BuiltInPromptArgKey.Type;
 /**
  * Primitive prompt argument value.
  *
+ * @example
+ * ```ts
+ * import { PromptArgValue } from "@beep/sandbox/Prompt"
+ *
+ * console.log(PromptArgValue)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -91,6 +126,13 @@ export type PromptArgValue = typeof PromptArgValue.Type;
 
 /**
  * Prompt argument map.
+ *
+ * @example
+ * ```ts
+ * import { PromptArgs } from "@beep/sandbox/Prompt"
+ *
+ * console.log(PromptArgs)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -114,6 +156,13 @@ const promptArgValueToText = (value: PromptArgValue): string => value.toString()
 /**
  * Prompt source discriminator.
  *
+ * @example
+ * ```ts
+ * import { PromptSource } from "@beep/sandbox/Prompt"
+ *
+ * console.log(PromptSource)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -134,6 +183,13 @@ export type PromptSource = typeof PromptSource.Type;
 /**
  * Options for resolving a prompt.
  *
+ * @example
+ * ```ts
+ * import { ResolvePromptOptions } from "@beep/sandbox/Prompt"
+ *
+ * console.log(ResolvePromptOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -150,6 +206,13 @@ export class ResolvePromptOptions extends S.Class<ResolvePromptOptions>($I`Resol
 /**
  * Resolved prompt text and source.
  *
+ * @example
+ * ```ts
+ * import { ResolvedPrompt } from "@beep/sandbox/Prompt"
+ *
+ * console.log(ResolvedPrompt)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -165,6 +228,13 @@ export class ResolvedPrompt extends S.Class<ResolvedPrompt>($I`ResolvedPrompt`)(
 
 /**
  * Options for expanding prompt shell expressions.
+ *
+ * @example
+ * ```ts
+ * import { ExpandPromptShellExpressionsOptions } from "@beep/sandbox/Prompt"
+ *
+ * console.log(ExpandPromptShellExpressionsOptions)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -184,6 +254,13 @@ export class ExpandPromptShellExpressionsOptions extends S.Class<ExpandPromptShe
 
 /**
  * Resolve an inline prompt or prompt file.
+ *
+ * @example
+ * ```ts
+ * import { resolvePrompt } from "@beep/sandbox/Prompt"
+ *
+ * console.log(resolvePrompt)
+ * ```
  *
  * @category combinators
  * @since 0.0.0
@@ -212,6 +289,13 @@ export const resolvePrompt = Effect.fn("Prompt.resolvePrompt")(function* (option
 /**
  * Fail when prompt arguments are provided with an inline prompt.
  *
+ * @example
+ * ```ts
+ * import { validateNoArgsWithInlinePrompt } from "@beep/sandbox/Prompt"
+ *
+ * console.log(validateNoArgsWithInlinePrompt)
+ * ```
+ *
  * @category combinators
  * @since 0.0.0
  */
@@ -231,6 +315,13 @@ export const validateNoArgsWithInlinePrompt = Effect.fn("Prompt.validateNoArgsWi
 /**
  * Fail when callers override built-in prompt arguments.
  *
+ * @example
+ * ```ts
+ * import { validateNoBuiltInArgOverride } from "@beep/sandbox/Prompt"
+ *
+ * console.log(validateNoBuiltInArgOverride)
+ * ```
+ *
  * @category combinators
  * @since 0.0.0
  */
@@ -249,6 +340,13 @@ export const validateNoBuiltInArgOverride = Effect.fn("Prompt.validateNoBuiltInA
 
 /**
  * Find placeholders that are missing corresponding prompt arguments.
+ *
+ * @example
+ * ```ts
+ * import { findMissingPromptArgKeys } from "@beep/sandbox/Prompt"
+ *
+ * console.log(findMissingPromptArgKeys)
+ * ```
  *
  * @category getters
  * @since 0.0.0
@@ -281,6 +379,13 @@ export const findMissingPromptArgKeys: {
 
 /**
  * Substitute `{{KEY}}` prompt arguments in a prompt template.
+ *
+ * @example
+ * ```ts
+ * import { substitutePromptArgs } from "@beep/sandbox/Prompt"
+ *
+ * console.log(substitutePromptArgs)
+ * ```
  *
  * @category combinators
  * @since 0.0.0
@@ -330,6 +435,13 @@ export const substitutePromptArgs = Effect.fn("Prompt.substitutePromptArgs")(fun
 
 /**
  * Normalize marked shell prompt expressions without executing repository-controlled commands.
+ *
+ * @example
+ * ```ts
+ * import { expandPromptShellExpressions } from "@beep/sandbox/Prompt"
+ *
+ * console.log(expandPromptShellExpressions)
+ * ```
  *
  * @category combinators
  * @since 0.0.0

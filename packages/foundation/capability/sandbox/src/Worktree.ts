@@ -30,6 +30,13 @@ const formatTimestamp = (dateTime: DateTime.DateTime): string => {
 /**
  * Information about a created git worktree.
  *
+ * @example
+ * ```ts
+ * import { WorktreeInfo } from "@beep/sandbox/Worktree"
+ *
+ * console.log(WorktreeInfo)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -45,6 +52,13 @@ export class WorktreeInfo extends S.Class<WorktreeInfo>($I`WorktreeInfo`)(
 
 /**
  * Options for creating a managed git worktree.
+ *
+ * @example
+ * ```ts
+ * import { CreateWorktreeInfoOptions } from "@beep/sandbox/Worktree"
+ *
+ * console.log(CreateWorktreeInfoOptions)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -64,6 +78,13 @@ export class CreateWorktreeInfoOptions extends S.Class<CreateWorktreeInfoOptions
 /**
  * Sanitize text for branch and directory names.
  *
+ * @example
+ * ```ts
+ * import { sanitizeName } from "@beep/sandbox/Worktree"
+ *
+ * console.log(sanitizeName)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -71,6 +92,13 @@ export const sanitizeName = (name: string): string => pipe(Str.toLowerCase(name)
 
 /**
  * Generate a temporary sandbox branch name.
+ *
+ * @example
+ * ```ts
+ * import { generateTempBranchName } from "@beep/sandbox/Worktree"
+ *
+ * console.log(generateTempBranchName)
+ * ```
  *
  * @category constructors
  * @since 0.0.0
@@ -114,6 +142,13 @@ const runGit = (args: ReadonlyArray<string>, cwd: string): Effect.Effect<string,
 /**
  * Return the current branch for a repository.
  *
+ * @example
+ * ```ts
+ * import { getCurrentBranch } from "@beep/sandbox/Worktree"
+ *
+ * console.log(getCurrentBranch)
+ * ```
+ *
  * @category getters
  * @since 0.0.0
  */
@@ -126,6 +161,13 @@ export const getCurrentBranch = Effect.fn("Worktree.getCurrentBranch")(function*
 /**
  * Check whether a worktree has uncommitted changes.
  *
+ * @example
+ * ```ts
+ * import { hasUncommittedChanges } from "@beep/sandbox/Worktree"
+ *
+ * console.log(hasUncommittedChanges)
+ * ```
+ *
  * @category predicates
  * @since 0.0.0
  */
@@ -137,6 +179,13 @@ export const hasUncommittedChanges = Effect.fn("Worktree.hasUncommittedChanges")
 
 /**
  * Create a managed git worktree under `.sandcastle/worktrees`.
+ *
+ * @example
+ * ```ts
+ * import { createWorktreeInfo } from "@beep/sandbox/Worktree"
+ *
+ * console.log(createWorktreeInfo)
+ * ```
  *
  * @category constructors
  * @since 0.0.0
@@ -198,6 +247,13 @@ export const createWorktreeInfo = Effect.fn("Worktree.createWorktreeInfo")(funct
 /**
  * Remove a managed git worktree.
  *
+ * @example
+ * ```ts
+ * import { removeWorktree } from "@beep/sandbox/Worktree"
+ *
+ * console.log(removeWorktree)
+ * ```
+ *
  * @category resource-management
  * @since 0.0.0
  */
@@ -210,6 +266,13 @@ export const removeWorktree = Effect.fn("Worktree.removeWorktree")(function* (wo
 
 /**
  * Prune stale git worktree metadata.
+ *
+ * @example
+ * ```ts
+ * import { pruneStaleWorktrees } from "@beep/sandbox/Worktree"
+ *
+ * console.log(pruneStaleWorktrees)
+ * ```
  *
  * @category resource-management
  * @since 0.0.0
@@ -236,6 +299,13 @@ export const pruneStaleWorktrees = Effect.fn("Worktree.pruneStaleWorktrees")(fun
 
 /**
  * Collect commit SHAs that are reachable from `fromRef..toRef`.
+ *
+ * @example
+ * ```ts
+ * import { collectCommitShas } from "@beep/sandbox/Worktree"
+ *
+ * console.log(collectCommitShas)
+ * ```
  *
  * @category getters
  * @since 0.0.0

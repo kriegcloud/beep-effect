@@ -401,6 +401,13 @@ const renderComponent = (name: string, schema: JsonSchema): Component => {
       code: `/**
  * ${name} model returned by the Runpod REST API.
  *
+ * @example
+ * \`\`\`ts
+ * import { ${name} } from "@beep/runpod"
+ *
+ * console.log(${name}.ast)
+ * \`\`\`
+ *
  * @category models
  * @since 0.1.0
  */
@@ -438,6 +445,13 @@ const renderSchemaAlias = (name: string, expression: string): string => {
   return `/**
  * ${name} schema generated from the Runpod OpenAPI document.
  *
+ * @example
+ * \`\`\`ts
+ * import { ${name} } from "@beep/runpod"
+ *
+ * console.log(${name}.ast)
+ * \`\`\`
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -445,6 +459,13 @@ export const ${name} = ${expressionWithAnnotation};
 
 /**
  * ${name} value generated from the Runpod OpenAPI document.
+ *
+ * @example
+ * \`\`\`ts
+ * import type { ${name} } from "@beep/runpod"
+ *
+ * type ${name}Value = ${name}
+ * \`\`\`
  *
  * @category type-level
  * @since 0.1.0
@@ -470,6 +491,13 @@ const renderAdvisoryEnums = (): string => {
       return `/**
  * Advisory ${name} values observed in the checked-in Runpod OpenAPI document.
  *
+ * @example
+ * \`\`\`ts
+ * import { ${constantName} } from "@beep/runpod"
+ *
+ * console.log(${constantName})
+ * \`\`\`
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -490,6 +518,13 @@ const renderRequestClass = (operation: Operation): string => {
 
   return `/**
  * Request input for ${operation.operationId}.
+ *
+ * @example
+ * \`\`\`ts
+ * import { ${operation.requestClassName} } from "@beep/runpod"
+ *
+ * console.log(${operation.requestClassName}.ast)
+ * \`\`\`
  *
  * @category dtos
  * @since 0.1.0
@@ -521,6 +556,13 @@ const renderOperationDescriptorClass = (operations: readonly Operation[]): strin
   return `/**
  * Supported Runpod HTTP methods.
  *
+ * @example
+ * \`\`\`ts
+ * import { RunpodHttpMethod } from "@beep/runpod"
+ *
+ * console.log(RunpodHttpMethod.ast)
+ * \`\`\`
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -528,6 +570,13 @@ export const RunpodHttpMethod = LiteralKit(${JSON.stringify(methods)});
 
 /**
  * Supported Runpod HTTP method.
+ *
+ * @example
+ * \`\`\`ts
+ * import type { RunpodHttpMethod } from "@beep/runpod"
+ *
+ * type Method = RunpodHttpMethod
+ * \`\`\`
  *
  * @category type-level
  * @since 0.1.0
@@ -537,6 +586,13 @@ export type RunpodHttpMethod = typeof RunpodHttpMethod.Type;
 /**
  * Operation ids exposed by Runpod REST API v1.
  *
+ * @example
+ * \`\`\`ts
+ * import { RunpodOperationId } from "@beep/runpod"
+ *
+ * console.log(RunpodOperationId.ast)
+ * \`\`\`
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -544,6 +600,13 @@ export const RunpodOperationId = LiteralKit(${JSON.stringify(operationIds)});
 
 /**
  * Operation id exposed by Runpod REST API v1.
+ *
+ * @example
+ * \`\`\`ts
+ * import type { RunpodOperationId } from "@beep/runpod"
+ *
+ * type OperationId = RunpodOperationId
+ * \`\`\`
  *
  * @category type-level
  * @since 0.1.0
@@ -553,6 +616,13 @@ export type RunpodOperationId = typeof RunpodOperationId.Type;
 /**
  * Request body encoding used by a Runpod operation.
  *
+ * @example
+ * \`\`\`ts
+ * import { RunpodRequestBodyKind } from "@beep/runpod"
+ *
+ * console.log(RunpodRequestBodyKind.ast)
+ * \`\`\`
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -560,6 +630,13 @@ export const RunpodRequestBodyKind = LiteralKit(["json", "none"]);
 
 /**
  * Request body encoding used by a Runpod operation.
+ *
+ * @example
+ * \`\`\`ts
+ * import type { RunpodRequestBodyKind } from "@beep/runpod"
+ *
+ * type RequestBodyKind = RunpodRequestBodyKind
+ * \`\`\`
  *
  * @category type-level
  * @since 0.1.0
@@ -569,6 +646,13 @@ export type RunpodRequestBodyKind = typeof RunpodRequestBodyKind.Type;
 /**
  * Response body decoding used by a Runpod operation.
  *
+ * @example
+ * \`\`\`ts
+ * import { RunpodResponseBodyKind } from "@beep/runpod"
+ *
+ * console.log(RunpodResponseBodyKind.ast)
+ * \`\`\`
+ *
  * @category schemas
  * @since 0.1.0
  */
@@ -577,6 +661,13 @@ export const RunpodResponseBodyKind = LiteralKit(["json", "none", "text"]);
 /**
  * Response body decoding used by a Runpod operation.
  *
+ * @example
+ * \`\`\`ts
+ * import type { RunpodResponseBodyKind } from "@beep/runpod"
+ *
+ * type ResponseBodyKind = RunpodResponseBodyKind
+ * \`\`\`
+ *
  * @category type-level
  * @since 0.1.0
  */
@@ -584,6 +675,13 @@ export type RunpodResponseBodyKind = typeof RunpodResponseBodyKind.Type;
 
 /**
  * Static metadata for one Runpod REST operation.
+ *
+ * @example
+ * \`\`\`ts
+ * import { RunpodOperationDescriptor } from "@beep/runpod"
+ *
+ * console.log(RunpodOperationDescriptor.ast)
+ * \`\`\`
  *
  * @category models
  * @since 0.1.0
@@ -622,6 +720,13 @@ const renderOperationDescriptor = (operation: Operation): string => {
 
   return `/**
  * Descriptor for ${operation.operationId}.
+ *
+ * @example
+ * \`\`\`ts
+ * import { ${operation.descriptorName} } from "@beep/runpod"
+ *
+ * console.log(${operation.descriptorName}.path)
+ * \`\`\`
  *
  * @category constants
  * @since 0.1.0
@@ -665,6 +770,13 @@ const renderOperationSpecs = (operations: readonly Operation[]): string => {
   return `/**
  * Generated operation spec table for Runpod service construction.
  *
+ * @example
+ * \`\`\`ts
+ * import { RUNPOD_OPERATION_SPECS } from "@beep/runpod"
+ *
+ * console.log(Object.keys(RUNPOD_OPERATION_SPECS))
+ * \`\`\`
+ *
  * @category constants
  * @since 0.1.0
  */
@@ -687,6 +799,13 @@ const renderOperationsShape = (operations: readonly Operation[]): string => {
 
   return `/**
  * Typed method surface generated from Runpod REST API v1.
+ *
+ * @example
+ * \`\`\`ts
+ * import type { RunpodOperationsShape } from "@beep/runpod"
+ *
+ * type Operations = RunpodOperationsShape<never>
+ * \`\`\`
  *
  * @category services
  * @since 0.1.0

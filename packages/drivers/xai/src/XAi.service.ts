@@ -42,7 +42,7 @@ const $I = $XaiId.create("XAi.service");
  * import type { XAiHttpEndpointMethodName } from "@beep/xai"
  *
  * const methodName: XAiHttpEndpointMethodName = "listModels"
- * void methodName
+ * console.log(methodName)
  * ```
  *
  * @category models
@@ -61,7 +61,7 @@ export type XAiHttpEndpointMethodName = Exclude<
  * import type { XAiWebSocketEndpointMethodName } from "@beep/xai"
  *
  * const methodName: XAiWebSocketEndpointMethodName = "connectRealtimeVoice"
- * void methodName
+ * console.log(methodName)
  * ```
  *
  * @category models
@@ -84,7 +84,7 @@ export type XAiWebSocketEndpointMethodName = Extract<
  * const method: XAiEndpointMethod = () =>
  *   Effect.succeed(XAiNoBodyResponse.make({ headers: {}, status: 204 }))
  *
- * void method
+ * console.log(method)
  * ```
  *
  * @category models
@@ -102,7 +102,7 @@ export type XAiEndpointMethod = (request?: XAiRequestOptions) => Effect.Effect<X
  *
  * const stream: XAiStreamMethod = () => Stream.empty
  *
- * void stream
+ * console.log(stream)
  * ```
  *
  * @category models
@@ -118,7 +118,7 @@ export type XAiStreamMethod = (request?: XAiRequestOptions) => Stream.Stream<XAi
  * import type { XAiWebSocketSession } from "@beep/xai"
  *
  * const sendDone = (session: XAiWebSocketSession) => session.sendJson({ type: "audio.done" })
- * void sendDone
+ * console.log(sendDone)
  * ```
  *
  * @category models
@@ -149,7 +149,7 @@ export interface XAiWebSocketSession {
  *     sendText: () => Effect.void
  *   })
  *
- * void connect
+ * console.log(connect)
  * ```
  *
  * @category models
@@ -167,7 +167,7 @@ export type XAiWebSocketMethod = (request?: XAiRequestOptions) => Effect.Effect<
  * type XAiServiceKey = keyof XAiShape
  *
  * const key: XAiServiceKey = "listModels"
- * void key
+ * console.log(key)
  * ```
  *
  * @category services
@@ -985,7 +985,7 @@ export class XAi extends Context.Service<XAi, XAiShape>()($I`XAi`) {
    * import { XAi, XAiConfigInput } from "@beep/xai"
    *
    * const layer = XAi.makeLayer(XAiConfigInput.make({ apiKey: Redacted.make("test-key") }))
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers
@@ -1008,7 +1008,7 @@ export class XAi extends Context.Service<XAi, XAiShape>()($I`XAi`) {
    * import { XAi } from "@beep/xai"
    *
    * const layer = XAi.layer
-   * void layer
+   * console.log(layer)
    * ```
    *
    * @category layers

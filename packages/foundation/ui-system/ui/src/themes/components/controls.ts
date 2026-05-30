@@ -79,6 +79,15 @@ const Unradio = styled("span")(({ theme }) => ({
 const iconSize = 24; // 1.5rem icon size
 
 /**
+ * Controls theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { controlsTheme } from "@beep/ui/themes/components/controls"
+ *
+ * console.log(controlsTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

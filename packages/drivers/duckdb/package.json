@@ -1,6 +1,6 @@
 {
   "name": "@beep/duckdb",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Driver-level DuckDB runtime and Parquet export capability.",
   "license": "MIT",
   "private": true,

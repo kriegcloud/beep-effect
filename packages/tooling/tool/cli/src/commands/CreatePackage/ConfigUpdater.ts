@@ -33,6 +33,13 @@ const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
  * Each boolean field is `true` when the corresponding file was actually written
  * (or, in the case of {@link checkConfigNeedsUpdate}, would need updating).
  *
+ * @example
+ * ```ts
+ * import { ConfigUpdateResult } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(ConfigUpdateResult)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -49,6 +56,13 @@ export class ConfigUpdateResult extends S.Class<ConfigUpdateResult>($I`ConfigUpd
 
 /**
  * Config update target for a package that should be registered in root tsconfig files.
+ *
+ * @example
+ * ```ts
+ * import { ConfigUpdateTarget } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(ConfigUpdateTarget)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -67,6 +81,13 @@ export class ConfigUpdateTarget extends S.Class<ConfigUpdateTarget>($I`ConfigUpd
 
 /**
  * Per-target config update summary.
+ *
+ * @example
+ * ```ts
+ * import { ConfigUpdateTargetResult } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(ConfigUpdateTargetResult)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -90,6 +111,13 @@ const DefaultedConfigUpdateTargetResults = S.Array(ConfigUpdateTargetResult).pip
  *
  * `tsconfigPackages` and `tsconfigPaths` are aggregate booleans indicating whether
  * at least one target changed (or needs a change, in check mode) for the file.
+ *
+ * @example
+ * ```ts
+ * import { ConfigUpdateBatchResult } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(ConfigUpdateBatchResult)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -292,6 +320,13 @@ const modifyFileString: {
  * @param packagePath - Relative path from the repo root to the new package (e.g. `"packages/tooling/library/my-utils"`).
  * @returns `true` when the file was modified, `false` when the entry already existed.
  * @depends FileSystem, Path
+ * @example
+ * ```ts
+ * import { updateTsconfigPackages } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(updateTsconfigPackages)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -333,6 +368,13 @@ export const updateTsconfigPackages: {
  * @param packagePath - Relative path from the repo root to the new package (e.g. `"packages/tooling/library/my-utils"`).
  * @returns `true` when the file was modified, `false` when the aliases already existed.
  * @depends FileSystem, Path
+ * @example
+ * ```ts
+ * import { updateTsconfigPaths } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(updateTsconfigPaths)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -387,6 +429,13 @@ export const updateTsconfigPaths: {
  * @param packagePath - Relative path from the repo root to the new package (e.g. `"packages/foundation/primitive/data"`).
  * @returns `true` when the file was modified, `false` when the entry already existed or was covered.
  * @depends FileSystem, Path
+ * @example
+ * ```ts
+ * import { updateTstycheConfig } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(updateTstycheConfig)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -497,6 +546,13 @@ const checkConfigNeedsUpdateForTarget: {
  * @param targets - Package targets to register in root tsconfig files.
  * @returns Per-target results and aggregate booleans indicating whether each file changed for at least one target.
  * @depends FileSystem, Path
+ * @example
+ * ```ts
+ * import { updateRootConfigsForTargets } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(updateRootConfigsForTargets)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -537,6 +593,13 @@ export const updateRootConfigsForTargets: {
  * @param targets - Package targets to check in root tsconfig files.
  * @returns Per-target results and aggregate booleans indicating whether each file needs updates for at least one target.
  * @depends FileSystem, Path
+ * @example
+ * ```ts
+ * import { checkConfigNeedsUpdateForTargets } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(checkConfigNeedsUpdateForTargets)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -579,6 +642,13 @@ export const checkConfigNeedsUpdateForTargets: {
  * @param target - Package target to register in root config files.
  * @returns A {@link ConfigUpdateResult} indicating which config files were modified.
  * @depends FileSystem, Path
+ * @example
+ * ```ts
+ * import { updateRootConfigs } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(updateRootConfigs)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -607,6 +677,13 @@ export const updateRootConfigs: {
  * @param target - Package target to check in root config files.
  * @returns A {@link ConfigUpdateResult} where `true` means the file still needs updating.
  * @depends FileSystem, Path
+ * @example
+ * ```ts
+ * import { checkConfigNeedsUpdate } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(checkConfigNeedsUpdate)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */

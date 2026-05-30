@@ -2,6 +2,41 @@
  * The theme provider module.
  *
  * @packageDocumentation
+ * @example
+ * ```tsx
+ * import { ResolvedThemeMode } from "@beep/ui/themes/theme-provider"
+ *
+ * console.log(ResolvedThemeMode)
+ * ```
+ *
+ * @example
+ * ```tsx
+ * import { ThemeMode } from "@beep/ui/themes/theme-provider"
+ *
+ * console.log(ThemeMode)
+ * ```
+ *
+ * @example
+ * ```tsx
+ * import { resolveThemeMode } from "@beep/ui/themes/theme-provider"
+ *
+ * console.log(resolveThemeMode)
+ * ```
+ *
+ * @example
+ * ```tsx
+ * import { AppThemeProvider } from "@beep/ui/themes/theme-provider"
+ *
+ * console.log(AppThemeProvider)
+ * ```
+ *
+ * @example
+ * ```tsx
+ * import { useThemeMode } from "@beep/ui/themes/theme-provider"
+ *
+ * console.log(useThemeMode)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */
@@ -19,10 +54,17 @@ import type * as React from "react";
 
 const $I = $UiId.create("themes/theme-provider");
 /**
- * The mode of the theme.
+ * Theme mode export.
  *
- * @since 0.0.0
+ * @example
+ * ```tsx
+ * import { ThemeMode } from "@beep/ui/themes/theme-provider"
+ *
+ * console.log(ThemeMode)
+ * ```
+ *
  * @category configuration
+ * @since 0.0.0
  */
 export const ThemeMode = LiteralKit(["light", "dark", "system"]).pipe(
   $I.annoteSchema("ThemeMode", {
@@ -39,10 +81,17 @@ export const ThemeMode = LiteralKit(["light", "dark", "system"]).pipe(
 export type ThemeMode = typeof ThemeMode.Type;
 
 /**
- * The resolved mode of the theme, excluding 'system'.
+ * Resolved theme mode export.
  *
- * @since 0.0.0
+ * @example
+ * ```tsx
+ * import { ResolvedThemeMode } from "@beep/ui/themes/theme-provider"
+ *
+ * console.log(ResolvedThemeMode)
+ * ```
+ *
  * @category configuration
+ * @since 0.0.0
  */
 export const ResolvedThemeMode = LiteralKit(ThemeMode.omitOptions(["system"])).pipe(
   $I.annoteSchema("ResolvedThemeMode", {
@@ -79,10 +128,17 @@ interface ThemeModeControls {
 }
 
 /**
- * Resolves the active theme mode from user and system preferences.
+ * Resolve theme mode export.
  *
- * @since 0.0.0
+ * @example
+ * ```tsx
+ * import { resolveThemeMode } from "@beep/ui/themes/theme-provider"
+ *
+ * console.log(resolveThemeMode)
+ * ```
+ *
  * @category utilities
+ * @since 0.0.0
  */
 export const resolveThemeMode: {
   (systemMode: ThemeMode | null | undefined): (mode: ThemeMode | null | undefined) => ResolvedThemeMode;
@@ -97,10 +153,17 @@ export const resolveThemeMode: {
 });
 
 /**
- * Provides the shared app theme and color-scheme baseline.
+ * App theme provider component.
  *
- * @since 0.0.0
+ * @example
+ * ```tsx
+ * import { AppThemeProvider } from "@beep/ui/themes/theme-provider"
+ *
+ * console.log(AppThemeProvider)
+ * ```
+ *
  * @category components
+ * @since 0.0.0
  */
 export function AppThemeProvider({
   children,
@@ -117,10 +180,17 @@ export function AppThemeProvider({
 }
 
 /**
- * Exposes the current theme mode controls.
+ * Use theme mode hook.
  *
- * @since 0.0.0
+ * @example
+ * ```tsx
+ * import { useThemeMode } from "@beep/ui/themes/theme-provider"
+ *
+ * console.log(useThemeMode)
+ * ```
+ *
  * @category hooks
+ * @since 0.0.0
  */
 export function useThemeMode(): ThemeModeControls {
   const { mode, setMode, systemMode } = useColorScheme();

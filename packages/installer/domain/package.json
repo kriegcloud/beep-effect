@@ -1,6 +1,6 @@
 {
   "name": "@beep/installer-domain",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "installer domain package.",
   "license": "MIT",
   "private": true,

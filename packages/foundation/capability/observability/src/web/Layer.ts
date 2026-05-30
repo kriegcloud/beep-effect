@@ -26,7 +26,7 @@ import type { WebObservabilityConfig } from "./Config.ts";
  * })
  *
  * const layer = layerWebSdk(config)
- * void layer
+ * console.log(layer)
  * ```
  *
  * @since 0.0.0

@@ -19,6 +19,15 @@ const WindowsDotSegmentKit = LiteralKit([".", ".."]);
 /**
  * Literal union for Windows dot-segment markers.
  *
+ * @example
+ * ```ts
+ * import { WindowsDotSegment } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const parent = S.decodeUnknownSync(WindowsDotSegment)("..")
+ * console.log(parent)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -39,6 +48,15 @@ export type WindowsDotSegment = typeof WindowsDotSegment.Type;
 /**
  * Branded schema for Windows path segments that are plain names rather than
  * separators or dot-segment markers.
+ *
+ * @example
+ * ```ts
+ * import { ValidWindowsPlainPathSegment } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const segment = S.decodeUnknownSync(ValidWindowsPlainPathSegment)("documents")
+ * console.log(segment)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -91,6 +109,15 @@ const isWindowsDotSegment = S.is(WindowsDotSegment);
 /**
  * Branded schema for Windows root segments such as UNC server and share names.
  *
+ * @example
+ * ```ts
+ * import { ValidWindowsRootSegment } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const server = S.decodeUnknownSync(ValidWindowsRootSegment)("fileserver")
+ * console.log(server)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -120,6 +147,15 @@ export type ValidWindowsRootSegment = typeof ValidWindowsRootSegment.Type;
  * Branded schema for Windows path segments that may be either plain segments or
  * dot-segment markers.
  *
+ * @example
+ * ```ts
+ * import { ValidWindowsPathSegment } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const segment = S.decodeUnknownSync(ValidWindowsPathSegment)(".")
+ * console.log(segment)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -140,6 +176,15 @@ export type ValidWindowsPathSegment = typeof ValidWindowsPathSegment.Type;
 
 /**
  * Branded schema for a non-empty Windows path segment list.
+ *
+ * @example
+ * ```ts
+ * import { WindowsSegments } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const segments = S.decodeUnknownSync(WindowsSegments)(["Users", "Ada"])
+ * console.log(segments.length)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -163,6 +208,15 @@ export type WindowsSegments = typeof WindowsSegments.Type;
  * Branded schema for the tail segment list of a UNC file path after the server
  * and share segments.
  *
+ * @example
+ * ```ts
+ * import { ValidWindowsUncRest } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const rest = S.decodeUnknownSync(ValidWindowsUncRest)(["folder", "file.txt"])
+ * console.log(rest.length)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -183,6 +237,15 @@ export type ValidWindowsUncRest = typeof ValidWindowsUncRest.Type;
 
 /**
  * Branded schema for a full UNC segment list `[server, share, ...rest]`.
+ *
+ * @example
+ * ```ts
+ * import { ValidWindowsUncSegments } from "@beep/schema/FilePath"
+ * import * as S from "effect/Schema"
+ *
+ * const segments = S.decodeUnknownSync(ValidWindowsUncSegments)(["server", "share", "folder"])
+ * console.log(segments[0])
+ * ```
  *
  * @since 0.0.0
  * @category validation

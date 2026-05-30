@@ -19,7 +19,7 @@ const $I = $SchemaId.create("Logs");
  * import { LogLevel } from "@beep/schema/Logs"
  *
  * const level = S.decodeUnknownSync(LogLevel)("Info")
- * void level
+ * console.log(level)
  *
  * LogLevel.Enum.Info  // "Info"
  * LogLevel.is.Debug("Debug") // true
@@ -51,7 +51,7 @@ export type LogLevel = typeof LogLevel.Type;
  * import { LogSeverity } from "@beep/schema/Logs"
  *
  * const severity = S.decodeUnknownSync(LogSeverity)("Error")
- * void severity
+ * console.log(severity)
  *
  * LogSeverity.Enum.Warn  // "Warn"
  * ```

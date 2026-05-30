@@ -93,10 +93,9 @@ const encodeRegExpStrForbidden = (value: globalThis.RegExp): Effect.Effect<RegEx
  * import * as S from "effect/Schema"
  * import { RegExpFromStr } from "@beep/schema/RegExp"
  *
- * const program = Effect.gen(function* () {
- *
- *
- * })
+ * const program = S.decodeUnknownEffect(RegExpFromStr)("[a-z]+")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @since 0.0.0

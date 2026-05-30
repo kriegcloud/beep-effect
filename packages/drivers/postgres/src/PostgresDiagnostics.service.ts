@@ -307,7 +307,7 @@ const normalizePostgresError = (error: unknown): PostgresError => {
  * import { formatSql } from "@beep/postgres"
  *
  * const sql = formatSql("select * from users where id = $1", [1])
- * void sql
+ * console.log(sql)
  * ```
  *
  * @category utilities
@@ -338,7 +338,7 @@ export const formatSql = (
  * import { formatPostgresError, PostgresError } from "@beep/postgres"
  *
  * const text = formatPostgresError(PostgresError.fromUnknown("query", new Error("failed")))
- * void text
+ * console.log(text)
  * ```
  *
  * @category utilities
@@ -389,7 +389,7 @@ export const formatPostgresError = (error: unknown, palette: Colors = colors): s
  * import { logPostgresError } from "@beep/postgres"
  *
  * const effect = logPostgresError(new Error("failed"))
- * void effect
+ * console.log(effect)
  * ```
  *
  * @category utilities

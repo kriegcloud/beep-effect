@@ -17,6 +17,13 @@ import { $I } from "./HttpStatus.shared.ts";
  * too many URLs are requested at the same time. It is similar to the HTTP code
  * 429 “Too many requests”.
  *
+ * @example
+ * ```ts
+ * import { RequestHeaderFieldsTooLargeShopify } from "@beep/schema/HttpStatus"
+ *
+ * console.log(RequestHeaderFieldsTooLargeShopify.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -41,6 +48,13 @@ export type RequestHeaderFieldsTooLargeShopify = typeof RequestHeaderFieldsTooLa
  * Information Services). The client’s login session has expired and they must
  * log in again.
  *
+ * @example
+ * ```ts
+ * import { LoginTimeout } from "@beep/schema/HttpStatus"
+ *
+ * console.log(LoginTimeout.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -63,6 +77,13 @@ export type LoginTimeout = typeof LoginTimeout.Type;
 /**
  * 494 “Request header too large” – used by NGINX. The client has sent too
  * large of a request or too long of a header line.
+ *
+ * @example
+ * ```ts
+ * import { RequestHeaderTooLarge } from "@beep/schema/HttpStatus"
+ *
+ * console.log(RequestHeaderTooLarge.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -87,6 +108,13 @@ export type RequestHeaderTooLarge = typeof RequestHeaderTooLarge.Type;
  * 495 “SSL Certificate Error” – This is also a status code used by NGINX
  * signaling that the client has provided an invalid SSL certificate.
  *
+ * @example
+ * ```ts
+ * import { SslCertificateError } from "@beep/schema/HttpStatus"
+ *
+ * console.log(SslCertificateError.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -110,6 +138,13 @@ export type SslCertificateError = typeof SslCertificateError.Type;
  * 496 “SSL Certificate Required” – used by NGINX. A client certificate is
  * required but is not provided.
  *
+ * @example
+ * ```ts
+ * import { SslCertificateRequired } from "@beep/schema/HttpStatus"
+ *
+ * console.log(SslCertificateRequired.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -132,6 +167,13 @@ export type SslCertificateRequired = typeof SslCertificateRequired.Type;
 /**
  * 499 “Client Closed Request” – The client terminated the request before the
  * server could send a response. Another code used by NGINX.
+ *
+ * @example
+ * ```ts
+ * import { ClientClosedRequest } from "@beep/schema/HttpStatus"
+ *
+ * console.log(ClientClosedRequest.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -157,6 +199,13 @@ export type ClientClosedRequest = typeof ClientClosedRequest.Type;
  * Cloudflare. It specifies that the origin server returned an unexpected or
  * unknown response to Cloudflare.
  *
+ * @example
+ * ```ts
+ * import { WebServerReturnedAnUnknownError } from "@beep/schema/HttpStatus"
+ *
+ * console.log(WebServerReturnedAnUnknownError.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -181,6 +230,13 @@ export type WebServerReturnedAnUnknownError = typeof WebServerReturnedAnUnknownE
  * origin server refused the connection to Cloudflare. This error could be
  * caused by the origin’s firewall blocking Cloudflare’s IPs.
  *
+ * @example
+ * ```ts
+ * import { WebServerIsDown } from "@beep/schema/HttpStatus"
+ *
+ * console.log(WebServerIsDown.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -203,6 +259,13 @@ export type WebServerIsDown = typeof WebServerIsDown.Type;
 /**
  * 525 “SSL Handshake Failed” – Used by Cloudflare. Cloudflare is unable to
  * establish an SSL/TLS handshake with the origin server.
+ *
+ * @example
+ * ```ts
+ * import { SslHandshakeFailed } from "@beep/schema/HttpStatus"
+ *
+ * console.log(SslHandshakeFailed.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -228,6 +291,13 @@ export type SslHandshakeFailed = typeof SslHandshakeFailed.Type;
  * Cloudflare could not validate the SSL installed on the origin server.
  * Usually, caused by invalid or missing SSL on the origin server. Read this
  * guide on how to install Let’s Encrypt for your SiteGround-hosted website.
+ *
+ * @example
+ * ```ts
+ * import { InvalidSslCertificate } from "@beep/schema/HttpStatus"
+ *
+ * console.log(InvalidSslCertificate.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation

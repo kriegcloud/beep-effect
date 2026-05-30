@@ -32,6 +32,15 @@ const SingleCharacterText = S.String.check(
 /**
  * Schema-backed CSV text codec options.
  *
+ * @example
+ * ```ts
+ * import { CsvCodecOptions } from "@beep/schema/CsvCodecOptions"
+ * import * as S from "effect/Schema"
+ *
+ * const options = S.decodeUnknownSync(CsvCodecOptions)({ delimiter: ";" })
+ * console.log(options.delimiter)
+ * ```
+ *
  * @category configuration
  * @since 0.0.0
  */
@@ -99,6 +108,14 @@ export class CsvCodecOptions extends S.Class<CsvCodecOptions>($I`CsvCodecOptions
 /**
  * Encoded/raw constructor input for {@link CsvCodecOptions}.
  *
+ * @example
+ * ```ts
+ * import type { CsvCodecOptionsArgs } from "@beep/schema/CsvCodecOptions"
+ *
+ * const options = { delimiter: ";" } satisfies CsvCodecOptionsArgs
+ * console.log(options.delimiter)
+ * ```
+ *
  * @category configuration
  * @since 0.0.0
  */
@@ -106,6 +123,13 @@ export type CsvCodecOptionsArgs = typeof CsvCodecOptions.Encoded;
 
 /**
  * Parse options used when normalizing raw CSV codec option input.
+ *
+ * @example
+ * ```ts
+ * import { CsvCodecOptionsParseOptions } from "@beep/schema/CsvCodecOptions"
+ *
+ * console.log(CsvCodecOptionsParseOptions.exact)
+ * ```
  *
  * @category configuration
  * @since 0.0.0

@@ -20,7 +20,7 @@ const $I = $XaiId.create("XAi.models");
  * import type { XAiQueryValue } from "@beep/xai"
  *
  * const value: XAiQueryValue = ["invoice", "usage"]
- * void value
+ * console.log(value)
  * ```
  *
  * @category models
@@ -46,7 +46,7 @@ export const XAiQueryValue = S.Union([
  * import type { XAiQueryValue } from "@beep/xai"
  *
  * const value: XAiQueryValue = "usage"
- * void value
+ * console.log(value)
  * ```
  *
  * @category models
@@ -69,7 +69,7 @@ export type XAiQueryValue = typeof XAiQueryValue.Type;
  *   query: { limit: 10 }
  * })
  *
- * void request
+ * console.log(request)
  * ```
  *
  * @category models
@@ -104,7 +104,7 @@ export class XAiRequestOptions extends S.Class<XAiRequestOptions>($I`XAiRequestO
  *   status: 200
  * })
  *
- * void response
+ * console.log(response)
  * ```
  *
  * @category models
@@ -136,7 +136,7 @@ export class XAiJsonResponse extends S.TaggedClass<XAiJsonResponse>($I`XAiJsonRe
  *   text: "ok"
  * })
  *
- * void response
+ * console.log(response)
  * ```
  *
  * @category models
@@ -168,7 +168,7 @@ export class XAiTextResponse extends S.TaggedClass<XAiTextResponse>($I`XAiTextRe
  *   status: 200
  * })
  *
- * void response
+ * console.log(response)
  * ```
  *
  * @category models
@@ -199,7 +199,7 @@ export class XAiBinaryResponse extends S.TaggedClass<XAiBinaryResponse>($I`XAiBi
  *   status: 204
  * })
  *
- * void response
+ * console.log(response)
  * ```
  *
  * @category models
@@ -225,7 +225,7 @@ export class XAiNoBodyResponse extends S.TaggedClass<XAiNoBodyResponse>($I`XAiNo
  * import type { XAiResponse } from "@beep/xai"
  *
  * const tag = (response: XAiResponse) => response._tag
- * void tag
+ * console.log(tag)
  * ```
  *
  * @category models
@@ -252,7 +252,7 @@ export const XAiResponse = S.Union([XAiBinaryResponse, XAiJsonResponse, XAiNoBod
  *   status: 200
  * })
  *
- * void response
+ * console.log(response)
  * ```
  *
  * @category models
@@ -273,7 +273,7 @@ export type XAiResponse = typeof XAiResponse.Type;
  *   index: 0
  * })
  *
- * void event
+ * console.log(event)
  * ```
  *
  * @category models
@@ -298,7 +298,7 @@ export class XAiServerSentEvent extends S.Class<XAiServerSentEvent>($I`XAiServer
  * import type { XAiWebSocketEventKind } from "@beep/xai"
  *
  * const kind: XAiWebSocketEventKind = "message"
- * void kind
+ * console.log(kind)
  * ```
  *
  * @category schemas
@@ -318,7 +318,7 @@ export const XAiWebSocketEventKind = LiteralKit(["close", "error", "message"]).p
  * import type { XAiWebSocketEventKind } from "@beep/xai"
  *
  * const kind: XAiWebSocketEventKind = "message"
- * void kind
+ * console.log(kind)
  * ```
  *
  * @category models
@@ -348,7 +348,7 @@ type XAiWebSocketEventMember<T extends XAiWebSocketEventKind> = {
  *   text: "{\"type\":\"session.created\"}"
  * }
  *
- * void event
+ * console.log(event)
  * ```
  *
  * @category models
@@ -405,7 +405,7 @@ export const XAiWebSocketEvent = XAiWebSocketEventKind.mapMembers((members) => {
  * import type { XAiWebSocketEvent } from "@beep/xai"
  *
  * const event: XAiWebSocketEvent = { kind: "message", text: "ok" }
- * void event
+ * console.log(event)
  * ```
  *
  * @category models

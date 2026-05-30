@@ -12,7 +12,14 @@ import * as S from "effect/Schema";
 const $I = $UiId.create("lib/react-invariant");
 
 /**
- * Options for a React context invariant check.
+ * React context invariant options class.
+ *
+ * @example
+ * ```ts
+ * import { ReactContextInvariantOptions } from "@beep/ui/lib/react-invariant"
+ *
+ * console.log(ReactContextInvariantOptions)
+ * ```
  *
  * @category models
  * @since 0.0.0

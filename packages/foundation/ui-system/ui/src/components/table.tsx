@@ -4,6 +4,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Table component.
+ *
+ * @example
+ * ```tsx
+ * import { Table } from "@beep/ui/components/table"
+ *
+ * console.log(Table)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -16,6 +25,15 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
 }
 
 /**
+ * Table header component.
+ *
+ * @example
+ * ```tsx
+ * import { TableHeader } from "@beep/ui/components/table"
+ *
+ * console.log(TableHeader)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -24,6 +42,15 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
 }
 
 /**
+ * Table body component.
+ *
+ * @example
+ * ```tsx
+ * import { TableBody } from "@beep/ui/components/table"
+ *
+ * console.log(TableBody)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -32,6 +59,15 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
 }
 
 /**
+ * Table footer component.
+ *
+ * @example
+ * ```tsx
+ * import { TableFooter } from "@beep/ui/components/table"
+ *
+ * console.log(TableFooter)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -46,6 +82,15 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
 }
 
 /**
+ * Table row component.
+ *
+ * @example
+ * ```tsx
+ * import { TableRow } from "@beep/ui/components/table"
+ *
+ * console.log(TableRow)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -60,6 +105,15 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
 }
 
 /**
+ * Table head component.
+ *
+ * @example
+ * ```tsx
+ * import { TableHead } from "@beep/ui/components/table"
+ *
+ * console.log(TableHead)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -77,6 +131,15 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
 }
 
 /**
+ * Table cell component.
+ *
+ * @example
+ * ```tsx
+ * import { TableCell } from "@beep/ui/components/table"
+ *
+ * console.log(TableCell)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -91,6 +154,15 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
 }
 
 /**
+ * Table caption component.
+ *
+ * @example
+ * ```tsx
+ * import { TableCaption } from "@beep/ui/components/table"
+ *
+ * console.log(TableCaption)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

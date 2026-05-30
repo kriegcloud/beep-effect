@@ -8,6 +8,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Command component.
+ *
+ * @example
+ * ```tsx
+ * import { Command } from "@beep/ui/components/command"
+ *
+ * console.log(Command)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -25,6 +34,15 @@ function Command({ className, ...props }: React.ComponentProps<typeof CommandPri
 }
 
 /**
+ * Command dialog component.
+ *
+ * @example
+ * ```tsx
+ * import { CommandDialog } from "@beep/ui/components/command"
+ *
+ * console.log(CommandDialog)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -56,6 +74,15 @@ function CommandDialog({
 }
 
 /**
+ * Command input component.
+ *
+ * @example
+ * ```tsx
+ * import { CommandInput } from "@beep/ui/components/command"
+ *
+ * console.log(CommandInput)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -77,6 +104,15 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
 }
 
 /**
+ * Command list component.
+ *
+ * @example
+ * ```tsx
+ * import { CommandList } from "@beep/ui/components/command"
+ *
+ * console.log(CommandList)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -91,6 +127,15 @@ function CommandList({ className, ...props }: React.ComponentProps<typeof Comman
 }
 
 /**
+ * Command empty component.
+ *
+ * @example
+ * ```tsx
+ * import { CommandEmpty } from "@beep/ui/components/command"
+ *
+ * console.log(CommandEmpty)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -105,6 +150,15 @@ function CommandEmpty({ className, ...props }: React.ComponentProps<typeof Comma
 }
 
 /**
+ * Command group component.
+ *
+ * @example
+ * ```tsx
+ * import { CommandGroup } from "@beep/ui/components/command"
+ *
+ * console.log(CommandGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -122,6 +176,15 @@ function CommandGroup({ className, ...props }: React.ComponentProps<typeof Comma
 }
 
 /**
+ * Command separator component.
+ *
+ * @example
+ * ```tsx
+ * import { CommandSeparator } from "@beep/ui/components/command"
+ *
+ * console.log(CommandSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -136,6 +199,15 @@ function CommandSeparator({ className, ...props }: React.ComponentProps<typeof C
 }
 
 /**
+ * Command item component.
+ *
+ * @example
+ * ```tsx
+ * import { CommandItem } from "@beep/ui/components/command"
+ *
+ * console.log(CommandItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -156,6 +228,15 @@ function CommandItem({ className, children, ...props }: React.ComponentProps<typ
 }
 
 /**
+ * Command shortcut component.
+ *
+ * @example
+ * ```tsx
+ * import { CommandShortcut } from "@beep/ui/components/command"
+ *
+ * console.log(CommandShortcut)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

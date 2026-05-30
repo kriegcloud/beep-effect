@@ -50,6 +50,13 @@ import { $I } from "./HttpStatus.shared.ts";
  * credentials, etc. Your browser will usually produce a page with a particular
  * error code.
  *
+ * @example
+ * ```ts
+ * import { HttpStatus4XX } from "@beep/schema/HttpStatus"
+ *
+ * console.log(HttpStatus4XX.Pairs.length)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */

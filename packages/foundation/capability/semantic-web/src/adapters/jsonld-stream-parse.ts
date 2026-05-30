@@ -91,7 +91,7 @@ const applyLoaderBaseIri = (
  * ```ts
  * import { JsonLdStreamParseServiceLive } from "@beep/semantic-web/adapters/jsonld-stream-parse"
  *
- * void JsonLdStreamParseServiceLive
+ * console.log(JsonLdStreamParseServiceLive)
  * ```
  *
  * @since 0.0.0

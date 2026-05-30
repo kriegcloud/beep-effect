@@ -7,6 +7,15 @@ import { Kbd } from "./kbd";
 import type * as React from "react";
 
 /**
+ * Dropdown menu component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenu } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenu)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -15,6 +24,15 @@ function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
 }
 
 /**
+ * Dropdown menu portal component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuPortal } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuPortal)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -23,6 +41,15 @@ function DropdownMenuPortal({ ...props }: MenuPrimitive.Portal.Props) {
 }
 
 /**
+ * Dropdown menu trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuTrigger } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -31,6 +58,15 @@ function DropdownMenuTrigger({ ...props }: MenuPrimitive.Trigger.Props) {
 }
 
 /**
+ * Dropdown menu content component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuContent } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -65,6 +101,15 @@ function DropdownMenuContent({
 }
 
 /**
+ * Dropdown menu group component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuGroup } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -73,6 +118,15 @@ function DropdownMenuGroup({ ...props }: MenuPrimitive.Group.Props) {
 }
 
 /**
+ * Dropdown menu label component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuLabel } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuLabel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -94,6 +148,15 @@ function DropdownMenuLabel({
 }
 
 /**
+ * Dropdown menu item component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuItem } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -121,6 +184,15 @@ function DropdownMenuItem({
 }
 
 /**
+ * Dropdown menu sub component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuSub } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuSub)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -129,6 +201,15 @@ function DropdownMenuSub({ ...props }: MenuPrimitive.SubmenuRoot.Props) {
 }
 
 /**
+ * Dropdown menu sub trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuSubTrigger } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuSubTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -157,6 +238,15 @@ function DropdownMenuSubTrigger({
 }
 
 /**
+ * Dropdown menu sub content component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuSubContent } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuSubContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -185,6 +275,15 @@ function DropdownMenuSubContent({
 }
 
 /**
+ * Dropdown menu checkbox item component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuCheckboxItem } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuCheckboxItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -213,6 +312,15 @@ function DropdownMenuCheckboxItem({ className, children, checked, ...props }: Me
 }
 
 /**
+ * Dropdown menu radio group component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuRadioGroup } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuRadioGroup)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -221,6 +329,15 @@ function DropdownMenuRadioGroup({ ...props }: MenuPrimitive.RadioGroup.Props) {
 }
 
 /**
+ * Dropdown menu radio item component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuRadioItem } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuRadioItem)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -248,6 +365,15 @@ function DropdownMenuRadioItem({ className, children, ...props }: MenuPrimitive.
 }
 
 /**
+ * Dropdown menu separator component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuSeparator } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuSeparator)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -262,6 +388,15 @@ function DropdownMenuSeparator({ className, ...props }: MenuPrimitive.Separator.
 }
 
 /**
+ * Dropdown menu shortcut component.
+ *
+ * @example
+ * ```tsx
+ * import { DropdownMenuShortcut } from "@beep/ui/components/dropdown-menu"
+ *
+ * console.log(DropdownMenuShortcut)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

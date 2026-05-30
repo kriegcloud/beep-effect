@@ -19,6 +19,13 @@ import { $I } from "./HttpStatus.shared.ts";
  * your browser to download files and you are given a choice of file extension,
  * or when you are presented with options for word-sense disambiguation.
  *
+ * @example
+ * ```ts
+ * import { MultipleChoices } from "@beep/schema/HttpStatus"
+ *
+ * console.log(MultipleChoices.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -46,6 +53,13 @@ export type MultipleChoices = typeof MultipleChoices.Type;
  * 301 “Moved Permanently” – This is the code for a permanent redirect. It means that the URL of the requested resource is permanently replaced with a new address, and search engines should update the URL in their databases.
  * You learn more about it from our article on 301 redirects.
  *
+ * @example
+ * ```ts
+ * import { MovedPermanently } from "@beep/schema/HttpStatus"
+ *
+ * console.log(MovedPermanently.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -72,6 +86,13 @@ export type MovedPermanently = typeof MovedPermanently.Type;
  * original URL should still be used by the client. The code is used for
  * temporary redirects.
  *
+ * @example
+ * ```ts
+ * import { Found } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Found.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -94,6 +115,13 @@ export type Found = typeof Found.Type;
 /**
  * 303 “See Other” – The server instructs the client that it found the
  * resource, but it has to be retrieved on another URL with a GET request.
+ *
+ * @example
+ * ```ts
+ * import { SeeOther } from "@beep/schema/HttpStatus"
+ *
+ * console.log(SeeOther.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -120,6 +148,13 @@ export type SeeOther = typeof SeeOther.Type;
  * keep using the cached version it already stores locally. Clearing the
  * browser cache usually solves this error.
  *
+ * @example
+ * ```ts
+ * import { NotModified } from "@beep/schema/HttpStatus"
+ *
+ * console.log(NotModified.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -143,6 +178,13 @@ export type NotModified = typeof NotModified.Type;
  * 305 “Use Proxy” – The requested resource is available only through a proxy.
  * This code is now deprecated and browsers disregard it.
  *
+ * @example
+ * ```ts
+ * import { UseProxy } from "@beep/schema/HttpStatus"
+ *
+ * console.log(UseProxy.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -165,6 +207,13 @@ export type UseProxy = typeof UseProxy.Type;
 /**
  * 306 “Switch Proxy” – This code is no longer in use. It means that the
  * following requests should use the specified proxy.
+ *
+ * @example
+ * ```ts
+ * import { SwitchProxy } from "@beep/schema/HttpStatus"
+ *
+ * console.log(SwitchProxy.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -192,6 +241,13 @@ export type SwitchProxy = typeof SwitchProxy.Type;
  * allow the HTTP method to be changed. For example, if the first request was
  * GET, the second request should be GET as well.
  *
+ * @example
+ * ```ts
+ * import { TemporaryRedirect } from "@beep/schema/HttpStatus"
+ *
+ * console.log(TemporaryRedirect.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -217,6 +273,13 @@ export type TemporaryRedirect = typeof TemporaryRedirect.Type;
  * The code is similar to the HTTP 302 code, the only difference being that it
  * doesn’t allow browsers to change the type of HTTP request.
  *
+ * @example
+ * ```ts
+ * import { PermanentRedirect } from "@beep/schema/HttpStatus"
+ *
+ * console.log(PermanentRedirect.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -241,6 +304,13 @@ export type PermanentRedirect = typeof PermanentRedirect.Type;
  * commonly
  * used when a resource is moved to a new address. The different 3XX codes instruct
  * browsers on how the redirect must be performed.
+ *
+ * @example
+ * ```ts
+ * import { HttpStatus3XX } from "@beep/schema/HttpStatus"
+ *
+ * console.log(HttpStatus3XX.Pairs.length)
+ * ```
  *
  * @since 0.0.0
  * @category validation

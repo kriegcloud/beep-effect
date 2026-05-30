@@ -5,10 +5,17 @@ import { ParagraphNode, TextNode } from "lexical";
 import type { Klass, LexicalNode, LexicalNodeReplacement } from "lexical";
 
 /**
- * Lexical node set registered by the shared editor block.
+ * Nodes component.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { nodes } from "@beep/ui/components/blocks/editor-00/nodes"
+ *
+ * console.log(nodes)
+ * ```
+ *
  * @category components
+ * @since 0.0.0
  */
 export const nodes: ReadonlyArray<Klass<LexicalNode> | LexicalNodeReplacement> = [
   HeadingNode,

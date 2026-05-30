@@ -14,7 +14,7 @@ import * as S from "effect/Schema";
  * @example
  * ```ts
  * import { typeField } from "@beep/repo-utils/JSDoc/models/tag-values/_fields"
- * void typeField
+ * console.log(typeField)
  * ```
  * @category models
  * @since 0.0.0
@@ -27,7 +27,7 @@ export const typeField = { type: S.String } as const;
  * @example
  * ```ts
  * import { optionalType } from "@beep/repo-utils/JSDoc/models/tag-values/_fields"
- * void optionalType
+ * console.log(optionalType)
  * ```
  * @category models
  * @since 0.0.0
@@ -40,7 +40,7 @@ export const optionalType = { type: S.optionalKey(S.String) } as const;
  * @example
  * ```ts
  * import { nameField } from "@beep/repo-utils/JSDoc/models/tag-values/_fields"
- * void nameField
+ * console.log(nameField)
  * ```
  * @category models
  * @since 0.0.0
@@ -53,7 +53,7 @@ export const nameField = { name: S.String } as const;
  * @example
  * ```ts
  * import { optionalName } from "@beep/repo-utils/JSDoc/models/tag-values/_fields"
- * void optionalName
+ * console.log(optionalName)
  * ```
  * @category models
  * @since 0.0.0
@@ -66,7 +66,7 @@ export const optionalName = { name: S.optionalKey(S.String) } as const;
  * @example
  * ```ts
  * import { optionalDesc } from "@beep/repo-utils/JSDoc/models/tag-values/_fields"
- * void optionalDesc
+ * console.log(optionalDesc)
  * ```
  * @category models
  * @since 0.0.0
@@ -79,7 +79,7 @@ export const optionalDesc = { description: S.optionalKey(S.String) } as const;
  * @example
  * ```ts
  * import { empty } from "@beep/repo-utils/JSDoc/models/tag-values/_fields"
- * void empty
+ * console.log(empty)
  * ```
  * @category models
  * @since 0.0.0

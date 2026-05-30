@@ -35,6 +35,13 @@ const formatTimestamp = (dateTime: DateTime.DateTime): string => {
 /**
  * Optional sync-out recovery settings.
  *
+ * @example
+ * ```ts
+ * import { SyncOutOptions } from "@beep/sandbox/SyncOut"
+ *
+ * console.log(SyncOutOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -49,6 +56,13 @@ export class SyncOutOptions extends S.Class<SyncOutOptions>($I`SyncOutOptions`)(
 
 /**
  * Result returned after sandbox changes have been applied to the host.
+ *
+ * @example
+ * ```ts
+ * import { SyncOutResult } from "@beep/sandbox/SyncOut"
+ *
+ * console.log(SyncOutResult)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -353,6 +367,13 @@ const markFailure = (step: FailedStep, setFailedStep: (step: FailedStep) => void
 
 /**
  * Sync committed, uncommitted, and untracked sandbox changes back to a host repository.
+ *
+ * @example
+ * ```ts
+ * import { syncOut } from "@beep/sandbox/SyncOut"
+ *
+ * console.log(syncOut)
+ * ```
  *
  * @category combinators
  * @since 0.0.0

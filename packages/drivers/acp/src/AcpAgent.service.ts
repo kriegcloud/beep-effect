@@ -54,7 +54,7 @@ export interface AcpAgentOptions extends AcpProtocol.AcpProtocolLoggingOptions {
  * import type { AcpAgentShape } from "@beep/acp/agent"
  *
  * const notificationsOf = (agent: AcpAgentShape) => agent.raw.notifications
- * void notificationsOf
+ * console.log(notificationsOf)
  * ```
  *
  * @category services
@@ -277,7 +277,7 @@ const decodeCancelNotification = S.decodeUnknownEffect(AcpSchema.CancelNotificat
  * import { make } from "@beep/acp/agent"
  *
  * const fromStdio = (stdio: Stdio.Stdio) => make(stdio)
- * void fromStdio
+ * console.log(fromStdio)
  * ```
  *
  * @category constructors
@@ -600,7 +600,7 @@ export const make = Effect.fn($I`AcpAgent_make`)(function* (
  * import { layer } from "@beep/acp/agent"
  *
  * const fromStdio = (stdio: Stdio.Stdio) => layer(stdio)
- * void fromStdio
+ * console.log(fromStdio)
  * ```
  *
  * @category layers

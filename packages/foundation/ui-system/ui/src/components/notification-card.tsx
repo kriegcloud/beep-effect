@@ -18,12 +18,31 @@ const NotificationStatus = LiteralKit(["unread", "read", "archived"]).pipe(
 );
 
 /**
+ * Notification status type.
+ *
+ * @example
+ * ```ts
+ * import type { NotificationStatus } from "@beep/ui/components/notification-card"
+ *
+ * const value = {} as NotificationStatus
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
 export type NotificationStatus = typeof NotificationStatus.Type;
 
 /**
+ * Action type component.
+ *
+ * @example
+ * ```tsx
+ * import { ActionType } from "@beep/ui/components/notification-card"
+ *
+ * console.log(ActionType)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -34,12 +53,31 @@ export const ActionType = LiteralKit(["redirect", "api_call", "workflow", "modal
 );
 
 /**
+ * Action type type.
+ *
+ * @example
+ * ```ts
+ * import type { ActionType } from "@beep/ui/components/notification-card"
+ *
+ * const value = {} as ActionType
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
 export type ActionType = typeof ActionType.Type;
 
 /**
+ * Action style theme value.
+ *
+ * @example
+ * ```tsx
+ * import { ActionStyle } from "@beep/ui/components/notification-card"
+ *
+ * console.log(ActionStyle)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */
@@ -49,6 +87,16 @@ export const ActionStyle = LiteralKit(["primary", "danger", "default"]).pipe(
   })
 );
 /**
+ * Action style type.
+ *
+ * @example
+ * ```ts
+ * import type { ActionStyle } from "@beep/ui/components/notification-card"
+ *
+ * const value = {} as ActionStyle
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -77,6 +125,15 @@ const NotificationActionFields = {
 };
 
 /**
+ * Notification action component.
+ *
+ * @example
+ * ```tsx
+ * import { NotificationAction } from "@beep/ui/components/notification-card"
+ *
+ * console.log(NotificationAction)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -92,6 +149,16 @@ export const NotificationAction = ActionType.toTaggedUnion("type")({
 );
 
 /**
+ * Notification action type.
+ *
+ * @example
+ * ```ts
+ * import type { NotificationAction } from "@beep/ui/components/notification-card"
+ *
+ * const value = {} as NotificationAction
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -142,6 +209,15 @@ const formatDate = (date: Date | string): string => {
 };
 
 /**
+ * Notification card component.
+ *
+ * @example
+ * ```tsx
+ * import { NotificationCard } from "@beep/ui/components/notification-card"
+ *
+ * console.log(NotificationCard)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

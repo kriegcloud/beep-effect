@@ -1,6 +1,6 @@
 {
   "name": "@beep/ui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared UI component library with shadcn, Tailwind v4 theme, and Storybook",
   "license": "Apache-2.0",
   "private": true,
@@ -96,6 +96,7 @@
     "./postcss.config": "./postcss.config.mjs",
     "./components/*": "./src/components/*.tsx",
     "./components/blocks/editor-00/editor": "./src/components/blocks/editor-00/editor.tsx",
+    "./components/blocks/editor-00/nodes": "./src/components/blocks/editor-00/nodes.ts",
     "./components/editor/editor-ui/content-editable": "./src/components/editor/editor-ui/content-editable.tsx",
     "./components/editor/themes/editor-theme": "./src/components/editor/themes/editor-theme.ts",
     "./components/ui/*": "./src/components/ui/*.tsx",

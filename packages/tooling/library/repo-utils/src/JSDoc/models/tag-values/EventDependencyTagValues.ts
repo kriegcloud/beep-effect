@@ -15,7 +15,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/EventDependencyTagValues
  * @example
  * ```ts
  * import { FiresValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- * void FiresValue
+ * console.log(FiresValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -32,7 +32,7 @@ export class FiresValue extends S.TaggedClass<FiresValue>($I`FiresValue`)(
  * @example
  * ```ts
  * import { ListensValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- * void ListensValue
+ * console.log(ListensValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -49,7 +49,7 @@ export class ListensValue extends S.TaggedClass<ListensValue>($I`ListensValue`)(
  * @example
  * ```ts
  * import { EventValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- * void EventValue
+ * console.log(EventValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -66,7 +66,7 @@ export class EventValue extends S.TaggedClass<EventValue>($I`EventValue`)(
  * @example
  * ```ts
  * import { RequiresValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- * void RequiresValue
+ * console.log(RequiresValue)
  * ```
  * @category models
  * @since 0.0.0

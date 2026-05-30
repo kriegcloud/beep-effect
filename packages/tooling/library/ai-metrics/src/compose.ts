@@ -38,7 +38,7 @@ const phoenixService = (spec: AiMetricsInstallSpec): O.Option<AiMetricsServiceSp
  *   const spec = yield* makeAiMetricsInstallSpec()
  *   return yield* renderAiMetricsLocalPhoenixCompose(spec)
  * })
- * void program
+ * console.log(program)
  * ```
  * @category services
  * @since 0.0.0

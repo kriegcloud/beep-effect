@@ -15,7 +15,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/DocumentationTagValues")
  * @example
  * ```ts
  * import { DescriptionValue } from "@beep/repo-utils/JSDoc/models/tag-values/DocumentationTagValues"
- * void DescriptionValue
+ * console.log(DescriptionValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -32,7 +32,7 @@ export class DescriptionValue extends S.TaggedClass<DescriptionValue>($I`Descrip
  * @example
  * ```ts
  * import { SummaryValue } from "@beep/repo-utils/JSDoc/models/tag-values/DocumentationTagValues"
- * void SummaryValue
+ * console.log(SummaryValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -49,7 +49,7 @@ export class SummaryValue extends S.TaggedClass<SummaryValue>($I`SummaryValue`)(
  * @example
  * ```ts
  * import { RemarksValue } from "@beep/repo-utils/JSDoc/models/tag-values/DocumentationTagValues"
- * void RemarksValue
+ * console.log(RemarksValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -66,7 +66,7 @@ export class RemarksValue extends S.TaggedClass<RemarksValue>($I`RemarksValue`)(
  * @example
  * ```ts
  * import { ExampleValue } from "@beep/repo-utils/JSDoc/models/tag-values/DocumentationTagValues"
- * void ExampleValue
+ * console.log(ExampleValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -83,7 +83,7 @@ export class ExampleValue extends S.TaggedClass<ExampleValue>($I`ExampleValue`)(
  * @example
  * ```ts
  * import { DeprecatedValue } from "@beep/repo-utils/JSDoc/models/tag-values/DocumentationTagValues"
- * void DeprecatedValue
+ * console.log(DeprecatedValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -100,7 +100,7 @@ export class DeprecatedValue extends S.TaggedClass<DeprecatedValue>($I`Deprecate
  * @example
  * ```ts
  * import { SeeValue } from "@beep/repo-utils/JSDoc/models/tag-values/DocumentationTagValues"
- * void SeeValue
+ * console.log(SeeValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -117,7 +117,7 @@ export class SeeValue extends S.TaggedClass<SeeValue>($I`SeeValue`)(
  * @example
  * ```ts
  * import { SinceValue } from "@beep/repo-utils/JSDoc/models/tag-values/DocumentationTagValues"
- * void SinceValue
+ * console.log(SinceValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -134,7 +134,7 @@ export class SinceValue extends S.TaggedClass<SinceValue>($I`SinceValue`)(
  * @example
  * ```ts
  * import { VersionValue } from "@beep/repo-utils/JSDoc/models/tag-values/DocumentationTagValues"
- * void VersionValue
+ * console.log(VersionValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -151,7 +151,7 @@ export class VersionValue extends S.TaggedClass<VersionValue>($I`VersionValue`)(
  * @example
  * ```ts
  * import { AuthorValue } from "@beep/repo-utils/JSDoc/models/tag-values/DocumentationTagValues"
- * void AuthorValue
+ * console.log(AuthorValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -168,7 +168,7 @@ export class AuthorValue extends S.TaggedClass<AuthorValue>($I`AuthorValue`)(
  * @example
  * ```ts
  * import { TodoValue } from "@beep/repo-utils/JSDoc/models/tag-values/DocumentationTagValues"
- * void TodoValue
+ * console.log(TodoValue)
  * ```
  * @category models
  * @since 0.0.0

@@ -27,7 +27,7 @@ const $I = $SharedDomainId.create("entity/primitives");
  *   const hash = yield* S.decodeUnknownEffect(Sha256)(Str.repeat("a", 64))
  *   return hash
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -43,7 +43,7 @@ export const Sha256 = Sha256Hex;
  * import type { Sha256 } from "@beep/shared-domain/entity/primitives"
  *
  * const printHash = (hash: Sha256) => console.log(hash)
- * void printHash
+ * console.log(printHash)
  * ```
  *
  * @since 0.0.0
@@ -64,7 +64,7 @@ export type Sha256 = Sha256HexType;
  *   const signature = yield* S.decodeUnknownEffect(Ed25519Signature)("signature")
  *   return signature
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -85,7 +85,7 @@ export const Ed25519Signature = S.NonEmptyString.pipe(
  * import type { Ed25519Signature } from "@beep/shared-domain/entity/primitives"
  *
  * const printSignature = (signature: Ed25519Signature) => console.log(signature)
- * void printSignature
+ * console.log(printSignature)
  * ```
  *
  * @since 0.0.0
@@ -106,7 +106,7 @@ export type Ed25519Signature = typeof Ed25519Signature.Type;
  *   const keyId = yield* S.decodeUnknownEffect(EncryptionKeyId)("key")
  *   return keyId
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -127,7 +127,7 @@ export const EncryptionKeyId = S.NonEmptyString.pipe(
  * import type { EncryptionKeyId } from "@beep/shared-domain/entity/primitives"
  *
  * const printKeyId = (keyId: EncryptionKeyId) => console.log(keyId)
- * void printKeyId
+ * console.log(printKeyId)
  * ```
  *
  * @since 0.0.0
@@ -148,7 +148,7 @@ export type EncryptionKeyId = typeof EncryptionKeyId.Type;
  *   const clock = yield* S.decodeUnknownEffect(HybridLogicalClock)("clock")
  *   return clock
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -169,7 +169,7 @@ export const HybridLogicalClock = S.NonEmptyString.pipe(
  * import type { HybridLogicalClock } from "@beep/shared-domain/entity/primitives"
  *
  * const printClock = (clock: HybridLogicalClock) => console.log(clock)
- * void printClock
+ * console.log(printClock)
  * ```
  *
  * @since 0.0.0
@@ -190,7 +190,7 @@ export type HybridLogicalClock = typeof HybridLogicalClock.Type;
  *   const clock = yield* S.decodeUnknownEffect(VectorClock)({ replica: 1 })
  *   return clock
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -211,7 +211,7 @@ export const VectorClock = S.Record(S.String, NonNegativeInt).pipe(
  * import type { VectorClock } from "@beep/shared-domain/entity/primitives"
  *
  * const printClock = (clock: VectorClock) => console.log(clock)
- * void printClock
+ * console.log(printClock)
  * ```
  *
  * @since 0.0.0

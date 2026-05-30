@@ -26,6 +26,13 @@ import { $I } from "./HttpStatus.shared.ts";
  * that prevents it from processing a request. Like the 4XX codes, you
  * will see an error page on your browser when a 5XX error is triggered.
  *
+ * @example
+ * ```ts
+ * import { HttpStatus5XX } from "@beep/schema/HttpStatus"
+ *
+ * console.log(HttpStatus5XX.Pairs.length)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */

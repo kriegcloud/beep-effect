@@ -774,6 +774,13 @@ type SqlIntegrationStepForTestingOptions = {
  * @param args - Turbo passthrough arguments.
  * @param options - Shared PostgreSQL-compatible test database options.
  * @returns Planned SQL integration subprocess step.
+ * @example
+ * ```ts
+ * import { sqlIntegrationStepForTesting } from "@beep/repo-cli/commands/Quality"
+ *
+ * console.log(sqlIntegrationStepForTesting)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -788,6 +795,13 @@ export const sqlIntegrationStepForTesting: {
  * Run the SQL integration lane with an injected resource and child command.
  * Exposed for lifecycle-focused unit tests.
  *
+ * @example
+ * ```ts
+ * import { runSqlIntegrationTestLaneForTesting } from "@beep/repo-cli/commands/Quality"
+ *
+ * console.log(runSqlIntegrationTestLaneForTesting)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -796,6 +810,13 @@ export const runSqlIntegrationTestLaneForTesting = runSqlIntegrationTestLane;
 /**
  * Resolve the SQL integration database connection URI from environment variables.
  * Exposed for focused unit tests.
+ *
+ * @example
+ * ```ts
+ * import { sqlIntegrationConnectionUriFromEnvForTesting } from "@beep/repo-cli/commands/Quality"
+ *
+ * console.log(sqlIntegrationConnectionUriFromEnvForTesting)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -968,6 +989,13 @@ const rootStepsFor = (repoRoot: string, invocation: QualityTaskInvocation): Read
  * @param repoRoot - Repository root directory.
  * @param invocation - Parsed quality invocation.
  * @returns Planned subprocess steps.
+ * @example
+ * ```ts
+ * import { rootQualityStepsForTesting } from "@beep/repo-cli/commands/Quality"
+ *
+ * console.log(rootQualityStepsForTesting)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -1189,6 +1217,13 @@ export const collectStepOutput = (step: QualityTaskStep) =>
  * @param label - Group label rendered in CLI output.
  * @param steps - Subprocess steps to execute.
  * @param concurrency - Maximum number of steps to run at once.
+ * @example
+ * ```ts
+ * import { runQualityTaskStepGroupForTesting } from "@beep/repo-cli/commands/Quality"
+ *
+ * console.log(runQualityTaskStepGroupForTesting)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */

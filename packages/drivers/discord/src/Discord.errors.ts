@@ -14,6 +14,13 @@ const $I = $DiscordId.create("Discord.errors");
 /**
  * Discord driver error reason vocabulary.
  *
+ * @example
+ * ```ts
+ * import { DiscordErrorReason } from "@beep/discord/Discord.errors"
+ *
+ * console.log(DiscordErrorReason)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -33,6 +40,13 @@ export type DiscordErrorReason = typeof DiscordErrorReason.Type;
 
 /**
  * Technical failure raised by the Discord driver boundary.
+ *
+ * @example
+ * ```ts
+ * import { DiscordError } from "@beep/discord/Discord.errors"
+ *
+ * console.log(DiscordError)
+ * ```
  *
  * @category errors
  * @since 0.0.0

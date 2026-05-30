@@ -16,7 +16,7 @@
  * import { t, logIssues } from "@beep/messages"
  *
  * console.log(t("struct.missingKey")) // "This field is required"
- * void logIssues
+ * console.log(logIssues)
  * ```
  *
  * @category formatting

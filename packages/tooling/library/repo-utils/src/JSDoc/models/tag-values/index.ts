@@ -348,7 +348,7 @@ const TypeScriptEnc = S.Union([S.toEncoded(OverloadValue)]);
  * ```ts
  * import { TagValue } from "@beep/repo-utils/JSDoc/models/tag-values"
  *
- * void TagValue
+ * console.log(TagValue)
  * ```
  * @category models
  * @since 0.0.0
@@ -368,12 +368,14 @@ export const TagValue = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"));
 
 /**
+ * Static type represented by the `TagValue` tagged union schema.
+ *
  * @example
  * ```ts
  * import type { TagValue } from "@beep/repo-utils/JSDoc/models/tag-values"
  * type Example = TagValue
  * const accept = <A extends Example>(value: A): A => value
- * void accept
+ * console.log(accept)
  * ```
  * @category models
  * @since 0.0.0
@@ -522,7 +524,7 @@ const tagNames = [
  * ```ts
  * import { TagName } from "@beep/repo-utils/JSDoc/models/tag-values"
  *
- * void TagName
+ * console.log(TagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -530,12 +532,14 @@ const tagNames = [
 export const TagName = LiteralKit(tagNames);
 
 /**
+ * Static literal union represented by the `TagName` LiteralKit.
+ *
  * @example
  * ```ts
  * import type { TagName } from "@beep/repo-utils/JSDoc/models/tag-values"
  * type Example = TagName
  * const accept = <A extends Example>(value: A): A => value
- * void accept
+ * console.log(accept)
  * ```
  * @category models
  * @since 0.0.0

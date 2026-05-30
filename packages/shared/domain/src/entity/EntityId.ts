@@ -30,7 +30,7 @@ const $I = $SharedDomainId.create("entity/EntityId");
  *   const id = yield* S.decodeUnknownEffect(EntityIdValue)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0

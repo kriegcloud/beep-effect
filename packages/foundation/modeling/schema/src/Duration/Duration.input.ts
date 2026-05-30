@@ -96,6 +96,14 @@ export type DurationUnit = typeof DurationUnit.Type;
 /**
  * Backwards-compatible alias for {@link DurationUnit}.
  *
+ * @example
+ * ```ts
+ * import type { Unit } from "@beep/schema/Duration"
+ *
+ * const unit: Unit = "seconds"
+ * console.log(unit)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -213,7 +221,9 @@ const decodeDurationInput = (input: DurationInput): Effect.Effect<D.Duration, Sc
  * import * as S from "effect/Schema"
  * import { DurationFromInput } from "@beep/schema/Duration"
  *
- * const program = Effect.gen(function* () {})
+ * const program = S.decodeUnknownEffect(DurationFromInput)("2 hours")
+ * const result = Effect.runPromise(program)
+ * console.log(result)
  * ```
  *
  * @since 0.0.0

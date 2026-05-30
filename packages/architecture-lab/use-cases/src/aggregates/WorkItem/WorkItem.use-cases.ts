@@ -26,6 +26,14 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.use-c
 /**
  * Public WorkItem use-case contract.
  *
+ * @example
+ * ```ts
+ * import type { WorkItemUseCasesShape } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * const value = {} as WorkItemUseCasesShape
+ * console.log(value)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
@@ -43,6 +51,13 @@ export interface WorkItemUseCasesShape {
 
 /**
  * Public WorkItem use-case service.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemUseCases } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(WorkItemUseCases)
+ * ```
  *
  * @category use-cases
  * @since 0.0.0

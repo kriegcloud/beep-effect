@@ -56,7 +56,7 @@ export const SemanticSchemaMetadataKind = LiteralKit([
  * import type { SemanticSchemaMetadataKind } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const acceptSemanticSchemaMetadataKind = (value: SemanticSchemaMetadataKind) => value
- * void acceptSemanticSchemaMetadataKind
+ * console.log(acceptSemanticSchemaMetadataKind)
  * ```
  *
  * @since 0.0.0
@@ -71,7 +71,7 @@ export type SemanticSchemaMetadataKind = typeof SemanticSchemaMetadataKind.Type;
  * ```ts
  * import { SemanticSchemaStatus } from "@beep/semantic-web/semantic-schema-metadata"
  *
- * void SemanticSchemaStatus
+ * console.log(SemanticSchemaStatus)
  * ```
  *
  * @since 0.0.0
@@ -91,7 +91,7 @@ export const SemanticSchemaStatus = LiteralKit(["experimental", "stable", "depre
  * import type { SemanticSchemaStatus } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const acceptSemanticSchemaStatus = (value: SemanticSchemaStatus) => value
- * void acceptSemanticSchemaStatus
+ * console.log(acceptSemanticSchemaStatus)
  * ```
  *
  * @since 0.0.0
@@ -106,7 +106,7 @@ export type SemanticSchemaStatus = typeof SemanticSchemaStatus.Type;
  * ```ts
  * import { SemanticSchemaSpecificationDisposition } from "@beep/semantic-web/semantic-schema-metadata"
  *
- * void SemanticSchemaSpecificationDisposition
+ * console.log(SemanticSchemaSpecificationDisposition)
  * ```
  *
  * @since 0.0.0
@@ -126,7 +126,7 @@ export const SemanticSchemaSpecificationDisposition = LiteralKit(["normative", "
  * import type { SemanticSchemaSpecificationDisposition } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const acceptSemanticSchemaSpecificationDisposition = (value: SemanticSchemaSpecificationDisposition) => value
- * void acceptSemanticSchemaSpecificationDisposition
+ * console.log(acceptSemanticSchemaSpecificationDisposition)
  * ```
  *
  * @since 0.0.0
@@ -141,7 +141,7 @@ export type SemanticSchemaSpecificationDisposition = typeof SemanticSchemaSpecif
  * ```ts
  * import { SemanticRepresentationKind } from "@beep/semantic-web/semantic-schema-metadata"
  *
- * void SemanticRepresentationKind
+ * console.log(SemanticRepresentationKind)
  * ```
  *
  * @since 0.0.0
@@ -168,7 +168,7 @@ export const SemanticRepresentationKind = LiteralKit([
  * import type { SemanticRepresentationKind } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const acceptSemanticRepresentationKind = (value: SemanticRepresentationKind) => value
- * void acceptSemanticRepresentationKind
+ * console.log(acceptSemanticRepresentationKind)
  * ```
  *
  * @since 0.0.0
@@ -183,7 +183,7 @@ export type SemanticRepresentationKind = typeof SemanticRepresentationKind.Type;
  * ```ts
  * import { SemanticSchemaSpecification } from "@beep/semantic-web/semantic-schema-metadata"
  *
- * void SemanticSchemaSpecification
+ * console.log(SemanticSchemaSpecification)
  * ```
  *
  * @since 0.0.0
@@ -210,7 +210,7 @@ export class SemanticSchemaSpecification extends S.Class<SemanticSchemaSpecifica
  * ```ts
  * import { SemanticRepresentation } from "@beep/semantic-web/semantic-schema-metadata"
  *
- * void SemanticRepresentation
+ * console.log(SemanticRepresentation)
  * ```
  *
  * @since 0.0.0
@@ -233,7 +233,7 @@ export class SemanticRepresentation extends S.Class<SemanticRepresentation>($I`S
  * ```ts
  * import { SemanticSchemaMetadata } from "@beep/semantic-web/semantic-schema-metadata"
  *
- * void SemanticSchemaMetadata
+ * console.log(SemanticSchemaMetadata)
  * ```
  *
  * @since 0.0.0
@@ -271,7 +271,7 @@ export class SemanticSchemaMetadata extends S.Class<SemanticSchemaMetadata>($I`S
  * import type { SemanticSchemaMetadataAnnotationPayload } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const acceptSemanticSchemaMetadataAnnotationPayload = (value: SemanticSchemaMetadataAnnotationPayload) => value
- * void acceptSemanticSchemaMetadataAnnotationPayload
+ * console.log(acceptSemanticSchemaMetadataAnnotationPayload)
  * ```
  *
  * @since 0.0.0
@@ -333,7 +333,7 @@ export const makeSemanticSchemaMetadata = (
  *   specifications: [{ name: "Example Profile", disposition: "informative" }],
  *   equivalenceBasis: "String equality.",
  * })
- * void MySchema
+ * console.log(MySchema)
  * ```
  *
  * @param schema - Target schema.

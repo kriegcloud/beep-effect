@@ -13,12 +13,41 @@ import type { VariantProps } from "class-variance-authority";
 const $I = $UiId.create("components/toast");
 
 /**
+ * Toast variant type.
+ *
+ * Toast variant export.
+ *
+ * Toast data class.
+ *
+ * @example
+ * ```tsx
+ * import { ToastData } from "@beep/ui/components/toast"
+ *
+ * console.log(ToastData)
+ * ```
+ *
+ * @example
+ * ```tsx
+ * import { ToastVariant } from "@beep/ui/components/toast"
+ *
+ * console.log(ToastVariant)
+ * ```
+ *
  * @category providers
  * @since 0.0.0
  */
 const ToastProvider = ToastPrimitive.Provider;
 
 /**
+ * Toast viewport component.
+ *
+ * @example
+ * ```tsx
+ * import { ToastViewport } from "@beep/ui/components/toast"
+ *
+ * console.log(ToastViewport)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -56,6 +85,15 @@ interface ToastRootProps extends Omit<ToastPrimitive.Root.Props, "toast">, Varia
 }
 
 /**
+ * Toast variant component.
+ *
+ * @example
+ * ```tsx
+ * import { ToastVariant } from "@beep/ui/components/toast"
+ *
+ * console.log(ToastVariant)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -66,12 +104,31 @@ export const ToastVariant = LiteralKit(["default", "destructive"]).pipe(
 );
 
 /**
+ * Toast variant type.
+ *
+ * @example
+ * ```ts
+ * import type { ToastVariant } from "@beep/ui/components/toast"
+ *
+ * const value = {} as ToastVariant
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
 export type ToastVariant = typeof ToastVariant.Type;
 
 /**
+ * Toast data class.
+ *
+ * @example
+ * ```tsx
+ * import { ToastData } from "@beep/ui/components/toast"
+ *
+ * console.log(ToastData)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
@@ -85,6 +142,15 @@ export class ToastData extends S.Class<ToastData>($I`ToastData`)(
 ) {}
 
 /**
+ * Toast component.
+ *
+ * @example
+ * ```tsx
+ * import { Toast } from "@beep/ui/components/toast"
+ *
+ * console.log(Toast)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -102,6 +168,15 @@ const Toast = React.forwardRef<HTMLDivElement, ToastRootProps>(({ className, var
 Toast.displayName = "Toast";
 
 /**
+ * Toast action component.
+ *
+ * @example
+ * ```tsx
+ * import { ToastAction } from "@beep/ui/components/toast"
+ *
+ * console.log(ToastAction)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -120,6 +195,15 @@ const ToastAction = React.forwardRef<HTMLButtonElement, ToastPrimitive.Action.Pr
 ToastAction.displayName = "ToastAction";
 
 /**
+ * Toast close component.
+ *
+ * @example
+ * ```tsx
+ * import { ToastClose } from "@beep/ui/components/toast"
+ *
+ * console.log(ToastClose)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -140,6 +224,15 @@ const ToastClose = React.forwardRef<HTMLButtonElement, ToastPrimitive.Close.Prop
 ToastClose.displayName = "ToastClose";
 
 /**
+ * Toast title component.
+ *
+ * @example
+ * ```tsx
+ * import { ToastTitle } from "@beep/ui/components/toast"
+ *
+ * console.log(ToastTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -151,6 +244,15 @@ const ToastTitle = React.forwardRef<HTMLHeadingElement, ToastPrimitive.Title.Pro
 ToastTitle.displayName = "ToastTitle";
 
 /**
+ * Toast description component.
+ *
+ * @example
+ * ```tsx
+ * import { ToastDescription } from "@beep/ui/components/toast"
+ *
+ * console.log(ToastDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -163,12 +265,32 @@ const ToastDescription = React.forwardRef<
 ToastDescription.displayName = "ToastDescription";
 
 /**
+ * Toast props type.
+ *
+ * @example
+ * ```ts
+ * import type { ToastProps } from "@beep/ui/components/toast"
+ *
+ * const value = {} as ToastProps
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>;
 
 /**
+ * Toast action element type.
+ *
+ * @example
+ * ```ts
+ * import type { ToastActionElement } from "@beep/ui/components/toast"
+ *
+ * const value = {} as ToastActionElement
+ * console.log(value)
+ * ```
+ *
  * @category type-level
  * @since 0.0.0
  */

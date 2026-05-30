@@ -23,7 +23,7 @@ const $I = $RepoDocgenId.create("Configuration");
  * @example
  * ```ts
  * import { DEFAULT_THEME } from "@beep/repo-docgen/Configuration"
- * void DEFAULT_THEME
+ * console.log(DEFAULT_THEME)
  * ```
  * @category services
  * @since 0.0.0
@@ -46,7 +46,7 @@ const isStringArray = (value: unknown): value is ReadonlyArray<string> =>
  * @example
  * ```ts
  * import { ConfigurationSchema } from "@beep/repo-docgen/Configuration"
- * void ConfigurationSchema
+ * console.log(ConfigurationSchema)
  * ```
  * @category services
  * @since 0.0.0
@@ -88,7 +88,7 @@ export type ConfigurationDocument = ConfigurationSchema;
  * @example
  * ```ts
  * import { ConfigurationShape } from "@beep/repo-docgen/Configuration"
- * void ConfigurationShape
+ * console.log(ConfigurationShape)
  * ```
  * @category services
  * @since 0.0.0
@@ -117,7 +117,7 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
  * @example
  * ```ts
  * import { Configuration } from "@beep/repo-docgen/Configuration"
- * void Configuration
+ * console.log(Configuration)
  * ```
  * @category services
  * @since 0.0.0
@@ -174,7 +174,7 @@ type LoadArgs = {
  * @example
  * ```ts
  * import { defaultCompilerOptions } from "@beep/repo-docgen/Configuration"
- * void defaultCompilerOptions
+ * console.log(defaultCompilerOptions)
  * ```
  * @category services
  * @since 0.0.0
@@ -323,7 +323,7 @@ const resolveBoolean = (fromCLI: O.Option<boolean>, fromDocgenJson: O.Option<boo
  * @example
  * ```ts
  * import { load } from "@beep/repo-docgen/Configuration"
- * void load
+ * console.log(load)
  * ```
  * @category services
  * @since 0.0.0
@@ -410,7 +410,7 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
  * @example
  * ```ts
  * import { configProviderLayer } from "@beep/repo-docgen/Configuration"
- * void configProviderLayer
+ * console.log(configProviderLayer)
  * ```
  * @category services
  * @since 0.0.0

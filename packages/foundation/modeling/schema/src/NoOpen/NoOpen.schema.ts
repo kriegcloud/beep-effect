@@ -23,6 +23,16 @@ const defaultValue = "noopen" as const;
 const NoOpenValueBase = LiteralKit([defaultValue]);
 
 /**
+ * Schema for the `X-Download-Options` header value.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NoOpenValue } from "@beep/schema/NoOpen"
+ *
+ * console.log(S.is(NoOpenValue)("noopen")) // true
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -34,6 +44,8 @@ export const NoOpenValue = NoOpenValueBase.pipe(
 );
 
 /**
+ * Type for the `X-Download-Options` header value.
+ *
  * @category models
  * @since 0.0.0
  */
@@ -42,6 +54,16 @@ export type NoOpenValue = typeof NoOpenValue.Type;
 const NoOpenOptionBase = LiteralKit([false, ...NoOpenValueBase.Options]);
 
 /**
+ * Schema for enabled or disabled `X-Download-Options` options.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NoOpenOption } from "@beep/schema/NoOpen"
+ *
+ * console.log(S.decodeUnknownSync(NoOpenOption)("noopen"))
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -53,12 +75,25 @@ export const NoOpenOption = NoOpenOptionBase.pipe(
 );
 
 /**
+ * Type for enabled or disabled `X-Download-Options` options.
+ *
  * @category models
  * @since 0.0.0
  */
 export type NoOpenOption = typeof NoOpenOption.Type;
 
 /**
+ * Model for a rendered `X-Download-Options` response header.
+ *
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { NoOpenResponseHeader } from "@beep/schema/NoOpen"
+ *
+ * const header = NoOpenResponseHeader.make({ name: "X-Download-Options", value: O.some("noopen") })
+ * console.log(header.name)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -75,6 +110,17 @@ export class NoOpenResponseHeader extends S.Class<NoOpenResponseHeader>($I`NoOpe
 type NoOpenResponseHeaderEncoded = typeof NoOpenResponseHeader.Encoded;
 
 /**
+ * Schema that renders X-Download-Options options into a response header.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NoOpenHeader } from "@beep/schema/NoOpen"
+ *
+ * const header = S.decodeUnknownSync(NoOpenHeader)("noopen")
+ * console.log(header.name)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -138,6 +184,8 @@ export const NoOpenHeader = S.UndefinedOr(NoOpenOption).pipe(
 );
 
 /**
+ * Type for rendered `X-Download-Options` response headers.
+ *
  * @category models
  * @since 0.0.0
  */

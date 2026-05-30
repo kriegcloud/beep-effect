@@ -61,7 +61,7 @@ export const resetAllowlistCache = (): void => undefined;
  * ```ts
  * import { getAllowlistDiagnostics } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
  * const diagnostics = getAllowlistDiagnostics()
- * void diagnostics
+ * console.log(diagnostics)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -76,7 +76,7 @@ export const getAllowlistDiagnostics = (): ReadonlyArray<string> => decodedAllow
  * ```ts
  * import { getAllowlistEntries } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
  * const entries = getAllowlistEntries()
- * void entries
+ * console.log(entries)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -96,7 +96,7 @@ export const getAllowlistEntries = () => decodedAllowlistSnapshot.entries;
  *   filePath: "packages/tooling/tool/cli/src/commands/Lint/index.ts",
  *   kind: "error",
  * })
- * void allowlisted
+ * console.log(allowlisted)
  * ```
  * @category utilities
  * @since 0.0.0

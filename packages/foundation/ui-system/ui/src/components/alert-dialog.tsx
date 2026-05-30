@@ -6,6 +6,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Alert dialog component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialog } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialog)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -14,6 +23,15 @@ function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
 }
 
 /**
+ * Alert dialog trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogTrigger } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogTrigger)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -22,6 +40,15 @@ function AlertDialogTrigger({ ...props }: AlertDialogPrimitive.Trigger.Props) {
 }
 
 /**
+ * Alert dialog portal component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogPortal } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogPortal)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -30,6 +57,15 @@ function AlertDialogPortal({ ...props }: AlertDialogPrimitive.Portal.Props) {
 }
 
 /**
+ * Alert dialog overlay component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogOverlay } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogOverlay)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -47,6 +83,15 @@ function AlertDialogOverlay({ className, ...props }: AlertDialogPrimitive.Backdr
 }
 
 /**
+ * Alert dialog content component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogContent } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogContent)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -74,6 +119,15 @@ function AlertDialogContent({
 }
 
 /**
+ * Alert dialog header component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogHeader } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogHeader)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -91,6 +145,15 @@ function AlertDialogHeader({ className, ...props }: React.ComponentProps<"div">)
 }
 
 /**
+ * Alert dialog footer component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogFooter } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogFooter)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -108,6 +171,15 @@ function AlertDialogFooter({ className, ...props }: React.ComponentProps<"div">)
 }
 
 /**
+ * Alert dialog media component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogMedia } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogMedia)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -125,6 +197,15 @@ function AlertDialogMedia({ className, ...props }: React.ComponentProps<"div">) 
 }
 
 /**
+ * Alert dialog title component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogTitle } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogTitle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -142,6 +223,15 @@ function AlertDialogTitle({ className, ...props }: React.ComponentProps<typeof A
 }
 
 /**
+ * Alert dialog description component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogDescription } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogDescription)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -162,6 +252,15 @@ function AlertDialogDescription({
 }
 
 /**
+ * Alert dialog action component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogAction } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogAction)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -182,6 +281,15 @@ function AlertDialogAction({
 }
 
 /**
+ * Alert dialog cancel component.
+ *
+ * @example
+ * ```tsx
+ * import { AlertDialogCancel } from "@beep/ui/components/alert-dialog"
+ *
+ * console.log(AlertDialogCancel)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

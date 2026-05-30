@@ -76,6 +76,13 @@ const SymlinkTargetPath = RelativePlanPath.pipe(
 /**
  * A file write operation.
  *
+ * @example
+ * ```ts
+ * import { PlannedFile } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(PlannedFile)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -92,6 +99,13 @@ export class PlannedFile extends S.Class<PlannedFile>($I`PlannedFile`)(
 /**
  * A symlink operation.
  *
+ * @example
+ * ```ts
+ * import { PlannedSymlink } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(PlannedSymlink)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -107,6 +121,13 @@ export class PlannedSymlink extends S.Class<PlannedSymlink>($I`PlannedSymlink`)(
 
 /**
  * Input payload used to create a generation pla.
+ *
+ * @example
+ * ```ts
+ * import { FileGenerationPlanInput } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(FileGenerationPlanInput)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -125,6 +146,13 @@ export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I
 
 /**
  * Planned action kinds.
+ *
+ * @example
+ * ```ts
+ * import { GenerationActionKind } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(GenerationActionKind)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -178,6 +206,13 @@ class GenerationActionSymlink extends S.Class<GenerationActionSymlink>($I`Genera
  * Planned generation action schema.
  *
  * @returns Tagged union schema keyed by `kind`.
+ * @example
+ * ```ts
+ * import { GenerationAction } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(GenerationAction)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -211,6 +246,13 @@ export type GenerationAction = typeof GenerationAction.Type;
 /**
  * Deterministic generation plan.
  *
+ * @example
+ * ```ts
+ * import { FileGenerationPlan } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(FileGenerationPlan)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -226,6 +268,13 @@ export class FileGenerationPlan extends S.Class<FileGenerationPlan>($I`FileGener
 
 /**
  * Execution report for a plan run.
+ *
+ * @example
+ * ```ts
+ * import { FileGenerationExecutionResult } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(FileGenerationExecutionResult)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -248,6 +297,14 @@ export class FileGenerationExecutionResult extends S.Class<FileGenerationExecuti
 /**
  * Service contract for deterministic generation plan orchestration.
  *
+ * @example
+ * ```ts
+ * import type { FileGenerationPlanServiceShape } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * const value = {} as FileGenerationPlanServiceShape
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -261,6 +318,13 @@ export type FileGenerationPlanServiceShape = {
 
 /**
  * Service tag for deterministic file-generation planning and execution.
+ *
+ * @example
+ * ```ts
+ * import { FileGenerationPlanService } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(FileGenerationPlanService)
+ * ```
  *
  * @category ports
  * @since 0.0.0
@@ -460,6 +524,13 @@ const resolveContainedSymlinkDestinationPath: {
  * Construct the default generation plan service implementation.
  *
  * @returns Deterministic plan preview and execution helpers.
+ * @example
+ * ```ts
+ * import { createFileGenerationPlanService } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(createFileGenerationPlanService)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

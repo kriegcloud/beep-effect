@@ -17,6 +17,13 @@ const $I = $ArchitectureLabServerId.create("entities/Worker/Worker.layer");
 /**
  * Build the Worker server facade.
  *
+ * @example
+ * ```ts
+ * import { makeWorkerServer } from "@beep/architecture-lab-server/entities/Worker"
+ *
+ * console.log(makeWorkerServer)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -28,6 +35,13 @@ export const makeWorkerServer = Effect.fn("ArchitectureLab.WorkerServer.make")(f
 /**
  * Worker server facade service.
  *
+ * @example
+ * ```ts
+ * import { WorkerServer } from "@beep/architecture-lab-server/entities/Worker"
+ *
+ * console.log(WorkerServer)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
@@ -37,6 +51,13 @@ export class WorkerServer extends Context.Service<WorkerServer, WorkerUseCases.W
 
 /**
  * Worker server layer.
+ *
+ * @example
+ * ```ts
+ * import { WorkerServerLayer } from "@beep/architecture-lab-server/entities/Worker"
+ *
+ * console.log(WorkerServerLayer)
+ * ```
  *
  * @category layers
  * @since 0.0.0

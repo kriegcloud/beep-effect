@@ -1,5 +1,12 @@
 # @beep/db-admin
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @beep/architecture-lab-tables@0.0.2
+
 ## 0.0.1
 
 ### Patch Changes

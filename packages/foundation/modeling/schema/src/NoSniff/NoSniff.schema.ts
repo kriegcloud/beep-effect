@@ -31,7 +31,7 @@ const NoSniffValueBase = LiteralKit([defaultValue]);
  * import { NoSniffValue } from "@beep/schema/NoSniff"
  *
  * const decoded = S.decodeUnknownSync(NoSniffValue)("nosniff")
- * void decoded
+ * console.log(decoded)
  * ```
  *
  * @since 0.0.0
@@ -63,7 +63,7 @@ const NoSniffOptionBase = LiteralKit([false, ...NoSniffValueBase.Options]);
  * import { NoSniffOption } from "@beep/schema/NoSniff"
  *
  * const decoded = S.decodeUnknownSync(NoSniffOption)(false)
- * void decoded
+ * console.log(decoded)
  * ```
  *
  * @since 0.0.0
@@ -93,7 +93,7 @@ export type NoSniffOption = typeof NoSniffOption.Type;
  * import { NoSniffResponseHeader } from "@beep/schema/NoSniff"
  *
  * const header = new NoSniffResponseHeader({ name: "X-Content-Type-Options", value: Option.none() })
- * void header
+ * console.log(header)
  * ```
  *
  * @since 0.0.0
@@ -120,7 +120,7 @@ type NoSniffResponseHeaderEncoded = typeof NoSniffResponseHeader.Encoded;
  * import { NoSniffHeader } from "@beep/schema/NoSniff"
  *
  * const program = NoSniffHeader.create()
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0

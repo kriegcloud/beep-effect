@@ -38,6 +38,13 @@ const getStoredWorker = Effect.fn("ArchitectureLab.WorkerRepository.getStored")(
 /**
  * Build the in-memory Worker repository used by the fast architecture lab proof.
  *
+ * @example
+ * ```ts
+ * import { makeInMemoryWorkerRepository } from "@beep/architecture-lab-server/entities/Worker"
+ *
+ * console.log(makeInMemoryWorkerRepository)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -112,6 +119,13 @@ const getDrizzleWorker = Effect.fn("ArchitectureLab.WorkerRepository.getDrizzle"
 /**
  * Build a Drizzle-backed Worker repository used by live persistence tests.
  *
+ * @example
+ * ```ts
+ * import { makeDrizzleWorkerRepository } from "@beep/architecture-lab-server/entities/Worker"
+ *
+ * console.log(makeDrizzleWorkerRepository)
+ * ```
+ *
  * @category repositories
  * @since 0.0.0
  */
@@ -153,6 +167,13 @@ export const makeDrizzleWorkerRepository = Effect.fn("ArchitectureLab.WorkerRepo
 
 /**
  * Build the default Worker repository for normal slice tests.
+ *
+ * @example
+ * ```ts
+ * import { makeWorkerRepository } from "@beep/architecture-lab-server/entities/Worker"
+ *
+ * console.log(makeWorkerRepository)
+ * ```
  *
  * @category repositories
  * @since 0.0.0

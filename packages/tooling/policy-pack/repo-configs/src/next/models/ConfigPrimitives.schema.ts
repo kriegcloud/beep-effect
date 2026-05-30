@@ -25,7 +25,7 @@ const StringOrStringArray = S.Union([S.String, StringArray]);
  *   defaultLocale: "en",
  *   domain: "example.com"
  * })
- * void locale
+ * console.log(locale)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -56,7 +56,7 @@ export class DomainLocale extends S.Class<DomainLocale>($I`DomainLocale`)(
  *   defaultLocale: "en",
  *   locales: ["en", "es"]
  * })
- * void i18n
+ * console.log(i18n)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -91,7 +91,7 @@ export class I18NConfig extends S.Class<I18NConfig>($I`I18NConfig`)(
  * ```ts
  * import { TypeScriptConfig } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
  * const config = TypeScriptConfig.make({ tsconfigPath: "tsconfig.next.json" })
- * void config
+ * console.log(config)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -120,7 +120,7 @@ export class TypeScriptConfig extends S.Class<TypeScriptConfig>($I`TypeScriptCon
  * ```ts
  * import { NextParsedUrlQuery } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
  * const query = NextParsedUrlQuery.make({ slug: "hello" })
- * void query
+ * console.log(query)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -138,7 +138,7 @@ export const NextParsedUrlQuery = S.Record(S.String, StringOrStringArray).pipe(
  * ```ts
  * import type { NextParsedUrlQuery } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
  * const query: NextParsedUrlQuery = { slug: "hello" }
- * void query
+ * console.log(query)
  * ```
  * @category models
  * @since 0.0.0
@@ -164,7 +164,7 @@ class ExportPathMapEntry extends S.Class<ExportPathMapEntry>($I`ExportPathMapEnt
  * const paths = ExportPathMap.make({
  *   "/": { page: "/" }
  * })
- * void paths
+ * console.log(paths)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -182,7 +182,7 @@ export const ExportPathMap = S.Record(S.String, ExportPathMapEntry).pipe(
  * ```ts
  * import type { ExportPathMap } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
  * const paths: ExportPathMap = { "/": { page: "/" } }
- * void paths
+ * console.log(paths)
  * ```
  * @category models
  * @since 0.0.0
@@ -223,7 +223,7 @@ class IncomingRequestLoggingConfig extends S.Class<IncomingRequestLoggingConfig>
  * ```ts
  * import { LoggingConfig } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
  * const logging = LoggingConfig.make({ fetches: { fullUrl: true } })
- * void logging
+ * console.log(logging)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -257,7 +257,7 @@ export class LoggingConfig extends S.Class<LoggingConfig>($I`LoggingConfig`)(
  * ```ts
  * import { LightningCssFeature } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
  * const feature = LightningCssFeature.Enum.nesting
- * void feature
+ * console.log(feature)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -300,7 +300,7 @@ export const LightningCssFeature = LiteralKit([
  * ```ts
  * import type { LightningCssFeature } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
  * const feature = "nesting" satisfies LightningCssFeature
- * void feature
+ * console.log(feature)
  * ```
  * @category models
  * @since 0.0.0
@@ -314,7 +314,7 @@ export type LightningCssFeature = typeof LightningCssFeature.Type;
  * ```ts
  * import { LightningCssFeatures } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
  * const features = LightningCssFeatures.make({ include: ["nesting"] })
- * void features
+ * console.log(features)
  * ```
  * @category schemas
  * @since 0.0.0

@@ -1,6 +1,15 @@
 import type { ThemeComponents } from "../types.ts";
 
 /**
+ * Menu theme theme value.
+ *
+ * @example
+ * ```ts
+ * import { menuTheme } from "@beep/ui/themes/components/menu"
+ *
+ * console.log(menuTheme)
+ * ```
+ *
  * @category themes
  * @since 0.0.0
  */

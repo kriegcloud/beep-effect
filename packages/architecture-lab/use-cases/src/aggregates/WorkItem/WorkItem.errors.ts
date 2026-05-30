@@ -16,6 +16,13 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.error
 /**
  * Generic public reason used when internal WorkItem repository details are redacted.
  *
+ * @example
+ * ```ts
+ * import { WORK_ITEM_ACTION_UNAVAILABLE_REASON } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(WORK_ITEM_ACTION_UNAVAILABLE_REASON)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -23,6 +30,13 @@ export const WORK_ITEM_ACTION_UNAVAILABLE_REASON = "WorkItem service is unavaila
 
 /**
  * Public failure raised when a requested WorkItem is absent.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemNotFound } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(WorkItemNotFound)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -40,6 +54,13 @@ export class WorkItemNotFound extends TaggedErrorClass<WorkItemNotFound>($I`Work
 
 /**
  * Public failure raised when a command conflicts with persisted state.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemConflict } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(WorkItemConflict)
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -59,6 +80,13 @@ export class WorkItemConflict extends TaggedErrorClass<WorkItemConflict>($I`Work
 /**
  * Public failure raised when the domain rejects a WorkItem action.
  *
+ * @example
+ * ```ts
+ * import { WorkItemActionRejected } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(WorkItemActionRejected)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -77,6 +105,13 @@ export class WorkItemActionRejected extends TaggedErrorClass<WorkItemActionRejec
 /**
  * Public failure raised when an action cannot be completed.
  *
+ * @example
+ * ```ts
+ * import { WorkItemActionFailed } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(WorkItemActionFailed)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -94,6 +129,14 @@ export class WorkItemActionFailed extends TaggedErrorClass<WorkItemActionFailed>
 /**
  * Public WorkItem use-case failure.
  *
+ * @example
+ * ```ts
+ * import type { WorkItemActionError } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * const value = {} as WorkItemActionError
+ * console.log(value)
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -101,6 +144,13 @@ export type WorkItemActionError = WorkItemNotFound | WorkItemConflict | WorkItem
 
 /**
  * Public WorkItem use-case failure schema.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemActionError } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ *
+ * console.log(WorkItemActionError)
+ * ```
  *
  * @category errors
  * @since 0.0.0

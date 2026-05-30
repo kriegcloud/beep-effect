@@ -12,6 +12,13 @@ import { $I } from "./HttpStatus.shared.ts";
  * 421 “Misdirected Request” – The request was directed to a server unable to
  * produce a response.
  *
+ * @example
+ * ```ts
+ * import { MisdirectedRequest } from "@beep/schema/HttpStatus"
+ *
+ * console.log(MisdirectedRequest.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -36,6 +43,13 @@ export type MisdirectedRequest = typeof MisdirectedRequest.Type;
  * response. If you stumble upon this error, check out our article about the
  * 422 Error Code.
  *
+ * @example
+ * ```ts
+ * import { UnprocessableEntity } from "@beep/schema/HttpStatus"
+ *
+ * console.log(UnprocessableEntity.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -58,6 +72,13 @@ export type UnprocessableEntity = typeof UnprocessableEntity.Type;
 /**
  * 423 “Locked” – The resource that is being accessed is locked.
  *
+ * @example
+ * ```ts
+ * import { Locked } from "@beep/schema/HttpStatus"
+ *
+ * console.log(Locked.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -79,6 +100,13 @@ export type Locked = typeof Locked.Type;
 /**
  * 424 “Failed Dependency” – The request failed because it depended on another
  * request that failed as well.
+ *
+ * @example
+ * ```ts
+ * import { FailedDependency } from "@beep/schema/HttpStatus"
+ *
+ * console.log(FailedDependency.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -103,6 +131,13 @@ export type FailedDependency = typeof FailedDependency.Type;
  * 425 “Too Early” – This error indicates that the server is unwilling to risk
  * processing a request that might be replayed.
  *
+ * @example
+ * ```ts
+ * import { TooEarly } from "@beep/schema/HttpStatus"
+ *
+ * console.log(TooEarly.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -126,6 +161,13 @@ export type TooEarly = typeof TooEarly.Type;
  * 426 “Upgrade Required” – The server refuses the request using the current
  * protocols as indicated by the upgrade header sent in response. It is willing
  * to accept the request if the client upgrades to another protocol.
+ *
+ * @example
+ * ```ts
+ * import { UpgradeRequired } from "@beep/schema/HttpStatus"
+ *
+ * console.log(UpgradeRequired.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -152,6 +194,13 @@ export type UpgradeRequired = typeof UpgradeRequired.Type;
  * a client uses the GET method to request a resource, modifies it, and then
  * uses PUT to upload the new version while another party may have also altered
  * the same resource.
+ *
+ * @example
+ * ```ts
+ * import { PreconditionRequired } from "@beep/schema/HttpStatus"
+ *
+ * console.log(PreconditionRequired.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation
@@ -185,6 +234,13 @@ export type PreconditionRequired = typeof PreconditionRequired.Type;
  * guide: Let’s Encrypt errors “429 Too Many Requests”, “No Domains
  * Authorized,” and “Certificate is not for the chosen domain.”
  *
+ * @example
+ * ```ts
+ * import { TooManyRequests } from "@beep/schema/HttpStatus"
+ *
+ * console.log(TooManyRequests.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -209,6 +265,13 @@ export type TooManyRequests = typeof TooManyRequests.Type;
  * because its individual header fields or all combined header fields are too
  * large. The client may submit a new request if the size is reduced.
  *
+ * @example
+ * ```ts
+ * import { RequestHeaderFieldsTooLarge } from "@beep/schema/HttpStatus"
+ *
+ * console.log(RequestHeaderFieldsTooLarge.literal)
+ * ```
+ *
  * @since 0.0.0
  * @category validation
  */
@@ -232,6 +295,13 @@ export type RequestHeaderFieldsTooLarge = typeof RequestHeaderFieldsTooLarge.Typ
  * 451 “Unavailable for Legal Reasons” – The client requests a resource for
  * which the server is legally bound to deny access, such as a web page
  * censored by the government.
+ *
+ * @example
+ * ```ts
+ * import { UnavailableForLegalReasons } from "@beep/schema/HttpStatus"
+ *
+ * console.log(UnavailableForLegalReasons.literal)
+ * ```
  *
  * @since 0.0.0
  * @category validation

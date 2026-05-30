@@ -1554,6 +1554,38 @@ export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExp
   yield* runBun(repoRoot, label, ["--filter=@beep/repo-cli", script]);
 });
 
+/**
+ * Run the repo-wide JSDoc quality gate.
+ *
+ * @example
+ * ```ts
+ * import { runJSDocQuality } from "@beep/repo-cli/commands/Quality/Quality.command"
+ *
+ * const program = runJSDocQuality()
+ * console.log(program)
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const runJSDocQuality = Effect.fn("QualityScriptCommands.runJSDocQuality")(function* (): Effect.fn.Return<
+  void,
+  QualityScriptCommandError,
+  FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
+
+  yield* runBun(repoRoot, "quality:jsdoc-quality", [
+    "beep",
+    "--",
+    "docgen",
+    "quality",
+    "--all",
+    "--check",
+    "--packet-limit",
+    "0",
+  ]);
+});
+
 const runQualityProgram = <A, R>(
   effect: Effect.Effect<A, QualityScriptCommandError, R>
 ): Effect.Effect<void, QualityScriptCommandError, R> => effect.pipe(Effect.asVoid);
@@ -1607,6 +1639,10 @@ const jsdocInventoryCommand = Command.make("jsdoc-inventory", {}, () => runQuali
   Command.withDescription("Generate the tracked JSDoc documentation inventory")
 );
 
+const jsdocQualityCommand = Command.make("jsdoc-quality", {}, () => runQualityProgram(runJSDocQuality())).pipe(
+  Command.withDescription("Fail when repo-wide JSDoc quality reports warnings or failures")
+);
+
 const repoExportsCatalogCommand = Command.make(
   "repo-exports-catalog",
   {
@@ -1655,6 +1691,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality tsgo-rules",
     "- bun run beep quality jsdoc-module-tags",
     "- bun run beep quality jsdoc-inventory",
+    "- bun run beep quality jsdoc-quality",
     "- bun run beep quality repo-exports-catalog",
     "- bun run beep quality changeset-graph",
   ])
@@ -1669,6 +1706,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     tsgoRulesCommand,
     jsdocModuleTagsCommand,
     jsdocInventoryCommand,
+    jsdocQualityCommand,
     repoExportsCatalogCommand,
     changesetGraphCommand,
   ])

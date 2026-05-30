@@ -133,6 +133,14 @@ export class ProcessCommand extends S.Class<ProcessCommand>($I`ProcessCommand`)(
 /**
  * Process service shape used by sandbox providers and git helpers.
  *
+ * @example
+ * ```ts
+ * import type { SandboxProcessShape } from "@beep/sandbox/Sandbox.process"
+ *
+ * const value = {} as SandboxProcessShape
+ * console.log(value)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -232,6 +240,13 @@ const makeSandboxProcess = Effect.fn("SandboxProcessLive.make")(function* () {
 
 /**
  * Live process service backed by `effect/unstable/process`.
+ *
+ * @example
+ * ```ts
+ * import { SandboxProcessLive } from "@beep/sandbox/Sandbox.process"
+ *
+ * console.log(SandboxProcessLive)
+ * ```
  *
  * @category layers
  * @since 0.0.0

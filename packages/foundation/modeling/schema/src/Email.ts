@@ -39,7 +39,7 @@ export const Email = InternalEmail;
  * const decode = S.decodeUnknownSync(Email)
  * const email: EmailValue = decode("admin@example.com")
  *
- * void email
+ * console.log(email)
  * ```
  *
  * @category models

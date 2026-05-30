@@ -1,4 +1,6 @@
 /**
+ * Person age schema.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */
@@ -9,6 +11,15 @@ const $I = $SchemaId.create("Age");
 
 /**
  * The age of a person in years.
+ *
+ * @example
+ * ```ts
+ * import { Age } from "@beep/schema/Age"
+ * import * as S from "effect/Schema"
+ *
+ * const age = S.decodeUnknownSync(Age)(42)
+ * console.log(age)
+ * ```
  *
  * @since 0.0.0
  * @category validation

@@ -15,6 +15,13 @@ const $I = $RepoCliId.create("commands/TsconfigSync/TsconfigSync.errors");
 /**
  * Drift error raised in check mode when changes are required.
  *
+ * @example
+ * ```ts
+ * import { TsconfigSyncDriftError } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(TsconfigSyncDriftError)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -54,6 +61,13 @@ export class TsconfigSyncDriftError extends TaggedErrorClass<TsconfigSyncDriftEr
 /**
  * Cycle error raised when workspace dependency cycles are detected.
  *
+ * @example
+ * ```ts
+ * import { TsconfigSyncCycleError } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(TsconfigSyncCycleError)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -92,6 +106,13 @@ export class TsconfigSyncCycleError extends TaggedErrorClass<TsconfigSyncCycleEr
 
 /**
  * Filter error raised when `--filter` does not match any workspace package.
+ *
+ * @example
+ * ```ts
+ * import { TsconfigSyncFilterError } from "@beep/repo-cli/commands/TsconfigSync"
+ *
+ * console.log(TsconfigSyncFilterError)
+ * ```
  *
  * @category utilities
  * @since 0.0.0

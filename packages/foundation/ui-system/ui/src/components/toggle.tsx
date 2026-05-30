@@ -6,6 +6,15 @@ import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
 
 /**
+ * Toggle variants component.
+ *
+ * @example
+ * ```tsx
+ * import { toggleVariants } from "@beep/ui/components/toggle"
+ *
+ * console.log(toggleVariants)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -31,6 +40,15 @@ const toggleVariants = cva(
 );
 
 /**
+ * Toggle component.
+ *
+ * @example
+ * ```tsx
+ * import { Toggle } from "@beep/ui/components/toggle"
+ *
+ * console.log(Toggle)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

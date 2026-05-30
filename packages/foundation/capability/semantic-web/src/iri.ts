@@ -871,7 +871,7 @@ export const IRIReference = S.String.check(iriReferenceChecks).pipe(
  * import type { IRIReference } from "@beep/semantic-web/iri"
  *
  * const acceptIRIReference = (value: IRIReference) => value
- * void acceptIRIReference
+ * console.log(acceptIRIReference)
  * ```
  *
  * @since 0.0.0
@@ -909,7 +909,7 @@ export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).p
  * import type { RelativeIRIReference } from "@beep/semantic-web/iri"
  *
  * const acceptRelativeIRIReference = (value: RelativeIRIReference) => value
- * void acceptRelativeIRIReference
+ * console.log(acceptRelativeIRIReference)
  * ```
  *
  * @since 0.0.0
@@ -947,7 +947,7 @@ export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
  * import type { AbsoluteIRI } from "@beep/semantic-web/iri"
  *
  * const acceptAbsoluteIRI = (value: AbsoluteIRI) => value
- * void acceptAbsoluteIRI
+ * console.log(acceptAbsoluteIRI)
  * ```
  *
  * @since 0.0.0
@@ -985,7 +985,7 @@ export const IRI = S.String.check(iriChecks).pipe(
  * import type { IRI } from "@beep/semantic-web/iri"
  *
  * const acceptIRI = (value: IRI) => value
- * void acceptIRI
+ * console.log(acceptIRI)
  * ```
  *
  * @since 0.0.0

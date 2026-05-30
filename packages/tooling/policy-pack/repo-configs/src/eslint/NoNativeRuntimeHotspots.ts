@@ -17,7 +17,7 @@ import { A } from "@beep/utils";
  * ```ts
  * import { NO_NATIVE_RUNTIME_ERROR_FILES } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
  * const firstPath = NO_NATIVE_RUNTIME_ERROR_FILES[0]
- * void firstPath
+ * console.log(firstPath)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -39,7 +39,7 @@ export const NO_NATIVE_RUNTIME_ERROR_FILES = [
  * ```ts
  * import { NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
  * const firstPattern = NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS[0]
- * void firstPattern
+ * console.log(firstPattern)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -68,7 +68,7 @@ export const NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS = [
  * ```ts
  * import { isNoNativeRuntimeErrorFile } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
  * const matches = isNoNativeRuntimeErrorFile("packages/tooling/tool/cli/src/commands/Lint/index.ts")
- * void matches
+ * console.log(matches)
  * ```
  * @category predicates
  * @since 0.0.0
@@ -85,7 +85,7 @@ export const isNoNativeRuntimeErrorFile = (relativeFilePath: string): boolean =>
  * ```ts
  * import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
  * const matches = isNoNativeRuntimeExtraCheckHotspot("packages/tooling/tool/cli/src/commands/Laws/index.ts")
- * void matches
+ * console.log(matches)
  * ```
  * @category predicates
  * @since 0.0.0

@@ -81,7 +81,7 @@ export class RenderError extends TaggedErrorClass<RenderError>($I`RenderError`)(
  *   name: "noop",
  *   render: (document) => document._tag
  * }
- * void adapter
+ * console.log(adapter)
  * ```
  *
  * @category models
@@ -107,7 +107,7 @@ export interface PureRenderAdapter<Output> {
  *   name: "bytes",
  *   render: () => Effect.succeed(new Uint8Array())
  * }
- * void adapter
+ * console.log(adapter)
  * ```
  *
  * @category models
@@ -519,7 +519,7 @@ export const renderWithUnsafe: {
  *   render: () => Effect.succeed(new Uint8Array())
  * }
  * const program = renderEffectWithUnsafe(adapter, Md.make([]))
- * void program
+ * console.log(program)
  * ```
  *
  * @category utilities
@@ -558,7 +558,7 @@ export const renderEffectWithUnsafe: {
  *   render: () => Effect.succeed(new Uint8Array())
  * }
  * const program = renderEffectWith(adapter, Md.make([]))
- * void program
+ * console.log(program)
  * ```
  *
  * @category utilities
@@ -747,7 +747,7 @@ export const DocumentToMarkdown = DocumentSchema.pipe(
  * import type { DocumentToMarkdown } from "@beep/md/Md.render"
  *
  * const acceptMarkdown = (value: DocumentToMarkdown) => value
- * void acceptMarkdown
+ * console.log(acceptMarkdown)
  * ```
  *
  * @category models
@@ -789,7 +789,7 @@ export const DocumentToHtmlFragment = DocumentSchema.pipe(
  * import type { DocumentToHtmlFragment } from "@beep/md/Md.render"
  *
  * const acceptHtml = (value: DocumentToHtmlFragment) => value
- * void acceptHtml
+ * console.log(acceptHtml)
  * ```
  *
  * @category models

@@ -36,7 +36,7 @@ const XAiHttpMethodValues = ["DELETE", "GET", "PATCH", "POST", "PUT"] as const;
  * import type { XAiHttpMethod } from "@beep/xai"
  *
  * const method: XAiHttpMethod = "POST"
- * void method
+ * console.log(method)
  * ```
  *
  * @category schemas
@@ -56,7 +56,7 @@ export const XAiHttpMethod = LiteralKit(XAiHttpMethodValues).pipe(
  * import type { XAiHttpMethod } from "@beep/xai"
  *
  * const method: XAiHttpMethod = "GET"
- * void method
+ * console.log(method)
  * ```
  *
  * @category models
@@ -74,7 +74,7 @@ const XAiAuthKindValues = ["api-key", "management-key"] as const;
  * import type { XAiAuthKind } from "@beep/xai"
  *
  * const auth: XAiAuthKind = "api-key"
- * void auth
+ * console.log(auth)
  * ```
  *
  * @category schemas
@@ -94,7 +94,7 @@ export const XAiAuthKind = LiteralKit(XAiAuthKindValues).pipe(
  * import type { XAiAuthKind } from "@beep/xai"
  *
  * const auth: XAiAuthKind = "api-key"
- * void auth
+ * console.log(auth)
  * ```
  *
  * @category models
@@ -112,7 +112,7 @@ const XAiEndpointBaseValues = ["api", "management", "websocket"] as const;
  * import type { XAiEndpointBase } from "@beep/xai"
  *
  * const base: XAiEndpointBase = "management"
- * void base
+ * console.log(base)
  * ```
  *
  * @category schemas
@@ -132,7 +132,7 @@ export const XAiEndpointBase = LiteralKit(XAiEndpointBaseValues).pipe(
  * import type { XAiEndpointBase } from "@beep/xai"
  *
  * const base: XAiEndpointBase = "api"
- * void base
+ * console.log(base)
  * ```
  *
  * @category models
@@ -150,7 +150,7 @@ const XAiRequestBodyKindValues = ["binary", "json", "multipart", "none", "websoc
  * import type { XAiRequestBodyKind } from "@beep/xai"
  *
  * const bodyKind: XAiRequestBodyKind = "json"
- * void bodyKind
+ * console.log(bodyKind)
  * ```
  *
  * @category schemas
@@ -170,7 +170,7 @@ export const XAiRequestBodyKind = LiteralKit(XAiRequestBodyKindValues).pipe(
  * import type { XAiRequestBodyKind } from "@beep/xai"
  *
  * const bodyKind: XAiRequestBodyKind = "json"
- * void bodyKind
+ * console.log(bodyKind)
  * ```
  *
  * @category models
@@ -188,7 +188,7 @@ const XAiResponseBodyKindValues = ["binary", "json", "none", "sse", "websocket"]
  * import type { XAiResponseBodyKind } from "@beep/xai"
  *
  * const responseKind: XAiResponseBodyKind = "json"
- * void responseKind
+ * console.log(responseKind)
  * ```
  *
  * @category schemas
@@ -208,7 +208,7 @@ export const XAiResponseBodyKind = LiteralKit(XAiResponseBodyKindValues).pipe(
  * import type { XAiResponseBodyKind } from "@beep/xai"
  *
  * const responseKind: XAiResponseBodyKind = "json"
- * void responseKind
+ * console.log(responseKind)
  * ```
  *
  * @category models
@@ -226,7 +226,7 @@ const XAiEndpointStatusValues = ["active", "deprecated", "documented-unknown"] a
  * import type { XAiEndpointStatus } from "@beep/xai"
  *
  * const status: XAiEndpointStatus = "active"
- * void status
+ * console.log(status)
  * ```
  *
  * @category schemas
@@ -246,7 +246,7 @@ export const XAiEndpointStatus = LiteralKit(XAiEndpointStatusValues).pipe(
  * import type { XAiEndpointStatus } from "@beep/xai"
  *
  * const status: XAiEndpointStatus = "active"
- * void status
+ * console.log(status)
  * ```
  *
  * @category models
@@ -351,7 +351,7 @@ const XAiEndpointMethodNameValues = [
  * import type { XAiEndpointMethodName } from "@beep/xai"
  *
  * const method: XAiEndpointMethodName = "createChatCompletion"
- * void method
+ * console.log(method)
  * ```
  *
  * @category schemas
@@ -371,7 +371,7 @@ export const XAiEndpointMethodName = LiteralKit(XAiEndpointMethodNameValues).pip
  * import type { XAiEndpointMethodName } from "@beep/xai"
  *
  * const methodName: XAiEndpointMethodName = "listModels"
- * void methodName
+ * console.log(methodName)
  * ```
  *
  * @category models
@@ -491,7 +491,7 @@ const XAiEndpointIdValues = [
  * import type { XAiEndpointId } from "@beep/xai"
  *
  * const endpoint: XAiEndpointId = "inference.chat.createCompletion"
- * void endpoint
+ * console.log(endpoint)
  * ```
  *
  * @category schemas
@@ -511,7 +511,7 @@ export const XAiEndpointId = LiteralKit(XAiEndpointIdValues).pipe(
  * import type { XAiEndpointId } from "@beep/xai"
  *
  * const endpointId: XAiEndpointId = "inference.models.listModels"
- * void endpointId
+ * console.log(endpointId)
  * ```
  *
  * @category models
@@ -528,7 +528,7 @@ export type XAiEndpointId = typeof XAiEndpointId.Type;
  * import * as S from "effect/Schema"
  *
  * const isEndpoint = S.is(XAiEndpoint)
- * void isEndpoint
+ * console.log(isEndpoint)
  * ```
  *
  * @category schemas
@@ -569,7 +569,7 @@ export class XAiEndpoint extends S.Class<XAiEndpoint>($I`XAiEndpoint`)(
  *   response: "json",
  *   status: "active"
  * }
- * void descriptor
+ * console.log(descriptor)
  * ```
  *
  * @category models

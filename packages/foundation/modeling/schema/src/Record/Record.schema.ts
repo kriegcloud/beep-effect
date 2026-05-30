@@ -20,7 +20,7 @@ const $I = $SchemaId.create("Record");
  * const decode = S.decodeUnknownSync(UnknownRecord)
  *
  * const value = decode({ enabled: true, count: 1 })
- * void value
+ * console.log(value)
  * ```
  *
  * @category schemas
@@ -40,7 +40,7 @@ export const UnknownRecord = S.Record(S.String, S.Unknown).pipe(
  * import type { UnknownRecord } from "@beep/schema"
  *
  * const value: UnknownRecord = { enabled: true, count: 1 }
- * void value
+ * console.log(value)
  * ```
  *
  * @category models

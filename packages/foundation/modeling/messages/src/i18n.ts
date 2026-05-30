@@ -57,7 +57,7 @@ export const t = i18next.t;
  *
  *
  * }
- * void opts
+ * console.log(opts)
  * ```
  *
  * @since 0.0.0
@@ -190,6 +190,14 @@ const logIssuesImpl = getLogIssues({
 
 /**
  * Logs schema validation issues for i18n payloads.
+ *
+ * @example
+ * ```typescript
+ * import { logIssues } from "@beep/messages"
+ * import * as S from "effect/Schema"
+ *
+ * logIssues(S.Struct({ name: S.NonEmptyString }), { name: "" })
+ * ```
  *
  * @category utilities
  * @since 0.0.0

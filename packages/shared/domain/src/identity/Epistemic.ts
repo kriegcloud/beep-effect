@@ -41,7 +41,7 @@ export const CandidateClaimId = make("candidate_claim", {
  *   const id: Epistemic.CandidateClaimId = yield* S.decodeUnknownEffect(Epistemic.CandidateClaimId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -79,7 +79,7 @@ export const EvidenceId = make("evidence", {
  *   const id: Epistemic.EvidenceId = yield* S.decodeUnknownEffect(Epistemic.EvidenceId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -117,7 +117,7 @@ export const ActivityId = make("activity", {
  *   const id: Epistemic.ActivityId = yield* S.decodeUnknownEffect(Epistemic.ActivityId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids
@@ -155,7 +155,7 @@ export const UsageRecordId = make("usage_record", {
  *   const id: Epistemic.UsageRecordId = yield* S.decodeUnknownEffect(Epistemic.UsageRecordId)(1)
  *   return id
  * })
- * void program
+ * console.log(program)
  * ```
  *
  * @category entity-ids

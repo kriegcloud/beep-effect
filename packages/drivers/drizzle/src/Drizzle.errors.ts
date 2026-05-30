@@ -29,7 +29,7 @@ const REDACTED_SQL_PARAMETER = "<redacted>";
  *   params: []
  * })
  *
- * void context
+ * console.log(context)
  * ```
  *
  * @category errors
@@ -230,7 +230,7 @@ const extractNativeQueryContext = (cause: unknown, seen: ReadonlyArray<object> =
  *   params: O.none()
  * })
  *
- * void error
+ * console.log(error)
  * ```
  *
  * @category errors
@@ -260,7 +260,7 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError
    *   params: []
    * })
    *
-   * void error
+   * console.log(error)
    * ```
    *
    * @category errors

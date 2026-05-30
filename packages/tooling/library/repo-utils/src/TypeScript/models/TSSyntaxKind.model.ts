@@ -433,7 +433,7 @@ const TSSyntaxKindNames = toNameOptions(TSSyntaxKindEntries);
  * ```ts
  * import { TSSyntaxKindCode } from "@beep/repo-utils/TypeScript/models/TSSyntaxKind.model"
  * const sourceFileCode = TSSyntaxKindCode.SourceFile
- * void sourceFileCode
+ * console.log(sourceFileCode)
  * ```
  * @category models
  * @since 0.0.0
@@ -454,7 +454,7 @@ const TSSyntaxKindBase = LiteralKit(TSSyntaxKindNames);
  * ```ts
  * import { TSSyntaxKind } from "@beep/repo-utils/TypeScript/models/TSSyntaxKind.model"
  * const syntaxKind = TSSyntaxKind
- * void syntaxKind.Code.SourceFile
+ * console.log(syntaxKind.Code.SourceFile)
  * ```
  * @category models
  * @since 0.0.0
@@ -473,7 +473,7 @@ export const TSSyntaxKind = TSSyntaxKindBase.pipe(
  * ```ts
  * import type { TSSyntaxKind } from "@beep/repo-utils/TypeScript/models/TSSyntaxKind.model"
  * const kind: TSSyntaxKind.Type = "SourceFile"
- * void kind
+ * console.log(kind)
  * ```
  * @category models
  * @since 0.0.0
@@ -502,7 +502,7 @@ export declare namespace TSSyntaxKind {
  * ```ts
  * import { TSSyntaxKindLiteral } from "@beep/repo-utils/TypeScript/models/TSSyntaxKind.model"
  * const syntaxKind = TSSyntaxKindLiteral
- * void syntaxKind
+ * console.log(syntaxKind)
  * ```
  * @category models
  * @since 0.0.0
@@ -516,7 +516,7 @@ export const TSSyntaxKindLiteral = TSSyntaxKind.From;
  * ```ts
  * import type { TSSyntaxKindLiteral } from "@beep/repo-utils/TypeScript/models/TSSyntaxKind.model"
  * const kind: TSSyntaxKindLiteral = "SourceFile"
- * void kind
+ * console.log(kind)
  * ```
  * @category models
  * @since 0.0.0

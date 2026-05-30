@@ -2,6 +2,15 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
+ * Textarea component.
+ *
+ * @example
+ * ```tsx
+ * import { Textarea } from "@beep/ui/components/textarea"
+ *
+ * console.log(Textarea)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

@@ -18,6 +18,13 @@ const $I = $RepoCliId.create("commands/CreatePackage/TemplateService");
 /**
  * Mapping between template source file and output file path.
  *
+ * @example
+ * ```ts
+ * import { TemplateSpec } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(TemplateSpec)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -34,6 +41,13 @@ export class TemplateSpec extends S.Class<TemplateSpec>($I`TemplateSpec`)(
 /**
  * Rendered template output.
  *
+ * @example
+ * ```ts
+ * import { RenderedTemplate } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(RenderedTemplate)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -49,6 +63,13 @@ export class RenderedTemplate extends S.Class<RenderedTemplate>($I`RenderedTempl
 
 /**
  * Request payload for template rendering.
+ *
+ * @example
+ * ```ts
+ * import { TemplateRenderRequest } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(TemplateRenderRequest)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -70,6 +91,14 @@ export class TemplateRenderRequest extends S.Class<TemplateRenderRequest>($I`Tem
 /**
  * Service contract for template rendering.
  *
+ * @example
+ * ```ts
+ * import type { TemplateServiceShape } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * const value = {} as TemplateServiceShape
+ * console.log(value)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -81,6 +110,13 @@ export type TemplateServiceShape = {
 
 /**
  * Service tag for template rendering.
+ *
+ * @example
+ * ```ts
+ * import { TemplateService } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(TemplateService)
+ * ```
  *
  * @category ports
  * @since 0.0.0
@@ -118,6 +154,13 @@ const createHandlebarsEnvironment = () => {
  * Construct the default template service implementation.
  *
  * @returns Template renderer backed by Handlebars.
+ * @example
+ * ```ts
+ * import { createTemplateService } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(createTemplateService)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

@@ -18,7 +18,7 @@ const $I = $RepoUtilsId.create("JSDoc/models/ASTSignal.model");
  * ```ts
  * import { ASTSignal } from "@beep/repo-utils/JSDoc/models/ASTSignal.model"
  *
- * void ASTSignal
+ * console.log(ASTSignal)
  * ```
  * @category models
  * @since 0.0.0

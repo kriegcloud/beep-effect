@@ -1,6 +1,6 @@
 {
   "name": "@beep/repo-codegraph",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Schema-first deterministic repo export lookup primitives",
   "license": "MIT",
   "private": true,

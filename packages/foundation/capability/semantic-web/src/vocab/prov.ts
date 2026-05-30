@@ -15,7 +15,7 @@ import { makeNamedNode } from "../rdf.ts";
  * ```ts
  * import { PROV_NAMESPACE } from "@beep/semantic-web/vocab/prov"
  *
- * void PROV_NAMESPACE
+ * console.log(PROV_NAMESPACE)
  * ```
  *
  * @since 0.0.0
@@ -30,7 +30,7 @@ export const PROV_NAMESPACE = "http://www.w3.org/ns/prov#" as const;
  * ```ts
  * import { PROV_ENTITY } from "@beep/semantic-web/vocab/prov"
  *
- * void PROV_ENTITY
+ * console.log(PROV_ENTITY)
  * ```
  *
  * @since 0.0.0
@@ -45,7 +45,7 @@ export const PROV_ENTITY = makeNamedNode(`${PROV_NAMESPACE}Entity`);
  * ```ts
  * import { PROV_ACTIVITY } from "@beep/semantic-web/vocab/prov"
  *
- * void PROV_ACTIVITY
+ * console.log(PROV_ACTIVITY)
  * ```
  *
  * @since 0.0.0
@@ -60,7 +60,7 @@ export const PROV_ACTIVITY = makeNamedNode(`${PROV_NAMESPACE}Activity`);
  * ```ts
  * import { PROV_AGENT } from "@beep/semantic-web/vocab/prov"
  *
- * void PROV_AGENT
+ * console.log(PROV_AGENT)
  * ```
  *
  * @since 0.0.0
@@ -75,7 +75,7 @@ export const PROV_AGENT = makeNamedNode(`${PROV_NAMESPACE}Agent`);
  * ```ts
  * import { PROV_WAS_GENERATED_BY } from "@beep/semantic-web/vocab/prov"
  *
- * void PROV_WAS_GENERATED_BY
+ * console.log(PROV_WAS_GENERATED_BY)
  * ```
  *
  * @since 0.0.0
@@ -90,7 +90,7 @@ export const PROV_WAS_GENERATED_BY = makeNamedNode(`${PROV_NAMESPACE}wasGenerate
  * ```ts
  * import { PROV_USED } from "@beep/semantic-web/vocab/prov"
  *
- * void PROV_USED
+ * console.log(PROV_USED)
  * ```
  *
  * @since 0.0.0

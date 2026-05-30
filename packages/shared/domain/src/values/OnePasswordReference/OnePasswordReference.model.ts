@@ -29,6 +29,13 @@ const OnePasswordReferenceChecks = S.makeFilterGroup([
  * This value is a reference only. It is safe for manifests, approvals, and
  * validators because it never contains the resolved secret value.
  *
+ * @example
+ * ```ts
+ * import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model"
+ *
+ * console.log(OnePasswordReference)
+ * ```
+ *
  * @category value-objects
  * @since 0.0.0
  */
@@ -51,6 +58,13 @@ export type OnePasswordReference = typeof OnePasswordReference.Type;
 
 /**
  * Schema-derived guard for 1Password references.
+ *
+ * @example
+ * ```ts
+ * import { isOnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model"
+ *
+ * console.log(isOnePasswordReference)
+ * ```
  *
  * @category guards
  * @since 0.0.0

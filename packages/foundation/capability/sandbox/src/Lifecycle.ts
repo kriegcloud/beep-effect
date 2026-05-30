@@ -36,6 +36,13 @@ const shellEscape = (value: string): string => `'${Str.replaceAll("'", "'\\''")(
 /**
  * Host lifecycle hook command.
  *
+ * @example
+ * ```ts
+ * import { HostLifecycleHookCommand } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(HostLifecycleHookCommand)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -51,6 +58,13 @@ export class HostLifecycleHookCommand extends S.Class<HostLifecycleHookCommand>(
 
 /**
  * Sandbox lifecycle hook command.
+ *
+ * @example
+ * ```ts
+ * import { SandboxLifecycleHookCommand } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(SandboxLifecycleHookCommand)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -69,6 +83,13 @@ export class SandboxLifecycleHookCommand extends S.Class<SandboxLifecycleHookCom
 /**
  * Host lifecycle hook groups.
  *
+ * @example
+ * ```ts
+ * import { HostLifecycleHooks } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(HostLifecycleHooks)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -85,6 +106,13 @@ export class HostLifecycleHooks extends S.Class<HostLifecycleHooks>($I`HostLifec
 /**
  * Sandbox lifecycle hook groups.
  *
+ * @example
+ * ```ts
+ * import { SandboxLifecycleHooks } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(SandboxLifecycleHooks)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -99,6 +127,13 @@ export class SandboxLifecycleHooks extends S.Class<SandboxLifecycleHooks>($I`San
 
 /**
  * Lifecycle hooks for a sandbox run.
+ *
+ * @example
+ * ```ts
+ * import { SandboxHooks } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(SandboxHooks)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -115,6 +150,13 @@ export class SandboxHooks extends S.Class<SandboxHooks>($I`SandboxHooks`)(
 
 /**
  * Options for sandbox lifecycle setup.
+ *
+ * @example
+ * ```ts
+ * import { SandboxLifecycleSetupOptions } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(SandboxLifecycleSetupOptions)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -138,6 +180,13 @@ export class SandboxLifecycleSetupOptions extends S.Class<SandboxLifecycleSetupO
 /**
  * Options for merge-to-head lifecycle.
  *
+ * @example
+ * ```ts
+ * import { MergeToHeadOptions } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(MergeToHeadOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -157,6 +206,13 @@ export class MergeToHeadOptions extends S.Class<MergeToHeadOptions>($I`MergeToHe
 
 /**
  * Options for running host lifecycle hooks.
+ *
+ * @example
+ * ```ts
+ * import { RunHostHooksOptions } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(RunHostHooksOptions)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -291,6 +347,13 @@ const runSandboxHook = Effect.fn("Lifecycle.runSandboxHook")(function* <R>(
 
 /**
  * Run host-side lifecycle hook commands sequentially.
+ *
+ * @example
+ * ```ts
+ * import { runHostHooks } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(runHostHooks)
+ * ```
  *
  * @category combinators
  * @since 0.0.0
@@ -434,6 +497,13 @@ const runGitSetup = Effect.fn("Lifecycle.runGitSetup")(function* <R>(
 /**
  * Run sandbox setup commands and ready hooks before agent work.
  *
+ * @example
+ * ```ts
+ * import { prepareSandboxLifecycle } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(prepareSandboxLifecycle)
+ * ```
+ *
  * @category combinators
  * @since 0.0.0
  */
@@ -506,6 +576,13 @@ const hostGitOutput = Effect.fn("Lifecycle.hostGitOutput")(function* (
 /**
  * Return the current HEAD SHA for a host repository path.
  *
+ * @example
+ * ```ts
+ * import { getHostHead } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(getHostHead)
+ * ```
+ *
  * @category getters
  * @since 0.0.0
  */
@@ -530,6 +607,13 @@ const countNewCommits = Effect.fn("Lifecycle.countNewCommits")(function* (
 
 /**
  * Merge a temporary worktree branch back to the host head branch.
+ *
+ * @example
+ * ```ts
+ * import { mergeToHead } from "@beep/sandbox/Lifecycle"
+ *
+ * console.log(mergeToHead)
+ * ```
  *
  * @category combinators
  * @since 0.0.0

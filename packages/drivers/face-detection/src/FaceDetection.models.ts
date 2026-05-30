@@ -14,6 +14,13 @@ const $I = $FaceDetectionId.create("FaceDetection.models");
 /**
  * Pixel dimension greater than zero.
  *
+ * @example
+ * ```ts
+ * import { PositivePixelDimension } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(PositivePixelDimension)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -40,6 +47,13 @@ export type PositivePixelDimension = typeof PositivePixelDimension.Type;
 
 /**
  * Detection confidence between zero and one.
+ *
+ * @example
+ * ```ts
+ * import { FaceDetectionConfidence } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(FaceDetectionConfidence)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -83,6 +97,13 @@ export type FaceDetectionConfidence = typeof FaceDetectionConfidence.Type;
 /**
  * Percentage threshold accepted by face-detection triage.
  *
+ * @example
+ * ```ts
+ * import { FaceDetectionPercentage } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(FaceDetectionPercentage)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -125,6 +146,13 @@ export type FaceDetectionPercentage = typeof FaceDetectionPercentage.Type;
 /**
  * Positive maximum number of detections to keep.
  *
+ * @example
+ * ```ts
+ * import { FaceDetectionTopK } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(FaceDetectionTopK)
+ * ```
+ *
  * @category schemas
  * @since 0.0.0
  */
@@ -157,7 +185,7 @@ export type FaceDetectionTopK = typeof FaceDetectionTopK.Type;
  * import { FaceDetectionModelConfig } from "@beep/face-detection"
  *
  * const config = FaceDetectionModelConfig.make({ modelPath: "./face_detection_yunet_2023mar.onnx" })
- * void config
+ * console.log(config)
  * ```
  *
  * @category models
@@ -180,7 +208,7 @@ export class FaceDetectionModelConfig extends S.Class<FaceDetectionModelConfig>(
  * import { FaceDetectionImageRequest } from "@beep/face-detection"
  *
  * const request = FaceDetectionImageRequest.make({ imagePath: "./photo.jpg" })
- * void request
+ * console.log(request)
  * ```
  *
  * @category models
@@ -210,6 +238,13 @@ export class FaceDetectionImageRequest extends S.Class<FaceDetectionImageRequest
 /**
  * Two-dimensional point emitted by a face detector.
  *
+ * @example
+ * ```ts
+ * import { FaceDetectionPoint } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(FaceDetectionPoint)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -225,6 +260,13 @@ export class FaceDetectionPoint extends S.Class<FaceDetectionPoint>($I`FaceDetec
 
 /**
  * Bounding box emitted by a face detector.
+ *
+ * @example
+ * ```ts
+ * import { FaceDetectionBox } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(FaceDetectionBox)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -243,6 +285,13 @@ export class FaceDetectionBox extends S.Class<FaceDetectionBox>($I`FaceDetection
 
 /**
  * Five landmark points emitted by YuNet-compatible face detection models.
+ *
+ * @example
+ * ```ts
+ * import { FaceDetectionLandmarks } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(FaceDetectionLandmarks)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -263,6 +312,13 @@ export class FaceDetectionLandmarks extends S.Class<FaceDetectionLandmarks>($I`F
 /**
  * One face detection emitted for an image.
  *
+ * @example
+ * ```ts
+ * import { FaceDetection } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(FaceDetection)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -279,6 +335,13 @@ export class FaceDetection extends S.Class<FaceDetection>($I`FaceDetection`)(
 
 /**
  * Face detection result for one image.
+ *
+ * @example
+ * ```ts
+ * import { FaceDetectionResult } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(FaceDetectionResult)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -298,6 +361,13 @@ export class FaceDetectionResult extends S.Class<FaceDetectionResult>($I`FaceDet
 /**
  * Decode a model config from unknown input.
  *
+ * @example
+ * ```ts
+ * import { decodeFaceDetectionModelConfig } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(decodeFaceDetectionModelConfig)
+ * ```
+ *
  * @category codecs
  * @since 0.0.0
  */
@@ -305,6 +375,13 @@ export const decodeFaceDetectionModelConfig = S.decodeUnknownEffect(FaceDetectio
 
 /**
  * Decode an image request from unknown input.
+ *
+ * @example
+ * ```ts
+ * import { decodeFaceDetectionImageRequest } from "@beep/face-detection/FaceDetection.models"
+ *
+ * console.log(decodeFaceDetectionImageRequest)
+ * ```
  *
  * @category codecs
  * @since 0.0.0

@@ -55,7 +55,7 @@ export * from "./PostgresSqlState.models.ts";
  * ```ts
  * import { VERSION } from "@beep/postgres"
  *
- * void VERSION
+ * console.log(VERSION)
  * ```
  *
  * @since 0.0.0

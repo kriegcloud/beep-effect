@@ -70,6 +70,13 @@ const $I = $SandboxId.create("Run");
 /**
  * Default maximum number of iterations.
  *
+ * @example
+ * ```ts
+ * import { DEFAULT_MAX_ITERATIONS } from "@beep/sandbox/Run"
+ *
+ * console.log(DEFAULT_MAX_ITERATIONS)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -77,6 +84,13 @@ export const DEFAULT_MAX_ITERATIONS = 1 as const;
 
 /**
  * Logging option discriminator.
+ *
+ * @example
+ * ```ts
+ * import { LoggingOptionKind } from "@beep/sandbox/Run"
+ *
+ * console.log(LoggingOptionKind)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -97,6 +111,13 @@ export type LoggingOptionKind = typeof LoggingOptionKind.Type;
 
 /**
  * Override default timeouts for built-in lifecycle steps.
+ *
+ * @example
+ * ```ts
+ * import { Timeouts } from "@beep/sandbox/Run"
+ *
+ * console.log(Timeouts)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -160,6 +181,13 @@ export class Timeouts extends S.Class<Timeouts>($I`Timeouts`)(
 /**
  * File logging options.
  *
+ * @example
+ * ```ts
+ * import { FileLoggingOption } from "@beep/sandbox/Run"
+ *
+ * console.log(FileLoggingOption)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -177,6 +205,13 @@ export class FileLoggingOption extends S.TaggedClass<FileLoggingOption>($I`FileL
 /**
  * Terminal logging options.
  *
+ * @example
+ * ```ts
+ * import { StdoutLoggingOption } from "@beep/sandbox/Run"
+ *
+ * console.log(StdoutLoggingOption)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -190,6 +225,13 @@ export class StdoutLoggingOption extends S.TaggedClass<StdoutLoggingOption>($I`S
 
 /**
  * Logging mode for a sandbox run.
+ *
+ * @example
+ * ```ts
+ * import { LoggingOption } from "@beep/sandbox/Run"
+ *
+ * console.log(LoggingOption)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -211,6 +253,13 @@ export type LoggingOption = typeof LoggingOption.Type;
 /**
  * Options for building run summary rows.
  *
+ * @example
+ * ```ts
+ * import { RunSummaryRowOptions } from "@beep/sandbox/Run"
+ *
+ * console.log(RunSummaryRowOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -230,6 +279,13 @@ export class RunSummaryRowOptions extends S.Class<RunSummaryRowOptions>($I`RunSu
 /**
  * Startup options for file display mode.
  *
+ * @example
+ * ```ts
+ * import { FileDisplayStartupOptions } from "@beep/sandbox/Run"
+ *
+ * console.log(FileDisplayStartupOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -248,6 +304,13 @@ export class FileDisplayStartupOptions extends S.Class<FileDisplayStartupOptions
 /**
  * Options for building a sandbox run log filename.
  *
+ * @example
+ * ```ts
+ * import { LogFilenameOptions } from "@beep/sandbox/Run"
+ *
+ * console.log(LogFilenameOptions)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -263,6 +326,13 @@ export class LogFilenameOptions extends S.Class<LogFilenameOptions>($I`LogFilena
 
 /**
  * Result returned by {@link run}.
+ *
+ * @example
+ * ```ts
+ * import { RunResult } from "@beep/sandbox/Run"
+ *
+ * console.log(RunResult)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -290,6 +360,14 @@ export class RunResult extends S.Class<RunResult>($I`RunResult`)(
  * (`agent` and `sandbox`) whose public surface is function-bearing and generic
  * in the required Effect environment.
  *
+ * @example
+ * ```ts
+ * import type { RunOptions } from "@beep/sandbox/Run"
+ *
+ * const value = {} as RunOptions
+ * console.log(value)
+ * ```
+ *
  * @category services
  * @since 0.0.0
  */
@@ -314,6 +392,13 @@ export interface RunOptions<R = never> {
 /**
  * Replace path-hostile branch characters with dashes.
  *
+ * @example
+ * ```ts
+ * import { sanitizeBranchForFilename } from "@beep/sandbox/Run"
+ *
+ * console.log(sanitizeBranchForFilename)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -321,6 +406,13 @@ export const sanitizeBranchForFilename = (branch: string): string => Str.replace
 
 /**
  * Build a log filename for a branch/run pair.
+ *
+ * @example
+ * ```ts
+ * import { buildLogFilename } from "@beep/sandbox/Run"
+ *
+ * console.log(buildLogFilename)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -345,6 +437,13 @@ export const buildLogFilename: {
 /**
  * Build summary rows for display output.
  *
+ * @example
+ * ```ts
+ * import { buildRunSummaryRows } from "@beep/sandbox/Run"
+ *
+ * console.log(buildRunSummaryRows)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -357,6 +456,13 @@ export const buildRunSummaryRows = (options: RunSummaryRowOptions): Record<strin
 
 /**
  * Build the final run status message.
+ *
+ * @example
+ * ```ts
+ * import { buildCompletionMessage } from "@beep/sandbox/Run"
+ *
+ * console.log(buildCompletionMessage)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -387,6 +493,13 @@ export const buildCompletionMessage: {
 /**
  * Format an iteration context-window size.
  *
+ * @example
+ * ```ts
+ * import { formatContextWindowSize } from "@beep/sandbox/Run"
+ *
+ * console.log(formatContextWindowSize)
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -402,6 +515,13 @@ export const formatContextWindowSize = (usage: {
 
 /**
  * Build context-window summary lines.
+ *
+ * @example
+ * ```ts
+ * import { buildContextWindowLines } from "@beep/sandbox/Run"
+ *
+ * console.log(buildContextWindowLines)
+ * ```
  *
  * @category utilities
  * @since 0.0.0
@@ -740,6 +860,13 @@ const runInWorktree: <R>(
 
 /**
  * Run an agent in a sandbox provider.
+ *
+ * @example
+ * ```ts
+ * import { run } from "@beep/sandbox/Run"
+ *
+ * console.log(run)
+ * ```
  *
  * @category combinators
  * @since 0.0.0

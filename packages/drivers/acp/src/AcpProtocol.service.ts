@@ -210,7 +210,7 @@ export const AcpIncomingNotification = S.TaggedUnion({
  * import type { AcpIncomingNotification } from "@beep/acp/protocol"
  *
  * const tagOf = (notification: AcpIncomingNotification) => notification._tag
- * void tagOf
+ * console.log(tagOf)
  * ```
  *
  * @category models
@@ -229,7 +229,7 @@ export type AcpIncomingNotification = typeof AcpIncomingNotification.Type;
  * const methods = HashSet.empty<string>()
  * const hasServerMethods = (options: Omit<AcpPatchedProtocolOptions, "stdio">) =>
  *   HashSet.size(options.serverRequestMethods) >= HashSet.size(methods)
- * void hasServerMethods
+ * console.log(hasServerMethods)
  * ```
  *
  * @category protocols
@@ -253,7 +253,7 @@ export interface AcpPatchedProtocolOptions extends AcpProtocolLoggingOptions {
  * import type { AcpPatchedProtocol } from "@beep/acp/protocol"
  *
  * const notificationsOf = (protocol: AcpPatchedProtocol) => protocol.incoming
- * void notificationsOf
+ * console.log(notificationsOf)
  * ```
  *
  * @category protocols

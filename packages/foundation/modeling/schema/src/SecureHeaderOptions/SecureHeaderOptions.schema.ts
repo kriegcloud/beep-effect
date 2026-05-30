@@ -49,7 +49,7 @@ type ResolvedHeader = {
  * import { SecureHeaderOptions } from "@beep/schema/SecureHeaderOptions"
  *
  * const options = SecureHeaderOptions.make({ nosniff: "nosniff" })
- * void options
+ * console.log(options)
  * ```
  *
  * @since 0.0.0
@@ -84,7 +84,7 @@ export class SecureHeaderOptions extends S.Class<SecureHeaderOptions>($I`SecureH
  * import { SecureHeaderEntry } from "@beep/schema/SecureHeaderOptions"
  *
  * const entry = SecureHeaderEntry.make({ key: "X-Content-Type-Options", value: "nosniff" })
- * void entry
+ * console.log(entry)
  * ```
  *
  * @since 0.0.0
@@ -154,7 +154,7 @@ const resolveHeaders = Effect.fnUntraced(function* (
  * import { createHeadersObject } from "@beep/schema/SecureHeaderOptions"
  *
  * const program = createHeadersObject({ nosniff: "nosniff" })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0
@@ -183,7 +183,7 @@ export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersO
  * import { createSecureHeaders } from "@beep/schema/SecureHeaderOptions"
  *
  * const program = createSecureHeaders({ nosniff: "nosniff" })
- * void program
+ * console.log(program)
  * ```
  *
  * @since 0.0.0

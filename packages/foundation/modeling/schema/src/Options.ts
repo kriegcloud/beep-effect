@@ -47,7 +47,7 @@ import * as S from "effect/Schema";
  * const nullish = decode({ nickname: null })
  * const present = decode({ nickname: "beep" })
  *
- * void [missing, nullish, present, O.none<string>()]
+ * console.log([missing, nullish, present, O.none<string>()])
  * ```
  *
  * @example
@@ -65,7 +65,7 @@ import * as S from "effect/Schema";
  * const encodedNone = encode({ homepage: O.none() })
  * const encodedSome = encode({ homepage: O.some(new URL("https://example.com")) })
  *
- * void [encodedNone, encodedSome]
+ * console.log([encodedNone, encodedSome])
  * ```
  *
  * @category schemas

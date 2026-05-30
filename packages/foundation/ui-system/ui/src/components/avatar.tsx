@@ -8,6 +8,15 @@ interface AvatarProps extends React.ComponentPropsWithoutRef<"span"> {
 }
 
 /**
+ * Avatar component.
+ *
+ * @example
+ * ```tsx
+ * import { Avatar } from "@beep/ui/components/avatar"
+ *
+ * console.log(Avatar)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -29,6 +38,15 @@ interface AvatarImageProps extends Omit<React.ComponentPropsWithoutRef<"img">, "
 }
 
 /**
+ * Avatar image component.
+ *
+ * @example
+ * ```tsx
+ * import { AvatarImage } from "@beep/ui/components/avatar"
+ *
+ * console.log(AvatarImage)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -80,6 +98,15 @@ function AvatarImage({ className, src, alt, onLoadingStatusChange, ...props }: A
 }
 
 /**
+ * Avatar fallback component.
+ *
+ * @example
+ * ```tsx
+ * import { AvatarFallback } from "@beep/ui/components/avatar"
+ *
+ * console.log(AvatarFallback)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */

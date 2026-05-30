@@ -10,6 +10,13 @@ import { createPackageCommand as createPackageCommandFromHandler } from "./Handl
 /**
  * Package creation command.
  *
+ * @example
+ * ```ts
+ * import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage"
+ *
+ * console.log(createPackageCommand)
+ * ```
+ *
  * @category use-cases
  * @since 0.0.0
  */
