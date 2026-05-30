@@ -387,8 +387,6 @@
       "@beep/repo-utils/JSDoc/models/tag-values": [
         "./packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ],
-      "@beep/openai": ["./packages/drivers/openai/src/index.ts"],
-      "@beep/openai/*": ["./packages/drivers/openai/src/*"],
       "@beep/openai-compat": ["./packages/drivers/openai-compat/src/index.ts"],
       "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
       "@beep/xai": ["./packages/drivers/xai/src/index.ts"],

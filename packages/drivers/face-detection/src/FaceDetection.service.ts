@@ -6,7 +6,7 @@
  */
 
 import { $FaceDetectionId } from "@beep/identity/packages";
-import { A } from "@beep/utils";
+import { A, thunkUndefined } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import { Context, Effect, Layer, Order, pipe } from "effect";
 import * as P from "effect/Predicate";
@@ -142,10 +142,10 @@ const loadSession = Effect.fn("FaceDetection.loadSession")(function* (
   });
 });
 
-const releaseSession = (session: OrtSession): Effect.Effect<void, never> =>
+const releaseSession = (session: OrtSession): Effect.Effect<void> =>
   Effect.tryPromise({
     try: () => session.release(),
-    catch: () => undefined,
+    catch: thunkUndefined,
   }).pipe(Effect.ignore);
 
 const toPaddedDimension = (value: number): number => Math.ceil(value / divisor) * divisor;

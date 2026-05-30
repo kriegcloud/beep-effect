@@ -6,11 +6,9 @@
  */
 
 import { make } from "@beep/identity";
-import { A, thunkUndefined } from "@beep/utils";
+import { A, O, thunkUndefined } from "@beep/utils";
 import { DuckDBInstance, quotedIdentifier, quotedString } from "@duckdb/node-api";
 import { Context, Effect, Exit, Layer, Scope, Semaphore } from "effect";
-import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { DuckDbError } from "./DuckDb.errors.ts";
 import { DuckDbRows } from "./DuckDb.models.ts";
@@ -108,10 +106,10 @@ const connectionFailure =
   (cause: unknown): DuckDbError =>
     DuckDbError.fromUnknown(operation, cause, {
       databasePath: options.databasePath,
-      ...R.getSomes({
+      ...O.getSomesStruct({
         message: O.fromUndefinedOr(message),
+        statement: O.fromUndefinedOr(statement),
       }),
-      ...R.getSomes({ statement: O.fromUndefinedOr(statement) }),
     });
 
 const releaseConnection = Effect.fn("DuckDb.releaseConnection")(

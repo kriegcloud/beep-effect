@@ -6,21 +6,6 @@
  */
 
 /**
- * Package version for `@beep/acp`.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/acp"
- *
- * console.log(VERSION)
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * ACP driver error exports.
  *
  * @example

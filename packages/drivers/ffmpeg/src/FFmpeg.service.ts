@@ -88,7 +88,7 @@ const decodeFfprobeOutput = S.decodeUnknownEffect(S.fromJsonString(FfprobeOutput
  * @category events
  * @since 0.0.0
  */
-export type FFmpegEventSink = (event: FFmpegEvent) => Effect.Effect<void, never>;
+export type FFmpegEventSink = (event: FFmpegEvent) => Effect.Effect<void>;
 
 /**
  * Runtime shape exposed by the {@link FFmpeg} service.
@@ -479,7 +479,7 @@ const consumeProgressLine = (
   ];
 };
 
-const emitEvent = (sink: FFmpegEventSink | undefined, event: FFmpegEvent): Effect.Effect<void, never> =>
+const emitEvent = (sink: FFmpegEventSink | undefined, event: FFmpegEvent): Effect.Effect<void> =>
   sink === undefined ? Effect.void : sink(event);
 
 const collectProgressText = Effect.fn("FFmpeg.collectProgressText")(function* (

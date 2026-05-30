@@ -21,39 +21,68 @@ const GENERATED_META_ID = '$AcpId.create("_generated/meta.gen")';
 const $I = $AcpId.create("scripts/generate");
 const schemaNameOrder = Order.make<string>((left, right) => Str.localeCompare(right)(left));
 
-interface GenerateCommandError {
-  readonly _tag: "GenerateCommandError";
-  readonly message: string;
-}
+class GenerateCommandError extends TaggedErrorClass<GenerateCommandError>($I`GenerateCommandError`)(
+  "GenerateCommandError",
+  {
+    message: S.String,
+  },
+  $I.annote("GenerateCommandError", {
+    description: "An error occurred while generating the ACP schema.",
+  })
+) {}
 
-interface AnnotationExtraEntry {
-  readonly key: string;
-  readonly value: string;
-}
+class AnnotationExtraEntry extends S.Class<AnnotationExtraEntry>($I`AnnotationExtraEntry`)(
+  {
+    key: S.String,
+    value: S.String,
+  },
+  $I.annote("AnnotationExtraEntry", {
+    description: "An extra entry for annotations in the generated schema.",
+  })
+) {}
 
-interface GeneratedSchemaExpression {
-  readonly annotationExtras: ReadonlyArray<AnnotationExtraEntry>;
-  readonly expression: string;
-}
+class GeneratedSchemaExpression extends S.Class<GeneratedSchemaExpression>($I`GeneratedSchemaExpression`)(
+  {
+    annotationExtras: S.Array(AnnotationExtraEntry),
+    expression: S.String,
+  },
+  $I.annote("GeneratedSchemaExpression", {
+    description: "A generated schema expression with optional annotations.",
+  })
+) {}
 
-interface GeneratedPaths {
-  readonly generatedDir: string;
-  readonly metaOutputPath: string;
-  readonly schemaOutputPath: string;
-  readonly upstreamMetaPath: string;
-  readonly upstreamSchemaPath: string;
-}
+class GeneratedPaths extends S.Class<GeneratedPaths>($I`GeneratedPaths`)(
+  {
+    generatedDir: S.String,
+    metaOutputPath: S.String,
+    schemaOutputPath: S.String,
+    upstreamMetaPath: S.String,
+    upstreamSchemaPath: S.String,
+  },
+  $I.annote("GeneratedPaths", {
+    description: "Paths related to the generated ACP schema.",
+  })
+) {}
 
-interface SchemaEntry {
-  readonly code: string;
-  readonly name: string;
-}
-
-interface TextReplacement {
-  readonly end: number;
-  readonly start: number;
-  readonly text: string;
-}
+class SchemaEntry extends S.Class<SchemaEntry>($I`SchemaEntry`)(
+  {
+    code: S.String,
+    name: S.String,
+  },
+  $I.annote("SchemaEntry", {
+    description: "A schema entry representing a generated schema with a code and name.",
+  })
+) {}
+class TextReplacement extends S.Class<TextReplacement>($I`TextReplacement`)(
+  {
+    end: S.Number,
+    start: S.Number,
+    text: S.String,
+  },
+  $I.annote("TextReplacement", {
+    description: "A text replacement operation with start, end, and replacement text.",
+  })
+) {}
 
 class AcpGeneratorOutputError extends TaggedErrorClass<AcpGeneratorOutputError>($I`AcpGeneratorOutputError`)(
   "AcpGeneratorOutputError",
@@ -201,9 +230,9 @@ function isFirstArgumentOfSchemaCall(node: ts.Node, name: string): boolean {
   return ts.isCallExpression(parent) && parent.arguments[0] === node && isSchemaCall(parent, name);
 }
 
-function isAnnotateCall(
-  node: ts.Node
-): node is ts.CallExpression & { readonly expression: ts.PropertyAccessExpression } {
+function isAnnotateCall(node: ts.Node): node is ts.CallExpression & {
+  readonly expression: ts.PropertyAccessExpression;
+} {
   return (
     ts.isCallExpression(node) &&
     ts.isPropertyAccessExpression(node.expression) &&
@@ -681,8 +710,7 @@ const generateSchemas = Effect.fn("generateSchemas")(function* (skipDownload: bo
     Effect.tap((code) =>
       code === 0
         ? Effect.void
-        : Effect.fail<GenerateCommandError>({
-            _tag: "GenerateCommandError",
+        : GenerateCommandError.make({
             message: `oxfmt failed with exit code ${code}`,
           })
     )

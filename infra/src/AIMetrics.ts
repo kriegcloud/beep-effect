@@ -12,6 +12,7 @@ import {
   AiMetricsTool,
   makeAiMetricsInstallSpec,
 } from "@beep/repo-ai-metrics";
+import { SchemaUtils } from "@beep/schema";
 import { A, O, Str, Struct } from "@beep/utils";
 import * as command from "@pulumi/command";
 import * as pulumi from "@pulumi/pulumi";
@@ -20,7 +21,6 @@ import * as S from "effect/Schema";
 import type { AiMetricsInstallSpec, AiMetricsOtlpEndpointSpec, AiMetricsServiceSpec } from "@beep/repo-ai-metrics";
 
 const $I = $InfraId.create("AIMetrics");
-const defaultPhoenixImage = "arizephoenix/phoenix:latest";
 const defaultPhoenixTailnetHttpsPort = 8447;
 const defaultRemoteConfigRoot = "/home/elpresidank/ai-metrics";
 const defaultRemoteMirrorRoot = "/srv/data/ai-metrics/p7-derived-mirror";
@@ -266,10 +266,7 @@ export const AIMetricsPulumiConfigValues = S.Class<AIMetricsPulumiConfigValues>(
 export class AIMetricsRemoteSshConfig extends S.Class<AIMetricsRemoteSshConfig>($I`AIMetricsRemoteSshConfig`)(
   {
     agentSocketPath: S.optionalKey(S.String),
-    host: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultSshHost)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultSshHost))
-    ),
+    host: S.String.pipe(SchemaUtils.withKeyDefaults(defaultSshHost)),
     user: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultSshUser)),
       S.withDecodingDefaultKey(Effect.succeed(defaultSshUser))
@@ -297,26 +294,11 @@ export class AIMetricsRemoteDeploymentConfig extends S.Class<AIMetricsRemoteDepl
   $I`AIMetricsRemoteDeploymentConfig`
 )(
   {
-    phoenixTailnetHttpsPort: S.Int.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultPhoenixTailnetHttpsPort)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultPhoenixTailnetHttpsPort))
-    ),
-    remoteConfigRoot: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultRemoteConfigRoot)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultRemoteConfigRoot))
-    ),
-    remoteMirrorRoot: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultRemoteMirrorRoot)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultRemoteMirrorRoot))
-    ),
-    ssh: AIMetricsRemoteSshConfig.pipe(
-      S.withConstructorDefault(Effect.succeed(AIMetricsRemoteSshConfig.make({}))),
-      S.withDecodingDefaultKey(Effect.succeed(AIMetricsRemoteSshConfig.make({})))
-    ),
-    tailnetFqdn: S.String.pipe(
-      S.withConstructorDefault(Effect.succeed(defaultTailnetFqdn)),
-      S.withDecodingDefaultKey(Effect.succeed(defaultTailnetFqdn))
-    ),
+    phoenixTailnetHttpsPort: S.Int.pipe(SchemaUtils.withKeyDefaults(defaultPhoenixTailnetHttpsPort)),
+    remoteConfigRoot: S.String.pipe(SchemaUtils.withKeyDefaults(defaultRemoteConfigRoot)),
+    remoteMirrorRoot: S.String.pipe(SchemaUtils.withKeyDefaults(defaultRemoteMirrorRoot)),
+    ssh: AIMetricsRemoteSshConfig.pipe(SchemaUtils.withKeyDefaults(AIMetricsRemoteSshConfig.make())),
+    tailnetFqdn: S.String.pipe(SchemaUtils.withKeyDefaults(defaultTailnetFqdn)),
   },
   $I.annote("AIMetricsRemoteDeploymentConfig", {
     description: "Remote host, systemd, and Tailscale Serve settings for the AI metrics Phoenix backend.",
@@ -347,29 +329,29 @@ export class AIMetricsStackArgs extends S.Class<AIMetricsStackArgs>($I`AIMetrics
   $I.annote("AIMetricsStackArgs", {
     description: "Pulumi-facing AI metrics install arguments resolved before component construction.",
   })
-) {}
-
-/**
- * Build Pulumi component args from a schema-first install input.
- *
- * @example
- * ```ts
- * import { makeAIMetricsStackArgs } from "@beep/infra"
- *
- * console.log(makeAIMetricsStackArgs().install.target)
- * ```
- *
- * @category constructors
- * @since 0.0.0
- */
-export const makeAIMetricsStackArgs = (
-  install: AiMetricsInstallInput = AiMetricsInstallInput.make({}),
-  remote: AIMetricsRemoteDeploymentConfig = AIMetricsRemoteDeploymentConfig.make({})
-): AIMetricsStackArgs =>
-  AIMetricsStackArgs.make({
-    install,
-    remote,
-  });
+) {
+  /**
+   * Build Pulumi component args from a schema-first install input.
+   *
+   * @example
+   * ```ts
+   * import { AIMetricsStackArgs } from "@beep/infra"
+   *
+   * console.log(AIMetricsStackArgs.new().install.target)
+   * ```
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
+  static readonly new = (
+    install: AiMetricsInstallInput = AiMetricsInstallInput.make({}),
+    remote: AIMetricsRemoteDeploymentConfig = AIMetricsRemoteDeploymentConfig.make({})
+  ): AIMetricsStackArgs =>
+    AIMetricsStackArgs.make({
+      install,
+      remote,
+    });
+}
 
 /**
  * Build AI metrics stack args from decoded Pulumi config values.
@@ -418,7 +400,7 @@ export const makeAIMetricsStackArgsFromConfigValues = ({
       ? `https://${remote.tailnetFqdn}:${remote.phoenixTailnetHttpsPort}`
       : undefined);
 
-  return makeAIMetricsStackArgs(
+  return AIMetricsStackArgs.new(
     AiMetricsInstallInput.make({
       defaultTool: toolFromPulumiConfig(defaultTool),
       ...O.getSomesStruct({ dataRoot: O.fromUndefinedOr(dataRoot) }),
@@ -471,10 +453,10 @@ export const loadAIMetricsStackArgs = (): AIMetricsStackArgs => {
  *
  * @example
  * ```ts
- * import { AIMetricsStack, makeAIMetricsStackArgs } from "@beep/infra"
+ * import { AIMetricsStack, AIMetricsStackArgs } from "@beep/infra"
  *
  * console.log(AIMetricsStack)
- * console.log(makeAIMetricsStackArgs)
+ * console.log(AIMetricsStackArgs)
  * ```
  *
  * @category resources
@@ -588,7 +570,7 @@ export class AIMetricsStack extends pulumi.ComponentResource {
 
   public constructor(
     name: string,
-    args: AIMetricsStackArgs = makeAIMetricsStackArgs(),
+    args: AIMetricsStackArgs = AIMetricsStackArgs.new(),
     opts?: pulumi.ComponentResourceOptions
   ) {
     super("beep:infra:AIMetricsStack", name, {}, opts);

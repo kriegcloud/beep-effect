@@ -24,9 +24,7 @@ describe("@beep/agent-capability-use-cases", () => {
     expect(
       RuntimeScope.make({ organizationId: "org", threadId: "thread", workspaceId: "workspace" })
     ).type.toBe<RuntimeScope>();
-    expect(S.decodeUnknownEffect(CandidateOutputSet)({})).type.toBe<
-      Effect.Effect<CandidateOutputSet, S.SchemaError>
-    >();
+    expect(S.decodeUnknownEffect(CandidateOutputSet)({})).type.toBe<Effect.Effect<CandidateOutputSet, S.SchemaError>>();
     expect(GetContextPacket.make(query)).type.toBe<GetContextPacket>();
     expect(ProposeCandidateOutputSet.make(command)).type.toBe<ProposeCandidateOutputSet>();
   });

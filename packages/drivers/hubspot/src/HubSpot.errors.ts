@@ -8,7 +8,8 @@
 import { $HubspotId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { O } from "@beep/utils";
-import { pipe, Result } from "effect";
+import { Effect, flow, pipe, Result } from "effect";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
@@ -115,6 +116,10 @@ export class HubSpotError extends TaggedErrorClass<HubSpotError>($I`HubSpotError
         url: O.fromUndefinedOr(options.url),
       }),
     });
+
+  static readonly failEffectFromReason = flow(this.fromReason, Effect.fail);
+
+  static readonly failEffectFromReasonThunk = flow(this.failEffectFromReason, (effect) => () => effect);
 }
 
 /**
@@ -161,8 +166,10 @@ const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
   );
 };
 
-const readString = (value: unknown, key: PropertyKey): O.Option<string> =>
-  O.filter(readProperty(value, key), P.isString);
+const readString: {
+  (value: unknown, key: PropertyKey): O.Option<string>;
+  (key: PropertyKey): (value: unknown) => O.Option<string>;
+} = dual(2, (value: unknown, key: PropertyKey): O.Option<string> => O.filter(readProperty(value, key), P.isString));
 
 const safeBoolean = (evaluate: () => boolean): boolean => Result.getOrElse(Result.try(evaluate), () => false);
 
@@ -170,7 +177,7 @@ const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
   safeBoolean(() => HttpClientError.isHttpClientError(cause))
     ? pipe(
         readProperty(cause, "reason"),
-        O.flatMap((reason) => readString(reason, "_tag")),
+        O.flatMap(readString("_tag")),
         O.map((tag) => `HttpClientError:${tag}`)
       )
     : O.none();

@@ -479,11 +479,13 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
 
   const transport = yield* AcpProtocol.makeAcpPatchedProtocol({
     stdio: stdio,
-    ...O.getSomesStruct({ terminationError: O.fromUndefinedOr(terminationError) }),
     serverRequestMethods: HashSet.fromIterable(AcpRpcs.ClientRpcs.requests.keys()),
-    ...O.getSomesStruct({ logIncoming: O.fromUndefinedOr(options.logIncoming) }),
-    ...O.getSomesStruct({ logOutgoing: O.fromUndefinedOr(options.logOutgoing) }),
-    ...O.getSomesStruct({ logger: O.fromUndefinedOr(options.logger) }),
+    ...O.getSomesStruct({
+      terminationError: O.fromUndefinedOr(terminationError),
+      logIncoming: O.fromUndefinedOr(options.logIncoming),
+      logOutgoing: O.fromUndefinedOr(options.logOutgoing),
+      logger: O.fromUndefinedOr(options.logger),
+    }),
     onNotification: dispatchNotification,
     onExtRequest: dispatchExtRequest,
   });
@@ -497,17 +499,35 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
           payload,
         }),
       [CLIENT_METHODS.session_elicitation]: (payload) =>
-        runHandler({ handler: coreHandlers.elicitation, method: CLIENT_METHODS.session_elicitation, payload }),
+        runHandler({
+          handler: coreHandlers.elicitation,
+          method: CLIENT_METHODS.session_elicitation,
+          payload,
+        }),
       [CLIENT_METHODS.fs_read_text_file]: (payload) =>
-        runHandler({ handler: coreHandlers.readTextFile, method: CLIENT_METHODS.fs_read_text_file, payload }),
+        runHandler({
+          handler: coreHandlers.readTextFile,
+          method: CLIENT_METHODS.fs_read_text_file,
+          payload,
+        }),
       [CLIENT_METHODS.fs_write_text_file]: (payload) =>
-        runHandler({ handler: coreHandlers.writeTextFile, method: CLIENT_METHODS.fs_write_text_file, payload }).pipe(
-          Effect.map((result) => result ?? {})
-        ),
+        runHandler({
+          handler: coreHandlers.writeTextFile,
+          method: CLIENT_METHODS.fs_write_text_file,
+          payload,
+        }).pipe(Effect.map((result) => result ?? {})),
       [CLIENT_METHODS.terminal_create]: (payload) =>
-        runHandler({ handler: coreHandlers.createTerminal, method: CLIENT_METHODS.terminal_create, payload }),
+        runHandler({
+          handler: coreHandlers.createTerminal,
+          method: CLIENT_METHODS.terminal_create,
+          payload,
+        }),
       [CLIENT_METHODS.terminal_output]: (payload) =>
-        runHandler({ handler: coreHandlers.terminalOutput, method: CLIENT_METHODS.terminal_output, payload }),
+        runHandler({
+          handler: coreHandlers.terminalOutput,
+          method: CLIENT_METHODS.terminal_output,
+          payload,
+        }),
       [CLIENT_METHODS.terminal_wait_for_exit]: (payload) =>
         runHandler({
           handler: coreHandlers.terminalWaitForExit,
@@ -515,13 +535,17 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
           payload,
         }),
       [CLIENT_METHODS.terminal_kill]: (payload) =>
-        runHandler({ handler: coreHandlers.terminalKill, method: CLIENT_METHODS.terminal_kill, payload }).pipe(
-          Effect.map((result) => result ?? {})
-        ),
+        runHandler({
+          handler: coreHandlers.terminalKill,
+          method: CLIENT_METHODS.terminal_kill,
+          payload,
+        }).pipe(Effect.map((result) => result ?? {})),
       [CLIENT_METHODS.terminal_release]: (payload) =>
-        runHandler({ handler: coreHandlers.terminalRelease, method: CLIENT_METHODS.terminal_release, payload }).pipe(
-          Effect.map((result) => result ?? {})
-        ),
+        runHandler({
+          handler: coreHandlers.terminalRelease,
+          method: CLIENT_METHODS.terminal_release,
+          payload,
+        }).pipe(Effect.map((result) => result ?? {})),
     })
   );
 
@@ -621,7 +645,15 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
     handler: (payload: A) => Effect.Effect<unknown, AcpError.AcpError>
   ) {
     return yield* Ref.update(extRequestHandlers, (handlers) =>
-      HashMap.set(handlers, method, decodeExtRequestRegistration({ handler, method, payload }))
+      HashMap.set(
+        handlers,
+        method,
+        decodeExtRequestRegistration({
+          handler,
+          method,
+          payload,
+        })
+      )
     );
   });
   const handleExtNotification = Effect.fn($I`AcpClient_handleExtNotification`)(function* <A, I>(
@@ -630,7 +662,15 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
     handler: (payload: A) => Effect.Effect<void, AcpError.AcpError>
   ) {
     return yield* Ref.update(extNotificationHandlers, (handlers) =>
-      HashMap.set(handlers, method, decodeExtNotificationRegistration({ handler, method, payload }))
+      HashMap.set(
+        handlers,
+        method,
+        decodeExtNotificationRegistration({
+          handler,
+          method,
+          payload,
+        })
+      )
     );
   });
 

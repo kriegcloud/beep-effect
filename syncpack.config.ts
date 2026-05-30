@@ -37,7 +37,6 @@ const config = {
     "packages/drivers/face-detection/package.json",
     "packages/drivers/ffmpeg/package.json",
     "packages/drivers/postgres/package.json",
-    "packages/drivers/openai/package.json",
     "packages/drivers/venice-ai/package.json",
     "packages/drivers/xai/package.json",
     "packages/drivers/acp/package.json",

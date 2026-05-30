@@ -7,11 +7,10 @@
 
 import { $DrizzleId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { A, Str } from "@beep/utils";
-import { Cause, pipe, Result } from "effect";
-import * as O from "effect/Option";
+import { A, O, Str } from "@beep/utils";
+import { Cause, flow, pipe, Result } from "effect";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $DrizzleId.create("Drizzle.errors");
@@ -47,15 +46,14 @@ export class DrizzleErrorContext extends S.Class<DrizzleErrorContext>($I`Drizzle
 
 const emptyContext = (): DrizzleErrorContext => ({});
 
-const makeContext = (query: string | undefined, params: ReadonlyArray<unknown> | undefined): DrizzleErrorContext => ({
-  ...R.getSomes({ query: O.fromUndefinedOr(query) }),
-  ...R.getSomes({
+const makeContext = (query: string | undefined, params: ReadonlyArray<unknown> | undefined): DrizzleErrorContext =>
+  O.getSomesStruct({
+    query: O.fromUndefinedOr(query),
     params: O.map(
       O.fromUndefinedOr(params),
       A.map(() => REDACTED_SQL_PARAMETER)
     ),
-  }),
-});
+  });
 
 const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
   if (!P.isObject(value)) {
@@ -137,7 +135,7 @@ const existingDrizzleErrorFromReason = (reason: Cause.Reason<unknown>): O.Option
 
 const existingDrizzleErrorFromCause = (cause: Cause.Cause<unknown>): O.Option<DrizzleError> =>
   O.flatMap(
-    A.findFirst(readCauseReasons(cause), (candidate) => O.isSome(existingDrizzleErrorFromReason(candidate))),
+    A.findFirst(readCauseReasons(cause), flow(existingDrizzleErrorFromReason, O.isSome)),
     existingDrizzleErrorFromReason
   );
 
@@ -150,7 +148,10 @@ const existingDrizzleErrorFromUnknown = (value: unknown): O.Option<DrizzleError>
   return isCause(value) ? existingDrizzleErrorFromCause(value) : O.none();
 };
 
-const extractCauseReasonContext = (reason: Cause.Reason<unknown>, seen: ReadonlyArray<object>): DrizzleErrorContext => {
+const extractCauseReasonContext: {
+  (reason: Cause.Reason<unknown>, seen: ReadonlyArray<object>): DrizzleErrorContext;
+  (seen: ReadonlyArray<object>): (reason: Cause.Reason<unknown>) => DrizzleErrorContext;
+} = dual(2, (reason: Cause.Reason<unknown>, seen: ReadonlyArray<object>): DrizzleErrorContext => {
   const payload = reasonPayload(reason);
   if (O.isNone(payload)) {
     return emptyContext();
@@ -158,16 +159,14 @@ const extractCauseReasonContext = (reason: Cause.Reason<unknown>, seen: Readonly
 
   const existing = existingDrizzleError(payload.value);
   return O.isSome(existing) ? contextFromDrizzleError(existing.value) : extractNativeQueryContext(payload.value, seen);
-};
+});
 
 const extractCauseContext = (cause: Cause.Cause<unknown>, seen: ReadonlyArray<object>): DrizzleErrorContext => {
-  const reason = A.findFirst(readCauseReasons(cause), (candidate) =>
-    hasQueryContext(extractCauseReasonContext(candidate, seen))
-  );
+  const reason = A.findFirst(readCauseReasons(cause), flow(extractCauseReasonContext(seen), hasQueryContext));
 
   return O.match(reason, {
     onNone: emptyContext,
-    onSome: (candidate) => extractCauseReasonContext(candidate, seen),
+    onSome: extractCauseReasonContext(seen),
   });
 };
 

@@ -3,7 +3,9 @@
   "bootstrap": {
     "dockerStartCmdHash": "e46dffea4121567e354b7d85a0aa6369ca8f7dd1a8ab4a86644d5dab0a40ddda",
     "model": "qwen3-coder:30b",
-    "portMappings": ["11434/http"],
+    "portMappings": [
+      "11434/http"
+    ],
     "readinessPath": "/api/tags"
   },
   "cleanup": {
@@ -82,23 +84,6 @@
     },
     "packets": [
       {
-        "packetId": "4fe87ff720b2c8ebd7caa6eeba29fa1c07afc86bb04d9a51b325e6127a2a3e6f:jsdoc-quality",
-        "subjectId": "@beep/openai:packages/drivers/openai/src/index.ts:const:VERSION:4fe87ff720b2",
-        "sourceAnchor": "packages/drivers/openai/src/index.ts:12",
-        "packageName": "@beep/openai",
-        "packagePath": "packages/drivers/openai",
-        "findingCodes": ["missing-description", "missing-example"],
-        "status": "completed",
-        "localScore": 8,
-        "rationale": "The JSDoc block addresses the missing description and adds a meaningful example. The example shows the VERSION constant being used in a practical context (logging to console) which demonstrates its purpose clearly. The example follows the policy requirements by using canonical aliases (S, A, O, P, R) and avoiding deprecated patterns like 'any' or type assertions. The example also avoids empty Effect.gen bodies and declare statements. The score reflects good improvement but could be slightly better with more specific documentation of the version's meaning.",
-        "draftJsDoc": "/**\n * The version of the OpenAI driver package.\n *\n * @example\n * ```ts\n * import { VERSION } from \"@beep/openai\"\n * import { console } from \"effect/Console\"\n * import { Effect } from \"effect/Effect\"\n *\n * Effect.runSync(console.log(VERSION)) // prints: 0.0.0\n * ```\n *\n * @category package-info\n * @since 0.0.0\n */",
-        "expectedVerificationCommand": "bun run beep docgen quality -p 'packages/drivers/openai' --json",
-        "policyViolationCodes": [],
-        "reviewDisposition": "candidate",
-        "durationMs": 66866,
-        "error": null
-      },
-      {
         "packetId": "6541f8407da97af2faf8ead36c71e0b22e7c9ee581ec78165866ec32f97b270e:jsdoc-quality",
         "subjectId": "@beep/nlp:packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:function:entity:6541f8407da9",
         "sourceAnchor": "packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:126",
@@ -126,7 +111,10 @@
         "sourceAnchor": "packages/foundation/modeling/identity/src/packages.ts:692",
         "packageName": "@beep/identity",
         "packagePath": "packages/foundation/modeling/identity",
-        "findingCodes": ["missing-description", "missing-example"],
+        "findingCodes": [
+          "missing-description",
+          "missing-example"
+        ],
         "status": "completed",
         "localScore": 8,
         "rationale": "The JSDoc block addresses the missing description and example requirements. The example demonstrates usage with a realistic input and observable output (decoded value). The example follows the canonical aliases (S, A, O, P, R) and avoids problematic patterns like 'any', type assertions, or empty Effect.gen bodies. The example also uses a meaningful assertion to validate the decoded result. The block scores 8/10 due to the example being a bit verbose but otherwise meeting all requirements.",
@@ -187,7 +175,10 @@
         "sourceAnchor": "packages/foundation/modeling/identity/src/packages.ts:704",
         "packageName": "@beep/identity",
         "packagePath": "packages/foundation/modeling/identity",
-        "findingCodes": ["missing-description", "missing-example"],
+        "findingCodes": [
+          "missing-description",
+          "missing-example"
+        ],
         "status": "completed",
         "localScore": 8,
         "rationale": "The JSDoc block addresses the missing description and provides a realistic example. However, it could be improved by making the example more explicit about the return type and including a brief note about the identity composer's role in the drizzle context.",
@@ -215,7 +206,10 @@
         "rationale": "The JSDoc block addresses all policy requirements with a comprehensive example showing Effect execution, proper tagging with @category and @since, and a clear description. The example uses canonical aliases (S, A, O, P, R) and demonstrates meaningful input/output. The score reflects high quality while acknowledging the example could be slightly more elaborate.",
         "draftJsDoc": "/**\n * Creates a schema for a thunk that returns a value of type `Output` or throws an error of type `Error`.\n *\n * @example\n * ```ts\n * import { Schema as S, Effect as E, Array as A, Option as O, Predicate as P, Record as R } from 'effect'\n * import { ThunkOf } from '@beep/schema'\n *\n * const thunkSchema = ThunkOf(S.number, S.string)\n * const thunk = () => 42\n * const result = E.runSync(E.try({\n *   try: () => thunkSchema.decodeUnknown(thunk),\n *   catch: (e) => e\n * }))\n * // Effect<never, string, number>\n * ```\n *\n * @category schema\n * @since 1.0.0\n */",
         "expectedVerificationCommand": "bun run beep docgen quality -p 'packages/foundation/modeling/schema' --json",
-        "policyViolationCodes": ["missing-example", "missing-example"],
+        "policyViolationCodes": [
+          "missing-example",
+          "missing-example"
+        ],
         "reviewDisposition": "candidate",
         "durationMs": 9441,
         "error": null
@@ -237,7 +231,10 @@
         "rationale": "The JSDoc block has several issues that need to be addressed:\n\n1. Missing description: The function lacks a clear explanation of its purpose\n2. Missing category: No @category tag following repo conventions\n3. Missing since: No @since tag indicating version\n4. Example needs improvement: The example should be more realistic and show meaningful output\n\nThe proposed replacement addresses these by:\n- Adding a clear description explaining the function's purpose\n- Including @category with proper repo convention\n- Adding @since tag with version\n- Providing a realistic example that demonstrates actual usage with observable output\n\nThe score of 7 reflects that while the replacement fixes the main issues, it could be improved with more specific use cases and better demonstration of the function's capabilities.",
         "draftJsDoc": "/**\n * Creates a literal pattern for matching exact strings.\n *\n * @category Pattern\n * @since 0.1.0\n *\n * @example\n * import { literal } from '@beep/nlp'\n * import * as S from 'effect/Schema'\n *\n * const schema = S.parseSync(S.String, literal('hello'))\n * // => 'hello'\n */",
         "expectedVerificationCommand": "bun run beep docgen quality -p 'packages/foundation/capability/nlp' --json",
-        "policyViolationCodes": ["missing-example", "missing-example"],
+        "policyViolationCodes": [
+          "missing-example",
+          "missing-example"
+        ],
         "reviewDisposition": "candidate",
         "durationMs": 10862,
         "error": null
@@ -248,7 +245,10 @@
         "sourceAnchor": "packages/foundation/modeling/identity/src/packages.ts:710",
         "packageName": "@beep/identity",
         "packagePath": "packages/foundation/modeling/identity",
-        "findingCodes": ["missing-description", "missing-example"],
+        "findingCodes": [
+          "missing-description",
+          "missing-example"
+        ],
         "status": "completed",
         "localScore": 8,
         "rationale": "The JSDoc block addresses the missing description and includes a realistic example with observable output. However, it could be improved by explicitly mentioning the identity composer pattern and adding more context about the DuckdbId's role in the identity system. The example is good but could be slightly more elaborate to better demonstrate the practical usage.",
@@ -282,7 +282,9 @@
         "error": null
       }
     ],
-    "policyViolations": ["missing-example"],
+    "policyViolations": [
+      "missing-example"
+    ],
     "runtime": {
       "totalDurationMs": 165297,
       "packetTimeoutMs": 180000

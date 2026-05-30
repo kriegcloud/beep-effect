@@ -51,7 +51,7 @@ export const makeChildStdio = (handle: ChildProcessSpawner.ChildProcessHandle) =
   });
 
 export const makeInMemoryStdio = Effect.fn("makeInMemoryStdio")(function* () {
-  const input = yield* Queue.unbounded<Uint8Array, Cause.Done<void>>();
+  const input = yield* Queue.unbounded<Uint8Array, Cause.Done>();
   const output = yield* Queue.unbounded<string>();
   const decoder = new TextDecoder();
 

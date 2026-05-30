@@ -6,13 +6,11 @@
  * @since 0.0.0
  */
 
-import {
-  CanvasProject as CanvasProjectUseCases
-} from "@beep/canvas-use-cases/public";
-import {$CanvasServerId} from "@beep/identity/packages";
-import {LiteralKit} from "@beep/schema";
-import {Effect, flow, Match} from "effect";
-import {dual} from "effect/Function";
+import { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/public";
+import { $CanvasServerId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import { Effect, flow, Match } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $CanvasServerId.create("aggregates/CanvasProject/CanvasProject.http");
@@ -79,17 +77,11 @@ export class CanvasProjectHttpResponse extends S.Class<CanvasProjectHttpResponse
   })
 ) {
   static readonly new: {
-    (
-      body: unknown,
-      status: CanvasProjectHttpStatus
-    ): CanvasProjectHttpResponse;
+    (body: unknown, status: CanvasProjectHttpStatus): CanvasProjectHttpResponse;
     (status: CanvasProjectHttpStatus): (body: unknown) => CanvasProjectHttpResponse;
   } = dual(
     2,
-    (
-      body: unknown,
-      status: CanvasProjectHttpStatus
-    ): CanvasProjectHttpResponse =>
+    (body: unknown, status: CanvasProjectHttpStatus): CanvasProjectHttpResponse =>
       CanvasProjectHttpResponse.make({
         body,
         status,
@@ -122,14 +114,13 @@ export const toCanvasProjectHttpError = Match.type<CanvasProjectUseCases.CanvasP
     CanvasProjectConflict: CanvasProjectHttpResponse.new(409),
     CanvasProjectActionRejected: CanvasProjectHttpResponse.new(422),
   }),
-  Match.orElse(() => CanvasProjectHttpResponse.new(CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON, 503)
-  )
+  Match.orElse(() => CanvasProjectHttpResponse.new(CanvasProjectUseCases.CANVAS_PROJECT_ACTION_UNAVAILABLE_REASON, 503))
 );
 
 const toSuccess =
   (status: 200 | 201) =>
-    (body: unknown): CanvasProjectHttpResponse =>
-      CanvasProjectHttpResponse.make({status, body});
+  (body: unknown): CanvasProjectHttpResponse =>
+    CanvasProjectHttpResponse.make({ status, body });
 
 /**
  * Build HTTP-style CanvasProject handlers from the public use-case facade.

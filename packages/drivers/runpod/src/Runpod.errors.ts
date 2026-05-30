@@ -255,8 +255,10 @@ const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
   );
 };
 
-const readString = (value: unknown, key: PropertyKey): O.Option<string> =>
-  O.filter(readProperty(value, key), P.isString);
+const readString: {
+  (value: unknown, key: PropertyKey): O.Option<string>;
+  (key: PropertyKey): (value: unknown) => O.Option<string>;
+} = dual(2, (value: unknown, key: PropertyKey): O.Option<string> => O.filter(readProperty(value, key), P.isString));
 
 const safeBoolean = (evaluate: () => boolean): boolean => Result.getOrElse(Result.try(evaluate), () => false);
 
@@ -264,7 +266,7 @@ const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
   safeBoolean(() => HttpClientError.isHttpClientError(cause))
     ? pipe(
         readProperty(cause, "reason"),
-        O.flatMap((reason) => readString(reason, "_tag")),
+        O.flatMap(readString("_tag")),
         O.map((tag) => `HttpClientError:${tag}`)
       )
     : O.none();

@@ -9,6 +9,8 @@
 import * as DomainCanvasProject from "@beep/canvas-domain/aggregates/CanvasProject";
 import { $CanvasUseCasesId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { Match } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $CanvasUseCasesId.create("aggregates/CanvasProject/CanvasProject.errors");
@@ -66,8 +68,28 @@ export class CanvasProjectConflict extends TaggedErrorClass<CanvasProjectConflic
     description: "The requested CanvasProject command conflicts with persisted state.",
   })
 ) {
-  static readonly new = (canvasProjectId: DomainCanvasProject.CanvasProjectId, reason: string): CanvasProjectConflict =>
-    CanvasProjectConflict.make({ canvasProjectId, reason });
+  static readonly new: {
+    (errorOrId: CanvasProjectConflict | DomainCanvasProject.CanvasProjectId, reason: string): CanvasProjectConflict;
+    (reason: string): (errorOrId: CanvasProjectConflict | DomainCanvasProject.CanvasProjectId) => CanvasProjectConflict;
+  } = dual(
+    2,
+    (errorOrId: DomainCanvasProject.CanvasProjectId, reason: string): CanvasProjectConflict =>
+      Match.value(errorOrId).pipe(
+        Match.when(S.is(DomainCanvasProject.CanvasProjectId), (canvasProjectId) =>
+          CanvasProjectConflict.make({
+            canvasProjectId,
+            reason,
+          })
+        ),
+        Match.when(S.is(CanvasProjectConflict), (errorOrId) =>
+          CanvasProjectConflict.make({
+            canvasProjectId: errorOrId.canvasProjectId,
+            reason,
+          })
+        ),
+        Match.orElseAbsurd
+      )
+  );
 }
 
 /**
@@ -120,8 +142,6 @@ export type CanvasProjectActionError =
   | CanvasProjectConflict
   | CanvasProjectActionRejected
   | CanvasProjectActionFailed;
-
-
 
 /**
  * Public CanvasProject use-case failure schema.

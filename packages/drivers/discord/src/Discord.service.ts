@@ -66,11 +66,11 @@ const decodeRawMessage = S.decodeUnknownEffect(DiscordRawMessage);
 interface DiscordShape {
   readonly createMessage: (
     request: DiscordCreateMessageRequest,
-    botToken: Redacted.Redacted<string>
+    botToken: Redacted.Redacted
   ) => Effect.Effect<DiscordMessageProof, DiscordError>;
   readonly getChannel: (
     request: DiscordChannelRequest,
-    botToken: Redacted.Redacted<string>
+    botToken: Redacted.Redacted
   ) => Effect.Effect<DiscordChannelProof, DiscordError>;
 }
 
@@ -80,7 +80,7 @@ const discordPath = (path: string): string => (Str.startsWith("/")(path) ? path 
 
 const authRequest = (
   request: HttpClientRequest.HttpClientRequest,
-  botToken: Redacted.Redacted<string>
+  botToken: Redacted.Redacted
 ): HttpClientRequest.HttpClientRequest =>
   pipe(
     request,
@@ -102,7 +102,7 @@ const executeJson = Effect.fn("Discord.executeJson")(function* (
   baseUrl: string,
   path: string,
   method: "GET" | "POST",
-  botToken: Redacted.Redacted<string>,
+  botToken: Redacted.Redacted,
   body?: unknown
 ) {
   const fullPath = discordPath(path);

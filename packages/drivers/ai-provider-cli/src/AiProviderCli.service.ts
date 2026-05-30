@@ -7,13 +7,12 @@
 
 import { $AiProviderCliId } from "@beep/identity";
 import { thunkEmptyStr } from "@beep/utils";
-import { Context, Effect, Layer, Match, Stream } from "effect";
+import { Context, Effect, Layer, Stream } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { AiProviderCliError } from "./AiProviderCli.errors.ts";
-import { AiProviderCliAuthProbe, AiProviderCliProcessResult } from "./AiProviderCli.models.ts";
-import type { AiProviderCliProvider } from "./AiProviderCli.models.ts";
+import { AiProviderCliAuthProbe, AiProviderCliProcessResult, AiProviderCliProvider } from "./AiProviderCli.models.ts";
 
 const $I = $AiProviderCliId.create("AiProviderCli.service");
 
@@ -65,11 +64,10 @@ const commandFor = (
   paths: AiProviderCliPaths,
   provider: AiProviderCliProvider
 ): readonly [string, ReadonlyArray<string>] =>
-  Match.value(provider).pipe(
-    Match.when("claude", () => [paths.claudePath ?? "claude", ["auth", "status"]] as const),
-    Match.when("codex", () => [paths.codexPath ?? "codex", ["login", "status"]] as const),
-    Match.exhaustive
-  );
+  AiProviderCliProvider.$match(provider, {
+    claude: () => [paths.claudePath ?? "claude", ["auth", "status"]] as const,
+    codex: () => [paths.codexPath ?? "codex", ["login", "status"]] as const,
+  });
 
 const runNative = (
   spawner: ChildProcessSpawner.ChildProcessSpawner["Service"],

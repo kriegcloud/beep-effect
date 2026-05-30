@@ -18,11 +18,13 @@ import { addSessionAnnotation } from "@arizeai/phoenix-client/sessions";
 import { addSpanAnnotation } from "@arizeai/phoenix-client/spans";
 import { addTraceAnnotation } from "@arizeai/phoenix-client/traces";
 import { $PhoenixId } from "@beep/identity";
+import { URLStr } from "@beep/schema";
+import { P, thunkEmptyStr } from "@beep/utils";
 import { Config, Context, Effect, flow, Layer, Match, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { PHOENIX_API_URL, PhoenixConfigInput } from "./Phoenix.config.ts";
 import { PhoenixError } from "./Phoenix.errors.ts";
@@ -122,14 +124,13 @@ export interface PhoenixShape {
   readonly getExperimentInfo: (experimentId: string) => Effect.Effect<PhoenixExperimentInfoResult, PhoenixError>;
   readonly getPrompt: (selector: PhoenixPromptSelector) => Effect.Effect<PhoenixPromptReadResult, PhoenixError>;
 }
+class ResolvedPhoenixConfig extends S.Class<ResolvedPhoenixConfig>($I`ResolvedPhoenixConfig`)({
+  apiKey: S.String.pipe(S.Redacted, S.Option),
+  baseUrl: URLStr,
+  headers: S.Record(S.String, S.String),
+}) {}
 
-type ResolvedPhoenixConfig = {
-  readonly apiKey: O.Option<Redacted.Redacted<string>>;
-  readonly baseUrl: string;
-  readonly headers: Readonly<Record<string, string>>;
-};
-
-const normalizeBaseUrl = Str.replace(/\/+$/, "");
+const normalizeBaseUrl = flow(Str.replace(/\/+$/, ""), URLStr.make);
 
 const resolveConfig = (config: PhoenixConfigInput): ResolvedPhoenixConfig => ({
   apiKey: O.fromUndefinedOr(config.apiKey),
@@ -148,7 +149,7 @@ const resolvedHeaders = (config: ResolvedPhoenixConfig): Readonly<Record<string,
 
 const makeClient = (config: ResolvedPhoenixConfig): PhoenixClient =>
   createClient({
-    getEnvironmentOptions: () => ({}),
+    getEnvironmentOptions: R.empty,
     options: {
       baseUrl: config.baseUrl,
       headers: resolvedHeaders(config),
@@ -167,14 +168,14 @@ const optionalVersionId = (selector: PhoenixDatasetSelector): { readonly version
   pipe(
     O.fromUndefinedOr(selector.versionId),
     O.map((versionId) => ({ versionId })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalSplits = (selector: PhoenixDatasetSelector): { readonly splits?: string[] } =>
   pipe(
     O.fromUndefinedOr(selector.splits),
     O.map((splits) => ({ splits: A.fromIterable(splits) })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const datasetSelectorExtras = (
@@ -198,7 +199,7 @@ const optionalDatasetExampleId = (example: PhoenixDatasetExample): { readonly id
   pipe(
     O.fromUndefinedOr(example.id),
     O.map((id) => ({ id })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalDatasetExampleOutput = (
@@ -207,21 +208,21 @@ const optionalDatasetExampleOutput = (
   pipe(
     O.fromUndefinedOr(example.output),
     O.map((output) => ({ output: output === null ? null : toMutableRecord(output) })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalDatasetExampleSpanId = (example: PhoenixDatasetExample): { readonly spanId?: string | null } =>
   pipe(
     O.fromUndefinedOr(example.spanId),
     O.map((spanId) => ({ spanId })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalDatasetExampleSplits = (example: PhoenixDatasetExample): { readonly splits?: string | string[] | null } =>
   pipe(
     O.fromUndefinedOr(example.splits),
     O.map((splits) => ({ splits: datasetSplitsToSdk(splits) })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const datasetExampleToSdk = (example: PhoenixDatasetExample): SdkDatasetExample => ({
@@ -251,10 +252,10 @@ const promptSelectorToSdk = (selector: PhoenixPromptSelector): SdkPromptSelector
   }
 
   if (O.isSome(tag)) {
-    return { name: O.getOrElse(name, () => ""), tag: tag.value };
+    return { name: O.getOrElse(name, thunkEmptyStr), tag: tag.value };
   }
 
-  return { name: O.getOrElse(name, () => "") };
+  return { name: O.getOrElse(name, thunkEmptyStr) };
 };
 
 const promptSelectorHasValue = (selector: PhoenixPromptSelector): boolean =>
@@ -292,28 +293,28 @@ const optionalLabel = (input: PhoenixAnnotationInput): { readonly label?: string
   pipe(
     O.fromUndefinedOr(input.label),
     O.map((label) => ({ label })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalScore = (input: PhoenixAnnotationInput): { readonly score?: number } =>
   pipe(
     O.fromUndefinedOr(input.score),
     O.map((score) => ({ score })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalExplanation = (input: PhoenixAnnotationInput): { readonly explanation?: string } =>
   pipe(
     O.fromUndefinedOr(input.explanation),
     O.map((explanation) => ({ explanation })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalIdentifier = (input: PhoenixAnnotationInput): { readonly identifier?: string } =>
   pipe(
     O.fromUndefinedOr(input.identifier),
     O.map((identifier) => ({ identifier })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const annotationBase = (input: PhoenixAnnotationInput) => ({
@@ -332,14 +333,14 @@ const optionalExperimentDatasetVersionId = (
   pipe(
     O.fromUndefinedOr(input.datasetVersionId),
     O.map((datasetVersionId) => ({ datasetVersionId })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalExperimentName = (input: PhoenixExperimentCreateInput): { readonly experimentName?: string } =>
   pipe(
     O.fromUndefinedOr(input.experimentName),
     O.map((experimentName) => ({ experimentName })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalExperimentDescription = (
@@ -348,28 +349,28 @@ const optionalExperimentDescription = (
   pipe(
     O.fromUndefinedOr(input.experimentDescription),
     O.map((experimentDescription) => ({ experimentDescription })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalExperimentSplits = (input: PhoenixExperimentCreateInput): { readonly splits?: readonly string[] } =>
   pipe(
     O.fromUndefinedOr(input.splits),
     O.map((splits) => ({ splits })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalPromptDescription = (input: PhoenixPromptCreateInput): { readonly description?: string } =>
   pipe(
     O.fromUndefinedOr(input.description),
     O.map((description) => ({ description })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const optionalPromptVersionDescription = (input: PhoenixPromptCreateInput): { readonly description?: string } =>
   pipe(
     O.fromUndefinedOr(input.versionDescription),
     O.map((description) => ({ description })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(R.empty)
   );
 
 const promptVersionInputBase = (input: PhoenixPromptCreateInput) => ({

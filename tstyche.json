@@ -34,7 +34,6 @@
     "packages/drivers/face-detection/dtslint/**/*.tst.*",
     "packages/drivers/ffmpeg/dtslint/**/*.tst.*",
     "packages/drivers/postgres/dtslint/**/*.tst.*",
-    "packages/drivers/openai/dtslint/**/*.tst.*",
     "packages/drivers/venice-ai/dtslint/**/*.tst.*",
     "packages/drivers/xai/dtslint/**/*.tst.*",
     "packages/drivers/acp/dtslint/**/*.tst.*",

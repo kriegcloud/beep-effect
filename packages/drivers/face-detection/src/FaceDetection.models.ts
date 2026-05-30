@@ -6,7 +6,7 @@
  */
 
 import { $FaceDetectionId } from "@beep/identity/packages";
-import { Effect } from "effect";
+import { SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $FaceDetectionId.create("FaceDetection.models");
@@ -189,18 +189,9 @@ export class FaceDetectionModelConfig extends S.Class<FaceDetectionModelConfig>(
 export class FaceDetectionImageRequest extends S.Class<FaceDetectionImageRequest>($I`FaceDetectionImageRequest`)(
   {
     imagePath: S.String,
-    minConfidence: FaceDetectionConfidence.pipe(
-      S.withConstructorDefault(Effect.succeed(0.75)),
-      S.withDecodingDefault(Effect.succeed(0.75))
-    ),
-    nmsThreshold: FaceDetectionConfidence.pipe(
-      S.withConstructorDefault(Effect.succeed(0.3)),
-      S.withDecodingDefault(Effect.succeed(0.3))
-    ),
-    topK: FaceDetectionTopK.pipe(
-      S.withConstructorDefault(Effect.succeed(5000)),
-      S.withDecodingDefault(Effect.succeed(5000))
-    ),
+    minConfidence: FaceDetectionConfidence.pipe(SchemaUtils.withKeyDefaults(0.75)),
+    nmsThreshold: FaceDetectionConfidence.pipe(SchemaUtils.withKeyDefaults(0.3)),
+    topK: FaceDetectionTopK.pipe(SchemaUtils.withKeyDefaults(5000)),
   },
   $I.annote("FaceDetectionImageRequest", {
     description: "Request to detect faces in one image with a loaded YuNet-compatible detector.",

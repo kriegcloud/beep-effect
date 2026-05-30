@@ -7,11 +7,9 @@
 
 import { $PostgresId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { A, Str } from "@beep/utils";
+import { A, O, Str, thunkFalse } from "@beep/utils";
 import { Cause, pipe, Result } from "effect";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { getPgErrorName, PgErrorName } from "./PostgresSqlState.models.ts";
 
@@ -66,11 +64,7 @@ const readProperty = <A>(value: object, key: string, guard: (candidate: unknown)
     O.filter(guard)
   );
 
-const safeBoolean = (evaluate: () => boolean): boolean =>
-  pipe(
-    Result.try(evaluate),
-    Result.getOrElse(() => false)
-  );
+const safeBoolean = (evaluate: () => boolean): boolean => pipe(Result.try(evaluate), Result.getOrElse(thunkFalse));
 
 const isObject = (value: unknown): value is object => safeBoolean(() => P.isObject(value));
 
@@ -83,7 +77,7 @@ const isPostgresError = (value: unknown): value is PostgresError => safeBoolean(
 const hasSeen = (seen: ReadonlyArray<object>, value: object): boolean =>
   pipe(
     seen,
-    A.some((seenValue) => seenValue === value)
+    A.some((seenValue) => Object.is(seenValue, value))
   );
 
 const readCauseReasons = (cause: Cause.Cause<unknown>): ReadonlyArray<Cause.Reason<unknown>> =>
@@ -191,15 +185,14 @@ const extractPgLikeError = (value: unknown, seen: ReadonlyArray<object> = []): O
 const makeQueryContext = (
   query: string | undefined,
   params: ReadonlyArray<unknown> | undefined
-): Pick<PostgresErrorContext, "params" | "query"> => ({
-  ...R.getSomes({ query: O.fromUndefinedOr(query) }),
-  ...R.getSomes({
+): Pick<PostgresErrorContext, "params" | "query"> =>
+  O.getSomesStruct({
+    query: O.fromUndefinedOr(query),
     params: O.map(
       O.fromUndefinedOr(params),
       A.map(() => REDACTED_SQL_PARAMETER)
     ),
-  }),
-});
+  });
 
 const parseDrizzleMessage = (value: unknown): PostgresErrorContext => {
   const message = O.getOrUndefined(getErrorMessage(value));

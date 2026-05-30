@@ -4,24 +4,19 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+import { SchemaUtils } from "@beep/schema";
 import { A } from "@beep/utils";
-import { Effect, HashMap, HashSet } from "effect";
+import { Effect, flow, HashMap, HashSet } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { RuntimeScope } from "./ProfessionalRuntime.contracts.js";
 import { ProfessionalRuntimeValidationError } from "./ProfessionalRuntime.errors.js";
 import { runRuntimeFixture } from "./ProfessionalRuntime.fixtures.js";
 import type { ProposeCandidateOutputSet } from "./ProfessionalRuntime.commands.js";
-import type {
-  CandidateOutputSet,
-  RuntimeEvidenceRef,
-  RuntimeScope,
-  SdkContextPacket,
-} from "./ProfessionalRuntime.contracts.js";
+import type { CandidateOutputSet, RuntimeEvidenceRef, SdkContextPacket } from "./ProfessionalRuntime.contracts.js";
 import type { RuntimeFixtureInput } from "./ProfessionalRuntime.fixtures.js";
 import type { GetContextPacket } from "./ProfessionalRuntime.queries.js";
 import type { ProfessionalRuntimeSdk } from "./ProfessionalRuntime.service.js";
-
-
 
 const ensure = (condition: boolean, message: string): Effect.Effect<void, ProfessionalRuntimeValidationError> =>
   condition ? Effect.void : ProfessionalRuntimeValidationError.failEffect(message);
@@ -33,21 +28,14 @@ const fixtureForScenario = (
   O.match(
     A.findFirst(fixtures, (fixture) => fixture.email.scenarioId === scenarioId),
     {
-      onNone: () => ProfessionalRuntimeValidationError.failEffect(`Unknown runtime fixture scenario: ${scenarioId}`),
+      onNone: ProfessionalRuntimeValidationError.failEffectThunk(`Unknown runtime fixture scenario: ${scenarioId}`),
       onSome: Effect.succeed,
     }
   );
 
-const outputForScenario = (
-  fixtures: ReadonlyArray<RuntimeFixtureInput>,
-  scenarioId: string
-): Effect.Effect<CandidateOutputSet, ProfessionalRuntimeValidationError> =>
-  Effect.flatMap(fixtureForScenario(fixtures, scenarioId), runRuntimeFixture);
+const outputForScenario = flow(fixtureForScenario, Effect.flatMap(runRuntimeFixture));
 
-const sameScope = (left: RuntimeScope, right: RuntimeScope): boolean =>
-  left.organizationId === right.organizationId &&
-  left.threadId === right.threadId &&
-  left.workspaceId === right.workspaceId;
+const sameScope = SchemaUtils.toEquivalence(RuntimeScope);
 
 const sameOrderedStrings = (left: ReadonlyArray<string>, right: ReadonlyArray<string>): boolean =>
   left.length === right.length && A.every(left, (value, index) => value === right[index]);
@@ -190,7 +178,9 @@ const validateOutputSet = (
 ): Effect.Effect<void, ProfessionalRuntimeValidationError> => {
   const issues = collectOutputIssues(outputSet, producedByPrincipalId);
 
-  return issues.length === 0 ? Effect.void : ProfessionalRuntimeValidationError.failEffect(`${outputSet.scenarioId}: ${A.join(issues, "; ")}`);
+  return issues.length === 0
+    ? Effect.void
+    : ProfessionalRuntimeValidationError.failEffect(`${outputSet.scenarioId}: ${A.join(issues, "; ")}`);
 };
 
 /**

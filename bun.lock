@@ -627,17 +627,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/drivers/openai": {
-      "name": "@beep/openai",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/drivers/openai-compat": {
       "name": "@beep/openai-compat",
       "version": "0.0.1",
@@ -1996,7 +1985,6 @@
 
     "@beep/onepassword-cli": ["@beep/onepassword-cli@workspace:packages/drivers/onepassword-cli"],
 
-    "@beep/openai": ["@beep/openai@workspace:packages/drivers/openai"],
 
     "@beep/openai-compat": ["@beep/openai-compat@workspace:packages/drivers/openai-compat"],
 

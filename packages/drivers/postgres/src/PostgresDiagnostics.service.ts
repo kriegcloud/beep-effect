@@ -6,8 +6,8 @@
  */
 
 import colors, { type Colors } from "@beep/colors";
-import { A, Str } from "@beep/utils";
-import { Cause, Console, pipe, Result } from "effect";
+import { A, Str, thunkFalse } from "@beep/utils";
+import { Cause, Console, flow, pipe, Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -112,8 +112,8 @@ const SqlFunctionValues = [
   "substring",
 ];
 
-const stripAnsi = (text: string): string => Str.replace(/\x1b\[[0-9;]*m/g, "")(text);
-const visualLength = (text: string): number => Str.length(stripAnsi(text));
+const stripAnsi = Str.replace(/\x1b\[[0-9;]*m/g, "");
+const visualLength = flow(stripAnsi, Str.length);
 
 const padEnd = (text: string, targetLength: number): string => {
   const currentLength = visualLength(text);
@@ -123,7 +123,7 @@ const padEnd = (text: string, targetLength: number): string => {
 const highlightLine = (line: string, palette: Colors): string =>
   pipe(
     line,
-    Str.replaceWith(/\$\d+/g, (placeholder) => palette.yellow(palette.bold(placeholder))),
+    Str.replaceWith(/\$\d+/g, flow(palette.bold, palette.yellow)),
     Str.replaceWith(/\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g, (word) => {
       const lower = Str.toLowerCase(word);
       if (A.contains(SqlKeywordValues, lower)) {
@@ -134,14 +134,10 @@ const highlightLine = (line: string, palette: Colors): string =>
       }
       return word;
     }),
-    Str.replaceWith(/([=<>!]+|::|->|@>|<@|\?\||\?&)/g, (operator) => palette.cyan(operator))
+    Str.replaceWith(/([=<>!]+|::|->|@>|<@|\?\||\?&)/g, palette.cyan)
   );
 
-const safeBoolean = (evaluate: () => boolean): boolean =>
-  pipe(
-    Result.try(evaluate),
-    Result.getOrElse(() => false)
-  );
+const safeBoolean = (evaluate: () => boolean): boolean => pipe(Result.try(evaluate), Result.getOrElse(thunkFalse));
 
 const isObject = (value: unknown): value is object => safeBoolean(() => P.isObject(value));
 

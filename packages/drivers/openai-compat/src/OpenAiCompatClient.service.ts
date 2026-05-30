@@ -9,7 +9,7 @@ import { $OpenaiCompatId } from "@beep/identity";
 import { decodeJsonString } from "@beep/schema/Json";
 import { A, Str } from "@beep/utils";
 import { Context, Effect, flow, Layer, Match, pipe, Stream } from "effect";
-import { identity } from "effect/Function";
+import { dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as AiError from "effect/unstable/ai/AiError";
@@ -137,21 +137,24 @@ const mapStatusError = (
     )
   );
 
-const mapHttpClientError = (
-  method: string,
-  error: HttpClientError.HttpClientError
-): Effect.Effect<never, AiError.AiError> =>
-  Match.value(error.reason).pipe(
-    Match.tags({
-      StatusCodeError: (reason) => mapStatusError(method, reason),
-      TransportError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
-      EncodeError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
-      InvalidUrlError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
-    }),
-    Match.orElse(() =>
-      Effect.fail(makeAiError(method, AiError.InvalidOutputError.make({ description: error.message })))
+const mapHttpClientError: {
+  (error: HttpClientError.HttpClientError, method: string): Effect.Effect<never, AiError.AiError>;
+  (method: string): (error: HttpClientError.HttpClientError) => Effect.Effect<never, AiError.AiError>;
+} = dual(
+  2,
+  (method: string, error: HttpClientError.HttpClientError): Effect.Effect<never, AiError.AiError> =>
+    Match.value(error.reason).pipe(
+      Match.tags({
+        StatusCodeError: (reason) => mapStatusError(method, reason),
+        TransportError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
+        EncodeError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
+        InvalidUrlError: (reason) => Effect.fail(makeAiError(method, AiError.NetworkError.fromRequestError(reason))),
+      }),
+      Match.orElse(() =>
+        Effect.fail(makeAiError(method, AiError.InvalidOutputError.make({ description: error.message })))
+      )
     )
-  );
+);
 
 const logClientFailure =
   (method: string) =>
@@ -176,15 +179,28 @@ const makeHttpClient = (client: HttpClient.HttpClient, options: OpenAiCompatClie
 
 const encodeChatCompletionRequest = HttpClientRequest.schemaBodyJson(OpenAiCompatChatCompletionRequest);
 
-const postChatCompletionRequest = (
-  method: string,
-  request: OpenAiCompatChatCompletionRequest
-): Effect.Effect<HttpClientRequest.HttpClientRequest, AiError.AiError> =>
-  pipe(
-    HttpClientRequest.post("/chat/completions"),
-    encodeChatCompletionRequest(request),
-    Effect.mapError(mapBodyEncodingError(method))
-  );
+const postChatCompletionRequest: {
+  (
+    request: OpenAiCompatChatCompletionRequest,
+    method: string
+  ): Effect.Effect<HttpClientRequest.HttpClientRequest, AiError.AiError>;
+  (
+    method: string
+  ): (
+    request: OpenAiCompatChatCompletionRequest
+  ) => Effect.Effect<HttpClientRequest.HttpClientRequest, AiError.AiError>;
+} = dual(
+  2,
+  (
+    request: OpenAiCompatChatCompletionRequest,
+    method: string
+  ): Effect.Effect<HttpClientRequest.HttpClientRequest, AiError.AiError> =>
+    pipe(
+      HttpClientRequest.post("/chat/completions"),
+      encodeChatCompletionRequest(request),
+      Effect.mapError(mapBodyEncodingError(method))
+    )
+);
 
 const makeStreamingRequest = (request: OpenAiCompatChatCompletionRequest): OpenAiCompatChatCompletionRequest =>
   OpenAiCompatChatCompletionRequest.make({
@@ -246,30 +262,29 @@ const parseSseData = (data: string): Effect.Effect<OpenAiCompatChatCompletionChu
 const makeService = (client: HttpClient.HttpClient, options: OpenAiCompatClientOptions): OpenAiCompatClientShape => {
   const httpClient = makeHttpClient(client, options);
   const decodeResponse = HttpClientResponse.schemaBodyJson(OpenAiCompatChatCompletionResponse);
-  const createChatCompletion: OpenAiCompatClientShape["createChatCompletion"] = (request) =>
-    pipe(
-      postChatCompletionRequest("createChatCompletion", request),
-      Effect.map(HttpClientRequest.setHeaders({ Accept: "application/json" })),
-      Effect.flatMap(HttpClient.filterStatusOk(httpClient).execute),
-      Effect.flatMap(decodeResponse),
-      Effect.catchTags({
-        HttpClientError: (error) => mapHttpClientError("createChatCompletion", error),
-        SchemaError: (error) => Effect.fail(mapSchemaError("createChatCompletion")(error)),
-      }),
-      Effect.tapError(logClientFailure("createChatCompletion")),
-      Effect.withSpan("OpenAiCompatClient.createChatCompletion", {
-        attributes: {
-          component: moduleName,
-          operation: "createChatCompletion",
-        },
-      })
-    );
+  const createChatCompletion: OpenAiCompatClientShape["createChatCompletion"] = flow(
+    postChatCompletionRequest("createChatCompletion"),
+    Effect.map(HttpClientRequest.setHeaders({ Accept: "application/json" })),
+    Effect.flatMap(HttpClient.filterStatusOk(httpClient).execute),
+    Effect.flatMap(decodeResponse),
+    Effect.catchTags({
+      HttpClientError: mapHttpClientError("createChatCompletion"),
+      SchemaError: flow(mapSchemaError("createChatCompletion"), Effect.fail),
+    }),
+    Effect.tapError(logClientFailure("createChatCompletion")),
+    Effect.withSpan("OpenAiCompatClient.createChatCompletion", {
+      attributes: {
+        component: moduleName,
+        operation: "createChatCompletion",
+      },
+    })
+  );
 
   const streamChatCompletion: OpenAiCompatClientShape["streamChatCompletion"] = (request) =>
     pipe(
       Stream.unwrap(
         pipe(
-          postChatCompletionRequest("streamChatCompletion", makeStreamingRequest(request)),
+          postChatCompletionRequest(makeStreamingRequest(request), "streamChatCompletion"),
           Effect.map(HttpClientRequest.setHeaders({ Accept: "text/event-stream" })),
           Effect.flatMap(HttpClient.filterStatusOk(httpClient).execute),
           Effect.flatMap(ensureSseContentType("streamChatCompletion")),
@@ -281,12 +296,12 @@ const makeService = (client: HttpClient.HttpClient, options: OpenAiCompatClientO
                 event.data === "[DONE]" ? Stream.empty : Stream.fromEffect(parseSseData(event.data))
               ),
               Stream.catchTags({
-                HttpClientError: (error) => Stream.fromEffect(mapHttpClientError("streamChatCompletion", error)),
+                HttpClientError: flow(mapHttpClientError("streamChatCompletion"), Stream.fromEffect),
                 Retry: () => Stream.fail(mapSseRetry("streamChatCompletion")),
               })
             )
           ),
-          Effect.catchTag("HttpClientError", (error) => mapHttpClientError("streamChatCompletion", error))
+          Effect.catchTag("HttpClientError", mapHttpClientError("streamChatCompletion"))
         )
       ),
       Stream.tapError(logClientFailure("streamChatCompletion")),

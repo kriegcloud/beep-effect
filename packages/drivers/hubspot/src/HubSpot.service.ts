@@ -277,7 +277,7 @@ const resolveConfig = Effect.fn("HubSpot.resolveConfig")(function* (
   const accountId = yield* pipe(
     O.fromNullishOr(input.accountId),
     O.match({
-      onNone: () => Effect.fail(HubSpotError.fromReason("config")),
+      onNone: HubSpotError.failEffectFromReasonThunk("config"),
       onSome: Effect.succeed,
     })
   );
@@ -305,7 +305,7 @@ const addHeaders = (
       config.accessToken,
       O.match({
         onNone: () => current,
-        onSome: (token: RedactedType.Redacted<string>) => HttpClientRequest.bearerToken(current, token),
+        onSome: (token: RedactedType.Redacted) => HttpClientRequest.bearerToken(current, token),
       })
     )
   );

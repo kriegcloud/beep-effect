@@ -6,8 +6,8 @@
  * @since 0.0.0
  */
 
-import {$CanvasDomainId} from "@beep/identity/packages";
-import {Effect, pipe, Tuple} from "effect";
+import { $CanvasDomainId } from "@beep/identity/packages";
+import { Effect, pipe, Tuple } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -44,8 +44,33 @@ export class CanvasNode extends S.Class<CanvasNode>($I`CanvasNode`)(
     title: "CanvasNode",
     description: "Non-rendering metadata entry for a bootstrap canvas scene.",
   })
-) {
-}
+) {}
+
+class OpenCanvasProject extends S.Class<OpenCanvasProject>($I`OpenCanvasProject`)(
+  {
+    id: CanvasProjectId,
+    title: CanvasProjectTitle,
+    status: S.tag("open"),
+    nodes: S.Array(CanvasNode),
+  },
+  $I.annote("OpenCanvasProject", {
+    title: "Open CanvasProject",
+    description: "Mutable scene container aggregate for the bootstrap canvas slice.",
+  })
+) {}
+
+class ArchivedCanvasProject extends S.Class<ArchivedCanvasProject>($I`ArchivedCanvasProject`)(
+  {
+    id: CanvasProjectId,
+    title: CanvasProjectTitle,
+    status: S.tag("archived"),
+    nodes: S.Array(CanvasNode),
+  },
+  $I.annote("ArchivedCanvasProject", {
+    title: "Archived CanvasProject",
+    description: "Archived scene container aggregate for the bootstrap canvas slice.",
+  })
+) {}
 
 /**
  * CanvasProject aggregate.
@@ -53,29 +78,22 @@ export class CanvasNode extends S.Class<CanvasNode>($I`CanvasNode`)(
  * @category aggregates
  * @since 0.0.0
  */
-export const CanvasProject = CanvasProjectStatus.mapMembers((members) => {
-  const make = <T extends CanvasProjectStatus>(literal: S.Literal<T>) => S.Struct({
-    id: CanvasProjectId,
-    title: CanvasProjectTitle,
-    status: S.tag(literal.literal),
-    nodes: S.Array(CanvasNode),
-  })
-
-  return pipe(
-    members,
-    Tuple.evolve([
-      make,
-      make
-    ])
-  )
-}).pipe(
+export const CanvasProject = CanvasProjectStatus.mapMembers(
+  Tuple.evolve([() => OpenCanvasProject, () => ArchivedCanvasProject])
+).pipe(
   S.toTaggedUnion("status"),
   $I.annoteSchema("CanvasProject", {
     title: "CanvasProject",
     description: "Scene container aggregate for the bootstrap canvas slice.",
   })
-)
+);
 
+/**
+ * CanvasProject aggregate type.
+ *
+ * @category aggregates
+ * @since 0.0.0
+ */
 export type CanvasProject = typeof CanvasProject.Type;
 
 /**
@@ -98,8 +116,7 @@ export class CreateCanvasProjectInput extends S.Class<CreateCanvasProjectInput>(
     title: "Create CanvasProject input",
     description: "Input required to create an open canvas scene container.",
   })
-) {
-}
+) {}
 
 /**
  * Create a new open CanvasProject aggregate.
@@ -117,13 +134,10 @@ export const create = (input: CreateCanvasProjectInput): CanvasProject =>
 
 const requireMutable = (canvasProject: CanvasProject): Effect.Effect<void, CanvasProjectAlreadyArchived> =>
   canvasProject.status === "archived"
-    ? Effect.fail(CanvasProjectAlreadyArchived.make({canvasProjectId: canvasProject.id}))
+    ? Effect.fail(CanvasProjectAlreadyArchived.make({ canvasProjectId: canvasProject.id }))
     : Effect.void;
 
-const findNode = (
-  canvasProject: CanvasProject,
-  canvasNodeId: CanvasNodeId
-): O.Option<CanvasNode> =>
+const findNode = (canvasProject: CanvasProject, canvasNodeId: CanvasNodeId): O.Option<CanvasNode> =>
   pipe(
     canvasProject.nodes,
     A.findFirst((node) => node.id === canvasNodeId)

@@ -1,7 +1,7 @@
 import {
   AIMetricsPulumiConfigValues,
   AIMetricsRemoteDeploymentConfig,
-  makeAIMetricsStackArgs,
+  AIMetricsStackArgs,
   makeAIMetricsStackArgsFromConfigValues,
 } from "@beep/infra";
 import { AiMetricsDeployTarget, AiMetricsInstallInput, makeAiMetricsInstallSpec } from "@beep/repo-ai-metrics";
@@ -11,7 +11,7 @@ import { describe, expect, it } from "vitest";
 
 describe("@beep/infra AIMetrics", () => {
   it("keeps stack args import-safe and target-aware", () => {
-    const args = makeAIMetricsStackArgs(
+    const args = AIMetricsStackArgs.new(
       AiMetricsInstallInput.make({
         hashSaltSecretRef: "op://TBK/ai-metrics/hash-salt",
         rawArchiveKeySecretRef: "op://TBK/ai-metrics/raw-archive-key",
