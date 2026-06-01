@@ -641,13 +641,11 @@ const isExcludedCloneFile = (relativePath: string): boolean =>
   Str.includes("/docs/")(relativePath) ||
   Str.includes("/storybook-static/")(relativePath);
 
-const distinctPackageCount = (records: ReadonlyArray<CloneRecord>): number =>
-  pipe(
-    records,
-    A.map((record) => record.packagePath),
-    A.dedupe,
-    A.length
-  );
+const distinctPackageCount: (records: ReadonlyArray<CloneRecord>) => number = flow(
+  A.map((record: CloneRecord) => record.packagePath),
+  A.dedupe,
+  A.length
+);
 
 const cloneCandidateFromCluster = (records: ReadonlyArray<CloneRecord>): ReuseCandidate => {
   const ordered = A.sort(

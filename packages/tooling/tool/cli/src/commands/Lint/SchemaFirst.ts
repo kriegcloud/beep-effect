@@ -22,6 +22,7 @@ import type { TypeElementTypes } from "ts-morph";
 const $I = $RepoCliId.create("commands/Lint/SchemaFirst");
 const INVENTORY_PATH = "standards/schema-first.inventory.jsonc";
 const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
+const SOURCE_FILE_GLOBS = [...INCLUDED_GLOBS, "!**/docs/**"] as const;
 const ENFORCED_ROOTS = [
   "packages/tooling/tool/cli/src",
   "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -329,9 +330,7 @@ const collectLiteralKitConstAssertionViolations = Effect.fn(function* () {
     skipAddingFilesFromTsConfig: true,
   });
 
-  for (const pattern of INCLUDED_GLOBS) {
-    project.addSourceFilesAtPaths(pattern);
-  }
+  project.addSourceFilesAtPaths(SOURCE_FILE_GLOBS);
 
   const violations = A.empty<LiteralKitConstAssertionViolation>();
 
@@ -378,9 +377,7 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
   const thunkCandidate = () => "candidate" as const;
   const thunkException = () => "exception" as const;
 
-  for (const pattern of INCLUDED_GLOBS) {
-    project.addSourceFilesAtPaths(pattern);
-  }
+  project.addSourceFilesAtPaths(SOURCE_FILE_GLOBS);
 
   const entries = A.empty<SchemaFirstInventoryEntry>();
   const pushEntry = (

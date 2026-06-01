@@ -9,10 +9,14 @@ import { $NlpId } from "@beep/identity";
 import { LiteralKit, PosInt, SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiPhoneticMatch } from "./_schemas.ts";
+import { AiPhoneticMatch, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/PhoneticMatch");
-const PhoneticMatchAlgorithmKit = LiteralKit(["soundex", "phonetize"]);
+const PhoneticMatchAlgorithmKit = LiteralKit(["soundex", "phonetize"]).annotate(
+  $I.annote("PhoneticMatchAlgorithmKit", {
+    description: "LiteralKit backing schema for phonetic matching algorithms.",
+  })
+);
 const PhoneticMatchAlgorithm = PhoneticMatchAlgorithmKit.pipe(
   $I.annoteSchema("PhoneticMatchAlgorithm", {
     description: "Phonetic encoding algorithm used to compare text.",
@@ -43,20 +47,34 @@ class PhoneticMatchParameters extends S.Class<PhoneticMatchParameters>($I`Phonet
 ) {}
 
 /**
- * Tool for comparing texts by phonetic overlap.
+ * Defines the agent-facing tool contract for comparing two texts by phonetic
+ * encodings.
+ *
+ * Use this tool for fuzzy name or phrase matching where spelling differences
+ * should still match similar-sounding tokens.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { PhoneticMatch } from "@beep/nlp/Tools/PhoneticMatch"
  *
- * console.log(PhoneticMatch)
+ * const parameters = S.decodeUnknownSync(PhoneticMatch.parametersSchema)({
+ *   algorithm: "soundex",
+ *   minTokenLength: 2,
+ *   text1: "Stephen Hawking",
+ *   text2: "Steven Hocking"
+ * })
+ *
+ * parameters.algorithm
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const PhoneticMatch = Tool.make("PhoneticMatch", {
   description: "Compute phonetic overlap between two texts using Soundex or phonetization.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: PhoneticMatchParameters,
   success: AiPhoneticMatch,
 });

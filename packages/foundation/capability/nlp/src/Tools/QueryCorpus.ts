@@ -9,7 +9,7 @@ import { $NlpId } from "@beep/identity";
 import { PosInt } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiCorpusRankedDocument } from "./_schemas.ts";
+import { AiCorpusRankedDocument, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/QueryCorpus");
 
@@ -60,20 +60,34 @@ class QueryCorpusSuccess extends S.Class<QueryCorpusSuccess>($I`QueryCorpusSucce
 ) {}
 
 /**
- * Tool for querying a previously learned corpus session.
+ * Defines the agent-facing tool contract for querying a learned corpus session
+ * without relearning its documents.
+ *
+ * Use this tool after `LearnCorpus` when the caller needs vector-ranked corpus
+ * results, optionally including each matched document's source text.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { QueryCorpus } from "@beep/nlp/Tools/QueryCorpus"
  *
- * console.log(QueryCorpus)
+ * const parameters = S.decodeUnknownSync(QueryCorpus.parametersSchema)({
+ *   corpusId: "support-docs",
+ *   includeText: true,
+ *   query: "refund policy",
+ *   topN: 5
+ * })
+ *
+ * parameters.query
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const QueryCorpus = Tool.make("QueryCorpus", {
   description: "Query a learned corpus session and return vector-ranked results without relearning.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: QueryCorpusParameters,
   success: QueryCorpusSuccess,
 });

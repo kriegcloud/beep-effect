@@ -45,11 +45,9 @@ type ImageCommandServiceRequirements =
  * @example
  * ```ts
  * import type { ImageCommandServiceShape } from "@beep/repo-cli/commands/Image"
- *
  * const value = {} as ImageCommandServiceShape
  * console.log(value)
  * ```
- *
  * @category services
  * @since 0.0.0
  */
@@ -79,10 +77,8 @@ export interface ImageCommandServiceShape {
  * @example
  * ```ts
  * import { ImageCommandService } from "@beep/repo-cli/commands/Image"
- *
  * console.log(ImageCommandService)
  * ```
- *
  * @category services
  * @since 0.0.0
  */
@@ -297,10 +293,8 @@ const makeImageCommandService = Effect.fn("ImageCommandService.make")(function* 
  * @example
  * ```ts
  * import { ImageCommandServiceLive } from "@beep/repo-cli/commands/Image"
- *
  * console.log(ImageCommandServiceLive)
  * ```
- *
  * @category layers
  * @since 0.0.0
  */
@@ -315,10 +309,8 @@ export const ImageCommandServiceLive: Layer.Layer<ImageCommandService, never, Im
  * @example
  * ```ts
  * import { extractFrames } from "@beep/repo-cli/commands/Image"
- *
  * console.log(extractFrames)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */
@@ -337,10 +329,8 @@ export const extractFrames = Effect.fn("Image.extractFrames")(function* (
  * @example
  * ```ts
  * import { extractFramesDir } from "@beep/repo-cli/commands/Image"
- *
  * console.log(extractFramesDir)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */

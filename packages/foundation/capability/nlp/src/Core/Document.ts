@@ -28,17 +28,18 @@ const getRangeEnd = (
 ): number => (P.isNumber(options) ? options : options.end);
 
 /**
- * Branded identifier for NLP documents.
+ * Stable non-empty identifier for a text document moving through NLP pipelines.
  *
  * @example
  * ```ts
  * import { DocumentId } from "@beep/nlp/Core/Document"
  *
- * console.log(DocumentId)
+ * const id = DocumentId.make("doc-001")
+ * console.log(id) // "doc-001"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export const DocumentId = S.NonEmptyString.pipe(
   S.brand("DocumentId"),
@@ -48,68 +49,80 @@ export const DocumentId = S.NonEmptyString.pipe(
 );
 
 /**
- * Runtime type for {@link DocumentId}.
+ * Runtime TypeScript type decoded by the {@link DocumentId} schema.
  *
  * @example
  * ```ts
  * import type { DocumentId } from "@beep/nlp/Core/Document"
  *
- * type Example = DocumentId
+ * const label = (id: DocumentId): string => `document:${id}`
+ * console.log(typeof label) // "function"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export type DocumentId = typeof DocumentId.Type;
 
 /**
- * Branded index for documents in ordered collections.
+ * Zero-based position of a document inside an ordered corpus or batch.
  *
  * @example
  * ```ts
  * import type { DocumentIndex } from "@beep/nlp/Core/Document"
  *
- * type Example = DocumentIndex
+ * const next = (index: DocumentIndex): number => index + 1
+ * console.log(typeof next) // "function"
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export type DocumentIndex = Brand.Branded<NonNegativeInt, "DocumentIndex">;
 
 /**
- * Constructor for {@link DocumentIndex}.
+ * Construct a branded document index after validating it is non-negative.
  *
  * @example
  * ```ts
  * import { documentIndex } from "@beep/nlp/Core/Document"
  *
- * console.log(documentIndex)
+ * const first = documentIndex(0)
+ * console.log(first) // 0
  * ```
  *
- * @since 0.0.0
  * @category validation
+ * @since 0.0.0
  */
 export const documentIndex: Brand.Constructor<DocumentIndex> = Brand.check<DocumentIndex>(
   S.makeFilter(S.is(NonNegativeInt))
 );
 
 /**
- * Schema for {@link DocumentIndex}.
+ * Schema that decodes non-negative numbers into {@link DocumentIndex} values.
  *
  * @example
  * ```ts
  * import { DocumentIndex } from "@beep/nlp/Core/Document"
  *
- * console.log(DocumentIndex)
+ * const index = DocumentIndex.make(3)
+ * console.log(index) // 3
  * ```
  *
- * @since 0.0.0
  * @category validation
+ * @since 0.0.0
  */
-export const DocumentIndex = NonNegativeInt.pipe(S.fromBrand("DocumentIndex", documentIndex));
+export const DocumentIndex = NonNegativeInt.pipe(
+  S.fromBrand("DocumentIndex", documentIndex),
+  $I.annoteSchema("DocumentIndex", {
+    description: "Non-negative ordered index for an NLP document.",
+  })
+);
 
-const rebuildSentence = (sentence: Sentence, sentenceTokens: A.NonEmptyReadonlyArray<Token>) => {
+const rebuildSentence: {
+  (sentenceTokens: A.NonEmptyReadonlyArray<Token>, sentence: Sentence): Result.Result<Sentence>;
+  (sentence: Sentence): (sentenceTokens: A.NonEmptyReadonlyArray<Token>) => Result.Result<Sentence>;
+} = dual(2, (sentenceTokens: A.NonEmptyReadonlyArray<Token>, sentence: Sentence) => {
   const [firstToken, ...remainingTokens] = sentenceTokens;
   const lastToken = A.reduce(remainingTokens, firstToken, (_, token) => token);
 
@@ -126,7 +139,7 @@ const rebuildSentence = (sentence: Sentence, sentenceTokens: A.NonEmptyReadonlyA
       tokens: Chunk.fromIterable(sentenceTokens),
     })
   );
-};
+});
 
 const filterSentence = (predicate: (token: Token) => boolean) => (sentence: Sentence) =>
   pipe(
@@ -134,7 +147,7 @@ const filterSentence = (predicate: (token: Token) => boolean) => (sentence: Sent
     Chunk.toReadonlyArray,
     A.match({
       onEmpty: () => Result.failVoid,
-      onNonEmpty: (sentenceTokens) => rebuildSentence(sentence, sentenceTokens),
+      onNonEmpty: rebuildSentence(sentence),
     })
   );
 
@@ -152,17 +165,30 @@ const filterDocument = (document: Document, predicate: (token: Token) => boolean
   });
 
 /**
- * Immutable NLP document model.
+ * Immutable document containing source text plus aligned tokens and sentences.
+ *
+ * @remarks
+ * `tokens` and `sentences` preserve source order. Filtering operations rebuild
+ * sentence token spans so derived documents remain internally consistent.
  *
  * @example
  * ```ts
- * import { Document } from "@beep/nlp/Core/Document"
+ * import { Chunk } from "effect"
+ * import * as O from "effect/Option"
+ * import { Document as NLPDocument, DocumentId } from "@beep/nlp/Core/Document"
  *
- * console.log(Document)
+ * const document = NLPDocument.make({
+ *   id: DocumentId.make("doc-001"),
+ *   text: "Effect works.",
+ *   tokens: Chunk.empty(),
+ *   sentences: Chunk.empty(),
+ *   sentiment: O.none()
+ * })
+ * console.log(document.tokenCount) // 0
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class Document extends S.Class<Document>($I`Document`)(
   {
@@ -204,7 +230,7 @@ export class Document extends S.Class<Document>($I`Document`)(
   }
 
   /**
-   * Get tokens overlapping a character range.
+   * Get tokens whose character spans overlap a half-open source range.
    * @since 0.0.0
    * @category utilities
    */
@@ -285,7 +311,7 @@ export class Document extends S.Class<Document>($I`Document`)(
   );
 
   /**
-   * Filter the token collection.
+   * Filter tokens while dropping sentences that no longer contain any tokens.
    * @since 0.0.0
    * @category utilities
    */

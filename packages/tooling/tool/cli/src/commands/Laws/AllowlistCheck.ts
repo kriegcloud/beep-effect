@@ -9,8 +9,9 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots";
 import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/internal/eslint/EffectLawsAllowlistSnapshotCodegen";
 import { findRepoRoot } from "@beep/repo-utils";
+import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
-import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue } from "effect";
+import { Console, Effect, FileSystem, HashSet, Path, pipe, Result, SchemaIssue } from "effect";
 import * as Eq from "effect/Equal";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -36,6 +37,31 @@ const ALLOWLIST_SNAPSHOT_PATH =
   "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts";
 const NO_NATIVE_RUNTIME_RULE_ID = "beep-laws/no-native-runtime";
 
+const EffectLawsAllowlistRuleId = LiteralKit([NO_NATIVE_RUNTIME_RULE_ID]).pipe(
+  $I.annoteSchema("EffectLawsAllowlistRuleId", {
+    description: "Effect law rule identifiers currently supported by the allowlist checker.",
+  })
+);
+
+const NativeRuntimeAllowlistKind = LiteralKit([
+  "array-static",
+  "date-static",
+  "native-error",
+  "native-fetch",
+  "native-sort",
+  "native-switch",
+  "new-date",
+  "new-map-set",
+  "node-runtime-import",
+  "object-method",
+  "string-method",
+  "typeof-runtime",
+]).pipe(
+  $I.annoteSchema("NativeRuntimeAllowlistKind", {
+    description: "Native runtime violation kinds currently supported by the allowlist checker.",
+  })
+);
+
 const NonEmptyString = S.String.check(S.makeFilter((value) => value.length > 0 || "Expected non-empty string.")).pipe(
   $I.annoteSchema("NonEmptyString", {
     description: "Non-empty string value used for effect-laws allowlist fields.",
@@ -52,9 +78,9 @@ const DateYmdString = S.String.check(
 
 class EffectLawsAllowlistEntry extends S.Class<EffectLawsAllowlistEntry>($I`EffectLawsAllowlistEntry`)(
   {
-    rule: NonEmptyString,
+    rule: EffectLawsAllowlistRuleId,
     file: NonEmptyString,
-    kind: NonEmptyString,
+    kind: NativeRuntimeAllowlistKind,
     reason: NonEmptyString,
     owner: NonEmptyString,
     issue: NonEmptyString,
@@ -175,6 +201,26 @@ const validateEntryFiles = Effect.fn(function* (cwd: string, entries: ReadonlyAr
 
 const makeAllowlistKey = (entry: EffectLawsAllowlistEntry): string => `${entry.rule}::${entry.file}::${entry.kind}`;
 
+const validateUniqueAllowlistKeys = (entries: ReadonlyArray<EffectLawsAllowlistEntry>): ReadonlyArray<string> => {
+  let index = 0;
+  let seenKeys = HashSet.empty<string>();
+  let diagnostics = A.empty<string>();
+
+  for (const entry of entries) {
+    const key = makeAllowlistKey(entry);
+
+    if (HashSet.has(seenKeys, key)) {
+      diagnostics = A.append(diagnostics, `entries.${index}: Duplicate allowlist key ${key}`);
+    } else {
+      seenKeys = HashSet.add(seenKeys, key);
+    }
+
+    index += 1;
+  }
+
+  return diagnostics;
+};
+
 const validateEntriesStillMatchViolations = Effect.fn(function* (
   cwd: string,
   entries: ReadonlyArray<EffectLawsAllowlistEntry>
@@ -290,9 +336,15 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
   }
 
   const fileDiagnostics = yield* validateEntryFiles(repoRoot, decodedResult.success.entries);
+  const duplicateDiagnostics = validateUniqueAllowlistKeys(decodedResult.success.entries);
   const usageDiagnostics = yield* validateEntriesStillMatchViolations(repoRoot, decodedResult.success.entries);
   const snapshotDiagnostics = yield* validateGeneratedSnapshotSync(repoRoot, text);
-  const diagnostics = pipe(fileDiagnostics, A.appendAll(usageDiagnostics), A.appendAll(snapshotDiagnostics));
+  const diagnostics = pipe(
+    fileDiagnostics,
+    A.appendAll(duplicateDiagnostics),
+    A.appendAll(usageDiagnostics),
+    A.appendAll(snapshotDiagnostics)
+  );
 
   return AllowlistCheckSummary.make({
     ok: pipe(A.length(diagnostics), Eq.equals(0)),

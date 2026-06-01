@@ -140,7 +140,10 @@ const composers = $I.compose(
   "canvas",
   "repo-codegraph",
   "ai-sync",
-  "form", "box"
+  "form",
+  "nlp-mcp",
+  "wink",
+  "box"
 );
 
 // --- foundation ---
@@ -1537,3 +1540,35 @@ export const $FormId: Identity.IdentityComposer<"@beep/form"> = composers.$FormI
  * @category configuration
  */
 export const $BoxId: Identity.IdentityComposer<"@beep/box"> = composers.$BoxId;
+
+/**
+ * Identity composer for `@beep/nlp-mcp`.
+ *
+ * @example
+ * ```typescript
+ * import { $NlpMcpId } from "@beep/identity"
+ *
+ * const id = $NlpMcpId.make("NlpMcp")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $NlpMcpId: Identity.IdentityComposer<"@beep/nlp-mcp"> = composers.$NlpMcpId;
+
+/**
+ * Identity composer for `@beep/wink`.
+ *
+ * @example
+ * ```typescript
+ * import { $WinkId } from "@beep/identity"
+ *
+ * const id = $WinkId.make("Wink")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $WinkId: Identity.IdentityComposer<"@beep/wink"> = composers.$WinkId;

@@ -9,6 +9,7 @@ import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
 import { UnitInterval } from "../internal/numbers.ts";
+import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/TextSimilarity");
 
@@ -43,21 +44,33 @@ class TextSimilaritySuccess extends S.Class<TextSimilaritySuccess>($I`TextSimila
 ) {}
 
 /**
- * Tool for computing similarity between two texts.
+ * Defines the agent-facing tool contract for comparing two texts with BM25
+ * vectorization and cosine similarity.
+ *
+ * Use this tool when the caller needs a normalized semantic-ish similarity
+ * score for two standalone texts without creating a persistent corpus.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { TextSimilarity } from "@beep/nlp/Tools/TextSimilarity"
  *
- * console.log(TextSimilarity)
+ * const parameters = S.decodeUnknownSync(TextSimilarity.parametersSchema)({
+ *   text1: "Cats are wonderful pets.",
+ *   text2: "Felines make great companions."
+ * })
+ *
+ * parameters.text1
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const TextSimilarity = Tool.make("TextSimilarity", {
   description:
     "Compute similarity between two texts using BM25 vectorization and cosine similarity. Returns a score from 0 (unrelated) to 1 (identical).",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: TextSimilarityParameters,
   success: TextSimilaritySuccess,
 });

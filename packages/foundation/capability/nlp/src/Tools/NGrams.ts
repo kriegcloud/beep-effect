@@ -9,10 +9,14 @@ import { $NlpId } from "@beep/identity";
 import { LiteralKit, PosInt, SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiNGram } from "./_schemas.ts";
+import { AiNGram, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/NGrams");
-const NGramModeKit = LiteralKit(["bag", "edge", "set"]);
+const NGramModeKit = LiteralKit(["bag", "edge", "set"]).annotate(
+  $I.annote("NGramModeKit", {
+    description: "LiteralKit backing schema for character n-gram generation modes.",
+  })
+);
 const NGramMode = NGramModeKit.pipe(
   $I.annoteSchema("NGramMode", {
     description: "Character n-gram generation mode.",
@@ -56,20 +60,34 @@ class NGramsSuccess extends S.Class<NGramsSuccess>($I`NGramsSuccess`)(
 ) {}
 
 /**
- * Tool for extracting character n-grams.
+ * Defines the agent-facing tool contract for extracting fixed-size character
+ * n-grams from text.
+ *
+ * Use this tool when a workflow needs repeatable shingles, top-frequency
+ * n-grams, or bag-style n-gram features for downstream matching.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { NGrams } from "@beep/nlp/Tools/NGrams"
  *
- * console.log(NGrams)
+ * const parameters = S.decodeUnknownSync(NGrams.parametersSchema)({
+ *   mode: "bag",
+ *   size: 3,
+ *   text: "natural language processing",
+ *   topN: 5
+ * })
+ *
+ * parameters.size
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const NGrams = Tool.make("NGrams", {
   description: "Extract character n-grams from text using bag, edge, or set mode with deterministic ranking.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: NGramsParameters,
   success: NGramsSuccess,
 });

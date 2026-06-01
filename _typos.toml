@@ -8,6 +8,7 @@ Eff = "Eff"
 # Effect-TS API names (not typos)
 Somes = "Somes"
 annote = "annote"
+bimap = "bimap"
 retriev = "retriev"
 Uncommited = "Uncommited"
 Overrideable = "Overrideable"

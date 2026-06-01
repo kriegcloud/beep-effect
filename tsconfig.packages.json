@@ -106,6 +106,9 @@
       "path": "packages/drivers/konva"
     },
     {
+      "path": "packages/drivers/nlp-mcp"
+    },
+    {
       "path": "packages/drivers/onepassword-cli"
     },
     {
@@ -125,6 +128,9 @@
     },
     {
       "path": "packages/drivers/venice-ai"
+    },
+    {
+      "path": "packages/drivers/wink"
     },
     {
       "path": "packages/drivers/xai"

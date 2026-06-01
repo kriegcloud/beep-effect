@@ -26,7 +26,12 @@ const pathFragmentVariants = (input: string): ReadonlyArray<string> => {
 };
 
 /**
- * Normalize a candidate path or module fragment for deterministic lookup.
+ * Canonicalize a path-like phrase for file and module lookup.
+ *
+ * @remarks
+ * Backslashes are normalized to forward slashes and repeated separators are
+ * collapsed after query-phrase cleanup. The result is suitable for matching
+ * user prose against both filesystem paths and package module specifiers.
  *
  * @example
  * ```typescript
@@ -36,13 +41,18 @@ const pathFragmentVariants = (input: string): ReadonlyArray<string> => {
  * console.log(normalized) // "src/utils/index.ts"
  * ```
  *
- * @since 0.0.0
  * @category normalization
+ * @since 0.0.0
  */
 export const normalizePathPhrase = flow(QueryText.normalizePhrase, Str.replace(/\\+/g, "/"), Str.replace(/\/+/g, "/"));
 
 /**
- * True when the input is a bounded single-token path or module fragment.
+ * Check whether normalized text is shaped like a single path or module token.
+ *
+ * @remarks
+ * The predicate accepts scoped package names, dots, slashes, underscores, and
+ * dashes, but rejects whitespace. It is a lightweight classifier for query
+ * routing, not a filesystem existence check.
  *
  * @example
  * ```typescript
@@ -53,13 +63,18 @@ export const normalizePathPhrase = flow(QueryText.normalizePhrase, Str.replace(/
  * console.log(PathText.isPathLike("hello world")) // false
  * ```
  *
- * @since 0.0.0
  * @category predicates
+ * @since 0.0.0
  */
 export const isPathLike = (input: string): boolean => /^[A-Za-z0-9_./@-]+$/.test(normalizePathPhrase(input));
 
 /**
- * Generate deterministic file-query variants for source-file lookup.
+ * Generate source-file lookup variants from a path fragment.
+ *
+ * @remarks
+ * Variants include the normalized path, leading `./` removal, TypeScript
+ * extension removal, basename, and basename without extension, preserving order
+ * and removing duplicates.
  *
  * @example
  * ```typescript
@@ -70,13 +85,17 @@ export const isPathLike = (input: string): boolean => /^[A-Za-z0-9_./@-]+$/.test
  * console.log(variants.includes("index")) // true
  * ```
  *
- * @since 0.0.0
  * @category normalization
+ * @since 0.0.0
  */
 export const filePathVariants = pathFragmentVariants;
 
 /**
- * Generate deterministic module-specifier variants for import-edge lookup.
+ * Generate import-specifier lookup variants from a module fragment.
+ *
+ * @remarks
+ * This shares the same normalization as file paths because package subpaths and
+ * local source paths are both queried from user text in the repository graph.
  *
  * @example
  * ```typescript
@@ -87,7 +106,7 @@ export const filePathVariants = pathFragmentVariants;
  * console.log(variants.includes("Str")) // true
  * ```
  *
- * @since 0.0.0
  * @category normalization
+ * @since 0.0.0
  */
 export const moduleSpecifierVariants = pathFragmentVariants;

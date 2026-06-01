@@ -8,7 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiSentence } from "./_schemas.ts";
+import { AiSentence, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/Sentences");
 
@@ -35,20 +35,31 @@ class SentencesSuccess extends S.Class<SentencesSuccess>($I`SentencesSuccess`)(
 ) {}
 
 /**
- * Tool for splitting text into sentences with metadata.
+ * Defines the agent-facing tool contract for splitting text into sentence
+ * records with offsets and token counts.
+ *
+ * Use this tool before chunking, summarization, or citation workflows that need
+ * stable sentence boundaries rather than raw token streams.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Sentences } from "@beep/nlp/Tools/Sentences"
  *
- * console.log(Sentences)
+ * const parameters = S.decodeUnknownSync(Sentences.parametersSchema)({
+ *   text: "Hello world. How are you?"
+ * })
+ *
+ * parameters.text
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const Sentences = Tool.make("Sentences", {
   description: "Split text into sentences with token counts and character positions.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: SentencesParameters,
   success: SentencesSuccess,
 });

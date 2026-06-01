@@ -24,10 +24,8 @@ const $I = $RepoCliId.create("commands/SyncDataToTs/targets/Iso4217");
  * @example
  * ```ts
  * import { ISO4217_SOURCE_URL } from "@beep/repo-cli/commands/SyncDataToTs"
- *
  * console.log(ISO4217_SOURCE_URL)
  * ```
- *
  * @category configuration
  * @since 0.0.0
  */
@@ -278,10 +276,8 @@ const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToT
  * @example
  * ```ts
  * import { iso4217Target } from "@beep/repo-cli/commands/SyncDataToTs"
- *
  * console.log(iso4217Target)
  * ```
- *
  * @category configuration
  * @since 0.0.0
  */

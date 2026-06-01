@@ -182,10 +182,8 @@ const TsconfigSyncModeKit = LiteralKit(["sync", "check", "dry-run"]);
  * @example
  * ```ts
  * import { TsconfigSyncMode } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(TsconfigSyncMode)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -243,10 +241,8 @@ class TsconfigSyncRunOptionsDryRun extends S.Class<TsconfigSyncRunOptionsDryRun>
  * @example
  * ```ts
  * import { TsconfigSyncRunOptions } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(TsconfigSyncRunOptions)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -276,10 +272,8 @@ export type TsconfigSyncRunOptions = typeof TsconfigSyncRunOptions.Type;
  * @example
  * ```ts
  * import { TsconfigSyncSection } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(TsconfigSyncSection)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -389,10 +383,8 @@ class PackageDocgenChange extends S.Class<PackageDocgenChange>($I`PackageDocgenC
  * @example
  * ```ts
  * import { TsconfigSyncChange } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(TsconfigSyncChange)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -520,10 +512,8 @@ class PackageDocgenPlannedFileChange extends S.Class<PackageDocgenPlannedFileCha
  * @example
  * ```ts
  * import { PlannedFileChange } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(PlannedFileChange)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -592,10 +582,8 @@ class TsconfigSyncResultDryRun extends S.Class<TsconfigSyncResultDryRun>($I`Tsco
  * @example
  * ```ts
  * import { TsconfigSyncResult } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(TsconfigSyncResult)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -630,10 +618,8 @@ type TsconfigSyncError =
  * @example
  * ```ts
  * import { WorkspaceDescriptor } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(WorkspaceDescriptor)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -688,10 +674,8 @@ class TsconfigCompilerOptionsPaths extends S.Class<TsconfigCompilerOptionsPaths>
  * @example
  * ```ts
  * import { TsconfigWithReferences } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(TsconfigWithReferences)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -710,10 +694,8 @@ export class TsconfigWithReferences extends S.Class<TsconfigWithReferences>($I`T
  * @example
  * ```ts
  * import { TsconfigWithPaths } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(TsconfigWithPaths)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1695,10 +1677,8 @@ const renderChanges = Effect.fn(function* (
  * @example
  * ```ts
  * import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(syncTsconfigAtRoot)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1837,10 +1817,8 @@ const resolveMode = (check: boolean, dryRun: boolean): TsconfigSyncMode => {
  * @example
  * ```ts
  * import { tsconfigSyncCommand } from "@beep/repo-cli/commands/TsconfigSync"
- *
  * console.log(tsconfigSyncCommand)
  * ```
- *
  * @category use-cases
  * @since 0.0.0
  */

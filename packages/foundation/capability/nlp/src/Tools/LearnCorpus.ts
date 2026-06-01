@@ -8,6 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
+import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/LearnCorpus");
 
@@ -53,20 +54,33 @@ class LearnCorpusSuccess extends S.Class<LearnCorpusSuccess>($I`LearnCorpusSucce
 ) {}
 
 /**
- * Tool for incrementally learning documents into a corpus.
+ * Defines the agent-facing tool contract for incrementally learning documents
+ * into an existing corpus session.
+ *
+ * Use this tool after `CreateCorpus` to add searchable documents, optionally
+ * skipping duplicate document ids during repeated ingestion.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { LearnCorpus } from "@beep/nlp/Tools/LearnCorpus"
  *
- * console.log(LearnCorpus)
+ * const parameters = S.decodeUnknownSync(LearnCorpus.parametersSchema)({
+ *   corpusId: "support-docs",
+ *   dedupeById: true,
+ *   documents: [{ id: "refunds", text: "Refund policy details." }]
+ * })
+ *
+ * parameters.documents[0]?.text
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const LearnCorpus = Tool.make("LearnCorpus", {
   description: "Learn one or more documents into an existing corpus session for incremental indexing.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: LearnCorpusParameters,
   success: LearnCorpusSuccess,
 });

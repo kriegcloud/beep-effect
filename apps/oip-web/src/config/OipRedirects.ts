@@ -1,5 +1,5 @@
 /**
- * OIP web redirect configuration.
+ * OIP redirect configuration exports.
  *
  * @packageDocumentation
  * @since 0.0.0

@@ -38,9 +38,19 @@ export * from "./Sentence.ts";
  * @since 0.0.0
  * @category models
  */
+export * from "./Similarity.ts";
+/**
+ * @since 0.0.0
+ * @category models
+ */
 export * from "./Token.ts";
 /**
  * @since 0.0.0
  * @category parsing
  */
 export * from "./Tokenization.ts";
+/**
+ * @since 0.0.0
+ * @category models
+ */
+export * from "./Vectorization.ts";

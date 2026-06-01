@@ -14,8 +14,12 @@ const stringEquals: {
 } = dual(2, (left: string, right: string): boolean => Order.String(left, right) === 0);
 
 /**
- * Remove empty strings and duplicates while preserving the first occurrence of
- * each variant.
+ * Remove blank variants and keep the first spelling of each unique string.
+ *
+ * @remarks
+ * Lookup helpers use this after generating increasingly lossy alternatives.
+ * Preserving order lets exact or less-normalized spellings win before fallback
+ * forms such as basenames or compact identifier spellings.
  *
  * @example
  * ```typescript
@@ -25,8 +29,8 @@ const stringEquals: {
  * console.log(deduped) // ["foo", "bar", "baz"]
  * ```
  *
- * @since 0.0.0
  * @category normalization
+ * @since 0.0.0
  */
 export const orderedDedupe: (values: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
   A.filter(Str.isNonEmpty),

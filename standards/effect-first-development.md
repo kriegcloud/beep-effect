@@ -1086,27 +1086,70 @@ export class UserProfile extends S.Class<UserProfile>($I`UserProfile`)(
 ) {}
 ```
 
-### Template: Match over switch
+### Template: Match, LiteralKit([/* ... */]).$match or effect/Schema TaggedUnion over switch
 
 ```ts
 import { Match } from "effect"
 import * as A from "effect/Array"
+import { LiteralKit } from "@beep/schema";
 
-type Phase = "draft" | "running" | "done"
 
-const phaseLabel = (phase: Phase) =>
-  Match.value(phase).pipe(
-    Match.when("draft", () => "draft"),
-    Match.when("running", () => "running"),
-    Match.when("done", () => "done"),
-    Match.exhaustive
-  )
+const Phase = LiteralKit(
+  [
+    "draft",
+    "running", 
+    "done"
+  ]
+)
+
+const TaggedPhase = Phase.mapMembers(Tuple.evolve([
+  () => S.Struct({ phase: S.tag(Phase.Enum.draft)}),
+  () => S.Struct({ phase: S.tag(Phase.Enum.running)}),
+  () => S.Struct({ phase: S.tag(Phase.Enum.done)})
+])).pipe(S.toTaggedUnion("phase"))
+type TaggedPhase = typeof TaggedPhase.Type;
+const phaseLabel = Phase.$match({
+  draft: () => "draft",
+  running: () => "running",
+  done: () => "done"
+})
+
+const matchPhase: (taggedPhase: TaggedPhase) => Phase = TaggedPhase.match({
+  draft: ({phase}) => phase,
+  running: ({ phase }) => phase,
+  done: ({ phase }) => phase,
+})(taggedPhase)
 
 const summarize = (items: ReadonlyArray<string>) =>
   A.match(items, {
     onEmpty: () => "none",
     onNonEmpty: (values) => `count:${A.length(values)}`
   })
+
+export class SomeErrorOne extends TaggedErrorClass<SomeErrorOne>($I`SomeErrorOne`)("SomeErrorOne", { message: S.String}) {}
+export class SomeErrorTwo extends TaggedErrorClass<SomeErrorTwo>($I`SomeErrorTwo`)("SomeErrorTwo", { message: S.String}) {}
+
+export const SomeError = S.Union(
+  [
+    SomeErrorOne,
+    SomeErrorTwo,
+  ]
+).pipe(S.toTaggedUnion("_tag"));
+
+const matchError = SomeError.match({
+  SomeErrorOne: () => "SomeErrorOne",
+  SomeErrorTwo: () => "SomeErrorTwo",
+});
+
+const MyTaggedUnion = S.TaggedUnion({
+  One: { message: S.String },
+  Two: { message: S.String }
+})
+
+const matchTaggedUnion = MyTaggedUnion.match({
+  One: () => "One",
+  Two: () => "Two",
+})
 ```
 
 ### Template: Effect-returning function constructor

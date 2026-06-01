@@ -12,7 +12,12 @@ const firstCapture = (pattern: RegExp, input: string): O.Option<string> =>
   pipe(pattern.exec(input), O.fromNullishOr, O.flatMap(A.get(1)), O.map(normalizePhrase));
 
 /**
- * Collapse user question whitespace without changing punctuation or content.
+ * Canonicalize a free-form user question for deterministic matching.
+ *
+ * @remarks
+ * The helper trims only boundary whitespace and collapses internal whitespace.
+ * It intentionally preserves punctuation, casing, and path-like separators so
+ * downstream extractors can still distinguish prose from literal references.
  *
  * @example
  * ```typescript
@@ -22,14 +27,18 @@ const firstCapture = (pattern: RegExp, input: string): O.Option<string> =>
  * console.log(normalized) // "hello world"
  * ```
  *
- * @since 0.0.0
  * @category normalization
+ * @since 0.0.0
  */
 export const normalizeQuestion: (input: string) => string = flow(Str.trim, Str.replace(/\s+/g, " "));
 
 /**
- * Normalize a short extracted phrase by trimming boundary punctuation and
- * collapsing whitespace around path separators.
+ * Normalize a short extracted phrase after it has been pulled from prose.
+ *
+ * @remarks
+ * Boundary quotes, brackets, and trailing sentence punctuation are discarded,
+ * while whitespace around `/`, `.`, `_`, and `-` is collapsed. This keeps
+ * package names, file paths, and symbol-ish phrases stable across user wording.
  *
  * @example
  * ```typescript
@@ -39,8 +48,8 @@ export const normalizeQuestion: (input: string) => string = flow(Str.trim, Str.r
  * console.log(normalized) // "hello/world"
  * ```
  *
- * @since 0.0.0
  * @category normalization
+ * @since 0.0.0
  */
 export const normalizePhrase: (input: string) => string = flow(
   normalizeQuestion,
@@ -55,15 +64,15 @@ export const normalizePhrase: (input: string) => string = flow(
  *
  * @example
  * ```typescript
- * import { Option } from "effect"
+ * import * as O from "effect/Option"
  * import * as QueryText from "@beep/nlp/QueryText"
  *
  * const result = QueryText.extractBacktickValue("What is `Effect.gen`?")
- * console.log(Option.getOrElse(result, () => "none")) // "Effect.gen"
+ * console.log(O.getOrElse(result, () => "none")) // "Effect.gen"
  * ```
  *
- * @since 0.0.0
  * @category parsing
+ * @since 0.0.0
  */
 export const extractBacktickValue = (input: string): O.Option<string> =>
   pipe(firstCapture(/`([^`]+)`/, input), O.filter(Str.isNonEmpty));

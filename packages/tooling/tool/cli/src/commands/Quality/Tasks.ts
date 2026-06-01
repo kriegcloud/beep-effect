@@ -777,10 +777,8 @@ type SqlIntegrationStepForTestingOptions = {
  * @example
  * ```ts
  * import { sqlIntegrationStepForTesting } from "@beep/repo-cli/commands/Quality"
- *
  * console.log(sqlIntegrationStepForTesting)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -798,10 +796,8 @@ export const sqlIntegrationStepForTesting: {
  * @example
  * ```ts
  * import { runSqlIntegrationTestLaneForTesting } from "@beep/repo-cli/commands/Quality"
- *
  * console.log(runSqlIntegrationTestLaneForTesting)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -814,10 +810,8 @@ export const runSqlIntegrationTestLaneForTesting = runSqlIntegrationTestLane;
  * @example
  * ```ts
  * import { sqlIntegrationConnectionUriFromEnvForTesting } from "@beep/repo-cli/commands/Quality"
- *
  * console.log(sqlIntegrationConnectionUriFromEnvForTesting)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -992,10 +986,8 @@ const rootStepsFor = (repoRoot: string, invocation: QualityTaskInvocation): Read
  * @example
  * ```ts
  * import { rootQualityStepsForTesting } from "@beep/repo-cli/commands/Quality"
- *
  * console.log(rootQualityStepsForTesting)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1220,10 +1212,8 @@ export const collectStepOutput = (step: QualityTaskStep) =>
  * @example
  * ```ts
  * import { runQualityTaskStepGroupForTesting } from "@beep/repo-cli/commands/Quality"
- *
  * console.log(runQualityTaskStepGroupForTesting)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */

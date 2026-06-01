@@ -24,10 +24,8 @@ const $I = $RepoCliId.create("commands/Architecture/OperationPlan");
  * @example
  * ```ts
  * import { ArchitectureDomainKind } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(ArchitectureDomainKind)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -51,10 +49,8 @@ export type ArchitectureDomainKind = typeof ArchitectureDomainKind.Type;
  * @example
  * ```ts
  * import { ArchitecturePlanStage } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(ArchitecturePlanStage)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -78,10 +74,8 @@ export type ArchitecturePlanStage = typeof ArchitecturePlanStage.Type;
  * @example
  * ```ts
  * import { ArchitectureSliceRole } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(ArchitectureSliceRole)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -196,10 +190,8 @@ export type ArchitectureOperationKind = typeof ArchitectureOperationKind.Type;
  * @example
  * ```ts
  * import { ArchitectureWriterKind } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(ArchitectureWriterKind)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -411,10 +403,8 @@ const OperationSource = ArchitectureOperationSource.pipe(
  * @example
  * ```ts
  * import { ArchitectureSliceRolePlan } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(ArchitectureSliceRolePlan)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -436,10 +426,8 @@ export class ArchitectureSliceRolePlan extends S.Class<ArchitectureSliceRolePlan
  * @example
  * ```ts
  * import { ArchitecturePlanTarget } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(ArchitecturePlanTarget)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -462,10 +450,8 @@ export class ArchitecturePlanTarget extends S.Class<ArchitecturePlanTarget>($I`A
  * @example
  * ```ts
  * import { WriteFileOperation } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(WriteFileOperation)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -539,10 +525,8 @@ export class WritePackageJsonOperation extends S.Class<WritePackageJsonOperation
  * @example
  * ```ts
  * import { EnsureFileOperation } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(EnsureFileOperation)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -568,10 +552,8 @@ export class EnsureFileOperation extends S.Class<EnsureFileOperation>($I`EnsureF
  * @example
  * ```ts
  * import { EnsureAbsentPathOperation } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(EnsureAbsentPathOperation)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -596,10 +578,8 @@ export class EnsureAbsentPathOperation extends S.Class<EnsureAbsentPathOperation
  * @example
  * ```ts
  * import { ArchitectureOperation } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(ArchitectureOperation)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -654,10 +634,8 @@ export class ArchitectureOperationCheck extends S.Class<ArchitectureOperationChe
  * @example
  * ```ts
  * import { CanonicalSliceOperationPlan } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(CanonicalSliceOperationPlan)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -698,10 +676,8 @@ export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperation
  * @example
  * ```ts
  * import { OperationPlanCheckResult } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(OperationPlanCheckResult)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -726,10 +702,8 @@ export class OperationPlanCheckResult extends S.Class<OperationPlanCheckResult>(
  * @example
  * ```ts
  * import { OperationPlanApplyResult } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(OperationPlanApplyResult)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -2452,10 +2426,8 @@ const decodeOperationPlanJson = S.decodeUnknownEffect(S.fromJsonString(Canonical
  * @example
  * ```ts
  * import { makeCanonicalSliceOperationPlan } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(makeCanonicalSliceOperationPlan)
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -2504,10 +2476,8 @@ export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =
  * @example
  * ```ts
  * import { makeArchitectureOperationPlan } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(makeArchitectureOperationPlan)
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -2617,10 +2587,8 @@ export const makeArchitecturePackageOperationPlan = Effect.fn(function* (input: 
  * @example
  * ```ts
  * import { encodeCanonicalSliceOperationPlanJson } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(encodeCanonicalSliceOperationPlanJson)
  * ```
- *
  * @category codecs
  * @since 0.0.0
  */
@@ -2632,10 +2600,8 @@ export const encodeCanonicalSliceOperationPlanJson = encodeOperationPlanJson;
  * @example
  * ```ts
  * import { decodeCanonicalSliceOperationPlanJson } from "@beep/repo-cli/commands/Architecture"
- *
  * console.log(decodeCanonicalSliceOperationPlanJson)
  * ```
- *
  * @category codecs
  * @since 0.0.0
  */

@@ -15,6 +15,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
+import * as Obs from "../internal/observability.ts";
 import { NlpToolkit, NlpTools } from "./NlpToolkit.ts";
 import type { AiError, Toolkit } from "effect/unstable/ai";
 
@@ -77,17 +78,36 @@ const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
 };
 
 /**
- * Error raised while exporting or executing positional NLP tools.
+ * Typed failure for the positional tool export adapter.
+ *
+ * The error preserves the tool name, a caller-facing message, and the original
+ * unknown cause when parameter decoding, toolkit startup, stream execution, or
+ * result extraction fails.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { ExportedToolError } from "@beep/nlp/Tools/ToolExport"
  *
- * console.log(ExportedToolError)
+ * const recovered = await Effect.runPromise(
+ *   Effect.fail(
+ *     ExportedToolError.fromCause(new Error("missing text"), "Tokenize", {
+ *       message: "Invalid parameters for Tokenize"
+ *     })
+ *   ).pipe(
+ *     Effect.catchTag("ExportedToolError", (error) =>
+ *       Effect.succeed(`${error.toolName}: ${error.message}`)
+ *     )
+ *   )
+ * )
+ *
+ * if (recovered !== "Tokenize: Invalid parameters for Tokenize") {
+ *   throw new Error(recovered)
+ * }
  * ```
  *
- * @since 0.0.0
  * @category errors
+ * @since 0.0.0
  */
 export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`ExportedToolError`)(
   "ExportedToolError",
@@ -123,17 +143,33 @@ export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`Ex
 }
 
 /**
- * Runtime descriptor for an exported positional tool.
+ * Runtime descriptor for a tool exported as a positional function contract.
+ *
+ * The descriptor exposes stable argument ordering, JSON schemas, examples, and
+ * an Effectful `handle` function that validates positional arguments before
+ * delegating to the toolkit handler.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import type { ExportedTool } from "@beep/nlp/Tools/ToolExport"
  *
- * type Example = ExportedTool
+ * const tokenizeDescriptor = {
+ *   description: "Tokenize text",
+ *   handle: (args: ReadonlyArray<unknown>) => Effect.succeed(args[0]),
+ *   name: "Tokenize",
+ *   parameterNames: ["text"],
+ *   parametersJsonSchema: {},
+ *   returnsJsonSchema: {},
+ *   timeoutMs: 30_000,
+ *   usageExamples: ['const result = await Tokenize("Hello world.")']
+ * } satisfies ExportedTool
+ *
+ * tokenizeDescriptor.parameterNames
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export interface ExportedTool {
   readonly description: string;
@@ -167,6 +203,12 @@ const decodeToolParameters = <T extends NlpTool>(
   SchemaParser.decodeUnknownEffect(S.make<S.Decoder<Tool.Parameters<T>>>(tool.parametersSchema.ast))(
     buildArgsObject(parameterNames, args)
   ).pipe(
+    Obs.trackNlpDuration("nlp.tool.decode_parameters", {
+      argument_count: `${A.length(args)}`,
+      operation: "decodeToolParameters",
+      parameter_count: `${A.length(parameterNames)}`,
+      tool: tool.name,
+    }),
     Effect.mapError((cause) =>
       ExportedToolError.fromCause(cause, tool.name, {
         message: `Invalid parameters for ${tool.name}: ${renderError(cause)}`,
@@ -178,18 +220,13 @@ const handleTool = <T extends NlpTool>(
   toolkit: NlpToolkitWithHandler,
   tool: T,
   params: Tool.Parameters<T>
-): Effect.Effect<
-  Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError, never>,
-  AiError.AiError,
-  never
-> =>
+): Effect.Effect<Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError>, AiError.AiError> =>
   // `Toolkit.handle` is keyed by a literal tool-name map. At this adapter boundary
   // we validate `params` against the selected tool schema immediately beforehand,
   // so the runtime pairing of tool name and decoded parameters is sound.
   toolkit.handle(tool.name as never, params as never) as Effect.Effect<
-    Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError, never>,
-    AiError.AiError,
-    never
+    Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError>,
+    AiError.AiError
   >;
 
 const buildExportedTool: {
@@ -200,46 +237,95 @@ const buildExportedTool: {
 
   return {
     description: Tool.getDescription(tool) ?? "",
-    handle: Effect.fn(
+    handle: Effect.fn("ToolExport.handle")(
       function* (args) {
-        const params = yield* decodeToolParameters(tool, parameterNames, args);
-        const stream = yield* handleTool(toolkit, tool, params).pipe(
-          Effect.mapError((cause) =>
-            ExportedToolError.fromCause(cause, tool.name, {
-              message: `Failed to start ${tool.name}: ${renderError(cause)}`,
-            })
-          )
-        );
-        const last = yield* Stream.runLast(stream).pipe(
-          Effect.mapError((cause) =>
-            ExportedToolError.fromCause(cause, tool.name, {
-              message: `Tool ${tool.name} failed: ${renderError(cause)}`,
-            })
-          )
-        );
-
-        return yield* O.match(last, {
-          onNone: () =>
-            Effect.fail(
-              ExportedToolError.fromCause(undefined, tool.name, {
-                message: `Tool ${tool.name} returned no result`,
+        const attributes = {
+          argument_count: `${A.length(args)}`,
+          operation: "handle",
+          parameter_count: `${A.length(parameterNames)}`,
+          tool: tool.name,
+        };
+        return yield* Effect.gen(function* () {
+          yield* Obs.annotateNlpSpan({
+            ...attributes,
+            phase: "decode",
+          });
+          const params = yield* decodeToolParameters(tool, parameterNames, args);
+          yield* Obs.annotateNlpSpan({
+            ...attributes,
+            phase: "start",
+          });
+          const stream = yield* handleTool(toolkit, tool, params).pipe(
+            Obs.trackNlpDuration("nlp.tool.start", attributes),
+            Effect.mapError((cause) =>
+              ExportedToolError.fromCause(cause, tool.name, {
+                message: `Failed to start ${tool.name}: ${renderError(cause)}`,
               })
-            ),
-          onSome: (result) =>
-            result.isFailure
-              ? Effect.fail(
-                  ExportedToolError.fromCause(result.result, tool.name, {
-                    message: `Tool ${tool.name} failed: ${renderError(result.result)}`,
-                  })
+            )
+          );
+          yield* Obs.annotateNlpSpan({
+            ...attributes,
+            phase: "stream",
+          });
+          const last = yield* Stream.runLast(stream).pipe(
+            Obs.trackNlpDuration("nlp.tool.stream", attributes),
+            Effect.mapError((cause) =>
+              ExportedToolError.fromCause(cause, tool.name, {
+                message: `Tool ${tool.name} failed: ${renderError(cause)}`,
+              })
+            )
+          );
+
+          return yield* O.match(last, {
+            onNone: () =>
+              Obs.annotateNlpSpan({
+                ...attributes,
+                phase: "result",
+                result_state: "empty",
+              }).pipe(
+                Effect.andThen(
+                  Effect.fail(
+                    ExportedToolError.fromCause(undefined, tool.name, {
+                      message: `Tool ${tool.name} returned no result`,
+                    })
+                  )
                 )
-              : Effect.succeed(result.encodedResult),
-        });
+              ),
+            onSome: (result) =>
+              result.isFailure
+                ? Obs.annotateNlpSpan({
+                    ...attributes,
+                    phase: "result",
+                    result_state: "failure",
+                  }).pipe(
+                    Effect.andThen(
+                      Effect.fail(
+                        ExportedToolError.fromCause(result.result, tool.name, {
+                          message: `Tool ${tool.name} failed: ${renderError(result.result)}`,
+                        })
+                      )
+                    )
+                  )
+                : Obs.annotateNlpSpan({
+                    ...attributes,
+                    phase: "result",
+                    result_state: "success",
+                  }).pipe(Effect.as(result.encodedResult)),
+          });
+        }).pipe(Obs.observeNlpWorkflow("nlp.tool.handle", attributes));
       },
       Effect.catchCause((cause) =>
-        Effect.fail(
-          ExportedToolError.fromCause(cause, tool.name, {
-            message: `Tool ${tool.name} failed: ${Cause.pretty(cause)}`,
-          })
+        Obs.recordNlpFailure(cause, {
+          operation: "handle",
+          tool: tool.name,
+        }).pipe(
+          Effect.andThen(
+            Effect.fail(
+              ExportedToolError.fromCause(cause, tool.name, {
+                message: `Tool ${tool.name} failed: ${Cause.pretty(cause)}`,
+              })
+            )
+          )
         )
       )
     ),
@@ -263,9 +349,17 @@ const exportToolsEffect: Effect.Effect<
 > = Effect.gen(function* () {
   const toolkit = yield* NlpToolkit;
   const exportedTools: ReadonlyArray<ExportedTool> = A.map(NlpTools, buildExportedTool(toolkit));
+  yield* Obs.annotateNlpSpan({
+    operation: "exportTools",
+    tool_count: `${A.length(exportedTools)}`,
+  });
 
   return exportedTools;
 }).pipe(
+  Obs.observeNlpWorkflow("nlp.tools.export", {
+    operation: "exportTools",
+    tool_count: `${A.length(NlpTools)}`,
+  }),
   Effect.mapError((cause) =>
     ExportedToolError.fromCause(cause, "__init__", {
       message: `Failed to export NLP tools: ${renderError(cause)}`,
@@ -273,16 +367,29 @@ const exportToolsEffect: Effect.Effect<
   )
 );
 /**
- * Export tools export.
+ * Effect that exports every NLP toolkit tool as a positional descriptor.
+ *
+ * Use this adapter when an integration cannot call Effect AI toolkit handlers
+ * directly and instead needs ordered argument names, JSON schemas, timeouts,
+ * usage snippets, and a single Effectful handler per tool.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { exportTools } from "@beep/nlp/Tools/ToolExport"
+ * import { WinkNlpToolkitLive } from "@beep/wink"
  *
- * console.log(exportTools)
+ * const toolNames = await Effect.runPromise(
+ *   exportTools.pipe(
+ *     Effect.map((tools) => tools.map((tool) => tool.name)),
+ *     Effect.provide(WinkNlpToolkitLive)
+ *   )
+ * )
+ *
+ * toolNames.includes("Tokenize")
  * ```
  *
- * @since 0.0.0
  * @category adapters
+ * @since 0.0.0
  */
 export const exportTools: typeof exportToolsEffect = exportToolsEffect;

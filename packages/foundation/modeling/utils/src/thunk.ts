@@ -4,7 +4,7 @@
  * @packageDocumentation
  */
 
-import { Effect } from "effect";
+import { Effect, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -476,3 +476,24 @@ export const thunkSomeEmptyRecord = <K extends string | symbol = never, V = neve
  * @since 0.0.0
  */
 export const thunkSomeNone = <A>(): O.Option<O.Option<A>> => O.some(O.none<A>());
+
+/**
+ * Returns a thunk yielding `Result.failVoid`.
+ *
+ * Useful for representing an explicitly-set "empty" value inside a nested
+ * `Result` structure.
+ *
+ * @example
+ * ```ts
+ * import { thunkResultFailVoid } from "@beep/utils/thunk"
+ *
+ * const resultFailure = thunkResultFailVoid()
+ *
+ *
+ * console.log(resultFailure)
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const thunkResultFailVoid = () => Result.failVoid;

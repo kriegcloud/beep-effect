@@ -21,6 +21,7 @@ import {
   AiSentenceChunk as AiSentenceChunkSource,
   AiSentence as AiSentenceSource,
   AiToken as AiTokenSource,
+  AiToolError as AiToolErrorSource,
 } from "./_schemas.ts";
 import { BowCosineSimilarity as BowCosineSimilaritySource } from "./BowCosineSimilarity.ts";
 import { ChunkBySentences as ChunkBySentencesSource } from "./ChunkBySentences.ts";
@@ -33,11 +34,7 @@ import { ExtractKeywords as ExtractKeywordsSource } from "./ExtractKeywords.ts";
 import { LearnCorpus as LearnCorpusSource } from "./LearnCorpus.ts";
 import { LearnCustomEntities as LearnCustomEntitiesSource } from "./LearnCustomEntities.ts";
 import { NGrams as NGramsSource } from "./NGrams.ts";
-import {
-  NlpToolkitLive as NlpToolkitLiveSource,
-  NlpToolkit as NlpToolkitSource,
-  NlpTools as NlpToolsSource,
-} from "./NlpToolkit.ts";
+import { NlpToolkit as NlpToolkitSource, NlpTools as NlpToolsSource } from "./NlpToolkit.ts";
 import { PhoneticMatch as PhoneticMatchSource } from "./PhoneticMatch.ts";
 import { QueryCorpus as QueryCorpusSource } from "./QueryCorpus.ts";
 import { RankByRelevance as RankByRelevanceSource } from "./RankByRelevance.ts";
@@ -244,6 +241,27 @@ export const AiSentence = AiSentenceSource;
  * @category tool-schemas
  */
 export const AiSentenceChunk = AiSentenceChunkSource;
+/**
+ * Ai tool error schema.
+ *
+ * @example
+ * ```ts
+ * import { AiToolError } from "@beep/nlp/Tools"
+ *
+ * const failure = AiToolError.make({
+ *   message: "Corpus not found",
+ *   operation: "query",
+ *   retryable: false,
+ *   toolName: "QueryCorpus"
+ * })
+ *
+ * console.log(failure.toolName)
+ * ```
+ *
+ * @since 0.0.0
+ * @category tool-schemas
+ */
+export const AiToolError = AiToolErrorSource;
 /**
  * Ai token tool schema.
  *
@@ -539,21 +557,6 @@ export const TverskySimilarity = TverskySimilaritySource;
  * @category tools
  */
 export const NlpToolkit: typeof NlpToolkitSource = NlpToolkitSource;
-
-/**
- * Nlp toolkit live tool.
- *
- * @example
- * ```ts
- * import { NlpToolkitLive } from "@beep/nlp/Tools"
- *
- * console.log(NlpToolkitLive)
- * ```
- *
- * @since 0.0.0
- * @category tools
- */
-export const NlpToolkitLive: typeof NlpToolkitLiveSource = NlpToolkitLiveSource;
 
 /**
  * Nlp tools tool.

@@ -8,9 +8,9 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
+import { BM25Norm } from "../Core/Vectorization.ts";
 import { PositiveNumber, UnitInterval } from "../internal/numbers.ts";
-import { BM25Norm } from "../Wink/index.ts";
-import { AiCorpusSummary } from "./_schemas.ts";
+import { AiCorpusSummary, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/CreateCorpus");
 
@@ -49,20 +49,33 @@ class CreateCorpusParameters extends S.Class<CreateCorpusParameters>($I`CreateCo
 ) {}
 
 /**
- * Tool for creating a stateful corpus session.
+ * Defines the agent-facing tool contract for creating a stateful BM25-style
+ * corpus session.
+ *
+ * Use this tool before `LearnCorpus`, `QueryCorpus`, or `CorpusStats` when the
+ * caller needs a reusable in-memory corpus with optional BM25 parameter
+ * overrides.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { CreateCorpus } from "@beep/nlp/Tools/CreateCorpus"
  *
- * console.log(CreateCorpus)
+ * const parameters = S.decodeUnknownSync(CreateCorpus.parametersSchema)({
+ *   bm25Config: { b: 0.75, k: 1, k1: 1.2 },
+ *   corpusId: "support-docs"
+ * })
+ *
+ * parameters.corpusId
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const CreateCorpus = Tool.make("CreateCorpus", {
   description: "Create a stateful BM25-style corpus session that can be learned incrementally across tool calls.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: CreateCorpusParameters,
   success: AiCorpusSummary,
 });

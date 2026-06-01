@@ -2563,38 +2563,40 @@ describe("FormReact.make", () => {
     });
 
     effectTest("auto-submits valid form data after debounce", function* () {
-      const user = userEvent.setup();
+      vi.useFakeTimers();
       const submitHandler = vi.fn();
 
-      const formBuilder = FormBuilder.empty.addField(NameField);
+      try {
+        const formBuilder = FormBuilder.empty.addField(NameField);
 
-      const form = FormReact.make(formBuilder, {
-        runtime: createRuntime(),
-        fields: { name: DebounceTextInput },
-        mode: { validation: "onChange", debounce: "100 millis", autoSubmit: true },
-        onSubmit: (_: void, { decoded }) => submitHandler(decoded),
-      });
+        const form = FormReact.make(formBuilder, {
+          runtime: createRuntime(),
+          fields: { name: DebounceTextInput },
+          mode: { validation: "onChange", debounce: "100 millis", autoSubmit: true },
+          onSubmit: (_: void, { decoded }) => submitHandler(decoded),
+        });
 
-      render(
-        <form.Initialize defaultValues={{ name: "" }}>
-          <form.name />
-        </form.Initialize>
-      );
+        render(
+          <form.Initialize defaultValues={{ name: "" }}>
+            <form.name />
+          </form.Initialize>
+        );
 
-      const input = screen.getByTestId("text-input");
+        const input = screen.getByTestId("text-input");
+        act(() => {
+          fireEvent.change(input, { target: { value: "Lucas" } });
+        });
 
-      yield* Effect.promise(() => user.type(input, "Lucas"));
+        yield* Effect.promise(() => act(() => vi.advanceTimersByTimeAsync(99)));
+        expect(submitHandler).not.toHaveBeenCalled();
 
-      expect(submitHandler).not.toHaveBeenCalled();
+        yield* Effect.promise(() => act(() => vi.advanceTimersByTimeAsync(1)));
 
-      yield* Effect.promise(() =>
-        waitFor(
-          () => {
-            expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas" });
-          },
-          { timeout: 300 }
-        )
-      );
+        expect(submitHandler).toHaveBeenCalledTimes(1);
+        expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas" });
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     effectTest("does NOT re-trigger auto-submit after submission completes", function* () {

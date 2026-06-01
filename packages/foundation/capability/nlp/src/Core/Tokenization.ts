@@ -29,7 +29,11 @@ type TokenizationShape = {
  * ```ts
  * import { TokenizationError } from "@beep/nlp/Core/Tokenization"
  *
- * console.log(TokenizationError)
+ * const error = TokenizationError.make({
+ *   operation: "tokenize",
+ *   cause: new Error("tokenizer unavailable")
+ * })
+ * console.log(error.operation) // "tokenize"
  * ```
  *
  * @since 0.0.0
@@ -53,7 +57,7 @@ export class TokenizationError extends TaggedErrorClass<TokenizationError>($I`To
  * ```ts
  * import { Tokenization } from "@beep/nlp/Core/Tokenization"
  *
- * console.log(Tokenization)
+ * console.log(Tokenization.key)
  * ```
  *
  * @since 0.0.0
@@ -66,10 +70,30 @@ export class Tokenization extends Context.Service<Tokenization, TokenizationShap
  *
  * @example
  * ```ts
- * import { tokenize } from "@beep/nlp/Core/Tokenization"
+ * import { Chunk, Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import { Document, DocumentId } from "@beep/nlp/Core/Document"
+ * import { Tokenization, tokenize } from "@beep/nlp/Core/Tokenization"
  *
- * console.log(tokenize)
+ * const service = Tokenization.of({
+ *   tokenize: () => Effect.succeed([]),
+ *   sentences: () => Effect.succeed([]),
+ *   document: (text) =>
+ *     Effect.succeed(Document.make({
+ *       id: DocumentId.make("doc-001"),
+ *       text,
+ *       tokens: Chunk.empty(),
+ *       sentences: Chunk.empty(),
+ *       sentiment: O.none()
+ *     })),
+ *   tokenCount: () => Effect.succeed(0)
+ * })
+ * const program = Effect.provideService(tokenize("typed effects"), Tokenization, service)
+ * Effect.runPromise(program).then((tokens) => console.log(tokens.length)) // 0
  * ```
+ *
+ * @effects Requires a {@link Tokenization} service and executes that service's
+ * tokenizer effect for the supplied text.
  *
  * @since 0.0.0
  * @category getters
@@ -84,10 +108,30 @@ export const tokenize = Effect.fn("Nlp.Core.Tokenization.tokenize")(function* (t
  *
  * @example
  * ```ts
- * import { sentences } from "@beep/nlp/Core/Tokenization"
+ * import { Chunk, Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import { Document, DocumentId } from "@beep/nlp/Core/Document"
+ * import { Tokenization, sentences } from "@beep/nlp/Core/Tokenization"
  *
- * console.log(sentences)
+ * const service = Tokenization.of({
+ *   tokenize: () => Effect.succeed([]),
+ *   sentences: () => Effect.succeed([]),
+ *   document: (text) =>
+ *     Effect.succeed(Document.make({
+ *       id: DocumentId.make("doc-001"),
+ *       text,
+ *       tokens: Chunk.empty(),
+ *       sentences: Chunk.empty(),
+ *       sentiment: O.none()
+ *     })),
+ *   tokenCount: () => Effect.succeed(0)
+ * })
+ * const program = Effect.provideService(sentences("Effect works."), Tokenization, service)
+ * Effect.runPromise(program).then((sentences) => console.log(sentences.length)) // 0
  * ```
+ *
+ * @effects Requires a {@link Tokenization} service and executes that service's
+ * sentence-splitting effect for the supplied text.
  *
  * @since 0.0.0
  * @category getters
@@ -102,10 +146,33 @@ export const sentences = Effect.fn("Nlp.Core.Tokenization.sentences")(function* 
  *
  * @example
  * ```ts
- * import { tokenizeToDocument } from "@beep/nlp/Core/Tokenization"
+ * import { Chunk, Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import { Document, DocumentId } from "@beep/nlp/Core/Document"
+ * import { Tokenization, tokenizeToDocument } from "@beep/nlp/Core/Tokenization"
  *
- * console.log(tokenizeToDocument)
+ * const service = Tokenization.of({
+ *   tokenize: () => Effect.succeed([]),
+ *   sentences: () => Effect.succeed([]),
+ *   document: (text, id = "doc-001") =>
+ *     Effect.succeed(Document.make({
+ *       id: DocumentId.make(id),
+ *       text,
+ *       tokens: Chunk.empty(),
+ *       sentences: Chunk.empty(),
+ *       sentiment: O.none()
+ *     })),
+ *   tokenCount: () => Effect.succeed(0)
+ * })
+ * const program = Effect.map(
+ *   Effect.provideService(tokenizeToDocument("Effect works.", "doc-001"), Tokenization, service),
+ *   (document) => document.id
+ * )
+ * Effect.runPromise(program).then(console.log) // "doc-001"
  * ```
+ *
+ * @effects Requires a {@link Tokenization} service and executes that service's
+ * document-building effect for the supplied text and optional id.
  *
  * @since 0.0.0
  * @category getters
@@ -123,10 +190,30 @@ export const tokenizeToDocument = Effect.fn("Nlp.Core.Tokenization.tokenizeToDoc
  *
  * @example
  * ```ts
- * import { tokenCount } from "@beep/nlp/Core/Tokenization"
+ * import { Chunk, Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import { Document, DocumentId } from "@beep/nlp/Core/Document"
+ * import { Tokenization, tokenCount } from "@beep/nlp/Core/Tokenization"
  *
- * console.log(tokenCount)
+ * const service = Tokenization.of({
+ *   tokenize: () => Effect.succeed([]),
+ *   sentences: () => Effect.succeed([]),
+ *   document: (text) =>
+ *     Effect.succeed(Document.make({
+ *       id: DocumentId.make("doc-001"),
+ *       text,
+ *       tokens: Chunk.empty(),
+ *       sentences: Chunk.empty(),
+ *       sentiment: O.none()
+ *     })),
+ *   tokenCount: (text) => Effect.succeed(text.split(" ").length)
+ * })
+ * const program = Effect.provideService(tokenCount("typed effects"), Tokenization, service)
+ * Effect.runPromise(program).then(console.log) // 2
  * ```
+ *
+ * @effects Requires a {@link Tokenization} service and executes that service's
+ * counting effect for the supplied text.
  *
  * @since 0.0.0
  * @category getters

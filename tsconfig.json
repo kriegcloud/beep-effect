@@ -146,9 +146,6 @@
       "@beep/nlp/IdentifierText": [
         "./packages/foundation/capability/nlp/src/IdentifierText.ts"
       ],
-      "@beep/nlp/Layers": [
-        "./packages/foundation/capability/nlp/src/Layers/index.ts"
-      ],
       "@beep/nlp/PathText": [
         "./packages/foundation/capability/nlp/src/PathText.ts"
       ],
@@ -160,9 +157,6 @@
       ],
       "@beep/nlp/VariantText": [
         "./packages/foundation/capability/nlp/src/VariantText.ts"
-      ],
-      "@beep/nlp/Wink": [
-        "./packages/foundation/capability/nlp/src/Wink/index.ts"
       ],
       "@beep/observability/experimental/server": [
         "./packages/foundation/capability/observability/src/experimental/server/index.ts"
@@ -1088,6 +1082,34 @@
       "@beep/schema/test/Yaml": [
         "./packages/foundation/modeling/schema/src/internal/test/Yaml.test-kit.ts"
       ],
+      "@beep/nlp/Algebra": [
+        "./packages/foundation/capability/nlp/src/Algebra/index.ts"
+      ],
+      "@beep/nlp/Ontology": [
+        "./packages/foundation/capability/nlp/src/Ontology/index.ts"
+      ],
+      "@beep/nlp/Graph": [
+        "./packages/foundation/capability/nlp/src/Graph/index.ts"
+      ],
+      "@beep/nlp/Backend": [
+        "./packages/foundation/capability/nlp/src/Backend/index.ts"
+      ],
+      "@beep/nlp/Graph/GraphOperations": [
+        "./packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts"
+      ],
+      "@beep/nlp/NLPService": [
+        "./packages/foundation/capability/nlp/src/NLPService.ts"
+      ],
+      "@beep/nlp/Operations": [
+        "./packages/foundation/capability/nlp/src/Operations/index.ts"
+      ],
+      "@beep/nlp/Handoff": [
+        "./packages/foundation/capability/nlp/src/Handoff/index.ts"
+      ],
+      "@beep/nlp-mcp": ["./packages/drivers/nlp-mcp/src/index.ts"],
+      "@beep/nlp-mcp/*": [
+        "./packages/drivers/nlp-mcp/src/*"
+      ],
       "@beep/ui/components/blocks/editor-00/nodes": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
       ],
@@ -1096,6 +1118,12 @@
       ],
       "@beep/box/*": [
         "./packages/drivers/box/src/*"
+      ],
+      "@beep/wink": [
+        "./packages/drivers/wink/src/index.ts"
+      ],
+      "@beep/wink/*": [
+        "./packages/drivers/wink/src/*"
       ]
     }
   }

@@ -11,7 +11,7 @@ import { dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { EntityPatternElement, LiteralPatternElement, Pattern, POSPatternElement } from "./Pattern.ts";
-import type { MarkRange, PatternElement, WinkEntityType, WinkPOSTag } from "./Pattern.ts";
+import type { MarkRange, NamedEntityType, PatternElement, UniversalPOSTag } from "./Pattern.ts";
 
 type NonEmptyChoices<A> = readonly [A, ...A[]];
 type LiteralReplacer = (values: ReadonlyArray<string>, index: number) => PatternElement;
@@ -35,17 +35,18 @@ const normalizeLiteralValues = (values: ReadonlyArray<string>): NonEmptyChoices<
 
 const prependEmptyChoice = <A>(values: ReadonlyArray<A>): readonly [A | "", ...(A | "")[]] => ["", ...values];
 const isPosChoiceArray = (
-  value: (WinkPOSTag | "") | ReadonlyArray<WinkPOSTag | "">
-): value is ReadonlyArray<WinkPOSTag | ""> => A.isArray(value);
+  value: (UniversalPOSTag | "") | ReadonlyArray<UniversalPOSTag | "">
+): value is ReadonlyArray<UniversalPOSTag | ""> => A.isArray(value);
 const isEntityChoiceArray = (
-  value: (WinkEntityType | "") | ReadonlyArray<WinkEntityType | "">
-): value is ReadonlyArray<WinkEntityType | ""> => A.isArray(value);
+  value: (NamedEntityType | "") | ReadonlyArray<NamedEntityType | "">
+): value is ReadonlyArray<NamedEntityType | ""> => A.isArray(value);
 const isLiteralValueArray = (value: string | ReadonlyArray<string>): value is ReadonlyArray<string> => A.isArray(value);
-const isRequiredPosChoiceArray = (value: WinkPOSTag | ReadonlyArray<WinkPOSTag>): value is ReadonlyArray<WinkPOSTag> =>
-  A.isArray(value);
+const isRequiredPosChoiceArray = (
+  value: UniversalPOSTag | ReadonlyArray<UniversalPOSTag>
+): value is ReadonlyArray<UniversalPOSTag> => A.isArray(value);
 const isRequiredEntityChoiceArray = (
-  value: WinkEntityType | ReadonlyArray<WinkEntityType>
-): value is ReadonlyArray<WinkEntityType> => A.isArray(value);
+  value: NamedEntityType | ReadonlyArray<NamedEntityType>
+): value is ReadonlyArray<NamedEntityType> => A.isArray(value);
 
 const toElements = (pattern: Pattern): ReadonlyArray<PatternElement> => Chunk.toReadonlyArray(pattern.elements);
 
@@ -88,11 +89,11 @@ const isMakeDataFirstArgs = (
  * @since 0.0.0
  * @category constructors
  */
-export function pos(first: WinkPOSTag | "", ...rest: ReadonlyArray<WinkPOSTag | "">): POSPatternElement;
-export function pos(tags: ReadonlyArray<WinkPOSTag | "">): POSPatternElement;
+export function pos(first: UniversalPOSTag | "", ...rest: ReadonlyArray<UniversalPOSTag | "">): POSPatternElement;
+export function pos(tags: ReadonlyArray<UniversalPOSTag | "">): POSPatternElement;
 export function pos(
-  firstOrTags: (WinkPOSTag | "") | ReadonlyArray<WinkPOSTag | "">,
-  ...rest: ReadonlyArray<WinkPOSTag | "">
+  firstOrTags: (UniversalPOSTag | "") | ReadonlyArray<UniversalPOSTag | "">,
+  ...rest: ReadonlyArray<UniversalPOSTag | "">
 ): POSPatternElement {
   const tags = isPosChoiceArray(firstOrTags) ? firstOrTags : [firstOrTags, ...rest];
   return POSPatternElement.make({
@@ -113,11 +114,11 @@ export function pos(
  * @since 0.0.0
  * @category constructors
  */
-export function entity(first: WinkEntityType | "", ...rest: ReadonlyArray<WinkEntityType | "">): EntityPatternElement;
-export function entity(types: ReadonlyArray<WinkEntityType | "">): EntityPatternElement;
+export function entity(first: NamedEntityType | "", ...rest: ReadonlyArray<NamedEntityType | "">): EntityPatternElement;
+export function entity(types: ReadonlyArray<NamedEntityType | "">): EntityPatternElement;
 export function entity(
-  firstOrTypes: (WinkEntityType | "") | ReadonlyArray<WinkEntityType | "">,
-  ...rest: ReadonlyArray<WinkEntityType | "">
+  firstOrTypes: (NamedEntityType | "") | ReadonlyArray<NamedEntityType | "">,
+  ...rest: ReadonlyArray<NamedEntityType | "">
 ): EntityPatternElement {
   const types = isEntityChoiceArray(firstOrTypes) ? firstOrTypes : [firstOrTypes, ...rest];
   return EntityPatternElement.make({
@@ -160,11 +161,11 @@ export function literal(firstOrValues: string | ReadonlyArray<string>, ...rest: 
  * @since 0.0.0
  * @category constructors
  */
-export function optionalPos(first: WinkPOSTag, ...rest: ReadonlyArray<WinkPOSTag>): POSPatternElement;
-export function optionalPos(tags: ReadonlyArray<WinkPOSTag>): POSPatternElement;
+export function optionalPos(first: UniversalPOSTag, ...rest: ReadonlyArray<UniversalPOSTag>): POSPatternElement;
+export function optionalPos(tags: ReadonlyArray<UniversalPOSTag>): POSPatternElement;
 export function optionalPos(
-  firstOrTags: WinkPOSTag | ReadonlyArray<WinkPOSTag>,
-  ...rest: ReadonlyArray<WinkPOSTag>
+  firstOrTags: UniversalPOSTag | ReadonlyArray<UniversalPOSTag>,
+  ...rest: ReadonlyArray<UniversalPOSTag>
 ): POSPatternElement {
   const tags = isRequiredPosChoiceArray(firstOrTags) ? firstOrTags : [firstOrTags, ...rest];
   return POSPatternElement.make({
@@ -185,11 +186,11 @@ export function optionalPos(
  * @since 0.0.0
  * @category constructors
  */
-export function optionalEntity(first: WinkEntityType, ...rest: ReadonlyArray<WinkEntityType>): EntityPatternElement;
-export function optionalEntity(types: ReadonlyArray<WinkEntityType>): EntityPatternElement;
+export function optionalEntity(first: NamedEntityType, ...rest: ReadonlyArray<NamedEntityType>): EntityPatternElement;
+export function optionalEntity(types: ReadonlyArray<NamedEntityType>): EntityPatternElement;
 export function optionalEntity(
-  firstOrTypes: WinkEntityType | ReadonlyArray<WinkEntityType>,
-  ...rest: ReadonlyArray<WinkEntityType>
+  firstOrTypes: NamedEntityType | ReadonlyArray<NamedEntityType>,
+  ...rest: ReadonlyArray<NamedEntityType>
 ): EntityPatternElement {
   const types = isRequiredEntityChoiceArray(firstOrTypes) ? firstOrTypes : [firstOrTypes, ...rest];
   return EntityPatternElement.make({
@@ -459,7 +460,7 @@ export const isEmpty = (pattern: Pattern): boolean => Chunk.isEmpty(pattern.elem
  * @since 0.0.0
  * @category getters
  */
-export const head = (pattern: Pattern): PatternElement | undefined => elementAt(pattern, 0);
+export const head = elementAt(0);
 
 /**
  * Get the last pattern element.

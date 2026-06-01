@@ -30,10 +30,8 @@ type RenderProgressBarEvent = typeof FFmpegEvent.cases.progress.Type;
  * @example
  * ```ts
  * import { renderProgressBar } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderProgressBar)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -56,10 +54,8 @@ export const renderProgressBar: {
  * @example
  * ```ts
  * import { renderCompletedProgress } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderCompletedProgress)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -80,10 +76,8 @@ export const renderCompletedProgress: {
  * @example
  * ```ts
  * import { renderInitialProgress } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderInitialProgress)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -98,10 +92,8 @@ export const renderInitialProgress = (label: string): string =>
  * @example
  * ```ts
  * import { renderExtractFramesSummary } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderExtractFramesSummary)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -116,10 +108,8 @@ export const renderExtractFramesSummary = (result: ExtractFramesResult): string 
  * @example
  * ```ts
  * import { renderExtractFramesCommandSummary } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderExtractFramesCommandSummary)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -134,10 +124,8 @@ export const renderExtractFramesCommandSummary = (result: ExtractFramesResult): 
  * @example
  * ```ts
  * import { renderExtractFramesDirSuccess } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderExtractFramesDirSuccess)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -152,10 +140,8 @@ export const renderExtractFramesDirSuccess = (outcome: ExtractFramesDirSuccess):
  * @example
  * ```ts
  * import { renderExtractFramesDirFailure } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderExtractFramesDirFailure)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -170,10 +156,8 @@ export const renderExtractFramesDirFailure = (outcome: ExtractFramesDirFailure):
  * @example
  * ```ts
  * import { renderExtractFramesDirOutcome } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderExtractFramesDirOutcome)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -192,10 +176,8 @@ export const renderExtractFramesDirOutcome = Match.type<ExtractFramesDirOutcome>
  * @example
  * ```ts
  * import { renderExtractFramesDirSummary } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderExtractFramesDirSummary)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -210,10 +192,8 @@ export const renderExtractFramesDirSummary = (result: ExtractFramesDirResult): s
  * @example
  * ```ts
  * import { renderExtractFramesDirError } from "@beep/repo-cli/commands/Image"
- *
  * console.log(renderExtractFramesDirError)
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */

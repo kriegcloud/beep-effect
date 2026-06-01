@@ -6,6 +6,7 @@
  */
 
 import { $UiId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
@@ -36,6 +37,32 @@ export class ReactContextInvariantOptions extends S.Class<ReactContextInvariantO
 ) {}
 
 /**
+ * Error thrown when a React context hook is used outside its provider.
+ *
+ * @example
+ * ```ts
+ * import { ReactContextInvariantError } from "@beep/ui/lib/react-invariant"
+ *
+ * const error = ReactContextInvariantError.make({ message: "missing provider" })
+ * console.log(error.message)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class ReactContextInvariantError extends TaggedErrorClass<ReactContextInvariantError>(
+  $I`ReactContextInvariantError`
+)(
+  "ReactContextInvariantError",
+  {
+    message: S.String,
+  },
+  $I.annote("ReactContextInvariantError", {
+    description: "Synchronous React context invariant failure.",
+  })
+) {}
+
+/**
  * Require that a React context hook has been called under its provider.
  *
  * @example
@@ -54,7 +81,7 @@ export const requireReactContext: {
   (options: ReactContextInvariantOptions): <Value>(context: Value | null) => Value;
 } = dual(2, <Value>(context: Value | null, options: ReactContextInvariantOptions): Value => {
   if (context === null) {
-    throw new Error(options.message);
+    throw ReactContextInvariantError.make({ message: options.message });
   }
 
   return context;

@@ -8,7 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiEntity } from "./_schemas.ts";
+import { AiEntity, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/ExtractEntities");
 
@@ -50,20 +50,33 @@ class ExtractEntitiesSuccess extends S.Class<ExtractEntitiesSuccess>($I`ExtractE
 ) {}
 
 /**
- * Tool for extracting built-in and custom entities from text.
+ * Defines the agent-facing tool contract for extracting built-in and custom
+ * named entities from text.
+ *
+ * Use this tool when a caller needs entity values, entity types, token
+ * boundaries, and character offsets for dates, money, emails, URLs, or learned
+ * custom patterns.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ExtractEntities } from "@beep/nlp/Tools/ExtractEntities"
  *
- * console.log(ExtractEntities)
+ * const parameters = S.decodeUnknownSync(ExtractEntities.parametersSchema)({
+ *   includeCustom: true,
+ *   text: "Email john@example.com before 2026-01-15."
+ * })
+ *
+ * parameters.includeCustom
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const ExtractEntities = Tool.make("ExtractEntities", {
   description: "Extract named entities from text, including optional learned custom entities.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: ExtractEntitiesParameters,
   success: ExtractEntitiesSuccess,
 });

@@ -9,7 +9,7 @@ import { $NlpId } from "@beep/identity";
 import { PosInt } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
-import { AiCorpusStats } from "./_schemas.ts";
+import { AiCorpusStats, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/CorpusStats");
 
@@ -34,20 +34,34 @@ class CorpusStatsParameters extends S.Class<CorpusStatsParameters>($I`CorpusStat
 ) {}
 
 /**
- * Tool for inspecting corpus internals.
+ * Defines the agent-facing tool contract for inspecting a learned corpus'
+ * vocabulary and vector statistics.
+ *
+ * Use this tool for diagnostics, explainability, or retrieval tuning when a
+ * caller needs IDF values, vocabulary size, and optional matrix details.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { CorpusStats } from "@beep/nlp/Tools/CorpusStats"
  *
- * console.log(CorpusStats)
+ * const parameters = S.decodeUnknownSync(CorpusStats.parametersSchema)({
+ *   corpusId: "support-docs",
+ *   includeIdf: true,
+ *   includeMatrix: false,
+ *   topIdfTerms: 20
+ * })
+ *
+ * parameters.includeIdf
  * ```
  *
- * @since 0.0.0
  * @category tools
+ * @since 0.0.0
  */
 export const CorpusStats = Tool.make("CorpusStats", {
   description: "Inspect corpus internals such as vocabulary, IDF values, and optional document-term matrix.",
+  failure: AiToolError,
+  failureMode: "return",
   parameters: CorpusStatsParameters,
   success: AiCorpusStats,
 });
