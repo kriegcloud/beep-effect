@@ -1107,24 +1107,14 @@
         "./packages/foundation/capability/nlp/src/Handoff/index.ts"
       ],
       "@beep/nlp-mcp": ["./packages/drivers/nlp-mcp/src/index.ts"],
-      "@beep/nlp-mcp/*": [
-        "./packages/drivers/nlp-mcp/src/*"
-      ],
+      "@beep/nlp-mcp/*": ["./packages/drivers/nlp-mcp/src/*"],
       "@beep/ui/components/blocks/editor-00/nodes": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
       ],
-      "@beep/box": [
-        "./packages/drivers/box/src/index.ts"
-      ],
-      "@beep/box/*": [
-        "./packages/drivers/box/src/*"
-      ],
-      "@beep/wink": [
-        "./packages/drivers/wink/src/index.ts"
-      ],
-      "@beep/wink/*": [
-        "./packages/drivers/wink/src/*"
-      ]
+      "@beep/box": ["./packages/drivers/box/src/index.ts"],
+      "@beep/box/*": ["./packages/drivers/box/src/*"],
+      "@beep/wink": ["./packages/drivers/wink/src/index.ts"],
+      "@beep/wink/*": ["./packages/drivers/wink/src/*"]
     }
   }
 }

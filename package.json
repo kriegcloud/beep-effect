@@ -68,7 +68,6 @@
     "packages/drivers/wink",
     "apps/canvas",
     "packages/drivers/box"
-
   ],
   "repository": {
     "type": "git",
