@@ -63,10 +63,10 @@ const config = {
     "packages/drivers/hubspot/package.json",
     "packages/drivers/phoenix/package.json",
     "packages/drivers/konva/package.json",
-    "packages/drivers/box/package.json",
-    "apps/canvas/package.json",
     "packages/drivers/nlp-mcp/package.json",
     "packages/drivers/wink/package.json",
+    "apps/canvas/package.json",
+    "packages/drivers/box/package.json",
   ],
   customTypes: {
     catalog: {
