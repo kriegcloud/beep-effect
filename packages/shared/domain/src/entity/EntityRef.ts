@@ -11,7 +11,6 @@ import { Result } from "effect";
 import { dual, pipe } from "effect/Function";
 import * as S from "effect/Schema";
 import * as EntityId from "./EntityId.js";
-import type * as SchemaIssue from "effect/SchemaIssue";
 
 const $I = $SharedDomainId.create("entity/EntityRef");
 
@@ -169,16 +168,16 @@ export const makeResult: {
   <const Entity extends EntityId.Any>(
     entityId: Entity,
     id: Entity["Type"]
-  ): Result.Result<EntityRefFor<Entity>, SchemaIssue.Issue>;
+  ): Result.Result<EntityRefFor<Entity>, S.SchemaError>;
   <const Entity extends EntityId.Any>(
     id: Entity["Type"]
-  ): (entityId: Entity) => Result.Result<EntityRefFor<Entity>, SchemaIssue.Issue>;
+  ): (entityId: Entity) => Result.Result<EntityRefFor<Entity>, S.SchemaError>;
 } = dual(
   2,
   <const Entity extends EntityId.Any>(
     entityId: Entity,
     id: Entity["Type"]
-  ): Result.Result<EntityRefFor<Entity>, SchemaIssue.Issue> =>
+  ): Result.Result<EntityRefFor<Entity>, S.SchemaError> =>
     pipe(
       decodeEntityTypeResult(entityId.entityType),
       Result.map((entityType) => {

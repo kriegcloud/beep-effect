@@ -46,7 +46,7 @@ const IdentityVersion = S.Literal("0.0.0");
 const decodeBeepNamespace = S.decodeUnknownResult(BeepNamespace);
 const decodeBeepBase = S.decodeUnknownResult(BeepBase);
 const decodeIdentityVersion = S.decodeUnknownResult(IdentityVersion);
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 
 const isBeepNamespace = S.is(BeepNamespace);
 const isBeepBase = S.is(BeepBase);

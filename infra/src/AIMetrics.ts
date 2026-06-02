@@ -33,8 +33,8 @@ const remotePhoenixTailnetPortStateFile = "phoenix-tailnet-https-port";
 
 const schemaIssueToPulumiConfigError =
   (key: string, value: string) =>
-  (cause: S.SchemaError["issue"]): pulumi.RunError =>
-    new pulumi.RunError(`Invalid aiMetrics:${key} Pulumi config value "${value}": ${new S.SchemaError(cause).message}`);
+  (cause: S.SchemaError): pulumi.RunError =>
+    new pulumi.RunError(`Invalid aiMetrics:${key} Pulumi config value "${value}": ${cause.message}`);
 
 const decodeAiMetricsDeployTarget = S.decodeUnknownResult(AiMetricsDeployTarget);
 const decodeAiMetricsTool = S.decodeUnknownResult(AiMetricsTool);

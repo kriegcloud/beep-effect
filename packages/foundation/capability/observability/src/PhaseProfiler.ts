@@ -30,7 +30,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $ObservabilityId.create("PhaseProfiler");
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 const decodeNonNegativeInt = (input: unknown) =>
   Result.getOrThrowWith(S.decodeUnknownResult(NonNegativeInt)(input), schemaIssueToError);
 

@@ -141,7 +141,7 @@ export const decodeUnknownResult =
     const result = S.decodeUnknownResult(schema, options)(input, parseOptions);
     return Result.isSuccess(result)
       ? Result.succeed(result.success as S.Schema.Type<Schema>)
-      : Result.fail(new S.SchemaError(result.failure));
+      : Result.fail(result.failure);
   };
 
 export const decodeUnknownEither =

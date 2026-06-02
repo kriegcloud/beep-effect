@@ -14,7 +14,7 @@ import type * as O from "effect/Option";
 import type * as HttpBody from "effect/unstable/http/HttpBody";
 
 const $I = $ObservabilityId.create("experimental/server/OtlpPacketLab");
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 const decodeNonNegativeInt = (input: unknown) =>
   Result.getOrThrowWith(S.decodeUnknownResult(NonNegativeInt)(input), schemaIssueToError);
 const textDecoder = new TextDecoder();

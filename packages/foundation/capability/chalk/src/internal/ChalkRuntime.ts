@@ -87,7 +87,7 @@ const styleNameValues: ReadonlyArray<StyleName> = [
 
 const decodeColorSupportLevel = S.decodeUnknownResult(ColorSupportLevel);
 const decodeColorSupportLevelInput = S.decodeUnknownResult(ColorSupportLevelInput);
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 
 class MissingBuilderMetadataError extends TaggedErrorClass<MissingBuilderMetadataError>(
   $I`MissingBuilderMetadataError`

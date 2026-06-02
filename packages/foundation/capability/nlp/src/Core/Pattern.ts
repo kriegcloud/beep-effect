@@ -14,7 +14,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $NlpId.create("Core/Pattern");
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 
 const EmptyPatternChoice = S.Literal("").pipe(
   $I.annoteSchema("EmptyPatternChoice", {
