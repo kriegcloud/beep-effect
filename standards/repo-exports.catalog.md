@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 81 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1038 |
-| publicExportEntries | 13621 |
-| uniquePackageSymbols | 6073 |
+| importSpecifiers | 1048 |
+| publicExportEntries | 13696 |
+| uniquePackageSymbols | 6121 |
 
 ## Seed Discovery Proof
 
@@ -55,7 +55,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1649 | 593 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
-| 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 6 | 23 | 22 |
+| 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 77 | 64 |
 | 20 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
 | 21 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
 | 22 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 19 | 15 |
@@ -92,7 +92,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 53 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
 | 54 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
 | 55 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
-| 56 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 76 | 871 | 452 |
+| 56 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 82 | 892 | 458 |
 | 57 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
 | 58 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
 | 59 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
@@ -2639,29 +2639,83 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
+| `@beep/nlp-mcp` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:67` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
+| `@beep/nlp-mcp` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:739` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:765` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:79` | Live handler layer for the streaming toolkit. |
 | `@beep/nlp-mcp` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:12` |  |
-| `@beep/nlp-mcp/bin` | `SERVER_CONFIG` | const | `packages/drivers/nlp-mcp/src/bin.ts:24` | The server identity advertised to MCP clients by this entrypoint. |
+| `@beep/nlp-mcp/bin` | `SERVER_CONFIG` | const | `packages/drivers/nlp-mcp/src/bin.ts:27` | The server identity advertised to MCP clients by this entrypoint. |
+| `@beep/nlp-mcp/index` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:67` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
+| `@beep/nlp-mcp/index` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp/index` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:739` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp/index` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:765` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp/index` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:79` | Live handler layer for the streaming toolkit. |
 | `@beep/nlp-mcp/index` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:12` |  |
-| `@beep/nlp-mcp/Schemas` | `EntityEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:100` | A single extracted named entity. |
-| `@beep/nlp-mcp/Schemas` | `EntityOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:167` | Output of the named-entity extraction tool. |
-| `@beep/nlp-mcp/Schemas` | `LemmaEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:85` | A single lemmatized token. |
-| `@beep/nlp-mcp/Schemas` | `LemmaOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:153` | Output of the lemmatization tool. |
-| `@beep/nlp-mcp/Schemas` | `NlpToolError` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:56` | The failure a tool returns when the underlying NLP backend operation fails. |
-| `@beep/nlp-mcp/Schemas` | `POSEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:70` | A single part-of-speech tagged token. |
-| `@beep/nlp-mcp/Schemas` | `POSOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:139` | Output of the part-of-speech tagging tool. |
-| `@beep/nlp-mcp/Schemas` | `TextArrayOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:125` | Output of a tool that returns an array of strings (tokens or sentences). |
-| `@beep/nlp-mcp/Schemas` | `TextInput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:36` | Parameters for a text-only NLP tool call. |
-| `@beep/nlp-mcp/Server` | `BackendLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:128` | The live wink-nlp backend layer (the default {@link @beep/nlp/Backend#NLPBackend} |
-| `@beep/nlp-mcp/Server` | `makeNlpHandlers` | const | `packages/drivers/nlp-mcp/src/Server.ts:50` | Build the {@link Tools.NlpToolkit} handler record from an |
-| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:164` | Build the stdio-transport MCP server layer exposing the NLP toolkit. |
-| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:139` | Configuration for the MCP server identity advertised to clients. |
-| `@beep/nlp-mcp/Server` | `NlpToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:111` | The handler layer binding each {@link Tools.NlpToolkit} tool to an |
-| `@beep/nlp-mcp/Tools` | `ExtractEntities` | const | `packages/drivers/nlp-mcp/src/Tools.ts:113` | Extract named entities from text. |
-| `@beep/nlp-mcp/Tools` | `Lemmatize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:93` | Reduce each token to its canonical lemma. |
-| `@beep/nlp-mcp/Tools` | `NlpToolkit` | const | `packages/drivers/nlp-mcp/src/Tools.ts:133` | The toolkit bundling every NLP tool exposed by this MCP server. |
-| `@beep/nlp-mcp/Tools` | `PosTag` | const | `packages/drivers/nlp-mcp/src/Tools.ts:73` | Tag each token with its part-of-speech label. |
-| `@beep/nlp-mcp/Tools` | `Sentencize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:33` | Split text into sentences. |
-| `@beep/nlp-mcp/Tools` | `Tokenize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:53` | Split text into tokens (words). |
+| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:67` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
+| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetLoadError` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:67` | Structured failure raised when a remote fetch or JSON decode fails. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetMeta` | interface | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:35` | Provenance metadata returned alongside every loaded dataset. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:54` | A loaded dataset payload paired with its {@link DatasetMeta}. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `isUrl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:92` | Report whether a location should be treated as a remote `http(s)` URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJson` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:260` | Load and parse a single JSON document from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:207` | Load a JSONL dataset as an array of parsed records from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadLines` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:158` | Load a dataset as an array of lines from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadText` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:121` | Load raw text from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `computeJsonlStats` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:147` | Compute aggregate parse statistics for a JSONL file. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlLineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:30` | Structured parse failure for a single JSONL line. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:43` | Aggregate parse statistics for a JSONL file. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `readJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:128` | Collect parsed JSONL records into an array. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `sampleJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:210` | Sample up to `sampleSize` parsed JSONL records uniformly at random. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:77` | Stream parsed JSONL records, optionally dropping invalid lines. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonlResults` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:107` | Stream per-line parse results, never failing on malformed JSON. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `validateJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:175` | Validate a JSONL file, returning parsed records and collected line errors. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:35` | A single pipeline failure entry describing the item, message, and stage. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:50` | Outcome of running a line-transform pipeline over a file. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineStage` | type | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:27` | Identifier of a supported, pure line transform stage. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `processFile` | const | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:102` | Run an ordered list of line transforms over the lines of a file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `computeStats` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:327` | Compute aggregate line-length and byte statistics for a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `countLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:260` | Count the processed lines in a text file without buffering them. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `fileExists` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:279` | Report whether a path exists. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `getFileSize` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:301` | Report the size of a file in bytes. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `head` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:186` | Read the first `n` processed lines of a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `readLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:144` | Collect a text file into an array of processed lines. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `readTextFile` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:163` | Read an entire text file into a single decoded string. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `sampleLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:230` | Sample up to `sampleSize` processed lines uniformly at random. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `streamLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:100` | Stream a text file as a sequence of processed lines. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `tail` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:206` | Read the last `n` processed lines of a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextEncoding` | type | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:27` | Text decoding labels accepted by the streaming text helpers. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextReadOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:35` | Per-line processing options shared by the read-oriented helpers. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:50` | Streaming options that extend {@link TextReadOptions} with windowing controls. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:63` | Aggregate line-length and byte statistics computed for a text file. |
+| `@beep/nlp-mcp/StreamingHandlers` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:79` | Live handler layer for the streaming toolkit. |
+| `@beep/nlp-mcp/StreamingTools` | `CountJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:717` | Tool: count valid JSONL records in a file. |
+| `@beep/nlp-mcp/StreamingTools` | `CountLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:703` | Tool: count total lines in a file. |
+| `@beep/nlp-mcp/StreamingTools` | `DataOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:254` | Output schema pairing loaded data with its {@link DatasetMetaOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `DatasetMetaOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:224` | Output schema for dataset provenance metadata. |
+| `@beep/nlp-mcp/StreamingTools` | `ExtractMatches` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:689` | Tool: extract regex matches from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `FileInfo` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:507` | Tool: report whether a file exists plus its size and line count. |
+| `@beep/nlp-mcp/StreamingTools` | `FileInfoOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:102` | Output schema for file existence and size metadata. |
+| `@beep/nlp-mcp/StreamingTools` | `FilterLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:675` | Tool: filter file lines by a regex pattern. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:162` | Output schema for JSONL record reads, with optional collected errors. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:563` | Tool: compute JSONL parse statistics for a file. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlStatsOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:193` | Output schema for JSONL parse statistics. |
+| `@beep/nlp-mcp/StreamingTools` | `LinesOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:77` | Output schema for line-returning streaming tools. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadJson` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:647` | Tool: load and parse JSON from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:633` | Tool: load JSONL records from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:619` | Tool: load lines from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadText` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:605` | Tool: load text from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `PipelineOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:285` | Output schema for line-transform pipeline runs. |
+| `@beep/nlp-mcp/StreamingTools` | `ProcessFile` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:661` | Tool: run a line-transform pipeline over a file. |
+| `@beep/nlp-mcp/StreamingTools` | `ReadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:549` | Tool: read JSONL/NDJSON records from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `ReadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:492` | Tool: read lines from a text file with optional head/tail windowing. |
+| `@beep/nlp-mcp/StreamingTools` | `SampleJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:591` | Tool: sample random JSONL records from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `SampleLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:535` | Tool: sample random lines from a text file. |
+| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:739` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:765` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp/StreamingTools` | `TextStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:521` | Tool: compute aggregate line-length and byte statistics for a file. |
+| `@beep/nlp-mcp/StreamingTools` | `TextStatsOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:134` | Output schema for aggregate text statistics. |
+| `@beep/nlp-mcp/StreamingTools` | `ValidateJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:577` | Tool: validate a JSONL file and collect parse errors. |
 
 ### @beep/law-practice-domain
 
@@ -8329,122 +8383,143 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/QueryText` | `extractBacktickValue` | const | `packages/foundation/capability/nlp/src/QueryText.ts:77` | Extract the first value enclosed in backticks from a user question. |
 | `@beep/nlp/QueryText` | `normalizePhrase` | const | `packages/foundation/capability/nlp/src/QueryText.ts:54` | Normalize a short extracted phrase after it has been pulled from prose. |
 | `@beep/nlp/QueryText` | `normalizeQuestion` | const | `packages/foundation/capability/nlp/src/QueryText.ts:33` | Canonicalize a free-form user question for deterministic matching. |
-| `@beep/nlp/Tools` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:61` | Ai corpus config tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:75` | Ai corpus idf tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:89` | Ai corpus matrix shape tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:103` | Ai corpus ranked document tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:117` | Ai corpus stats tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:131` | Ai corpus summary tool schema. |
-| `@beep/nlp/Tools` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:145` | Ai document stats tool schema. |
-| `@beep/nlp/Tools` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:159` | Ai entity tool schema. |
-| `@beep/nlp/Tools` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:173` | Ai keyword tool schema. |
-| `@beep/nlp/Tools` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:187` | Ai n gram tool schema. |
-| `@beep/nlp/Tools` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:201` | Ai phonetic match tool schema. |
-| `@beep/nlp/Tools` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:215` | Ai ranked text tool schema. |
-| `@beep/nlp/Tools` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:229` | Ai sentence tool schema. |
-| `@beep/nlp/Tools` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:243` | Ai sentence chunk tool schema. |
-| `@beep/nlp/Tools` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:278` | Ai token tool schema. |
-| `@beep/nlp/Tools` | `AiToolError` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:264` | Ai tool error schema. |
-| `@beep/nlp/Tools` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:292` | Bow cosine similarity tool. |
-| `@beep/nlp/Tools` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:306` | Chunk by sentences tool. |
-| `@beep/nlp/Tools` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:320` | Corpus stats layer. |
-| `@beep/nlp/Tools` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:334` | Create corpus export. |
-| `@beep/nlp/Tools` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:348` | Delete corpus tool. |
-| `@beep/nlp/Tools` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:362` | Document stats tool. |
-| `@beep/nlp/Tools` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:589` | Export tools tool. |
-| `@beep/nlp/Tools` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:376` | Extract entities tool. |
-| `@beep/nlp/Tools` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:390` | Extract keywords tool. |
-| `@beep/nlp/Tools` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:404` | Learn corpus tool. |
-| `@beep/nlp/Tools` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:418` | Learn custom entities tool. |
-| `@beep/nlp/Tools` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:432` | N grams tool. |
-| `@beep/nlp/Tools` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:559` | Nlp toolkit tool. |
-| `@beep/nlp/Tools` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:574` | Nlp tools tool. |
-| `@beep/nlp/Tools` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:446` | Phonetic match tool. |
-| `@beep/nlp/Tools` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:460` | Query corpus tool. |
-| `@beep/nlp/Tools` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:474` | Rank by relevance tool. |
-| `@beep/nlp/Tools` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:488` | Sentences tool. |
-| `@beep/nlp/Tools` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:502` | Text similarity tool. |
-| `@beep/nlp/Tools` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:516` | Tokenize tool. |
-| `@beep/nlp/Tools` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:530` | Transform text tool. |
-| `@beep/nlp/Tools` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:544` | Tversky similarity tool. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusConfig` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:451` | Output schema for the resolved BM25 configuration of a managed corpus. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusIdf` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:558` | Output schema for an inverse document frequency value in a corpus. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusMatrixShape` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:590` | Output schema for the dimensions of an optional document-term matrix. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusRankedDocument` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:525` | Output schema for one ranked document returned from a corpus query. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:628` | Output schema for detailed corpus diagnostics and retrieval statistics. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusSummary` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:488` | Output schema for a managed corpus session summary. |
-| `@beep/nlp/Tools/_schemas` | `AiDocumentStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:194` | Output schema for high-level document statistics. |
-| `@beep/nlp/Tools/_schemas` | `AiEntity` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:303` | Output schema for an extracted named entity. |
-| `@beep/nlp/Tools/_schemas` | `AiKeyword` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:160` | Output schema for a keyword candidate and its importance score. |
-| `@beep/nlp/Tools/_schemas` | `AiNGram` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:340` | Output schema for an extracted n-gram and its frequency count. |
-| `@beep/nlp/Tools/_schemas` | `AiPhoneticMatch` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:375` | Output schema for phonetic overlap between two text inputs. |
-| `@beep/nlp/Tools/_schemas` | `AiRankedText` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:266` | Output schema for one ranked text candidate. |
-| `@beep/nlp/Tools/_schemas` | `AiSentence` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:125` | Output schema for a detected sentence with source offsets and token count. |
-| `@beep/nlp/Tools/_schemas` | `AiSentenceChunk` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:231` | Output schema for a sentence-aligned text chunk. |
-| `@beep/nlp/Tools/_schemas` | `AiToken` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:82` | Output schema for one token emitted by tokenization-oriented tools. |
-| `@beep/nlp/Tools/_schemas` | `AiToolError` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:414` | Structured failure schema returned by AI-facing NLP tools. |
-| `@beep/nlp/Tools/BowCosineSimilarity` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts:69` | Defines the agent-facing tool contract for comparing two texts by |
-| `@beep/nlp/Tools/ChunkBySentences` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts:67` | Defines the agent-facing tool contract for splitting text into chunks that |
+| `@beep/nlp/Tools` | `AiAnalysis` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:68` | Ai analysis tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:82` | Ai corpus config tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:96` | Ai corpus idf tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:110` | Ai corpus matrix shape tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:124` | Ai corpus ranked document tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:138` | Ai corpus stats tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:152` | Ai corpus summary tool schema. |
+| `@beep/nlp/Tools` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:166` | Ai document stats tool schema. |
+| `@beep/nlp/Tools` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:180` | Ai entity tool schema. |
+| `@beep/nlp/Tools` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:194` | Ai keyword tool schema. |
+| `@beep/nlp/Tools` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:208` | Ai n gram tool schema. |
+| `@beep/nlp/Tools` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:222` | Ai phonetic match tool schema. |
+| `@beep/nlp/Tools` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:236` | Ai ranked text tool schema. |
+| `@beep/nlp/Tools` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:250` | Ai sentence tool schema. |
+| `@beep/nlp/Tools` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:264` | Ai sentence chunk tool schema. |
+| `@beep/nlp/Tools` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:299` | Ai token tool schema. |
+| `@beep/nlp/Tools` | `AiToolError` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:285` | Ai tool error schema. |
+| `@beep/nlp/Tools` | `Analyze` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:313` | Analyze tool. |
+| `@beep/nlp/Tools` | `BagOfWords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:327` | Bag of words tool. |
+| `@beep/nlp/Tools` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:341` | Bow cosine similarity tool. |
+| `@beep/nlp/Tools` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:355` | Chunk by sentences tool. |
+| `@beep/nlp/Tools` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:369` | Corpus stats layer. |
+| `@beep/nlp/Tools` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:383` | Create corpus export. |
+| `@beep/nlp/Tools` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:397` | Delete corpus tool. |
+| `@beep/nlp/Tools` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:411` | Document stats tool. |
+| `@beep/nlp/Tools` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:694` | Export tools tool. |
+| `@beep/nlp/Tools` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:425` | Extract entities tool. |
+| `@beep/nlp/Tools` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:439` | Extract keywords tool. |
+| `@beep/nlp/Tools` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:453` | Learn corpus tool. |
+| `@beep/nlp/Tools` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:467` | Learn custom entities tool. |
+| `@beep/nlp/Tools` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:481` | N grams tool. |
+| `@beep/nlp/Tools` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:664` | Nlp toolkit tool. |
+| `@beep/nlp/Tools` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:679` | Nlp tools tool. |
+| `@beep/nlp/Tools` | `Paragraphize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:495` | Paragraphize tool. |
+| `@beep/nlp/Tools` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:509` | Phonetic match tool. |
+| `@beep/nlp/Tools` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:523` | Query corpus tool. |
+| `@beep/nlp/Tools` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:537` | Rank by relevance tool. |
+| `@beep/nlp/Tools` | `RemoveStopWords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:551` | Remove stop words tool. |
+| `@beep/nlp/Tools` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:565` | Sentences tool. |
+| `@beep/nlp/Tools` | `Stem` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:579` | Stem tool. |
+| `@beep/nlp/Tools` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:593` | Text similarity tool. |
+| `@beep/nlp/Tools` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:607` | Tokenize tool. |
+| `@beep/nlp/Tools` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:621` | Transform text tool. |
+| `@beep/nlp/Tools` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:635` | Tversky similarity tool. |
+| `@beep/nlp/Tools` | `WordCount` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:649` | Word count tool. |
+| `@beep/nlp/Tools/_schemas` | `AiAnalysis` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:137` | Output schema for a composite linguistic analysis of a text. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:493` | Output schema for the resolved BM25 configuration of a managed corpus. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:597` | Output schema for an inverse document frequency value in a corpus. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:628` | Output schema for the dimensions of an optional document-term matrix. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:565` | Output schema for one ranked document returned from a corpus query. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:665` | Output schema for detailed corpus diagnostics and retrieval statistics. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:529` | Output schema for a managed corpus session summary. |
+| `@beep/nlp/Tools/_schemas` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:242` | Output schema for high-level document statistics. |
+| `@beep/nlp/Tools/_schemas` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:348` | Output schema for an extracted named entity. |
+| `@beep/nlp/Tools/_schemas` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:209` | Output schema for a keyword candidate and its importance score. |
+| `@beep/nlp/Tools/_schemas` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:384` | Output schema for an extracted n-gram and its frequency count. |
+| `@beep/nlp/Tools/_schemas` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:418` | Output schema for phonetic overlap between two text inputs. |
+| `@beep/nlp/Tools/_schemas` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:312` | Output schema for one ranked text candidate. |
+| `@beep/nlp/Tools/_schemas` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:175` | Output schema for a detected sentence with source offsets and token count. |
+| `@beep/nlp/Tools/_schemas` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:278` | Output schema for a sentence-aligned text chunk. |
+| `@beep/nlp/Tools/_schemas` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:82` | Output schema for one token emitted by tokenization-oriented tools. |
+| `@beep/nlp/Tools/_schemas` | `AiToolError` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:456` | Structured failure schema returned by AI-facing NLP tools. |
+| `@beep/nlp/Tools/Analyze` | `Analyze` | const | `packages/foundation/capability/nlp/src/Tools/Analyze.ts:50` | Defines the agent-facing tool contract for running a composite linguistic |
+| `@beep/nlp/Tools/BagOfWords` | `BagOfWords` | const | `packages/foundation/capability/nlp/src/Tools/BagOfWords.ts:59` | Defines the agent-facing tool contract for computing a bag-of-words |
+| `@beep/nlp/Tools/BowCosineSimilarity` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts:68` | Defines the agent-facing tool contract for comparing two texts by |
+| `@beep/nlp/Tools/ChunkBySentences` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts:66` | Defines the agent-facing tool contract for splitting text into chunks that |
 | `@beep/nlp/Tools/CorpusStats` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/CorpusStats.ts:61` | Defines the agent-facing tool contract for inspecting a learned corpus' |
 | `@beep/nlp/Tools/CreateCorpus` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/CreateCorpus.ts:75` | Defines the agent-facing tool contract for creating a stateful BM25-style |
-| `@beep/nlp/Tools/DeleteCorpus` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/DeleteCorpus.ts:58` | Defines the agent-facing tool contract for deleting a managed corpus session |
+| `@beep/nlp/Tools/DeleteCorpus` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/DeleteCorpus.ts:57` | Defines the agent-facing tool contract for deleting a managed corpus session |
 | `@beep/nlp/Tools/DocumentStats` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/DocumentStats.ts:50` | Defines the agent-facing tool contract for computing document-level text |
-| `@beep/nlp/Tools/ExtractEntities` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/ExtractEntities.ts:76` | Defines the agent-facing tool contract for extracting built-in and custom |
-| `@beep/nlp/Tools/ExtractKeywords` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/ExtractKeywords.ts:65` | Defines the agent-facing tool contract for extracting ranked keyword terms |
-| `@beep/nlp/Tools/index` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:61` | Ai corpus config tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:75` | Ai corpus idf tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:89` | Ai corpus matrix shape tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:103` | Ai corpus ranked document tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:117` | Ai corpus stats tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:131` | Ai corpus summary tool schema. |
-| `@beep/nlp/Tools/index` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:145` | Ai document stats tool schema. |
-| `@beep/nlp/Tools/index` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:159` | Ai entity tool schema. |
-| `@beep/nlp/Tools/index` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:173` | Ai keyword tool schema. |
-| `@beep/nlp/Tools/index` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:187` | Ai n gram tool schema. |
-| `@beep/nlp/Tools/index` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:201` | Ai phonetic match tool schema. |
-| `@beep/nlp/Tools/index` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:215` | Ai ranked text tool schema. |
-| `@beep/nlp/Tools/index` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:229` | Ai sentence tool schema. |
-| `@beep/nlp/Tools/index` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:243` | Ai sentence chunk tool schema. |
-| `@beep/nlp/Tools/index` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:278` | Ai token tool schema. |
-| `@beep/nlp/Tools/index` | `AiToolError` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:264` | Ai tool error schema. |
-| `@beep/nlp/Tools/index` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:292` | Bow cosine similarity tool. |
-| `@beep/nlp/Tools/index` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:306` | Chunk by sentences tool. |
-| `@beep/nlp/Tools/index` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:320` | Corpus stats layer. |
-| `@beep/nlp/Tools/index` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:334` | Create corpus export. |
-| `@beep/nlp/Tools/index` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:348` | Delete corpus tool. |
-| `@beep/nlp/Tools/index` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:362` | Document stats tool. |
-| `@beep/nlp/Tools/index` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:589` | Export tools tool. |
-| `@beep/nlp/Tools/index` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:376` | Extract entities tool. |
-| `@beep/nlp/Tools/index` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:390` | Extract keywords tool. |
-| `@beep/nlp/Tools/index` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:404` | Learn corpus tool. |
-| `@beep/nlp/Tools/index` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:418` | Learn custom entities tool. |
-| `@beep/nlp/Tools/index` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:432` | N grams tool. |
-| `@beep/nlp/Tools/index` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:559` | Nlp toolkit tool. |
-| `@beep/nlp/Tools/index` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:574` | Nlp tools tool. |
-| `@beep/nlp/Tools/index` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:446` | Phonetic match tool. |
-| `@beep/nlp/Tools/index` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:460` | Query corpus tool. |
-| `@beep/nlp/Tools/index` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:474` | Rank by relevance tool. |
-| `@beep/nlp/Tools/index` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:488` | Sentences tool. |
-| `@beep/nlp/Tools/index` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:502` | Text similarity tool. |
-| `@beep/nlp/Tools/index` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:516` | Tokenize tool. |
-| `@beep/nlp/Tools/index` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:530` | Transform text tool. |
-| `@beep/nlp/Tools/index` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:544` | Tversky similarity tool. |
-| `@beep/nlp/Tools/LearnCorpus` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts:80` | Defines the agent-facing tool contract for incrementally learning documents |
-| `@beep/nlp/Tools/LearnCustomEntities` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts:99` | Defines the agent-facing tool contract for learning custom entity patterns |
-| `@beep/nlp/Tools/NGrams` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/NGrams.ts:87` | Defines the agent-facing tool contract for extracting fixed-size character |
-| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:122` | Effect AI toolkit definition containing the full NLP tool surface. |
-| `@beep/nlp/Tools/NlpToolkit` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:77` | Canonical ordered NLP tool list used to build the toolkit and export |
+| `@beep/nlp/Tools/ExtractEntities` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/ExtractEntities.ts:75` | Defines the agent-facing tool contract for extracting built-in and custom |
+| `@beep/nlp/Tools/ExtractKeywords` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/ExtractKeywords.ts:64` | Defines the agent-facing tool contract for extracting ranked keyword terms |
+| `@beep/nlp/Tools/index` | `AiAnalysis` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:68` | Ai analysis tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:82` | Ai corpus config tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:96` | Ai corpus idf tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:110` | Ai corpus matrix shape tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:124` | Ai corpus ranked document tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:138` | Ai corpus stats tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:152` | Ai corpus summary tool schema. |
+| `@beep/nlp/Tools/index` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:166` | Ai document stats tool schema. |
+| `@beep/nlp/Tools/index` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:180` | Ai entity tool schema. |
+| `@beep/nlp/Tools/index` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:194` | Ai keyword tool schema. |
+| `@beep/nlp/Tools/index` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:208` | Ai n gram tool schema. |
+| `@beep/nlp/Tools/index` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:222` | Ai phonetic match tool schema. |
+| `@beep/nlp/Tools/index` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:236` | Ai ranked text tool schema. |
+| `@beep/nlp/Tools/index` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:250` | Ai sentence tool schema. |
+| `@beep/nlp/Tools/index` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:264` | Ai sentence chunk tool schema. |
+| `@beep/nlp/Tools/index` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:299` | Ai token tool schema. |
+| `@beep/nlp/Tools/index` | `AiToolError` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:285` | Ai tool error schema. |
+| `@beep/nlp/Tools/index` | `Analyze` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:313` | Analyze tool. |
+| `@beep/nlp/Tools/index` | `BagOfWords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:327` | Bag of words tool. |
+| `@beep/nlp/Tools/index` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:341` | Bow cosine similarity tool. |
+| `@beep/nlp/Tools/index` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:355` | Chunk by sentences tool. |
+| `@beep/nlp/Tools/index` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:369` | Corpus stats layer. |
+| `@beep/nlp/Tools/index` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:383` | Create corpus export. |
+| `@beep/nlp/Tools/index` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:397` | Delete corpus tool. |
+| `@beep/nlp/Tools/index` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:411` | Document stats tool. |
+| `@beep/nlp/Tools/index` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:694` | Export tools tool. |
+| `@beep/nlp/Tools/index` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:425` | Extract entities tool. |
+| `@beep/nlp/Tools/index` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:439` | Extract keywords tool. |
+| `@beep/nlp/Tools/index` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:453` | Learn corpus tool. |
+| `@beep/nlp/Tools/index` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:467` | Learn custom entities tool. |
+| `@beep/nlp/Tools/index` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:481` | N grams tool. |
+| `@beep/nlp/Tools/index` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:664` | Nlp toolkit tool. |
+| `@beep/nlp/Tools/index` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:679` | Nlp tools tool. |
+| `@beep/nlp/Tools/index` | `Paragraphize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:495` | Paragraphize tool. |
+| `@beep/nlp/Tools/index` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:509` | Phonetic match tool. |
+| `@beep/nlp/Tools/index` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:523` | Query corpus tool. |
+| `@beep/nlp/Tools/index` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:537` | Rank by relevance tool. |
+| `@beep/nlp/Tools/index` | `RemoveStopWords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:551` | Remove stop words tool. |
+| `@beep/nlp/Tools/index` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:565` | Sentences tool. |
+| `@beep/nlp/Tools/index` | `Stem` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:579` | Stem tool. |
+| `@beep/nlp/Tools/index` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:593` | Text similarity tool. |
+| `@beep/nlp/Tools/index` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:607` | Tokenize tool. |
+| `@beep/nlp/Tools/index` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:621` | Transform text tool. |
+| `@beep/nlp/Tools/index` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:635` | Tversky similarity tool. |
+| `@beep/nlp/Tools/index` | `WordCount` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:649` | Word count tool. |
+| `@beep/nlp/Tools/LearnCorpus` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts:79` | Defines the agent-facing tool contract for incrementally learning documents |
+| `@beep/nlp/Tools/LearnCustomEntities` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts:98` | Defines the agent-facing tool contract for learning custom entity patterns |
+| `@beep/nlp/Tools/NGrams` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/NGrams.ts:86` | Defines the agent-facing tool contract for extracting fixed-size character |
+| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:140` | Effect AI toolkit definition containing the full NLP tool surface. |
+| `@beep/nlp/Tools/NlpToolkit` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:89` | Canonical ordered NLP tool list used to build the toolkit and export |
+| `@beep/nlp/Tools/Paragraphize` | `Paragraphize` | const | `packages/foundation/capability/nlp/src/Tools/Paragraphize.ts:58` | Defines the agent-facing tool contract for splitting text into paragraphs on |
 | `@beep/nlp/Tools/PhoneticMatch` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/PhoneticMatch.ts:74` | Defines the agent-facing tool contract for comparing two texts by phonetic |
-| `@beep/nlp/Tools/QueryCorpus` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts:87` | Defines the agent-facing tool contract for querying a learned corpus session |
-| `@beep/nlp/Tools/RankByRelevance` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts:76` | Defines the agent-facing tool contract for ranking candidate texts by |
-| `@beep/nlp/Tools/Sentences` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/Sentences.ts:59` | Defines the agent-facing tool contract for splitting text into sentence |
-| `@beep/nlp/Tools/TextSimilarity` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts:69` | Defines the agent-facing tool contract for comparing two texts with BM25 |
-| `@beep/nlp/Tools/Tokenize` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/Tokenize.ts:60` | Defines the agent-facing tool contract for tokenizing text into annotated |
+| `@beep/nlp/Tools/QueryCorpus` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts:86` | Defines the agent-facing tool contract for querying a learned corpus session |
+| `@beep/nlp/Tools/RankByRelevance` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts:75` | Defines the agent-facing tool contract for ranking candidate texts by |
+| `@beep/nlp/Tools/RemoveStopWords` | `RemoveStopWords` | const | `packages/foundation/capability/nlp/src/Tools/RemoveStopWords.ts:59` | Defines the agent-facing tool contract for removing stop words from text and |
+| `@beep/nlp/Tools/Sentences` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/Sentences.ts:58` | Defines the agent-facing tool contract for splitting text into sentence |
+| `@beep/nlp/Tools/Stem` | `Stem` | const | `packages/foundation/capability/nlp/src/Tools/Stem.ts:58` | Defines the agent-facing tool contract for reducing word tokens to their |
+| `@beep/nlp/Tools/TextSimilarity` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts:68` | Defines the agent-facing tool contract for comparing two texts with BM25 |
+| `@beep/nlp/Tools/Tokenize` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/Tokenize.ts:59` | Defines the agent-facing tool contract for tokenizing text into annotated |
 | `@beep/nlp/Tools/ToolExport` | `ExportedTool` | interface | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:174` | Runtime descriptor for a tool exported as a positional function contract. |
 | `@beep/nlp/Tools/ToolExport` | `ExportedToolError` | class | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:112` | Typed failure for the positional tool export adapter. |
 | `@beep/nlp/Tools/ToolExport` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:395` | Effect that exports every NLP toolkit tool as a positional descriptor. |
-| `@beep/nlp/Tools/TransformText` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/TransformText.ts:95` | Defines the agent-facing tool contract for applying ordered text |
-| `@beep/nlp/Tools/TverskySimilarity` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts:84` | Defines the agent-facing tool contract for asymmetric Tversky similarity |
+| `@beep/nlp/Tools/TransformText` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/TransformText.ts:94` | Defines the agent-facing tool contract for applying ordered text |
+| `@beep/nlp/Tools/TverskySimilarity` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts:83` | Defines the agent-facing tool contract for asymmetric Tversky similarity |
+| `@beep/nlp/Tools/WordCount` | `WordCount` | const | `packages/foundation/capability/nlp/src/Tools/WordCount.ts:58` | Defines the agent-facing tool contract for counting word-like tokens and |
 | `@beep/nlp/VariantText` | `orderedDedupe` | const | `packages/foundation/capability/nlp/src/VariantText.ts:35` | Remove blank variants and keep the first spelling of each unique string. |
 
 ### @beep/infra
@@ -13772,7 +13847,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/wink` | `WinkError` | type | `packages/drivers/wink/src/Wink.errors.ts:215` | Type-level companion for the {@link WinkError} schema union. |
 | `@beep/wink` | `WinkLayerAllLive` | const | `packages/drivers/wink/src/Wink.layer.ts:72` | Full live wink layer bundle including corpus management and shared utilities. |
 | `@beep/wink` | `WinkLayerLive` | const | `packages/drivers/wink/src/Wink.layer.ts:40` | Live layer bundle for the engine-backed tokenization surface. |
-| `@beep/wink` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:337` | Live toolkit handler layer backed by the wink NLP runtime. |
+| `@beep/wink` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:340` | Live toolkit handler layer backed by the wink NLP runtime. |
 | `@beep/wink` | `WinkSimilarity` | class | `packages/drivers/wink/src/WinkSimilarity.service.ts:256` | Service for computing cosine and Tversky scores using wink similarity helpers. |
 | `@beep/wink` | `WinkSimilarityLive` | const | `packages/drivers/wink/src/WinkSimilarity.service.ts:285` | Live layer for wink similarity utilities. |
 | `@beep/wink` | `WinkTokenization` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:374` | Engine-dependent layer implementing the core tokenization service with wink. |
@@ -13818,7 +13893,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/wink/index` | `WinkError` | type | `packages/drivers/wink/src/Wink.errors.ts:215` | Type-level companion for the {@link WinkError} schema union. |
 | `@beep/wink/index` | `WinkLayerAllLive` | const | `packages/drivers/wink/src/Wink.layer.ts:72` | Full live wink layer bundle including corpus management and shared utilities. |
 | `@beep/wink/index` | `WinkLayerLive` | const | `packages/drivers/wink/src/Wink.layer.ts:40` | Live layer bundle for the engine-backed tokenization surface. |
-| `@beep/wink/index` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:337` | Live toolkit handler layer backed by the wink NLP runtime. |
+| `@beep/wink/index` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:340` | Live toolkit handler layer backed by the wink NLP runtime. |
 | `@beep/wink/index` | `WinkSimilarity` | class | `packages/drivers/wink/src/WinkSimilarity.service.ts:256` | Service for computing cosine and Tversky scores using wink similarity helpers. |
 | `@beep/wink/index` | `WinkSimilarityLive` | const | `packages/drivers/wink/src/WinkSimilarity.service.ts:285` | Live layer for wink similarity utilities. |
 | `@beep/wink/index` | `WinkTokenization` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:374` | Engine-dependent layer implementing the core tokenization service with wink. |
@@ -13881,7 +13956,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/wink/WinkTokenization.service` | `SentenceSpanFailure` | class | `packages/drivers/wink/src/WinkTokenization.service.ts:57` | Typed failure used when wink sentence spans cannot be aligned to token indexes. |
 | `@beep/wink/WinkTokenization.service` | `WinkTokenization` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:374` | Engine-dependent layer implementing the core tokenization service with wink. |
 | `@beep/wink/WinkTokenization.service` | `WinkTokenizationLive` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:396` | Live tokenization layer with the wink engine already provided. |
-| `@beep/wink/WinkTools.service` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:337` | Live toolkit handler layer backed by the wink NLP runtime. |
+| `@beep/wink/WinkTools.service` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:340` | Live toolkit handler layer backed by the wink NLP runtime. |
 | `@beep/wink/WinkUtils.service` | `WinkUtils` | class | `packages/drivers/wink/src/WinkUtils.service.ts:314` | Service wrapping `wink-nlp-utils` string cleanup, phonetic, and n-gram helpers. |
 | `@beep/wink/WinkUtils.service` | `WinkUtilsError` | class | `packages/drivers/wink/src/WinkUtils.service.ts:150` | Typed failure for `wink-nlp-utils` string, token, and n-gram helpers. |
 | `@beep/wink/WinkUtils.service` | `WinkUtilsLive` | const | `packages/drivers/wink/src/WinkUtils.service.ts:337` | Live layer for the `wink-nlp-utils` wrappers. |
