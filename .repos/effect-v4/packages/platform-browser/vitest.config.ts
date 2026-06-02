@@ -1,16 +1,9 @@
-import * as os from "node:os"
-import * as path from "node:path"
 import { mergeConfig, type ViteUserConfig } from "vitest/config"
-import shared from "../../vitest.shared.ts"
+import shared from "../../vitest.shared.js"
 
 const config: ViteUserConfig = {
   test: {
-    environment: "happy-dom",
-    execArgv: [
-      "--localstorage-file",
-      path.resolve(os.tmpdir(), `vitest-${process.pid}.localstorage`)
-    ],
-    setupFiles: "./vitest.setup.ts"
+    environment: "happy-dom"
   }
 }
 

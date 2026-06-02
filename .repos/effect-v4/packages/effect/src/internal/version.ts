@@ -1,2 +1,7 @@
-export const version: version = "dev"
-export type version = "dev"
+let moduleVersion = "3.21.2"
+
+export const getCurrentVersion = () => moduleVersion
+
+export const setCurrentVersion = (version: string) => {
+  moduleVersion = version
+}

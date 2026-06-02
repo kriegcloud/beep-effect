@@ -1,283 +1,227 @@
 /**
- * The `OpenAiEmbeddingModel` module provides the OpenAI implementation of
- * Effect AI's `EmbeddingModel` service. It adapts the OpenAI embeddings
- * endpoint into Effect AI's batch embedding interface, preserving input order
- * and returning numeric vectors for each requested input.
- *
- * **Mental model**
- *
- * `OpenAiClient` owns transport, authentication, and provider request
- * execution. This module owns embedding-specific configuration, response
- * validation, and the `EmbeddingModel.EmbeddingModel` layer. Use {@link model}
- * when you want an `AiModel` descriptor that also provides the configured
- * embedding dimensions, or {@link layer} / {@link make} when the dimensions are
- * managed separately.
- *
- * **Common tasks**
- *
- * - Provide an OpenAI-backed `EmbeddingModel.EmbeddingModel` from an existing
- *   `OpenAiClient`
- * - Configure the OpenAI embedding model id, dimensions, encoding format, and
- *   other create-embedding request fields
- * - Scope per-request defaults with {@link Config} and
- *   {@link withConfigOverride}
- *
- * **Gotchas**
- *
- * - The service expects OpenAI to return floating-point embedding arrays.
- *   Requesting base64 embeddings causes an `InvalidOutputError`.
- * - Provider results are checked for missing, duplicate, or out-of-range
- *   indexes before they are exposed as Effect AI embedding results.
- *
- * @since 4.0.0
+ * @since 1.0.0
  */
+import * as EmbeddingModel from "@effect/ai/EmbeddingModel"
+import * as AiModel from "@effect/ai/Model"
 import * as Context from "effect/Context"
+import type * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
 import { dual } from "effect/Function"
 import * as Layer from "effect/Layer"
 import type { Simplify } from "effect/Types"
-import * as AiError from "effect/unstable/ai/AiError"
-import * as EmbeddingModel from "effect/unstable/ai/EmbeddingModel"
-import * as AiModel from "effect/unstable/ai/Model"
-import { OpenAiClient } from "./OpenAiClient.ts"
-import type * as OpenAiSchema from "./OpenAiSchema.ts"
+import type * as Generated from "./Generated.js"
+import * as OpenAiClient from "./OpenAiClient.js"
 
 /**
- * Model identifiers supported by OpenAI's embeddings API.
- *
- * @category models
- * @since 4.0.0
+ * @since 1.0.0
+ * @category Models
  */
-export type Model = "text-embedding-ada-002" | "text-embedding-3-small" | "text-embedding-3-large"
+export type Model = typeof Generated.CreateEmbeddingRequestModelEnum.Encoded
+
+// =============================================================================
+// Configuration
+// =============================================================================
 
 /**
- * Context service for OpenAI embedding model configuration.
- *
- * **When to use**
- *
- * Use when embedding requests need scoped OpenAI request defaults or overrides
- * from Effect context.
- *
- * **Details**
- *
- * The service stores the OpenAI create-embedding request payload without
- * `input`, carrying options such as `model`, `dimensions`, `encoding_format`,
- * and `user`.
- *
- * @see {@link withConfigOverride} for scoping embedding request overrides
- *
- * @category services
- * @since 4.0.0
+ * @since 1.0.0
+ * @category Context
  */
-export class Config extends Context.Service<
+export class Config extends Context.Tag("@effect/ai-openai/OpenAiEmbeddingModel/Config")<
   Config,
-  Simplify<
-    & Partial<
-      Omit<
-        typeof OpenAiSchema.CreateEmbeddingRequest.Encoded,
-        "input"
+  Config.Service
+>() {
+  /**
+   * @since 1.0.0
+   */
+  static readonly getOrUndefined: Effect.Effect<Config.Service | undefined> = Effect.map(
+    Effect.context<never>(),
+    (context) => context.unsafeMap.get(Config.key)
+  )
+}
+
+/**
+ * @since 1.0.0
+ */
+export declare namespace Config {
+  /**
+   * @since 1.0.
+   * @category Configuration
+   */
+  export interface Service extends
+    Simplify<
+      Partial<
+        Omit<
+          typeof Generated.CreateEmbeddingRequest.Encoded,
+          "input"
+        >
       >
     >
-    & {
-      readonly [x: string]: unknown
+  {}
+
+  /**
+   * @since 1.0.
+   * @category Configuration
+   */
+  export interface Batched extends Omit<Config.Service, "model"> {
+    readonly maxBatchSize?: number
+    readonly cache?: {
+      readonly capacity: number
+      readonly timeToLive: Duration.DurationInput
     }
-  >
->()("@effect/ai-openai/OpenAiEmbeddingModel/Config") {}
+  }
+
+  /**
+   * @since 1.0.
+   * @category Configuration
+   */
+  export interface DataLoader extends Omit<Config.Service, "model"> {
+    readonly window: Duration.DurationInput
+    readonly maxBatchSize?: number
+  }
+}
+
+// =============================================================================
+// OpenAi Embedding Model
+// =============================================================================
 
 /**
- * Creates an `AiModel` for an OpenAI embedding model with its configured vector dimensions.
- *
- * **When to use**
- *
- * Use to provide an OpenAI `EmbeddingModel` and its `Dimensions` service to an
- * Effect program.
- *
- * @see {@link layer} for providing only the embedding model service
- * @see {@link withConfigOverride} for scoped request configuration overrides
- *
- * @category constructors
- * @since 4.0.0
+ * @since 1.0.0
+ * @category Models
  */
 export const model = (
   model: (string & {}) | Model,
-  options: {
-    readonly dimensions: number
-    readonly config?: Omit<typeof Config.Service, "model" | "dimensions">
-  }
-): AiModel.Model<"openai", EmbeddingModel.EmbeddingModel | EmbeddingModel.Dimensions, OpenAiClient> =>
-  AiModel.make(
-    "openai",
-    model,
-    Layer.merge(
-      layer({
-        model,
-        config: {
-          ...options.config,
-          dimensions: options.dimensions
-        }
-      }),
-      Layer.succeed(EmbeddingModel.Dimensions, options.dimensions)
+  { mode, ...config }: Simplify<
+    (
+      | ({ readonly mode: "batched" } & Config.Batched)
+      | ({ readonly mode: "data-loader" } & Config.DataLoader)
     )
+  >
+): AiModel.Model<"openai", EmbeddingModel.EmbeddingModel, OpenAiClient.OpenAiClient> => {
+  return AiModel.make(
+    "openai",
+    mode === "batched"
+      ? layerBatched({ model, config: config as Config.Batched })
+      : layerDataLoader({ model, config: config as Config.DataLoader })
   )
+}
 
 /**
- * Creates an OpenAI embedding model service.
- *
- * **When to use**
- *
- * Use to construct the `EmbeddingModel.Service` effectfully when
- * `OpenAiClient` is already available in the environment or when the service
- * value is needed directly.
- *
- * **Details**
- *
- * The `model` option is sent with each embedding request. Constructor `config`
- * supplies create-embedding request fields other than `model` and `input`, and
- * scoped overrides from `withConfigOverride` are merged last for each request.
- *
- * **Gotchas**
- *
- * The service expects numeric embedding vectors. It fails with
- * `InvalidOutputError` when the provider returns base64 embeddings,
- * out-of-range indexes, duplicate indexes, or an unexpected number of
- * embeddings.
- *
- * @see {@link layer} for providing the embedding model service as a layer
- * @see {@link model} for creating an `AiModel` that also provides dimensions
- * @see {@link withConfigOverride} for scoped request configuration overrides
- *
- * @category constructors
- * @since 4.0.0
+ * @since 1.0.0
+ * @category Constructors
  */
-export const make = Effect.fnUntraced(function*({ model, config: providerConfig }: {
+const makeBatched = Effect.fnUntraced(function*(options: {
   readonly model: (string & {}) | Model
-  readonly config?: Omit<typeof Config.Service, "model"> | undefined
-}): Effect.fn.Return<EmbeddingModel.Service, never, OpenAiClient> {
-  const client = yield* OpenAiClient
+  readonly config?: Config.Batched
+}) {
+  const client = yield* OpenAiClient.OpenAiClient
 
-  const makeConfig = Effect.gen(function*() {
-    const services = yield* Effect.context<never>()
-    return { model, ...providerConfig, ...services.mapUnsafe.get(Config.key) }
-  })
+  const { config = {}, model } = options
+  const { cache, maxBatchSize = 2048, ...globalConfig } = config
+
+  const makeRequest = Effect.fnUntraced(
+    function*(input: ReadonlyArray<string>) {
+      const context = yield* Effect.context<never>()
+      const requestConfig = context.unsafeMap.get(Config.key)
+      const request: typeof Generated.CreateEmbeddingRequest.Encoded = {
+        model,
+        ...globalConfig,
+        ...requestConfig,
+        input
+      }
+      return request
+    }
+  )
 
   return yield* EmbeddingModel.make({
-    embedMany: Effect.fnUntraced(function*({ inputs }) {
-      const config = yield* makeConfig
-      const response = yield* client.createEmbedding({ ...config, input: inputs })
-      return yield* mapProviderResponse(inputs.length, response)
+    cache,
+    maxBatchSize,
+    embedMany: Effect.fnUntraced(function*(input) {
+      const request = yield* makeRequest(input)
+      const response = yield* client.createEmbedding(request)
+      return makeResults(response)
     })
   })
 })
 
 /**
- * Creates a layer for the OpenAI embedding model.
- *
- * **When to use**
- *
- * Use when composing application layers and you want OpenAI to satisfy
- * `EmbeddingModel.EmbeddingModel` while supplying `OpenAiClient` from another
- * layer.
- *
- * **Gotchas**
- *
- * Use the default floating-point embedding format. The service expects numeric
- * vectors and fails with `InvalidOutputError` if OpenAI returns base64
- * embeddings.
- *
- * @see {@link make} for constructing the embedding model service effectfully
- * @see {@link model} for creating an `AiModel` that also provides embedding dimensions
- *
- * @category layers
- * @since 4.0.0
+ * @since 1.0.0
+ * @category Constructors
  */
-export const layer = (options: {
+export const makeDataLoader = Effect.fnUntraced(function*(options: {
   readonly model: (string & {}) | Model
-  readonly config?: Omit<typeof Config.Service, "model"> | undefined
-}): Layer.Layer<EmbeddingModel.EmbeddingModel, never, OpenAiClient> =>
-  Layer.effect(EmbeddingModel.EmbeddingModel, make(options))
+  readonly config: Config.DataLoader
+}) {
+  const client = yield* OpenAiClient.OpenAiClient
+  const { config, model } = options
+  const { maxBatchSize = 2048, window, ...globalConfig } = config
+
+  const makeRequest = Effect.fnUntraced(
+    function*(input: ReadonlyArray<string>) {
+      const context = yield* Effect.context<never>()
+      const requestConfig = context.unsafeMap.get(Config.key)
+      const request: typeof Generated.CreateEmbeddingRequest.Encoded = {
+        model,
+        ...globalConfig,
+        ...requestConfig,
+        input
+      }
+      return request
+    }
+  )
+
+  return yield* EmbeddingModel.makeDataLoader({
+    window,
+    maxBatchSize,
+    embedMany: Effect.fnUntraced(function*(input) {
+      const request = yield* makeRequest(input)
+      const response = yield* client.createEmbedding(request)
+      return makeResults(response)
+    })
+  })
+})
 
 /**
- * Provides config overrides for OpenAI embedding model operations.
- *
- * **When to use**
- *
- * Use when a single effect or workflow needs scoped OpenAI embedding request
- * defaults without rebuilding the embedding model service.
- *
- * **Details**
- *
- * Supports both data-first and data-last forms. Existing scoped config is read
- * first, then the provided overrides are applied so override fields take
- * precedence.
- *
- * @see {@link Config} for the scoped embedding request configuration service
- *
- * @category configuration
- * @since 4.0.0
+ * @since 1.0.0
+ * @category Layers
+ */
+export const layerBatched = (options: {
+  readonly model: (string & {}) | Model
+  readonly config?: Config.Batched
+}): Layer.Layer<EmbeddingModel.EmbeddingModel, never, OpenAiClient.OpenAiClient> =>
+  Layer.effect(EmbeddingModel.EmbeddingModel, makeBatched(options))
+
+/**
+ * @since 1.0.0
+ * @category Layers
+ */
+export const layerDataLoader = (options: {
+  readonly model: (string & {}) | Model
+  readonly config: Config.DataLoader
+}): Layer.Layer<EmbeddingModel.EmbeddingModel, never, OpenAiClient.OpenAiClient> =>
+  Layer.scoped(EmbeddingModel.EmbeddingModel, makeDataLoader(options))
+
+/**
+ * @since 1.0.0
+ * @category Configuration
  */
 export const withConfigOverride: {
-  (overrides: typeof Config.Service): <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, Exclude<R, Config>>
-  <A, E, R>(self: Effect.Effect<A, E, R>, overrides: typeof Config.Service): Effect.Effect<A, E, Exclude<R, Config>>
+  (config: Config.Service): <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>
+  <A, E, R>(self: Effect.Effect<A, E, R>, config: Config.Service): Effect.Effect<A, E, R>
 } = dual<
-  (
-    overrides: typeof Config.Service
-  ) => <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, Exclude<R, Config>>,
-  <A, E, R>(self: Effect.Effect<A, E, R>, overrides: typeof Config.Service) => Effect.Effect<A, E, Exclude<R, Config>>
+  (config: Config.Service) => <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>,
+  <A, E, R>(self: Effect.Effect<A, E, R>, config: Config.Service) => Effect.Effect<A, E, R>
 >(2, (self, overrides) =>
   Effect.flatMap(
-    Effect.serviceOption(Config),
-    (config) =>
-      Effect.provideService(self, Config, {
-        ...(config._tag === "Some" ? config.value : {}),
-        ...overrides
-      })
+    Config.getOrUndefined,
+    (config) => Effect.provideService(self, Config, { ...config, ...overrides })
   ))
 
-const mapProviderResponse = (
-  inputLength: number,
-  response: typeof OpenAiSchema.CreateEmbeddingResponse.Type
-): Effect.Effect<EmbeddingModel.ProviderResponse, AiError.AiError> => {
-  if (response.data.length !== inputLength) {
-    return Effect.fail(
-      invalidOutput("Provider returned " + response.data.length + " embeddings but expected " + inputLength)
-    )
-  }
+// =============================================================================
+// Response Conversion
+// =============================================================================
 
-  const results = new Array<Array<number>>(inputLength)
-  const seen = new Set<number>()
-
-  for (const entry of response.data) {
-    if (!Number.isInteger(entry.index) || entry.index < 0 || entry.index >= inputLength) {
-      return Effect.fail(invalidOutput("Provider returned invalid embedding index: " + entry.index))
-    }
-    if (seen.has(entry.index)) {
-      return Effect.fail(invalidOutput("Provider returned duplicate embedding index: " + entry.index))
-    }
-    if (!Array.isArray(entry.embedding)) {
-      return Effect.fail(invalidOutput("Provider returned non-vector embedding at index " + entry.index))
-    }
-
-    seen.add(entry.index)
-    results[entry.index] = [...entry.embedding]
-  }
-
-  if (seen.size !== inputLength) {
-    return Effect.fail(
-      invalidOutput("Provider returned embeddings for " + seen.size + " inputs but expected " + inputLength)
-    )
-  }
-
-  return Effect.succeed({
-    results,
-    usage: {
-      inputTokens: response.usage?.prompt_tokens
-    }
-  })
-}
-
-const invalidOutput = (description: string): AiError.AiError =>
-  AiError.make({
-    module: "OpenAiEmbeddingModel",
-    method: "embedMany",
-    reason: new AiError.InvalidOutputError({ description })
-  })
+const makeResults = (response: Generated.CreateEmbeddingResponse): Array<EmbeddingModel.Result> =>
+  response.data.map(({ embedding, index }) => ({
+    embeddings: embedding as Array<number>,
+    index
+  }))

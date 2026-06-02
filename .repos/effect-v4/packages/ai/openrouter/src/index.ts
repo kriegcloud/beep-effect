@@ -1,30 +1,19 @@
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-
-// @barrel: Auto-generated exports. Do not edit manually.
-
-/**
- * @since 4.0.0
- */
-export * as Generated from "./Generated.ts"
+export * as Generated from "./Generated.js"
 
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-export * as OpenRouterClient from "./OpenRouterClient.ts"
+export * as OpenRouterClient from "./OpenRouterClient.js"
 
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-export * as OpenRouterConfig from "./OpenRouterConfig.ts"
+export * as OpenRouterConfig from "./OpenRouterConfig.js"
 
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-export * as OpenRouterError from "./OpenRouterError.ts"
-
-/**
- * @since 4.0.0
- */
-export * as OpenRouterLanguageModel from "./OpenRouterLanguageModel.ts"
+export * as OpenRouterLanguageModel from "./OpenRouterLanguageModel.js"

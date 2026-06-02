@@ -1,35 +1,64 @@
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-
-// @barrel: Auto-generated exports. Do not edit manually.
-
-/**
- * @since 4.0.0
- */
-export * as Logger from "./Logger.ts"
+export * as Logger from "./Logger.js"
 
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-export * as Metrics from "./Metrics.ts"
+export * as Metrics from "./Metrics.js"
 
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-export * as NodeSdk from "./NodeSdk.ts"
+export * as NodeSdk from "./NodeSdk.js"
 
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-export * as Resource from "./Resource.ts"
+export * as Otlp from "./Otlp.js"
 
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-export * as Tracer from "./Tracer.ts"
+export * as OtlpLogger from "./OtlpLogger.js"
 
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-export * as WebSdk from "./WebSdk.ts"
+export * as OtlpMetrics from "./OtlpMetrics.js"
+
+/**
+ * @since 1.0.0
+ */
+export * as OtlpResource from "./OtlpResource.js"
+
+/**
+ * OtlpSerialization service for tree-shakable protobuf support.
+ *
+ * This module provides the `OtlpSerialization` service that abstracts the
+ * encoding of OTLP telemetry data to HttpBody.
+ *
+ * @since 1.0.0
+ */
+export * as OtlpSerialization from "./OtlpSerialization.js"
+
+/**
+ * @since 1.0.0
+ */
+export * as OtlpTracer from "./OtlpTracer.js"
+
+/**
+ * @since 1.0.0
+ */
+export * as Resource from "./Resource.js"
+
+/**
+ * @since 1.0.0
+ */
+export * as Tracer from "./Tracer.js"
+
+/**
+ * @since 1.0.0
+ */
+export * as WebSdk from "./WebSdk.js"

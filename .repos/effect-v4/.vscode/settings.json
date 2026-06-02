@@ -1,10 +1,34 @@
 {
-  "dprint.path": "node_modules/.bin/dprint",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "deno.enable": false,
+  "biome.enabled": false,
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "dprint.dprint",
-  "editor.formatOnSaveMode": "file",
+  "eslint.format.enable": true,
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.semi": false,
+    "prettier.trailingComma": "none"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "eslint.validate": ["markdown", "javascript", "typescript"],
   "editor.codeActionsOnSave": {
-    "source.fixAll.oxc": "explicit"
+    "source.fixAll.eslint": "explicit"
   },
   "editor.quickSuggestions": {
     "other": true,
@@ -20,25 +44,5 @@
   "editor.suggestSelection": "recentlyUsed",
   "editor.wordBasedSuggestions": "matchingDocuments",
   "editor.parameterHints.enabled": true,
-  "files.insertFinalNewline": true,
-  "[typescript]": {
-    "editor.defaultFormatter": "dprint.dprint"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "dprint.dprint"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "dprint.dprint"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "dprint.dprint"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "dprint.dprint"
-  },
-  "[markdown]": {
-    "editor.defaultFormatter": "dprint.dprint"
-  },
-  "deno.enable": false,
-  "js/ts.tsdk.path": "node_modules/typescript/lib"
+  "files.insertFinalNewline": true
 }
