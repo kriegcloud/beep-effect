@@ -56,7 +56,6 @@
     "packages/drivers/konva/dtslint/**/*.tst.*",
     "packages/drivers/nlp-mcp/dtslint/**/*.tst.*",
     "packages/drivers/wink/dtslint/**/*.tst.*",
-    "apps/canvas/dtslint/**/*.tst.*",
     "packages/drivers/box/dtslint/**/*.tst.*",
     "packages/tooling/library/ai-sync/dtslint/**/*.tst.*",
     "packages/tooling/library/repo-codegraph/dtslint/**/*.tst.*",

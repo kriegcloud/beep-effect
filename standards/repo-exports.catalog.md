@@ -16,13 +16,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Metric | Count |
 |---|---:|
-| packages | 85 |
-| packagesWithPublicExports | 75 |
+| packages | 86 |
+| packagesWithPublicExports | 76 |
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1011 |
-| publicExportEntries | 13346 |
-| uniquePackageSymbols | 5951 |
+| importSpecifiers | 1022 |
+| publicExportEntries | 13548 |
+| uniquePackageSymbols | 6008 |
 
 ## Seed Discovery Proof
 
@@ -52,7 +52,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 13 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 14 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 15 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 142 | 1566 | 549 |
+| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1653 | 597 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 6 | 23 | 22 |
@@ -82,46 +82,47 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 43 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
 | 44 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 1 | 30 | 24 |
 | 45 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 12 | 97 | 63 |
-| 46 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 327 | 109 |
+| 46 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 330 | 110 |
 | 47 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
-| 48 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
-| 49 | `@beep/stack-installer` | `apps/stack-installer` | no-public-exports | 0 | 0 | 0 |
-| 50 | `@beep/professional-desktop` | `apps/professional-desktop` | no-public-exports | 0 | 0 | 0 |
-| 51 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
-| 52 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
-| 53 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 3 | 3 |
-| 54 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
-| 55 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 76 | 871 | 452 |
-| 56 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
-| 57 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
-| 58 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
-| 59 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 66 | 1648 | 512 |
-| 60 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
-| 61 | `@beep/codedank-web` | `apps/codedank-web` | no-public-exports | 0 | 0 | 0 |
-| 62 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
-| 63 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
-| 64 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
-| 65 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
-| 66 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
-| 67 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
-| 68 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
-| 69 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
-| 70 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 2 | 2 |
-| 71 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
-| 72 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
-| 73 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
-| 74 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 75 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 118 | 540 | 456 |
-| 76 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
-| 77 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
-| 78 | `@beep/wink` | `packages/drivers/wink` | has-public-exports | 15 | 149 | 43 |
-| 79 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
-| 80 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
-| 81 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
-| 82 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
-| 83 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
-| 84 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
-| 85 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
+| 48 | `@beep/box` | `packages/drivers/box` | has-public-exports | 5 | 9 | 8 |
+| 49 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
+| 50 | `@beep/stack-installer` | `apps/stack-installer` | no-public-exports | 0 | 0 | 0 |
+| 51 | `@beep/professional-desktop` | `apps/professional-desktop` | no-public-exports | 0 | 0 | 0 |
+| 52 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
+| 53 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
+| 54 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 3 | 3 |
+| 55 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
+| 56 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 76 | 871 | 452 |
+| 57 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
+| 58 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
+| 59 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
+| 60 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 67 | 1751 | 512 |
+| 61 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
+| 62 | `@beep/codedank-web` | `apps/codedank-web` | no-public-exports | 0 | 0 | 0 |
+| 63 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
+| 64 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
+| 65 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
+| 66 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
+| 67 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
+| 68 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
+| 69 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
+| 70 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
+| 71 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 2 | 2 |
+| 72 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
+| 73 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
+| 74 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
+| 75 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
+| 76 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 118 | 540 | 456 |
+| 77 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
+| 78 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
+| 79 | `@beep/wink` | `packages/drivers/wink` | has-public-exports | 15 | 149 | 43 |
+| 80 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
+| 81 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
+| 82 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
+| 83 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
+| 84 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
+| 85 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
+| 86 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
 ## Public Exports
 
@@ -807,11 +808,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1729` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
-| `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
+| `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:46` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1845` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:54` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commits and pushes reviewed staged changes. |
 | `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
@@ -994,9 +996,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:163` | Planned generation action. |
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:87` | A file write operation. |
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:108` | A symlink operation. |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:787` | CLI command that scaffolds a new package with templates, a Schema-validated |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `resolveCreatePackageTemplateDir` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:82` | Resolve create-package template directory for both src and dist runtimes. |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:494` | Variables passed into every template during package scaffolding. |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:810` | CLI command that scaffolds a new package with templates, a Schema-validated |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `resolveCreatePackageTemplateDir` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:83` | Resolve create-package template directory for both src and dist runtimes. |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:495` | Variables passed into every template during package scaffolding. |
 | `@beep/repo-cli/commands/CreatePackage/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:22` | Package creation command. |
 | `@beep/repo-cli/commands/CreatePackage/TemplateService` | `createTemplateService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:155` | Construct the default template service implementation. |
 | `@beep/repo-cli/commands/CreatePackage/TemplateService` | `RenderedTemplate` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:50` | Rendered template output. |
@@ -1068,11 +1070,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:2073` | Renders a quality report as stable JSON. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `generateQualityReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:2125` | Renders a quality report as human-readable Markdown. |
 | `@beep/repo-cli/commands/Docgen/internal/Quality` | `resolveDocgenQualityTargets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:598` | Resolves `docgen quality` targets using the v1 scope policy. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1229` | Build a read-only worker eval report from a quality report. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1219` | Build a read-only worker eval report from a quality report. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `AnalyzeDocgenQualityWorkerEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:510` | Options for one worker eval run. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1132` | Decode a saved `docgen quality` JSON report for worker eval. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1169` | Default packet cap for `docgen quality-worker-eval`. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1184` | Default hosted Codex reasoning effort for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1122` | Decode a saved `docgen quality` JSON report for worker eval. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1159` | Default packet cap for `docgen quality-worker-eval`. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1174` | Default hosted Codex reasoning effort for worker eval. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:188` | Read-only packet execution status for worker eval. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPacketStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:207` | Read-only packet execution status for worker eval. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalPolicyViolationCode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:254` | Closed repo-policy issue code emitted by a worker eval. |
@@ -1090,8 +1092,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:155` | Source mode used to build a worker eval queue. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalScope` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:174` | Source mode used to build a worker eval queue. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `DocgenQualityWorkerEvalWorkerOutput` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:300` | Structured response expected from the Codex worker. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1348` | Render a worker eval report as stable JSON. |
-| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1153` | Compute the source packet limit used for generated quality reports. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1338` | Render a worker eval report as stable JSON. |
+| `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1143` | Compute the source packet limit used for generated quality reports. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval` | `selectQualityWorkerEvalPackets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:723` | Select remediation packets for a capped worker eval run. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpBaseUrl` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1010` | Default Phoenix-compatible OTLP base URL for remote worker eval traces. |
 | `@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval` | `defaultQualityWorkerRunpodEvalOtlpProject` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1025` | Default Phoenix project for remote worker eval traces. |
@@ -1912,7 +1914,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:56` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:31` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:43` | Runtime type for `CodexRunnerStage`. |
-| `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
+| `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:46` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/commands/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:96` | Drift detected in check mode. |
 | `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:40` | Operational error during source fetch, parsing, projection, or file writes. |
@@ -1939,65 +1941,65 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TopoSort/index` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TopoSort/TopoSort.command` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TsconfigSync` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:520` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:543` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1705` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:391` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:414` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1845` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1706` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:190` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:590` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:605` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:267` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:300` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:191` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:591` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:606` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:250` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:704` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:684` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:520` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:543` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1705` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:391` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:414` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1845` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1706` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:190` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:590` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:605` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:267` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:300` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:191` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:591` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:606` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:250` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:704` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:684` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:520` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:543` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1705` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:391` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:414` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1845` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:190` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:590` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:605` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:267` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:300` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1706` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:191` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:591` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:606` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:250` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:704` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:684` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
@@ -2071,6 +2073,36 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:89` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:115` | Drift detected in check mode (non-zero exit). |
 | `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:40` | Operational error during version sync (file read/write, parse failures). |
+| `@beep/repo-cli/commands/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:71` | Type-level union of normalized yeet quality finding categories. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:111` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:123` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:250` | Complete quality issue index for a yeet run. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:138` | Specialist routing hint for one issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:85` | Blocking level assigned to a normalized yeet quality finding. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:97` | Type-level union of yeet quality severity literals. |
+| `@beep/repo-cli/commands/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commits and pushes reviewed staged changes. |
+| `@beep/repo-cli/commands/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
+| `@beep/repo-cli/commands/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:143` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/commands/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:170` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/commands/Yeet/index` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:71` | Type-level union of normalized yeet quality finding categories. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:111` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:123` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:250` | Complete quality issue index for a yeet run. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:138` | Specialist routing hint for one issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:85` | Blocking level assigned to a normalized yeet quality finding. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:97` | Type-level union of yeet quality severity literals. |
+| `@beep/repo-cli/commands/Yeet/index` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commits and pushes reviewed staged changes. |
+| `@beep/repo-cli/commands/Yeet/index` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
+| `@beep/repo-cli/commands/Yeet/index` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:143` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/commands/Yeet/index` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:170` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/commands/Yeet/Yeet.command` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commits and pushes reviewed staged changes. |
+| `@beep/repo-cli/commands/Yeet/Yeet.errors` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:671` | Check whether config entries already exist (for dry-run output). |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:589` | Batch read-only drift checker for root config updates. |
 | `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateBatchResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:118` | Batch config orchestration result for one or more package targets. |
@@ -2097,16 +2129,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/CreatePackage` | `updateTstycheConfig` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:429` | Add a test file match entry to `tstyche.json`. |
 | `@beep/repo-cli/test/Docgen` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1451` | Aggregate generated package docs into the current root docs layout. |
 | `@beep/repo-cli/test/Docgen` | `analyzeDocgenQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1993` | Builds the consolidated report emitted by the quality command. |
-| `@beep/repo-cli/test/Docgen` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1229` | Build a read-only worker eval report from a quality report. |
+| `@beep/repo-cli/test/Docgen` | `analyzeDocgenQualityWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1219` | Build a read-only worker eval report from a quality report. |
 | `@beep/repo-cli/test/Docgen` | `AnalyzeDocgenQualityWorkerEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:510` | Options for one worker eval run. |
 | `@beep/repo-cli/test/Docgen` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1279` | Analyze a package for missing docgen-required JSDoc. |
 | `@beep/repo-cli/test/Docgen` | `analyzePackageQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1922` | Builds a package-local quality report from ts-morph-enriched subjects. |
 | `@beep/repo-cli/test/Docgen` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:464` | Fail when stale package-local docgen configs exist outside current workspaces. |
 | `@beep/repo-cli/test/Docgen` | `buildDocgenLocalPlan` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:850` | Build a local docgen plan from repository state and command options. |
 | `@beep/repo-cli/test/Docgen` | `createDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1142` | Build the repo-standard `docgen.json` document for a package. |
-| `@beep/repo-cli/test/Docgen` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1132` | Decode a saved `docgen quality` JSON report for worker eval. |
-| `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1169` | Default packet cap for `docgen quality-worker-eval`. |
-| `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1184` | Default hosted Codex reasoning effort for worker eval. |
+| `@beep/repo-cli/test/Docgen` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1122` | Decode a saved `docgen quality` JSON report for worker eval. |
+| `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1159` | Default packet cap for `docgen quality-worker-eval`. |
+| `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerEvalReasoningEffort` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1174` | Default hosted Codex reasoning effort for worker eval. |
 | `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerRunpodEvalOtlpBaseUrl` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1010` | Default Phoenix-compatible OTLP base URL for remote worker eval traces. |
 | `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerRunpodEvalOtlpProject` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1025` | Default Phoenix project for remote worker eval traces. |
 | `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerRunpodEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:995` | Default packet cap for Runpod-backed worker eval runs. |
@@ -2167,12 +2199,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Docgen` | `generateAnalysisReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1320` | Render a human-first markdown report for a package analysis run. |
 | `@beep/repo-cli/test/Docgen` | `generateQualityJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:2073` | Renders a quality report as stable JSON. |
 | `@beep/repo-cli/test/Docgen` | `generateQualityReport` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:2125` | Renders a quality report as human-readable Markdown. |
-| `@beep/repo-cli/test/Docgen` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1348` | Render a worker eval report as stable JSON. |
+| `@beep/repo-cli/test/Docgen` | `generateQualityWorkerEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1338` | Render a worker eval report as stable JSON. |
 | `@beep/repo-cli/test/Docgen` | `generateQualityWorkerRunpodEvalJson` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1161` | Render a Runpod worker eval wrapper report as stable JSON. |
 | `@beep/repo-cli/test/Docgen` | `loadDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1120` | Load a package-local `docgen.json` document. |
 | `@beep/repo-cli/test/Docgen` | `makeQualityWorkerRunpodEvalPodCreateInput` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:436` | Build the Runpod create-pod body for an Ollama worker eval host. |
 | `@beep/repo-cli/test/Docgen` | `normalizeDocsOutputPath` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1109` | Normalize a workspace-relative package path to the current root docs output layout. |
-| `@beep/repo-cli/test/Docgen` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1153` | Compute the source packet limit used for generated quality reports. |
+| `@beep/repo-cli/test/Docgen` | `qualityWorkerEvalSourcePacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1143` | Compute the source packet limit used for generated quality reports. |
 | `@beep/repo-cli/test/Docgen` | `requiredQualityWorkerRunpodEvalModel` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:980` | Required v1 model id for Runpod-backed Qwen worker evals. |
 | `@beep/repo-cli/test/Docgen` | `resolveDocgenQualityTargets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:598` | Resolves `docgen quality` targets using the v1 scope policy. |
 | `@beep/repo-cli/test/Docgen` | `resolveDocgenWorkspacePackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1227` | Resolve a workspace package by package name, repo-relative path, absolute path, or current docs output path. |
@@ -2358,6 +2390,62 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:242` | Full version sync report across all categories. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:382` | Resolver output consumed by reporting and write-mode services. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:366` | YAML location to update in write mode. |
+| `@beep/repo-cli/test/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:716` | Build a schema-first issue index from normalized issues. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:179` | Build the v1 yeet run plan. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:922` | Build a plan for tests without reading repository state. |
+| `@beep/repo-cli/test/Yeet` | `byRepoPlanStepAscending` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:374` | Order repository plan steps by phase, then identifier. |
+| `@beep/repo-cli/test/Yeet` | `commandTextForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:416` | Render a planned step as a shell-like command string. |
+| `@beep/repo-cli/test/Yeet` | `decodeTurboPlanTasksFromQueryJsonForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:558` | Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests. |
+| `@beep/repo-cli/test/Yeet` | `DEFAULT_YEET_PACKET_DIR` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:27` | Default ignored directory for yeet run artifacts. |
+| `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:932` | Construct baseline yeet options for focused tests. |
+| `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:96` | Create an empty Turbo metadata snapshot. |
+| `@beep/repo-cli/test/Yeet` | `enforceConservativeResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:455` | Ensure a step's resume field follows v1 safety rules. |
+| `@beep/repo-cli/test/Yeet` | `executeRepoPlanStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:162` | Execute a planned repository step and optionally persist its raw output. |
+| `@beep/repo-cli/test/Yeet` | `gitPathListFromNulOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:242` | Parse NUL-delimited Git path output for Yeet publish-safety tests. |
+| `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:607` | Hydrate a shared yeet run context from repository state. |
+| `@beep/repo-cli/test/Yeet` | `isConservativeResumeCandidate` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:444` | Determine whether a planned step may use conservative resume metadata. |
+| `@beep/repo-cli/test/Yeet` | `jsonObjectTextFromMixedOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:439` | Extract the last decodable JSON object from mixed command output for tests. |
+| `@beep/repo-cli/test/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
+| `@beep/repo-cli/test/Yeet` | `publishPathsOutsideIntentForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:250` | Return observed paths that are not part of the reviewed Yeet publish intent. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:71` | Type-level union of normalized yeet quality finding categories. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:111` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:123` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:250` | Complete quality issue index for a yeet run. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:138` | Specialist routing hint for one issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:85` | Blocking level assigned to a normalized yeet quality finding. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:97` | Type-level union of yeet quality severity literals. |
+| `@beep/repo-cli/test/Yeet` | `qualityIssuesFromStepResult` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:662` | Convert a failed step result into quality issues. |
+| `@beep/repo-cli/test/Yeet` | `renderPackageQualityPacketDocument` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:126` | Build a Markdown AST document for one package quality report. |
+| `@beep/repo-cli/test/Yeet` | `renderPackageQualityPacketMarkdown` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:178` | Render one package quality packet as Markdown. |
+| `@beep/repo-cli/test/Yeet` | `RepoGraphHealthStatus` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:135` | Graph-health signal recorded while hydrating a run context. |
+| `@beep/repo-cli/test/Yeet` | `RepoGraphHealthStatus` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:147` | Graph-health signal recorded while hydrating a run context. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanPhase` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:31` | Plan phase used by repository run orchestration. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanPhase` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:43` | Plan phase used by repository run orchestration. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStep` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:288` | One subprocess or git operation planned for a repo run. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepMutability` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:57` | Step mutability classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepMutability` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:69` | Step mutability classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:109` | Conservative resume eligibility for a planned step. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepResume` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:121` | Conservative resume eligibility for a planned step. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepScope` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:83` | Step scope classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepScope` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:95` | Step scope classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoRunContext` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:249` | Shared run context hydrated before planning. |
+| `@beep/repo-cli/test/Yeet` | `RepoRunPlan` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:323` | Repository run plan. |
+| `@beep/repo-cli/test/Yeet` | `RepoStepRunResult` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:346` | Captured subprocess result for a planned step. |
+| `@beep/repo-cli/test/Yeet` | `resolveLocalRepoBinary` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:203` | Resolve a local node_modules binary when present. |
+| `@beep/repo-cli/test/Yeet` | `runRepoCommandCapture` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:92` | Execute a command and capture combined output. |
+| `@beep/repo-cli/test/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:895` | Run yeet with the provided options. |
+| `@beep/repo-cli/test/Yeet` | `TurboPlanSnapshot` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:214` | Turbo snapshot stored in the shared run context. |
+| `@beep/repo-cli/test/Yeet` | `TurboPlanTask` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:162` | Turbo task metadata captured from dry-runs or summaries. |
+| `@beep/repo-cli/test/Yeet` | `turboTaskForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:472` | Lookup Turbo metadata for a planned step, if available. |
+| `@beep/repo-cli/test/Yeet` | `TurboWorkspacePackage` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:191` | Workspace package metadata captured from Turbo graph queries. |
+| `@beep/repo-cli/test/Yeet` | `YEET_FEEDBACK_TASKS` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:35` | Turbo tasks used by the Yeet feedback phase. |
+| `@beep/repo-cli/test/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commits and pushes reviewed staged changes. |
+| `@beep/repo-cli/test/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
+| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:251` | Return plan phases in execution order. |
+| `@beep/repo-cli/test/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:143` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/test/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:170` | Result returned by a yeet execution attempt. |
 
 ### @beep/ai-sync
 
@@ -3077,7 +3165,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/chalk/internal/AnsiStyles` | `StyleName` | type | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:83` | Any supported Chalk style name. |
 | `@beep/chalk/internal/AnsiStyles` | `StylerEntry` | class | `packages/foundation/capability/chalk/src/internal/AnsiStyles.ts:99` | Open and close ANSI escape sequences for a style. |
 | `@beep/chalk/internal/ChalkRuntime` | `ChalkState` | const | `packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts:29` |  |
-| `@beep/chalk/internal/ChalkRuntime` | `makeCreateChalk` | const | `packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts:316` | Create a Chalk instance factory from detected default color support. |
+| `@beep/chalk/internal/ChalkRuntime` | `makeCreateChalk` | const | `packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts:317` | Create a Chalk instance factory from detected default color support. |
 | `@beep/chalk/internal/ChalkSchema` | `BackgroundColorName` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:355` | Supported Chalk background color names. |
 | `@beep/chalk/internal/ChalkSchema` | `BackgroundColorName` | type | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:375` | Runtime type for {@link BackgroundColorName}. |
 | `@beep/chalk/internal/ChalkSchema` | `backgroundColorNameValues` | const | `packages/foundation/capability/chalk/src/internal/ChalkSchema.ts:105` | Supported background color names. |
@@ -4665,21 +4753,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web/rdf` | `Subject` | type | `packages/foundation/capability/semantic-web/src/rdf.ts:549` | Type for {@link Subject}. |
 | `@beep/semantic-web/rdf` | `Term` | const | `packages/foundation/capability/semantic-web/src/rdf.ts:476` | RDF term union. |
 | `@beep/semantic-web/rdf` | `Term` | type | `packages/foundation/capability/semantic-web/src/rdf.ts:513` | Type for {@link Term}. |
-| `@beep/semantic-web/semantic-schema-metadata` | `annotateSemanticSchema` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:345` | Attach validated semantic metadata to any Effect schema. |
-| `@beep/semantic-web/semantic-schema-metadata` | `getSemanticSchemaMetadata` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:426` | Read semantic metadata from any Effect schema, if present. |
-| `@beep/semantic-web/semantic-schema-metadata` | `makeSemanticSchemaMetadata` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:315` | Validate a metadata payload before attaching it to a public schema. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentation` | class | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:219` | Single representation note attached to semantic-web schemas. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentationKind` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:150` | Representation label for semantic-web values. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentationKind` | type | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:177` | Type for {@link SemanticRepresentationKind}. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadata` | class | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:242` | Typed metadata payload stored in the `semanticSchemaMetadata` annotation key. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataAnnotationPayload` | type | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:280` | Payload stored in the `semanticSchemaMetadata` annotation key. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataKind` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:36` | Closed v1 metadata kind domain for semantic-web schemas. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataKind` | type | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:65` | Type for {@link SemanticSchemaMetadataKind}. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecification` | class | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:192` | Single specification reference attached to public semantic-web schemas. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecificationDisposition` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:115` | Specification disposition attached to a semantic schema reference. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecificationDisposition` | type | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:135` | Type for {@link SemanticSchemaSpecificationDisposition}. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaStatus` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:80` | Stability classification for semantic-web schema metadata. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaStatus` | type | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:100` | Type for {@link SemanticSchemaStatus}. |
+| `@beep/semantic-web/semantic-schema-metadata` | `annotateSemanticSchema` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:346` | Attach validated semantic metadata to any Effect schema. |
+| `@beep/semantic-web/semantic-schema-metadata` | `getSemanticSchemaMetadata` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:427` | Read semantic metadata from any Effect schema, if present. |
+| `@beep/semantic-web/semantic-schema-metadata` | `makeSemanticSchemaMetadata` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:316` | Validate a metadata payload before attaching it to a public schema. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentation` | class | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:220` | Single representation note attached to semantic-web schemas. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentationKind` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:151` | Representation label for semantic-web values. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentationKind` | type | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:178` | Type for {@link SemanticRepresentationKind}. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadata` | class | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:243` | Typed metadata payload stored in the `semanticSchemaMetadata` annotation key. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataAnnotationPayload` | type | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:281` | Payload stored in the `semanticSchemaMetadata` annotation key. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataKind` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:37` | Closed v1 metadata kind domain for semantic-web schemas. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataKind` | type | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:66` | Type for {@link SemanticSchemaMetadataKind}. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecification` | class | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:193` | Single specification reference attached to public semantic-web schemas. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecificationDisposition` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:116` | Specification disposition attached to a semantic schema reference. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecificationDisposition` | type | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:136` | Type for {@link SemanticSchemaSpecificationDisposition}. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaStatus` | const | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:81` | Stability classification for semantic-web schema metadata. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaStatus` | type | `packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts:101` | Type for {@link SemanticSchemaStatus}. |
 | `@beep/semantic-web/services/canonicalization` | `CanonicalDatasetResult` | class | `packages/foundation/capability/semantic-web/src/services/canonicalization.ts:148` | Canonical dataset output. |
 | `@beep/semantic-web/services/canonicalization` | `CanonicalizationAlgorithm` | const | `packages/foundation/capability/semantic-web/src/services/canonicalization.ts:48` | Canonicalization algorithm name. |
 | `@beep/semantic-web/services/canonicalization` | `CanonicalizationError` | class | `packages/foundation/capability/semantic-web/src/services/canonicalization.ts:67` | Typed canonicalization error. |
@@ -6460,333 +6548,336 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1020` | Identity composer for `@beep/acp`. |
-| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:591` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:607` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1316` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1509` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1153` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1102` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1068` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1187` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1119` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1136` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1170` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1085` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:834` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:851` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:868` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1444` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1396` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1476` | Identity composer for `@beep/canvas`. |
-| `@beep/identity` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1428` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1460` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1412` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:499` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` | $codedank web id export. |
-| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:484` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:163` | Identity composer for the `@beep/data` package. |
-| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1300` | Identity composer for `@beep/discord`. |
-| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:751` | $drizzle id export. |
-| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:767` | $duckdb id export. |
-| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:576` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:783` | $face detection id export. |
-| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:799` | $ffmpeg id export. |
-| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1525` | Identity composer for `@beep/form`. |
-| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1348` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1021` | Identity composer for `@beep/acp`. |
+| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:592` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:608` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1317` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1510` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1154` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1103` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1069` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1188` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1120` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1137` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1171` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1086` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:835` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:852` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:869` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity` | `$BoxId` | const | `packages/foundation/modeling/identity/src/packages.ts:1542` | Identity composer for `@beep/box`. |
+| `@beep/identity` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1445` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1397` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1477` | Identity composer for `@beep/canvas`. |
+| `@beep/identity` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1429` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1461` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1413` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:500` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:720` | $codedank web id export. |
+| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:485` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:164` | Identity composer for the `@beep/data` package. |
+| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1301` | Identity composer for `@beep/discord`. |
+| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:752` | $drizzle id export. |
+| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:768` | $duckdb id export. |
+| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:577` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:784` | $face detection id export. |
+| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:800` | $ffmpeg id export. |
+| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1526` | Identity composer for `@beep/form`. |
+| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1349` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:887` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:904` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:921` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:938` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:178` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:529` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1221` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1252` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1236` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1380` | Identity composer for `@beep/konva`. |
-| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:623` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:703` | $md id export. |
-| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:193` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:454` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1541` | Identity composer for `@beep/nlp-mcp`. |
-| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:469` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:735` | $oip web id export. |
-| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1284` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1036` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1364` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | $postgres id export. |
-| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:655` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:671` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:272` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:287` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1493` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:302` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:514` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:317` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1268` | Identity composer for `@beep/runpod`. |
-| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:972` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1332` | Identity composer for `@beep/sanity`. |
-| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:208` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:955` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:439` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:379` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:424` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:349` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:394` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:364` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:409` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:544` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1206` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:332` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:223` | Identity composer for the `@beep/types` package. |
-| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:255` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:238` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:988` | $venice ai id export. |
-| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:639` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1557` | Identity composer for `@beep/wink`. |
-| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:561` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1052` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1004` | $xai id export. |
-| `@beep/identity` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:477` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
-| `@beep/identity` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:450` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
-| `@beep/identity` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:521` | Fully resolved identity annotation record applied to Effect schemas. |
-| `@beep/identity` | `IdentityAnnotationResult` | type | `packages/foundation/modeling/identity/src/Id.ts:543` | Result of calling `annote` -- the identity annotation merged with any caller-supplied extras, |
-| `@beep/identity` | `IdentityAnyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:500` | Union of all annotation extras accepted by the `annote` family of helpers. |
-| `@beep/identity` | `IdentityComposer` | interface | `packages/foundation/modeling/identity/src/Id.ts:624` | Composable identity builder for constructing hierarchical `@beep/` identity paths. |
-| `@beep/identity` | `IdentityInterpolationError` | class | `packages/foundation/modeling/identity/src/Id.ts:115` | Error thrown when an identity template tag receives interpolation values. |
-| `@beep/identity` | `IdentitySegmentCountError` | class | `packages/foundation/modeling/identity/src/Id.ts:146` | Error thrown when an identity template tag receives more or fewer than one literal segment. |
-| `@beep/identity` | `IdentityString` | type | `packages/foundation/modeling/identity/src/Id.ts:377` | Branded string type for identity values, preventing accidental use of raw strings. |
-| `@beep/identity` | `IdentitySymbol` | type | `packages/foundation/modeling/identity/src/Id.ts:394` | Branded symbol type for identity values, created via `Symbol.for` for interning. |
-| `@beep/identity` | `KeyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:432` | Annotation fields accepted by `annoteKey`, mirroring `S.Annotations.Key`. |
-| `@beep/identity` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1211` | Create a root identity composer for a `@beep` package namespace. |
-| `@beep/identity` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:345` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
-| `@beep/identity` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:327` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:687` | RepoPkgs - export object containing all package IdentityComposer's |
-| `@beep/identity` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:414` | Additional schema annotation fields that identity annotation helpers accept. |
-| `@beep/identity` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:199` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
-| `@beep/identity` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:362` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
-| `@beep/identity` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:576` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
-| `@beep/identity` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:287` | Derive a human-readable title from a kebab-case or snake_case identifier. |
-| `@beep/identity` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:180` | Current version of the `@beep/identity` package. |
-| `@beep/identity/Id` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:477` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
-| `@beep/identity/Id` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:450` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
-| `@beep/identity/Id` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:521` | Fully resolved identity annotation record applied to Effect schemas. |
-| `@beep/identity/Id` | `IdentityAnnotationResult` | type | `packages/foundation/modeling/identity/src/Id.ts:543` | Result of calling `annote` -- the identity annotation merged with any caller-supplied extras, |
-| `@beep/identity/Id` | `IdentityAnyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:500` | Union of all annotation extras accepted by the `annote` family of helpers. |
-| `@beep/identity/Id` | `IdentityComposer` | interface | `packages/foundation/modeling/identity/src/Id.ts:624` | Composable identity builder for constructing hierarchical `@beep/` identity paths. |
-| `@beep/identity/Id` | `IdentityInterpolationError` | class | `packages/foundation/modeling/identity/src/Id.ts:115` | Error thrown when an identity template tag receives interpolation values. |
-| `@beep/identity/Id` | `IdentitySegmentCountError` | class | `packages/foundation/modeling/identity/src/Id.ts:146` | Error thrown when an identity template tag receives more or fewer than one literal segment. |
-| `@beep/identity/Id` | `IdentityString` | type | `packages/foundation/modeling/identity/src/Id.ts:377` | Branded string type for identity values, preventing accidental use of raw strings. |
-| `@beep/identity/Id` | `IdentitySymbol` | type | `packages/foundation/modeling/identity/src/Id.ts:394` | Branded symbol type for identity values, created via `Symbol.for` for interning. |
-| `@beep/identity/Id` | `KeyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:432` | Annotation fields accepted by `annoteKey`, mirroring `S.Annotations.Key`. |
-| `@beep/identity/Id` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1211` | Create a root identity composer for a `@beep` package namespace. |
-| `@beep/identity/Id` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:345` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
-| `@beep/identity/Id` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:327` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity/Id` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:414` | Additional schema annotation fields that identity annotation helpers accept. |
-| `@beep/identity/Id` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:199` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
-| `@beep/identity/Id` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:362` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
-| `@beep/identity/Id` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:576` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
-| `@beep/identity/Id` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:287` | Derive a human-readable title from a kebab-case or snake_case identifier. |
-| `@beep/identity/Id` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:180` | Current version of the `@beep/identity` package. |
-| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1020` | Identity composer for `@beep/acp`. |
-| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:591` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:607` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1316` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/index` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1509` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1153` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1102` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1068` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1187` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1119` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1136` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1170` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1085` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:834` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:851` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:868` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/index` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1444` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity/index` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1396` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity/index` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1476` | Identity composer for `@beep/canvas`. |
-| `@beep/identity/index` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1428` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity/index` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1460` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity/index` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1412` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:499` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` | $codedank web id export. |
-| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:484` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:163` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1300` | Identity composer for `@beep/discord`. |
-| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:751` | $drizzle id export. |
-| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:767` | $duckdb id export. |
-| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:576` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:783` | $face detection id export. |
-| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:799` | $ffmpeg id export. |
-| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1525` | Identity composer for `@beep/form`. |
-| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1348` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:888` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:905` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:922` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:939` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:179` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:530` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1222` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1253` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1237` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1381` | Identity composer for `@beep/konva`. |
+| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:624` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:704` | $md id export. |
+| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:194` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:455` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1558` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:470` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:736` | $oip web id export. |
+| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1285` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1037` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1365` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:816` | $postgres id export. |
+| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:656` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:672` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:273` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:288` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1494` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:303` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:515` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:318` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1269` | Identity composer for `@beep/runpod`. |
+| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:973` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1333` | Identity composer for `@beep/sanity`. |
+| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:209` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:956` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:440` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:380` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:425` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:350` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:395` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:365` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:410` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:545` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1207` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:333` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:224` | Identity composer for the `@beep/types` package. |
+| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:256` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:239` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:989` | $venice ai id export. |
+| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:640` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1574` | Identity composer for `@beep/wink`. |
+| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:562` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1053` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1005` | $xai id export. |
+| `@beep/identity` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:478` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
+| `@beep/identity` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:451` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
+| `@beep/identity` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:522` | Fully resolved identity annotation record applied to Effect schemas. |
+| `@beep/identity` | `IdentityAnnotationResult` | type | `packages/foundation/modeling/identity/src/Id.ts:544` | Result of calling `annote` -- the identity annotation merged with any caller-supplied extras, |
+| `@beep/identity` | `IdentityAnyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:501` | Union of all annotation extras accepted by the `annote` family of helpers. |
+| `@beep/identity` | `IdentityComposer` | interface | `packages/foundation/modeling/identity/src/Id.ts:625` | Composable identity builder for constructing hierarchical `@beep/` identity paths. |
+| `@beep/identity` | `IdentityInterpolationError` | class | `packages/foundation/modeling/identity/src/Id.ts:116` | Error thrown when an identity template tag receives interpolation values. |
+| `@beep/identity` | `IdentitySegmentCountError` | class | `packages/foundation/modeling/identity/src/Id.ts:147` | Error thrown when an identity template tag receives more or fewer than one literal segment. |
+| `@beep/identity` | `IdentityString` | type | `packages/foundation/modeling/identity/src/Id.ts:378` | Branded string type for identity values, preventing accidental use of raw strings. |
+| `@beep/identity` | `IdentitySymbol` | type | `packages/foundation/modeling/identity/src/Id.ts:395` | Branded symbol type for identity values, created via `Symbol.for` for interning. |
+| `@beep/identity` | `KeyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:433` | Annotation fields accepted by `annoteKey`, mirroring `S.Annotations.Key`. |
+| `@beep/identity` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1212` | Create a root identity composer for a `@beep` package namespace. |
+| `@beep/identity` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:346` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
+| `@beep/identity` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:328` | Type-level constraint for module-safe identity segments. |
+| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:688` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:415` | Additional schema annotation fields that identity annotation helpers accept. |
+| `@beep/identity` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:200` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
+| `@beep/identity` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:363` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
+| `@beep/identity` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:577` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
+| `@beep/identity` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:288` | Derive a human-readable title from a kebab-case or snake_case identifier. |
+| `@beep/identity` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:181` | Current version of the `@beep/identity` package. |
+| `@beep/identity/Id` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:478` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
+| `@beep/identity/Id` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:451` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
+| `@beep/identity/Id` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:522` | Fully resolved identity annotation record applied to Effect schemas. |
+| `@beep/identity/Id` | `IdentityAnnotationResult` | type | `packages/foundation/modeling/identity/src/Id.ts:544` | Result of calling `annote` -- the identity annotation merged with any caller-supplied extras, |
+| `@beep/identity/Id` | `IdentityAnyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:501` | Union of all annotation extras accepted by the `annote` family of helpers. |
+| `@beep/identity/Id` | `IdentityComposer` | interface | `packages/foundation/modeling/identity/src/Id.ts:625` | Composable identity builder for constructing hierarchical `@beep/` identity paths. |
+| `@beep/identity/Id` | `IdentityInterpolationError` | class | `packages/foundation/modeling/identity/src/Id.ts:116` | Error thrown when an identity template tag receives interpolation values. |
+| `@beep/identity/Id` | `IdentitySegmentCountError` | class | `packages/foundation/modeling/identity/src/Id.ts:147` | Error thrown when an identity template tag receives more or fewer than one literal segment. |
+| `@beep/identity/Id` | `IdentityString` | type | `packages/foundation/modeling/identity/src/Id.ts:378` | Branded string type for identity values, preventing accidental use of raw strings. |
+| `@beep/identity/Id` | `IdentitySymbol` | type | `packages/foundation/modeling/identity/src/Id.ts:395` | Branded symbol type for identity values, created via `Symbol.for` for interning. |
+| `@beep/identity/Id` | `KeyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:433` | Annotation fields accepted by `annoteKey`, mirroring `S.Annotations.Key`. |
+| `@beep/identity/Id` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1212` | Create a root identity composer for a `@beep` package namespace. |
+| `@beep/identity/Id` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:346` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
+| `@beep/identity/Id` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:328` | Type-level constraint for module-safe identity segments. |
+| `@beep/identity/Id` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:415` | Additional schema annotation fields that identity annotation helpers accept. |
+| `@beep/identity/Id` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:200` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
+| `@beep/identity/Id` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:363` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
+| `@beep/identity/Id` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:577` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
+| `@beep/identity/Id` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:288` | Derive a human-readable title from a kebab-case or snake_case identifier. |
+| `@beep/identity/Id` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:181` | Current version of the `@beep/identity` package. |
+| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1021` | Identity composer for `@beep/acp`. |
+| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:592` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:608` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1317` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity/index` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1510` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1154` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1103` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1069` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1188` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1120` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1137` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1171` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1086` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:835` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:852` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:869` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/index` | `$BoxId` | const | `packages/foundation/modeling/identity/src/packages.ts:1542` | Identity composer for `@beep/box`. |
+| `@beep/identity/index` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1445` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity/index` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1397` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity/index` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1477` | Identity composer for `@beep/canvas`. |
+| `@beep/identity/index` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1429` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity/index` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1461` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity/index` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1413` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:500` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:720` | $codedank web id export. |
+| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:485` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:164` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1301` | Identity composer for `@beep/discord`. |
+| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:752` | $drizzle id export. |
+| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:768` | $duckdb id export. |
+| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:577` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:784` | $face detection id export. |
+| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:800` | $ffmpeg id export. |
+| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1526` | Identity composer for `@beep/form`. |
+| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1349` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/index` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:887` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:904` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:921` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:938` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:178` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:529` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/index` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1221` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity/index` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1252` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity/index` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1236` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity/index` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1380` | Identity composer for `@beep/konva`. |
-| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:623` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:703` | $md id export. |
-| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:193` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:454` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/index` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1541` | Identity composer for `@beep/nlp-mcp`. |
-| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:469` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:735` | $oip web id export. |
-| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1284` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1036` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1364` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | $postgres id export. |
-| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:655` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:671` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:272` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:287` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1493` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:302` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:514` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:317` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1268` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:972` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1332` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:208` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:955` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:439` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:379` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:424` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:349` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:394` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:364` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:409` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:544` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1206` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:332` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:223` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:255` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:238` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:988` | $venice ai id export. |
-| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:639` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/index` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1557` | Identity composer for `@beep/wink`. |
-| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:561` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1052` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1004` | $xai id export. |
-| `@beep/identity/index` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:477` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
-| `@beep/identity/index` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:450` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
-| `@beep/identity/index` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:521` | Fully resolved identity annotation record applied to Effect schemas. |
-| `@beep/identity/index` | `IdentityAnnotationResult` | type | `packages/foundation/modeling/identity/src/Id.ts:543` | Result of calling `annote` -- the identity annotation merged with any caller-supplied extras, |
-| `@beep/identity/index` | `IdentityAnyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:500` | Union of all annotation extras accepted by the `annote` family of helpers. |
-| `@beep/identity/index` | `IdentityComposer` | interface | `packages/foundation/modeling/identity/src/Id.ts:624` | Composable identity builder for constructing hierarchical `@beep/` identity paths. |
-| `@beep/identity/index` | `IdentityInterpolationError` | class | `packages/foundation/modeling/identity/src/Id.ts:115` | Error thrown when an identity template tag receives interpolation values. |
-| `@beep/identity/index` | `IdentitySegmentCountError` | class | `packages/foundation/modeling/identity/src/Id.ts:146` | Error thrown when an identity template tag receives more or fewer than one literal segment. |
-| `@beep/identity/index` | `IdentityString` | type | `packages/foundation/modeling/identity/src/Id.ts:377` | Branded string type for identity values, preventing accidental use of raw strings. |
-| `@beep/identity/index` | `IdentitySymbol` | type | `packages/foundation/modeling/identity/src/Id.ts:394` | Branded symbol type for identity values, created via `Symbol.for` for interning. |
-| `@beep/identity/index` | `KeyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:432` | Annotation fields accepted by `annoteKey`, mirroring `S.Annotations.Key`. |
-| `@beep/identity/index` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1211` | Create a root identity composer for a `@beep` package namespace. |
-| `@beep/identity/index` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:345` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
-| `@beep/identity/index` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:327` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:687` | RepoPkgs - export object containing all package IdentityComposer's |
-| `@beep/identity/index` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:414` | Additional schema annotation fields that identity annotation helpers accept. |
-| `@beep/identity/index` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:199` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
-| `@beep/identity/index` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:362` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
-| `@beep/identity/index` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:576` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
-| `@beep/identity/index` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:287` | Derive a human-readable title from a kebab-case or snake_case identifier. |
-| `@beep/identity/index` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:180` | Current version of the `@beep/identity` package. |
-| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1020` | Identity composer for `@beep/acp`. |
-| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:591` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:607` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1316` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/packages` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1509` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1153` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1102` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1068` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1187` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1119` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1136` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1170` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1085` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:834` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:851` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:868` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/packages` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1444` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity/packages` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1396` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity/packages` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1476` | Identity composer for `@beep/canvas`. |
-| `@beep/identity/packages` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1428` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity/packages` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1460` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity/packages` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1412` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:499` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:719` | $codedank web id export. |
-| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:484` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:163` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1300` | Identity composer for `@beep/discord`. |
-| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:751` | $drizzle id export. |
-| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:767` | $duckdb id export. |
-| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:576` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:783` | $face detection id export. |
-| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:799` | $ffmpeg id export. |
-| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1525` | Identity composer for `@beep/form`. |
-| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1348` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:888` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:905` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:922` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:939` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:179` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:530` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/index` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1222` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity/index` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1253` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity/index` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1237` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity/index` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1381` | Identity composer for `@beep/konva`. |
+| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:624` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:704` | $md id export. |
+| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:194` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:455` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/index` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1558` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:470` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:736` | $oip web id export. |
+| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1285` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1037` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1365` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:816` | $postgres id export. |
+| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:656` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:672` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:273` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:288` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1494` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:303` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:515` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:318` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1269` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:973` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1333` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:209` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:956` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:440` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:380` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:425` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:350` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:395` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:365` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:410` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:545` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1207` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:333` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:224` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:256` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:239` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:989` | $venice ai id export. |
+| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:640` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/index` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1574` | Identity composer for `@beep/wink`. |
+| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:562` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1053` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1005` | $xai id export. |
+| `@beep/identity/index` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:478` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
+| `@beep/identity/index` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:451` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
+| `@beep/identity/index` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:522` | Fully resolved identity annotation record applied to Effect schemas. |
+| `@beep/identity/index` | `IdentityAnnotationResult` | type | `packages/foundation/modeling/identity/src/Id.ts:544` | Result of calling `annote` -- the identity annotation merged with any caller-supplied extras, |
+| `@beep/identity/index` | `IdentityAnyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:501` | Union of all annotation extras accepted by the `annote` family of helpers. |
+| `@beep/identity/index` | `IdentityComposer` | interface | `packages/foundation/modeling/identity/src/Id.ts:625` | Composable identity builder for constructing hierarchical `@beep/` identity paths. |
+| `@beep/identity/index` | `IdentityInterpolationError` | class | `packages/foundation/modeling/identity/src/Id.ts:116` | Error thrown when an identity template tag receives interpolation values. |
+| `@beep/identity/index` | `IdentitySegmentCountError` | class | `packages/foundation/modeling/identity/src/Id.ts:147` | Error thrown when an identity template tag receives more or fewer than one literal segment. |
+| `@beep/identity/index` | `IdentityString` | type | `packages/foundation/modeling/identity/src/Id.ts:378` | Branded string type for identity values, preventing accidental use of raw strings. |
+| `@beep/identity/index` | `IdentitySymbol` | type | `packages/foundation/modeling/identity/src/Id.ts:395` | Branded symbol type for identity values, created via `Symbol.for` for interning. |
+| `@beep/identity/index` | `KeyAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:433` | Annotation fields accepted by `annoteKey`, mirroring `S.Annotations.Key`. |
+| `@beep/identity/index` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1212` | Create a root identity composer for a `@beep` package namespace. |
+| `@beep/identity/index` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:346` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
+| `@beep/identity/index` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:328` | Type-level constraint for module-safe identity segments. |
+| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:688` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/index` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:415` | Additional schema annotation fields that identity annotation helpers accept. |
+| `@beep/identity/index` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:200` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
+| `@beep/identity/index` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:363` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
+| `@beep/identity/index` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:577` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
+| `@beep/identity/index` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:288` | Derive a human-readable title from a kebab-case or snake_case identifier. |
+| `@beep/identity/index` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:181` | Current version of the `@beep/identity` package. |
+| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1021` | Identity composer for `@beep/acp`. |
+| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:592` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:608` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1317` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity/packages` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1510` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1154` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1103` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1069` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1188` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1120` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1137` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1171` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1086` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:835` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:852` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:869` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/packages` | `$BoxId` | const | `packages/foundation/modeling/identity/src/packages.ts:1542` | Identity composer for `@beep/box`. |
+| `@beep/identity/packages` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1445` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity/packages` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1397` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity/packages` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1477` | Identity composer for `@beep/canvas`. |
+| `@beep/identity/packages` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1429` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity/packages` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1461` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity/packages` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1413` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:500` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:720` | $codedank web id export. |
+| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:485` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:164` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1301` | Identity composer for `@beep/discord`. |
+| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:752` | $drizzle id export. |
+| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:768` | $duckdb id export. |
+| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:577` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:784` | $face detection id export. |
+| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:800` | $ffmpeg id export. |
+| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1526` | Identity composer for `@beep/form`. |
+| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1349` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/packages` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:887` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:904` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:921` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:938` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:178` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:529` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/packages` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1221` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity/packages` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1252` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity/packages` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1236` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity/packages` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1380` | Identity composer for `@beep/konva`. |
-| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:623` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:703` | $md id export. |
-| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:193` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:454` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/packages` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1541` | Identity composer for `@beep/nlp-mcp`. |
-| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:469` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:735` | $oip web id export. |
-| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1284` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1036` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1364` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:815` | $postgres id export. |
-| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:655` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:671` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:272` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:287` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1493` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:302` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:514` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:317` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1268` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:972` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1332` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:208` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:955` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:439` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:379` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:424` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:349` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:394` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:364` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:409` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:544` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1206` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:332` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:223` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:255` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:238` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:988` | $venice ai id export. |
-| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:639` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/packages` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1557` | Identity composer for `@beep/wink`. |
-| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:561` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1052` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1004` | $xai id export. |
-| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:687` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:888` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:905` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:922` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:939` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:179` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:530` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/packages` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1222` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity/packages` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1253` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity/packages` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1237` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity/packages` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1381` | Identity composer for `@beep/konva`. |
+| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:624` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:704` | $md id export. |
+| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:194` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:455` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/packages` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1558` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:470` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:736` | $oip web id export. |
+| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1285` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1037` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1365` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:816` | $postgres id export. |
+| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:656` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:672` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:273` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:288` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1494` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:303` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:515` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:318` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1269` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:973` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1333` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:209` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:956` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:440` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:380` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:425` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:350` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:395` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:365` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:410` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:545` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1207` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:333` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:224` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:256` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:239` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:989` | $venice ai id export. |
+| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:640` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/packages` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1574` | Identity composer for `@beep/wink`. |
+| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:562` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1053` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1005` | $xai id export. |
+| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:688` | RepoPkgs - export object containing all package IdentityComposer's |
 
 ### @beep/drizzle
 
@@ -6800,6 +6891,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/drizzle` | `DrizzleRows` | type | `packages/drivers/drizzle/src/Drizzle.service.ts:51` | Type for {@link DrizzleRows}. |
 | `@beep/drizzle` | `DrizzleShape` | interface | `packages/drivers/drizzle/src/Drizzle.service.ts:101` | Runtime shape exposed by the {@link Drizzle} service. |
 | `@beep/drizzle` | `EntityTable` | SourceFile | `packages/drivers/drizzle/src/EntityTable.models.ts:8` |  |
+
+### @beep/box
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/box` | `VERSION` | const | `packages/drivers/box/src/index.ts:14` | Current package version for the Box driver. |
+| `@beep/box/Box.config` | `BoxConfig` | class | `packages/drivers/box/src/Box.config.ts:35` | Box driver configuration service. |
+| `@beep/box/Box.config` | `BoxConfigShape` | class | `packages/drivers/box/src/Box.config.ts:20` | Runtime configuration required by the Box driver. |
+| `@beep/box/Box.config` | `layer` | const | `packages/drivers/box/src/Box.config.ts:43` | Live Box configuration layer backed by process configuration. |
+| `@beep/box/Box.config` | `layerConfig` | const | `packages/drivers/box/src/Box.config.ts:62` | Construct a Box configuration layer from an explicit token. |
+| `@beep/box/Box.errors` | `BoxError` | class | `packages/drivers/box/src/Box.errors.ts:35` | Typed Box driver error. |
+| `@beep/box/Box.errors` | `BoxErrorContextInfo` | class | `packages/drivers/box/src/Box.errors.ts:20` | Additional context supplied by Box API error payloads. |
+| `@beep/box/Box.service` | `BOX_SERVICE_IMPLEMENTATION_STATUS` | const | `packages/drivers/box/src/Box.service.ts:18` | Implementation status for the deferred Box service adapter. |
+| `@beep/box/index` | `VERSION` | const | `packages/drivers/box/src/index.ts:14` | Current package version for the Box driver. |
 
 ### @beep/openai-compat
 
@@ -7476,11 +7581,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:72` | Resolved BM25 hyperparameters used by vectorization and corpus management. |
 | `@beep/nlp/Core` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:37` | BM25 normalization mode used by vectorizer and corpus services. |
 | `@beep/nlp/Core` | `BM25Norm` | type | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:50` | Runtime TypeScript union decoded by {@link BM25Norm}. |
-| `@beep/nlp/Core` | `BracketStringToEntityPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:132` | Decode an entity bracket string into a pattern element. |
-| `@beep/nlp/Core` | `BracketStringToLiteralPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:163` | Decode a literal bracket string into a pattern element. |
-| `@beep/nlp/Core` | `BracketStringToPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:194` | Decode any supported bracket string element. |
-| `@beep/nlp/Core` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:217` | Runtime type for {@link BracketStringToPatternElement}. |
-| `@beep/nlp/Core` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:103` | Decode a POS bracket string into a pattern element. |
+| `@beep/nlp/Core` | `BracketStringToEntityPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:133` | Decode an entity bracket string into a pattern element. |
+| `@beep/nlp/Core` | `BracketStringToLiteralPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:164` | Decode a literal bracket string into a pattern element. |
+| `@beep/nlp/Core` | `BracketStringToPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:195` | Decode any supported bracket string element. |
+| `@beep/nlp/Core` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:218` | Runtime type for {@link BracketStringToPatternElement}. |
+| `@beep/nlp/Core` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:104` | Decode a POS bracket string into a pattern element. |
 | `@beep/nlp/Core` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:140` | Construct a branded character offset after validating it is non-negative. |
 | `@beep/nlp/Core` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:158` | Schema that decodes non-negative numbers into {@link CharPosition} values. |
 | `@beep/nlp/Core` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:108` | Zero-based character offset into the original source text. |
@@ -7501,9 +7606,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:117` | Create an entity pattern element. |
 | `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:118` |  |
 | `@beep/nlp/Core` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:119` |  |
-| `@beep/nlp/Core` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:327` | Tagged pattern element that matches named-entity alternatives. |
-| `@beep/nlp/Core` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:224` | Non-empty set of entity-type choices for one pattern slot. |
-| `@beep/nlp/Core` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:245` | Runtime type for {@link EntityPatternOption}. |
+| `@beep/nlp/Core` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:328` | Tagged pattern element that matches named-entity alternatives. |
+| `@beep/nlp/Core` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:225` | Non-empty set of entity-type choices for one pattern slot. |
+| `@beep/nlp/Core` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:246` | Runtime type for {@link EntityPatternOption}. |
 | `@beep/nlp/Core` | `extractBracketContent` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:89` | Create a bracket-string content slice if the input is bracketed. |
 | `@beep/nlp/Core` | `extractElementValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:74` | Extract element values as a readonly array. |
 | `@beep/nlp/Core` | `filterElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:514` | Filter pattern elements. |
@@ -7523,15 +7628,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:142` | Create a literal pattern element. |
 | `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:143` |  |
 | `@beep/nlp/Core` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:144` |  |
-| `@beep/nlp/Core` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:351` | Tagged pattern element that matches literal token text alternatives. |
-| `@beep/nlp/Core` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:265` | Non-empty set of literal token-text choices for one pattern slot. |
-| `@beep/nlp/Core` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:287` | Runtime type for {@link LiteralPatternOption}. |
+| `@beep/nlp/Core` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:352` | Tagged pattern element that matches literal token text alternatives. |
+| `@beep/nlp/Core` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:266` | Non-empty set of literal token-text choices for one pattern slot. |
+| `@beep/nlp/Core` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:288` | Runtime type for {@link LiteralPatternOption}. |
 | `@beep/nlp/Core` | `make` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:242` | Construct a pattern from an id and ordered elements. |
 | `@beep/nlp/Core` | `mapElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:493` | Map pattern elements. |
-| `@beep/nlp/Core` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Inclusive `[start, end]` element-index range selected by a pattern. |
-| `@beep/nlp/Core` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:470` | Runtime type for {@link MarkRange}. |
-| `@beep/nlp/Core` | `NamedEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:132` | Named-entity labels accepted by wink-backed entity pattern matching. |
-| `@beep/nlp/Core` | `NamedEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:153` | Runtime TypeScript union decoded by {@link NamedEntityType}. |
+| `@beep/nlp/Core` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:452` | Inclusive `[start, end]` element-index range selected by a pattern. |
+| `@beep/nlp/Core` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:471` | Runtime type for {@link MarkRange}. |
+| `@beep/nlp/Core` | `NamedEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:133` | Named-entity labels accepted by wink-backed entity pattern matching. |
+| `@beep/nlp/Core` | `NamedEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:154` | Runtime TypeScript union decoded by {@link NamedEntityType}. |
 | `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:189` | Create an optional entity pattern element. |
 | `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:190` |  |
 | `@beep/nlp/Core` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:191` |  |
@@ -7543,19 +7648,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:166` |  |
 | `@beep/nlp/Core` | `patchReplaceAllLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:676` | Replace all literal elements. |
 | `@beep/nlp/Core` | `patchReplaceLiteralAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:648` | Replace a literal element at a given index. |
-| `@beep/nlp/Core` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:498` | Ordered pattern of POS, entity, and literal slots with an optional mark. |
-| `@beep/nlp/Core` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:375` | Schema union for every pattern element variant supported by this package. |
-| `@beep/nlp/Core` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:394` | Runtime type for {@link PatternElement}. |
-| `@beep/nlp/Core` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:232` | Decode a string array into ordered pattern elements. |
-| `@beep/nlp/Core` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:410` | Non-empty identifier for a reusable pattern definition. |
-| `@beep/nlp/Core` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:430` | Runtime type for {@link PatternId}. |
+| `@beep/nlp/Core` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:499` | Ordered pattern of POS, entity, and literal slots with an optional mark. |
+| `@beep/nlp/Core` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:376` | Schema union for every pattern element variant supported by this package. |
+| `@beep/nlp/Core` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:395` | Runtime type for {@link PatternElement}. |
+| `@beep/nlp/Core` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:233` | Decode a string array into ordered pattern elements. |
+| `@beep/nlp/Core` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:411` | Non-empty identifier for a reusable pattern definition. |
+| `@beep/nlp/Core` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:431` | Runtime type for {@link PatternId}. |
 | `@beep/nlp/Core` | `PatternPatch` | type | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:599` | Functional patch over a pattern. |
 | `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:92` | Create a POS pattern element. |
 | `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:93` |  |
 | `@beep/nlp/Core` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:94` |  |
-| `@beep/nlp/Core` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:303` | Tagged pattern element that matches grammatical POS alternatives. |
-| `@beep/nlp/Core` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:187` | Non-empty set of POS choices for one pattern slot. |
-| `@beep/nlp/Core` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:208` | Runtime type for {@link POSPatternOption}. |
+| `@beep/nlp/Core` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:304` | Tagged pattern element that matches grammatical POS alternatives. |
+| `@beep/nlp/Core` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:188` | Non-empty set of POS choices for one pattern slot. |
+| `@beep/nlp/Core` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:209` | Runtime type for {@link POSPatternOption}. |
 | `@beep/nlp/Core` | `prependElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:324` | Prepend elements to a pattern. |
 | `@beep/nlp/Core` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:109` | Immutable sentence with its document token range and optional scoring data. |
 | `@beep/nlp/Core` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:52` | Construct a branded sentence index after validating it is non-negative. |
@@ -7578,8 +7683,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:101` | Tokenize text into tokens using the configured service. |
 | `@beep/nlp/Core` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:180` | Build a document using the configured service. |
 | `@beep/nlp/Core` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:64` | Weights controlling the asymmetric Tversky set similarity index. |
-| `@beep/nlp/Core` | `UniversalPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:95` | Universal part-of-speech tags accepted by wink-backed pattern matching. |
-| `@beep/nlp/Core` | `UniversalPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:116` | Runtime TypeScript union decoded by {@link UniversalPOSTag}. |
+| `@beep/nlp/Core` | `UniversalPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:96` | Universal part-of-speech tags accepted by wink-backed pattern matching. |
+| `@beep/nlp/Core` | `UniversalPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:117` | Runtime TypeScript union decoded by {@link UniversalPOSTag}. |
 | `@beep/nlp/Core` | `withId` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:345` | Replace the pattern id. |
 | `@beep/nlp/Core` | `withMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:264` | Add a mark range to a pattern. |
 | `@beep/nlp/Core` | `withoutMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:282` | Remove a mark range from a pattern. |
@@ -7595,11 +7700,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/index` | `BM25Config` | class | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:72` | Resolved BM25 hyperparameters used by vectorization and corpus management. |
 | `@beep/nlp/Core/index` | `BM25Norm` | const | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:37` | BM25 normalization mode used by vectorizer and corpus services. |
 | `@beep/nlp/Core/index` | `BM25Norm` | type | `packages/foundation/capability/nlp/src/Core/Vectorization.ts:50` | Runtime TypeScript union decoded by {@link BM25Norm}. |
-| `@beep/nlp/Core/index` | `BracketStringToEntityPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:132` | Decode an entity bracket string into a pattern element. |
-| `@beep/nlp/Core/index` | `BracketStringToLiteralPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:163` | Decode a literal bracket string into a pattern element. |
-| `@beep/nlp/Core/index` | `BracketStringToPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:194` | Decode any supported bracket string element. |
-| `@beep/nlp/Core/index` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:217` | Runtime type for {@link BracketStringToPatternElement}. |
-| `@beep/nlp/Core/index` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:103` | Decode a POS bracket string into a pattern element. |
+| `@beep/nlp/Core/index` | `BracketStringToEntityPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:133` | Decode an entity bracket string into a pattern element. |
+| `@beep/nlp/Core/index` | `BracketStringToLiteralPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:164` | Decode a literal bracket string into a pattern element. |
+| `@beep/nlp/Core/index` | `BracketStringToPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:195` | Decode any supported bracket string element. |
+| `@beep/nlp/Core/index` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:218` | Runtime type for {@link BracketStringToPatternElement}. |
+| `@beep/nlp/Core/index` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:104` | Decode a POS bracket string into a pattern element. |
 | `@beep/nlp/Core/index` | `charPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:140` | Construct a branded character offset after validating it is non-negative. |
 | `@beep/nlp/Core/index` | `CharPosition` | const | `packages/foundation/capability/nlp/src/Core/Token.ts:158` | Schema that decodes non-negative numbers into {@link CharPosition} values. |
 | `@beep/nlp/Core/index` | `CharPosition` | type | `packages/foundation/capability/nlp/src/Core/Token.ts:108` | Zero-based character offset into the original source text. |
@@ -7620,9 +7725,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:117` | Create an entity pattern element. |
 | `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:118` |  |
 | `@beep/nlp/Core/index` | `entity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:119` |  |
-| `@beep/nlp/Core/index` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:327` | Tagged pattern element that matches named-entity alternatives. |
-| `@beep/nlp/Core/index` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:224` | Non-empty set of entity-type choices for one pattern slot. |
-| `@beep/nlp/Core/index` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:245` | Runtime type for {@link EntityPatternOption}. |
+| `@beep/nlp/Core/index` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:328` | Tagged pattern element that matches named-entity alternatives. |
+| `@beep/nlp/Core/index` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:225` | Non-empty set of entity-type choices for one pattern slot. |
+| `@beep/nlp/Core/index` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:246` | Runtime type for {@link EntityPatternOption}. |
 | `@beep/nlp/Core/index` | `extractBracketContent` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:89` | Create a bracket-string content slice if the input is bracketed. |
 | `@beep/nlp/Core/index` | `extractElementValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:74` | Extract element values as a readonly array. |
 | `@beep/nlp/Core/index` | `filterElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:514` | Filter pattern elements. |
@@ -7642,15 +7747,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:142` | Create a literal pattern element. |
 | `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:143` |  |
 | `@beep/nlp/Core/index` | `literal` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:144` |  |
-| `@beep/nlp/Core/index` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:351` | Tagged pattern element that matches literal token text alternatives. |
-| `@beep/nlp/Core/index` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:265` | Non-empty set of literal token-text choices for one pattern slot. |
-| `@beep/nlp/Core/index` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:287` | Runtime type for {@link LiteralPatternOption}. |
+| `@beep/nlp/Core/index` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:352` | Tagged pattern element that matches literal token text alternatives. |
+| `@beep/nlp/Core/index` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:266` | Non-empty set of literal token-text choices for one pattern slot. |
+| `@beep/nlp/Core/index` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:288` | Runtime type for {@link LiteralPatternOption}. |
 | `@beep/nlp/Core/index` | `make` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:242` | Construct a pattern from an id and ordered elements. |
 | `@beep/nlp/Core/index` | `mapElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:493` | Map pattern elements. |
-| `@beep/nlp/Core/index` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Inclusive `[start, end]` element-index range selected by a pattern. |
-| `@beep/nlp/Core/index` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:470` | Runtime type for {@link MarkRange}. |
-| `@beep/nlp/Core/index` | `NamedEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:132` | Named-entity labels accepted by wink-backed entity pattern matching. |
-| `@beep/nlp/Core/index` | `NamedEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:153` | Runtime TypeScript union decoded by {@link NamedEntityType}. |
+| `@beep/nlp/Core/index` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:452` | Inclusive `[start, end]` element-index range selected by a pattern. |
+| `@beep/nlp/Core/index` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:471` | Runtime type for {@link MarkRange}. |
+| `@beep/nlp/Core/index` | `NamedEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:133` | Named-entity labels accepted by wink-backed entity pattern matching. |
+| `@beep/nlp/Core/index` | `NamedEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:154` | Runtime TypeScript union decoded by {@link NamedEntityType}. |
 | `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:189` | Create an optional entity pattern element. |
 | `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:190` |  |
 | `@beep/nlp/Core/index` | `optionalEntity` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:191` |  |
@@ -7662,19 +7767,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/index` | `optionalPos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:166` |  |
 | `@beep/nlp/Core/index` | `patchReplaceAllLiterals` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:676` | Replace all literal elements. |
 | `@beep/nlp/Core/index` | `patchReplaceLiteralAt` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:648` | Replace a literal element at a given index. |
-| `@beep/nlp/Core/index` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:498` | Ordered pattern of POS, entity, and literal slots with an optional mark. |
-| `@beep/nlp/Core/index` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:375` | Schema union for every pattern element variant supported by this package. |
-| `@beep/nlp/Core/index` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:394` | Runtime type for {@link PatternElement}. |
-| `@beep/nlp/Core/index` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:232` | Decode a string array into ordered pattern elements. |
-| `@beep/nlp/Core/index` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:410` | Non-empty identifier for a reusable pattern definition. |
-| `@beep/nlp/Core/index` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:430` | Runtime type for {@link PatternId}. |
+| `@beep/nlp/Core/index` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:499` | Ordered pattern of POS, entity, and literal slots with an optional mark. |
+| `@beep/nlp/Core/index` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:376` | Schema union for every pattern element variant supported by this package. |
+| `@beep/nlp/Core/index` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:395` | Runtime type for {@link PatternElement}. |
+| `@beep/nlp/Core/index` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:233` | Decode a string array into ordered pattern elements. |
+| `@beep/nlp/Core/index` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:411` | Non-empty identifier for a reusable pattern definition. |
+| `@beep/nlp/Core/index` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:431` | Runtime type for {@link PatternId}. |
 | `@beep/nlp/Core/index` | `PatternPatch` | type | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:599` | Functional patch over a pattern. |
 | `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:92` | Create a POS pattern element. |
 | `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:93` |  |
 | `@beep/nlp/Core/index` | `pos` | function | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:94` |  |
-| `@beep/nlp/Core/index` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:303` | Tagged pattern element that matches grammatical POS alternatives. |
-| `@beep/nlp/Core/index` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:187` | Non-empty set of POS choices for one pattern slot. |
-| `@beep/nlp/Core/index` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:208` | Runtime type for {@link POSPatternOption}. |
+| `@beep/nlp/Core/index` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:304` | Tagged pattern element that matches grammatical POS alternatives. |
+| `@beep/nlp/Core/index` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:188` | Non-empty set of POS choices for one pattern slot. |
+| `@beep/nlp/Core/index` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:209` | Runtime type for {@link POSPatternOption}. |
 | `@beep/nlp/Core/index` | `prependElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:324` | Prepend elements to a pattern. |
 | `@beep/nlp/Core/index` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:109` | Immutable sentence with its document token range and optional scoring data. |
 | `@beep/nlp/Core/index` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:52` | Construct a branded sentence index after validating it is non-negative. |
@@ -7697,31 +7802,31 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/index` | `tokenize` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:101` | Tokenize text into tokens using the configured service. |
 | `@beep/nlp/Core/index` | `tokenizeToDocument` | const | `packages/foundation/capability/nlp/src/Core/Tokenization.ts:180` | Build a document using the configured service. |
 | `@beep/nlp/Core/index` | `TverskyParams` | class | `packages/foundation/capability/nlp/src/Core/Similarity.ts:64` | Weights controlling the asymmetric Tversky set similarity index. |
-| `@beep/nlp/Core/index` | `UniversalPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:95` | Universal part-of-speech tags accepted by wink-backed pattern matching. |
-| `@beep/nlp/Core/index` | `UniversalPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:116` | Runtime TypeScript union decoded by {@link UniversalPOSTag}. |
+| `@beep/nlp/Core/index` | `UniversalPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:96` | Universal part-of-speech tags accepted by wink-backed pattern matching. |
+| `@beep/nlp/Core/index` | `UniversalPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:117` | Runtime TypeScript union decoded by {@link UniversalPOSTag}. |
 | `@beep/nlp/Core/index` | `withId` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:345` | Replace the pattern id. |
 | `@beep/nlp/Core/index` | `withMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:264` | Add a mark range to a pattern. |
 | `@beep/nlp/Core/index` | `withoutMark` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:282` | Remove a mark range from a pattern. |
-| `@beep/nlp/Core/Pattern` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:327` | Tagged pattern element that matches named-entity alternatives. |
-| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:224` | Non-empty set of entity-type choices for one pattern slot. |
-| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:245` | Runtime type for {@link EntityPatternOption}. |
-| `@beep/nlp/Core/Pattern` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:351` | Tagged pattern element that matches literal token text alternatives. |
-| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:265` | Non-empty set of literal token-text choices for one pattern slot. |
-| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:287` | Runtime type for {@link LiteralPatternOption}. |
-| `@beep/nlp/Core/Pattern` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:451` | Inclusive `[start, end]` element-index range selected by a pattern. |
-| `@beep/nlp/Core/Pattern` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:470` | Runtime type for {@link MarkRange}. |
-| `@beep/nlp/Core/Pattern` | `NamedEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:132` | Named-entity labels accepted by wink-backed entity pattern matching. |
-| `@beep/nlp/Core/Pattern` | `NamedEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:153` | Runtime TypeScript union decoded by {@link NamedEntityType}. |
-| `@beep/nlp/Core/Pattern` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:498` | Ordered pattern of POS, entity, and literal slots with an optional mark. |
-| `@beep/nlp/Core/Pattern` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:375` | Schema union for every pattern element variant supported by this package. |
-| `@beep/nlp/Core/Pattern` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:394` | Runtime type for {@link PatternElement}. |
-| `@beep/nlp/Core/Pattern` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:410` | Non-empty identifier for a reusable pattern definition. |
-| `@beep/nlp/Core/Pattern` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:430` | Runtime type for {@link PatternId}. |
-| `@beep/nlp/Core/Pattern` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:303` | Tagged pattern element that matches grammatical POS alternatives. |
-| `@beep/nlp/Core/Pattern` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:187` | Non-empty set of POS choices for one pattern slot. |
-| `@beep/nlp/Core/Pattern` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:208` | Runtime type for {@link POSPatternOption}. |
-| `@beep/nlp/Core/Pattern` | `UniversalPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:95` | Universal part-of-speech tags accepted by wink-backed pattern matching. |
-| `@beep/nlp/Core/Pattern` | `UniversalPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:116` | Runtime TypeScript union decoded by {@link UniversalPOSTag}. |
+| `@beep/nlp/Core/Pattern` | `EntityPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:328` | Tagged pattern element that matches named-entity alternatives. |
+| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:225` | Non-empty set of entity-type choices for one pattern slot. |
+| `@beep/nlp/Core/Pattern` | `EntityPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:246` | Runtime type for {@link EntityPatternOption}. |
+| `@beep/nlp/Core/Pattern` | `LiteralPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:352` | Tagged pattern element that matches literal token text alternatives. |
+| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:266` | Non-empty set of literal token-text choices for one pattern slot. |
+| `@beep/nlp/Core/Pattern` | `LiteralPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:288` | Runtime type for {@link LiteralPatternOption}. |
+| `@beep/nlp/Core/Pattern` | `MarkRange` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:452` | Inclusive `[start, end]` element-index range selected by a pattern. |
+| `@beep/nlp/Core/Pattern` | `MarkRange` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:471` | Runtime type for {@link MarkRange}. |
+| `@beep/nlp/Core/Pattern` | `NamedEntityType` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:133` | Named-entity labels accepted by wink-backed entity pattern matching. |
+| `@beep/nlp/Core/Pattern` | `NamedEntityType` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:154` | Runtime TypeScript union decoded by {@link NamedEntityType}. |
+| `@beep/nlp/Core/Pattern` | `Pattern` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:499` | Ordered pattern of POS, entity, and literal slots with an optional mark. |
+| `@beep/nlp/Core/Pattern` | `PatternElement` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:376` | Schema union for every pattern element variant supported by this package. |
+| `@beep/nlp/Core/Pattern` | `PatternElement` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:395` | Runtime type for {@link PatternElement}. |
+| `@beep/nlp/Core/Pattern` | `PatternId` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:411` | Non-empty identifier for a reusable pattern definition. |
+| `@beep/nlp/Core/Pattern` | `PatternId` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:431` | Runtime type for {@link PatternId}. |
+| `@beep/nlp/Core/Pattern` | `POSPatternElement` | class | `packages/foundation/capability/nlp/src/Core/Pattern.ts:304` | Tagged pattern element that matches grammatical POS alternatives. |
+| `@beep/nlp/Core/Pattern` | `POSPatternOption` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:188` | Non-empty set of POS choices for one pattern slot. |
+| `@beep/nlp/Core/Pattern` | `POSPatternOption` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:209` | Runtime type for {@link POSPatternOption}. |
+| `@beep/nlp/Core/Pattern` | `UniversalPOSTag` | const | `packages/foundation/capability/nlp/src/Core/Pattern.ts:96` | Universal part-of-speech tags accepted by wink-backed pattern matching. |
+| `@beep/nlp/Core/Pattern` | `UniversalPOSTag` | type | `packages/foundation/capability/nlp/src/Core/Pattern.ts:117` | Runtime TypeScript union decoded by {@link UniversalPOSTag}. |
 | `@beep/nlp/Core/PatternBuilders` | `addElements` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:303` | Append elements to a pattern. |
 | `@beep/nlp/Core/PatternBuilders` | `applyPatch` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:614` | Apply a patch to a pattern. |
 | `@beep/nlp/Core/PatternBuilders` | `combine` | const | `packages/foundation/capability/nlp/src/Core/PatternBuilders.ts:577` | Combine two patterns into a new one. |
@@ -7772,12 +7877,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Core/PatternOperations` | `isPOSElement` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:26` | Check whether an element is a POS element. |
 | `@beep/nlp/Core/PatternOperations` | `joinBracketValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:120` | Join values into bracket-string form. |
 | `@beep/nlp/Core/PatternOperations` | `splitBracketValues` | const | `packages/foundation/capability/nlp/src/Core/PatternOperations.ts:105` | Split bracket content into trimmed segments. |
-| `@beep/nlp/Core/PatternParsers` | `BracketStringToEntityPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:132` | Decode an entity bracket string into a pattern element. |
-| `@beep/nlp/Core/PatternParsers` | `BracketStringToLiteralPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:163` | Decode a literal bracket string into a pattern element. |
-| `@beep/nlp/Core/PatternParsers` | `BracketStringToPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:194` | Decode any supported bracket string element. |
-| `@beep/nlp/Core/PatternParsers` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:217` | Runtime type for {@link BracketStringToPatternElement}. |
-| `@beep/nlp/Core/PatternParsers` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:103` | Decode a POS bracket string into a pattern element. |
-| `@beep/nlp/Core/PatternParsers` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:232` | Decode a string array into ordered pattern elements. |
+| `@beep/nlp/Core/PatternParsers` | `BracketStringToEntityPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:133` | Decode an entity bracket string into a pattern element. |
+| `@beep/nlp/Core/PatternParsers` | `BracketStringToLiteralPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:164` | Decode a literal bracket string into a pattern element. |
+| `@beep/nlp/Core/PatternParsers` | `BracketStringToPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:195` | Decode any supported bracket string element. |
+| `@beep/nlp/Core/PatternParsers` | `BracketStringToPatternElement` | type | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:218` | Runtime type for {@link BracketStringToPatternElement}. |
+| `@beep/nlp/Core/PatternParsers` | `BracketStringToPOSPatternElement` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:104` | Decode a POS bracket string into a pattern element. |
+| `@beep/nlp/Core/PatternParsers` | `PatternFromString` | const | `packages/foundation/capability/nlp/src/Core/PatternParsers.ts:233` | Decode a string array into ordered pattern elements. |
 | `@beep/nlp/Core/Sentence` | `Sentence` | class | `packages/foundation/capability/nlp/src/Core/Sentence.ts:109` | Immutable sentence with its document token range and optional scoring data. |
 | `@beep/nlp/Core/Sentence` | `sentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:52` | Construct a branded sentence index after validating it is non-negative. |
 | `@beep/nlp/Core/Sentence` | `SentenceIndex` | const | `packages/foundation/capability/nlp/src/Core/Sentence.ts:70` | Schema that decodes non-negative numbers into {@link SentenceIndex} values. |
@@ -8509,7 +8614,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/repo-utils` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:391` | Apply a typed JSON Patch document to a package.json value. |
+| `@beep/repo-utils` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:392` | Apply a typed JSON Patch document to a package.json value. |
 | `@beep/repo-utils` | `buildRepoDependencyIndex` | const | `packages/tooling/library/repo-utils/src/DependencyIndex.ts:52` | Build a complete dependency index for the entire monorepo. |
 | `@beep/repo-utils` | `ByteLength` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:634` | Non-negative byte length schema. |
 | `@beep/repo-utils` | `ByteLength` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:652` | Branded non-negative byte length. |
@@ -8536,10 +8641,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `DependencyRecord` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:27` | A record mapping package names to version specifiers. |
 | `@beep/repo-utils` | `DependencyRecord` | type | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:47` | A record mapping package names to version specifiers. |
 | `@beep/repo-utils` | `detectCycles` | const | `packages/tooling/library/repo-utils/src/Graph.ts:150` | Detect all cycles in a directed dependency graph. |
-| `@beep/repo-utils` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:364` | Compute a typed JSON Patch diff between two package.json values. |
+| `@beep/repo-utils` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:365` | Compute a typed JSON Patch diff between two package.json values. |
 | `@beep/repo-utils` | `DomainError` | class | `packages/tooling/library/repo-utils/src/errors/DomainError.ts:32` | A generic domain-level error with an optional underlying cause. |
 | `@beep/repo-utils` | `emptyWorkspaceDeps` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:103` | Create an empty WorkspaceDeps for a given package name. |
-| `@beep/repo-utils` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:340` | Encode an unknown package.json value to a canonical pretty JSON string. |
+| `@beep/repo-utils` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:341` | Encode an unknown package.json value to a canonical pretty JSON string. |
 | `@beep/repo-utils` | `encodePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1403` | Encode a strict `PackageJson` value back to its encoded form as an Effect. |
 | `@beep/repo-utils` | `encodePackageJsonPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1445` | Encode a strict `PackageJson` value to a pretty-printed JSON string. |
 | `@beep/repo-utils` | `encodePackageJsonToJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1424` | Encode a strict `PackageJson` value to a compact JSON string as an Effect. |
@@ -8556,7 +8661,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `FsUtils` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:161` | Service tag for `FsUtils`. |
 | `@beep/repo-utils` | `FsUtilsLive` | const | `packages/tooling/library/repo-utils/src/FsUtils.ts:177` | Live layer for `FsUtils` that uses the platform `FileSystem` and `Path` |
 | `@beep/repo-utils` | `FsUtilsShape` | interface | `packages/tooling/library/repo-utils/src/FsUtils.ts:61` | Shape of the FsUtils service. |
-| `@beep/repo-utils` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:423` | Format a SchemaError into package.json validation issues with JSON Pointers. |
+| `@beep/repo-utils` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:424` | Format a SchemaError into package.json validation issues with JSON Pointers. |
 | `@beep/repo-utils` | `getWorkspaceDir` | const | `packages/tooling/library/repo-utils/src/Workspaces.ts:187` | Look up the absolute directory for a single workspace by package name. |
 | `@beep/repo-utils` | `GlobOptions` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:37` | Options for glob matching operations. |
 | `@beep/repo-utils` | `InternalTsMorphNode` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1092` | Internal runtime schema for a live ts-morph Node instance. |
@@ -8575,15 +8680,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils` | `makeSymbolId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1237` | Builds a stable `SymbolId` from validated symbol identity parts. |
 | `@beep/repo-utils` | `minhashSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:122` | Compute an `permutations`-length MinHash signature of a shingle set. Each slot |
 | `@beep/repo-utils` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:609` | Normalize a declaration to a structural signature that ignores formatting, |
-| `@beep/repo-utils` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:319` | Normalize an unknown package.json value into a canonical encoded object. |
+| `@beep/repo-utils` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:320` | Normalize an unknown package.json value into a canonical encoded object. |
 | `@beep/repo-utils` | `NoSuchFileError` | class | `packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts:32` | Raised when a required file or directory cannot be located. |
 | `@beep/repo-utils` | `NpmPackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:965` | Type-safe schema for npm package.json files. |
 | `@beep/repo-utils` | `NpmPackageJson` | namespace | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1007` | Namespace helpers for the strict npm package-json schema. |
-| `@beep/repo-utils` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:302` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
+| `@beep/repo-utils` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:303` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
 | `@beep/repo-utils` | `PackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:987` | Type-safe schema for this repo's package.json files. |
 | `@beep/repo-utils` | `PackageJson` | namespace | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1036` | Namespace helpers for the repo-aware package-json schema. |
-| `@beep/repo-utils` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:288` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
-| `@beep/repo-utils` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:265` | Structured package.json validation issue. |
+| `@beep/repo-utils` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:289` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
+| `@beep/repo-utils` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:266` | Structured package.json validation issue. |
 | `@beep/repo-utils` | `ProjectCacheKey` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:810` | Cache key schema for memoized ts-morph projects. |
 | `@beep/repo-utils` | `ProjectCacheKey` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:828` | Branded cache key for memoized ts-morph projects. |
 | `@beep/repo-utils` | `ProjectScopeId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:756` | Stable identity schema for a resolved ts-morph project scope. |
@@ -8721,7 +8826,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/Graph` | `computeTransitiveClosure` | const | `packages/tooling/library/repo-utils/src/Graph.ts:297` | Compute the transitive closure of dependencies for a single package. |
 | `@beep/repo-utils/Graph` | `detectCycles` | const | `packages/tooling/library/repo-utils/src/Graph.ts:150` | Detect all cycles in a directed dependency graph. |
 | `@beep/repo-utils/Graph` | `topologicalSort` | const | `packages/tooling/library/repo-utils/src/Graph.ts:100` | Compute a topological ordering (dependency-first build order) of packages |
-| `@beep/repo-utils/index` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:391` | Apply a typed JSON Patch document to a package.json value. |
+| `@beep/repo-utils/index` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:392` | Apply a typed JSON Patch document to a package.json value. |
 | `@beep/repo-utils/index` | `buildRepoDependencyIndex` | const | `packages/tooling/library/repo-utils/src/DependencyIndex.ts:52` | Build a complete dependency index for the entire monorepo. |
 | `@beep/repo-utils/index` | `ByteLength` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:634` | Non-negative byte length schema. |
 | `@beep/repo-utils/index` | `ByteLength` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:652` | Branded non-negative byte length. |
@@ -8748,10 +8853,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `DependencyRecord` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:27` | A record mapping package names to version specifiers. |
 | `@beep/repo-utils/index` | `DependencyRecord` | type | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:47` | A record mapping package names to version specifiers. |
 | `@beep/repo-utils/index` | `detectCycles` | const | `packages/tooling/library/repo-utils/src/Graph.ts:150` | Detect all cycles in a directed dependency graph. |
-| `@beep/repo-utils/index` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:364` | Compute a typed JSON Patch diff between two package.json values. |
+| `@beep/repo-utils/index` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:365` | Compute a typed JSON Patch diff between two package.json values. |
 | `@beep/repo-utils/index` | `DomainError` | class | `packages/tooling/library/repo-utils/src/errors/DomainError.ts:32` | A generic domain-level error with an optional underlying cause. |
 | `@beep/repo-utils/index` | `emptyWorkspaceDeps` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:103` | Create an empty WorkspaceDeps for a given package name. |
-| `@beep/repo-utils/index` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:340` | Encode an unknown package.json value to a canonical pretty JSON string. |
+| `@beep/repo-utils/index` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:341` | Encode an unknown package.json value to a canonical pretty JSON string. |
 | `@beep/repo-utils/index` | `encodePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1403` | Encode a strict `PackageJson` value back to its encoded form as an Effect. |
 | `@beep/repo-utils/index` | `encodePackageJsonPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1445` | Encode a strict `PackageJson` value to a pretty-printed JSON string. |
 | `@beep/repo-utils/index` | `encodePackageJsonToJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1424` | Encode a strict `PackageJson` value to a compact JSON string as an Effect. |
@@ -8768,7 +8873,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `FsUtils` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:161` | Service tag for `FsUtils`. |
 | `@beep/repo-utils/index` | `FsUtilsLive` | const | `packages/tooling/library/repo-utils/src/FsUtils.ts:177` | Live layer for `FsUtils` that uses the platform `FileSystem` and `Path` |
 | `@beep/repo-utils/index` | `FsUtilsShape` | interface | `packages/tooling/library/repo-utils/src/FsUtils.ts:61` | Shape of the FsUtils service. |
-| `@beep/repo-utils/index` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:423` | Format a SchemaError into package.json validation issues with JSON Pointers. |
+| `@beep/repo-utils/index` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:424` | Format a SchemaError into package.json validation issues with JSON Pointers. |
 | `@beep/repo-utils/index` | `getWorkspaceDir` | const | `packages/tooling/library/repo-utils/src/Workspaces.ts:187` | Look up the absolute directory for a single workspace by package name. |
 | `@beep/repo-utils/index` | `GlobOptions` | class | `packages/tooling/library/repo-utils/src/FsUtils.ts:37` | Options for glob matching operations. |
 | `@beep/repo-utils/index` | `InternalTsMorphNode` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1092` | Internal runtime schema for a live ts-morph Node instance. |
@@ -8787,15 +8892,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/index` | `makeSymbolId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:1237` | Builds a stable `SymbolId` from validated symbol identity parts. |
 | `@beep/repo-utils/index` | `minhashSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts:122` | Compute an `permutations`-length MinHash signature of a shingle set. Each slot |
 | `@beep/repo-utils/index` | `normalizedDeclarationSignature` | const | `packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts:609` | Normalize a declaration to a structural signature that ignores formatting, |
-| `@beep/repo-utils/index` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:319` | Normalize an unknown package.json value into a canonical encoded object. |
+| `@beep/repo-utils/index` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:320` | Normalize an unknown package.json value into a canonical encoded object. |
 | `@beep/repo-utils/index` | `NoSuchFileError` | class | `packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts:32` | Raised when a required file or directory cannot be located. |
 | `@beep/repo-utils/index` | `NpmPackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:965` | Type-safe schema for npm package.json files. |
 | `@beep/repo-utils/index` | `NpmPackageJson` | namespace | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1007` | Namespace helpers for the strict npm package-json schema. |
-| `@beep/repo-utils/index` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:302` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
+| `@beep/repo-utils/index` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:303` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
 | `@beep/repo-utils/index` | `PackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:987` | Type-safe schema for this repo's package.json files. |
 | `@beep/repo-utils/index` | `PackageJson` | namespace | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1036` | Namespace helpers for the repo-aware package-json schema. |
-| `@beep/repo-utils/index` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:288` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
-| `@beep/repo-utils/index` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:265` | Structured package.json validation issue. |
+| `@beep/repo-utils/index` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:289` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
+| `@beep/repo-utils/index` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:266` | Structured package.json validation issue. |
 | `@beep/repo-utils/index` | `ProjectCacheKey` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:810` | Cache key schema for memoized ts-morph projects. |
 | `@beep/repo-utils/index` | `ProjectCacheKey` | type | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:828` | Branded cache key for memoized ts-morph projects. |
 | `@beep/repo-utils/index` | `ProjectScopeId` | const | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts:756` | Stable identity schema for a resolved ts-morph project scope. |
@@ -9823,6 +9928,109 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/schemas/DocgenConfig` | `mergeManagedDocgenConfig` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:471` | Merge managed docgen fields into an existing parsed `docgen.json` document. |
 | `@beep/repo-utils/schemas/DocgenConfig` | `toCanonicalDocgenConfigJson` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:238` | Convert the canonical docgen config model to a plain JSON-compatible object. |
 | `@beep/repo-utils/schemas/DocgenConfig` | `toDocgenExamplesCompilerOptionsJson` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:192` | Convert canonical docgen compiler options to a plain JSON-compatible object. |
+| `@beep/repo-utils/schemas/index` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:392` | Apply a typed JSON Patch document to a package.json value. |
+| `@beep/repo-utils/schemas/index` | `Author` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:296` | The package author field. |
+| `@beep/repo-utils/schemas/index` | `Author` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1078` | Runtime type for {@link Author}. |
+| `@beep/repo-utils/schemas/index` | `Bin` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:413` | Schema for the `bin` field. |
+| `@beep/repo-utils/schemas/index` | `Bin` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1156` | Runtime type for {@link Bin}. |
+| `@beep/repo-utils/schemas/index` | `Browser` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:432` | Schema for the `browser` field. |
+| `@beep/repo-utils/schemas/index` | `Browser` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1169` | Runtime type for {@link Browser}. |
+| `@beep/repo-utils/schemas/index` | `Bugs` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:373` | Schema for the `bugs` field. |
+| `@beep/repo-utils/schemas/index` | `Bugs` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1130` | Runtime type for {@link Bugs}. |
+| `@beep/repo-utils/schemas/index` | `buildDocgenAliasSource` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:290` | Build docgen alias targets for one workspace package from its exports. |
+| `@beep/repo-utils/schemas/index` | `BundleDependencies` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:536` | Schema for the `bundleDependencies` / `bundledDependencies` fields. |
+| `@beep/repo-utils/schemas/index` | `BundleDependencies` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1221` | Runtime type for {@link BundleDependencies}. |
+| `@beep/repo-utils/schemas/index` | `CANONICAL_JSDOC_CATEGORIES` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:31` | Closed set of canonical `@category` values accepted by repo docgen checks. |
+| `@beep/repo-utils/schemas/index` | `CanonicalDocgenConfig` | class | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:163` | Canonical repo docgen config payload. |
+| `@beep/repo-utils/schemas/index` | `CanonicalDocgenConfigInput` | class | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:93` | Input used to build the canonical repo docgen config for a package. |
+| `@beep/repo-utils/schemas/index` | `CanonicalDocgenExamplesCompilerOptions` | class | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:117` | Managed TypeScript compiler options used for docgen examples. |
+| `@beep/repo-utils/schemas/index` | `collectDocgenWorkspaceDependencyNames` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:264` | Collect direct workspace package dependencies from a package manifest. |
+| `@beep/repo-utils/schemas/index` | `Contributors` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:315` | The package contributors field. |
+| `@beep/repo-utils/schemas/index` | `Contributors` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1091` | Runtime type for {@link Contributors}. |
+| `@beep/repo-utils/schemas/index` | `createCanonicalDocgenConfig` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:406` | Build the canonical repo docgen config for a package. |
+| `@beep/repo-utils/schemas/index` | `decodePackageJson` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1348` | Synchronously decode an unknown value into a strict `PackageJson`. |
+| `@beep/repo-utils/schemas/index` | `decodePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1383` | Decode an unknown value into a strict `PackageJson` as an Effect. |
+| `@beep/repo-utils/schemas/index` | `decodePackageJsonExit` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1366` | Synchronously decode an unknown value into a strict `PackageJson`, |
+| `@beep/repo-utils/schemas/index` | `decodeTSConfig` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1668` | Synchronously decode an unknown value into a strict `TSConfig`. |
+| `@beep/repo-utils/schemas/index` | `decodeTSConfigEffect` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1706` | Decode an unknown value into a strict `TSConfig` as an Effect. |
+| `@beep/repo-utils/schemas/index` | `decodeTSConfigExit` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1686` | Synchronously decode an unknown value into a strict `TSConfig`, |
+| `@beep/repo-utils/schemas/index` | `decodeTSConfigFromJsoncTextEffect` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1729` | Decode JSONC text into a strict `TSConfig`. |
+| `@beep/repo-utils/schemas/index` | `DEFAULT_DOCGEN_EXCLUDE` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:59` | Default docgen exclude globs for repo packages. |
+| `@beep/repo-utils/schemas/index` | `DependencyRecord` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:27` | A record mapping package names to version specifiers. |
+| `@beep/repo-utils/schemas/index` | `DependencyRecord` | type | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:47` | A record mapping package names to version specifiers. |
+| `@beep/repo-utils/schemas/index` | `DevEngineDependency` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:615` | Schema for a development environment requirement entry. |
+| `@beep/repo-utils/schemas/index` | `DevEngineDependency` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1260` | Runtime type for {@link DevEngineDependency}. |
+| `@beep/repo-utils/schemas/index` | `DevEngines` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:657` | Schema for the `devEngines` field. |
+| `@beep/repo-utils/schemas/index` | `DevEngines` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1273` | Runtime type for {@link DevEngines}. |
+| `@beep/repo-utils/schemas/index` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:365` | Compute a typed JSON Patch diff between two package.json values. |
+| `@beep/repo-utils/schemas/index` | `Directories` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:473` | Schema for the `directories` field. |
+| `@beep/repo-utils/schemas/index` | `Directories` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1182` | Runtime type for {@link Directories}. |
+| `@beep/repo-utils/schemas/index` | `DocgenAliasSource` | class | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:71` | Workspace alias metadata used to build docgen example path mappings. |
+| `@beep/repo-utils/schemas/index` | `emptyWorkspaceDeps` | const | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:103` | Create an empty WorkspaceDeps for a given package name. |
+| `@beep/repo-utils/schemas/index` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:341` | Encode an unknown package.json value to a canonical pretty JSON string. |
+| `@beep/repo-utils/schemas/index` | `encodePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1403` | Encode a strict `PackageJson` value back to its encoded form as an Effect. |
+| `@beep/repo-utils/schemas/index` | `encodePackageJsonPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1445` | Encode a strict `PackageJson` value to a pretty-printed JSON string. |
+| `@beep/repo-utils/schemas/index` | `encodePackageJsonToJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1424` | Encode a strict `PackageJson` value to a compact JSON string as an Effect. |
+| `@beep/repo-utils/schemas/index` | `encodeTSConfigEffect` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1753` | Encode a strict `TSConfig` value back to its encoded form as an Effect. |
+| `@beep/repo-utils/schemas/index` | `encodeTSConfigPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1795` | Encode a strict `TSConfig` value to a pretty-printed JSON string. |
+| `@beep/repo-utils/schemas/index` | `encodeTSConfigToJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1774` | Encode a strict `TSConfig` value to a compact JSON string as an Effect. |
+| `@beep/repo-utils/schemas/index` | `Funding` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:393` | Schema for the `funding` field. |
+| `@beep/repo-utils/schemas/index` | `Funding` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1143` | Runtime type for {@link Funding}. |
+| `@beep/repo-utils/schemas/index` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:424` | Format a SchemaError into package.json validation issues with JSON Pointers. |
+| `@beep/repo-utils/schemas/index` | `isAcceptedJSDocCategory` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:452` | Return true when a category is canonical or accepted as a migration alias. |
+| `@beep/repo-utils/schemas/index` | `isCanonicalJSDocCategory` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:348` | Check whether a string is already a canonical category slug. |
+| `@beep/repo-utils/schemas/index` | `isExcludedTypeScriptSourcePath` | const | `packages/tooling/library/repo-utils/src/schemas/TypeScriptSourceExclusions.ts:84` | Check whether a TypeScript source path should be excluded from lint traversals. |
+| `@beep/repo-utils/schemas/index` | `JSDocCategory` | type | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:126` | Canonical category literal used by `@category` JSDoc tags. |
+| `@beep/repo-utils/schemas/index` | `JSDocCategoryNormalization` | class | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:171` | Normalized interpretation of a single `@category` tag value. |
+| `@beep/repo-utils/schemas/index` | `JSDocCategoryNormalizationStatus` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:140` | Normalization status for an observed `@category` value. |
+| `@beep/repo-utils/schemas/index` | `JSDocCategoryNormalizationStatus` | type | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:157` | Normalization status for an observed `@category` value. |
+| `@beep/repo-utils/schemas/index` | `Maintainers` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:334` | The package maintainers field. |
+| `@beep/repo-utils/schemas/index` | `Maintainers` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1104` | Runtime type for {@link Maintainers}. |
+| `@beep/repo-utils/schemas/index` | `Man` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:498` | Schema for the `man` field. |
+| `@beep/repo-utils/schemas/index` | `Man` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1195` | Runtime type for {@link Man}. |
+| `@beep/repo-utils/schemas/index` | `mergeManagedDocgenConfig` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:471` | Merge managed docgen fields into an existing parsed `docgen.json` document. |
+| `@beep/repo-utils/schemas/index` | `normalizeJSDocCategory` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:365` | Normalize and classify a single observed `@category` value. |
+| `@beep/repo-utils/schemas/index` | `normalizeJSDocCategoryKey` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:295` | Normalize free-form category text to the repo slug key format. |
+| `@beep/repo-utils/schemas/index` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:320` | Normalize an unknown package.json value into a canonical encoded object. |
+| `@beep/repo-utils/schemas/index` | `NpmPackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:965` | Type-safe schema for npm package.json files. |
+| `@beep/repo-utils/schemas/index` | `NpmPackageJson` | namespace | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1007` | Namespace helpers for the strict npm package-json schema. |
+| `@beep/repo-utils/schemas/index` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:303` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
+| `@beep/repo-utils/schemas/index` | `PackageExports` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:725` | Schema for the `exports` field. |
+| `@beep/repo-utils/schemas/index` | `PackageExports` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1286` | Runtime type for {@link PackageExports}. |
+| `@beep/repo-utils/schemas/index` | `PackageImports` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:797` | Schema for the `imports` field. |
+| `@beep/repo-utils/schemas/index` | `PackageImports` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1299` | Runtime type for {@link PackageImports}. |
+| `@beep/repo-utils/schemas/index` | `PackageJson` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:987` | Type-safe schema for this repo's package.json files. |
+| `@beep/repo-utils/schemas/index` | `PackageJson` | namespace | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1036` | Namespace helpers for the repo-aware package-json schema. |
+| `@beep/repo-utils/schemas/index` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:289` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
+| `@beep/repo-utils/schemas/index` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:266` | Structured package.json validation issue. |
+| `@beep/repo-utils/schemas/index` | `PeerDependenciesMeta` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:555` | Schema for the `peerDependenciesMeta` field. |
+| `@beep/repo-utils/schemas/index` | `PeerDependenciesMeta` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1234` | Runtime type for {@link PeerDependenciesMeta}. |
+| `@beep/repo-utils/schemas/index` | `Person` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:276` | A person involved with the package, represented as a string or structured object. |
+| `@beep/repo-utils/schemas/index` | `Person` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1065` | Runtime type for {@link Person}. |
+| `@beep/repo-utils/schemas/index` | `PublishConfig` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:875` | Schema for the `publishConfig` field. |
+| `@beep/repo-utils/schemas/index` | `PublishConfig` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1325` | Runtime type for {@link PublishConfig}. |
+| `@beep/repo-utils/schemas/index` | `Repository` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:353` | Schema for the `repository` field. |
+| `@beep/repo-utils/schemas/index` | `Repository` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1117` | Runtime type for {@link Repository}. |
+| `@beep/repo-utils/schemas/index` | `SideEffects` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:517` | Schema for the `sideEffects` field. |
+| `@beep/repo-utils/schemas/index` | `SideEffects` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1208` | Runtime type for {@link SideEffects}. |
+| `@beep/repo-utils/schemas/index` | `toCanonicalDocgenConfigJson` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:238` | Convert the canonical docgen config model to a plain JSON-compatible object. |
+| `@beep/repo-utils/schemas/index` | `toDocgenExamplesCompilerOptionsJson` | const | `packages/tooling/library/repo-utils/src/schemas/DocgenConfig.ts:192` | Convert canonical docgen compiler options to a plain JSON-compatible object. |
+| `@beep/repo-utils/schemas/index` | `toPosixPath` | const | `packages/tooling/library/repo-utils/src/schemas/TypeScriptSourceExclusions.ts:70` | Normalize filesystem paths to POSIX separators before string matching. |
+| `@beep/repo-utils/schemas/index` | `TSConfig` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1597` | Strict TypeScript tsconfig document schema. |
+| `@beep/repo-utils/schemas/index` | `TSConfig` | namespace | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1618` | Namespace helpers for the strict tsconfig schema. |
+| `@beep/repo-utils/schemas/index` | `TSConfigBuildOptions` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1343` | Strict TypeScript buildOptions section. |
+| `@beep/repo-utils/schemas/index` | `TSConfigCompilerOptions` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1236` | Strict TypeScript compilerOptions section. |
+| `@beep/repo-utils/schemas/index` | `TSConfigReference` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:488` | Project reference entry for tsconfig `references`. |
+| `@beep/repo-utils/schemas/index` | `TSConfigTypeAcquisition` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1379` | Strict TypeScript typeAcquisition section. |
+| `@beep/repo-utils/schemas/index` | `TSConfigWatchOptions` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1296` | Strict TypeScript watchOptions section. |
+| `@beep/repo-utils/schemas/index` | `TSNodeConfig` | class | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1483` | Strict ts-node config section stored under `ts-node`. |
+| `@beep/repo-utils/schemas/index` | `TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS` | const | `packages/tooling/library/repo-utils/src/schemas/TypeScriptSourceExclusions.ts:19` | Path segments excluded from TypeScript source lint traversals. |
+| `@beep/repo-utils/schemas/index` | `TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES` | const | `packages/tooling/library/repo-utils/src/schemas/TypeScriptSourceExclusions.ts:47` | File suffixes excluded from TypeScript source lint traversals. |
+| `@beep/repo-utils/schemas/index` | `TypesVersions` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:577` | Schema for the `typesVersions` field. |
+| `@beep/repo-utils/schemas/index` | `TypesVersions` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1247` | Runtime type for {@link TypesVersions}. |
+| `@beep/repo-utils/schemas/index` | `WorkspaceDeps` | class | `packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts:77` | Classified dependencies for a single workspace package. |
+| `@beep/repo-utils/schemas/index` | `Workspaces` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:855` | Schema for the `workspaces` field. |
+| `@beep/repo-utils/schemas/index` | `Workspaces` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1312` | Runtime type for {@link Workspaces}. |
 | `@beep/repo-utils/schemas/JSDocCategories` | `CANONICAL_JSDOC_CATEGORIES` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:31` | Closed set of canonical `@category` values accepted by repo docgen checks. |
 | `@beep/repo-utils/schemas/JSDocCategories` | `isAcceptedJSDocCategory` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:452` | Return true when a category is canonical or accepted as a migration alias. |
 | `@beep/repo-utils/schemas/JSDocCategories` | `isCanonicalJSDocCategory` | const | `packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts:348` | Check whether a string is already a canonical category slug. |
@@ -9884,14 +10092,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-utils/schemas/PackageJson` | `TypesVersions` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1247` | Runtime type for {@link TypesVersions}. |
 | `@beep/repo-utils/schemas/PackageJson` | `Workspaces` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:855` | Schema for the `workspaces` field. |
 | `@beep/repo-utils/schemas/PackageJson` | `Workspaces` | type | `packages/tooling/library/repo-utils/src/schemas/PackageJson.ts:1312` | Runtime type for {@link Workspaces}. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:391` | Apply a typed JSON Patch document to a package.json value. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:364` | Compute a typed JSON Patch diff between two package.json values. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:340` | Encode an unknown package.json value to a canonical pretty JSON string. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:423` | Format a SchemaError into package.json validation issues with JSON Pointers. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:319` | Normalize an unknown package.json value into a canonical encoded object. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:302` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:288` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
-| `@beep/repo-utils/schemas/PackageJsonTools` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:265` | Structured package.json validation issue. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `applyPackageJsonPatchEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:392` | Apply a typed JSON Patch document to a package.json value. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `diffPackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:365` | Compute a typed JSON Patch diff between two package.json values. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `encodePackageJsonCanonicalPrettyEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:341` | Encode an unknown package.json value to a canonical pretty JSON string. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `getPackageJsonSchemaIssues` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:424` | Format a SchemaError into package.json validation issues with JSON Pointers. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `normalizePackageJsonEffect` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:320` | Normalize an unknown package.json value into a canonical encoded object. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `npmPackageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:303` | Draft 2020-12 JSON Schema document for the npm-only package.json schema. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `packageJsonJsonSchema` | const | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:289` | Draft 2020-12 JSON Schema document for the repo-aware package.json schema. |
+| `@beep/repo-utils/schemas/PackageJsonTools` | `PackageJsonValidationIssue` | class | `packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts:266` | Structured package.json validation issue. |
 | `@beep/repo-utils/schemas/TSConfig` | `decodeTSConfig` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1668` | Synchronously decode an unknown value into a strict `TSConfig`. |
 | `@beep/repo-utils/schemas/TSConfig` | `decodeTSConfigEffect` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1706` | Decode an unknown value into a strict `TSConfig` as an Effect. |
 | `@beep/repo-utils/schemas/TSConfig` | `decodeTSConfigExit` | const | `packages/tooling/library/repo-utils/src/schemas/TSConfig.ts:1686` | Synchronously decode an unknown value into a strict `TSConfig`, |
@@ -10188,7 +10396,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `BigDecimalFromNumber` | const | `packages/foundation/modeling/schema/src/BigDecimal.ts:33` | Schema that decodes a number into an Effect `BigDecimal` and encodes a |
 | `@beep/schema` | `BuffEncoding` | const | `packages/foundation/modeling/schema/src/BufferEncoding.ts:27` | Schema for Node.js `BufferEncoding` string literals (`"utf8"`, `"hex"`, `"base64"`, etc.). |
 | `@beep/schema` | `BufferEncoding` | type | `packages/foundation/modeling/schema/src/BufferEncoding.ts:59` | {@inheritDoc BuffEncoding} |
-| `@beep/schema` | `CauseTaggedError` | const | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:507` | Create a tagged error class that always carries a `message` and required defect `cause`. |
+| `@beep/schema` | `CauseTaggedError` | const | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:508` | Create a tagged error class that always carries a `message` and required defect `cause`. |
 | `@beep/schema` | `CauseTaggedErrorConstructor` | type | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:249` | Callable constructor for creating cause-tagged error class factories. |
 | `@beep/schema` | `CauseTaggedErrorFactory` | interface | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:210` | Factory returned by {@link CauseTaggedError} after an identity namespace has been selected. |
 | `@beep/schema` | `CauseTaggedErrorWithStatics` | type | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:164` | Tagged error class returned by {@link CauseTaggedError}, including dual construction helpers. |
@@ -10471,7 +10679,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema` | `NormalizedBooleanString` | type | `packages/foundation/modeling/schema/src/CommonTextSchemas.ts:148` | Type for {@link NormalizedBooleanString}. |
 | `@beep/schema` | `NormalizeHexColor` | const | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:173` | Canonicalization schema from boundary hex input to canonical hex output. |
 | `@beep/schema` | `NormalizeHexColor` | type | `packages/foundation/modeling/schema/src/Color/Color.hex.ts:192` | Type for {@link NormalizeHexColor}. |
-| `@beep/schema` | `normalizePath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:100` | Normalize a file-system path string to POSIX separators. |
+| `@beep/schema` | `normalizePath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:101` | Normalize a file-system path string to POSIX separators. |
 | `@beep/schema` | `NullableStr` | const | `packages/foundation/modeling/schema/src/String.ts:104` | A nullable string schema that accepts `string \| null`. |
 | `@beep/schema` | `NullableStr` | type | `packages/foundation/modeling/schema/src/String.ts:124` | Type for {@link NullableStr}. |
 | `@beep/schema` | `OklchChroma` | const | `packages/foundation/modeling/schema/src/Color/Color.oklch.ts:201` | Canonical OKLCH chroma component. |
@@ -10662,7 +10870,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/CardinalDirection` | `CardinalDirectionAbbrev` | type | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:65` | {@inheritDoc CardinalDirectionAbbrev} |
 | `@beep/schema/CardinalDirection` | `Schema` | const | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:27` | Cardinal direction literal schema. |
 | `@beep/schema/CardinalDirection` | `Schema` | type | `packages/foundation/modeling/schema/src/CardinalDirection/CardinalDirection.schema.ts:38` | {@inheritDoc CardinalDirection} |
-| `@beep/schema/CauseTaggedError` | `CauseTaggedError` | const | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:507` | Create a tagged error class that always carries a `message` and required defect `cause`. |
+| `@beep/schema/CauseTaggedError` | `CauseTaggedError` | const | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:508` | Create a tagged error class that always carries a `message` and required defect `cause`. |
 | `@beep/schema/CauseTaggedError` | `CauseTaggedErrorConstructor` | type | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:249` | Callable constructor for creating cause-tagged error class factories. |
 | `@beep/schema/CauseTaggedError` | `CauseTaggedErrorFactory` | interface | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:210` | Factory returned by {@link CauseTaggedError} after an identity namespace has been selected. |
 | `@beep/schema/CauseTaggedError` | `CauseTaggedErrorWithStatics` | type | `packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts:164` | Tagged error class returned by {@link CauseTaggedError}, including dual construction helpers. |
@@ -11662,7 +11870,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/PermittedCrossDomainPolicies` | `Value` | const | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:45` | Schema for allowed `X-Permitted-Cross-Domain-Policies` values. |
 | `@beep/schema/PermittedCrossDomainPolicies` | `Value` | type | `packages/foundation/modeling/schema/src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:58` | Type for allowed `X-Permitted-Cross-Domain-Policies` values. |
 | `@beep/schema/PosixPath` | `NativePathToPosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:68` | Schema transformation that converts native file-system paths (with backslashes) to POSIX separators. |
-| `@beep/schema/PosixPath` | `normalizePath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:100` | Normalize a file-system path string to POSIX separators. |
+| `@beep/schema/PosixPath` | `normalizePath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:101` | Normalize a file-system path string to POSIX separators. |
 | `@beep/schema/PosixPath` | `PosixPath` | const | `packages/foundation/modeling/schema/src/PosixPath.ts:31` | Branded schema for path strings using only POSIX `/` separators. |
 | `@beep/schema/PosixPath` | `PosixPath` | type | `packages/foundation/modeling/schema/src/PosixPath.ts:51` | Type for {@link PosixPath}. |
 | `@beep/schema/Primitive` | `Primitive` | const | `packages/foundation/modeling/schema/src/Primitive.ts:28` | Schema for JavaScript primitive types (`string \| number \| boolean \| bigint \| null \| undefined`). |
@@ -12337,16 +12545,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/observability` | `BadRequestError` | class | `packages/foundation/capability/observability/src/HttpError.ts:154` | 400 tagged error. |
 | `@beep/observability` | `BannerMode` | const | `packages/foundation/capability/observability/src/Logging.ts:122` | Banner render modes for startup and phase summaries: `"off"`, `"startup"`, `"phase"`, or `"all"`. |
 | `@beep/observability` | `BannerMode` | type | `packages/foundation/capability/observability/src/Logging.ts:142` | Runtime type for {@link BannerMode}. |
-| `@beep/observability` | `CauseClassification` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:55` | High-level classification for a full Effect cause. |
-| `@beep/observability` | `CauseClassification` | type | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:75` | Runtime type for {@link CauseClassification}. |
-| `@beep/observability` | `CauseFingerprint` | class | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:126` | Deterministic string fingerprint for a cause, useful for deduplication and grouping. |
-| `@beep/observability` | `CauseSummary` | type | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:191` | Type of {@link CauseSummary} |
-| `@beep/observability` | `classifyCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:402` | Classify a cause by its reason makeup into a single {@link CauseClassification} label. |
+| `@beep/observability` | `CauseClassification` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:56` | High-level classification for a full Effect cause. |
+| `@beep/observability` | `CauseClassification` | type | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:76` | Runtime type for {@link CauseClassification}. |
+| `@beep/observability` | `CauseFingerprint` | class | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:127` | Deterministic string fingerprint for a cause, useful for deduplication and grouping. |
+| `@beep/observability` | `CauseSummary` | type | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:192` | Type of {@link CauseSummary} |
+| `@beep/observability` | `classifyCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:403` | Classify a cause by its reason makeup into a single {@link CauseClassification} label. |
 | `@beep/observability` | `ClientHttpError` | class | `packages/foundation/capability/observability/src/HttpError.ts:89` | Shared tagged error for 4xx HTTP responses with `Warn` severity. |
 | `@beep/observability` | `ConflictError` | class | `packages/foundation/capability/observability/src/HttpError.ts:258` | 409 tagged error. |
-| `@beep/observability` | `ExitOutcome` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:90` | High-level classification for an exit: `"success"` or `"failure"`. |
-| `@beep/observability` | `ExitOutcome` | type | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:110` | Runtime type for {@link ExitOutcome}. |
-| `@beep/observability` | `fingerprintCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:422` | Generate a deterministic fingerprint for a cause. |
+| `@beep/observability` | `ExitOutcome` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:91` | High-level classification for an exit: `"success"` or `"failure"`. |
+| `@beep/observability` | `ExitOutcome` | type | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:111` | Runtime type for {@link ExitOutcome}. |
+| `@beep/observability` | `fingerprintCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:423` | Generate a deterministic fingerprint for a cause. |
 | `@beep/observability` | `ForbiddenError` | class | `packages/foundation/capability/observability/src/HttpError.ts:206` | 403 tagged error. |
 | `@beep/observability` | `GatewayTimeoutError` | class | `packages/foundation/capability/observability/src/HttpError.ts:414` | 504 tagged error. |
 | `@beep/observability` | `InternalServerErrorError` | class | `packages/foundation/capability/observability/src/HttpError.ts:336` | 500 tagged error. |
@@ -12383,63 +12591,63 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/observability` | `ObservedErrorWithStack` | type | `packages/foundation/capability/observability/src/Observed.ts:98` | Runtime type for {@link ObservedErrorWithStack}. |
 | `@beep/observability` | `ObservedExit` | const | `packages/foundation/capability/observability/src/Observed.ts:259` | A transport-safe schema for exits carrying unknown success values. |
 | `@beep/observability` | `ObservedExit` | type | `packages/foundation/capability/observability/src/Observed.ts:279` | Runtime type for {@link ObservedExit}. |
-| `@beep/observability` | `ObservedExitSummary` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:255` | Summary of an observed Effect exit including outcome classification and cause analysis. |
-| `@beep/observability` | `ObservedExitSummary` | type | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:275` | Type of {@link ObservedExitSummary} |
+| `@beep/observability` | `ObservedExitSummary` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:256` | Summary of an observed Effect exit including outcome classification and cause analysis. |
+| `@beep/observability` | `ObservedExitSummary` | type | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:276` | Type of {@link ObservedExitSummary} |
 | `@beep/observability` | `observeHttpRequest` | const | `packages/foundation/capability/observability/src/Metric.ts:487` | Observes HTTP request duration and status metrics for an Effect. |
 | `@beep/observability` | `observeWorkflow` | const | `packages/foundation/capability/observability/src/Metric.ts:339` | Observes workflow duration and outcome metrics for an Effect. |
-| `@beep/observability` | `PhaseOutcome` | const | `packages/foundation/capability/observability/src/PhaseProfiler.ts:62` | Terminal outcomes for profiled phases: `"completed"`, `"failed"`, or `"interrupted"`. |
-| `@beep/observability` | `PhaseOutcome` | type | `packages/foundation/capability/observability/src/PhaseProfiler.ts:82` | Runtime type for {@link PhaseOutcome}. |
-| `@beep/observability` | `PhaseProfile` | class | `packages/foundation/capability/observability/src/PhaseProfiler.ts:108` | Deterministic summary of one profiled phase with outcome, duration, and attributes. |
+| `@beep/observability` | `PhaseOutcome` | const | `packages/foundation/capability/observability/src/PhaseProfiler.ts:63` | Terminal outcomes for profiled phases: `"completed"`, `"failed"`, or `"interrupted"`. |
+| `@beep/observability` | `PhaseOutcome` | type | `packages/foundation/capability/observability/src/PhaseProfiler.ts:83` | Runtime type for {@link PhaseOutcome}. |
+| `@beep/observability` | `PhaseProfile` | class | `packages/foundation/capability/observability/src/PhaseProfiler.ts:109` | Deterministic summary of one profiled phase with outcome, duration, and attributes. |
 | `@beep/observability` | `PrettyLoggerConfig` | class | `packages/foundation/capability/observability/src/Logging.ts:162` | Extra configuration for the custom pretty logger including theme and banner mode. |
 | `@beep/observability` | `PrettyLogTheme` | const | `packages/foundation/capability/observability/src/Logging.ts:86` | Theme palette for the custom pretty logger: `"ocean"`, `"forest"`, `"sunrise"`, or `"mono"`. |
 | `@beep/observability` | `PrettyLogTheme` | type | `packages/foundation/capability/observability/src/Logging.ts:106` | Runtime type for {@link PrettyLogTheme}. |
-| `@beep/observability` | `profilePhase` | const | `packages/foundation/capability/observability/src/PhaseProfiler.ts:277` | Profiles an Effect phase and records its duration and outcome. |
+| `@beep/observability` | `profilePhase` | const | `packages/foundation/capability/observability/src/PhaseProfiler.ts:278` | Profiles an Effect phase and records its duration and outcome. |
 | `@beep/observability` | `renderLogBanner` | const | `packages/foundation/capability/observability/src/Logging.ts:296` | Render an opt-in banner for startup and phase summaries. |
-| `@beep/observability` | `renderObservedCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:550` | Render a compact human-readable representation of a cause. |
+| `@beep/observability` | `renderObservedCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:551` | Render a compact human-readable representation of a cause. |
 | `@beep/observability` | `ServerHttpError` | class | `packages/foundation/capability/observability/src/HttpError.ts:124` | Shared tagged error for 5xx HTTP responses with `Error` severity. |
 | `@beep/observability` | `ServiceUnavailableError` | class | `packages/foundation/capability/observability/src/HttpError.ts:388` | 503 tagged error. |
 | `@beep/observability` | `statusClass` | const | `packages/foundation/capability/observability/src/Metric.ts:93` | Normalize an HTTP status code to its class label (e.g. `"2xx"`, `"4xx"`). |
-| `@beep/observability` | `summarizeCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:446` | Summarize a cause into a transport-safe {@link CauseSummary} with classification, |
-| `@beep/observability` | `summarizeExit` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:494` | Summarize an exit into a transport-safe {@link ObservedExitSummary}. |
+| `@beep/observability` | `summarizeCause` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:447` | Summarize a cause into a transport-safe {@link CauseSummary} with classification, |
+| `@beep/observability` | `summarizeExit` | const | `packages/foundation/capability/observability/src/CauseDiagnostics.ts:495` | Summarize an exit into a transport-safe {@link ObservedExitSummary}. |
 | `@beep/observability` | `TooManyRequestsError` | class | `packages/foundation/capability/observability/src/HttpError.ts:310` | 429 tagged error. |
 | `@beep/observability` | `trackDuration` | const | `packages/foundation/capability/observability/src/Metric.ts:203` | Tracks the elapsed duration of an Effect with a metric. |
 | `@beep/observability` | `UnauthorizedError` | class | `packages/foundation/capability/observability/src/HttpError.ts:180` | 401 tagged error. |
 | `@beep/observability` | `UnprocessableEntityError` | class | `packages/foundation/capability/observability/src/HttpError.ts:284` | 422 tagged error. |
 | `@beep/observability` | `VERSION` | const | `packages/foundation/capability/observability/src/index.ts:39` | Current version of the `@beep/observability` package. |
-| `@beep/observability/experimental/server` | `DevToolsRelayService` | class | `packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts:67` | Service for ingesting and snapshotting devtools traffic. |
-| `@beep/observability/experimental/server` | `DevToolsSnapshot` | class | `packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts:36` | Summary of the in-memory relay state. |
-| `@beep/observability/experimental/server` | `layerDevToolsRelayServer` | const | `packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts:212` | Start a websocket relay using `DevToolsServer.run`. |
-| `@beep/observability/experimental/server` | `layerJson` | const | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:272` | Build a packet lab backed by JSON OTLP serialization. |
-| `@beep/observability/experimental/server` | `layerProtobuf` | const | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:287` | Build a packet lab backed by protobuf OTLP serialization. |
-| `@beep/observability/experimental/server` | `makeDevToolsRelayService` | const | `packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts:110` | Create the in-memory relay service without starting a socket server. |
-| `@beep/observability/experimental/server` | `OtlpPacket` | class | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:105` | One captured OTLP packet. |
-| `@beep/observability/experimental/server` | `OtlpPacketEncoding` | const | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:70` | OTLP body encodings captured by the packet lab. |
-| `@beep/observability/experimental/server` | `OtlpPacketEncoding` | type | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:90` | Runtime type for {@link OtlpPacketEncoding}. |
-| `@beep/observability/experimental/server` | `OtlpPacketKind` | const | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:35` | OTLP packet families captured by the packet lab. |
-| `@beep/observability/experimental/server` | `OtlpPacketKind` | type | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:55` | Runtime type for {@link OtlpPacketKind}. |
-| `@beep/observability/experimental/server` | `OtlpPacketLab` | class | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:138` | Packet lab service for capturing serialized OTLP payloads. |
+| `@beep/observability/experimental/server` | `DevToolsRelayService` | class | `packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts:68` | Service for ingesting and snapshotting devtools traffic. |
+| `@beep/observability/experimental/server` | `DevToolsSnapshot` | class | `packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts:37` | Summary of the in-memory relay state. |
+| `@beep/observability/experimental/server` | `layerDevToolsRelayServer` | const | `packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts:213` | Start a websocket relay using `DevToolsServer.run`. |
+| `@beep/observability/experimental/server` | `layerJson` | const | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:273` | Build a packet lab backed by JSON OTLP serialization. |
+| `@beep/observability/experimental/server` | `layerProtobuf` | const | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:288` | Build a packet lab backed by protobuf OTLP serialization. |
+| `@beep/observability/experimental/server` | `makeDevToolsRelayService` | const | `packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts:111` | Create the in-memory relay service without starting a socket server. |
+| `@beep/observability/experimental/server` | `OtlpPacket` | class | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:106` | One captured OTLP packet. |
+| `@beep/observability/experimental/server` | `OtlpPacketEncoding` | const | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:71` | OTLP body encodings captured by the packet lab. |
+| `@beep/observability/experimental/server` | `OtlpPacketEncoding` | type | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:91` | Runtime type for {@link OtlpPacketEncoding}. |
+| `@beep/observability/experimental/server` | `OtlpPacketKind` | const | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:36` | OTLP packet families captured by the packet lab. |
+| `@beep/observability/experimental/server` | `OtlpPacketKind` | type | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:56` | Runtime type for {@link OtlpPacketKind}. |
+| `@beep/observability/experimental/server` | `OtlpPacketLab` | class | `packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts:139` | Packet lab service for capturing serialized OTLP payloads. |
 | `@beep/observability/server` | `DevToolsSpanFilter` | type | `packages/foundation/capability/observability/src/server/DevTools.ts:28` | Predicate used to decide whether a span should be mirrored to Effect devtools. |
 | `@beep/observability/server` | `extractTraceContextHeaders` | const | `packages/foundation/capability/observability/src/server/TraceContext.ts:31` | Extract an incoming parent span from trace headers. |
-| `@beep/observability/server` | `httpApiFailureStatus` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:308` | Resolve the concrete status of a failed HTTP API effect from the runtime |
-| `@beep/observability/server` | `httpApiSuccessStatus` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:149` | Resolve the declared success status from an HttpApiSchema value. |
-| `@beep/observability/server` | `HttpApiTelemetryDescriptor` | class | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:60` | Shared HTTP API telemetry descriptor. |
-| `@beep/observability/server` | `HttpApiTelemetryMiddleware` | class | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:515` | Shared server-side HttpApi middleware service for request metrics, span |
+| `@beep/observability/server` | `httpApiFailureStatus` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:309` | Resolve the concrete status of a failed HTTP API effect from the runtime |
+| `@beep/observability/server` | `httpApiSuccessStatus` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:150` | Resolve the declared success status from an HttpApiSchema value. |
+| `@beep/observability/server` | `HttpApiTelemetryDescriptor` | class | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:61` | Shared HTTP API telemetry descriptor. |
+| `@beep/observability/server` | `HttpApiTelemetryMiddleware` | class | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:516` | Shared server-side HttpApi middleware service for request metrics, span |
 | `@beep/observability/server` | `injectTraceContextHeaders` | const | `packages/foundation/capability/observability/src/server/TraceContext.ts:53` | Inject the current Effect span into outbound trace headers. |
 | `@beep/observability/server` | `layerErrorReporter` | const | `packages/foundation/capability/observability/src/server/ErrorReporting.ts:73` | Register a console-backed error reporter. |
 | `@beep/observability/server` | `layerFilteredDevTools` | const | `packages/foundation/capability/observability/src/server/DevTools.ts:90` | Mirror only selected spans to the Effect devtools websocket. |
-| `@beep/observability/server` | `layerHttpApiTelemetryMiddleware` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:538` | Build a layer that instruments all endpoints where the middleware is |
+| `@beep/observability/server` | `layerHttpApiTelemetryMiddleware` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:539` | Build a layer that instruments all endpoints where the middleware is |
 | `@beep/observability/server` | `layerLocalLgtmServer` | const | `packages/foundation/capability/observability/src/server/Layer.ts:32` | Server-only local LGTM wiring for Effect OTLP + optional devtools. |
 | `@beep/observability/server` | `layerNodeSdkServer` | const | `packages/foundation/capability/observability/src/server/NodeSdk.ts:289` | Build a shared Node SDK layer for server runtimes. |
 | `@beep/observability/server` | `layerNodeSdkServerTraces` | const | `packages/foundation/capability/observability/src/server/NodeSdk.ts:326` | Build a shared trace-only Node SDK layer for server runtimes. |
 | `@beep/observability/server` | `layerPrometheusMetricsHttp` | const | `packages/foundation/capability/observability/src/server/Prometheus.ts:49` | Create a sanitized Prometheus metrics route. |
 | `@beep/observability/server` | `makeConsoleErrorReporter` | const | `packages/foundation/capability/observability/src/server/ErrorReporting.ts:30` | Create a console-backed error reporter with cause fingerprints and pretty rendering. |
-| `@beep/observability/server` | `makeHttpApiMetrics` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:191` | Create a reusable HTTP API metric set for one metric prefix. |
-| `@beep/observability/server` | `makeHttpApiTelemetryDescriptor` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:270` | Create a telemetry descriptor directly from Effect HttpApi metadata. |
+| `@beep/observability/server` | `makeHttpApiMetrics` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:192` | Create a reusable HTTP API metric set for one metric prefix. |
+| `@beep/observability/server` | `makeHttpApiTelemetryDescriptor` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:271` | Create a telemetry descriptor directly from Effect HttpApi metadata. |
 | `@beep/observability/server` | `makeNodeSdkServerConfig` | const | `packages/foundation/capability/observability/src/server/NodeSdk.ts:165` | Build a Node SDK configuration with OTLP HTTP defaults for local LGTM. |
 | `@beep/observability/server` | `makeNodeSdkServerTraceConfig` | const | `packages/foundation/capability/observability/src/server/NodeSdk.ts:250` | Build a Node SDK configuration that exports traces only. |
 | `@beep/observability/server` | `NodeSdkServerOptions` | class | `packages/foundation/capability/observability/src/server/NodeSdk.ts:91` | Additional controls for the shared Node SDK layer. |
-| `@beep/observability/server` | `observeHttpApiEffect` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:461` | Observes an HTTP API Effect and records request metrics. |
-| `@beep/observability/server` | `observeHttpApiHandler` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:649` | Observes an HTTP API handler Effect and records request metrics. |
+| `@beep/observability/server` | `observeHttpApiEffect` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:462` | Observes an HTTP API Effect and records request metrics. |
+| `@beep/observability/server` | `observeHttpApiHandler` | const | `packages/foundation/capability/observability/src/server/HttpApiTelemetry.ts:650` | Observes an HTTP API handler Effect and records request metrics. |
 | `@beep/observability/server` | `sanitizePrometheusMetrics` | const | `packages/foundation/capability/observability/src/server/Prometheus.ts:29` | Strip duplicate terminal histogram buckets from Prometheus exposition text. |
 | `@beep/observability/server` | `ServerObservabilityConfig` | class | `packages/foundation/capability/observability/src/server/Config.ts:38` | Server-only observability configuration. |
 | `@beep/observability/server` | `toNodeSdkResource` | const | `packages/foundation/capability/observability/src/server/NodeSdk.ts:136` | Convert the shared server observability config into a Node SDK resource shape. |
@@ -12937,7 +13145,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/hooks/useNumberInput` | `useNumberBoundary` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:570` | Low-level hook that manages string and numeric boundary state for a number input. |
 | `@beep/ui/hooks/useNumberInput` | `useNumberInput` | const | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:648` | Fully managed number-input hook with keyboard and spinner controls. |
 | `@beep/ui/hooks/useNumberInput` | `UseNumberInputOptions` | type | `packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts:514` | Options accepted by {@link useNumberBoundary} and {@link useNumberInput}. |
-| `@beep/ui/hooks/useSpinner` | `useSpinner` | function | `packages/foundation/ui-system/ui/src/hooks/useSpinner.ts:129` | Use spinner hook. |
+| `@beep/ui/hooks/useSpinner` | `useSpinner` | function | `packages/foundation/ui-system/ui/src/hooks/useSpinner.ts:130` | Use spinner hook. |
 | `@beep/ui/lib/index` | `cn` | function | `packages/foundation/ui-system/ui/src/lib/utils.ts:33` | Cn export. |
 | `@beep/ui/lib/index` | `sanitizeAnchorHref` | const | `packages/foundation/ui-system/ui/src/lib/url.ts:101` | Sanitize anchor href export. |
 | `@beep/ui/lib/react-invariant` | `ReactContextInvariantError` | class | `packages/foundation/ui-system/ui/src/lib/react-invariant.ts:53` | Error thrown when a React context hook is used outside its provider. |
@@ -13100,19 +13308,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-configs/next` | `Header` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:251` | User-facing Next.js response header route configuration. |
 | `@beep/repo-configs/next` | `Header` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:268` | User-facing Next.js response header route configuration. |
 | `@beep/repo-configs/next` | `I18NConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:64` | Internationalization configuration for a Next.js app. |
-| `@beep/repo-configs/next` | `ImageConfig` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:369` | Partial Next.js image configuration with repo-default statics. |
-| `@beep/repo-configs/next` | `ImageConfig` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:416` | Partial Next.js image configuration. |
-| `@beep/repo-configs/next` | `ImageConfigComplete` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:201` | Image configurations |
-| `@beep/repo-configs/next` | `ImageFormat` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:168` | Supported image output formats for Next.js image optimization. |
-| `@beep/repo-configs/next` | `ImageFormat` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:186` | Supported image output format for Next.js image optimization. |
-| `@beep/repo-configs/next` | `ImageLoaderProps` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:46` | Configuration properties passed to a Next.js image loader function. |
+| `@beep/repo-configs/next` | `ImageConfig` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:370` | Partial Next.js image configuration with repo-default statics. |
+| `@beep/repo-configs/next` | `ImageConfig` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:417` | Partial Next.js image configuration. |
+| `@beep/repo-configs/next` | `ImageConfigComplete` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:202` | Image configurations |
+| `@beep/repo-configs/next` | `ImageFormat` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:169` | Supported image output formats for Next.js image optimization. |
+| `@beep/repo-configs/next` | `ImageFormat` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:187` | Supported image output format for Next.js image optimization. |
+| `@beep/repo-configs/next` | `ImageLoaderProps` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:47` | Configuration properties passed to a Next.js image loader function. |
 | `@beep/repo-configs/next` | `JSONValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Turbopack.schema.ts:38` | JSON-compatible value schema accepted by Turbopack loader options. |
 | `@beep/repo-configs/next` | `JSONValue` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Turbopack.schema.ts:25` | JSON-compatible value accepted by Turbopack loader options. |
 | `@beep/repo-configs/next` | `LightningCssFeature` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:265` | Lightning CSS feature name accepted by Next.js. |
 | `@beep/repo-configs/next` | `LightningCssFeature` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:308` | Lightning CSS feature name accepted by Next.js. |
 | `@beep/repo-configs/next` | `LightningCssFeatures` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:322` | Lightning CSS include/exclude feature configuration. |
-| `@beep/repo-configs/next` | `LoaderValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:28` | Valid values for the Next.js image loader configuration. |
-| `@beep/repo-configs/next` | `LocalPattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:69` | Next.js local image matching pattern. |
+| `@beep/repo-configs/next` | `LoaderValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:29` | Valid values for the Next.js image loader configuration. |
+| `@beep/repo-configs/next` | `LocalPattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:70` | Next.js local image matching pattern. |
 | `@beep/repo-configs/next` | `LoggingConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:231` | Fetch logging configuration used by Next.js. |
 | `@beep/repo-configs/next` | `makeBeepNextBaseConfig` | const | `packages/tooling/policy-pack/repo-configs/src/next/SharedNextConfig.model.ts:554` | Build the shared repo-owned Next.js base config before plugin wrapping. |
 | `@beep/repo-configs/next` | `makeSecureHeaders` | const | `packages/tooling/policy-pack/repo-configs/src/next/security/index.ts:189` | Build the secure header list for the shared Next.js preset. |
@@ -13131,7 +13339,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-configs/next` | `ReactCompilerOptions` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/Compiler.schema.ts:113` | React Compiler options supported by Next.js. |
 | `@beep/repo-configs/next` | `Redirect` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:288` | User-facing Next.js redirect route configuration. |
 | `@beep/repo-configs/next` | `Redirect` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:311` | User-facing Next.js redirect route configuration. |
-| `@beep/repo-configs/next` | `RemotePattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:106` | Next.js remote image matching pattern. |
+| `@beep/repo-configs/next` | `RemotePattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:107` | Next.js remote image matching pattern. |
 | `@beep/repo-configs/next` | `Rewrite` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:218` | User-facing Next.js rewrite route configuration. |
 | `@beep/repo-configs/next` | `Rewrite` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:232` | User-facing Next.js rewrite route configuration. |
 | `@beep/repo-configs/next` | `RouteHas` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:65` | Match predicate used by Next.js rewrites, headers, redirects, and middleware. |
@@ -13193,19 +13401,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-configs/next/index` | `Header` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:251` | User-facing Next.js response header route configuration. |
 | `@beep/repo-configs/next/index` | `Header` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:268` | User-facing Next.js response header route configuration. |
 | `@beep/repo-configs/next/index` | `I18NConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:64` | Internationalization configuration for a Next.js app. |
-| `@beep/repo-configs/next/index` | `ImageConfig` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:369` | Partial Next.js image configuration with repo-default statics. |
-| `@beep/repo-configs/next/index` | `ImageConfig` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:416` | Partial Next.js image configuration. |
-| `@beep/repo-configs/next/index` | `ImageConfigComplete` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:201` | Image configurations |
-| `@beep/repo-configs/next/index` | `ImageFormat` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:168` | Supported image output formats for Next.js image optimization. |
-| `@beep/repo-configs/next/index` | `ImageFormat` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:186` | Supported image output format for Next.js image optimization. |
-| `@beep/repo-configs/next/index` | `ImageLoaderProps` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:46` | Configuration properties passed to a Next.js image loader function. |
+| `@beep/repo-configs/next/index` | `ImageConfig` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:370` | Partial Next.js image configuration with repo-default statics. |
+| `@beep/repo-configs/next/index` | `ImageConfig` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:417` | Partial Next.js image configuration. |
+| `@beep/repo-configs/next/index` | `ImageConfigComplete` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:202` | Image configurations |
+| `@beep/repo-configs/next/index` | `ImageFormat` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:169` | Supported image output formats for Next.js image optimization. |
+| `@beep/repo-configs/next/index` | `ImageFormat` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:187` | Supported image output format for Next.js image optimization. |
+| `@beep/repo-configs/next/index` | `ImageLoaderProps` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:47` | Configuration properties passed to a Next.js image loader function. |
 | `@beep/repo-configs/next/index` | `JSONValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Turbopack.schema.ts:38` | JSON-compatible value schema accepted by Turbopack loader options. |
 | `@beep/repo-configs/next/index` | `JSONValue` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Turbopack.schema.ts:25` | JSON-compatible value accepted by Turbopack loader options. |
 | `@beep/repo-configs/next/index` | `LightningCssFeature` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:265` | Lightning CSS feature name accepted by Next.js. |
 | `@beep/repo-configs/next/index` | `LightningCssFeature` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:308` | Lightning CSS feature name accepted by Next.js. |
 | `@beep/repo-configs/next/index` | `LightningCssFeatures` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:322` | Lightning CSS include/exclude feature configuration. |
-| `@beep/repo-configs/next/index` | `LoaderValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:28` | Valid values for the Next.js image loader configuration. |
-| `@beep/repo-configs/next/index` | `LocalPattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:69` | Next.js local image matching pattern. |
+| `@beep/repo-configs/next/index` | `LoaderValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:29` | Valid values for the Next.js image loader configuration. |
+| `@beep/repo-configs/next/index` | `LocalPattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:70` | Next.js local image matching pattern. |
 | `@beep/repo-configs/next/index` | `LoggingConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:231` | Fetch logging configuration used by Next.js. |
 | `@beep/repo-configs/next/index` | `makeBeepNextBaseConfig` | const | `packages/tooling/policy-pack/repo-configs/src/next/SharedNextConfig.model.ts:554` | Build the shared repo-owned Next.js base config before plugin wrapping. |
 | `@beep/repo-configs/next/index` | `makeSecureHeaders` | const | `packages/tooling/policy-pack/repo-configs/src/next/security/index.ts:189` | Build the secure header list for the shared Next.js preset. |
@@ -13224,7 +13432,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-configs/next/index` | `ReactCompilerOptions` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/Compiler.schema.ts:113` | React Compiler options supported by Next.js. |
 | `@beep/repo-configs/next/index` | `Redirect` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:288` | User-facing Next.js redirect route configuration. |
 | `@beep/repo-configs/next/index` | `Redirect` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:311` | User-facing Next.js redirect route configuration. |
-| `@beep/repo-configs/next/index` | `RemotePattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:106` | Next.js remote image matching pattern. |
+| `@beep/repo-configs/next/index` | `RemotePattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:107` | Next.js remote image matching pattern. |
 | `@beep/repo-configs/next/index` | `Rewrite` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:218` | User-facing Next.js rewrite route configuration. |
 | `@beep/repo-configs/next/index` | `Rewrite` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:232` | User-facing Next.js rewrite route configuration. |
 | `@beep/repo-configs/next/index` | `RouteHas` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:65` | Match predicate used by Next.js rewrites, headers, redirects, and middleware. |
@@ -13257,8 +13465,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-configs/next/index` | `TurbopackRuleConfigItem` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/Turbopack.schema.ts:304` | Object-form Turbopack rule configuration. |
 | `@beep/repo-configs/next/index` | `TypeScriptConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:99` | Next.js TypeScript configuration block. |
 | `@beep/repo-configs/next/index` | `withSecureHeaders` | const | `packages/tooling/policy-pack/repo-configs/src/next/security/index.ts:221` | Add shared secure headers to a Next.js config. |
-| `@beep/repo-configs/next/internal` | `isFunctionValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/internal.ts:30` | Guard unknown values that must be callable plugin/config hooks. |
-| `@beep/repo-configs/next/internal` | `schemaIssueToError` | const | `packages/tooling/policy-pack/repo-configs/src/next/internal.ts:19` | Preserve a schema decoder error at the public SchemaError boundary. |
+| `@beep/repo-configs/next/internal` | `isFunctionValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/internal.ts:31` | Guard unknown values that must be callable plugin/config hooks. |
+| `@beep/repo-configs/next/internal` | `schemaIssueToError` | const | `packages/tooling/policy-pack/repo-configs/src/next/internal.ts:19` | Preserve a schema decoder issue or error at the public SchemaError boundary. |
 | `@beep/repo-configs/next/models/AllowedDevOrigin.schema` | `AllowedDevOrigin` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/AllowedDevOrigin.schema.ts:29` | A hostname or leading-wildcard hostname entry for Next.js `allowedDevOrigins`. |
 | `@beep/repo-configs/next/models/AllowedDevOrigin.schema` | `AllowedDevOrigin` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/AllowedDevOrigin.schema.ts:57` | Hostname entry for one element of Next.js `allowedDevOrigins`. |
 | `@beep/repo-configs/next/models/Compiler.schema` | `CompilerConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/Compiler.schema.ts:175` | Next.js compiler configuration block. |
@@ -13279,15 +13487,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-configs/next/models/ConfigPrimitives.schema` | `NextParsedUrlQuery` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:146` | Route export path map entry query parameters. |
 | `@beep/repo-configs/next/models/ConfigPrimitives.schema` | `TypeScriptConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:99` | Next.js TypeScript configuration block. |
 | `@beep/repo-configs/next/models/ExperimentalConfig.schema` | `ExperimentalConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ExperimentalConfig.schema.ts:194` | Public experimental configuration accepted by Next.js. |
-| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageConfig` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:369` | Partial Next.js image configuration with repo-default statics. |
-| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageConfig` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:416` | Partial Next.js image configuration. |
-| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageConfigComplete` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:201` | Image configurations |
-| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageFormat` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:168` | Supported image output formats for Next.js image optimization. |
-| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageFormat` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:186` | Supported image output format for Next.js image optimization. |
-| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageLoaderProps` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:46` | Configuration properties passed to a Next.js image loader function. |
-| `@beep/repo-configs/next/models/ImageConfig.schema` | `LoaderValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:28` | Valid values for the Next.js image loader configuration. |
-| `@beep/repo-configs/next/models/ImageConfig.schema` | `LocalPattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:69` | Next.js local image matching pattern. |
-| `@beep/repo-configs/next/models/ImageConfig.schema` | `RemotePattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:106` | Next.js remote image matching pattern. |
+| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageConfig` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:370` | Partial Next.js image configuration with repo-default statics. |
+| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageConfig` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:417` | Partial Next.js image configuration. |
+| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageConfigComplete` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:202` | Image configurations |
+| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageFormat` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:169` | Supported image output formats for Next.js image optimization. |
+| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageFormat` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:187` | Supported image output format for Next.js image optimization. |
+| `@beep/repo-configs/next/models/ImageConfig.schema` | `ImageLoaderProps` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:47` | Configuration properties passed to a Next.js image loader function. |
+| `@beep/repo-configs/next/models/ImageConfig.schema` | `LoaderValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:29` | Valid values for the Next.js image loader configuration. |
+| `@beep/repo-configs/next/models/ImageConfig.schema` | `LocalPattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:70` | Next.js local image matching pattern. |
+| `@beep/repo-configs/next/models/ImageConfig.schema` | `RemotePattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:107` | Next.js remote image matching pattern. |
 | `@beep/repo-configs/next/models/index` | `AllowedDevOrigin` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/AllowedDevOrigin.schema.ts:29` | A hostname or leading-wildcard hostname entry for Next.js `allowedDevOrigins`. |
 | `@beep/repo-configs/next/models/index` | `AllowedDevOrigin` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/AllowedDevOrigin.schema.ts:57` | Hostname entry for one element of Next.js `allowedDevOrigins`. |
 | `@beep/repo-configs/next/models/index` | `CompilerConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/Compiler.schema.ts:175` | Next.js compiler configuration block. |
@@ -13301,19 +13509,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-configs/next/models/index` | `Header` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:251` | User-facing Next.js response header route configuration. |
 | `@beep/repo-configs/next/models/index` | `Header` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:268` | User-facing Next.js response header route configuration. |
 | `@beep/repo-configs/next/models/index` | `I18NConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:64` | Internationalization configuration for a Next.js app. |
-| `@beep/repo-configs/next/models/index` | `ImageConfig` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:369` | Partial Next.js image configuration with repo-default statics. |
-| `@beep/repo-configs/next/models/index` | `ImageConfig` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:416` | Partial Next.js image configuration. |
-| `@beep/repo-configs/next/models/index` | `ImageConfigComplete` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:201` | Image configurations |
-| `@beep/repo-configs/next/models/index` | `ImageFormat` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:168` | Supported image output formats for Next.js image optimization. |
-| `@beep/repo-configs/next/models/index` | `ImageFormat` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:186` | Supported image output format for Next.js image optimization. |
-| `@beep/repo-configs/next/models/index` | `ImageLoaderProps` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:46` | Configuration properties passed to a Next.js image loader function. |
+| `@beep/repo-configs/next/models/index` | `ImageConfig` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:370` | Partial Next.js image configuration with repo-default statics. |
+| `@beep/repo-configs/next/models/index` | `ImageConfig` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:417` | Partial Next.js image configuration. |
+| `@beep/repo-configs/next/models/index` | `ImageConfigComplete` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:202` | Image configurations |
+| `@beep/repo-configs/next/models/index` | `ImageFormat` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:169` | Supported image output formats for Next.js image optimization. |
+| `@beep/repo-configs/next/models/index` | `ImageFormat` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:187` | Supported image output format for Next.js image optimization. |
+| `@beep/repo-configs/next/models/index` | `ImageLoaderProps` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:47` | Configuration properties passed to a Next.js image loader function. |
 | `@beep/repo-configs/next/models/index` | `JSONValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Turbopack.schema.ts:38` | JSON-compatible value schema accepted by Turbopack loader options. |
 | `@beep/repo-configs/next/models/index` | `JSONValue` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Turbopack.schema.ts:25` | JSON-compatible value accepted by Turbopack loader options. |
 | `@beep/repo-configs/next/models/index` | `LightningCssFeature` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:265` | Lightning CSS feature name accepted by Next.js. |
 | `@beep/repo-configs/next/models/index` | `LightningCssFeature` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:308` | Lightning CSS feature name accepted by Next.js. |
 | `@beep/repo-configs/next/models/index` | `LightningCssFeatures` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:322` | Lightning CSS include/exclude feature configuration. |
-| `@beep/repo-configs/next/models/index` | `LoaderValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:28` | Valid values for the Next.js image loader configuration. |
-| `@beep/repo-configs/next/models/index` | `LocalPattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:69` | Next.js local image matching pattern. |
+| `@beep/repo-configs/next/models/index` | `LoaderValue` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:29` | Valid values for the Next.js image loader configuration. |
+| `@beep/repo-configs/next/models/index` | `LocalPattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:70` | Next.js local image matching pattern. |
 | `@beep/repo-configs/next/models/index` | `LoggingConfig` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ConfigPrimitives.schema.ts:231` | Fetch logging configuration used by Next.js. |
 | `@beep/repo-configs/next/models/index` | `Middleware` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:330` | Next.js middleware route matcher configuration. |
 | `@beep/repo-configs/next/models/index` | `Middleware` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:344` | Next.js middleware route matcher configuration. |
@@ -13324,7 +13532,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-configs/next/models/index` | `ReactCompilerOptions` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/Compiler.schema.ts:113` | React Compiler options supported by Next.js. |
 | `@beep/repo-configs/next/models/index` | `Redirect` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:288` | User-facing Next.js redirect route configuration. |
 | `@beep/repo-configs/next/models/index` | `Redirect` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:311` | User-facing Next.js redirect route configuration. |
-| `@beep/repo-configs/next/models/index` | `RemotePattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:106` | Next.js remote image matching pattern. |
+| `@beep/repo-configs/next/models/index` | `RemotePattern` | class | `packages/tooling/policy-pack/repo-configs/src/next/models/ImageConfig.schema.ts:107` | Next.js remote image matching pattern. |
 | `@beep/repo-configs/next/models/index` | `Rewrite` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:218` | User-facing Next.js rewrite route configuration. |
 | `@beep/repo-configs/next/models/index` | `Rewrite` | type | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:232` | User-facing Next.js rewrite route configuration. |
 | `@beep/repo-configs/next/models/index` | `RouteHas` | const | `packages/tooling/policy-pack/repo-configs/src/next/models/Routes.schema.ts:65` | Match predicate used by Next.js rewrites, headers, redirects, and middleware. |

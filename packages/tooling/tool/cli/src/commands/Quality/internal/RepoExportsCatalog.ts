@@ -1,6 +1,6 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { A, O, Str, thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, Path } from "effect";
+import { Effect, FileSystem, MutableHashMap, Path } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { Project } from "ts-morph";
@@ -645,10 +645,10 @@ export const buildRepoExportsCatalog = Effect.fn("RepoExportsCatalog.build")(fun
   const packages = yield* Effect.forEach(
     topoNames,
     (packageName, index) => {
-      const packageInfo = packageByName.get(packageName);
-      return packageInfo === undefined
+      const packageInfo = MutableHashMap.get(packageByName, packageName);
+      return O.isNone(packageInfo)
         ? Effect.succeed(analyzeMissingPackage(packageName, index + 1))
-        : analyzePackage(packageInfo, index + 1, repoRoot, path);
+        : analyzePackage(packageInfo.value, index + 1, repoRoot, path);
     },
     { concurrency: 1 }
   );

@@ -3,7 +3,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Err, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, Order, Result, SchemaGetter, Stream } from "effect";
+import { Effect, FileSystem, MutableHashMap, Order, Result, SchemaGetter, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -197,7 +197,7 @@ export const formatJsonc = Effect.fn("QualityArtifactSupport.formatJsonc")(funct
 ): Effect.fn.Return<string, QualityArtifactGeneratorError> {
   const rendered = yield* stringifyJsonPretty
     .run(O.some(value), {})
-    .pipe(QualityArtifactGeneratorError.mapError("Failed to format generated JSONC artifact."));
+    .pipe(QualityArtifactGeneratorError.mapError("Failed to format generated JSONC artifact.", {}));
   return `${O.getOrElse(rendered, thunkEmptyStr)}\n`;
 });
 
@@ -375,11 +375,16 @@ export const expandWorkspacePattern: {
 export const discoverWorkspacePackages = Effect.fn("QualityArtifactSupport.discoverWorkspacePackages")(function* (
   repoRoot: string,
   path: Path.Path
-): Effect.fn.Return<Map<string, WorkspacePackageInfo>, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+): Effect.fn.Return<
+  MutableHashMap.MutableHashMap<string, WorkspacePackageInfo>,
+  QualityArtifactGeneratorError,
+  FileSystem.FileSystem
+> {
   const rootPackage = yield* readRootPackage(repoRoot, path);
-  const packages = new Map<string, WorkspacePackageInfo>();
+  const packages = MutableHashMap.empty<string, WorkspacePackageInfo>();
 
-  packages.set(
+  MutableHashMap.set(
+    packages,
     rootPackage.name,
     WorkspacePackageInfo.make({
       name: rootPackage.name,
@@ -392,7 +397,8 @@ export const discoverWorkspacePackages = Effect.fn("QualityArtifactSupport.disco
   for (const pattern of workspacePatternsFrom(rootPackage.workspaces)) {
     for (const packagePath of yield* expandWorkspacePattern(pattern, repoRoot, path)) {
       const packageJson = yield* readPackageJson(path.join(packagePath, "package.json"));
-      packages.set(
+      MutableHashMap.set(
+        packages,
         packageJson.name,
         WorkspacePackageInfo.make({
           name: packageJson.name,
