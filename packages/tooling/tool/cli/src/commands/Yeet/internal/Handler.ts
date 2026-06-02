@@ -7,10 +7,9 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { Console, Effect, FileSystem, Path, pipe } from "effect";
+import { Console, Effect, FileSystem, Path, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { printCommandJson } from "../../../internal/cli/Json.js";
@@ -26,7 +25,7 @@ import { buildYeetRunPlan, DEFAULT_YEET_PACKET_DIR, emptyTurboPlanSnapshot } fro
 import { buildQualityIssueIndex, qualityIssuesFromStepResult } from "./QualityIssueIndex.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { RepoPlanStep, RepoRunPlan, RepoStepRunResult } from "../../../internal/repo-run/index.js";
-import type { QualityIssue, QualityIssueIndex } from "./QualityIssueIndex.js";
+import type { PackageQualityReport, QualityIssue, QualityIssueIndex } from "./QualityIssueIndex.js";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Handler");
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
@@ -220,20 +219,22 @@ const writeIssueArtifacts = Effect.fn("Yeet.writeIssueArtifacts")(function* (
   const indexPath = path.join(artifactDir, "quality-issue-index.json");
   yield* writeTextFile(indexPath, `${yield* renderJson(index)}\n`);
 
-  const packetPaths = yield* Effect.forEach(index.packages, (report) =>
-    Effect.gen(function* () {
-      const markdown = yield* pipe(
-        renderPackageQualityPacketMarkdown(report),
-        Result.match({
-          onFailure: (error) => Effect.fail(YeetCommandError.make({ message: error.message })),
-          onSuccess: Effect.succeed,
-        })
-      );
-      const packetPath = path.join(artifactDir, "packets", `${safeArtifactName(report.packageName)}.md`);
-      yield* writeTextFile(packetPath, markdown);
-      return packetPath;
-    })
-  );
+  const writePackagePacket = Effect.fnUntraced(function* (
+    report: PackageQualityReport
+  ): Effect.fn.Return<string, YeetCommandError, FileSystem.FileSystem | Path.Path> {
+    const markdown = yield* pipe(
+      renderPackageQualityPacketMarkdown(report),
+      Result.match({
+        onFailure: (error) => Effect.fail(YeetCommandError.make({ message: error.message })),
+        onSuccess: Effect.succeed,
+      })
+    );
+    const packetPath = path.join(artifactDir, "packets", `${safeArtifactName(report.packageName)}.md`);
+    yield* writeTextFile(packetPath, markdown);
+    return packetPath;
+  });
+
+  const packetPaths = yield* Effect.forEach(index.packages, writePackagePacket);
 
   return YeetRunResult.make({
     artifactDir,
@@ -255,7 +256,7 @@ const issuesFromResults = (
       pipe(
         A.findFirst(steps, (step) => step.id === result.stepId),
         O.map((step) => qualityIssuesFromStepResult(context, step, result)),
-        O.getOrElse(() => A.empty<QualityIssue>())
+        O.getOrElse(A.empty<QualityIssue>)
       )
     )
   );

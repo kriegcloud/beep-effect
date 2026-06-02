@@ -15,7 +15,8 @@ import * as SocketServer from "effect/unstable/socket/SocketServer";
 import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";
 
 const $I = $ObservabilityId.create("experimental/server/DevToolsRelay");
-const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
+const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
+  cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);
 const decodeNonNegativeInt = (input: unknown) =>
   Result.getOrThrowWith(S.decodeUnknownResult(NonNegativeInt)(input), schemaIssueToError);
 const maxSpanEvents = 200;

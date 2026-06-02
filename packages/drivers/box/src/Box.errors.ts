@@ -1,5 +1,5 @@
 /**
- *
+ * Box driver error models.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -11,16 +11,27 @@ import * as S from "effect/Schema";
 
 const $I = $BoxId.create("Box.errors");
 
+/**
+ * Additional context supplied by Box API error payloads.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export class BoxErrorContextInfo extends S.Class<BoxErrorContextInfo>($I`BoxErrorContextInfo`)(
   {
-   message: S.String,
+    message: S.String,
   },
   $I.annote("BoxErrorContextInfo", {
     description: "additional context information for Box errors",
   })
 ) {}
 
-
+/**
+ * Typed Box driver error.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export class BoxError extends CauseTaggedError<BoxError>($I`BoxError`)(
   "BoxError",
   {
@@ -36,10 +47,14 @@ export class BoxError extends CauseTaggedError<BoxError>($I`BoxError`)(
   })
 ) {
   static readonly newCause: {
-    (cause: unknown, extra: Omit<BoxError, "cause">): BoxError,
-    (cause: unknown): (extra: Omit<BoxError, "cause">) => BoxError
-  } = dual(2, (cause: unknown, extra: Omit<BoxError, "cause">): BoxError => BoxError.make({
-    cause,
-    ...extra
-  }));
+    (cause: unknown, extra: Omit<BoxError, "cause">): BoxError;
+    (cause: unknown): (extra: Omit<BoxError, "cause">) => BoxError;
+  } = dual(
+    2,
+    (cause: unknown, extra: Omit<BoxError, "cause">): BoxError =>
+      BoxError.make({
+        cause,
+        ...extra,
+      })
+  );
 }

@@ -6,27 +6,12 @@
  */
 
 /**
- * The
- *
- * @category utilities
- * @since 0.0.0
- */
-
-/**
- * The
- *
- * @category utilities
- * @since 0.0.0
- */
-
-/**
  * The DocgenConfig module.
  *
  * @category utilities
  * @since 0.0.0
  */
 export * from "./DocgenConfig.ts";
-
 /**
  * The JSDocCategories module.
  *
@@ -34,7 +19,6 @@ export * from "./DocgenConfig.ts";
  * @since 0.0.0
  */
 export * from "./JSDocCategories.ts";
-
 /**
  * The PackageJson module.
  *
@@ -42,7 +26,6 @@ export * from "./JSDocCategories.ts";
  * @since 0.0.0
  */
 export * from "./PackageJson.ts";
-
 /**
  * The PackageJsonTools module.
  *
@@ -50,7 +33,6 @@ export * from "./PackageJson.ts";
  * @since 0.0.0
  */
 export * from "./PackageJsonTools.ts";
-
 /**
  * The TSConfig module.
  *
@@ -58,19 +40,17 @@ export * from "./PackageJsonTools.ts";
  * @since 0.0.0
  */
 export * from "./TSConfig.ts";
-
 /**
  * The TypeScriptSourceExclusions module.
  *
  * @category utilities
  * @since 0.0.0
  */
-export * from "./TypeScriptSourceExclusions.ts"
-
+export * from "./TypeScriptSourceExclusions.ts";
 /**
  * The WorkspaceDeps module.
  *
  * @category utilities
  * @since 0.0.0
  */
-export * from "./WorkspaceDeps.ts"
+export * from "./WorkspaceDeps.ts";

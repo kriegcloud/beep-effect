@@ -7,10 +7,10 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { Order } from "effect";
 import * as A from "effect/Array";
-import { flow, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
-import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -508,11 +508,10 @@ const fallbackIssueFromResult = (
  * @category parsing
  * @since 0.0.0
  */
-export const qualityIssuesFromStepResult = (
-  context: RepoRunContext,
-  step: RepoPlanStep,
-  result: RepoStepRunResult
-): ReadonlyArray<QualityIssue> => {
+export const qualityIssuesFromStepResult: {
+  (context: RepoRunContext, step: RepoPlanStep, result: RepoStepRunResult): ReadonlyArray<QualityIssue>;
+  (step: RepoPlanStep, result: RepoStepRunResult): (context: RepoRunContext) => ReadonlyArray<QualityIssue>;
+} = dual(3, (context: RepoRunContext, step: RepoPlanStep, result: RepoStepRunResult): ReadonlyArray<QualityIssue> => {
   if (result.exitCode === 0) {
     return A.empty();
   }
@@ -525,7 +524,7 @@ export const qualityIssuesFromStepResult = (
   );
 
   return A.isReadonlyArrayNonEmpty(parsedIssues) ? parsedIssues : [fallbackIssueFromResult(context, step, result)];
-};
+});
 
 const packageReportForKey = (issues: ReadonlyArray<QualityIssue>, key: string): PackageQualityReport => {
   const packageIssues = pipe(

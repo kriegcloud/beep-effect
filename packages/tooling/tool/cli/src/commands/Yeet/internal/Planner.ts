@@ -5,10 +5,10 @@
  * @since 0.0.0
  */
 
+import { Order } from "effect";
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
-import * as Order from "effect/Order";
 import {
   byRepoPlanStepAscending,
   enforceConservativeResume,
@@ -108,7 +108,10 @@ export const emptyTurboPlanSnapshot = (warnings: ReadonlyArray<string>): TurboPl
  * @category planning
  * @since 0.0.0
  */
-export const buildYeetRunPlan = (context: RepoRunContext, message: O.Option<string>): RepoRunPlan => {
+export const buildYeetRunPlan: {
+  (context: RepoRunContext, message: O.Option<string>): RepoRunPlan;
+  (message: O.Option<string>): (context: RepoRunContext) => RepoRunPlan;
+} = dual(2, (context: RepoRunContext, message: O.Option<string>): RepoRunPlan => {
   const commitMessage = O.getOrElse(message, () => "<required-conventional-commit-message>");
   const steps = [
     bunRunStep(
@@ -194,7 +197,7 @@ export const buildYeetRunPlan = (context: RepoRunContext, message: O.Option<stri
     context,
     steps: pipe(steps, A.sort(byRepoPlanStepAscending)),
   });
-};
+});
 
 /**
  * Return plan phases in execution order.

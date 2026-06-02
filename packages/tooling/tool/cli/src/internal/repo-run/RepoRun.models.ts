@@ -7,9 +7,10 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { Order } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("internal/repo-run/RepoRun.models");
@@ -419,12 +420,18 @@ export const enforceConservativeResume = (step: RepoPlanStep): RepoPlanStep =>
  * @category utilities
  * @since 0.0.0
  */
-export const turboTaskForStep = (context: RepoRunContext, step: RepoPlanStep): O.Option<TurboPlanTask> =>
-  O.orElse(
-    O.fromUndefinedOr(step.task).pipe(
-      O.flatMap((task) =>
-        A.findFirst(context.turbo.tasks, (turboTask) => turboTask.task === task || turboTask.taskId === task)
-      )
-    ),
-    () => A.findFirst(context.turbo.tasks, (turboTask) => turboTask.taskId === step.id)
-  );
+export const turboTaskForStep: {
+  (context: RepoRunContext, step: RepoPlanStep): O.Option<TurboPlanTask>;
+  (step: RepoPlanStep): (context: RepoRunContext) => O.Option<TurboPlanTask>;
+} = dual(
+  2,
+  (context: RepoRunContext, step: RepoPlanStep): O.Option<TurboPlanTask> =>
+    O.orElse(
+      O.fromUndefinedOr(step.task).pipe(
+        O.flatMap((task) =>
+          A.findFirst(context.turbo.tasks, (turboTask) => turboTask.task === task || turboTask.taskId === task)
+        )
+      ),
+      () => A.findFirst(context.turbo.tasks, (turboTask) => turboTask.taskId === step.id)
+    )
+);
