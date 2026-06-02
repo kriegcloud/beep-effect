@@ -501,7 +501,7 @@ const fallbackIssueFromResult = (
  * @returns Structured or raw issues; successful results produce no issues.
  * @example
  * ```ts
- * import { qualityIssuesFromStepResult } from "@beep/repo-cli/commands/Yeet"
+ * import { qualityIssuesFromStepResult } from "@beep/repo-cli/test/Yeet"
  *
  * console.log(qualityIssuesFromStepResult)
  * ```
@@ -555,7 +555,7 @@ const packageReportForKey = (issues: ReadonlyArray<QualityIssue>, key: string): 
  * @returns Stable issue index with package grouping.
  * @example
  * ```ts
- * import { buildQualityIssueIndex } from "@beep/repo-cli/commands/Yeet"
+ * import { buildQualityIssueIndex } from "@beep/repo-cli/test/Yeet"
  *
  * console.log(buildQualityIssueIndex([]).schemaVersion)
  * ```

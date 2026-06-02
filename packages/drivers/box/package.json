@@ -11,6 +11,9 @@
     "url": "git@github.com:kriegcloud/beep-effect.git",
     "directory": "packages/drivers/box"
   },
+  "beep": {
+    "family": "drivers"
+  },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
@@ -49,15 +52,15 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
+      ".": "./dist/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
-    "effect": "catalog:",
-    "box-node-sdk": "catalog:"
+    "box-node-sdk": "catalog:",
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",

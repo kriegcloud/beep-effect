@@ -115,11 +115,11 @@ const noIssueBlocks = [
  * @returns Markdown document AST.
  * @example
  * ```ts
- * import { renderPackageQualityPacketDocument } from "@beep/repo-cli/commands/Yeet"
+ * import { renderPackageQualityPacketDocument } from "@beep/repo-cli/test/Yeet"
  *
  * console.log(renderPackageQualityPacketDocument)
  * ```
- * @category rendering
+ * @category formatting
  * @since 0.0.0
  */
 export const renderPackageQualityPacketDocument = (report: PackageQualityReport): Document => {
@@ -166,11 +166,11 @@ export const renderPackageQualityPacketDocument = (report: PackageQualityReport)
  * @returns Rendered Markdown, or render adapter failure.
  * @example
  * ```ts
- * import { renderPackageQualityPacketMarkdown } from "@beep/repo-cli/commands/Yeet"
+ * import { renderPackageQualityPacketMarkdown } from "@beep/repo-cli/test/Yeet"
  *
  * console.log(renderPackageQualityPacketMarkdown)
  * ```
- * @category rendering
+ * @category formatting
  * @since 0.0.0
  */
 export const renderPackageQualityPacketMarkdown = (

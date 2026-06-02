@@ -26,12 +26,14 @@ import type { RepoRunContext } from "../../../internal/repo-run/index.js";
  */
 export const DEFAULT_YEET_PACKET_DIR = ".beep/yeet" as const;
 
-const affectedFeedbackArgs = [
+const affectedArgs = (context: RepoRunContext): ReadonlyArray<string> => [
   "--affected",
+  `--affected-base=${context.base}`,
+  `--affected-head=${context.head}`,
   "--continue=dependencies-successful",
   "--summarize",
   "--ui=stream",
-] as const;
+];
 
 const bunRunStep = (
   context: RepoRunContext,
@@ -54,7 +56,7 @@ const bunRunStep = (
       cwd: context.repoRoot,
       scope,
       mutability,
-      resume: "fingerprint-match",
+      resume: "never",
       ...(O.isSome(task) ? { task: task.value } : {}),
     })
   );
@@ -79,7 +81,7 @@ const gitStep = (context: RepoRunContext, id: string, label: string, args: Reado
  * @returns Empty Turbo snapshot with graph health status.
  * @example
  * ```ts
- * import { emptyTurboPlanSnapshot } from "@beep/repo-cli/commands/Yeet"
+ * import { emptyTurboPlanSnapshot } from "@beep/repo-cli/test/Yeet"
  *
  * console.log(emptyTurboPlanSnapshot([]).graphHealthStatus)
  * ```
@@ -101,11 +103,11 @@ export const emptyTurboPlanSnapshot = (warnings: ReadonlyArray<string>): TurboPl
  * @returns Ordered repository run plan.
  * @example
  * ```ts
- * import { buildYeetRunPlan } from "@beep/repo-cli/commands/Yeet"
+ * import { buildYeetRunPlan } from "@beep/repo-cli/test/Yeet"
  *
  * console.log(buildYeetRunPlan)
  * ```
- * @category planning
+ * @category workflows
  * @since 0.0.0
  */
 export const buildYeetRunPlan: {
@@ -120,7 +122,7 @@ export const buildYeetRunPlan: {
       "prepare:lint:fix",
       "prepare",
       "lint:fix",
-      ["--", "--affected"],
+      ["--", ...affectedArgs(context)],
       "write",
       "repo"
     ),
@@ -140,7 +142,7 @@ export const buildYeetRunPlan: {
       "feedback:build",
       "feedback",
       "build",
-      ["--", ...affectedFeedbackArgs],
+      ["--", ...affectedArgs(context)],
       "readonly",
       "package",
       O.some("build")
@@ -151,7 +153,7 @@ export const buildYeetRunPlan: {
       "feedback:check",
       "feedback",
       "check",
-      ["--", ...affectedFeedbackArgs],
+      ["--", ...affectedArgs(context)],
       "readonly",
       "package",
       O.some("check")
@@ -162,7 +164,7 @@ export const buildYeetRunPlan: {
       "feedback:lint",
       "feedback",
       "lint",
-      ["--", ...affectedFeedbackArgs],
+      ["--", ...affectedArgs(context)],
       "readonly",
       "package",
       O.some("lint")
@@ -173,7 +175,7 @@ export const buildYeetRunPlan: {
       "feedback:test",
       "feedback",
       "test",
-      ["--", ...affectedFeedbackArgs],
+      ["--", ...affectedArgs(context)],
       "readonly",
       "package",
       O.some("test")
@@ -204,7 +206,7 @@ export const buildYeetRunPlan: {
  *
  * @param plan - Yeet run plan.
  * @returns Ordered unique phase names.
- * @category planning
+ * @category utilities
  * @since 0.0.0
  */
 export const yeetPlanPhases = (plan: RepoRunPlan): ReadonlyArray<RepoPlanStep["phase"]> =>

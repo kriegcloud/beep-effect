@@ -141,11 +141,11 @@ const collectTurboVersion = Effect.fn("Yeet.collectTurboVersion")(function* (
  * @returns Shared run context.
  * @example
  * ```ts
- * import { hydrateYeetRunContext } from "@beep/repo-cli/commands/Yeet"
+ * import { hydrateYeetRunContext } from "@beep/repo-cli/test/Yeet"
  *
  * console.log(hydrateYeetRunContext)
  * ```
- * @category context
+ * @category utilities
  * @since 0.0.0
  */
 export const hydrateYeetRunContext = Effect.fn("Yeet.hydrateYeetRunContext")(function* (
@@ -398,7 +398,7 @@ const renderPlan = Effect.fn("Yeet.renderPlan")(function* (
  * @returns Yeet run result when execution succeeds.
  * @example
  * ```ts
- * import { runYeet } from "@beep/repo-cli/commands/Yeet"
+ * import { runYeet } from "@beep/repo-cli/test/Yeet"
  *
  * console.log(runYeet)
  * ```

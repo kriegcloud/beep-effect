@@ -18,7 +18,7 @@ const context = RepoRunContext.make({
   repoRoot: "/repo",
   cwd: "/repo",
   base: "origin/main",
-  head: "HEAD",
+  head: "feature/head",
   branch: "repo-cli-yeet",
   packetDir: ".beep/yeet",
   originalArgv: [],
@@ -86,12 +86,28 @@ describe("yeet planner", () => {
     expect(push.args).toEqual(["push"]);
   });
 
-  it("only allows conservative resume for read-only package feedback steps", () => {
+  it("threads the selected Turbo affected comparison into feedback runs", () => {
+    const plan = buildYeetRunPlanForTesting(context, O.some("feat(repo-cli): add yeet"));
+
+    expect(findStep(plan.steps, "feedback:check").args).toEqual([
+      "run",
+      "check",
+      "--",
+      "--affected",
+      "--affected-base=origin/main",
+      "--affected-head=feature/head",
+      "--continue=dependencies-successful",
+      "--summarize",
+      "--ui=stream",
+    ]);
+  });
+
+  it("does not enable fingerprint resume until runtime skip execution exists", () => {
     const plan = buildYeetRunPlanForTesting(context, O.some("feat(repo-cli): add yeet"));
 
     expect(findStep(plan.steps, "prepare:lint:fix").resume).toBe("never");
     expect(findStep(plan.steps, "prepare:docgen:local").resume).toBe("never");
-    expect(findStep(plan.steps, "feedback:check").resume).toBe("fingerprint-match");
+    expect(findStep(plan.steps, "feedback:check").resume).toBe("never");
     expect(findStep(plan.steps, "full:quality").resume).toBe("never");
     expect(findStep(plan.steps, "publish:git:commit").resume).toBe("never");
   });
