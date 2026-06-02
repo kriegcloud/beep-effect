@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 81 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1033 |
-| publicExportEntries | 13532 |
-| uniquePackageSymbols | 6023 |
+| importSpecifiers | 1042 |
+| publicExportEntries | 13661 |
+| uniquePackageSymbols | 6065 |
 
 ## Seed Discovery Proof
 
@@ -52,7 +52,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 13 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 14 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 15 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 143 | 1561 | 544 |
+| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 152 | 1690 | 586 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 6 | 23 | 22 |
@@ -808,11 +808,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1682` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
-| `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
+| `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:46` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1825` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:54` | CLI command for synchronizing version pins across the monorepo. |
+| `@beep/repo-cli` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commit/push. |
 | `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
@@ -1916,7 +1917,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerError` | class | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:56` | Structured error emitted when the Codex SDK smoke path fails. |
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:31` | Lifecycle stages surfaced by the Codex smoke runner. |
 | `@beep/repo-cli/commands/Reuse/Reuse.errors` | `CodexRunnerStage` | type | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts:43` | Runtime type for `CodexRunnerStage`. |
-| `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:45` | Top-level CLI command that registers all subcommands. |
+| `@beep/repo-cli/commands/Root` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:46` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli/commands/SyncDataToTs` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsDriftError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:96` | Drift detected in check mode. |
 | `@beep/repo-cli/commands/SyncDataToTs` | `SyncDataToTsError` | class | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.errors.ts:40` | Operational error during source fetch, parsing, projection, or file writes. |
@@ -1943,65 +1944,65 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TopoSort/index` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TopoSort/TopoSort.command` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli/commands/TsconfigSync` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:520` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:543` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1685` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:391` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:414` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1825` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1686` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:190` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:590` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:605` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:267` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:300` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:702` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:682` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:191` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:591` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:606` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:250` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:520` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:543` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1685` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:391` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:414` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1825` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1686` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:190` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:590` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:605` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:267` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:300` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:702` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:682` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:191` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:591` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:606` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:250` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:520` | A planned file change with transformed file content. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:543` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1685` | Synchronize tsconfig references and root aliases under a specific repository root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:391` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:414` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1825` | CLI command for synchronizing root and workspace tsconfig state. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:190` | Command execution mode. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:590` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:605` | Result emitted after a sync run. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:249` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:267` | Runtime options for executing tsconfig sync at a repo root. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:280` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:300` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:702` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:682` | Minimal tsconfig shape containing optional `references`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:626` | Workspace package descriptor with metadata for tsconfig synchronization. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1686` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:191` | Command execution mode. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:591` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:606` | Result emitted after a sync run. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:250` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
@@ -2075,6 +2076,84 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:89` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:115` | Drift detected in check mode (non-zero exit). |
 | `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:40` | Operational error during version sync (file read/write, parse failures). |
+| `@beep/repo-cli/commands/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:566` | Build a schema-first issue index from normalized issues. |
+| `@beep/repo-cli/commands/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:111` | Build the v1 yeet run plan. |
+| `@beep/repo-cli/commands/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:439` | Build a plan for tests without reading repository state. |
+| `@beep/repo-cli/commands/Yeet` | `DEFAULT_YEET_PACKET_DIR` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:27` | Default ignored directory for yeet run artifacts. |
+| `@beep/repo-cli/commands/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:447` | Default yeet run options. |
+| `@beep/repo-cli/commands/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:89` | Create an empty Turbo metadata snapshot. |
+| `@beep/repo-cli/commands/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:152` | Hydrate a shared yeet run context from repository state. |
+| `@beep/repo-cli/commands/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:219` | Package-level issue report rendered into a quality packet. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:165` | One normalized quality issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:39` | Quality issue category. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:66` | Quality issue category. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:106` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:118` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:245` | Complete quality issue index for a yeet run. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:133` | Specialist routing hint for one issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:80` | Quality issue severity. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:92` | Quality issue severity. |
+| `@beep/repo-cli/commands/Yeet` | `qualityIssuesFromStepResult` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:511` | Convert a failed step result into quality issues. |
+| `@beep/repo-cli/commands/Yeet` | `renderPackageQualityPacketDocument` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:125` | Build a Markdown AST document for one package quality report. |
+| `@beep/repo-cli/commands/Yeet` | `renderPackageQualityPacketMarkdown` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:176` | Render one package quality packet as Markdown. |
+| `@beep/repo-cli/commands/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:407` | Run yeet with the provided options. |
+| `@beep/repo-cli/commands/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commit/push. |
+| `@beep/repo-cli/commands/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
+| `@beep/repo-cli/commands/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:207` | Return plan phases in execution order. |
+| `@beep/repo-cli/commands/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:47` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/commands/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:74` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/commands/Yeet/index` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:566` | Build a schema-first issue index from normalized issues. |
+| `@beep/repo-cli/commands/Yeet/index` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:111` | Build the v1 yeet run plan. |
+| `@beep/repo-cli/commands/Yeet/index` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:439` | Build a plan for tests without reading repository state. |
+| `@beep/repo-cli/commands/Yeet/index` | `DEFAULT_YEET_PACKET_DIR` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:27` | Default ignored directory for yeet run artifacts. |
+| `@beep/repo-cli/commands/Yeet/index` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:447` | Default yeet run options. |
+| `@beep/repo-cli/commands/Yeet/index` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:89` | Create an empty Turbo metadata snapshot. |
+| `@beep/repo-cli/commands/Yeet/index` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:152` | Hydrate a shared yeet run context from repository state. |
+| `@beep/repo-cli/commands/Yeet/index` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:219` | Package-level issue report rendered into a quality packet. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:165` | One normalized quality issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:39` | Quality issue category. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:66` | Quality issue category. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:106` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:118` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:245` | Complete quality issue index for a yeet run. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:133` | Specialist routing hint for one issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:80` | Quality issue severity. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:92` | Quality issue severity. |
+| `@beep/repo-cli/commands/Yeet/index` | `qualityIssuesFromStepResult` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:511` | Convert a failed step result into quality issues. |
+| `@beep/repo-cli/commands/Yeet/index` | `renderPackageQualityPacketDocument` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:125` | Build a Markdown AST document for one package quality report. |
+| `@beep/repo-cli/commands/Yeet/index` | `renderPackageQualityPacketMarkdown` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:176` | Render one package quality packet as Markdown. |
+| `@beep/repo-cli/commands/Yeet/index` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:407` | Run yeet with the provided options. |
+| `@beep/repo-cli/commands/Yeet/index` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commit/push. |
+| `@beep/repo-cli/commands/Yeet/index` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
+| `@beep/repo-cli/commands/Yeet/index` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:207` | Return plan phases in execution order. |
+| `@beep/repo-cli/commands/Yeet/index` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:47` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/commands/Yeet/index` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:74` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/commands/Yeet/internal/Handler` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:439` | Build a plan for tests without reading repository state. |
+| `@beep/repo-cli/commands/Yeet/internal/Handler` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:447` | Default yeet run options. |
+| `@beep/repo-cli/commands/Yeet/internal/Handler` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:152` | Hydrate a shared yeet run context from repository state. |
+| `@beep/repo-cli/commands/Yeet/internal/Handler` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:407` | Run yeet with the provided options. |
+| `@beep/repo-cli/commands/Yeet/internal/Handler` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:47` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/commands/Yeet/internal/Handler` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:74` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/commands/Yeet/internal/PacketRenderer` | `renderPackageQualityPacketDocument` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:125` | Build a Markdown AST document for one package quality report. |
+| `@beep/repo-cli/commands/Yeet/internal/PacketRenderer` | `renderPackageQualityPacketMarkdown` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:176` | Render one package quality packet as Markdown. |
+| `@beep/repo-cli/commands/Yeet/internal/Planner` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:111` | Build the v1 yeet run plan. |
+| `@beep/repo-cli/commands/Yeet/internal/Planner` | `DEFAULT_YEET_PACKET_DIR` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:27` | Default ignored directory for yeet run artifacts. |
+| `@beep/repo-cli/commands/Yeet/internal/Planner` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:89` | Create an empty Turbo metadata snapshot. |
+| `@beep/repo-cli/commands/Yeet/internal/Planner` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:207` | Return plan phases in execution order. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:566` | Build a schema-first issue index from normalized issues. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:219` | Package-level issue report rendered into a quality packet. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:165` | One normalized quality issue. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:39` | Quality issue category. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:66` | Quality issue category. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:106` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:118` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:245` | Complete quality issue index for a yeet run. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:133` | Specialist routing hint for one issue. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:80` | Quality issue severity. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:92` | Quality issue severity. |
+| `@beep/repo-cli/commands/Yeet/internal/QualityIssueIndex` | `qualityIssuesFromStepResult` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:511` | Convert a failed step result into quality issues. |
+| `@beep/repo-cli/commands/Yeet/Yeet.command` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commit/push. |
+| `@beep/repo-cli/commands/Yeet/Yeet.errors` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:671` | Check whether config entries already exist (for dry-run output). |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:589` | Batch read-only drift checker for root config updates. |
 | `@beep/repo-cli/test/CreatePackage` | `ConfigUpdateBatchResult` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:118` | Batch config orchestration result for one or more package targets. |
@@ -2354,6 +2433,56 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:242` | Full version sync report across all categories. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:382` | Resolver output consumed by reporting and write-mode services. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:366` | YAML location to update in write mode. |
+| `@beep/repo-cli/test/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:566` | Build a schema-first issue index from normalized issues. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:111` | Build the v1 yeet run plan. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:439` | Build a plan for tests without reading repository state. |
+| `@beep/repo-cli/test/Yeet` | `byRepoPlanStepAscending` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:348` | Order repository plan steps by phase, then identifier. |
+| `@beep/repo-cli/test/Yeet` | `commandTextForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:378` | Render a planned step as a shell-like command string. |
+| `@beep/repo-cli/test/Yeet` | `DEFAULT_YEET_PACKET_DIR` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:27` | Default ignored directory for yeet run artifacts. |
+| `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:447` | Default yeet run options. |
+| `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:89` | Create an empty Turbo metadata snapshot. |
+| `@beep/repo-cli/test/Yeet` | `enforceConservativeResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:405` | Ensure a step's resume field follows v1 safety rules. |
+| `@beep/repo-cli/test/Yeet` | `executeRepoPlanStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:149` | Execute a planned repository step and optionally persist its raw output. |
+| `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:152` | Hydrate a shared yeet run context from repository state. |
+| `@beep/repo-cli/test/Yeet` | `isConservativeResumeCandidate` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:394` | Determine whether a planned step may use conservative resume metadata. |
+| `@beep/repo-cli/test/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:219` | Package-level issue report rendered into a quality packet. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:165` | One normalized quality issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:39` | Quality issue category. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:66` | Quality issue category. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:106` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:118` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:245` | Complete quality issue index for a yeet run. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:133` | Specialist routing hint for one issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:80` | Quality issue severity. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:92` | Quality issue severity. |
+| `@beep/repo-cli/test/Yeet` | `qualityIssuesFromStepResult` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:511` | Convert a failed step result into quality issues. |
+| `@beep/repo-cli/test/Yeet` | `renderPackageQualityPacketDocument` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:125` | Build a Markdown AST document for one package quality report. |
+| `@beep/repo-cli/test/Yeet` | `renderPackageQualityPacketMarkdown` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:176` | Render one package quality packet as Markdown. |
+| `@beep/repo-cli/test/Yeet` | `RepoGraphHealthStatus` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:133` | Graph-health signal recorded while hydrating a run context. |
+| `@beep/repo-cli/test/Yeet` | `RepoGraphHealthStatus` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:145` | Graph-health signal recorded while hydrating a run context. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanPhase` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:29` | Plan phase used by repository run orchestration. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanPhase` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:41` | Plan phase used by repository run orchestration. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStep` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:262` | One subprocess or git operation planned for a repo run. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepMutability` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:55` | Step mutability classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepMutability` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:67` | Step mutability classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:107` | Conservative resume eligibility for a planned step. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepResume` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:119` | Conservative resume eligibility for a planned step. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepScope` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:81` | Step scope classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepScope` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:93` | Step scope classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoRunContext` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:223` | Shared run context hydrated before planning. |
+| `@beep/repo-cli/test/Yeet` | `RepoRunPlan` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:297` | Repository run plan. |
+| `@beep/repo-cli/test/Yeet` | `RepoStepRunResult` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:320` | Captured subprocess result for a planned step. |
+| `@beep/repo-cli/test/Yeet` | `resolveLocalRepoBinary` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:189` | Resolve a local node_modules binary when present. |
+| `@beep/repo-cli/test/Yeet` | `runRepoCommandCapture` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:89` | Execute a command and capture combined output. |
+| `@beep/repo-cli/test/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:407` | Run yeet with the provided options. |
+| `@beep/repo-cli/test/Yeet` | `TurboPlanSnapshot` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:189` | Turbo snapshot stored in the shared run context. |
+| `@beep/repo-cli/test/Yeet` | `TurboPlanTask` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:160` | Turbo task metadata captured from dry-runs or summaries. |
+| `@beep/repo-cli/test/Yeet` | `turboTaskForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:422` | Lookup Turbo metadata for a planned step, if available. |
+| `@beep/repo-cli/test/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commit/push. |
+| `@beep/repo-cli/test/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
+| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:207` | Return plan phases in execution order. |
+| `@beep/repo-cli/test/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:47` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/test/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:74` | Result returned by a yeet execution attempt. |
 
 ### @beep/ai-sync
 

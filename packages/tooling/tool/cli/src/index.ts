@@ -360,3 +360,18 @@ export {
    */
   versionSyncCommand,
 } from "./commands/VersionSync/index.js";
+/**
+ * Yeet quality feedback and publish command.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Yeet quality feedback and publish command.
+   *
+   * @category cli-commands
+   * @since 0.0.0
+   */
+  yeetCommand,
+} from "./commands/Yeet/index.js";

@@ -147,9 +147,9 @@ Use workspace protocol for internal packages:
 ```json
 {
   "exports": {
-    ".": "./src/index.ts-morph",
+    ".": "./src/index.ts",
     "./button": "./src/button.tsx",
-    "./utils": "./src/utils.ts-morph"
+    "./utils": "./src/utils.ts"
   }
 }
 ```
@@ -158,8 +158,8 @@ Use workspace protocol for internal packages:
 
 Don't create `index.ts` files that re-export everything:
 
-```typescript nocheck
-// BAD: packages/ui/src/index.ts-morph
+```typescript
+// BAD: packages/ui/src/index.ts
 export * from './button';
 export * from './card';
 export * from './modal';
@@ -192,10 +192,10 @@ export * from './modal';
 
 ```typescript
 // BAD: Reaching into another package
-import { Button } from '../../packages/ui/src/button';
+import { Button } from "../../packages/ui/src/button";
 
 // GOOD: Install and import properly
-import { Button } from '@repo/ui/button';
+import { Button } from "@repo/ui/button";
 ```
 
 ### Shared Code in Apps

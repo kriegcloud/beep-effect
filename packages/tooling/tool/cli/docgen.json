@@ -113,6 +113,9 @@
       "@beep/repo-cli/commands/VersionSync": [
         "../../../../packages/tooling/tool/cli/src/commands/VersionSync/index.ts"
       ],
+      "@beep/repo-cli/commands/Yeet": [
+        "../../../../packages/tooling/tool/cli/src/commands/Yeet/index.ts"
+      ],
       "@beep/chalk": [
         "../../../../packages/foundation/capability/chalk/src/index.ts"
       ],
@@ -142,6 +145,21 @@
       ],
       "@beep/identity/packages": [
         "../../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/md": [
+        "../../../../packages/foundation/capability/md/src/index.ts"
+      ],
+      "@beep/md/Md": [
+        "../../../../packages/foundation/capability/md/src/Md.ts"
+      ],
+      "@beep/md/Md.model": [
+        "../../../../packages/foundation/capability/md/src/Md.model.ts"
+      ],
+      "@beep/md/Md.render": [
+        "../../../../packages/foundation/capability/md/src/Md.render.ts"
+      ],
+      "@beep/md/Md.utils": [
+        "../../../../packages/foundation/capability/md/src/Md.utils.ts"
       ],
       "@beep/observability": [
         "../../../../packages/foundation/capability/observability/src/index.ts"

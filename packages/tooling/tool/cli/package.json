@@ -44,6 +44,7 @@
     "./commands/TopoSort": "./src/commands/TopoSort/index.ts",
     "./commands/TsconfigSync": "./src/commands/TsconfigSync/index.ts",
     "./commands/VersionSync": "./src/commands/VersionSync/index.ts",
+    "./commands/Yeet": "./src/commands/Yeet/index.ts",
     "./commands/*": "./src/commands/*.ts",
     "./internal/*": null,
     "./test/*": "./src/test/*.test-kit.ts",
@@ -90,6 +91,7 @@
       "./commands/TopoSort": "./dist/commands/TopoSort/index.js",
       "./commands/TsconfigSync": "./dist/commands/TsconfigSync/index.js",
       "./commands/VersionSync": "./dist/commands/VersionSync/index.js",
+      "./commands/Yeet": "./dist/commands/Yeet/index.js",
       "./internal/*": null,
       "./test/*": null,
       "./bin": null
@@ -126,6 +128,7 @@
     "@beep/face-detection": "workspace:^",
     "@beep/ffmpeg": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@beep/md": "workspace:^",
     "@beep/observability": "workspace:^",
     "@beep/phoenix": "workspace:^",
     "@beep/repo-ai-metrics": "workspace:^",

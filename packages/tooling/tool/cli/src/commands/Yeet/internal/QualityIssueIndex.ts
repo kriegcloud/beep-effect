@@ -1,0 +1,587 @@
+/**
+ * Schema-first quality issue index for yeet feedback packets.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $RepoCliId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import * as A from "effect/Array";
+import { flow, pipe } from "effect/Function";
+import * as O from "effect/Option";
+import * as Order from "effect/Order";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { commandTextForStep, turboTaskForStep } from "../../../internal/repo-run/index.js";
+import type { RepoPlanStep, RepoRunContext, RepoStepRunResult } from "../../../internal/repo-run/index.js";
+
+const $I = $RepoCliId.create("commands/Yeet/internal/QualityIssueIndex");
+
+const MAX_RAW_EXCERPT_CHARS = 4 * 1024;
+const ansiPattern = /\u001b\[[0-9;]*m/gu;
+const tsDiagnosticPattern =
+  /^(?<file>[^:\n]+):(?<line>\d+):(?<column>\d+)(?:\s+-)?\s+(?<severity>error|warning)\s+TS(?<code>\d+):\s+(?<message>.+)$/u;
+
+/**
+ * Classification domain for normalized yeet quality findings.
+ *
+ * @example
+ * ```ts
+ * import { QualityIssueCategory } from "@beep/repo-cli/commands/Yeet"
+ *
+ * console.log(QualityIssueCategory.is.typecheck("typecheck"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const QualityIssueCategory = LiteralKit([
+  "typecheck",
+  "effect-tsgo-policy",
+  "docgen-jsdoc-quality",
+  "repo-law",
+  "schema-first-policy",
+  "lint-tool",
+  "test",
+  "build",
+  "changeset-policy",
+  "repo-export-policy",
+  "security-audit",
+  "command-failure",
+  "parser-error",
+  "unknown-raw",
+]).pipe(
+  $I.annoteSchema("QualityIssueCategory", {
+    description: "Category for a normalized yeet quality issue.",
+  })
+);
+
+/**
+ * Type-level union of normalized yeet quality finding categories.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type QualityIssueCategory = typeof QualityIssueCategory.Type;
+
+/**
+ * Blocking level assigned to a normalized yeet quality finding.
+ *
+ * @example
+ * ```ts
+ * import { QualityIssueSeverity } from "@beep/repo-cli/commands/Yeet"
+ *
+ * console.log(QualityIssueSeverity.is.error("error"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const QualityIssueSeverity = LiteralKit(["info", "warning", "error", "fatal"]).pipe(
+  $I.annoteSchema("QualityIssueSeverity", {
+    description: "Severity assigned to a yeet quality issue.",
+  })
+);
+
+/**
+ * Type-level union of yeet quality severity literals.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type QualityIssueSeverity = typeof QualityIssueSeverity.Type;
+
+/**
+ * Parser confidence for a normalized issue.
+ *
+ * @example
+ * ```ts
+ * import { QualityIssueConfidence } from "@beep/repo-cli/commands/Yeet"
+ *
+ * console.log(QualityIssueConfidence.is.raw("raw"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const QualityIssueConfidence = LiteralKit(["structured", "partial", "raw"]).pipe(
+  $I.annoteSchema("QualityIssueConfidence", {
+    description: "Confidence level for a yeet quality issue parser result.",
+  })
+);
+
+/**
+ * Parser confidence for a normalized issue.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type QualityIssueConfidence = typeof QualityIssueConfidence.Type;
+
+/**
+ * Specialist routing hint for one issue.
+ *
+ * @example
+ * ```ts
+ * import { QualityIssueRouting } from "@beep/repo-cli/commands/Yeet"
+ *
+ * const routing = QualityIssueRouting.make({ skill: "effect-first-development", reason: "Effect law failure" })
+ * console.log(routing.skill)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class QualityIssueRouting extends S.Class<QualityIssueRouting>($I`QualityIssueRouting`)(
+  {
+    skill: S.String,
+    reason: S.String,
+  },
+  $I.annote("QualityIssueRouting", {
+    description: "Suggested specialist skill or agent route for a quality issue.",
+  })
+) {}
+
+/**
+ * One normalized quality issue.
+ *
+ * @example
+ * ```ts
+ * import { QualityIssue } from "@beep/repo-cli/commands/Yeet"
+ *
+ * const issue = QualityIssue.make({
+ *   blocking: true,
+ *   category: "command-failure",
+ *   confidence: "raw",
+ *   evidence: [],
+ *   id: "issue-1",
+ *   message: "Command failed",
+ *   severity: "error",
+ *   tool: "yeet"
+ * })
+ * console.log(issue.id)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class QualityIssue extends S.Class<QualityIssue>($I`QualityIssue`)(
+  {
+    id: S.String,
+    category: QualityIssueCategory,
+    subCategory: S.optionalKey(S.String),
+    severity: QualityIssueSeverity,
+    blocking: S.Boolean,
+    confidence: QualityIssueConfidence,
+    message: S.String,
+    evidence: S.Array(S.String),
+    remediation: S.optionalKey(S.String),
+    packageName: S.optionalKey(S.String),
+    packagePath: S.optionalKey(S.String),
+    file: S.optionalKey(S.String),
+    line: S.optionalKey(S.Number),
+    column: S.optionalKey(S.Number),
+    endLine: S.optionalKey(S.Number),
+    endColumn: S.optionalKey(S.Number),
+    symbol: S.optionalKey(S.String),
+    exportName: S.optionalKey(S.String),
+    sourceAnchor: S.optionalKey(S.String),
+    tool: S.String,
+    parser: S.String,
+    task: S.optionalKey(S.String),
+    label: S.optionalKey(S.String),
+    command: S.optionalKey(S.String),
+    cwd: S.optionalKey(S.String),
+    exitCode: S.optionalKey(S.Number),
+    rawOutputRef: S.optionalKey(S.String),
+    rawExcerpt: S.optionalKey(S.String),
+    truncated: S.optionalKey(S.Boolean),
+    turboTaskId: S.optionalKey(S.String),
+    turboHash: S.optionalKey(S.String),
+    cacheState: S.optionalKey(S.String),
+    routing: S.Array(QualityIssueRouting),
+  },
+  $I.annote("QualityIssue", {
+    description: "One normalized quality issue captured by yeet.",
+  })
+) {}
+
+/**
+ * Package-level issue report rendered into a quality packet.
+ *
+ * @example
+ * ```ts
+ * import { PackageQualityReport } from "@beep/repo-cli/commands/Yeet"
+ *
+ * const report = PackageQualityReport.make({ issueCount: 0, issues: [], packageName: "@beep/root" })
+ * console.log(report.issueCount)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageQualityReport extends S.Class<PackageQualityReport>($I`PackageQualityReport`)(
+  {
+    packageName: S.String,
+    packagePath: S.optionalKey(S.String),
+    issueCount: S.Number,
+    blockingCount: S.Number,
+    issues: S.Array(QualityIssue),
+  },
+  $I.annote("PackageQualityReport", {
+    description: "Package-grouped view of yeet quality issues.",
+  })
+) {}
+
+/**
+ * Complete quality issue index for a yeet run.
+ *
+ * @example
+ * ```ts
+ * import { QualityIssueIndex } from "@beep/repo-cli/commands/Yeet"
+ *
+ * const index = QualityIssueIndex.make({ issues: [], packages: [], rawOutputRefs: [], schemaVersion: "yeet-quality-issue-index/v1" })
+ * console.log(index.schemaVersion)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class QualityIssueIndex extends S.Class<QualityIssueIndex>($I`QualityIssueIndex`)(
+  {
+    schemaVersion: S.Literal("yeet-quality-issue-index/v1"),
+    issues: S.Array(QualityIssue),
+    packages: S.Array(PackageQualityReport),
+    rawOutputRefs: S.Array(S.String),
+  },
+  $I.annote("QualityIssueIndex", {
+    description: "Schema-first collection of issues and package packet summaries for yeet.",
+  })
+) {}
+
+const issueOrder: Order.Order<QualityIssue> = Order.combine(
+  Order.mapInput(Order.String, (issue: QualityIssue) => issue.packageName ?? ""),
+  Order.combine(
+    Order.mapInput(Order.String, (issue: QualityIssue) => issue.category),
+    Order.mapInput(Order.String, (issue: QualityIssue) => issue.id)
+  )
+);
+
+const packageReportOrder: Order.Order<PackageQualityReport> = Order.mapInput(
+  Order.String,
+  (report: PackageQualityReport) => report.packageName
+);
+
+const stripAnsi = Str.replace(ansiPattern, "");
+const normalizeOutput = flow(stripAnsi, Str.trim);
+const lineText = flow(Str.trim, normalizeOutput);
+const nonEmptyLines = flow(Str.split(/\r?\n/u), A.map(lineText), A.filter(Str.isNonEmpty));
+const truncateExcerpt = (value: string): string =>
+  Str.length(value) <= MAX_RAW_EXCERPT_CHARS
+    ? value
+    : `${Str.slice(0, MAX_RAW_EXCERPT_CHARS)(value)}\n[yeet] excerpt truncated`;
+
+const issuePackageName = (issue: QualityIssue): string => issue.packageName ?? "@beep/root";
+const issuePackagePath = (issue: QualityIssue): O.Option<string> => O.fromUndefinedOr(issue.packagePath);
+const packageKey = (issue: QualityIssue): string => `${issuePackageName(issue)}\u0000${issue.packagePath ?? ""}`;
+
+const routeForCategory = (category: QualityIssueCategory): ReadonlyArray<QualityIssueRouting> =>
+  QualityIssueCategory.$match(category, {
+    "docgen-jsdoc-quality": () => [
+      QualityIssueRouting.make({ skill: "jsdoc-annotation-specialist", reason: "JSDoc/docgen quality finding" }),
+    ],
+    "schema-first-policy": () => [
+      QualityIssueRouting.make({ skill: "schema-first-development", reason: "Schema-first policy finding" }),
+    ],
+    "effect-tsgo-policy": () => [
+      QualityIssueRouting.make({ skill: "effect-first-development", reason: "Effect tsgo diagnostic" }),
+    ],
+    "repo-law": () => [
+      QualityIssueRouting.make({ skill: "effect-first-development", reason: "Repository law finding" }),
+    ],
+    "command-failure": () => [
+      QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Raw command failure needs triage" }),
+    ],
+    "parser-error": () => [
+      QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Issue parser failed to classify output" }),
+    ],
+    "unknown-raw": () => [
+      QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Raw quality output needs classification" }),
+    ],
+    typecheck: () => [
+      QualityIssueRouting.make({ skill: "effect-first-development", reason: "TypeScript check failure" }),
+    ],
+    "lint-tool": () => [QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Tool lint failure" })],
+    test: () => [QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Test failure" })],
+    build: () => [QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Build failure" })],
+    "changeset-policy": () => [
+      QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Changeset policy failure" }),
+    ],
+    "repo-export-policy": () => [
+      QualityIssueRouting.make({ skill: "repo-symbol-discovery", reason: "Repo export catalog failure" }),
+    ],
+    "security-audit": () => [
+      QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Security audit failure" }),
+    ],
+  });
+
+const categoryForStep = (step: RepoPlanStep): QualityIssueCategory => {
+  const label = step.label;
+  if (Str.includes("docgen")(label)) {
+    return "docgen-jsdoc-quality";
+  }
+  if (Str.includes("schema")(label)) {
+    return "schema-first-policy";
+  }
+  if (Str.includes("tsgo")(label) || Str.includes("effect")(label)) {
+    return "effect-tsgo-policy";
+  }
+  if (Str.includes("repo-exports")(label)) {
+    return "repo-export-policy";
+  }
+  if (Str.includes("changeset")(label)) {
+    return "changeset-policy";
+  }
+  if (Str.includes("security")(label) || Str.includes("secrets")(label) || Str.includes("audit")(label)) {
+    return "security-audit";
+  }
+  if (Str.includes("lint")(label)) {
+    return "lint-tool";
+  }
+  if (Str.includes("test")(label)) {
+    return "test";
+  }
+  if (Str.includes("build")(label)) {
+    return "build";
+  }
+  if (Str.includes("law")(label)) {
+    return "repo-law";
+  }
+  return "command-failure";
+};
+
+const severityForLine = (severity: string): QualityIssueSeverity => (severity === "warning" ? "warning" : "error");
+const lineIndicatesEffectDiagnostic = (line: string): boolean =>
+  Str.includes(" effect(")(line) || Str.includes("effectFn")(line) || Str.includes("@effect")(line);
+
+const optionalNumberFromString = (value: string | undefined): O.Option<number> =>
+  pipe(
+    O.fromUndefinedOr(value),
+    O.flatMap((text) => {
+      const parsed = globalThis.Number.parseInt(text, 10);
+      return globalThis.Number.isNaN(parsed) ? O.none<number>() : O.some(parsed);
+    })
+  );
+
+const optionalStringFromStep = (value: string | undefined): O.Option<string> =>
+  pipe(O.fromUndefinedOr(value), O.filter(Str.isNonEmpty));
+const optionalProp = <Key extends string, Value>(key: Key, value: O.Option<Value>): { readonly [K in Key]?: Value } =>
+  O.isSome(value) ? ({ [key]: value.value } as { readonly [K in Key]?: Value }) : {};
+
+const issueId = (
+  step: RepoPlanStep,
+  category: QualityIssueCategory,
+  message: string,
+  file: O.Option<string>,
+  line: O.Option<number>
+): string =>
+  A.join(
+    [
+      step.id,
+      category,
+      O.getOrElse(file, () => "repo"),
+      pipe(
+        line,
+        O.map((value) => `${value}`),
+        O.getOrElse(() => "0")
+      ),
+      Str.slice(0, 96)(message),
+    ],
+    "::"
+  );
+
+const issueBase = (
+  context: RepoRunContext,
+  step: RepoPlanStep,
+  result: RepoStepRunResult,
+  category: QualityIssueCategory,
+  message: string
+) => {
+  const turboTask = turboTaskForStep(context, step);
+  return {
+    category,
+    blocking: true,
+    confidence: "partial" as const,
+    message,
+    tool: step.task ?? step.label,
+    parser: "yeet/raw-plus-known/v1",
+    evidence: A.empty<string>(),
+    routing: [...routeForCategory(category)],
+    ...optionalProp("packageName", optionalStringFromStep(step.packageName)),
+    ...optionalProp("packagePath", optionalStringFromStep(step.packagePath)),
+    ...optionalProp("task", optionalStringFromStep(step.task)),
+    ...optionalProp("label", O.some(step.label)),
+    ...optionalProp("command", O.some(commandTextForStep(step))),
+    ...optionalProp("cwd", O.some(step.cwd)),
+    ...optionalProp("exitCode", O.some(result.exitCode)),
+    ...optionalProp("rawOutputRef", O.fromUndefinedOr(result.rawOutputRef)),
+    ...optionalProp("rawExcerpt", pipe(O.fromUndefinedOr(result.output), O.map(truncateExcerpt))),
+    ...optionalProp("truncated", O.fromUndefinedOr(result.truncated)),
+    ...optionalProp(
+      "turboTaskId",
+      pipe(
+        turboTask,
+        O.map((task) => task.taskId)
+      )
+    ),
+    ...optionalProp(
+      "turboHash",
+      pipe(
+        turboTask,
+        O.flatMap((task) => O.fromUndefinedOr(task.hash))
+      )
+    ),
+    ...optionalProp(
+      "cacheState",
+      pipe(
+        turboTask,
+        O.flatMap((task) => O.fromUndefinedOr(task.cacheStatus))
+      )
+    ),
+  };
+};
+
+const diagnosticIssueFromLine = (
+  context: RepoRunContext,
+  step: RepoPlanStep,
+  result: RepoStepRunResult,
+  line: string
+): O.Option<QualityIssue> => {
+  const match = tsDiagnosticPattern.exec(line);
+  if (match?.groups === undefined) {
+    return O.none();
+  }
+
+  const file = O.fromUndefinedOr(match.groups.file);
+  const startLine = optionalNumberFromString(match.groups.line);
+  const startColumn = optionalNumberFromString(match.groups.column);
+  const message = match.groups.message ?? line;
+  const category: QualityIssueCategory = lineIndicatesEffectDiagnostic(line) ? "effect-tsgo-policy" : "typecheck";
+
+  return O.some(
+    QualityIssue.make({
+      ...issueBase(context, step, result, category, message),
+      id: issueId(step, category, message, file, startLine),
+      severity: severityForLine(match.groups.severity ?? "error"),
+      confidence: "structured",
+      evidence: [line],
+      ...optionalProp("file", file),
+      ...optionalProp("line", startLine),
+      ...optionalProp("column", startColumn),
+    })
+  );
+};
+
+const fallbackIssueFromResult = (
+  context: RepoRunContext,
+  step: RepoPlanStep,
+  result: RepoStepRunResult
+): QualityIssue => {
+  const category = categoryForStep(step);
+  const message = `${step.label} failed with exit code ${result.exitCode}.`;
+  return QualityIssue.make({
+    ...issueBase(context, step, result, category, message),
+    id: issueId(step, category, message, O.none(), O.none()),
+    severity: "error",
+    confidence: "raw",
+  });
+};
+
+/**
+ * Convert a failed step result into quality issues.
+ *
+ * @param context - Shared run context.
+ * @param step - Planned step that produced the result.
+ * @param result - Captured step result.
+ * @returns Structured or raw issues; successful results produce no issues.
+ * @example
+ * ```ts
+ * import { qualityIssuesFromStepResult } from "@beep/repo-cli/commands/Yeet"
+ *
+ * console.log(qualityIssuesFromStepResult)
+ * ```
+ * @category parsing
+ * @since 0.0.0
+ */
+export const qualityIssuesFromStepResult = (
+  context: RepoRunContext,
+  step: RepoPlanStep,
+  result: RepoStepRunResult
+): ReadonlyArray<QualityIssue> => {
+  if (result.exitCode === 0) {
+    return A.empty();
+  }
+
+  const parsedIssues = pipe(
+    result.output ?? "",
+    nonEmptyLines,
+    A.map((line) => diagnosticIssueFromLine(context, step, result, line)),
+    A.getSomes
+  );
+
+  return A.isReadonlyArrayNonEmpty(parsedIssues) ? parsedIssues : [fallbackIssueFromResult(context, step, result)];
+};
+
+const packageReportForKey = (issues: ReadonlyArray<QualityIssue>, key: string): PackageQualityReport => {
+  const packageIssues = pipe(
+    issues,
+    A.filter((issue) => packageKey(issue) === key),
+    A.sort(issueOrder)
+  );
+  const firstIssue = A.head(packageIssues);
+  const packageName = pipe(
+    firstIssue,
+    O.map(issuePackageName),
+    O.getOrElse(() => "@beep/root")
+  );
+  const packagePath = pipe(firstIssue, O.flatMap(issuePackagePath));
+  return PackageQualityReport.make({
+    packageName,
+    issueCount: A.length(packageIssues),
+    blockingCount: A.length(A.filter(packageIssues, (issue) => issue.blocking)),
+    issues: packageIssues,
+    ...optionalProp("packagePath", packagePath),
+  });
+};
+
+/**
+ * Build a schema-first issue index from normalized issues.
+ *
+ * @param issues - Issues discovered during a yeet run.
+ * @returns Stable issue index with package grouping.
+ * @example
+ * ```ts
+ * import { buildQualityIssueIndex } from "@beep/repo-cli/commands/Yeet"
+ *
+ * console.log(buildQualityIssueIndex([]).schemaVersion)
+ * ```
+ * @category constructors
+ * @since 0.0.0
+ */
+export const buildQualityIssueIndex = (issues: ReadonlyArray<QualityIssue>): QualityIssueIndex => {
+  const sortedIssues = A.sort(issues, issueOrder);
+  const packageKeys = pipe(sortedIssues, A.map(packageKey), A.dedupe, A.sort(Order.String));
+  const packages = pipe(
+    packageKeys,
+    A.map((key) => packageReportForKey(sortedIssues, key)),
+    A.sort(packageReportOrder)
+  );
+  const rawOutputRefs = pipe(
+    sortedIssues,
+    A.map((issue) => issue.rawOutputRef),
+    A.filter(P.isNotUndefined),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+  return QualityIssueIndex.make({
+    schemaVersion: "yeet-quality-issue-index/v1",
+    issues: sortedIssues,
+    packages,
+    rawOutputRefs,
+  });
+};

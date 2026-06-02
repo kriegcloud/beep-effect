@@ -1,0 +1,198 @@
+/**
+ * Shared subprocess execution helpers for repository run plans.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { DomainError } from "@beep/repo-utils";
+import { Console, Effect, FileSystem, Path, Stream } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+import { ChildProcess } from "effect/unstable/process";
+import { commandTextForStep, RepoStepRunResult } from "./RepoRun.models.js";
+import type { ChildProcessSpawner } from "effect/unstable/process";
+import type { RepoPlanStep } from "./RepoRun.models.js";
+
+const MAX_STEP_OUTPUT_CHARS = 512 * 1024;
+const outputTruncatedNotice = `\n[repo-run] output truncated after ${MAX_STEP_OUTPUT_CHARS} characters`;
+
+type BoundedOutputState = {
+  readonly text: string;
+  readonly truncated: boolean;
+};
+
+type RepoCommandOutput = {
+  readonly exitCode: number;
+  readonly output: string;
+  readonly truncated: boolean;
+};
+
+const emptyOutputState: BoundedOutputState = {
+  text: "",
+  truncated: false,
+};
+
+const appendOutputChunk = (state: BoundedOutputState, chunk: string): BoundedOutputState => {
+  if (state.truncated) {
+    return state;
+  }
+
+  const remaining = MAX_STEP_OUTPUT_CHARS - Str.length(state.text);
+  if (remaining <= 0) {
+    return {
+      text: `${state.text}${outputTruncatedNotice}`,
+      truncated: true,
+    };
+  }
+
+  if (Str.length(chunk) <= remaining) {
+    return {
+      text: `${state.text}${chunk}`,
+      truncated: false,
+    };
+  }
+
+  return {
+    text: `${state.text}${Str.slice(0, remaining)(chunk)}${outputTruncatedNotice}`,
+    truncated: true,
+  };
+};
+
+const collectOutput = <E>(stream: Stream.Stream<Uint8Array, E>) =>
+  stream.pipe(
+    Stream.decodeText(),
+    Stream.runFold(() => emptyOutputState, appendOutputChunk)
+  );
+
+/**
+ * Execute a command and capture combined output.
+ *
+ * Non-zero exit codes are represented in the returned value. Spawn failures
+ * remain typed operational errors.
+ *
+ * @param command - Executable name or path.
+ * @param args - Command arguments.
+ * @param cwd - Working directory.
+ * @param env - Optional environment overrides.
+ * @returns Captured output and exit code.
+ * @example
+ * ```ts
+ * import { runRepoCommandCapture } from "@beep/repo-cli/internal/repo-run"
+ *
+ * console.log(runRepoCommandCapture)
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const runRepoCommandCapture = Effect.fn("RepoRun.runRepoCommandCapture")(function* (
+  command: string,
+  args: ReadonlyArray<string>,
+  cwd: string,
+  env: Record<string, string | undefined> | undefined = undefined
+): Effect.fn.Return<RepoCommandOutput, DomainError, ChildProcessSpawner.ChildProcessSpawner> {
+  const commandText = A.join([command, ...args], " ");
+  return yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make(command, [...args], {
+        cwd,
+        env,
+        extendEnv: true,
+        stdin: "inherit",
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      const [stdout, stderr, exitCode] = yield* Effect.all(
+        [collectOutput(handle.stdout), collectOutput(handle.stderr), handle.exitCode],
+        { concurrency: "unbounded" }
+      );
+      const output = A.join(A.filter([Str.trim(stdout.text), Str.trim(stderr.text)], Str.isNonEmpty), "\n");
+      return {
+        exitCode,
+        output,
+        truncated: stdout.truncated || stderr.truncated,
+      };
+    })
+  ).pipe(Effect.mapError(DomainError.newCause(`Failed to spawn ${commandText}.`)));
+});
+
+const writeRawOutput = Effect.fn("RepoRun.writeRawOutput")(function* (
+  filePath: string,
+  output: string
+): Effect.fn.Return<void, DomainError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  yield* fs
+    .makeDirectory(path.dirname(filePath), { recursive: true })
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to create output directory for "${filePath}".`)));
+  yield* fs
+    .writeFileString(filePath, output)
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to write raw output "${filePath}".`)));
+});
+
+/**
+ * Execute a planned repository step and optionally persist its raw output.
+ *
+ * @param step - Planned step to execute.
+ * @param rawOutputPath - Optional path for captured command output.
+ * @returns Captured step result.
+ * @example
+ * ```ts
+ * import { executeRepoPlanStep } from "@beep/repo-cli/internal/repo-run"
+ *
+ * console.log(executeRepoPlanStep)
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const executeRepoPlanStep = Effect.fn("RepoRun.executeRepoPlanStep")(function* (
+  step: RepoPlanStep,
+  rawOutputPath: O.Option<string> = O.none()
+): Effect.fn.Return<
+  RepoStepRunResult,
+  DomainError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const commandText = commandTextForStep(step);
+  yield* Console.log(`[repo-run] ${step.label}: ${commandText}`);
+  const result = yield* runRepoCommandCapture(step.command, step.args, step.cwd, step.env);
+  if (O.isSome(rawOutputPath)) {
+    yield* writeRawOutput(rawOutputPath.value, result.output);
+  }
+
+  return RepoStepRunResult.make({
+    stepId: step.id,
+    commandText,
+    exitCode: result.exitCode,
+    output: result.output,
+    truncated: result.truncated,
+    ...(O.isSome(rawOutputPath) ? { rawOutputRef: rawOutputPath.value } : {}),
+  });
+});
+
+/**
+ * Resolve a local node_modules binary when present.
+ *
+ * @param repoRoot - Repository root.
+ * @param binary - Binary name.
+ * @returns Absolute binary path when installed, otherwise the binary name.
+ * @example
+ * ```ts
+ * import { resolveLocalRepoBinary } from "@beep/repo-cli/internal/repo-run"
+ *
+ * console.log(resolveLocalRepoBinary)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const resolveLocalRepoBinary = Effect.fn("RepoRun.resolveLocalRepoBinary")(function* (
+  repoRoot: string,
+  binary: string
+): Effect.fn.Return<string, never, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const candidate = path.join(repoRoot, "node_modules", ".bin", binary);
+  const exists = yield* fs.exists(candidate).pipe(Effect.orElseSucceed(() => false));
+  return exists ? candidate : binary;
+});
