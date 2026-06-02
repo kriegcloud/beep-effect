@@ -1,9 +1,7 @@
-import { formatPath } from "../Formatter.ts"
+/**
+ * @since 2.0.0
+ */
 
 /** @internal */
-export function errorWithPath(message: string, path: ReadonlyArray<PropertyKey>) {
-  if (path.length > 0) {
-    message += `\n  at ${formatPath(path)}`
-  }
-  return new Error(message)
-}
+export const getBugErrorMessage = (message: string) =>
+  `BUG: ${message} - please report an issue at https://github.com/Effect-TS/effect/issues`

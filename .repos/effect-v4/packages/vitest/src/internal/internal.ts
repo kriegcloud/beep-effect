@@ -1,96 +1,91 @@
 /**
- * @since 4.0.0
+ * @since 1.0.0
  */
-
-import { getCurrentSuite } from "@vitest/runner"
+import type { Tester, TesterContext } from "@vitest/expect"
+import * as Arbitrary from "effect/Arbitrary"
 import * as Cause from "effect/Cause"
 import * as Duration from "effect/Duration"
 import * as Effect from "effect/Effect"
+import * as Equal from "effect/Equal"
 import * as Exit from "effect/Exit"
-import { flow, pipe } from "effect/Function"
+import * as fc from "effect/FastCheck"
+import * as Fiber from "effect/Fiber"
+import { flow, identity, pipe } from "effect/Function"
 import * as Layer from "effect/Layer"
+import * as Logger from "effect/Logger"
 import { isObject } from "effect/Predicate"
 import * as Schedule from "effect/Schedule"
 import * as Schema from "effect/Schema"
 import * as Scope from "effect/Scope"
-import * as fc from "effect/testing/FastCheck"
-import * as TestClock from "effect/testing/TestClock"
-import * as TestConsole from "effect/testing/TestConsole"
+import * as TestEnvironment from "effect/TestContext"
+import type * as TestServices from "effect/TestServices"
+import * as Utils from "effect/Utils"
 import * as V from "vitest"
-import type * as Vitest from "../index.ts"
+import type * as Vitest from "../index.js"
 
-const runPromise: <E, A>(
-  _: Effect.Effect<A, E, never>,
-  ctx?: V.TestContext | undefined
-) => Promise<A> = Effect.fnUntraced(function*<E, A>(effect: Effect.Effect<A, E>, _ctx?: Vitest.TestContext) {
-  const exit = yield* Effect.exit(effect)
-  if (Exit.isFailure(exit)) {
-    const errors = Cause.prettyErrors(exit.cause)
-    for (let i = 0; i < errors.length; i++) {
-      yield* Effect.logError(errors[i])
+const defaultApi = Object.assign(V.it, { scopedFixtures: V.it.scoped })
+
+const runPromise = (ctx?: Vitest.TestContext) => <E, A>(effect: Effect.Effect<A, E>) =>
+  Effect.gen(function*() {
+    const exitFiber = yield* Effect.fork(Effect.exit(effect))
+
+    ctx?.onTestFinished(() =>
+      Fiber.interrupt(exitFiber).pipe(
+        Effect.asVoid,
+        Effect.runPromise
+      )
+    )
+
+    const exit = yield* Fiber.join(exitFiber)
+    if (Exit.isSuccess(exit)) {
+      return () => exit.value
+    } else {
+      if (Cause.isInterruptedOnly(exit.cause)) {
+        return () => {
+          throw new Error("All fibers interrupted without errors.")
+        }
+      }
+      const errors = Cause.prettyErrors(exit.cause)
+      for (let i = 1; i < errors.length; i++) {
+        yield* Effect.logError(errors[i])
+      }
+      return () => {
+        throw errors[0]
+      }
     }
+  }).pipe((effect) => Effect.runPromise(effect, { signal: ctx?.signal })).then((f) => f())
+
+/** @internal */
+const runTest = (ctx?: Vitest.TestContext) => <E, A>(effect: Effect.Effect<A, E>) => runPromise(ctx)(effect)
+
+/** @internal */
+const TestEnv = TestEnvironment.TestContext.pipe(
+  Layer.provide(Logger.remove(Logger.defaultLogger))
+)
+
+/** @internal */
+function customTester(this: TesterContext, a: unknown, b: unknown, customTesters: Array<Tester>) {
+  if (!Equal.isEqual(a) || !Equal.isEqual(b)) {
+    return undefined
   }
-  return yield* exit
-}, (effect, _, ctx) => Effect.runPromise(effect, { signal: ctx?.signal }))
-
-/** @internal */
-const runTest = (ctx?: Vitest.TestContext) => <E, A>(effect: Effect.Effect<A, E>) => runPromise(effect, ctx)
-
-/** @internal */
-export type TestContext = TestConsole.TestConsole | TestClock.TestClock
-
-const TestEnv = Layer.mergeAll(TestConsole.layer, TestClock.layer())
+  return Utils.structuralRegion(
+    () => Equal.equals(a, b),
+    (x, y) => this.equals(x, y, customTesters.filter((t) => t !== customTester))
+  )
+}
 
 /** @internal */
 export const addEqualityTesters = () => {
-  V.expect.addEqualityTesters([])
+  V.expect.addEqualityTesters([customTester])
 }
 
 /** @internal */
 const testOptions = (timeout?: number | V.TestOptions) => typeof timeout === "number" ? { timeout } : timeout ?? {}
 
-const hookTimeout = (timeout?: Duration.Input) =>
-  timeout === undefined ? undefined : Duration.toMillis(Duration.fromInputUnsafe(timeout))
-
-const makeItProxy = <Methods extends object>(
-  it: V.TestAPI,
-  overrides: Methods
-): Methods & V.TestAPI =>
-  new Proxy(it as Methods & V.TestAPI, {
-    apply(target, thisArg, argArray) {
-      return Reflect.apply(target, thisArg, argArray)
-    },
-    get(target, property, receiver) {
-      if (property in overrides) {
-        return Reflect.get(overrides, property)
-      }
-      const value = Reflect.get(target, property, receiver)
-      return typeof value === "function" ? value.bind(target) : value
-    }
-  })
-
-type CollectedTask = {
-  readonly type: string
-  readonly mode?: string
-  readonly tasks?: ReadonlyArray<CollectedTask>
-}
-
-const collectTasks = (tasks: ReadonlyArray<CollectedTask>, acc: Array<V.TestContext["task"]> = []) => {
-  for (let i = 0; i < tasks.length; i++) {
-    const task = tasks[i]
-    if (task.type === "test" && task.mode !== "skip" && task.mode !== "todo") {
-      acc.push(task as V.TestContext["task"])
-    } else if (task.tasks !== undefined) {
-      collectTasks(task.tasks, acc)
-    }
-  }
-  return acc
-}
-
 /** @internal */
 const makeTester = <R>(
   mapEffect: <A, E>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, never>,
-  it: V.TestAPI = V.it
+  it: Vitest.API = defaultApi
 ): Vitest.Vitest.Tester<R> => {
   const run = <A, E, TestArgs extends Array<unknown>>(
     ctx: V.TestContext & object,
@@ -125,12 +120,7 @@ const makeTester = <R>(
 
   const prop: Vitest.Vitest.Tester<R>["prop"] = (name, arbitraries, self, timeout) => {
     if (Array.isArray(arbitraries)) {
-      const arbs = arbitraries.map((arbitrary) => {
-        if (Schema.isSchema(arbitrary)) {
-          return Schema.toArbitrary(arbitrary)
-        }
-        return arbitrary as fc.Arbitrary<any>
-      })
+      const arbs = arbitraries.map((arbitrary) => Schema.isSchema(arbitrary) ? Arbitrary.make(arbitrary) : arbitrary)
       return it(
         name,
         testOptions(timeout),
@@ -139,7 +129,6 @@ const makeTester = <R>(
           fc.assert(
             // @ts-ignore
             fc.asyncProperty(...arbs, (...as) => run(ctx, [as as any, ctx], self)),
-            // @ts-ignore
             isObject(timeout) ? timeout?.fastCheck : {}
           )
       )
@@ -147,11 +136,7 @@ const makeTester = <R>(
 
     const arbs = fc.record(
       Object.keys(arbitraries).reduce(function(result, key) {
-        const arb: any = arbitraries[key]
-        if (Schema.isSchema(arb)) {
-          result[key] = Schema.toArbitrary(arb)
-        }
-        result[key] = arb
+        result[key] = Schema.isSchema(arbitraries[key]) ? Arbitrary.make(arbitraries[key]) : arbitraries[key]
         return result
       }, {} as Record<string, fc.Arbitrary<any>>)
     )
@@ -165,7 +150,6 @@ const makeTester = <R>(
           fc.asyncProperty(arbs, (...as) =>
             // @ts-ignore
             run(ctx, [as[0] as any, ctx], self)),
-          // @ts-ignore
           isObject(timeout) ? timeout?.fastCheck : {}
         )
     )
@@ -177,12 +161,7 @@ const makeTester = <R>(
 /** @internal */
 export const prop: Vitest.Vitest.Methods["prop"] = (name, arbitraries, self, timeout) => {
   if (Array.isArray(arbitraries)) {
-    const arbs = arbitraries.map((arbitrary) => {
-      if (Schema.isSchema(arbitrary)) {
-        throw new Error("Schemas are not supported yet")
-      }
-      return arbitrary
-    })
+    const arbs = arbitraries.map((arbitrary) => Schema.isSchema(arbitrary) ? Arbitrary.make(arbitrary) : arbitrary)
     return V.it(
       name,
       testOptions(timeout),
@@ -193,11 +172,7 @@ export const prop: Vitest.Vitest.Methods["prop"] = (name, arbitraries, self, tim
 
   const arbs = fc.record(
     Object.keys(arbitraries).reduce(function(result, key) {
-      const arb: any = arbitraries[key]
-      if (Schema.isSchema(arb)) {
-        throw new Error("Schemas are not supported yet")
-      }
-      result[key] = arb
+      result[key] = Schema.isSchema(arbitraries[key]) ? Arbitrary.make(arbitraries[key]) : arbitraries[key]
       return result
     }, {} as Record<string, fc.Arbitrary<any>>)
   )
@@ -211,151 +186,118 @@ export const prop: Vitest.Vitest.Methods["prop"] = (name, arbitraries, self, tim
 }
 
 /** @internal */
-export const layer = <R, E>(
+export const layer = <R, E, const ExcludeTestServices extends boolean = false>(
   layer_: Layer.Layer<R, E>,
   options?: {
     readonly memoMap?: Layer.MemoMap
-    readonly timeout?: Duration.Input
-    readonly excludeTestServices?: boolean
+    readonly timeout?: Duration.DurationInput
+    readonly excludeTestServices?: ExcludeTestServices
   }
 ): {
-  (f: (it: Vitest.Vitest.MethodsNonLive<R>) => void): void
+  (f: (it: Vitest.Vitest.MethodsNonLive<R, ExcludeTestServices>) => void): void
   (
     name: string,
-    f: (it: Vitest.Vitest.MethodsNonLive<R>) => void
+    f: (it: Vitest.Vitest.MethodsNonLive<R, ExcludeTestServices>) => void
   ): void
 } =>
 (
   ...args: [
     name: string,
     f: (
-      it: Vitest.Vitest.MethodsNonLive<R>
+      it: Vitest.Vitest.MethodsNonLive<R, ExcludeTestServices>
     ) => void
   ] | [
-    f: (it: Vitest.Vitest.MethodsNonLive<R>) => void
+    f: (it: Vitest.Vitest.MethodsNonLive<R, ExcludeTestServices>) => void
   ]
 ) => {
   const excludeTestServices = options?.excludeTestServices ?? false
   const withTestEnv = excludeTestServices
-    ? layer_ as Layer.Layer<R, E>
+    ? layer_ as Layer.Layer<R | TestServices.TestServices, E>
     : Layer.provideMerge(layer_, TestEnv)
   const memoMap = options?.memoMap ?? Effect.runSync(Layer.makeMemoMap)
   const scope = Effect.runSync(Scope.make())
-  const contextEffect = Layer.buildWithMemoMap(withTestEnv, memoMap, scope).pipe(
+  const runtimeEffect = Layer.toRuntimeWithMemoMap(withTestEnv, memoMap).pipe(
+    Scope.extend(scope),
     Effect.orDie,
     Effect.cached,
     Effect.runSync
   )
-  let closed = false
-  const closeScope = (ctx?: Vitest.TestContext) => {
-    if (closed) {
-      return Promise.resolve()
-    }
-    closed = true
-    return runPromise(Scope.close(scope, Exit.void), ctx)
-  }
 
-  const makeIt = (it: V.TestAPI): Vitest.Vitest.MethodsNonLive<R> =>
-    makeItProxy(it, {
-      effect: makeTester<R | Scope.Scope>(
+  const makeIt = (it: Vitest.API): Vitest.Vitest.MethodsNonLive<R, ExcludeTestServices> =>
+    Object.assign(it, {
+      effect: makeTester<TestServices.TestServices | R>(
+        (effect) => Effect.flatMap(runtimeEffect, (runtime) => effect.pipe(Effect.provide(runtime))),
+        it
+      ),
+
+      prop,
+
+      scoped: makeTester<TestServices.TestServices | Scope.Scope | R>(
         (effect) =>
-          Effect.flatMap(contextEffect, (context) =>
+          Effect.flatMap(runtimeEffect, (runtime) =>
             effect.pipe(
               Effect.scoped,
-              Effect.provide(context)
+              Effect.provide(runtime)
             )),
         it
       ),
-      prop,
       flakyTest,
       layer<R2, E2>(nestedLayer: Layer.Layer<R2, E2, R>, options?: {
-        readonly timeout?: Duration.Input
+        readonly timeout?: Duration.DurationInput
       }) {
-        return layer(Layer.provideMerge(nestedLayer, withTestEnv), {
-          ...options,
-          memoMap: Layer.forkMemoMapUnsafe(memoMap),
-          excludeTestServices
-        })
+        return layer(Layer.provideMerge(nestedLayer, withTestEnv), { ...options, memoMap, excludeTestServices })
       }
     })
 
   if (args.length === 1) {
-    const currentSuite = getCurrentSuite()
-    const previousTasks = new Set(currentSuite.tasks)
-
-    args[0](makeIt(V.it))
-
-    const blockTasks = collectTasks(
-      currentSuite.tasks.filter((task) => !previousTasks.has(task)) as ReadonlyArray<CollectedTask>
+    V.beforeAll(
+      () => runPromise()(Effect.asVoid(runtimeEffect)),
+      options?.timeout ? Duration.toMillis(options.timeout) : undefined
     )
-    if (blockTasks.length === 0) {
-      V.afterAll(() => closeScope(), hookTimeout(options?.timeout))
-      return
-    }
-
-    const blockTaskSet = new Set(blockTasks)
-    let remaining = blockTasks.length
-
-    V.beforeEach(
-      (ctx) => {
-        if (!blockTaskSet.has(ctx.task)) {
-          return
-        }
-        ctx.onTestFinished(() => {
-          remaining--
-          if (remaining === 0) {
-            return closeScope(ctx)
-          }
-        })
-        return runPromise(Effect.asVoid(contextEffect), ctx)
-      },
-      hookTimeout(options?.timeout)
+    V.afterAll(
+      () => runPromise()(Scope.close(scope, Exit.void)),
+      options?.timeout ? Duration.toMillis(options.timeout) : undefined
     )
-    V.afterAll(() => closeScope(), hookTimeout(options?.timeout))
-    return
+    return args[0](makeIt(defaultApi))
   }
 
   return V.describe(args[0], () => {
     V.beforeAll(
-      () => runPromise(Effect.asVoid(contextEffect)),
-      hookTimeout(options?.timeout)
+      () => runPromise()(Effect.asVoid(runtimeEffect)),
+      options?.timeout ? Duration.toMillis(options.timeout) : undefined
     )
     V.afterAll(
-      () => closeScope(),
-      hookTimeout(options?.timeout)
+      () => runPromise()(Scope.close(scope, Exit.void)),
+      options?.timeout ? Duration.toMillis(options.timeout) : undefined
     )
-    return args[1](makeIt(V.it))
+    return args[1](makeIt(defaultApi))
   })
 }
 
 /** @internal */
 export const flakyTest = <A, E, R>(
-  self: Effect.Effect<A, E, R | Scope.Scope>,
-  timeout: Duration.Input = Duration.seconds(30)
+  self: Effect.Effect<A, E, R>,
+  timeout: Duration.DurationInput = Duration.seconds(30)
 ) =>
   pipe(
-    self,
-    Effect.scoped,
-    Effect.sandbox,
+    Effect.catchAllDefect(self, Effect.fail),
     Effect.retry(
       pipe(
         Schedule.recurs(10),
-        Schedule.while((_) =>
-          Effect.succeed(Duration.isLessThanOrEqualTo(
-            Duration.fromInputUnsafe(_.elapsed),
-            Duration.fromInputUnsafe(timeout)
-          ))
-        )
+        Schedule.compose(Schedule.elapsed),
+        Schedule.whileOutput(Duration.lessThanOrEqualTo(timeout))
       )
     ),
     Effect.orDie
   )
 
 /** @internal */
-export const makeMethods = (it: V.TestAPI): Vitest.Vitest.Methods =>
-  makeItProxy(it, {
-    effect: makeTester<Scope.Scope>(flow(Effect.scoped, Effect.provide(TestEnv)), it),
-    live: makeTester<Scope.Scope>(Effect.scoped, it),
+export const makeMethods = (it: Vitest.API): Vitest.Vitest.Methods =>
+  Object.assign(it, {
+    effect: makeTester<TestServices.TestServices>(Effect.provide(TestEnv), it),
+    scoped: makeTester<TestServices.TestServices | Scope.Scope>(flow(Effect.scoped, Effect.provide(TestEnv)), it),
+    live: makeTester<never>(identity, it),
+    scopedLive: makeTester<Scope.Scope>(Effect.scoped, it),
     flakyTest,
     layer,
     prop
@@ -366,9 +308,13 @@ export const {
   /** @internal */
   effect,
   /** @internal */
-  live
-} = makeMethods(V.it)
+  live,
+  /** @internal */
+  scoped,
+  /** @internal */
+  scopedLive
+} = makeMethods(defaultApi)
 
 /** @internal */
 export const describeWrapped = (name: string, f: (it: Vitest.Vitest.Methods) => void): V.SuiteCollector =>
-  V.describe(name, (it) => f(makeMethods(it)))
+  V.describe(name, (it) => f(makeMethods(Object.assign(it, { scopedFixtures: it.scoped }))))

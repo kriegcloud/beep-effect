@@ -1,410 +1,350 @@
 import { describe, it } from "@effect/vitest"
-import { assertInclude, assertNone, deepStrictEqual, strictEqual } from "@effect/vitest/utils"
-import { Cause, Context, Duration, Effect, Fiber, Layer, Tracer } from "effect"
-import { TestClock } from "effect/testing"
+import { assertInclude, assertNone, assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils"
+import { Cause, Context, Duration, Effect, Fiber, FiberId, Layer, Option, pipe, TestClock, Tracer } from "effect"
 import type { Span } from "effect/Tracer"
-import { HttpClient, HttpClientResponse } from "effect/unstable/http"
-import { OtlpSerialization, OtlpTracer } from "effect/unstable/observability"
-
-const getParent = (span: Tracer.Span): Tracer.AnySpan => {
-  if (span.parent._tag === "None") {
-    throw new Error("Expected parent span")
-  }
-  return span.parent.value
-}
+import type { NativeSpan } from "../src/internal/tracer.js"
 
 describe("Tracer", () => {
-  describe("Effect.withSpan", () => {
-    it.effect("should capture the stack trace", () =>
-      Effect.gen(function*() {
-        const cause = yield* Effect.die(new Error("boom")).pipe(
-          Effect.withSpan("C", {
-            annotations: Tracer.DisablePropagation.context(true)
-          }),
-          Effect.sandbox,
-          Effect.flip
-        )
+  it.effect("includes trace when errored", () =>
+    Effect.gen(function*() {
+      let maybeSpan: undefined | Span
+      const getSpan = Effect.functionWithSpan({
+        body: (_id: string) =>
+          Effect.currentSpan.pipe(Effect.flatMap((span) => {
+            maybeSpan = span
+            return Effect.fail("error")
+          })),
+        options: (id) => ({
+          name: `span-${id}`,
+          attributes: { id }
+        })
+      })
+      yield* Effect.flip(getSpan("fail"))
+      assertTrue(maybeSpan !== undefined)
+      assertInclude(maybeSpan!.attributes.get("code.stacktrace") as string, "Tracer.test.ts:22:26")
+    }))
 
-        assertInclude(Cause.pretty(cause), "Tracer.test.ts:20:41")
+  it.effect("captures stack", () =>
+    Effect.gen(function*() {
+      const cause = yield* Effect.die(new Error("boom")).pipe(
+        Effect.withSpan("C", { context: Tracer.DisablePropagation.context(true) }),
+        Effect.sandbox,
+        Effect.flip
+      )
+      assertInclude(Cause.pretty(cause), "Tracer.test.ts:29:39")
+    }))
+
+  describe("withSpan", () => {
+    it.effect("no parent", () =>
+      Effect.gen(function*() {
+        const span = yield* Effect.withSpan("A")(Effect.currentSpan)
+        deepStrictEqual(span.name, "A")
+        assertNone(span.parent)
+        strictEqual(span.attributes.get("code.stacktrace"), undefined)
       }))
 
-    it.effect("should set the parent span", () =>
+    it.effect("parent", () =>
       Effect.gen(function*() {
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("A"),
-          Effect.withSpan("B")
+        const span = yield* (
+          Effect.withSpan("B")(
+            Effect.withSpan("A")(Effect.currentSpan)
+          )
         )
 
-        strictEqual(span.name, "A")
-        strictEqual((getParent(span) as Span).name, "B")
+        deepStrictEqual(span.name, "A")
+        deepStrictEqual(Option.map(span.parent, (span) => (span as Span).name), Option.some("B"))
       }))
 
-    it.effect("should override the parent span when root is set to true", () =>
+    it.effect("parent when root is set", () =>
       Effect.gen(function*() {
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("A", { root: true }),
-          Effect.withSpan("B")
+        const span = yield* (
+          Effect.withSpan("B")(Effect.withSpan("A", { root: true })(Effect.currentSpan))
         )
 
-        strictEqual(span.name, "A")
+        deepStrictEqual(span.name, "A")
         assertNone(span.parent)
       }))
 
-    it.effect("should set an external parent span", () =>
+    it.effect("external parent", () =>
       Effect.gen(function*() {
-        const span = yield* Effect.currentSpan.pipe(
+        const span = yield* (
           Effect.withSpan("A", {
             parent: {
               _tag: "ExternalSpan",
               spanId: "000",
               traceId: "111",
               sampled: true,
-              annotations: Context.empty()
+              context: Context.empty()
             }
-          })
+          })(Effect.currentSpan)
         )
-
-        strictEqual(span.name, "A")
-        strictEqual(getParent(span).spanId, "000")
+        deepStrictEqual(span.name, "A")
+        deepStrictEqual(Option.map(span.parent, (span) => span.spanId), Option.some("000"))
       }))
 
-    it.effect("should still apply minimum trace level with sampled parent spans", () =>
+    it.effect("correct time", () =>
       Effect.gen(function*() {
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("A", {
-            parent: Tracer.externalSpan({
-              spanId: "000",
-              traceId: "111",
-              sampled: true
-            }),
-            level: "Info"
-          }),
-          Effect.provideService(Tracer.MinimumTraceLevel, "Error")
+        const spanFiber = yield* (
+          Effect.fork(Effect.withSpan("A")(Effect.delay(Duration.seconds(1))(Effect.currentSpan)))
         )
 
-        strictEqual(span.sampled, false)
-      }))
+        yield* (TestClock.adjust(Duration.seconds(2)))
 
-    it.effect("should not set the parent span when none exists", () =>
-      Effect.gen(function*() {
-        const span = yield* Effect.withSpan(Effect.currentSpan, "A")
+        const span = yield* (Fiber.join(spanFiber))
 
-        strictEqual(span.name, "A")
-        assertNone(span.parent)
-        strictEqual(span.attributes.get("code.stacktrace"), undefined)
-      }))
-
-    it.effect("should preserve nested span context with OtlpTracer", () =>
-      Effect.gen(function*() {
-        const innerEffect = Effect.succeed(42).pipe(
-          Effect.withSpan("child-span", {
-            attributes: {
-              "test": "child"
-            }
-          })
-        )
-
-        const result = yield* innerEffect.pipe(
-          Effect.withSpan("parent-span", {
-            attributes: {
-              "test": "parent"
-            }
-          })
-        )
-
-        strictEqual(result, 42)
-      }).pipe(
-        Effect.provide(
-          OtlpTracer.layer({
-            url: "http://localhost:4318/v1/traces",
-            resource: {
-              serviceName: "test-service"
-            }
-          }).pipe(
-            Layer.provide(OtlpSerialization.layerJson),
-            Layer.provide(Layer.succeed(
-              HttpClient.HttpClient,
-              HttpClient.make((request) => Effect.succeed(HttpClientResponse.fromWeb(request, new Response())))
-            ))
-          )
-        )
-      ))
-
-    it.effect("should set the correct start and end time", () =>
-      Effect.gen(function*() {
-        const spanFiber = yield* Effect.currentSpan.pipe(
-          Effect.delay("1 second"),
-          Effect.withSpan("A"),
-          Effect.forkChild
-        )
-
-        yield* TestClock.adjust("2 seconds")
-
-        const span = yield* Fiber.join(spanFiber)
-
-        strictEqual(span.name, "A")
-        strictEqual(span.status.startTime, 0n)
-        strictEqual((span.status as any)["endTime"], 1000000000n)
-        strictEqual(span.status._tag, "Ended")
-      }))
-
-    it.effect("should capture logs as span events", () =>
-      Effect.gen(function*() {
-        yield* TestClock.adjust(Duration.millis(0.01))
-
-        const [span, fiberId] = yield* Effect.log("event").pipe(
-          Effect.andThen(Effect.all([Effect.currentSpan, Effect.fiberId])),
-          Effect.withSpan("A")
-        )
-
-        strictEqual(span.name, "A")
-        assertNone(span.parent)
-        deepStrictEqual((span as Tracer.NativeSpan).events, [
-          ["event", 10_000n, {
-            "effect.fiberId": fiberId,
-            "effect.logLevel": "INFO"
-          }]
-        ])
-      }))
-
-    it.effect("should attach attributes and kind to the current span", () =>
-      Effect.gen(function*() {
-        const result = yield* Effect.succeed(42).pipe(
-          Effect.withSpan("test-span", {
-            attributes: {
-              "code.filepath": "test.ts",
-              "code.lineno": 1
-            }
-          })
-        )
-
-        strictEqual(result, 42)
+        deepStrictEqual(span.name, "A")
+        deepStrictEqual(span.status.startTime, 0n)
+        deepStrictEqual((span.status as any)["endTime"], 1000000000n)
+        deepStrictEqual(span.status._tag, "Ended")
       }))
   })
 
-  describe("Effect.annotateSpans", () => {
-    it.effect("should allow adding span attributes as key/value pairs", () =>
-      Effect.gen(function*() {
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("A"),
-          Effect.annotateSpans("key", "value")
+  it.effect("annotateSpans", () =>
+    Effect.gen(function*() {
+      const span = yield* (
+        Effect.annotateSpans(
+          Effect.withSpan("A")(Effect.currentSpan),
+          "key",
+          "value"
         )
+      )
 
-        strictEqual(span.name, "A")
-        assertNone(span.parent)
-        strictEqual(span.attributes.get("key"), "value")
-      }))
+      deepStrictEqual(span.name, "A")
+      assertNone(span.parent)
+      deepStrictEqual(span.attributes.get("key"), "value")
+    }))
 
-    it.effect("should allow adding span attributes as a record", () =>
-      Effect.gen(function*() {
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("A"),
-          Effect.annotateSpans({
-            key: "value",
-            key2: "value2"
-          })
+  it.effect("annotateSpans record", () =>
+    Effect.gen(function*() {
+      const span = yield* (
+        Effect.annotateSpans(
+          Effect.withSpan("A")(Effect.currentSpan),
+          { key: "value", key2: "value2" }
         )
+      )
 
-        strictEqual(span.attributes.get("key"), "value")
-        strictEqual(span.attributes.get("key2"), "value2")
-      }))
-  })
+      deepStrictEqual(span.attributes.get("key"), "value")
+      deepStrictEqual(span.attributes.get("key2"), "value2")
+    }))
 
-  describe("Effect.useSpanScoped", () => {
-    it.effect("should control span lifetimes with a scope", () =>
-      Effect.gen(function*() {
-        const span = yield* Effect.scoped(Effect.makeSpanScoped("A"))
-        strictEqual(span.status._tag, "Ended")
-        strictEqual(span.attributes.get("code.stacktrace"), undefined)
-      }))
-  })
+  it.effect("logger", () =>
+    Effect.gen(function*() {
+      yield* (TestClock.adjust(Duration.millis(0.01)))
 
-  describe("Effect.annotateCurrentSpan", () => {
-    it.effect("should allow adding attributes to the current span", () =>
-      Effect.gen(function*() {
-        yield* Effect.annotateCurrentSpan("key", "value")
-        const span = yield* Effect.currentSpan
-        strictEqual(span.attributes.get("key"), "value")
-      }).pipe(Effect.withSpan("A")))
-  })
+      const [span, fiberId] = yield* pipe(
+        Effect.log("event"),
+        Effect.zipRight(Effect.all([Effect.currentSpan, Effect.fiberId])),
+        Effect.withSpan("A")
+      )
 
-  describe("Effect.withParentSpan", () => {
-    it.effect("should allow setting the parent span for the current span", () =>
-      Effect.gen(function*() {
-        const span = yield* Effect.currentSpan
-        strictEqual(getParent(span).spanId, "456")
-      }).pipe(
-        Effect.withSpan("A"),
-        Effect.withParentSpan({
-          _tag: "ExternalSpan",
-          traceId: "123",
-          spanId: "456",
-          sampled: true,
-          annotations: Context.empty()
-        })
-      ))
-  })
+      deepStrictEqual(span.name, "A")
+      assertNone(span.parent)
+      deepStrictEqual((span as NativeSpan).events, [["event", 10000n, {
+        "effect.fiberId": FiberId.threadName(fiberId),
+        "effect.logLevel": "INFO"
+      }]])
+    }))
 
-  describe("Effect.withTracerEnabled", () => {
-    it.effect("should allow enabling/disabling the tracer", () =>
-      Effect.gen(function*() {
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("A"),
-          Effect.withTracerEnabled(false)
-        )
-        const spanB = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("B"),
-          Effect.withTracerEnabled(true)
-        )
+  it.effect("withTracerTiming false", () =>
+    Effect.gen(function*() {
+      yield* (TestClock.adjust(Duration.millis(1)))
 
-        strictEqual(span.name, "A")
-        strictEqual(span.spanId, "noop")
-        strictEqual(spanB.name, "B")
-      }))
-  })
+      const span = yield* pipe(
+        Effect.withSpan("A")(Effect.currentSpan),
+        Effect.withTracerTiming(false)
+      )
 
-  describe("Effect.withTracerTiming", () => {
-    it.effect("should include timing information in spans when true", () =>
-      Effect.gen(function*() {
-        yield* TestClock.adjust("1 millis")
+      deepStrictEqual(span.status.startTime, 0n)
+    }))
 
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("A"),
-          Effect.withTracerTiming(true) // default
-        )
+  it.effect("useSpanScoped", () =>
+    Effect.gen(function*() {
+      const span = yield* Effect.scoped(Effect.makeSpanScoped("A"))
+      deepStrictEqual(span.status._tag, "Ended")
+      strictEqual(span.attributes.get("code.stacktrace"), undefined)
+    }))
 
-        strictEqual(span.status.startTime, 1_000_000n)
-      }))
+  it.effect("annotateCurrentSpan", () =>
+    Effect.gen(function*() {
+      yield* (Effect.annotateCurrentSpan("key", "value"))
+      const span = yield* (Effect.currentSpan)
+      deepStrictEqual(span.attributes.get("key"), "value")
+    }).pipe(
+      Effect.withSpan("A")
+    ))
 
-    it.effect("should not include timing information in spans when false", () =>
-      Effect.gen(function*() {
-        yield* TestClock.adjust("1 millis")
+  it.effect("withParentSpan", () =>
+    Effect.gen(function*() {
+      const span = yield* (Effect.currentSpan)
+      deepStrictEqual(
+        span.parent.pipe(
+          Option.map((_) => _.spanId)
+        ),
+        Option.some("456")
+      )
+    }).pipe(
+      Effect.withSpan("A"),
+      Effect.withParentSpan({
+        _tag: "ExternalSpan",
+        traceId: "123",
+        spanId: "456",
+        sampled: true,
+        context: Context.empty()
+      })
+    ))
 
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("A"),
-          Effect.withTracerTiming(false)
-        )
-
-        strictEqual(span.status.startTime, 0n)
-      }))
-  })
-
-  describe("Effect.linkSpans", () => {
-    it.effect("should link two spans together", () =>
-      Effect.gen(function*() {
-        const childA = yield* Effect.makeSpan("childA")
-        const childB = yield* Effect.makeSpan("childB")
-        const currentSpan = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("A", {
-            links: [{ span: childB, attributes: {} }]
-          }),
-          Effect.linkSpans(childA)
-        )
-        deepStrictEqual(
-          currentSpan.links.map((_) => _.span),
-          [childA, childB]
-        )
-      }))
-  })
-
-  describe("Layer.parentSpan", () => {
-    it.effect("should set the parent trace span for the layer constructor", () =>
-      Effect.gen(function*() {
-        const span = yield* Effect.makeSpan("child")
-        const parent = getParent(span) as Tracer.Span
-        strictEqual(parent.name, "parent")
-        strictEqual(span.attributes.get("code.stacktrace"), undefined)
-        strictEqual(parent.attributes.get("code.stacktrace"), undefined)
-      }).pipe(Effect.provide(Layer.unwrap(
+  it.effect("Layer.parentSpan", () =>
+    Effect.gen(function*() {
+      const span = yield* Effect.makeSpan("child")
+      const parent = yield* Option.filter(span.parent, (span): span is Span => span._tag === "Span")
+      deepStrictEqual(parent.name, "parent")
+      strictEqual(span.attributes.get("code.stacktrace"), undefined)
+      strictEqual(parent.attributes.get("code.stacktrace"), undefined)
+    }).pipe(
+      Effect.provide(Layer.unwrapScoped(
         Effect.map(
           Effect.makeSpanScoped("parent"),
           (span) => Layer.parentSpan(span)
         )
-      ))))
-  })
+      ))
+    ))
 
-  describe("Layer.span", () => {
-    it.effect("should create a new parent trace span for the layer constructor", () =>
-      Effect.gen(function*() {
-        const span = yield* Effect.makeSpan("child")
-        const parent = getParent(span) as Tracer.Span
-        strictEqual(parent.name, "parent")
-        strictEqual(parent.attributes.get("code.stacktrace"), undefined)
-      }).pipe(Effect.provide(Layer.span("parent"))))
+  it.effect("Layer.span", () =>
+    Effect.gen(function*() {
+      const span = yield* Effect.makeSpan("child")
+      const parent = span.parent.pipe(
+        Option.filter((span): span is Span => span._tag === "Span"),
+        Option.getOrThrow
+      )
+      strictEqual(parent.name, "parent")
+      strictEqual(parent.attributes.get("code.stacktrace"), undefined)
+    }).pipe(
+      Effect.provide(Layer.span("parent"))
+    ))
 
-    it.effect("should call onEnd when the span is ending", () =>
-      Effect.gen(function*() {
-        let onEndCalled = false
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.provide(Layer.span("span", {
-            onEnd: (span, _exit) =>
-              Effect.sync(() => {
-                strictEqual(span.name, "span")
-                onEndCalled = true
-              })
-          }))
-        )
-        strictEqual(span.name, "span")
-        strictEqual(onEndCalled, true)
-      }))
-  })
-
-  describe("Layer.withSpan", () => {
-    it.effect("sets the trace span for the layer constructor", () =>
-      Effect.gen(function*() {
-        let onEndCalled = false
-        const layer = Layer.effectDiscard(Effect.gen(function*() {
-          const span = yield* Effect.currentSpan
-          strictEqual(span.name, "span")
-          strictEqual(span.attributes.get("code.stacktrace"), undefined)
-        })).pipe(Layer.withSpan("span", {
+  it.effect("Layer.span onEnd", () =>
+    Effect.gen(function*() {
+      let onEndCalled = false
+      const span = yield* pipe(
+        Effect.currentSpan,
+        Effect.provide(Layer.span("span", {
           onEnd: (span, _exit) =>
             Effect.sync(() => {
               strictEqual(span.name, "span")
               onEndCalled = true
             })
         }))
+      )
+      strictEqual(span.name, "span")
+      strictEqual(onEndCalled, true)
+    }))
 
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.provide(layer),
-          Effect.option
-        )
+  it.effect("linkSpans", () =>
+    Effect.gen(function*() {
+      const childA = yield* (Effect.makeSpan("childA"))
+      const childB = yield* (Effect.makeSpan("childB"))
+      const currentSpan = yield* pipe(
+        Effect.currentSpan,
+        Effect.withSpan("A", { links: [{ _tag: "SpanLink", span: childB, attributes: {} }] }),
+        Effect.linkSpans(childA)
+      )
+      deepStrictEqual(
+        currentSpan.links.map((_) => _.span),
+        [childA, childB]
+      )
+    }))
 
-        assertNone(span)
-        strictEqual(onEndCalled, true)
-      }))
+  it.effect("Layer.withSpan", () =>
+    Effect.gen(function*() {
+      let onEndCalled = false
+      const layer = Layer.effectDiscard(Effect.gen(function*() {
+        const span = yield* Effect.currentSpan
+        strictEqual(span.name, "span")
+        strictEqual(span.attributes.get("code.stacktrace"), undefined)
+      })).pipe(
+        Layer.withSpan("span", {
+          onEnd: (span, _exit) =>
+            Effect.sync(() => {
+              strictEqual(span.name, "span")
+              onEndCalled = true
+            })
+        })
+      )
+
+      const span = yield* pipe(Effect.currentSpan, Effect.provide(layer), Effect.option)
+
+      assertNone(span)
+      strictEqual(onEndCalled, true)
+    }))
+})
+
+it.effect("withTracerEnabled", () =>
+  Effect.gen(function*() {
+    const span = yield* pipe(
+      Effect.currentSpan,
+      Effect.withSpan("A"),
+      Effect.withTracerEnabled(false)
+    )
+    const spanB = yield* pipe(
+      Effect.currentSpan,
+      Effect.withSpan("B"),
+      Effect.withTracerEnabled(true)
+    )
+
+    deepStrictEqual(span.name, "A")
+    deepStrictEqual(span.spanId, "noop")
+    deepStrictEqual(spanB.name, "B")
+  }))
+
+describe("Tracer.DisablePropagation", () => {
+  it.effect("creates noop span", () =>
+    Effect.gen(function*() {
+      const span = yield* Effect.currentSpan.pipe(
+        Effect.withSpan("A", { context: Tracer.DisablePropagation.context(true) })
+      )
+      const spanB = yield* Effect.currentSpan.pipe(
+        Effect.withSpan("B")
+      )
+
+      deepStrictEqual(span.name, "A")
+      deepStrictEqual(span.spanId, "noop")
+      deepStrictEqual(spanB.name, "B")
+    }))
+
+  it.effect("isnt used as parent span", () =>
+    Effect.gen(function*() {
+      const span = yield* Effect.currentSpan.pipe(
+        Effect.withSpan("child"),
+        Effect.withSpan("disabled", { context: Tracer.DisablePropagation.context(true) }),
+        Effect.withSpan("parent")
+      )
+      strictEqual(span.name, "child")
+      assertTrue(span.parent._tag === "Some" && span.parent.value._tag === "Span")
+      strictEqual(span.parent.value.name, "parent")
+    }))
+})
+
+describe("functionWithSpan", () => {
+  const getSpan = Effect.functionWithSpan({
+    body: (_id: string) => Effect.currentSpan,
+    options: (id) => ({
+      name: `span-${id}`,
+      attributes: { id }
+    })
   })
 
-  describe("Tracer.DisablePropagation", () => {
-    it.effect("should allow disabling span propagation via noop spans", () =>
-      Effect.gen(function*() {
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("A", {
-            annotations: Tracer.DisablePropagation.context(true)
-          })
-        )
-        const spanB = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("B")
-        )
+  it.effect("no parent", () =>
+    Effect.gen(function*() {
+      const span = yield* getSpan("A")
+      deepStrictEqual(span.name, "span-A")
+      assertNone(span.parent)
+      strictEqual(span.attributes.get("code.stacktrace"), undefined)
+    }))
 
-        strictEqual(span.name, "A")
-        strictEqual(span.spanId, "noop")
-        strictEqual(spanB.name, "B")
-      }))
-
-    it.effect("should prevent a span from being used as a parent span", () =>
-      Effect.gen(function*() {
-        const span = yield* Effect.currentSpan.pipe(
-          Effect.withSpan("child"),
-          Effect.withSpan("disabled", {
-            annotations: Tracer.DisablePropagation.context(true)
-          }),
-          Effect.withSpan("parent")
-        )
-        strictEqual(span.name, "child")
-        const parent = getParent(span)
-        strictEqual(parent._tag, "Span")
-        strictEqual((parent as Span).name, "parent")
-      }))
-  })
+  it.effect("parent", () =>
+    Effect.gen(function*() {
+      const span = yield* Effect.withSpan("B")(getSpan("A"))
+      deepStrictEqual(span.name, "span-A")
+      deepStrictEqual(Option.map(span.parent, (span) => (span as Span).name), Option.some("B"))
+    }))
 })
