@@ -1,241 +1,153 @@
 /**
- * The `Brand` module adds compile-time names to ordinary TypeScript values so
- * structurally identical values cannot be mixed accidentally. A branded value
- * has the same runtime representation as its unbranded value; the extra
- * information lives in the type system unless you choose a validating
- * constructor.
+ * This module provides types and utility functions to create and work with branded types,
+ * which are TypeScript types with an added type tag to prevent accidental usage of a value in the wrong context.
  *
- * **Mental model**
+ * The `refined` and `nominal` functions are both used to create branded types in TypeScript.
+ * The main difference between them is that `refined` allows for validation of the data, while `nominal` does not.
  *
- * - {@link Branded} is an existing value type plus a phantom {@link Brand}
- *   marker
- * - {@link nominal} creates constructors for purely nominal brands and
- *   performs no runtime validation
- * - {@link make} and {@link check} create constructors that validate input
- *   before returning the branded value
- * - A {@link Constructor} can throw, return `Option`, return `Result`, or act
- *   as a type guard through its `is` method
- * - {@link all} combines multiple brand constructors with the same base type so
- *   a value can carry several brands
+ * The `nominal` function is used to create a new branded type that has the same underlying type as the input, but with a different name.
+ * This is useful when you want to distinguish between two values of the same type that have different meanings.
+ * The `nominal` function does not perform any validation of the input data.
  *
- * **Common tasks**
- *
- * - Distinguish identifiers with the same primitive representation, such as
- *   `UserId` and `OrderId`
- * - Constrain primitive values after validation, such as positive numbers,
- *   non-empty strings, or normalized tokens
- * - Keep public APIs precise without wrapping values in runtime classes
- *
- * **Quickstart**
- *
- * **Example** (Validated identifier)
- *
- * ```ts
- * import { Brand } from "effect"
- *
- * type UserId = Brand.Branded<number, "UserId">
- *
- * const UserId = Brand.make<UserId>(
- *   (n) => Number.isInteger(n) && n > 0 || "Expected a positive integer"
- * )
- *
- * const id = UserId(1)
- * ```
- *
- * **Gotchas**
- *
- * - Brands do not change the runtime value; `id` above is still a number at
- *   runtime
- * - {@link nominal} accepts every value of the base type, so use
- *   {@link make} or {@link check} at trust boundaries that need validation
+ * On the other hand, the `refined` function is used to create a new branded type that has the same underlying type as the input,
+ * but with a different name, and it also allows for validation of the input data.
+ * The `refined` function takes a predicate that is used to validate the input data.
+ * If the input data fails the validation, a `BrandErrors` is returned, which provides information about the specific validation failure.
  *
  * @since 2.0.0
  */
-import * as Arr from "./Array.ts"
-import * as Option from "./Option.ts"
-import * as Result from "./Result.ts"
-import type * as Schema from "./Schema.ts"
-import * as AST from "./SchemaAST.ts"
-import type * as Issue from "./SchemaIssue.ts"
-import type * as Types from "./Types.ts"
+import * as Arr from "./Array.js"
+import * as Either from "./Either.js"
+import { identity, unsafeCoerce } from "./Function.js"
+import * as Option from "./Option.js"
+import type { Predicate } from "./Predicate.js"
+import type * as Types from "./Types.js"
 
-const TypeId = "~effect/Brand"
+/**
+ * @since 2.0.0
+ * @category symbols
+ */
+export const BrandTypeId: unique symbol = Symbol.for("effect/Brand")
+
+/**
+ * @since 2.0.0
+ * @category symbols
+ */
+export type BrandTypeId = typeof BrandTypeId
+
+/**
+ * @since 2.0.0
+ * @category symbols
+ */
+export const RefinedConstructorsTypeId: unique symbol = Symbol.for("effect/Brand/Refined")
+
+/**
+ * @since 2.0.0
+ * @category symbols
+ */
+export type RefinedConstructorsTypeId = typeof RefinedConstructorsTypeId
 
 /**
  * A generic interface that defines a branded type.
  *
- * **When to use**
- *
- * Use to define a branded type such as `number & Brand<"Positive">` when
- * TypeScript should keep structurally identical values separate without
- * changing their runtime value.
- *
- * @see {@link Branded} for applying a brand key to a base type
- * @see {@link Constructor} for validating or constructing branded values
- *
- * @category models
  * @since 2.0.0
- */
-export interface Brand<in out Keys extends string> {
-  readonly [TypeId]: {
-    readonly [K in Keys]: Keys
-  }
-}
-
-/**
- * A constructor for a branded type that provides validation and safe
- * construction methods.
- *
- * **When to use**
- *
- * Use as the shared callable interface for branded values when an API accepts
- * or returns a brand constructor and callers need throwing, `Option`, `Result`,
- * or type-guard validation forms.
- *
- * @see {@link nominal} for a constructor without runtime validation
- * @see {@link make} for creating a constructor from a validation predicate
- * @see {@link check} for creating a constructor from schema checks
- * @see {@link all} for combining brand constructors
- *
  * @category models
- * @since 2.0.0
  */
-export interface Constructor<in out B extends Brand<any>> {
-  /**
-   * Constructs a branded type from a value of type `Unbranded<B>`, throwing an
-   * error if the provided value is not valid.
-   */
-  (unbranded: Brand.Unbranded<B>): B
-  /**
-   * Constructs a branded type from a value of type `Unbranded<B>`, returning
-   * `Some<B>` if the provided value is valid, `None` otherwise.
-   */
-  option(unbranded: Brand.Unbranded<B>): Option.Option<B>
-  /**
-   * Constructs a branded type from a value of type `Unbranded<B>`, returning
-   * `Success<B>` if the provided value is valid, `Failure<BrandError>`
-   * otherwise.
-   */
-  result(unbranded: Brand.Unbranded<B>): Result.Result<B, BrandError>
-  /**
-   * Attempts to refine the provided value of type `Unbranded<B>`, returning
-   * `true` if the provided value is a valid branded type, `false` otherwise.
-   */
-  is(unbranded: Brand.Unbranded<B>): unbranded is Brand.Unbranded<B> & B
-
-  /**
-   * The checks that are applied to the branded type.
-   *
-   * @internal
-   */
-  checks?: readonly [AST.Check<Brand.Unbranded<B>>, ...Array<AST.Check<Brand.Unbranded<B>>>] | undefined
-}
-
-/**
- * Error returned when a branded type is constructed from an invalid value.
- *
- * **Details**
- *
- * The error wraps a `SchemaIssue.Issue`, exposes `message` through
- * `issue.toString()`, and formats as `BrandError(<message>)`.
- *
- * **Gotchas**
- *
- * `BrandError` is an error-like model with `_tag`, `name`, `message`, and
- * `toString`; it does not extend JavaScript `Error`.
- *
- * @category errors
- * @since 4.0.0
- */
-export class BrandError {
-  constructor(issue: Issue.Issue) {
-    this.issue = issue
-  }
-  /**
-   * Discriminant used to identify brand construction failures.
-   *
-   * @since 4.0.0
-   */
-  readonly _tag = "BrandError"
-  /**
-   * Error name used by tools that inspect JavaScript error-like objects.
-   *
-   * @since 4.0.0
-   */
-  readonly name: string = "BrandError"
-  /**
-   * Schema issue describing why brand validation failed.
-   *
-   * @since 4.0.0
-   */
-  readonly issue: Issue.Issue
-  /**
-   * Human-readable rendering of the validation issue.
-   *
-   * @since 4.0.0
-   */
-  get message() {
-    return this.issue.toString()
-  }
-  /**
-   * Formats the brand error together with its validation message.
-   *
-   * @since 4.0.0
-   */
-  toString() {
-    return `BrandError(${this.message})`
+export interface Brand<in out K extends string | symbol> {
+  readonly [BrandTypeId]: {
+    readonly [k in K]: K
   }
 }
 
 /**
- * Namespace containing type-level helpers for working with branded types and
- * brand constructors.
- *
  * @since 2.0.0
  */
 export declare namespace Brand {
   /**
-   * A utility type to extract a branded type from a `Constructor`.
+   * Represents a list of refinement errors.
    *
-   * @category utility types
    * @since 2.0.0
+   * @category models
    */
-  export type FromConstructor<C> = C extends Constructor<infer B> ? B : never
+  export interface BrandErrors extends Array<RefinementError> {}
 
   /**
-   * A utility type to extract the unbranded value type from a brand.
+   * Represents an error that occurs when the provided value of the branded type does not pass the refinement predicate.
    *
-   * @category utility types
    * @since 2.0.0
+   * @category models
    */
-  export type Unbranded<B extends Brand<any>> = B extends infer U & Brands<B> ? U : B
+  export interface RefinementError {
+    readonly meta: unknown
+    readonly message: string
+  }
 
   /**
-   * A utility type to extract the keys of a branded type.
-   *
-   * @category utility types
-   * @since 4.0.0
+   * @since 2.0.0
+   * @category models
    */
-  export type Keys<B extends Brand<any>> = keyof B[typeof TypeId]
+  export interface Constructor<in out A extends Brand<any>> {
+    readonly [RefinedConstructorsTypeId]: RefinedConstructorsTypeId
+    /**
+     * Constructs a branded type from a value of type `A`, throwing an error if
+     * the provided `A` is not valid.
+     */
+    (args: Brand.Unbranded<A>): A
+    /**
+     * Constructs a branded type from a value of type `A`, returning `Some<A>`
+     * if the provided `A` is valid, `None` otherwise.
+     */
+    option(args: Brand.Unbranded<A>): Option.Option<A>
+    /**
+     * Constructs a branded type from a value of type `A`, returning `Right<A>`
+     * if the provided `A` is valid, `Left<BrandError>` otherwise.
+     */
+    either(args: Brand.Unbranded<A>): Either.Either<A, Brand.BrandErrors>
+    /**
+     * Attempts to refine the provided value of type `A`, returning `true` if
+     * the provided `A` is valid, `false` otherwise.
+     */
+    is(a: Brand.Unbranded<A>): a is Brand.Unbranded<A> & A
+  }
+
+  /**
+   * A utility type to extract a branded type from a `Brand.Constructor`.
+   *
+   * @since 2.0.0
+   * @category models
+   */
+  export type FromConstructor<A> = A extends Brand.Constructor<infer B> ? B : never
+
+  /**
+   * A utility type to extract the value type from a brand.
+   *
+   * @since 2.0.0
+   * @category models
+   */
+  export type Unbranded<P> = P extends infer Q & Brands<P> ? Q : P
 
   /**
    * A utility type to extract the brands from a branded type.
    *
-   * @category utility types
    * @since 2.0.0
+   * @category models
    */
-  export type Brands<B extends Brand<any>> = Types.UnionToIntersection<
-    { [K in Keys<B>]: K extends string ? Brand<K> : never }[Keys<B>]
-  >
+  export type Brands<P> = P extends Brand<any> ? Types.UnionToIntersection<
+      {
+        [k in keyof P[BrandTypeId]]: k extends string | symbol ? Brand<k>
+          : never
+      }[keyof P[BrandTypeId]]
+    >
+    : never
 
   /**
    * A utility type that checks that all brands have the same base type.
    *
-   * @category utility types
    * @since 2.0.0
+   * @category models
    */
   export type EnsureCommonBase<
-    Brands extends readonly [Constructor<any>, ...Array<Constructor<any>>]
+    Brands extends readonly [Brand.Constructor<any>, ...Array<Brand.Constructor<any>>]
   > = {
     [B in keyof Brands]: Brand.Unbranded<Brand.FromConstructor<Brands[0]>> extends
       Brand.Unbranded<Brand.FromConstructor<Brands[B]>>
@@ -247,114 +159,202 @@ export declare namespace Brand {
 }
 
 /**
- * A type alias for creating branded types more concisely.
- *
- * @category utility types
+ * @category alias
  * @since 2.0.0
  */
-export type Branded<A, Key extends string> = A & Brand<Key>
+export type Branded<A, K extends string | symbol> = A & Brand<K>
 
 /**
- * Returns a `Constructor` that **does not apply any runtime checks** and just
- * returns the provided value.
+ * Returns a `BrandErrors` that contains a single `RefinementError`.
  *
- * **When to use**
- *
- * Use to create nominal types that allow distinguishing between two values
- * of the same type but with different meanings. If you also want to perform
- * some validation, see {@link make} or {@link check}.
- *
- * @category constructors
  * @since 2.0.0
+ * @category constructors
  */
-export function nominal<A extends Brand<any>>(): Constructor<A> {
-  return Object.assign((input: Brand.Unbranded<A>) => input as A, {
-    option: (input: Brand.Unbranded<A>) => Option.some(input as A),
-    result: (input: Brand.Unbranded<A>) => Result.succeed(input as A),
-    is: (_: Brand.Unbranded<A>): _ is Brand.Unbranded<A> & A => true
-  })
-}
+export const error = (message: string, meta?: unknown): Brand.BrandErrors => [{
+  message,
+  meta
+}]
 
 /**
- * Returns a `Constructor` that can construct a branded type from an unbranded
- * value using the provided `filter` predicate as validation of the input data.
+ * Takes a variable number of `BrandErrors` and returns a single `BrandErrors` that contains all refinement errors.
  *
- * **When to use**
- *
- * Use when you want validation while constructing the branded type. If you
- * don't want to perform any validation but only distinguish between two values
- * of the same type but with different meanings, see {@link nominal}.
- *
+ * @since 2.0.0
  * @category constructors
- * @since 4.0.0
  */
-export function make<A extends Brand<any>>(
-  filter: (unbranded: Brand.Unbranded<A>) => Schema.FilterOutput
-): Constructor<A> {
-  return check(AST.makeFilter(filter))
-}
+export const errors: (...errors: Array<Brand.BrandErrors>) => Brand.BrandErrors = (
+  ...errors: Array<Brand.BrandErrors>
+): Brand.BrandErrors => Arr.flatten(errors)
 
 /**
- * Creates a branded type `Constructor` from one or more schema checks.
+ * Returns a `Brand.Constructor` that can construct a branded type from an unbranded value using the provided `refinement`
+ * predicate as validation of the input data.
  *
- * **When to use**
+ * If you don't want to perform any validation but only distinguish between two values of the same type but with different meanings,
+ * see {@link nominal}.
  *
- * Use when you need a branded type constructor that performs runtime validation
- * via schema checks.
+ * **Example**
  *
- * **Details**
+ * ```ts
+ * import * as assert from "node:assert"
+ * import { Brand } from "effect"
  *
- * Calling the returned constructor validates the unbranded value and throws on
- * failure. Use the returned `option`, `result`, or `is` methods for
- * non-throwing validation.
+ * type Int = number & Brand.Brand<"Int">
  *
- * @see {@link nominal} for a brand constructor without runtime validation
- * @see {@link all} for combining multiple brand constructors
+ * const Int = Brand.refined<Int>(
+ *   (n) => Number.isInteger(n),
+ *   (n) => Brand.error(`Expected ${n} to be an integer`)
+ * )
+ *
+ * console.log(Int(1))
+ * // 1
+ *
+ * assert.throws(() => Int(1.1))
+ * ```
+ *
+ * @since 2.0.0
  * @category constructors
- * @since 4.0.0
  */
-export function check<A extends Brand<any>>(
-  ...checks: readonly [
-    AST.Check<Brand.Unbranded<A>>,
-    ...Array<AST.Check<Brand.Unbranded<A>>>
+export function refined<A extends Brand<any>>(
+  f: (unbranded: Brand.Unbranded<A>) => Option.Option<Brand.BrandErrors>
+): Brand.Constructor<A>
+export function refined<A extends Brand<any>>(
+  refinement: Predicate<Brand.Unbranded<A>>,
+  onFailure: (unbranded: Brand.Unbranded<A>) => Brand.BrandErrors
+): Brand.Constructor<A>
+export function refined<A extends Brand<any>>(
+  ...args: [(unbranded: Brand.Unbranded<A>) => Option.Option<Brand.BrandErrors>] | [
+    Predicate<Brand.Unbranded<A>>,
+    (unbranded: Brand.Unbranded<A>) => Brand.BrandErrors
   ]
-): Constructor<A> {
-  const result = (input: Brand.Unbranded<A>): Result.Result<A, BrandError> => {
-    return Result.mapError(AST.runChecks(checks, input), (issue) => new BrandError(issue)) as any
-  }
-  return Object.assign((input: Brand.Unbranded<A>) => Result.getOrThrow(result(input)), {
-    option: (input: Brand.Unbranded<A>) => Option.getSuccess(result(input)),
-    result,
-    is: (input: Brand.Unbranded<A>): input is Brand.Unbranded<A> & A => Result.isSuccess(result(input)),
-    checks
+): Brand.Constructor<A> {
+  const either: (unbranded: Brand.Unbranded<A>) => Either.Either<A, Brand.BrandErrors> = args.length === 2 ?
+    (unbranded) => args[0](unbranded) ? Either.right(unbranded as A) : Either.left(args[1](unbranded)) :
+    (unbranded) => {
+      return Option.match(args[0](unbranded), {
+        onNone: () => Either.right(unbranded as A),
+        onSome: Either.left
+      })
+    }
+  return Object.assign((unbranded: Brand.Unbranded<A>) => Either.getOrThrowWith(either(unbranded), identity), {
+    [RefinedConstructorsTypeId]: RefinedConstructorsTypeId,
+    option: (args: any) => Option.getRight(either(args)),
+    either,
+    is: (args: any): args is Brand.Unbranded<A> & A => Either.isRight(either(args))
+  }) as any
+}
+
+/**
+ * This function returns a `Brand.Constructor` that **does not apply any runtime checks**, it just returns the provided value.
+ * It can be used to create nominal types that allow distinguishing between two values of the same type but with different meanings.
+ *
+ * If you also want to perform some validation, see {@link refined}.
+ *
+ * **Example**
+ *
+ * ```ts
+ * import * as assert from "node:assert"
+ * import { Brand } from "effect"
+ *
+ * type UserId = number & Brand.Brand<"UserId">
+ *
+ * const UserId = Brand.nominal<UserId>()
+ *
+ * console.log(UserId(1))
+ * // 1
+ * ```
+ *
+ * @since 2.0.0
+ * @category constructors
+ */
+export const nominal = <A extends Brand<any>>(): Brand.Constructor<
+  A
+> => {
+  // @ts-expect-error
+  return Object.assign((args) => args, {
+    [RefinedConstructorsTypeId]: RefinedConstructorsTypeId,
+    option: (args: any) => Option.some(args),
+    either: (args: any) => Either.right(args),
+    is: (_args: any): _args is Brand.Unbranded<A> & A => true
   })
 }
 
 /**
- * Combines one or more brand constructors to form a single branded type.
+ * Combines two or more brands together to form a single branded type.
+ * This API is useful when you want to validate that the input data passes multiple brand validators.
  *
- * **When to use**
+ * **Example**
  *
- * Use to require an input to satisfy every runtime check collected by the
- * provided brand constructors.
+ * ```ts
+ * import * as assert from "node:assert"
+ * import { Brand } from "effect"
  *
- * **Details**
+ * type Int = number & Brand.Brand<"Int">
+ * const Int = Brand.refined<Int>(
+ *   (n) => Number.isInteger(n),
+ *   (n) => Brand.error(`Expected ${n} to be an integer`)
+ * )
+ * type Positive = number & Brand.Brand<"Positive">
+ * const Positive = Brand.refined<Positive>(
+ *   (n) => n > 0,
+ *   (n) => Brand.error(`Expected ${n} to be positive`)
+ * )
  *
- * If the provided constructors contain runtime checks, the combined
- * constructor succeeds only when all checks pass. If no runtime checks are
- * present, it behaves as a nominal constructor.
+ * const PositiveInt = Brand.all(Int, Positive)
  *
- * @category combining
+ * console.log(PositiveInt(1))
+ * // 1
+ *
+ * assert.throws(() => PositiveInt(1.1))
+ * ```
+ *
  * @since 2.0.0
+ * @category combining
  */
-export function all<Brands extends readonly [Constructor<any>, ...Array<Constructor<any>>]>(
+export const all: <Brands extends readonly [Brand.Constructor<any>, ...Array<Brand.Constructor<any>>]>(
   ...brands: Brand.EnsureCommonBase<Brands>
-): Constructor<
+) => Brand.Constructor<
   Types.UnionToIntersection<{ [B in keyof Brands]: Brand.FromConstructor<Brands[B]> }[number]> extends
     infer X extends Brand<any> ? X : Brand<any>
-> {
-  const checks = brands.flatMap((brand) => brand.checks ?? [])
-  return Arr.isArrayNonEmpty(checks) ?
-    check(...checks) :
-    nominal()
+> = <
+  Brands extends readonly [Brand.Constructor<any>, ...Array<Brand.Constructor<any>>]
+>(...brands: Brand.EnsureCommonBase<Brands>): Brand.Constructor<
+  Types.UnionToIntersection<
+    {
+      [B in keyof Brands]: Brand.FromConstructor<Brands[B]>
+    }[number]
+  > extends infer X extends Brand<any> ? X : Brand<any>
+> => {
+  const either = (args: any): Either.Either<any, Brand.BrandErrors> => {
+    let result: Either.Either<any, Brand.BrandErrors> = Either.right(args)
+    for (const brand of brands) {
+      const nextResult = brand.either(args)
+      if (Either.isLeft(result) && Either.isLeft(nextResult)) {
+        result = Either.left([...result.left, ...nextResult.left])
+      } else {
+        result = Either.isLeft(result) ? result : nextResult
+      }
+    }
+    return result
+  }
+  // @ts-expect-error
+  return Object.assign((args) =>
+    Either.match(either(args), {
+      onLeft: (e) => {
+        throw e
+      },
+      onRight: identity
+    }), {
+    [RefinedConstructorsTypeId]: RefinedConstructorsTypeId,
+    option: (args: any) => Option.getRight(either(args)),
+    either,
+    is: (args: any): args is any => Either.isRight(either(args))
+  })
 }
+
+/**
+ * Retrieves the unbranded value from a `Brand` instance.
+ *
+ * @since 3.15.0
+ * @category getters
+ */
+export const unbranded: <A extends Brand<any>>(branded: A) => Brand.Unbranded<A> = unsafeCoerce

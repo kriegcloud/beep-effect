@@ -1,6 +1,6 @@
 import { describe, it } from "@effect/vitest"
 import { deepStrictEqual, strictEqual } from "@effect/vitest/utils"
-import { Deferred, Effect, Exit, Fiber, pipe, SynchronizedRef } from "effect"
+import { Deferred, Effect, Exit, Fiber, Option, pipe, SynchronizedRef } from "effect"
 
 const current = "value"
 const update = "new value"
@@ -38,7 +38,7 @@ describe("SynchronizedRef", () => {
     Effect.gen(function*() {
       const ref = yield* SynchronizedRef.make(current)
       const result1 = yield* SynchronizedRef.getAndUpdateEffect(ref, () => Effect.succeed(update))
-      const result2 = yield* SynchronizedRef.get(ref)
+      const result2 = yield* ref
       strictEqual(result1, current)
       strictEqual(result2, update)
     }))
@@ -53,8 +53,8 @@ describe("SynchronizedRef", () => {
       const ref = yield* SynchronizedRef.make<State>(Active)
       const result1 = yield* (SynchronizedRef.getAndUpdateSomeEffect(ref, (state) =>
         isClosed(state) ?
-          Effect.succeedSome(Changed) :
-          Effect.succeedNone))
+          Option.some(Effect.succeed(Changed)) :
+          Option.none()))
       const result2 = yield* SynchronizedRef.get(ref)
       deepStrictEqual(result1, Active)
       deepStrictEqual(result2, Active)
@@ -64,15 +64,15 @@ describe("SynchronizedRef", () => {
       const ref = yield* SynchronizedRef.make<State>(Active)
       const result1 = yield* SynchronizedRef.getAndUpdateSomeEffect(ref, (state) =>
         isActive(state) ?
-          Effect.succeedSome(Changed) :
-          Effect.succeedNone)
+          Option.some(Effect.succeed(Changed)) :
+          Option.none())
       const result2 = yield* SynchronizedRef.getAndUpdateSomeEffect(ref, (state) =>
         isClosed(state)
-          ? Effect.succeedSome(Active)
+          ? Option.some(Effect.succeed(Active))
           : isChanged(state)
-          ? Effect.succeedSome(Closed)
-          : Effect.succeedNone)
-      const result3 = yield* SynchronizedRef.get(ref)
+          ? Option.some(Effect.succeed(Closed))
+          : Option.none())
+      const result3 = yield* ref
       deepStrictEqual(result1, Active)
       deepStrictEqual(result2, Changed)
       deepStrictEqual(result3, Closed)
@@ -83,8 +83,8 @@ describe("SynchronizedRef", () => {
       const result = yield* pipe(
         SynchronizedRef.getAndUpdateSomeEffect(ref, (state) =>
           isActive(state) ?
-            Effect.fail(failure) :
-            Effect.succeedNone),
+            Option.some(Effect.fail(failure)) :
+            Option.none()),
         Effect.exit
       )
       deepStrictEqual(result, Exit.fail(failure))
@@ -94,9 +94,9 @@ describe("SynchronizedRef", () => {
       const deferred = yield* Deferred.make<SynchronizedRef.SynchronizedRef<State>>()
       const latch = yield* Deferred.make<void>()
       const makeAndWait = Deferred.complete(deferred, SynchronizedRef.make<State>(Active)).pipe(
-        Effect.andThen(Deferred.await(latch))
+        Effect.zipRight(Deferred.await(latch))
       )
-      const fiber = yield* Effect.forkChild(makeAndWait)
+      const fiber = yield* Effect.fork(makeAndWait)
       const ref = yield* Deferred.await(deferred)
       yield* Fiber.interrupt(fiber)
       const result = yield* SynchronizedRef.updateAndGetEffect(ref, (_) => Effect.succeed(Closed))

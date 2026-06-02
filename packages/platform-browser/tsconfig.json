@@ -1,8 +1,9 @@
 {
-  "$schema": "http://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.base.json",
-  "include": ["src"],
+  "include": [],
   "references": [
-    { "path": "../effect" }
+    { "path": "tsconfig.src.json" },
+    { "path": "tsconfig.test.json" },
+    { "path": "tsconfig.examples.json" }
   ]
 }

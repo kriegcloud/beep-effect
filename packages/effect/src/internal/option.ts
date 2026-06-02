@@ -1,24 +1,26 @@
 /**
  * @since 2.0.0
  */
-import * as Equal from "../Equal.ts"
-import { format } from "../Formatter.ts"
-import * as Hash from "../Hash.ts"
-import { toJson } from "../Inspectable.ts"
-import type * as Option from "../Option.ts"
-import { hasProperty } from "../Predicate.ts"
-import { SingleShotGen } from "../Utils.ts"
-import { PipeInspectableProto } from "./core.ts"
 
-const TypeId = "~effect/data/Option"
+import * as Equal from "../Equal.js"
+import * as Hash from "../Hash.js"
+import { format, NodeInspectSymbol, toJSON } from "../Inspectable.js"
+import type * as Option from "../Option.js"
+import { hasProperty } from "../Predicate.js"
+import { EffectPrototype } from "./effectable.js"
+
+const TypeId: Option.TypeId = Symbol.for("effect/Option") as Option.TypeId
 
 const CommonProto = {
+  ...EffectPrototype,
   [TypeId]: {
     _A: (_: never) => _
   },
-  ...PipeInspectableProto,
-  [Symbol.iterator]() {
-    return new SingleShotGen(this)
+  [NodeInspectSymbol]<A>(this: Option.Option<A>) {
+    return this.toJSON()
+  },
+  toString<A>(this: Option.Option<A>) {
+    return format(this.toJSON())
   }
 }
 
@@ -26,28 +28,17 @@ const SomeProto = Object.assign(Object.create(CommonProto), {
   _tag: "Some",
   _op: "Some",
   [Equal.symbol]<A>(this: Option.Some<A>, that: unknown): boolean {
-    return (
-      isOption(that) && isSome(that) && Equal.equals(this.value, that.value)
-    )
+    return isOption(that) && isSome(that) && Equal.equals(this.value, that.value)
   },
   [Hash.symbol]<A>(this: Option.Some<A>) {
-    return Hash.combine(Hash.hash(this._tag))(Hash.hash(this.value))
-  },
-  toString<A>(this: Option.Some<A>) {
-    return `some(${format(this.value)})`
+    return Hash.cached(this, Hash.combine(Hash.hash(this._tag))(Hash.hash(this.value)))
   },
   toJSON<A>(this: Option.Some<A>) {
     return {
       _id: "Option",
       _tag: this._tag,
-      value: toJson(this.value)
+      value: toJSON(this.value)
     }
-  }
-})
-
-Object.defineProperty(SomeProto, "valueOrUndefined", {
-  get() {
-    return this.value
   }
 })
 
@@ -55,15 +46,11 @@ const NoneHash = Hash.hash("None")
 const NoneProto = Object.assign(Object.create(CommonProto), {
   _tag: "None",
   _op: "None",
-  valueOrUndefined: undefined,
   [Equal.symbol]<A>(this: Option.None<A>, that: unknown): boolean {
     return isOption(that) && isNone(that)
   },
   [Hash.symbol]<A>(this: Option.None<A>) {
     return NoneHash
-  },
-  toString<A>(this: Option.None<A>) {
-    return `none()`
   },
   toJSON<A>(this: Option.None<A>) {
     return {

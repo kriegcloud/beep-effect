@@ -1,6 +1,6 @@
-import { assert, describe, it } from "@effect/vitest"
-import { Cause, Data, Effect, Exit, RcMap, Scope } from "effect"
-import { TestClock } from "effect/testing"
+import { describe, it } from "@effect/vitest"
+import { assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils"
+import { Cause, Data, Effect, Exit, RcMap, Scope, TestClock } from "effect"
 
 describe("RcMap", () => {
   it.effect("deallocation", () =>
@@ -18,43 +18,43 @@ describe("RcMap", () => {
             () => Effect.sync(() => released.push(key))
           )
       }).pipe(
-        Scope.provide(mapScope)
+        Scope.extend(mapScope)
       )
 
-      assert.deepStrictEqual(acquired, [])
-      assert.strictEqual(yield* Effect.scoped(RcMap.get(map, "foo")), "foo")
-      assert.deepStrictEqual(acquired, ["foo"])
-      assert.deepStrictEqual(released, ["foo"])
+      deepStrictEqual(acquired, [])
+      strictEqual(yield* Effect.scoped(RcMap.get(map, "foo")), "foo")
+      deepStrictEqual(acquired, ["foo"])
+      deepStrictEqual(released, ["foo"])
 
       const scopeA = yield* Scope.make()
       const scopeB = yield* Scope.make()
-      yield* RcMap.get(map, "bar").pipe(Scope.provide(scopeA))
+      yield* RcMap.get(map, "bar").pipe(Scope.extend(scopeA))
       yield* Effect.scoped(RcMap.get(map, "bar"))
-      yield* RcMap.get(map, "baz").pipe(Scope.provide(scopeB))
+      yield* RcMap.get(map, "baz").pipe(Scope.extend(scopeB))
       yield* Effect.scoped(RcMap.get(map, "baz"))
-      assert.deepStrictEqual(acquired, ["foo", "bar", "baz"])
-      assert.deepStrictEqual(released, ["foo"])
+      deepStrictEqual(acquired, ["foo", "bar", "baz"])
+      deepStrictEqual(released, ["foo"])
       yield* Scope.close(scopeB, Exit.void)
-      assert.deepStrictEqual(acquired, ["foo", "bar", "baz"])
-      assert.deepStrictEqual(released, ["foo", "baz"])
+      deepStrictEqual(acquired, ["foo", "bar", "baz"])
+      deepStrictEqual(released, ["foo", "baz"])
       yield* Scope.close(scopeA, Exit.void)
-      assert.deepStrictEqual(acquired, ["foo", "bar", "baz"])
-      assert.deepStrictEqual(released, ["foo", "baz", "bar"])
+      deepStrictEqual(acquired, ["foo", "bar", "baz"])
+      deepStrictEqual(released, ["foo", "baz", "bar"])
 
       const scopeC = yield* Scope.make()
-      yield* RcMap.get(map, "qux").pipe(Scope.provide(scopeC))
-      assert.deepStrictEqual(acquired, ["foo", "bar", "baz", "qux"])
-      assert.deepStrictEqual(released, ["foo", "baz", "bar"])
+      yield* RcMap.get(map, "qux").pipe(Scope.extend(scopeC))
+      deepStrictEqual(acquired, ["foo", "bar", "baz", "qux"])
+      deepStrictEqual(released, ["foo", "baz", "bar"])
 
       yield* Scope.close(mapScope, Exit.void)
-      assert.deepStrictEqual(acquired, ["foo", "bar", "baz", "qux"])
-      assert.deepStrictEqual(released, ["foo", "baz", "bar", "qux"])
+      deepStrictEqual(acquired, ["foo", "bar", "baz", "qux"])
+      deepStrictEqual(released, ["foo", "baz", "bar", "qux"])
 
       const exit = yield* RcMap.get(map, "boom").pipe(Effect.scoped, Effect.exit)
-      assert.isTrue(Exit.hasInterrupts(exit))
+      assertTrue(Exit.isInterrupted(exit))
     }))
 
-  it.effect("idleTimeToLive", () =>
+  it.scoped("idleTimeToLive", () =>
     Effect.gen(function*() {
       const acquired: Array<string> = []
       const released: Array<string> = []
@@ -70,34 +70,34 @@ describe("RcMap", () => {
         idleTimeToLive: 1000
       })
 
-      assert.deepStrictEqual(acquired, [])
-      assert.strictEqual(yield* Effect.scoped(RcMap.get(map, "foo")), "foo")
-      assert.deepStrictEqual(acquired, ["foo"])
-      assert.deepStrictEqual(released, [])
+      deepStrictEqual(acquired, [])
+      strictEqual(yield* Effect.scoped(RcMap.get(map, "foo")), "foo")
+      deepStrictEqual(acquired, ["foo"])
+      deepStrictEqual(released, [])
 
       yield* TestClock.adjust(1000)
-      assert.deepStrictEqual(released, ["foo"])
+      deepStrictEqual(released, ["foo"])
 
-      assert.strictEqual(yield* Effect.scoped(RcMap.get(map, "bar")), "bar")
-      assert.deepStrictEqual(acquired, ["foo", "bar"])
-      assert.deepStrictEqual(released, ["foo"])
+      strictEqual(yield* Effect.scoped(RcMap.get(map, "bar")), "bar")
+      deepStrictEqual(acquired, ["foo", "bar"])
+      deepStrictEqual(released, ["foo"])
 
       yield* TestClock.adjust(500)
-      assert.strictEqual(yield* Effect.scoped(RcMap.get(map, "bar")), "bar")
-      assert.deepStrictEqual(acquired, ["foo", "bar"])
-      assert.deepStrictEqual(released, ["foo"])
+      strictEqual(yield* Effect.scoped(RcMap.get(map, "bar")), "bar")
+      deepStrictEqual(acquired, ["foo", "bar"])
+      deepStrictEqual(released, ["foo"])
 
       yield* TestClock.adjust(1000)
-      assert.deepStrictEqual(released, ["foo", "bar"])
+      deepStrictEqual(released, ["foo", "bar"])
 
       yield* Effect.scoped(RcMap.get(map, "baz"))
-      assert.deepStrictEqual(acquired, ["foo", "bar", "baz"])
+      deepStrictEqual(acquired, ["foo", "bar", "baz"])
       yield* RcMap.invalidate(map, "baz")
-      assert.deepStrictEqual(acquired, ["foo", "bar", "baz"])
-      assert.deepStrictEqual(released, ["foo", "bar", "baz"])
+      deepStrictEqual(acquired, ["foo", "bar", "baz"])
+      deepStrictEqual(released, ["foo", "bar", "baz"])
     }))
 
-  it.effect(".touch", () =>
+  it.scoped(".touch", () =>
     Effect.gen(function*() {
       const acquired: Array<string> = []
       const released: Array<string> = []
@@ -113,22 +113,22 @@ describe("RcMap", () => {
         idleTimeToLive: 1000
       })
 
-      assert.deepStrictEqual(acquired, [])
-      assert.strictEqual(yield* Effect.scoped(RcMap.get(map, "foo")), "foo")
-      assert.deepStrictEqual(acquired, ["foo"])
-      assert.deepStrictEqual(released, [])
+      deepStrictEqual(acquired, [])
+      strictEqual(yield* Effect.scoped(RcMap.get(map, "foo")), "foo")
+      deepStrictEqual(acquired, ["foo"])
+      deepStrictEqual(released, [])
 
       yield* TestClock.adjust(500)
-      assert.deepStrictEqual(released, [])
+      deepStrictEqual(released, [])
 
       yield* RcMap.touch(map, "foo")
       yield* TestClock.adjust(500)
-      assert.deepStrictEqual(released, [])
+      deepStrictEqual(released, [])
       yield* TestClock.adjust(500)
-      assert.deepStrictEqual(released, ["foo"])
+      deepStrictEqual(released, ["foo"])
     }))
 
-  it.effect("capacity", () =>
+  it.scoped("capacity", () =>
     Effect.gen(function*() {
       const map = yield* RcMap.make({
         lookup: (key: string) => Effect.succeed(key),
@@ -136,21 +136,21 @@ describe("RcMap", () => {
         idleTimeToLive: 1000
       })
 
-      assert.strictEqual(yield* Effect.scoped(RcMap.get(map, "foo")), "foo")
-      assert.strictEqual(yield* Effect.scoped(RcMap.get(map, "foo")), "foo")
-      assert.strictEqual(yield* Effect.scoped(RcMap.get(map, "bar")), "bar")
+      strictEqual(yield* Effect.scoped(RcMap.get(map, "foo")), "foo")
+      strictEqual(yield* Effect.scoped(RcMap.get(map, "foo")), "foo")
+      strictEqual(yield* Effect.scoped(RcMap.get(map, "bar")), "bar")
 
       const exit = yield* RcMap.get(map, "baz").pipe(Effect.scoped, Effect.exit)
-      assert.deepStrictEqual(
+      deepStrictEqual(
         exit,
-        Exit.fail(new Cause.ExceededCapacityError(`RcMap attempted to exceed capacity of 2`))
+        Exit.fail(new Cause.ExceededCapacityException(`RcMap attempted to exceed capacity of 2`))
       )
 
       yield* TestClock.adjust(1000)
-      assert.strictEqual(yield* Effect.scoped(RcMap.get(map, "baz")), "baz")
+      strictEqual(yield* Effect.scoped(RcMap.get(map, "baz")), "baz")
     }))
 
-  it.effect("complex key", () =>
+  it.scoped("complex key", () =>
     Effect.gen(function*() {
       class Key extends Data.Class<{ readonly id: number }> {}
       const map = yield* RcMap.make({
@@ -158,12 +158,12 @@ describe("RcMap", () => {
         capacity: 1
       })
 
-      assert.strictEqual(yield* RcMap.get(map, new Key({ id: 1 })), 1)
+      strictEqual(yield* RcMap.get(map, new Key({ id: 1 })), 1)
       // no failure means a hit
-      assert.strictEqual(yield* RcMap.get(map, new Key({ id: 1 })), 1)
+      strictEqual(yield* RcMap.get(map, new Key({ id: 1 })), 1)
     }))
 
-  it.effect("keys lookup", () =>
+  it.scoped("keys lookup", () =>
     Effect.gen(function*() {
       const map = yield* RcMap.make({
         lookup: (key: string) => Effect.succeed(key)
@@ -173,10 +173,10 @@ describe("RcMap", () => {
       yield* RcMap.get(map, "bar")
       yield* RcMap.get(map, "baz")
 
-      assert.deepStrictEqual(Array.from(yield* RcMap.keys(map)), ["foo", "bar", "baz"])
+      deepStrictEqual(yield* RcMap.keys(map), ["foo", "bar", "baz"])
     }))
 
-  it.effect("dynamic idleTimeToLive", () =>
+  it.scoped("dynamic idleTimeToLive", () =>
     Effect.gen(function*() {
       const acquired: Array<string> = []
       const released: Array<string> = []
@@ -192,21 +192,21 @@ describe("RcMap", () => {
         idleTimeToLive: (key: string) => key.startsWith("short:") ? 500 : 2000
       })
 
-      assert.deepStrictEqual(acquired, [])
+      deepStrictEqual(acquired, [])
 
       yield* Effect.scoped(RcMap.get(map, "short:a"))
       yield* Effect.scoped(RcMap.get(map, "long:b"))
-      assert.deepStrictEqual(acquired, ["short:a", "long:b"])
-      assert.deepStrictEqual(released, [])
+      deepStrictEqual(acquired, ["short:a", "long:b"])
+      deepStrictEqual(released, [])
 
       yield* TestClock.adjust(500)
-      assert.deepStrictEqual(released, ["short:a"])
+      deepStrictEqual(released, ["short:a"])
 
       yield* TestClock.adjust(1500)
-      assert.deepStrictEqual(released, ["short:a", "long:b"])
+      deepStrictEqual(released, ["short:a", "long:b"])
     }))
 
-  it.effect("dynamic idleTimeToLive with touch", () =>
+  it.scoped("dynamic idleTimeToLive with touch", () =>
     Effect.gen(function*() {
       const acquired: Array<string> = []
       const released: Array<string> = []
@@ -223,15 +223,15 @@ describe("RcMap", () => {
       })
 
       yield* Effect.scoped(RcMap.get(map, "short:a"))
-      assert.deepStrictEqual(acquired, ["short:a"])
-      assert.deepStrictEqual(released, [])
+      deepStrictEqual(acquired, ["short:a"])
+      deepStrictEqual(released, [])
 
       yield* TestClock.adjust(250)
       yield* RcMap.touch(map, "short:a")
       yield* TestClock.adjust(250)
-      assert.deepStrictEqual(released, [])
+      deepStrictEqual(released, [])
 
       yield* TestClock.adjust(250)
-      assert.deepStrictEqual(released, ["short:a"])
+      deepStrictEqual(released, ["short:a"])
     }))
 })

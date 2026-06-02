@@ -1,9 +1,9 @@
-import * as internal from "@effect/opentelemetry/internal/metrics"
 import { assert, describe, it } from "@effect/vitest"
 import { ValueType } from "@opentelemetry/api"
 import { resourceFromAttributes } from "@opentelemetry/resources"
 import * as Effect from "effect/Effect"
 import * as Metric from "effect/Metric"
+import * as internal from "../src/internal/metrics.js"
 
 const findMetric = (metrics: any, name: string) =>
   metrics.resourceMetrics.scopeMetrics[0].metrics.find((_: any) => _.descriptor.name === name)
@@ -11,24 +11,16 @@ const findMetric = (metrics: any, name: string) =>
 describe("Metrics", () => {
   it.effect("gauge", () =>
     Effect.gen(function*() {
-      const services = yield* Effect.context<never>()
       const resource = resourceFromAttributes({
         name: "test",
         version: "1.0.0"
       })
-      const producer = new internal.MetricProducerImpl(resource, services)
+      const producer = new internal.MetricProducerImpl(resource)
       const gauge = Metric.gauge("rps")
 
-      yield* Metric.withAttributes(gauge, {
-        key: "value",
-        unit: "requests"
-      }).pipe(Metric.update(10))
-      yield* Metric.withAttributes(gauge, {
-        key: "value"
-      }).pipe(Metric.update(10))
-      yield* Metric.withAttributes(gauge, {
-        key: "value"
-      }).pipe(Metric.update(20))
+      yield* Metric.set(gauge, 10).pipe(Effect.tagMetrics("key", "value"), Effect.tagMetrics("unit", "requests"))
+      yield* Metric.set(gauge, 10).pipe(Effect.tagMetrics("key", "value"))
+      yield* Metric.set(gauge, 20).pipe(Effect.tagMetrics("key", "value"))
 
       const results = yield* Effect.promise(() => producer.collect())
       const object = JSON.parse(JSON.stringify(results))
@@ -38,7 +30,7 @@ describe("Metrics", () => {
       ])
       assert.equal(object.resourceMetrics.scopeMetrics.length, 1)
       const metric = findMetric(object, "rps")
-      assert.deepStrictEqual(metric, {
+      assert.deepEqual(metric, {
         "dataPointType": 2,
         "descriptor": {
           "advice": {},
@@ -73,26 +65,17 @@ describe("Metrics", () => {
 
   it.effect("gauge bigint", () =>
     Effect.gen(function*() {
-      const services = yield* Effect.context<never>()
       const producer = new internal.MetricProducerImpl(
         resourceFromAttributes({
           name: "test",
           version: "1.0.0"
-        }),
-        services
+        })
       )
       const gauge = Metric.gauge("rps-bigint", { bigint: true })
 
-      yield* Metric.withAttributes(gauge, {
-        key: "value",
-        unit: "requests"
-      }).pipe(Metric.update(10n))
-      yield* Metric.withAttributes(gauge, {
-        key: "value"
-      }).pipe(Metric.update(10n))
-      yield* Metric.withAttributes(gauge, {
-        key: "value"
-      }).pipe(Metric.update(20n))
+      yield* Metric.set(gauge, 10n).pipe(Effect.tagMetrics("key", "value"), Effect.tagMetrics("unit", "requests"))
+      yield* Metric.set(gauge, 10n).pipe(Effect.tagMetrics("key", "value"))
+      yield* Metric.set(gauge, 20n).pipe(Effect.tagMetrics("key", "value"))
 
       const results = yield* Effect.promise(() => producer.collect())
       const object = JSON.parse(JSON.stringify(results))
@@ -137,26 +120,17 @@ describe("Metrics", () => {
 
   it.effect("counter", () =>
     Effect.gen(function*() {
-      const services = yield* Effect.context<never>()
       const producer = new internal.MetricProducerImpl(
         resourceFromAttributes({
           name: "test",
           version: "1.0.0"
-        }),
-        services
+        })
       )
       const counter = Metric.counter("counter", { description: "Example" })
 
-      yield* Metric.withAttributes(counter, {
-        key: "value",
-        unit: "requests"
-      }).pipe(Metric.update(1))
-      yield* Metric.withAttributes(counter, {
-        key: "value"
-      }).pipe(Metric.update(1))
-      yield* Metric.withAttributes(counter, {
-        key: "value"
-      }).pipe(Metric.update(1))
+      yield* Metric.increment(counter).pipe(Effect.tagMetrics("key", "value"), Effect.tagMetrics("unit", "requests"))
+      yield* Metric.increment(counter).pipe(Effect.tagMetrics("key", "value"))
+      yield* Metric.increment(counter).pipe(Effect.tagMetrics("key", "value"))
 
       const results = yield* Effect.promise(() => producer.collect())
       const object = JSON.parse(JSON.stringify(results))
@@ -202,29 +176,20 @@ describe("Metrics", () => {
 
   it.effect("counter-inc", () =>
     Effect.gen(function*() {
-      const services = yield* Effect.context<never>()
       const producer = new internal.MetricProducerImpl(
         resourceFromAttributes({
           name: "test",
           version: "1.0.0"
-        }),
-        services
+        })
       )
       const counter = Metric.counter("counter-inc", {
         description: "Example",
         incremental: true
       })
 
-      yield* Metric.withAttributes(counter, {
-        key: "value",
-        unit: "requests"
-      }).pipe(Metric.update(1))
-      yield* Metric.withAttributes(counter, {
-        key: "value"
-      }).pipe(Metric.update(1))
-      yield* Metric.withAttributes(counter, {
-        key: "value"
-      }).pipe(Metric.update(1))
+      yield* Metric.increment(counter).pipe(Effect.tagMetrics("key", "value"), Effect.tagMetrics("unit", "requests"))
+      yield* Metric.increment(counter).pipe(Effect.tagMetrics("key", "value"))
+      yield* Metric.increment(counter).pipe(Effect.tagMetrics("key", "value"))
 
       const results = yield* Effect.promise(() => producer.collect())
       const object = JSON.parse(JSON.stringify(results))
@@ -270,13 +235,11 @@ describe("Metrics", () => {
 
   it.effect("counter-bigint", () =>
     Effect.gen(function*() {
-      const services = yield* Effect.context<never>()
       const producer = new internal.MetricProducerImpl(
         resourceFromAttributes({
           name: "test",
           version: "1.0.0"
-        }),
-        services
+        })
       )
       const counter = Metric.counter("counter-bigint", {
         description: "Example",
@@ -284,16 +247,9 @@ describe("Metrics", () => {
         bigint: true
       })
 
-      yield* Metric.withAttributes(counter, {
-        key: "value",
-        unit: "requests"
-      }).pipe(Metric.update(1n))
-      yield* Metric.withAttributes(counter, {
-        key: "value"
-      }).pipe(Metric.update(1n))
-      yield* Metric.withAttributes(counter, {
-        key: "value"
-      }).pipe(Metric.update(1n))
+      yield* Metric.increment(counter).pipe(Effect.tagMetrics("key", "value"), Effect.tagMetrics("unit", "requests"))
+      yield* Metric.increment(counter).pipe(Effect.tagMetrics("key", "value"))
+      yield* Metric.increment(counter).pipe(Effect.tagMetrics("key", "value"))
 
       const results = yield* Effect.promise(() => producer.collect())
       const object = JSON.parse(JSON.stringify(results))
