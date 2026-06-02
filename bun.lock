@@ -632,7 +632,9 @@
       "name": "@beep/nlp-mcp",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/identity": "workspace:^",
         "@beep/nlp": "workspace:^",
+        "@beep/schema": "workspace:^",
         "@beep/wink": "workspace:^",
         "@effect/platform-node": "catalog:",
         "effect": "catalog:",

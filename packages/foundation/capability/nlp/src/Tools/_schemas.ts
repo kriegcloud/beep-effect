@@ -79,23 +79,73 @@ const AiPhoneticAlgorithm = AiPhoneticAlgorithmKit.pipe(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiToken extends S.Class<AiToken>($I`AiToken`)(
-  {
-    end: describe(S.Number, "Character offset where the token ends in the source text."),
-    isPunctuation: describe(S.Boolean, "Whether the token represents punctuation."),
-    isStopWord: describe(S.Boolean, "Whether the token is a common stop word."),
-    lemma: describe(S.String, "Base or dictionary form of the token."),
-    pos: describe(S.String, "Part-of-speech tag such as NOUN, VERB, or ADJ.", {
-      examples: ["NOUN", "VERB", "ADJ", "DET", "ADP"],
-    }),
-    start: describe(S.Number, "Character offset where the token begins in the source text."),
-    stem: describe(S.String, "Stemmed form of the token."),
-    text: describe(S.String, "The token text as it appears in the source input."),
-  },
-  $I.annote("AiToken", {
+export const AiToken = S.Struct({
+  end: describe(S.Number, "Character offset where the token ends in the source text."),
+  isPunctuation: describe(S.Boolean, "Whether the token represents punctuation."),
+  isStopWord: describe(S.Boolean, "Whether the token is a common stop word."),
+  lemma: describe(S.String, "Base or dictionary form of the token."),
+  pos: describe(S.String, "Part-of-speech tag such as NOUN, VERB, or ADJ.", {
+    examples: ["NOUN", "VERB", "ADJ", "DET", "ADP"],
+  }),
+  start: describe(S.Number, "Character offset where the token begins in the source text."),
+  stem: describe(S.String, "Stemmed form of the token."),
+  text: describe(S.String, "The token text as it appears in the source input."),
+}).pipe(
+  $I.annoteSchema("AiToken", {
     description: "A linguistic token with POS, lemma, stemming, and character offsets.",
   })
-) {}
+);
+
+/**
+ * Output schema for a composite linguistic analysis of a text.
+ *
+ * The model bundles document-level counts, detected sentence texts, and the
+ * full annotated token stream so a single tool call can return the data that
+ * tokenization, sentence, and statistics tools would otherwise produce.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { AiAnalysis } from "@beep/nlp/Tools/_schemas"
+ *
+ * const analysis = S.decodeUnknownSync(AiAnalysis)({
+ *   characterCount: 12,
+ *   sentenceCount: 1,
+ *   sentences: ["Hello world."],
+ *   tokenCount: 3,
+ *   tokens: [
+ *     {
+ *       end: 5,
+ *       isPunctuation: false,
+ *       isStopWord: false,
+ *       lemma: "hello",
+ *       pos: "INTJ",
+ *       start: 0,
+ *       stem: "hello",
+ *       text: "Hello"
+ *     }
+ *   ],
+ *   wordCount: 2
+ * })
+ *
+ * analysis.tokenCount
+ * ```
+ *
+ * @category tool-schemas
+ * @since 0.0.0
+ */
+export const AiAnalysis = S.Struct({
+  characterCount: describe(S.Number, "Character count of the analyzed text."),
+  sentenceCount: describe(S.Number, "Number of detected sentences."),
+  sentences: describe(S.Array(S.String), "Detected sentence texts in document order."),
+  tokenCount: describe(S.Number, "Number of tokens including punctuation."),
+  tokens: describe(S.Array(AiToken), "Annotated tokens with POS, lemma, stem, and character offsets."),
+  wordCount: describe(S.Number, "Approximate count of word-like tokens excluding punctuation."),
+}).pipe(
+  $I.annoteSchema("AiAnalysis", {
+    description: "Composite linguistic analysis of a text: counts, sentences, and annotated tokens.",
+  })
+);
 
 /**
  * Output schema for a detected sentence with source offsets and token count.
@@ -122,18 +172,17 @@ export class AiToken extends S.Class<AiToken>($I`AiToken`)(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiSentence extends S.Class<AiSentence>($I`AiSentence`)(
-  {
-    end: describe(S.Number, "Character offset where the sentence ends."),
-    index: describe(S.Number, "Zero-based sentence index in the document."),
-    start: describe(S.Number, "Character offset where the sentence begins."),
-    text: describe(S.String, "The sentence text."),
-    tokenCount: describe(S.Number, "Number of tokens contained in the sentence."),
-  },
-  $I.annote("AiSentence", {
+export const AiSentence = S.Struct({
+  end: describe(S.Number, "Character offset where the sentence ends."),
+  index: describe(S.Number, "Zero-based sentence index in the document."),
+  start: describe(S.Number, "Character offset where the sentence begins."),
+  text: describe(S.String, "The sentence text."),
+  tokenCount: describe(S.Number, "Number of tokens contained in the sentence."),
+}).pipe(
+  $I.annoteSchema("AiSentence", {
     description: "A sentence with token count and character positions.",
   })
-) {}
+);
 
 /**
  * Output schema for a keyword candidate and its importance score.
@@ -157,15 +206,14 @@ export class AiSentence extends S.Class<AiSentence>($I`AiSentence`)(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiKeyword extends S.Class<AiKeyword>($I`AiKeyword`)(
-  {
-    score: describe(S.Number, "Keyword importance score."),
-    term: describe(S.String, "The extracted keyword term."),
-  },
-  $I.annote("AiKeyword", {
+export const AiKeyword = S.Struct({
+  score: describe(S.Number, "Keyword importance score."),
+  term: describe(S.String, "The extracted keyword term."),
+}).pipe(
+  $I.annoteSchema("AiKeyword", {
     description: "A keyword term paired with its ranking score.",
   })
-) {}
+);
 
 /**
  * Output schema for high-level document statistics.
@@ -191,17 +239,16 @@ export class AiKeyword extends S.Class<AiKeyword>($I`AiKeyword`)(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiDocumentStats extends S.Class<AiDocumentStats>($I`AiDocumentStats`)(
-  {
-    avgSentenceLength: describe(S.Number, "Average number of word-like tokens per sentence."),
-    charCount: describe(S.Number, "Character count of the input text."),
-    sentenceCount: describe(S.Number, "Number of detected sentences."),
-    wordCount: describe(S.Number, "Approximate count of word-like tokens excluding punctuation."),
-  },
-  $I.annote("AiDocumentStats", {
+export const AiDocumentStats = S.Struct({
+  avgSentenceLength: describe(S.Number, "Average number of word-like tokens per sentence."),
+  charCount: describe(S.Number, "Character count of the input text."),
+  sentenceCount: describe(S.Number, "Number of detected sentences."),
+  wordCount: describe(S.Number, "Approximate count of word-like tokens excluding punctuation."),
+}).pipe(
+  $I.annoteSchema("AiDocumentStats", {
     description: "High-level statistics describing a text document.",
   })
-) {}
+);
 
 /**
  * Output schema for a sentence-aligned text chunk.
@@ -228,18 +275,17 @@ export class AiDocumentStats extends S.Class<AiDocumentStats>($I`AiDocumentStats
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiSentenceChunk extends S.Class<AiSentenceChunk>($I`AiSentenceChunk`)(
-  {
-    charCount: describe(S.Number, "Character count of the chunk."),
-    endSentenceIndex: describe(S.Number, "Inclusive sentence index where the chunk ends."),
-    sentenceCount: describe(S.Number, "Number of sentences in the chunk."),
-    startSentenceIndex: describe(S.Number, "Inclusive sentence index where the chunk starts."),
-    text: describe(S.String, "Chunk text built from one or more complete sentences."),
-  },
-  $I.annote("AiSentenceChunk", {
+export const AiSentenceChunk = S.Struct({
+  charCount: describe(S.Number, "Character count of the chunk."),
+  endSentenceIndex: describe(S.Number, "Inclusive sentence index where the chunk ends."),
+  sentenceCount: describe(S.Number, "Number of sentences in the chunk."),
+  startSentenceIndex: describe(S.Number, "Inclusive sentence index where the chunk starts."),
+  text: describe(S.String, "Chunk text built from one or more complete sentences."),
+}).pipe(
+  $I.annoteSchema("AiSentenceChunk", {
     description: "A sentence-aligned chunk of text with boundary metadata.",
   })
-) {}
+);
 
 /**
  * Output schema for one ranked text candidate.
@@ -263,15 +309,14 @@ export class AiSentenceChunk extends S.Class<AiSentenceChunk>($I`AiSentenceChunk
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiRankedText extends S.Class<AiRankedText>($I`AiRankedText`)(
-  {
-    index: describe(S.Number, "Index of the original input text in the candidate array."),
-    score: describe(S.Number, "Relevance score where higher means more relevant."),
-  },
-  $I.annote("AiRankedText", {
+export const AiRankedText = S.Struct({
+  index: describe(S.Number, "Index of the original input text in the candidate array."),
+  score: describe(S.Number, "Relevance score where higher means more relevant."),
+}).pipe(
+  $I.annoteSchema("AiRankedText", {
     description: "A ranked candidate entry for query-to-text relevance scoring.",
   })
-) {}
+);
 
 /**
  * Output schema for an extracted named entity.
@@ -300,20 +345,19 @@ export class AiRankedText extends S.Class<AiRankedText>($I`AiRankedText`)(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiEntity extends S.Class<AiEntity>($I`AiEntity`)(
-  {
-    end: describe(S.Number, "Character offset where the entity ends."),
-    endTokenIndex: describe(S.Number, "Inclusive token index where the entity ends."),
-    source: describe(S.optionalKey(AiEntitySource), "Whether the entity came from built-in or custom matching."),
-    start: describe(S.Number, "Character offset where the entity begins."),
-    startTokenIndex: describe(S.Number, "Inclusive token index where the entity begins."),
-    type: describe(S.String, "Entity type label such as DATE, MONEY, EMAIL, or URL."),
-    value: describe(S.String, "The extracted entity text."),
-  },
-  $I.annote("AiEntity", {
+export const AiEntity = S.Struct({
+  end: describe(S.Number, "Character offset where the entity ends."),
+  endTokenIndex: describe(S.Number, "Inclusive token index where the entity ends."),
+  source: describe(S.optionalKey(AiEntitySource), "Whether the entity came from built-in or custom matching."),
+  start: describe(S.Number, "Character offset where the entity begins."),
+  startTokenIndex: describe(S.Number, "Inclusive token index where the entity begins."),
+  type: describe(S.String, "Entity type label such as DATE, MONEY, EMAIL, or URL."),
+  value: describe(S.String, "The extracted entity text."),
+}).pipe(
+  $I.annoteSchema("AiEntity", {
     description: "A named entity with offsets, token boundaries, and extraction source.",
   })
-) {}
+);
 
 /**
  * Output schema for an extracted n-gram and its frequency count.
@@ -337,15 +381,14 @@ export class AiEntity extends S.Class<AiEntity>($I`AiEntity`)(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiNGram extends S.Class<AiNGram>($I`AiNGram`)(
-  {
-    count: describe(S.Number, "Number of occurrences for the n-gram."),
-    value: describe(S.String, "The n-gram string value."),
-  },
-  $I.annote("AiNGram", {
+export const AiNGram = S.Struct({
+  count: describe(S.Number, "Number of occurrences for the n-gram."),
+  value: describe(S.String, "The n-gram string value."),
+}).pipe(
+  $I.annoteSchema("AiNGram", {
     description: "An n-gram value paired with its frequency count.",
   })
-) {}
+);
 
 /**
  * Output schema for phonetic overlap between two text inputs.
@@ -372,18 +415,17 @@ export class AiNGram extends S.Class<AiNGram>($I`AiNGram`)(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiPhoneticMatch extends S.Class<AiPhoneticMatch>($I`AiPhoneticMatch`)(
-  {
-    algorithm: describe(AiPhoneticAlgorithm, "The phonetic encoding algorithm that was used."),
-    leftCodes: describe(S.Array(S.String), "Sorted unique phonetic codes derived from the first text."),
-    rightCodes: describe(S.Array(S.String), "Sorted unique phonetic codes derived from the second text."),
-    score: describe(S.Number, "Jaccard overlap score over unique phonetic codes."),
-    sharedCodes: describe(S.Array(S.String), "Sorted phonetic codes that appear in both texts."),
-  },
-  $I.annote("AiPhoneticMatch", {
+export const AiPhoneticMatch = S.Struct({
+  algorithm: describe(AiPhoneticAlgorithm, "The phonetic encoding algorithm that was used."),
+  leftCodes: describe(S.Array(S.String), "Sorted unique phonetic codes derived from the first text."),
+  rightCodes: describe(S.Array(S.String), "Sorted unique phonetic codes derived from the second text."),
+  score: describe(S.Number, "Jaccard overlap score over unique phonetic codes."),
+  sharedCodes: describe(S.Array(S.String), "Sorted phonetic codes that appear in both texts."),
+}).pipe(
+  $I.annoteSchema("AiPhoneticMatch", {
     description: "Phonetic overlap details for two texts.",
   })
-) {}
+);
 
 /**
  * Structured failure schema returned by AI-facing NLP tools.
@@ -448,17 +490,16 @@ export class AiToolError extends S.Class<AiToolError>($I`AiToolError`)(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiCorpusConfig extends S.Class<AiCorpusConfig>($I`AiCorpusConfig`)(
-  {
-    b: describe(S.Number, "BM25 document length normalization parameter."),
-    k: describe(S.Number, "BM25 inverse-document-frequency saturation parameter."),
-    k1: describe(S.Number, "BM25 term-frequency saturation parameter."),
-    norm: describe(BM25Norm, "Vector normalization mode applied by the BM25 corpus."),
-  },
-  $I.annote("AiCorpusConfig", {
+export const AiCorpusConfig = S.Struct({
+  b: describe(S.Number, "BM25 document length normalization parameter."),
+  k: describe(S.Number, "BM25 inverse-document-frequency saturation parameter."),
+  k1: describe(S.Number, "BM25 term-frequency saturation parameter."),
+  norm: describe(BM25Norm, "Vector normalization mode applied by the BM25 corpus."),
+}).pipe(
+  $I.annoteSchema("AiCorpusConfig", {
     description: "Resolved BM25 configuration values for a managed corpus.",
   })
-) {}
+);
 
 /**
  * Output schema for a managed corpus session summary.
@@ -485,18 +526,17 @@ export class AiCorpusConfig extends S.Class<AiCorpusConfig>($I`AiCorpusConfig`)(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiCorpusSummary extends S.Class<AiCorpusSummary>($I`AiCorpusSummary`)(
-  {
-    config: AiCorpusConfig,
-    corpusId: describe(S.String, "Stable corpus identifier."),
-    createdAtMs: describe(S.Number, "Unix epoch timestamp in milliseconds when the corpus was created."),
-    documentCount: describe(S.Number, "Number of learned documents currently in the corpus."),
-    vocabularySize: describe(S.Number, "Number of unique normalized terms across the corpus."),
-  },
-  $I.annote("AiCorpusSummary", {
+export const AiCorpusSummary = S.Struct({
+  config: AiCorpusConfig,
+  corpusId: describe(S.String, "Stable corpus identifier."),
+  createdAtMs: describe(S.Number, "Unix epoch timestamp in milliseconds when the corpus was created."),
+  documentCount: describe(S.Number, "Number of learned documents currently in the corpus."),
+  vocabularySize: describe(S.Number, "Number of unique normalized terms across the corpus."),
+}).pipe(
+  $I.annoteSchema("AiCorpusSummary", {
     description: "Summary information describing a managed BM25 corpus session.",
   })
-) {}
+);
 
 /**
  * Output schema for one ranked document returned from a corpus query.
@@ -522,17 +562,16 @@ export class AiCorpusSummary extends S.Class<AiCorpusSummary>($I`AiCorpusSummary
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiCorpusRankedDocument extends S.Class<AiCorpusRankedDocument>($I`AiCorpusRankedDocument`)(
-  {
-    id: describe(S.String, "Document identifier."),
-    index: describe(S.Number, "Zero-based index of the learned document inside the corpus."),
-    score: describe(S.Number, "Similarity score assigned to the document."),
-    text: describe(S.optionalKey(S.String), "Source document text when the caller requested text inclusion."),
-  },
-  $I.annote("AiCorpusRankedDocument", {
+export const AiCorpusRankedDocument = S.Struct({
+  id: describe(S.String, "Document identifier."),
+  index: describe(S.Number, "Zero-based index of the learned document inside the corpus."),
+  score: describe(S.Number, "Similarity score assigned to the document."),
+  text: describe(S.optionalKey(S.String), "Source document text when the caller requested text inclusion."),
+}).pipe(
+  $I.annoteSchema("AiCorpusRankedDocument", {
     description: "A ranked document returned from a corpus query.",
   })
-) {}
+);
 
 /**
  * Output schema for an inverse document frequency value in a corpus.
@@ -555,15 +594,14 @@ export class AiCorpusRankedDocument extends S.Class<AiCorpusRankedDocument>($I`A
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiCorpusIdf extends S.Class<AiCorpusIdf>($I`AiCorpusIdf`)(
-  {
-    idf: describe(S.Number, "Inverse document frequency value for the term."),
-    term: describe(S.String, "Corpus term associated with the IDF value."),
-  },
-  $I.annote("AiCorpusIdf", {
+export const AiCorpusIdf = S.Struct({
+  idf: describe(S.Number, "Inverse document frequency value for the term."),
+  term: describe(S.String, "Corpus term associated with the IDF value."),
+}).pipe(
+  $I.annoteSchema("AiCorpusIdf", {
     description: "An inverse document frequency entry for a corpus term.",
   })
-) {}
+);
 
 /**
  * Output schema for the dimensions of an optional document-term matrix.
@@ -587,15 +625,14 @@ export class AiCorpusIdf extends S.Class<AiCorpusIdf>($I`AiCorpusIdf`)(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiCorpusMatrixShape extends S.Class<AiCorpusMatrixShape>($I`AiCorpusMatrixShape`)(
-  {
-    cols: describe(S.Number, "Number of columns in the document-term matrix."),
-    rows: describe(S.Number, "Number of rows in the document-term matrix."),
-  },
-  $I.annote("AiCorpusMatrixShape", {
+export const AiCorpusMatrixShape = S.Struct({
+  cols: describe(S.Number, "Number of columns in the document-term matrix."),
+  rows: describe(S.Number, "Number of rows in the document-term matrix."),
+}).pipe(
+  $I.annoteSchema("AiCorpusMatrixShape", {
     description: "Shape metadata for the optional document-term matrix.",
   })
-) {}
+);
 
 /**
  * Output schema for detailed corpus diagnostics and retrieval statistics.
@@ -625,21 +662,20 @@ export class AiCorpusMatrixShape extends S.Class<AiCorpusMatrixShape>($I`AiCorpu
  * @category tool-schemas
  * @since 0.0.0
  */
-export class AiCorpusStats extends S.Class<AiCorpusStats>($I`AiCorpusStats`)(
-  {
-    averageDocumentLength: describe(S.Number, "Average normalized token count per learned document."),
-    corpusId: describe(S.String, "Stable corpus identifier."),
-    documentTermMatrix: describe(
-      S.Array(S.Number).pipe(S.Array),
-      "Optional document-term matrix, one row per learned document."
-    ),
-    idfValues: describe(S.Array(AiCorpusIdf), "Optional IDF values sorted by descending score."),
-    matrixShape: AiCorpusMatrixShape,
-    terms: describe(S.Array(S.String), "Learned corpus vocabulary terms in vector order."),
-    totalDocuments: describe(S.Number, "Number of learned documents currently in the corpus."),
-    vocabularySize: describe(S.Number, "Number of unique normalized terms across the corpus."),
-  },
-  $I.annote("AiCorpusStats", {
+export const AiCorpusStats = S.Struct({
+  averageDocumentLength: describe(S.Number, "Average normalized token count per learned document."),
+  corpusId: describe(S.String, "Stable corpus identifier."),
+  documentTermMatrix: describe(
+    S.Array(S.Number).pipe(S.Array),
+    "Optional document-term matrix, one row per learned document."
+  ),
+  idfValues: describe(S.Array(AiCorpusIdf), "Optional IDF values sorted by descending score."),
+  matrixShape: AiCorpusMatrixShape,
+  terms: describe(S.Array(S.String), "Learned corpus vocabulary terms in vector order."),
+  totalDocuments: describe(S.Number, "Number of learned documents currently in the corpus."),
+  vocabularySize: describe(S.Number, "Number of unique normalized terms across the corpus."),
+}).pipe(
+  $I.annoteSchema("AiCorpusStats", {
     description: "Detailed statistics for a managed corpus session.",
   })
-) {}
+);

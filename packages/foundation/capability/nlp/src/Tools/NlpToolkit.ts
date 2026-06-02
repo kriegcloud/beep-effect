@@ -6,6 +6,8 @@
  */
 
 import { Toolkit } from "effect/unstable/ai";
+import { Analyze } from "./Analyze.ts";
+import { BagOfWords } from "./BagOfWords.ts";
 import { BowCosineSimilarity } from "./BowCosineSimilarity.ts";
 import { ChunkBySentences } from "./ChunkBySentences.ts";
 import { CorpusStats } from "./CorpusStats.ts";
@@ -17,16 +19,22 @@ import { ExtractKeywords } from "./ExtractKeywords.ts";
 import { LearnCorpus } from "./LearnCorpus.ts";
 import { LearnCustomEntities } from "./LearnCustomEntities.ts";
 import { NGrams } from "./NGrams.ts";
+import { Paragraphize } from "./Paragraphize.ts";
 import { PhoneticMatch } from "./PhoneticMatch.ts";
 import { QueryCorpus } from "./QueryCorpus.ts";
 import { RankByRelevance } from "./RankByRelevance.ts";
+import { RemoveStopWords } from "./RemoveStopWords.ts";
 import { Sentences } from "./Sentences.ts";
+import { Stem } from "./Stem.ts";
 import { TextSimilarity } from "./TextSimilarity.ts";
 import { Tokenize } from "./Tokenize.ts";
 import { TransformText } from "./TransformText.ts";
 import { TverskySimilarity } from "./TverskySimilarity.ts";
+import { WordCount } from "./WordCount.ts";
 
 type NlpToolList = readonly [
+  typeof Analyze,
+  typeof BagOfWords,
   typeof BowCosineSimilarity,
   typeof ChunkBySentences,
   typeof CorpusStats,
@@ -38,14 +46,18 @@ type NlpToolList = readonly [
   typeof LearnCorpus,
   typeof LearnCustomEntities,
   typeof NGrams,
+  typeof Paragraphize,
   typeof PhoneticMatch,
   typeof QueryCorpus,
   typeof RankByRelevance,
+  typeof RemoveStopWords,
   typeof Sentences,
+  typeof Stem,
   typeof TextSimilarity,
   typeof Tokenize,
   typeof TransformText,
   typeof TverskySimilarity,
+  typeof WordCount,
 ];
 
 type NlpToolkitTools = Toolkit.ToolsByName<NlpToolList>;
@@ -68,13 +80,15 @@ type NlpToolkitTools = Toolkit.ToolsByName<NlpToolList>;
  * }
  *
  * console.log(summary)
- * // { count: 19, hasTokenize: true }
+ * // { count: 25, hasTokenize: true }
  * ```
  *
  * @category tools
  * @since 0.0.0
  */
 export const NlpTools: NlpToolList = [
+  Analyze,
+  BagOfWords,
   BowCosineSimilarity,
   ChunkBySentences,
   CorpusStats,
@@ -86,14 +100,18 @@ export const NlpTools: NlpToolList = [
   LearnCorpus,
   LearnCustomEntities,
   NGrams,
+  Paragraphize,
   PhoneticMatch,
   QueryCorpus,
   RankByRelevance,
+  RemoveStopWords,
   Sentences,
+  Stem,
   TextSimilarity,
   Tokenize,
   TransformText,
   TverskySimilarity,
+  WordCount,
 ] as const;
 
 /**

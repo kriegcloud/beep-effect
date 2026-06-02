@@ -29,19 +29,18 @@ class TextSimilarityParameters extends S.Class<TextSimilarityParameters>($I`Text
   })
 ) {}
 
-class TextSimilaritySuccess extends S.Class<TextSimilaritySuccess>($I`TextSimilaritySuccess`)(
-  {
-    method: S.Literal("vector.cosine").annotateKey({
-      description: "The similarity method used",
-    }),
-    score: UnitInterval.annotateKey({
-      description: "Similarity score from 0 (unrelated) to 1 (identical)",
-    }),
-  },
-  $I.annote("TextSimilaritySuccess", {
+const TextSimilaritySuccess = S.Struct({
+  method: S.Literal("vector.cosine").annotateKey({
+    description: "The similarity method used",
+  }),
+  score: UnitInterval.annotateKey({
+    description: "Similarity score from 0 (unrelated) to 1 (identical)",
+  }),
+}).pipe(
+  $I.annoteSchema("TextSimilaritySuccess", {
     description: "Cosine similarity score for two text inputs.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for comparing two texts with BM25

@@ -59,18 +59,17 @@ class LearnCustomEntitiesParameters extends S.Class<LearnCustomEntitiesParameter
   })
 ) {}
 
-class LearnCustomEntitiesSuccess extends S.Class<LearnCustomEntitiesSuccess>($I`LearnCustomEntitiesSuccess`)(
-  {
-    entityNames: S.Array(S.String),
-    groupName: S.String,
-    learnedEntityCount: S.Number,
-    mode: LearnCustomEntitiesMode,
-    totalEntityCount: S.Number,
-  },
-  $I.annote("LearnCustomEntitiesSuccess", {
+const LearnCustomEntitiesSuccess = S.Struct({
+  entityNames: S.Array(S.String),
+  groupName: S.String,
+  learnedEntityCount: S.Number,
+  mode: LearnCustomEntitiesMode,
+  totalEntityCount: S.Number,
+}).pipe(
+  $I.annoteSchema("LearnCustomEntitiesSuccess", {
     description: "Learning result summary for custom entity definitions.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for learning custom entity patterns

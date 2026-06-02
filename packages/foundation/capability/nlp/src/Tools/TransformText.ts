@@ -52,21 +52,20 @@ class TransformTextParameters extends S.Class<TransformTextParameters>($I`Transf
   })
 ) {}
 
-class TransformTextSuccess extends S.Class<TransformTextSuccess>($I`TransformTextSuccess`)(
-  {
-    /** List of operations that were applied */
-    operationsApplied: S.Array(S.String).annotateKey({
-      description: "List of operations that were applied",
-    }),
-    /** The transformed text */
-    result: S.String.annotateKey({
-      description: "The transformed text",
-    }),
-  },
-  $I.annote("TransformTextSuccess", {
+const TransformTextSuccess = S.Struct({
+  /** List of operations that were applied */
+  operationsApplied: S.Array(S.String).annotateKey({
+    description: "List of operations that were applied",
+  }),
+  /** The transformed text */
+  result: S.String.annotateKey({
+    description: "The transformed text",
+  }),
+}).pipe(
+  $I.annoteSchema("TransformTextSuccess", {
     description: "Transformed text and the ordered operations that were applied.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for applying ordered text

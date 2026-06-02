@@ -23,15 +23,14 @@ class DeleteCorpusParameters extends S.Class<DeleteCorpusParameters>($I`DeleteCo
   })
 ) {}
 
-class DeleteCorpusSuccess extends S.Class<DeleteCorpusSuccess>($I`DeleteCorpusSuccess`)(
-  {
-    corpusId: S.String,
-    deleted: S.Boolean,
-  },
-  $I.annote("DeleteCorpusSuccess", {
+const DeleteCorpusSuccess = S.Struct({
+  corpusId: S.String,
+  deleted: S.Boolean,
+}).pipe(
+  $I.annoteSchema("DeleteCorpusSuccess", {
     description: "Deletion outcome for a corpus session.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for deleting a managed corpus session

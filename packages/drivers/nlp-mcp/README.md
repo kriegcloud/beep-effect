@@ -1,6 +1,17 @@
 # @beep/nlp-mcp
 
-Model Context Protocol server exposing `@beep/nlp` operations and the generic IR handoff contract as MCP tools. The default backend is provided by `@beep/wink`.
+Model Context Protocol server exposing `@beep/nlp` operations and the generic IR handoff contract as MCP tools. The default NLP backend is provided by `@beep/wink`.
+
+The server mounts two toolkits into a single stdio MCP server (~42 tools total):
+
+- **NLP toolkit (25 tools)** — the canonical `@beep/nlp/Tools/NlpToolkit`, bound to
+  the wink-backed `WinkNlpToolkitLive` handlers. The driver does not redeclare these
+  tools; it reuses the product-neutral contract.
+- **Streaming toolkit (17 tools)** — driver-local file/JSONL/dataset/pipeline tools
+  (`stream_read_lines`, `stream_read_jsonl`, `stream_load_text`, `stream_process_file`,
+  …) backed by `effect/FileSystem` + `effect/Path` (and `HttpClient` for URL loads).
+  Every tool fails with a structured `AiToolError` (`failureMode: "return"`); handler
+  spans record counts/`path_length`/`size_bytes` only — never raw file content.
 
 ## Installation
 
@@ -13,6 +24,15 @@ bun add @beep/nlp-mcp
 ```ts
 import { VERSION } from "@beep/nlp-mcp"
 ```
+
+Run the server over stdio (the entrypoint provides the Node `Stdio`, `FileSystem`,
+`Path`, and HTTP layers):
+
+```bash
+bun run ./packages/drivers/nlp-mcp/src/bin.ts
+```
+
+It is registered in the repo `.mcp.json` as the `nlp` stdio server.
 
 ## Development
 
