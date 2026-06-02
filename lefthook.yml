@@ -30,7 +30,7 @@ pre-push:
         bash -lc '
           set -euo pipefail
 
-          relevant_pattern="(^package\\.json$)|(^standards/repo-exports\\.catalog\\.(jsonc|md)$)|(^packages/tooling/tool/cli/support/generate-repo-exports-catalog\\.ts$)|(^((packages|apps)/.+|infra)/package\\.json$)|(^((packages|apps)/.+|infra)/src/.+\\.(ts|tsx)$)"
+          relevant_pattern="(^package\\.json$)|(^standards/repo-exports\\.catalog\\.(jsonc|md)$)|(^packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog\\.ts$)|(^((packages|apps)/.+|infra)/package\\.json$)|(^((packages|apps)/.+|infra)/src/.+\\.(ts|tsx)$)"
           zero_sha="0000000000000000000000000000000000000000"
           pushed_ref_lines="$(cat || true)"
           changed_file="$(mktemp)"

@@ -22,6 +22,9 @@ import { parse } from "jsonc-parser";
 import { printLines } from "../../internal/cli/Printer.js";
 import { runChangesetGraphCheck } from "./ChangesetGraph.js";
 import { configStringEqualsSync } from "./internal/Config.js";
+import { writeJSDocDocumentationInventory } from "./internal/JSDocDocumentationInventory.js";
+import { repoRelative } from "./internal/QualityArtifactSupport.js";
+import { writeOrCheckRepoExportsCatalog } from "./internal/RepoExportsCatalog.js";
 import { QualityScriptCommandError } from "./Quality.errors.js";
 import { QualityTaskStep } from "./Tasks.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
@@ -1523,11 +1526,23 @@ export const runJSDocModuleTagsCheck = Effect.fn("QualityScriptCommands.runJSDoc
 export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInventory")(function* (): Effect.fn.Return<
   void,
   QualityScriptCommandError,
-  FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
+  const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
 
-  yield* runBun(repoRoot, "quality:jsdoc-inventory", ["--filter=@beep/repo-cli", "beep:jsdoc-inventory"]);
+  const result = yield* writeJSDocDocumentationInventory({ rootDir: repoRoot }).pipe(
+    QualityScriptCommandError.mapError("Failed to generate JSDoc documentation inventory.", {
+      command: "bun run beep quality jsdoc-inventory",
+      exitCode: 1,
+    })
+  );
+
+  yield* Console.log(`wrote ${repoRelative(result.outputJsonPath, repoRoot, path)}`);
+  yield* Console.log(`wrote ${repoRelative(result.outputMarkdownPath, repoRoot, path)}`);
+  yield* Console.log(
+    `packages=${result.totals.packages} openPackages=${result.totals.packagesNeedingRemediation} openExports=${result.totals.openExports} openModules=${result.totals.openModules} rootPolicyOpen=${result.totals.rootPolicyOpen}`
+  );
 });
 
 /**
@@ -1545,13 +1560,45 @@ export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInvent
  */
 export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExportsCatalog")(function* (
   check: boolean
-): Effect.fn.Return<void, QualityScriptCommandError, FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  void,
+  QualityScriptCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
 
-  const label = check ? "quality:repo-exports-catalog-check" : "quality:repo-exports-catalog";
-  const script = check ? "beep:repo-exports-catalog:check" : "beep:repo-exports-catalog";
+  const result = yield* writeOrCheckRepoExportsCatalog({ rootDir: repoRoot, check }).pipe(
+    QualityScriptCommandError.mapError("Failed to generate repo export catalog.", {
+      command: check
+        ? "bun run beep quality repo-exports-catalog --check"
+        : "bun run beep quality repo-exports-catalog",
+      exitCode: 1,
+    })
+  );
 
-  yield* runBun(repoRoot, label, ["--filter=@beep/repo-cli", script]);
+  if (result.checked && A.isReadonlyArrayNonEmpty(result.findings)) {
+    yield* Console.error("[repo-exports-catalog] generated artifacts are stale:");
+    for (const finding of result.findings) {
+      yield* Console.error(`- ${finding}`);
+    }
+    yield* Console.error("[repo-exports-catalog] run `bun run beep quality repo-exports-catalog` to refresh them.");
+    return yield* QualityScriptCommandError.make({
+      message: "Repo export catalog artifacts are stale.",
+      command: "bun run beep quality repo-exports-catalog --check",
+      exitCode: 1,
+    });
+  }
+
+  if (result.checked) {
+    yield* Console.log("[repo-exports-catalog] generated artifacts are current");
+  } else {
+    yield* Console.log(`wrote ${repoRelative(result.outputJsonPath, repoRoot, path)}`);
+    yield* Console.log(`wrote ${repoRelative(result.outputMarkdownPath, repoRoot, path)}`);
+  }
+  yield* Console.log(
+    `packages=${result.totals.packages} importSpecifiers=${result.totals.importSpecifiers} publicExportEntries=${result.totals.publicExportEntries}`
+  );
 });
 
 /**
