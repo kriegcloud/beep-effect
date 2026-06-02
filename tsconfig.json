@@ -721,6 +721,9 @@
       "@beep/repo-cli/test/VersionSync": [
         "./packages/tooling/tool/cli/src/test/VersionSync.test-kit.ts"
       ],
+      "@beep/repo-cli/test/Yeet": [
+        "./packages/tooling/tool/cli/src/test/Yeet.test-kit.ts"
+      ],
       "@beep/schema/Age": [
         "./packages/foundation/modeling/schema/src/Age/index.ts"
       ],
@@ -1107,17 +1110,16 @@
         "./packages/foundation/capability/nlp/src/Handoff/index.ts"
       ],
       "@beep/nlp-mcp": ["./packages/drivers/nlp-mcp/src/index.ts"],
-      "@beep/nlp-mcp/*": [
-        "./packages/drivers/nlp-mcp/src/*"
-      ],
+      "@beep/nlp-mcp/*": ["./packages/drivers/nlp-mcp/src/*"],
       "@beep/ui/components/blocks/editor-00/nodes": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
       ],
-      "@beep/wink": [
-        "./packages/drivers/wink/src/index.ts"
-      ],
-      "@beep/wink/*": [
-        "./packages/drivers/wink/src/*"
+      "@beep/box": ["./packages/drivers/box/src/index.ts"],
+      "@beep/box/*": ["./packages/drivers/box/src/*"],
+      "@beep/wink": ["./packages/drivers/wink/src/index.ts"],
+      "@beep/wink/*": ["./packages/drivers/wink/src/*"],
+      "@beep/repo-cli/commands/Yeet": [
+        "./packages/tooling/tool/cli/src/commands/Yeet/index.ts"
       ]
     }
   }

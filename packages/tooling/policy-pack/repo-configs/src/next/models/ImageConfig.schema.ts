@@ -11,7 +11,8 @@ import { Result } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoConfigsId.create("next/models/ImageConfig.schema");
-const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
+const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
+  cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);
 
 /**
  * Valid values for the Next.js image loader configuration.

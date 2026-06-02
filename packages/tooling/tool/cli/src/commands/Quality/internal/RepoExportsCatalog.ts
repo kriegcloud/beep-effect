@@ -111,7 +111,7 @@ const compareNumber = (left: number, right: number): Ordering.Ordering => {
  * @category configuration
  * @since 0.0.0
  */
-export type RepoExportsCatalogOptions = {
+type RepoExportsCatalogOptions = {
   readonly rootDir?: string;
   readonly outputJsonPath?: string;
   readonly outputMarkdownPath?: string;
@@ -124,7 +124,7 @@ export type RepoExportsCatalogOptions = {
  * @category models
  * @since 0.0.0
  */
-export type RepoExportsCatalogWriteResult = {
+type RepoExportsCatalogWriteResult = {
   readonly outputJsonPath: string;
   readonly outputMarkdownPath: string;
   readonly totals: Catalog["totals"];
@@ -689,7 +689,7 @@ export const writeOrCheckRepoExportsCatalog = Effect.fn("RepoExportsCatalog.writ
   const path = yield* Path.Path;
   const { check, outputJsonPath, outputMarkdownPath, repoRoot } = yield* resolveRepoExportsCatalogOptions(options);
   const catalog = yield* buildRepoExportsCatalog(options);
-  const jsonContent = formatJsonc(catalog);
+  const jsonContent = yield* formatJsonc(catalog);
   const markdownContent = renderMarkdown(catalog);
 
   if (check) {

@@ -2,28 +2,25 @@ import { fileURLToPath } from "node:url";
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { A, Err, Str, thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, Order, Result, Stream } from "effect";
+import { A, Err, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
+import { Effect, FileSystem, Order, Result, SchemaGetter, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
-import * as jsonc from "jsonc-parser";
 import { Node } from "ts-morph";
 import type { Path } from "effect";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $RepoCliId.create("commands/Quality/internal/QualityArtifactSupport");
 
-type QualityArtifactGeneratorErrorOptions =
-  | undefined
-  | {
-      readonly command?: undefined | string;
-      readonly exitCode?: undefined | number;
-      readonly filePath?: undefined | string;
-    };
+type QualityArtifactGeneratorErrorOptions = {
+  readonly command?: undefined | string;
+  readonly exitCode?: undefined | number;
+  readonly filePath?: undefined | string;
+};
 
 /**
  * Error raised while building or checking Quality command generated artifacts.
@@ -46,6 +43,12 @@ export class QualityArtifactGeneratorError extends TaggedErrorClass<QualityArtif
     description: "Typed failure raised by repo quality artifact generators.",
   })
 ) {
+  /**
+   * Construct or map a quality artifact generator error.
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
   static readonly new: {
     (cause: unknown, message: string, opts?: QualityArtifactGeneratorErrorOptions): QualityArtifactGeneratorError;
     (message: string, opts?: QualityArtifactGeneratorErrorOptions): (cause: unknown) => QualityArtifactGeneratorError;
@@ -123,9 +126,7 @@ export class WorkspacePackageInfo extends S.Class<WorkspacePackageInfo>($I`Works
 
 const decodePackageJsonResult = S.decodeUnknownResult(PackageJson);
 const decodeJsoncRecord = decodeJsoncTextAs(JsonRecord);
-const encodeUnknownJsonResult = S.encodeUnknownResult(S.UnknownFromJsonString);
-
-const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
+const stringifyJsonPretty = SchemaGetter.stringifyJson({ space: 2 });
 
 /**
  * Repository root resolved relative to the Quality command internals.
@@ -184,23 +185,25 @@ export const readJsonc = Effect.fn("QualityArtifactSupport.readJsonc")(function*
 /**
  * Format a JSON-compatible value as deterministic JSONC text.
  *
+ * @param value - JSON-compatible artifact value to render.
+ * @returns Effect that renders two-space JSON text with a trailing newline.
  * @category rendering
  * @since 0.0.0
  */
-export const formatJsonc = (value: unknown): string => {
-  const encoded = Result.getOrThrowWith(encodeUnknownJsonResult(value), schemaIssueToError);
-  return `${jsonc.applyEdits(
-    encoded,
-    jsonc.format(encoded, undefined, {
-      insertSpaces: true,
-      tabSize: 2,
-    })
-  )}\n`;
-};
+export const formatJsonc = Effect.fn("QualityArtifactSupport.formatJsonc")(function* (
+  value: unknown
+): Effect.fn.Return<string, QualityArtifactGeneratorError> {
+  const rendered = yield* stringifyJsonPretty
+    .run(O.some(value), {})
+    .pipe(QualityArtifactGeneratorError.mapError("Failed to format generated JSONC artifact."));
+  return `${O.getOrElse(rendered, thunkEmptyStr)}\n`;
+});
 
 /**
  * Convert Windows path separators to repo-standard slash separators.
  *
+ * @param value - Path text to normalize.
+ * @returns Path text with slash separators.
  * @category paths
  * @since 0.0.0
  */
@@ -209,15 +212,25 @@ export const normalizeSlashes = (value: string): string => Str.replaceAll("\\", 
 /**
  * Render an absolute path relative to the repository root.
  *
+ * @param absolutePath - Path to render relative to `repoRoot`.
+ * @param repoRoot - Repository root used as the relative base.
+ * @param path - Effect platform path service.
+ * @returns Repo-relative path with slash separators.
  * @category paths
  * @since 0.0.0
  */
-export const repoRelative = (absolutePath: string, repoRoot: string, path: Path.Path): string =>
-  normalizeSlashes(path.relative(repoRoot, absolutePath) || ".");
+export const repoRelative: {
+  (absolutePath: string, repoRoot: string, path: Path.Path): string;
+  (repoRoot: string, path: Path.Path): (absolutePath: string) => string;
+} = dual(3, (absolutePath: string, repoRoot: string, path: Path.Path): string =>
+  normalizeSlashes(path.relative(repoRoot, absolutePath) || ".")
+);
 
 /**
  * Escape user text for safe inclusion in a regular expression.
  *
+ * @param value - Literal text to escape.
+ * @returns Regular-expression escaped text.
  * @category parsing
  * @since 0.0.0
  */
@@ -258,6 +271,8 @@ export const readRootPackage = Effect.fn("QualityArtifactSupport.readRootPackage
 /**
  * Extract workspace glob patterns from a package manifest workspace field.
  *
+ * @param workspaces - Raw `package.json` workspaces value.
+ * @returns Workspace glob patterns from array or object forms.
  * @category workspaces
  * @since 0.0.0
  */
@@ -274,63 +289,80 @@ export const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string
 /**
  * Expand a workspace glob pattern into package directories.
  *
+ * @param pattern - Workspace glob pattern to expand.
+ * @param repoRoot - Repository root used as the expansion base.
+ * @param path - Effect platform path service.
+ * @returns Effect that returns package directories containing `package.json`.
  * @category workspaces
  * @since 0.0.0
  */
-export const expandWorkspacePattern = (
-  pattern: string,
-  repoRoot: string,
-  path: Path.Path
-): Effect.Effect<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const segments = A.filter(Str.split("/")(normalizeSlashes(pattern)), Str.isNonEmpty);
-    let candidates = [repoRoot];
+export const expandWorkspacePattern: {
+  (
+    pattern: string,
+    repoRoot: string,
+    path: Path.Path
+  ): Effect.Effect<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem>;
+  (
+    repoRoot: string,
+    path: Path.Path
+  ): (pattern: string) => Effect.Effect<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem>;
+} = dual(
+  3,
+  (
+    pattern: string,
+    repoRoot: string,
+    path: Path.Path
+  ): Effect.Effect<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem> =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const segments = A.filter(Str.split("/")(normalizeSlashes(pattern)), Str.isNonEmpty);
+      let candidates = [repoRoot];
 
-    for (const segment of segments) {
-      const nextCandidates: Array<string> = [];
+      for (const segment of segments) {
+        const nextCandidates: Array<string> = [];
 
-      for (const candidate of candidates) {
-        if (segment === "*") {
-          const exists = yield* fs.exists(candidate).pipe(Effect.orElseSucceed(thunkFalse));
-          if (!exists) {
+        for (const candidate of candidates) {
+          if (segment === "*") {
+            const exists = yield* fs.exists(candidate).pipe(Effect.orElseSucceed(thunkFalse));
+            if (!exists) {
+              continue;
+            }
+            const entries = yield* fs.readDirectory(candidate).pipe(
+              QualityArtifactGeneratorError.mapError(`Failed to read directory ${candidate}.`, {
+                filePath: candidate,
+              })
+            );
+            for (const entry of entries) {
+              const entryPath = path.join(candidate, entry);
+              const stat = yield* fs.stat(entryPath).pipe(Effect.option);
+              if (O.isSome(stat) && stat.value.type === "Directory") {
+                A.appendInPlace(nextCandidates, entryPath);
+              }
+            }
             continue;
           }
-          const entries = yield* fs
-            .readDirectory(candidate)
-            .pipe(
-              QualityArtifactGeneratorError.mapError(`Failed to read directory ${candidate}.`, { filePath: candidate })
-            );
-          for (const entry of entries) {
-            const entryPath = path.join(candidate, entry);
-            const stat = yield* fs.stat(entryPath).pipe(Effect.option);
-            if (O.isSome(stat) && stat.value.type === "Directory") {
-              A.appendInPlace(nextCandidates, entryPath);
-            }
-          }
-          continue;
+
+          A.appendInPlace(nextCandidates, path.join(candidate, segment));
         }
 
-        A.appendInPlace(nextCandidates, path.join(candidate, segment));
+        candidates = nextCandidates;
       }
 
-      candidates = nextCandidates;
-    }
-
-    const existingCandidates: Array<string> = [];
-    for (const candidate of candidates) {
-      const exists = yield* fs.exists(path.join(candidate, "package.json")).pipe(Effect.orElseSucceed(thunkFalse));
-      if (exists) {
-        A.appendInPlace(existingCandidates, candidate);
+      const existingCandidates: Array<string> = [];
+      for (const candidate of candidates) {
+        const exists = yield* fs.exists(path.join(candidate, "package.json")).pipe(Effect.orElseSucceed(thunkFalse));
+        if (exists) {
+          A.appendInPlace(existingCandidates, candidate);
+        }
       }
-    }
 
-    return existingCandidates;
-  }).pipe(
-    QualityArtifactGeneratorError.mapError(`Failed to expand workspace pattern ${pattern}.`, {
-      filePath: repoRoot,
-    })
-  );
+      return existingCandidates;
+    }).pipe(
+      QualityArtifactGeneratorError.mapError(`Failed to expand workspace pattern ${pattern}.`, {
+        filePath: repoRoot,
+      })
+    )
+);
 
 /**
  * Discover workspace packages available to Quality artifact generators.
@@ -408,10 +440,7 @@ export const topoSortPackageNames = Effect.fn("QualityArtifactSupport.topoSortPa
       });
       const output = yield* handle.all.pipe(
         Stream.decodeText(),
-        Stream.runFold(
-          () => "",
-          (acc, chunk) => acc + chunk
-        )
+        Stream.runFold(thunkEmptyStr, (acc, chunk) => acc + chunk)
       );
       const exitCode = yield* handle.exitCode;
       return { exitCode, output };
@@ -493,6 +522,8 @@ export const listSourceFiles = Effect.fn("QualityArtifactSupport.listSourceFiles
 /**
  * Remove JSDoc comment framing from a comment block.
  *
+ * @param commentText - Raw JSDoc comment text.
+ * @returns Comment lines without `/**`, `*`, or closing framing.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -504,6 +535,8 @@ export const stripCommentFraming = (commentText: string): ReadonlyArray<string> 
 /**
  * Extract the summary sentence from a JSDoc comment block.
  *
+ * @param commentText - Raw JSDoc comment text.
+ * @returns First non-empty non-tag summary line, when present.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -521,6 +554,8 @@ export const summaryFromComment = (commentText: string): string | undefined => {
 /**
  * Extract tag names from a JSDoc comment block.
  *
+ * @param commentText - Raw JSDoc comment text.
+ * @returns Unique JSDoc tag names in encounter order.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -532,7 +567,7 @@ export const tagsFromComment = (commentText: string): ReadonlyArray<string> => {
       A.appendInPlace(tags, `@${match[1]}`);
     }
   }
-  return [...new Set(tags)];
+  return A.dedupe(tags);
 };
 
 /**
@@ -561,6 +596,8 @@ export const valuesForTag: {
 /**
  * Resolve the ts-morph node that owns a declaration's documentation.
  *
+ * @param node - Declaration or export node to inspect.
+ * @returns Node that should own the documentation comment.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -577,6 +614,8 @@ export const getDocNode = (node: Node): Node => {
 /**
  * Read the nearest JSDoc text for a ts-morph declaration node.
  *
+ * @param node - Declaration node to inspect.
+ * @returns Text of the nearest JSDoc block, or an empty string.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -592,6 +631,8 @@ export const getJsDocText = (node: Node): string => {
 /**
  * Classify a ts-morph declaration node for generated reports.
  *
+ * @param node - Declaration node to classify.
+ * @returns Human-readable declaration kind for reports.
  * @category jsdoc
  * @since 0.0.0
  */

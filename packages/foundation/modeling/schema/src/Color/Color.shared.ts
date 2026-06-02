@@ -6,7 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import type * as S from "effect/Schema";
+import * as S from "effect/Schema";
 
 /**
  * Internal identity composer for color schemas.
@@ -24,7 +24,8 @@ export const $I = $SchemaId.create("Color");
  * @category errors
  * @since 0.0.0
  */
-export const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
+export const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
+  cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);
 
 /**
  * Encoded RGB channel payload used by internal color conversions.

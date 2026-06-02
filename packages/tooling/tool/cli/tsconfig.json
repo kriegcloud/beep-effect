@@ -30,6 +30,9 @@
       "path": "../../../foundation/capability/colors/tsconfig.json"
     },
     {
+      "path": "../../../foundation/capability/md/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/capability/observability/tsconfig.json"
     },
     {
