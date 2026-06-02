@@ -1,21 +1,90 @@
 /**
- * @since 3.19.0
- * @experimental
+ * The `HashRing` module provides a weighted consistent-hashing data structure
+ * for assigning arbitrary string inputs to a changing set of nodes. A hash ring
+ * minimizes remapping when nodes are added, removed, or reweighted, which makes
+ * it useful for routing requests, partitioning keys, and distributing shards
+ * across service instances or storage backends.
+ *
+ * **Mental model**
+ *
+ * - Each node is identified by its {@link PrimaryKey.PrimaryKey} value
+ * - {@link add} and {@link addMany} place weighted virtual points on the ring
+ * - {@link get} hashes an input string and returns the nearest node on the ring
+ * - {@link getShards} assigns a fixed number of shard indexes across the nodes
+ * - Higher weights receive proportionally more virtual points and shard
+ *   allocations
+ * - Operations mutate and return the same ring instance
+ *
+ * **Common tasks**
+ *
+ * - Create an empty ring: {@link make}
+ * - Add or update nodes: {@link add}, {@link addMany}
+ * - Remove nodes: {@link remove}
+ * - Check membership by primary key: {@link has}
+ * - Route an input key to a node: {@link get}
+ * - Precompute shard ownership: {@link getShards}
+ * - Guard unknown values: {@link isHashRing}
+ *
+ * **Gotchas**
+ *
+ * - Empty rings return `undefined` from {@link get} and {@link getShards}
+ * - Nodes with the same primary key represent the same ring member
+ * - Weights are clamped to a positive minimum so a node remains represented
+ * - Mutating a ring in place is intentional; create a new ring when independent
+ *   snapshots are required
+ *
+ * **Quickstart**
+ *
+ * **Example** (Routing keys across nodes)
+ *
+ * ```ts
+ * import { HashRing, PrimaryKey } from "effect"
+ *
+ * class Node implements PrimaryKey.PrimaryKey {
+ *   constructor(readonly id: string) {}
+ *
+ *   [PrimaryKey.symbol](): string {
+ *     return this.id
+ *   }
+ * }
+ *
+ * const ring = HashRing.make<Node>().pipe(
+ *   HashRing.add(new Node("node-a")),
+ *   HashRing.add(new Node("node-b"), { weight: 2 })
+ * )
+ *
+ * const owner = HashRing.get(ring, "user:123")
+ * console.log(owner ? PrimaryKey.value(owner) : undefined)
+ * ```
+ *
+ * @since 4.0.0
  */
-import { dual } from "./Function.js"
-import * as Hash from "./Hash.js"
-import * as Inspectable from "./Inspectable.js"
-import * as Iterable from "./Iterable.js"
-import { type Pipeable, pipeArguments } from "./Pipeable.js"
-import { hasProperty } from "./Predicate.js"
-import * as PrimaryKey from "./PrimaryKey.js"
+import { dual } from "./Function.ts"
+import * as Hash from "./Hash.ts"
+import { PipeInspectableProto } from "./internal/core.ts"
+import * as Iterable from "./Iterable.ts"
+import type { Pipeable } from "./Pipeable.ts"
+import { hasProperty } from "./Predicate.ts"
+import * as PrimaryKey from "./PrimaryKey.ts"
 
 const TypeId = "~effect/cluster/HashRing" as const
 
 /**
+ * A weighted consistent-hashing ring for assigning inputs to nodes with stable
+ * remapping as nodes are added or removed.
+ *
+ * **When to use**
+ *
+ * Use to maintain a mutable weighted hash ring for routing keys or shards to
+ * nodes identified by `PrimaryKey`.
+ *
+ * **Details**
+ *
+ * Nodes are identified by their `PrimaryKey` value and can be iterated from the
+ * ring.
+ *
+ * @category models
  * @since 3.19.0
- * @category Models
- * @experimental
  */
 export interface HashRing<A extends PrimaryKey.PrimaryKey> extends Pipeable, Iterable<A> {
   readonly [TypeId]: typeof TypeId
@@ -26,16 +95,49 @@ export interface HashRing<A extends PrimaryKey.PrimaryKey> extends Pipeable, Ite
 }
 
 /**
+ * Checks whether a value is a `HashRing`.
+ *
+ * **When to use**
+ *
+ * Use to narrow an `unknown` value before treating it as a `HashRing`, such as
+ * values crossing an untyped boundary.
+ *
+ * **Details**
+ *
+ * The guard checks for the module's internal `TypeId` property and narrows to
+ * `HashRing<any>`.
+ *
+ * **Gotchas**
+ *
+ * This is a structural type-id check; it does not validate the ring's `nodes`,
+ * `ring`, or weight state.
+ *
+ * @see {@link HashRing} for the type narrowed by this guard
+ * @see {@link make} for creating an empty `HashRing`
+ *
+ * @category guards
  * @since 3.19.0
- * @category Guards
- * @experimental
  */
 export const isHashRing = (u: unknown): u is HashRing<any> => hasProperty(u, TypeId)
 
 /**
+ * Creates an empty `HashRing`.
+ *
+ * **When to use**
+ *
+ * Use to create an empty weighted consistent-hashing ring with the default or
+ * custom virtual-point density.
+ *
+ * **Details**
+ *
+ * `baseWeight` controls how many virtual points are added for a node with
+ * weight `1`; it defaults to `128` and is clamped to at least `1`.
+ *
+ * @see {@link add} for registering one node after creation
+ * @see {@link addMany} for registering several nodes after creation
+ *
+ * @category constructors
  * @since 3.19.0
- * @category Constructors
- * @experimental
  */
 export const make = <A extends PrimaryKey.PrimaryKey>(options?: {
   readonly baseWeight?: number | undefined
@@ -49,14 +151,11 @@ export const make = <A extends PrimaryKey.PrimaryKey>(options?: {
 }
 
 const Proto = {
+  ...PipeInspectableProto,
   [TypeId]: TypeId,
   [Symbol.iterator]<A extends PrimaryKey.PrimaryKey>(this: HashRing<A>): Iterator<A> {
     return Iterable.map(this.nodes.values(), ([n]) => n)[Symbol.iterator]()
   },
-  pipe() {
-    return pipeArguments(this, arguments)
-  },
-  ...Inspectable.BaseProto,
   toJSON(this: HashRing<any>) {
     return {
       _id: "HashRing",
@@ -67,12 +166,15 @@ const Proto = {
 }
 
 /**
- * Add new nodes to the ring. If a node already exists in the ring, it
+ * Adds new nodes to the ring. If a node already exists in the ring, it
  * will be updated. For example, you can use this to update the node's weight.
  *
+ * **When to use**
+ *
+ * Use to register or update several nodes in a `HashRing` at the same weight.
+ *
+ * @category combinators
  * @since 3.19.0
- * @category Combinators
- * @experimental
  */
 export const addMany: {
   <A extends PrimaryKey.PrimaryKey>(nodes: Iterable<A>, options?: {
@@ -127,12 +229,29 @@ function addNodesToRing<A extends PrimaryKey.PrimaryKey>(self: HashRing<A>, keys
 }
 
 /**
- * Add a new node to the ring. If the node already exists in the ring, it
+ * Adds a new node to the ring. If the node already exists in the ring, it
  * will be updated. For example, you can use this to update the node's weight.
  *
+ * **When to use**
+ *
+ * Use to register one node in a `HashRing` so lookups and shard assignments can
+ * return it, or update that node's weight.
+ *
+ * **Details**
+ *
+ * Nodes are matched by `PrimaryKey.value`. The weight defaults to `1` and is
+ * clamped to at least `0.1`.
+ *
+ * **Gotchas**
+ *
+ * This mutates and returns the same ring instance.
+ *
+ * @see {@link addMany} for adding or updating several nodes
+ * @see {@link remove} for unregistering a node
+ * @see {@link has} for checking primary-key membership
+ *
+ * @category combinators
  * @since 3.19.0
- * @category Combinators
- * @experimental
  */
 export const add: {
   <A extends PrimaryKey.PrimaryKey>(node: A, options?: {
@@ -148,9 +267,25 @@ export const add: {
 /**
  * Removes the node from the ring. No-op's if the node does not exist.
  *
+ * **When to use**
+ *
+ * Use to remove a node that has left the pool so future lookups and shard
+ * assignments stop returning it.
+ *
+ * **Details**
+ *
+ * Removal matches by `PrimaryKey.value`, so any value with the same primary key
+ * removes the same ring member.
+ *
+ * **Gotchas**
+ *
+ * This mutates and returns the same ring instance.
+ *
+ * @see {@link add} for registering or updating a node
+ * @see {@link has} for checking membership by primary key
+ *
+ * @category combinators
  * @since 3.19.0
- * @category Combinators
- * @experimental
  */
 export const remove: {
   <A extends PrimaryKey.PrimaryKey>(node: A): (self: HashRing<A>) => HashRing<A>
@@ -167,9 +302,24 @@ export const remove: {
 })
 
 /**
+ * Checks whether the ring contains a node with the same `PrimaryKey` value.
+ *
+ * **When to use**
+ *
+ * Use when you need to know whether registering a node would update an existing
+ * ring member because another node already has the same primary-key identity.
+ *
+ * **Details**
+ *
+ * Membership is checked with `self.nodes.has(PrimaryKey.value(node))`, so
+ * matching is by primary key, not object identity or weight.
+ *
+ * @see {@link add} for registering or updating nodes
+ * @see {@link remove} for removing nodes by the same primary-key identity
+ * @see {@link get} for routing an input string to a node
+ *
+ * @category combinators
  * @since 3.19.0
- * @category Combinators
- * @experimental
  */
 export const has: {
   <A extends PrimaryKey.PrimaryKey>(node: A): (self: HashRing<A>) => boolean
@@ -183,9 +333,16 @@ export const has: {
  * Gets the node which should handle the given input. Returns undefined if
  * the hashring has no elements with weight.
  *
+ * **When to use**
+ *
+ * Use to route a single string input key to the current ring member responsible
+ * for that key.
+ *
+ * @see {@link getShards} for assigning fixed shard indexes instead of routing
+ * one input string at a time
+ *
+ * @category combinators
  * @since 3.19.0
- * @category Combinators
- * @experimental
  */
 export const get = <A extends PrimaryKey.PrimaryKey>(self: HashRing<A>, input: string): A | undefined => {
   if (self.ring.length === 0) {
@@ -197,13 +354,15 @@ export const get = <A extends PrimaryKey.PrimaryKey>(self: HashRing<A>, input: s
 }
 
 /**
- * Distributes `count` shards across the nodes in the ring, attempting to
- * balance the number of shards allocated to each node. Returns undefined if
- * the hashring has no elements with weight.
+ * Computes a balanced shard distribution across the nodes in the ring.
  *
+ * **When to use**
+ *
+ * Use to precompute ownership for a fixed number of shard indexes across the
+ * current ring members.
+ *
+ * @category combinators
  * @since 3.19.0
- * @category Combinators
- * @experimental
  */
 export const getShards = <A extends PrimaryKey.PrimaryKey>(self: HashRing<A>, count: number): Array<A> | undefined => {
   if (self.ring.length === 0) {

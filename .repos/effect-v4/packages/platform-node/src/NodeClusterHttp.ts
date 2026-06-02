@@ -1,69 +1,107 @@
 /**
- * @since 1.0.0
+ * The `NodeClusterHttp` module provides the Node.js HTTP and WebSocket
+ * transports for Effect Cluster runners. It wires `HttpRunner` to the Node HTTP
+ * server, supplies Undici and WebSocket client protocols, and builds a complete
+ * sharding layer with serialization, runner health, runner storage, and message
+ * storage.
+ *
+ * **Common tasks**
+ *
+ * - Run a Node process as a cluster runner over HTTP or WebSocket with
+ *   {@link layer}
+ * - Connect a client-only process to an existing HTTP cluster without starting
+ *   a runner server
+ * - Use SQL-backed storage for durable multi-process clusters, `local` storage
+ *   for short-lived development, or `byo` storage when the deployment owns the
+ *   persistence boundary
+ * - Check runner health with protocol pings or Kubernetes pod readiness through
+ *   {@link layerK8sHttpClient}
+ *
+ * **Gotchas**
+ *
+ * - `runnerAddress` is the host and port advertised to other runners; set
+ *   `runnerListenAddress` when the local bind address differs from the
+ *   externally reachable address
+ * - The HTTP and WebSocket transports serve runner RPCs at the default
+ *   `HttpRunner` route, so proxies and load balancers must preserve the path
+ *   and allow WebSocket upgrades when `transport` is `"websocket"`
+ * - `clientOnly` does not start an HTTP server or receive shard assignments
+ * - SQL storage is the default; `local` storage is in-memory/noop and `byo`
+ *   requires the surrounding application to provide both runner and message
+ *   storage services
+ * - Ping health checks use the selected transport and serialization, so route,
+ *   port, proxy, or codec mismatches can make a runner appear unhealthy
+ *
+ * @since 4.0.0
  */
-import * as HttpRunner from "@effect/cluster/HttpRunner"
-import * as MessageStorage from "@effect/cluster/MessageStorage"
-import * as RunnerHealth from "@effect/cluster/RunnerHealth"
-import * as Runners from "@effect/cluster/Runners"
-import * as RunnerStorage from "@effect/cluster/RunnerStorage"
-import type { Sharding } from "@effect/cluster/Sharding"
-import * as ShardingConfig from "@effect/cluster/ShardingConfig"
-import * as SqlMessageStorage from "@effect/cluster/SqlMessageStorage"
-import * as SqlRunnerStorage from "@effect/cluster/SqlRunnerStorage"
-import type * as Etag from "@effect/platform/Etag"
-import type { HttpPlatform } from "@effect/platform/HttpPlatform"
-import type { HttpServer } from "@effect/platform/HttpServer"
-import type { ServeError } from "@effect/platform/HttpServerError"
-import * as RpcSerialization from "@effect/rpc/RpcSerialization"
-import type { SqlClient } from "@effect/sql/SqlClient"
-import type { ConfigError } from "effect/ConfigError"
+import type * as Config from "effect/Config"
 import * as Effect from "effect/Effect"
 import * as Layer from "effect/Layer"
 import * as Option from "effect/Option"
+import * as HttpRunner from "effect/unstable/cluster/HttpRunner"
+import * as MessageStorage from "effect/unstable/cluster/MessageStorage"
+import * as RunnerHealth from "effect/unstable/cluster/RunnerHealth"
+import * as Runners from "effect/unstable/cluster/Runners"
+import * as RunnerStorage from "effect/unstable/cluster/RunnerStorage"
+import type { Sharding } from "effect/unstable/cluster/Sharding"
+import * as ShardingConfig from "effect/unstable/cluster/ShardingConfig"
+import * as SqlMessageStorage from "effect/unstable/cluster/SqlMessageStorage"
+import * as SqlRunnerStorage from "effect/unstable/cluster/SqlRunnerStorage"
+import type * as Etag from "effect/unstable/http/Etag"
+import type { HttpPlatform } from "effect/unstable/http/HttpPlatform"
+import type { HttpServer } from "effect/unstable/http/HttpServer"
+import type { ServeError } from "effect/unstable/http/HttpServerError"
+import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization"
+import type { SqlClient } from "effect/unstable/sql/SqlClient"
 import { createServer } from "node:http"
-import { layerK8sHttpClient } from "./NodeClusterSocket.js"
-import type { NodeContext } from "./NodeContext.js"
-import * as NodeHttpClient from "./NodeHttpClient.js"
-import * as NodeHttpServer from "./NodeHttpServer.js"
-import * as NodeSocket from "./NodeSocket.js"
+import { layerK8sHttpClient } from "./NodeClusterSocket.ts"
+import * as NodeHttpClient from "./NodeHttpClient.ts"
+import * as NodeHttpServer from "./NodeHttpServer.ts"
+import type { NodeServices } from "./NodeServices.ts"
+import * as NodeSocket from "./NodeSocket.ts"
 
 export {
   /**
-   * @since 1.0.0
-   * @category Re-exports
+   * Provides the Kubernetes HTTP client layer used by Kubernetes runner health checks.
+   *
+   * @category re-exports
+   * @since 4.0.0
    */
   layerK8sHttpClient
-} from "./NodeClusterSocket.js"
+} from "./NodeClusterSocket.ts"
 
 /**
- * @since 1.0.0
- * @category Layers
+ * Builds the Node cluster HTTP/WebSocket sharding layer, configuring runner
+ * transport, RPC serialization, message storage, runner health checks, and
+ * optional client-only mode.
+ *
+ * @category layers
+ * @since 4.0.0
  */
 export const layer = <
   const ClientOnly extends boolean = false,
-  const Storage extends "local" | "sql" | "byo" = never,
-  const Health extends "ping" | "k8s" = never
+  const Storage extends "local" | "sql" | "byo" = never
 >(options: {
   readonly transport: "http" | "websocket"
   readonly serialization?: "msgpack" | "ndjson" | undefined
   readonly clientOnly?: ClientOnly | undefined
   readonly storage?: Storage | undefined
-  readonly runnerHealth?: Health | undefined
+  readonly runnerHealth?: "ping" | "k8s" | undefined
   readonly runnerHealthK8s?: {
     readonly namespace?: string | undefined
     readonly labelSelector?: string | undefined
   } | undefined
-  readonly shardingConfig?: Partial<ShardingConfig.ShardingConfig["Type"]> | undefined
+  readonly shardingConfig?: Partial<ShardingConfig.ShardingConfig["Service"]> | undefined
 }): ClientOnly extends true ? Layer.Layer<
     Sharding | Runners.Runners | ("byo" extends Storage ? never : MessageStorage.MessageStorage),
-    ConfigError,
+    Config.ConfigError,
     "local" extends Storage ? never
       : "byo" extends Storage ? (MessageStorage.MessageStorage | RunnerStorage.RunnerStorage)
       : SqlClient
   > :
   Layer.Layer<
     Sharding | Runners.Runners | ("byo" extends Storage ? never : MessageStorage.MessageStorage),
-    ServeError | ConfigError,
+    ServeError | Config.ConfigError,
     "local" extends Storage ? never
       : "byo" extends Storage ? (MessageStorage.MessageStorage | RunnerStorage.RunnerStorage)
       : SqlClient
@@ -118,21 +156,24 @@ export const layer = <
 }
 
 /**
- * @since 1.0.0
- * @category Layers
+ * Provides the HTTP server and Node HTTP services used by cluster runners,
+ * listening on `ShardingConfig.runnerListenAddress` or `runnerAddress`.
+ *
+ * @category layers
+ * @since 4.0.0
  */
 export const layerHttpServer: Layer.Layer<
   | HttpPlatform
   | Etag.Generator
-  | NodeContext
+  | NodeServices
   | HttpServer,
   ServeError,
   ShardingConfig.ShardingConfig
 > = Effect.gen(function*() {
   const config = yield* ShardingConfig.ShardingConfig
   const listenAddress = Option.orElse(config.runnerListenAddress, () => config.runnerAddress)
-  if (listenAddress._tag === "None") {
+  if (Option.isNone(listenAddress)) {
     return yield* Effect.die("NodeClusterHttp.layerHttpServer: ShardingConfig.runnerAddress is None")
   }
   return NodeHttpServer.layer(createServer, listenAddress.value)
-}).pipe(Layer.unwrapEffect)
+}).pipe(Layer.unwrap)

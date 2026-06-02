@@ -721,6 +721,9 @@
       "@beep/repo-cli/test/VersionSync": [
         "./packages/tooling/tool/cli/src/test/VersionSync.test-kit.ts"
       ],
+      "@beep/repo-cli/test/Yeet": [
+        "./packages/tooling/tool/cli/src/test/Yeet.test-kit.ts"
+      ],
       "@beep/schema/Age": [
         "./packages/foundation/modeling/schema/src/Age/index.ts"
       ],
@@ -1111,6 +1114,8 @@
       "@beep/ui/components/blocks/editor-00/nodes": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
       ],
+      "@beep/box": ["./packages/drivers/box/src/index.ts"],
+      "@beep/box/*": ["./packages/drivers/box/src/*"],
       "@beep/wink": ["./packages/drivers/wink/src/index.ts"],
       "@beep/wink/*": ["./packages/drivers/wink/src/*"],
       "@beep/file-processing": [
@@ -1140,7 +1145,10 @@
       "@beep/tika": ["./packages/drivers/tika/src/index.ts"],
       "@beep/tika/*": ["./packages/drivers/tika/src/*"],
       "@beep/libpff": ["./packages/drivers/libpff/src/index.ts"],
-      "@beep/libpff/*": ["./packages/drivers/libpff/src/*"]
+      "@beep/libpff/*": ["./packages/drivers/libpff/src/*"],
+      "@beep/repo-cli/commands/Yeet": [
+        "./packages/tooling/tool/cli/src/commands/Yeet/index.ts"
+      ]
     }
   }
 }

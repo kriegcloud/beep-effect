@@ -24,7 +24,8 @@ import {
 import type { PatternElement as PatternElementType } from "./Pattern.ts";
 
 const $I = $NlpId.create("Core/PatternParsers");
-const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
+const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
+  cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);
 
 type NonEmptyChoices<A> = readonly [A, ...A[]];
 

@@ -28,6 +28,7 @@ import { syncDataToTsCommand } from "./SyncDataToTs/index.js";
 import { topoSortCommand } from "./TopoSort/index.js";
 import { tsconfigSyncCommand } from "./TsconfigSync/index.js";
 import { versionSyncCommand } from "./VersionSync/index.js";
+import { yeetCommand } from "./Yeet/index.js";
 
 /**
  * Top-level CLI command that registers all subcommands.
@@ -66,5 +67,6 @@ export const rootCommand = Command.make("beep-cli").pipe(
     syncDataToTsCommand,
     tsconfigSyncCommand,
     versionSyncCommand,
+    yeetCommand,
   ])
 ) as Command.Command<"beep-cli", {}, {}, never, never>;

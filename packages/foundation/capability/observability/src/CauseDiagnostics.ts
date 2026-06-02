@@ -30,7 +30,8 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $ObservabilityId.create("CauseDiagnostics");
-const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
+const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
+  cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);
 const decodeNonNegativeInt = (input: unknown) =>
   Result.getOrThrowWith(S.decodeUnknownResult(NonNegativeInt)(input), schemaIssueToError);
 

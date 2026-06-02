@@ -46,7 +46,8 @@ const IdentityVersion = S.Literal("0.0.0");
 const decodeBeepNamespace = S.decodeUnknownResult(BeepNamespace);
 const decodeBeepBase = S.decodeUnknownResult(BeepBase);
 const decodeIdentityVersion = S.decodeUnknownResult(IdentityVersion);
-const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
+const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
+  cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);
 
 const isBeepNamespace = S.is(BeepNamespace);
 const isBeepBase = S.is(BeepBase);
@@ -1169,7 +1170,7 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
       writable: true,
       configurable: true,
     },
-  }) as IdentityComposer<Value>;
+  }) as unknown as IdentityComposer<Value>;
 };
 
 type MakeReturn<Base extends TString.NonEmpty> = {

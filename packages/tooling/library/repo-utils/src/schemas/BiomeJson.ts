@@ -12,8 +12,8 @@ import { Effect, Path, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
-import { DomainError } from "../errors/DomainError.js";
-import { findRepoRoot } from "../Root.js";
+import { DomainError } from "../errors/index.ts";
+import { findRepoRoot } from "../Root.ts";
 
 const require = createRequire(import.meta.url);
 const biomeExecutable = require.resolve("@biomejs/biome/bin/biome");

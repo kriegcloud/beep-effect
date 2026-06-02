@@ -5,18 +5,19 @@
  * @since 0.0.0
  */
 import * as P from "effect/Predicate";
-import type * as S from "effect/Schema";
+import * as S from "effect/Schema";
 
 /**
- * Preserve a schema decoder error at the public SchemaError boundary.
+ * Preserve a schema decoder issue or error at the public SchemaError boundary.
  *
  * @internal
- * @param cause - Schema error reported by an Effect schema decoder.
+ * @param cause - Schema issue or error reported by an Effect schema decoder.
  * @returns Schema error suitable for Result and decoding boundaries.
  * @category utilities
  * @since 0.0.0
  */
-export const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
+export const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
+  cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);
 
 /**
  * Guard unknown values that must be callable plugin/config hooks.

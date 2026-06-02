@@ -1,7 +1,7 @@
 import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { A, Str } from "@beep/utils";
-import { NodeServices } from "@effect/platform-node";
+import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
@@ -16,10 +16,15 @@ const provideScopedLayer =
 const CommandPlatformLayer = Layer.mergeAll(NodeServices.layer);
 const CommandTestLayer = Layer.mergeAll(
   CommandPlatformLayer,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(CommandPlatformLayer)),
   FsUtilsLive.pipe(Layer.provideMerge(CommandPlatformLayer)),
   TSMorphServiceLive.pipe(Layer.provideMerge(CommandPlatformLayer))
 );
-const runCreatePackageCommand = Command.runWith(createPackageCommand, { version: "0.0.0" });
+const runCreatePackageCommandRaw = Command.runWith(createPackageCommand, { version: "0.0.0" });
+const shouldAppendSkipLockfile = (args: ReadonlyArray<string>): boolean =>
+  !A.some(args, (arg) => arg === "--dry-run" || arg === "--skip-lockfile");
+const runCreatePackageCommand = (args: ReadonlyArray<string>) =>
+  runCreatePackageCommandRaw(shouldAppendSkipLockfile(args) ? [...args, "--skip-lockfile"] : args);
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 const decodeUnknownJson = S.decodeUnknownSync(S.fromJsonString(S.Unknown));
 const CreatePackageTestTimeoutMs = 30_000;
@@ -161,6 +166,38 @@ export default config;
 `
   );
 
+const withBunShim = <A, E, R>(binDir: string, argsFilePath: string, use: Effect.Effect<A, E, R>) =>
+  Effect.acquireUseRelease(
+    Effect.sync(() => {
+      const previousPath = Bun.env.PATH;
+      const previousArgsFilePath = Bun.env.BEEP_CREATE_PACKAGE_BUN_ARGS_FILE;
+      Bun.env.PATH = previousPath === undefined ? binDir : `${binDir}:${previousPath}`;
+      Bun.env.BEEP_CREATE_PACKAGE_BUN_ARGS_FILE = argsFilePath;
+      return { previousArgsFilePath, previousPath } as const;
+    }),
+    () => use,
+    ({ previousArgsFilePath, previousPath }) =>
+      Effect.sync(() => {
+        Bun.env.PATH = previousPath;
+        Bun.env.BEEP_CREATE_PACKAGE_BUN_ARGS_FILE = previousArgsFilePath;
+      })
+  );
+
+const writeBunShim = Effect.fn(function* (binDir: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const shimPath = path.join(binDir, "bun");
+  yield* writeTextFile(
+    shimPath,
+    `#!/usr/bin/env bash
+set -euo pipefail
+: "\${BEEP_CREATE_PACKAGE_BUN_ARGS_FILE:?}"
+printf '%s\\n' "$@" > "$BEEP_CREATE_PACKAGE_BUN_ARGS_FILE"
+`
+  );
+  yield* fs.chmod(shimPath, 0o755);
+});
+
 const bootstrapIdentityWorkspace = Effect.fn(function* (
   rootDir: string,
   relativeDir = "packages/foundation/modeling/identity"
@@ -240,6 +277,48 @@ const bootstrapRootConfig = Effect.fn(function* (
 });
 
 describe.sequential("create-package", () => {
+  it(
+    "refreshes bun.lock with bun install --lockfile-only by default",
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const rootDir = process.cwd();
+            const binDir = path.join(rootDir, ".bin");
+            const bunArgsPath = path.join(rootDir, "bun-args.txt");
+
+            yield* bootstrapRootConfig(rootDir, {
+              workspaces: ["packages/foundation/*/*"],
+              references: ["packages/foundation/modeling/identity"],
+              paths: {
+                "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+                "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
+              },
+              testFileMatch: [
+                "packages/*/dtslint/**/*.tst.*",
+                "packages/foundation/modeling/identity/dtslint/**/*.tst.*",
+              ],
+              syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
+            });
+            yield* bootstrapIdentityWorkspace(rootDir);
+            yield* fs.makeDirectory(binDir, { recursive: true });
+            yield* writeBunShim(binDir);
+
+            yield* withBunShim(
+              binDir,
+              bunArgsPath,
+              runCreatePackageCommandRaw(["box", "--family", "drivers", "--description", "Box driver package"])
+            );
+
+            expect(yield* fs.readFileString(bunArgsPath)).toBe("install\n--lockfile-only\n");
+          })
+        )
+      ),
+    CreatePackageTestTimeoutMs
+  );
+
   it(
     "adds top-level package workspaces, identity exports, and shared config sync outputs",
     () =>

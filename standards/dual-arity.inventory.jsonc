@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-30",
+  "generatedOn": "2026-06-02",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
@@ -436,7 +436,7 @@
       "owner": "@beep/observability",
       "reason": "Compatibility overload keeps observeHttpApiHandler(descriptor, metrics, effect) available while the canonical Effect plus ObserveHttpApiHandlerOptions overload remains the preferred public API.",
       "issue": "OBSERVABILITY-HTTP-API-HANDLER-LEGACY-OVERLOAD",
-      "line": 649,
+      "line": 650,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["invalid-dual-arity", "third-param-not-object-like"]
