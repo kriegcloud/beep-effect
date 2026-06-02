@@ -44,7 +44,7 @@ type IssuePathSegment = NonNullable<StandardSchemaV1.Issue["path"]>[number];
 const decodeBrowserResult = S.decodeUnknownResult(Browser);
 const decodePackageExportsResult = S.decodeUnknownResult(PackageExports);
 const decodePackageImportsResult = S.decodeUnknownResult(PackageImports);
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 const decodePeerDependenciesMetaResult = S.decodeUnknownResult(PeerDependenciesMeta);
 const decodePublishConfigResult = S.decodeUnknownResult(PublishConfig);
 const decodeTypesVersionsResult = S.decodeUnknownResult(TypesVersions);

@@ -39,7 +39,7 @@ export class WorkspacePackageInfo extends S.Class<WorkspacePackageInfo>($I`Works
 
 const decodePackageJsonResult = S.decodeUnknownResult(PackageJson);
 
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 

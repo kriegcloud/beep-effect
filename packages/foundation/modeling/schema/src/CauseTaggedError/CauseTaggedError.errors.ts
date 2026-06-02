@@ -267,7 +267,7 @@ const hasExtraFields = (fields: CauseTaggedErrorFields): boolean => !R.isEmptyRe
 const isSchemaFields = (value: unknown): value is CauseTaggedErrorFields =>
   P.isObject(value) && R.every({ ...value }, S.isSchema);
 
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 const decodeCauseTaggedErrorMessage = (input: unknown) =>
   Result.getOrThrowWith(S.decodeUnknownResult(S.String)(input), schemaIssueToError);
 

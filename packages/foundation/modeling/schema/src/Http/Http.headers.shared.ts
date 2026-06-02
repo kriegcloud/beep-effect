@@ -115,7 +115,7 @@ export const EncodedStrictURIFromStrOrURL = StringOrUrl.pipe(
 export type EncodedStrictURIFromStrOrURL = typeof EncodedStrictURIFromStrOrURL.Type;
 
 const decodeStrictURI = S.decodeUnknownResult(EncodedStrictURIFromStrOrURL);
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 
 /**
  * Encodes a string or URL as a normalized absolute URL string.

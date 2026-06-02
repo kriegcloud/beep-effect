@@ -19,7 +19,7 @@ import type * as HttpServerResponse from "effect/unstable/http/HttpServerRespons
 import type { HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi";
 
 const $I = $ObservabilityId.create("server/HttpApiTelemetry");
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 const decodeNonNegativeInt = (input: unknown) =>
   Result.getOrThrowWith(S.decodeUnknownResult(NonNegativeInt)(input), schemaIssueToError);
 const resolveHttpApiStatus = SchemaAST.resolveAt<number>("httpApiStatus");

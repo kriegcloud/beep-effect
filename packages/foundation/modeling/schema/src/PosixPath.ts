@@ -79,7 +79,7 @@ export const NativePathToPosixPath = S.String.pipe(
 );
 
 const decodePosixPath = S.decodeUnknownResult(NativePathToPosixPath);
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 
 /**
  * Normalize a file-system path string to POSIX separators.

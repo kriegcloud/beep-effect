@@ -8,7 +8,7 @@ import * as S from "effect/Schema";
 import React, { useCallback, useRef, useState } from "react";
 
 const $I = $UiId.create("hooks/useSpinner");
-const schemaIssueToError = (cause: S.SchemaError["issue"]): S.SchemaError => new S.SchemaError(cause);
+const schemaIssueToError = (cause: S.SchemaError): S.SchemaError => cause;
 
 const SpinnerAction = LiteralKit(["increment", "decrement"]).pipe(
   $I.annoteSchema("SpinnerAction", {
