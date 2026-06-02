@@ -3,6 +3,7 @@ import {
   buildYeetRunPlanForTesting,
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
+  jsonObjectTextFromMixedOutputForTesting,
   qualityIssuesFromStepResult,
   RepoPlanStep,
   RepoRunContext,
@@ -260,6 +261,15 @@ describe("yeet planner", () => {
         task: "lint",
       }),
     ]);
+  });
+
+  it("extracts the last decodable Turbo JSON object from mixed output", () => {
+    const payload = `{"data":{"affectedTasks":{"items":[],"length":0},"message":"keeps } inside strings"}}`;
+    const extracted = jsonObjectTextFromMixedOutputForTesting(
+      `turbo warning {not-json}\n{"ignored":true}\n${payload}\ntrailing warning {still-not-json}`
+    );
+
+    expect(O.getOrThrow(extracted)).toBe(payload);
   });
 
   it("does not enable fingerprint resume until runtime skip execution exists", () => {

@@ -195,6 +195,7 @@ const safeArtifactName = (value: string): string =>
 const renderJson = Effect.fn("Yeet.renderJson")(function* (value: unknown): Effect.fn.Return<string, YeetCommandError> {
   return yield* encodeJson(value).pipe(Effect.mapError(YeetCommandError.new("Failed to encode yeet JSON output.")));
 });
+const decodeJsonTextOption = S.decodeUnknownOption(S.UnknownFromJsonString);
 
 const runGitOutput = Effect.fn("Yeet.runGitOutput")(function* (
   repoRoot: string,
@@ -213,15 +214,64 @@ const runGitOutput = Effect.fn("Yeet.runGitOutput")(function* (
   return Str.trim(result.output);
 });
 
-const jsonObjectTextFromMixedOutput = (output: string): O.Option<string> =>
-  pipe(
-    O.all({
-      end: Str.lastIndexOf("}")(output),
-      start: Str.indexOf("{")(output),
-    }),
-    O.filter(({ end, start }) => start <= end),
-    O.map(({ end, start }) => Str.slice(start, end + 1)(output))
-  );
+const isEscapedQuote = (output: string, index: number): boolean => {
+  let backslashCount = 0;
+  for (let cursor = index - 1; cursor >= 0 && output[cursor] === "\\"; cursor -= 1) {
+    backslashCount += 1;
+  }
+  return backslashCount % 2 === 1;
+};
+
+const balancedObjectTextEndingAt = (output: string, end: number): O.Option<string> => {
+  let depth = 0;
+  let inString = false;
+
+  for (let cursor = end; cursor >= 0; cursor -= 1) {
+    const char = output[cursor];
+    if (char === '"' && !isEscapedQuote(output, cursor)) {
+      inString = !inString;
+      continue;
+    }
+    if (inString) {
+      continue;
+    }
+    if (char === "}") {
+      depth += 1;
+      continue;
+    }
+    if (char === "{" && depth > 0) {
+      depth -= 1;
+      if (depth === 0) {
+        return O.some(Str.slice(cursor, end + 1)(output));
+      }
+    }
+  }
+
+  return O.none();
+};
+
+const jsonObjectTextFromMixedOutput = (output: string): O.Option<string> => {
+  for (let cursor = Str.length(output) - 1; cursor >= 0; cursor -= 1) {
+    if (output[cursor] !== "}") {
+      continue;
+    }
+
+    const candidate = balancedObjectTextEndingAt(output, cursor);
+    if (O.isSome(candidate) && O.isSome(decodeJsonTextOption(candidate.value))) {
+      return candidate;
+    }
+  }
+
+  return O.none();
+};
+
+/**
+ * Extract the last decodable JSON object from mixed command output for tests.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const jsonObjectTextFromMixedOutputForTesting = jsonObjectTextFromMixedOutput;
 
 const runTurboQueryJson = Effect.fn("Yeet.runTurboQueryJson")(function* (
   repoRoot: string,
