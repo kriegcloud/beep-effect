@@ -706,7 +706,7 @@ export const writeOrCheckRepoExportsCatalog = Effect.fn("RepoExportsCatalog.writ
   const path = yield* Path.Path;
   const { check, outputJsonPath, outputMarkdownPath, repoRoot } = yield* resolveRepoExportsCatalogOptions(options);
   const catalog = yield* buildRepoExportsCatalog(options);
-  const jsonContent = formatJsonc(catalog);
+  const jsonContent = yield* formatJsonc(catalog);
   const markdownContent = renderMarkdown(catalog);
 
   if (check) {

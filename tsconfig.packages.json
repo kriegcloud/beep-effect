@@ -82,6 +82,9 @@
       "path": "packages/drivers/ai-provider-cli"
     },
     {
+      "path": "packages/drivers/box"
+    },
+    {
       "path": "packages/drivers/discord"
     },
     {

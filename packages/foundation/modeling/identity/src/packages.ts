@@ -142,7 +142,8 @@ const composers = $I.compose(
   "ai-sync",
   "form",
   "nlp-mcp",
-  "wink"
+  "wink",
+  "box"
 );
 
 // --- foundation ---
@@ -1523,6 +1524,22 @@ export const $AiSyncId: Identity.IdentityComposer<"@beep/ai-sync"> = composers.$
  * @category configuration
  */
 export const $FormId: Identity.IdentityComposer<"@beep/form"> = composers.$FormId;
+
+/**
+ * Identity composer for `@beep/box`.
+ *
+ * @example
+ * ```typescript
+ * import { $BoxId } from "@beep/identity"
+ *
+ * const id = $BoxId.make("Box")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $BoxId: Identity.IdentityComposer<"@beep/box"> = composers.$BoxId;
 
 /**
  * Identity composer for `@beep/nlp-mcp`.

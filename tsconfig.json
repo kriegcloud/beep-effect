@@ -95,9 +95,7 @@
       "@beep/repo-docgen": ["./packages/tooling/tool/docgen/src/index.ts"],
       "@beep/repo-docgen/*": ["./packages/tooling/tool/docgen/src/*"],
       "@beep/infra": ["./infra/src/index.ts"],
-      "@beep/md": [
-        "./packages/foundation/capability/md/src/index.ts"
-      ],
+      "@beep/md": ["./packages/foundation/capability/md/src/index.ts"],
       "@beep/professional-runtime-proof": [
         "./apps/professional-runtime-proof/src/index.ts"
       ],
@@ -513,9 +511,7 @@
       "@beep/architecture-lab-use-cases/entities/Worker/server": [
         "./packages/architecture-lab/use-cases/src/entities/Worker/server.ts"
       ],
-      "@beep/runpod": [
-        "./packages/drivers/runpod/src/index.ts"
-      ],
+      "@beep/runpod": ["./packages/drivers/runpod/src/index.ts"],
       "@beep/shared-domain/values/OnePasswordReference": [
         "./packages/shared/domain/src/values/OnePasswordReference/index.ts"
       ],
@@ -535,9 +531,7 @@
       "@beep/hubspot": ["./packages/drivers/hubspot/src/index.ts"],
       "@beep/hubspot/*": ["./packages/drivers/hubspot/src/*"],
       "@beep/sanity": ["./packages/drivers/sanity/src/index.ts"],
-      "@beep/sanity/*": [
-        "./packages/drivers/sanity/src/*"
-      ],
+      "@beep/sanity/*": ["./packages/drivers/sanity/src/*"],
       "@beep/repo-codegraph": [
         "./packages/tooling/library/repo-codegraph/src/index.ts"
       ],
@@ -545,9 +539,7 @@
         "./packages/tooling/library/repo-codegraph/src/*"
       ],
       "@beep/konva": ["./packages/drivers/konva/src/index.ts"],
-      "@beep/konva/*": [
-        "./packages/drivers/konva/src/*"
-      ],
+      "@beep/konva/*": ["./packages/drivers/konva/src/*"],
       "@beep/canvas-client": ["./packages/canvas/client/src/index.ts"],
       "@beep/canvas-domain": ["./packages/canvas/domain/src/index.ts"],
       "@beep/canvas-server": ["./packages/canvas/server/src/index.ts"],
@@ -612,9 +604,7 @@
         "./packages/installer/use-cases/src/server.ts"
       ],
       "@beep/phoenix": ["./packages/drivers/phoenix/src/index.ts"],
-      "@beep/phoenix/*": [
-        "./packages/drivers/phoenix/src/*"
-      ],
+      "@beep/phoenix/*": ["./packages/drivers/phoenix/src/*"],
       "@beep/repo-cli/commands/AIMetrics": [
         "./packages/tooling/tool/cli/src/commands/AIMetrics/index.ts"
       ],
@@ -704,6 +694,9 @@
       ],
       "@beep/repo-cli/test/VersionSync": [
         "./packages/tooling/tool/cli/src/test/VersionSync.test-kit.ts"
+      ],
+      "@beep/repo-cli/test/Yeet": [
+        "./packages/tooling/tool/cli/src/test/Yeet.test-kit.ts"
       ],
       "@beep/schema/Age": [
         "./packages/foundation/modeling/schema/src/Age/index.ts"
@@ -1091,17 +1084,16 @@
         "./packages/foundation/capability/nlp/src/Handoff/index.ts"
       ],
       "@beep/nlp-mcp": ["./packages/drivers/nlp-mcp/src/index.ts"],
-      "@beep/nlp-mcp/*": [
-        "./packages/drivers/nlp-mcp/src/*"
-      ],
+      "@beep/nlp-mcp/*": ["./packages/drivers/nlp-mcp/src/*"],
       "@beep/ui/components/blocks/editor-00/nodes": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
       ],
-      "@beep/wink": [
-        "./packages/drivers/wink/src/index.ts"
-      ],
-      "@beep/wink/*": [
-        "./packages/drivers/wink/src/*"
+      "@beep/box": ["./packages/drivers/box/src/index.ts"],
+      "@beep/box/*": ["./packages/drivers/box/src/*"],
+      "@beep/wink": ["./packages/drivers/wink/src/index.ts"],
+      "@beep/wink/*": ["./packages/drivers/wink/src/*"],
+      "@beep/repo-cli/commands/Yeet": [
+        "./packages/tooling/tool/cli/src/commands/Yeet/index.ts"
       ]
     }
   }

@@ -140,6 +140,7 @@ const repoCliSourceOnlyTestKitAliases = [
   ["@beep/repo-cli/test/Reuse", "src/test/Reuse.test-kit.ts"],
   ["@beep/repo-cli/test/SyncDataToTs", "src/test/SyncDataToTs.test-kit.ts"],
   ["@beep/repo-cli/test/VersionSync", "src/test/VersionSync.test-kit.ts"],
+  ["@beep/repo-cli/test/Yeet", "src/test/Yeet.test-kit.ts"],
 ] as const satisfies ReadonlyArray<SourceOnlyTestKitAlias>;
 const schemaPackageName = "@beep/schema" as const;
 const schemaSourceOnlyTestKitAliases = [

@@ -29,6 +29,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Argument, Command, Flag } from "effect/unstable/cli";
+import { ChildProcess } from "effect/unstable/process";
 import * as jsonc from "jsonc-parser";
 import { SyntaxKind } from "ts-morph";
 import { printLines } from "../../internal/cli/Printer.ts";
@@ -694,6 +695,28 @@ const rootWorkspaceEntryNeeded = Effect.fn(function* (repoRoot: string, packageP
   return !isPathCoveredByWorkspacePatterns(workspacePatternsFromPackageJson(packageJson.workspaces), packagePath);
 });
 
+const refreshBunLockfile = Effect.fn("CreatePackage.refreshBunLockfile")(function* (repoRoot: string) {
+  const args = ["install", "--lockfile-only"] as const;
+  yield* Console.log(`[create-package] Refreshing bun.lock: bun ${A.join(args, " ")}`);
+  const exitCode = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make("bun", [...args], {
+        cwd: repoRoot,
+        stdin: "ignore",
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      return yield* handle.exitCode;
+    })
+  ).pipe(Effect.mapError(DomainError.newCause(`Failed to spawn bun ${A.join(args, " ")}.`)));
+
+  if (exitCode !== 0) {
+    return yield* DomainError.make({
+      message: `bun ${A.join(args, " ")} failed with exit code ${exitCode}. Fix package metadata and rerun the command.`,
+    });
+  }
+});
+
 const toIdentityAccessorName = (packageName: string): string => `$${Str.pascalCase(packageName)}Id`;
 
 const typedIdentityExportBlock = (packageName: string): string => {
@@ -818,6 +841,9 @@ export const createPackageCommand = Command.make(
     ),
     description: Flag.string("description").pipe(Flag.withDescription("Package description"), Flag.withDefault("")),
     dryRun: Flag.boolean("dry-run").pipe(Flag.withDescription("Preview changes without writing files")),
+    skipLockfile: Flag.boolean("skip-lockfile").pipe(
+      Flag.withDescription("Skip the default bun.lock refresh after package creation")
+    ),
   },
   Effect.fn(function* (config) {
     const {
@@ -830,6 +856,7 @@ export const createPackageCommand = Command.make(
       dirName: dirNameOverride,
       description,
       dryRun,
+      skipLockfile,
     } = config;
 
     // ── Validate type ──────────────────────────────────────────────────
@@ -1052,6 +1079,7 @@ export const createPackageCommand = Command.make(
             : "SKIP (real app scaffold does not register package identity composers)"
         }`,
         `[dry-run] Derived repo configs: shared sync runs after scaffolding to update tsconfig references, aliases, tstyche, syncpack, and docgen`,
+        `[dry-run] Lockfile: ${skipLockfile ? "SKIP (--skip-lockfile)" : "bun install --lockfile-only"}`,
       ]);
 
       return;
@@ -1146,6 +1174,10 @@ export const createPackageCommand = Command.make(
       filter: undefined,
       verbose: false,
     });
+    const lockfileRefreshed = !skipLockfile;
+    if (lockfileRefreshed) {
+      yield* refreshBunLockfile(repoRoot);
+    }
 
     // ── Print summary ──────────────────────────────────────────────────
     yield* printLines([
@@ -1153,13 +1185,19 @@ export const createPackageCommand = Command.make(
       `Files created:`,
       ...A.map(filesFor(appKind), (file) => `  - ${file}`),
     ]);
-    if (workspaceUpdated || identityUpdated || syncResult.changedFiles > 0) {
+    if (workspaceUpdated || identityUpdated || syncResult.changedFiles > 0 || lockfileRefreshed || skipLockfile) {
       yield* Console.log(`\nRepo registration and config sync:`);
       if (workspaceUpdated) {
         yield* Console.log(`  - package.json: added workspace "${packagePath}"`);
       }
       if (identityUpdated) {
         yield* Console.log(`  - ${identityPackagesFilePath}: registered "${name}" as ${toIdentityAccessorName(name)}`);
+      }
+      if (lockfileRefreshed) {
+        yield* Console.log(`  - bun.lock: refreshed via "bun install --lockfile-only"`);
+      }
+      if (skipLockfile) {
+        yield* Console.log(`  - bun.lock: SKIP (--skip-lockfile)`);
       }
       yield* printLines(
         A.map(

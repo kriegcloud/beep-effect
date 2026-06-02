@@ -1012,8 +1012,9 @@ export const writeJSDocDocumentationInventory = Effect.fn("JSDocDocumentationInv
       filePath: outputJsonPath,
     })
   );
+  const jsonContent = yield* formatJsonc(inventory);
   yield* fs
-    .writeFileString(outputJsonPath, formatJsonc(inventory))
+    .writeFileString(outputJsonPath, jsonContent)
     .pipe(QualityArtifactGeneratorError.mapError(`Failed to write ${outputJsonPath}.`, { filePath: outputJsonPath }));
   yield* fs.writeFileString(outputMarkdownPath, renderMarkdown(inventory)).pipe(
     QualityArtifactGeneratorError.mapError(`Failed to write ${outputMarkdownPath}.`, {
