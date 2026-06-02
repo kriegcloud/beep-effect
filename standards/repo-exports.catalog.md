@@ -1121,7 +1121,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docs/index` | `DocsSection` | type | `packages/tooling/tool/cli/src/commands/Docs/Docs.command.ts:96` | Documentation section model. |
 | `@beep/repo-cli/commands/Files` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:944` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1542` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5524` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5521` | Archive obvious poor image candidates out of a dataset directory. |
 | `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1566` | Assessed image candidate with an archive or keep decision. |
 | `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1706` | Manifest written by a successful poor-candidate archive run. |
 | `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1491` | JSON-safe options recorded in a poor-candidate archive manifest. |
@@ -1156,7 +1156,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:591` | Numeric threshold ratio used by candidate-quality triage. |
 | `@beep/repo-cli/commands/Files` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:893` | Classify an analyzed image from its matched border sides. |
 | `@beep/repo-cli/commands/Files` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:416` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5544` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5541` | Create same-stem caption sidecar files for direct image files. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1105` | Options used by caption sidecar creation. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1182` | Planned caption sidecar creation run. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1128` | Planned caption sidecar file creation. |
@@ -1164,7 +1164,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:278` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:299` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1206` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5564` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5561` | Crop solid or near-solid borders from direct image files. |
 | `@beep/repo-cli/commands/Files` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1813` | Options used by the image border cropping operation. |
 | `@beep/repo-cli/commands/Files` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2129` | Planned border crop entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2098` | Planned crop for an image with detected solid borders. |
@@ -1181,7 +1181,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2345` | Decode an unknown rotation value into an optional number. |
 | `@beep/repo-cli/commands/Files` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2358` | Decode an unknown safe filename prefix. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1886` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5584` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5581` | Detect solid or near-solid borders in direct image files. |
 | `@beep/repo-cli/commands/Files` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1860` | Measurement for one scanned image side. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1735` | Options used by the image border detection operation. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1962` | JSON report emitted by an image border detection run. |
@@ -1190,7 +1190,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:382` | Reason a direct directory entry was skipped by `files detect-borders`. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1938` | Summary counts for an image border detection run. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1987` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5604` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5601` | Detect human faces in direct image files. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:429` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:447` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1760` | Options used by the image face detection operation. |
@@ -1211,7 +1211,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:501` | File curation command group. |
 | `@beep/repo-cli/commands/Files` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:39` | Error raised by file curation commands. |
 | `@beep/repo-cli/commands/Files` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:426` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5508` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5505` | Live service layer for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:341` | Service contract for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:28` | Shared concurrency caps for Files command phases. |
 | `@beep/repo-cli/commands/Files` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:72` | SHA-256 hash recorded for normalized file bytes. |
@@ -1237,7 +1237,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:104` | Non-negative pixel offset schema. |
 | `@beep/repo-cli/commands/Files` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:132` | Non-negative pixel offset value. |
 | `@beep/repo-cli/commands/Files` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:355` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5624` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5621` | Normalize direct image files into an output directory and write a transform manifest. |
 | `@beep/repo-cli/commands/Files` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1231` | Options used by the image normalization operation. |
 | `@beep/repo-cli/commands/Files` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:220` | Canonical image output format emitted by `files normalize`. |
 | `@beep/repo-cli/commands/Files` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:232` | Canonical image output format emitted by `files normalize`. |
@@ -1256,8 +1256,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1373` | Summary counts for an image normalization run. |
 | `@beep/repo-cli/commands/Files` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:31` | Positive media dimension schema. |
 | `@beep/repo-cli/commands/Files` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:59` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4740` | Print the files command index. |
-| `@beep/repo-cli/commands/Files` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5645` | Process a file or directory into the V1 file-processing proof manifest tree. |
+| `@beep/repo-cli/commands/Files` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4737` | Print the files command index. |
+| `@beep/repo-cli/commands/Files` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5642` | Process a file or directory into the V1 file-processing proof manifest tree. |
 | `@beep/repo-cli/commands/Files` | `ProcessFilesFailurePolicy` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2244` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files` | `ProcessFilesFailurePolicy` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2256` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files` | `ProcessFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2269` | Validated options used by `files process`. |
@@ -1292,9 +1292,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:701` | Resolve the sharp encoder name for a canonical normalize format. |
 | `@beep/repo-cli/commands/Files` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:944` | File discovered for deterministic rename planning. |
 | `@beep/repo-cli/commands/Files` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2179` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5668` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5665` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
 | `@beep/repo-cli/commands/Files` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:999` | Summary returned by `sortAndRenameFiles`. |
-| `@beep/repo-cli/commands/Files` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5695` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5692` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2221` | Planned metadata stripping entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1032` | Planned metadata strip for a selected image or video file. |
 | `@beep/repo-cli/commands/Files` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1056` | Summary returned by `stripMetadataFiles`. |
@@ -1470,22 +1470,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1056` | Summary returned by `stripMetadataFiles`. |
 | `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:170` | Image extension schema supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:182` | Image extension supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5524` | Archive obvious poor image candidates out of a dataset directory. |
-| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5544` | Create same-stem caption sidecar files for direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5564` | Crop solid or near-solid borders from direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5584` | Detect solid or near-solid borders in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5604` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5521` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5541` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5561` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5581` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5601` | Detect human faces in direct image files. |
 | `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:426` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5508` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5505` | Live service layer for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:341` | Service contract for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5624` | Normalize direct image files into an output directory and write a transform manifest. |
-| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4740` | Print the files command index. |
-| `@beep/repo-cli/commands/Files/Files.service` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5645` | Process a file or directory into the V1 file-processing proof manifest tree. |
-| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5668` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
-| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5695` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5621` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4737` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/Files.service` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5642` | Process a file or directory into the V1 file-processing proof manifest tree. |
+| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5665` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5692` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files/index` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:944` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1542` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5524` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5521` | Archive obvious poor image candidates out of a dataset directory. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1566` | Assessed image candidate with an archive or keep decision. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1706` | Manifest written by a successful poor-candidate archive run. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1491` | JSON-safe options recorded in a poor-candidate archive manifest. |
@@ -1520,7 +1520,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:591` | Numeric threshold ratio used by candidate-quality triage. |
 | `@beep/repo-cli/commands/Files/index` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:893` | Classify an analyzed image from its matched border sides. |
 | `@beep/repo-cli/commands/Files/index` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:416` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5544` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5541` | Create same-stem caption sidecar files for direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1105` | Options used by caption sidecar creation. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1182` | Planned caption sidecar creation run. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1128` | Planned caption sidecar file creation. |
@@ -1528,7 +1528,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:278` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:299` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1206` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5564` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5561` | Crop solid or near-solid borders from direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1813` | Options used by the image border cropping operation. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2129` | Planned border crop entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2098` | Planned crop for an image with detected solid borders. |
@@ -1545,7 +1545,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2345` | Decode an unknown rotation value into an optional number. |
 | `@beep/repo-cli/commands/Files/index` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2358` | Decode an unknown safe filename prefix. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1886` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5584` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5581` | Detect solid or near-solid borders in direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1860` | Measurement for one scanned image side. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1735` | Options used by the image border detection operation. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1962` | JSON report emitted by an image border detection run. |
@@ -1554,7 +1554,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:382` | Reason a direct directory entry was skipped by `files detect-borders`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1938` | Summary counts for an image border detection run. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1987` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5604` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5601` | Detect human faces in direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:429` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:447` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1760` | Options used by the image face detection operation. |
@@ -1575,7 +1575,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:501` | File curation command group. |
 | `@beep/repo-cli/commands/Files/index` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:39` | Error raised by file curation commands. |
 | `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:426` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5508` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5505` | Live service layer for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:341` | Service contract for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files/index` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:28` | Shared concurrency caps for Files command phases. |
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:72` | SHA-256 hash recorded for normalized file bytes. |
@@ -1601,7 +1601,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:104` | Non-negative pixel offset schema. |
 | `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:132` | Non-negative pixel offset value. |
 | `@beep/repo-cli/commands/Files/index` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:355` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5624` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5621` | Normalize direct image files into an output directory and write a transform manifest. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1231` | Options used by the image normalization operation. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:220` | Canonical image output format emitted by `files normalize`. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:232` | Canonical image output format emitted by `files normalize`. |
@@ -1620,8 +1620,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1373` | Summary counts for an image normalization run. |
 | `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:31` | Positive media dimension schema. |
 | `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:59` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4740` | Print the files command index. |
-| `@beep/repo-cli/commands/Files/index` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5645` | Process a file or directory into the V1 file-processing proof manifest tree. |
+| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4737` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/index` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5642` | Process a file or directory into the V1 file-processing proof manifest tree. |
 | `@beep/repo-cli/commands/Files/index` | `ProcessFilesFailurePolicy` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2244` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files/index` | `ProcessFilesFailurePolicy` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2256` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files/index` | `ProcessFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2269` | Validated options used by `files process`. |
@@ -1656,9 +1656,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:701` | Resolve the sharp encoder name for a canonical normalize format. |
 | `@beep/repo-cli/commands/Files/index` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:944` | File discovered for deterministic rename planning. |
 | `@beep/repo-cli/commands/Files/index` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2179` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5668` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5665` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
 | `@beep/repo-cli/commands/Files/index` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:999` | Summary returned by `sortAndRenameFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5695` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5692` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2221` | Planned metadata stripping entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1032` | Planned metadata strip for a selected image or video file. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1056` | Summary returned by `stripMetadataFiles`. |

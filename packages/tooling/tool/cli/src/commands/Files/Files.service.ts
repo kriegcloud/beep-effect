@@ -3955,9 +3955,6 @@ const collectProcessDirectoryFiles = Effect.fn("Files.collectProcessDirectoryFil
 
   for (const entry of A.sort(entries, Order.String)) {
     const sourcePath = path.join(currentDirectory, entry);
-    const stat = yield* fs
-      .stat(sourcePath)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat process input", sourcePath, { cause })));
     const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
 
     if (O.isNone(canonicalPath)) {
@@ -3968,6 +3965,10 @@ const collectProcessDirectoryFiles = Effect.fn("Files.collectProcessDirectoryFil
     if (Str.startsWith("../")(canonicalRelativePath) || Str.startsWith("/")(canonicalRelativePath)) {
       continue;
     }
+
+    const stat = yield* fs
+      .stat(canonicalPath.value)
+      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat process input", sourcePath, { cause })));
 
     if (stat.type === "Directory") {
       if (HashSet.has(visited, canonicalPath.value)) {
@@ -4018,14 +4019,10 @@ const collectProcessInputFiles = Effect.fn("Files.collectProcessInputFiles")(fun
 
   if (stat.type === "File") {
     const sourceRoot = path.dirname(sourcePath);
-    const canonicalSourceRoot = yield* fs
-      .realPath(sourceRoot)
-      .pipe(
-        Effect.mapError((cause) => formatPlatformError("Failed to resolve process source root", sourceRoot, { cause }))
-      );
     const canonicalPath = yield* fs
       .realPath(sourcePath)
       .pipe(Effect.mapError((cause) => formatPlatformError("Failed to resolve process input", sourcePath, { cause })));
+    const canonicalSourceRoot = path.dirname(canonicalPath);
     const name = path.basename(sourcePath);
 
     return {

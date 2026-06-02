@@ -601,7 +601,7 @@ describe.sequential("files command", () => {
                 outDir: outPath,
                 overwrite: true,
               })
-            ).pipe(Effect.provide(FilesCommandServiceLive))
+            ).pipe(provideScopedLayer(FilesCommandServiceLive))
           );
           const output = Exit.isFailure(exit) ? Cause.pretty(exit.cause) : "";
 
@@ -622,6 +622,7 @@ describe.sequential("files command", () => {
 
           yield* fs.writeFileString(path.join(datasetDir, "note.txt"), "hello proof");
           yield* fs.symlink(datasetDir, path.join(datasetDir, "loop"));
+          yield* fs.symlink(path.join(datasetDir, "missing.txt"), path.join(datasetDir, "dangling.txt"));
 
           yield* runFilesCommand([
             "process",
@@ -649,6 +650,41 @@ describe.sequential("files command", () => {
 
           expect(coverage.sourceCount).toBe(1);
           expect(A.map(sourceRecords, (record) => record.relativePath)).toEqual(["note.txt"]);
+        })
+      )
+    ));
+
+  it("rejects process output inside the resolved source root for symlinked file input", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const realDir = path.join(tmpDir, "real");
+          const aliasDir = path.join(tmpDir, "alias");
+          const realFile = path.join(realDir, "note.txt");
+          const aliasFile = path.join(aliasDir, "note.txt");
+          const outDir = path.join(realDir, "proof");
+
+          yield* fs.makeDirectory(realDir, { recursive: true });
+          yield* fs.makeDirectory(aliasDir, { recursive: true });
+          yield* fs.writeFileString(realFile, "hello proof");
+          yield* fs.symlink(realFile, aliasFile);
+
+          const output = yield* expectFilesCommandFailure([
+            "process",
+            "--input",
+            aliasFile,
+            "--out-dir",
+            outDir,
+            "--engine",
+            "test",
+            "--failure-policy",
+            "continue",
+          ]);
+
+          expect(output).toContain("Refusing to write files process output in an overlapping source/output tree");
+          expect(yield* fs.exists(outDir)).toBe(false);
         })
       )
     ));
