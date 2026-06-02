@@ -7,9 +7,50 @@
 
 import { $FileProcessingId } from "@beep/identity";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
+import { FileExtension } from "@beep/schema/FileExtension";
+import { FileName } from "@beep/schema/FileName";
+import { MimeType } from "@beep/schema/MimeType";
+import { PosixPath } from "@beep/schema/PosixPath";
 import * as S from "effect/Schema";
 
 const $I = $FileProcessingId.create("Artifact");
+const artifactExtensionPattern = /^[^./\\\u0000][^/\\\u0000]*$/u;
+const artifactNamePattern = /^[^/\\\u0000]+$/u;
+
+const ArtifactExtension = S.Union([
+  FileExtension,
+  S.NonEmptyString.check(
+    S.makeFilter((value: string) => artifactExtensionPattern.test(value), {
+      identifier: $I`ArtifactExtensionBareExtensionCheck`,
+      title: "Artifact Extension",
+      description:
+        "A bare source extension. File processing accepts known MIME extensions plus local-corpus extensions such as pst.",
+      message: "Expected a bare file extension without path separators, a leading dot, or NUL bytes.",
+    })
+  ),
+]).pipe(
+  $I.annoteSchema("ArtifactExtension", {
+    description:
+      "Bare source extension accepted by the file-processing boundary. Reuses FileExtension when possible while allowing local-corpus extensions absent from the shared MIME table.",
+  })
+);
+
+const ArtifactName = S.Union([
+  FileName,
+  S.NonEmptyString.check(
+    S.makeFilter((value: string) => artifactNamePattern.test(value), {
+      identifier: $I`ArtifactNameNoPathSeparatorCheck`,
+      title: "Artifact Name",
+      description: "A source artifact name without path separators or embedded NUL bytes.",
+      message: "Expected a file name without path separators or embedded NUL bytes.",
+    })
+  ),
+]).pipe(
+  $I.annoteSchema("ArtifactName", {
+    description:
+      "Portable source artifact name. Reuses FileName when the suffix is known while allowing extensionless or local-corpus file names.",
+  })
+);
 
 /**
  * Stable artifact identifier derived from a content digest.
@@ -128,9 +169,16 @@ export type ArtifactLocatorKind = typeof ArtifactLocatorKind.Type;
  * @example
  * ```ts
  * import { ArtifactLocator } from "@beep/file-processing/Artifact"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * const locator = ArtifactLocator.make({ kind: "synthetic", value: "fixtures/readme.md" })
- * console.log(locator.kind)
+ * const program = Effect.gen(function* () {
+ *   const value = yield* S.decodeUnknownEffect(PosixPath)("fixtures/readme.md")
+ *   return ArtifactLocator.make({ kind: "synthetic", value }).kind
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // "synthetic"
  * ```
  *
  * @category models
@@ -139,7 +187,7 @@ export type ArtifactLocatorKind = typeof ArtifactLocatorKind.Type;
 export class ArtifactLocator extends S.Class<ArtifactLocator>($I`ArtifactLocator`)(
   {
     kind: ArtifactLocatorKind,
-    value: S.String,
+    value: PosixPath,
   },
   $I.annote("ArtifactLocator", {
     description: "Runtime-neutral locator for a source artifact.",
@@ -163,12 +211,12 @@ export class SourceArtifact extends S.Class<SourceArtifact>($I`SourceArtifact`)(
   {
     bytes: S.optionalKey(S.Uint8Array),
     digest: ContentDigest,
-    extension: S.optionalKey(S.String),
+    extension: S.optionalKey(ArtifactExtension),
     id: ArtifactId,
     locator: ArtifactLocator,
-    mediaType: S.optionalKey(S.String),
-    name: S.String,
-    relativePath: S.String,
+    mediaType: S.optionalKey(MimeType),
+    name: ArtifactName,
+    relativePath: PosixPath,
     sizeBytes: S.Number,
     text: S.optionalKey(S.String),
   },
@@ -194,8 +242,8 @@ export class ArtifactReference extends S.Class<ArtifactReference>($I`ArtifactRef
   {
     digest: S.optionalKey(ContentDigest),
     id: ArtifactId,
-    mediaType: S.optionalKey(S.String),
-    relativePath: S.String,
+    mediaType: S.optionalKey(MimeType),
+    relativePath: PosixPath,
     sizeBytes: S.optionalKey(S.Number),
   },
   $I.annote("ArtifactReference", {

@@ -6,8 +6,7 @@
  */
 
 import { $FileProcessingId } from "@beep/identity";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { O } from "@beep/utils";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $FileProcessingId.create("Strategy");
@@ -182,8 +181,11 @@ export type FileProcessingSupportDisposition = typeof FileProcessingSupportDispo
  */
 export const FileProcessingSkipReason = LiteralKit([
   "engine-unavailable",
+  "encrypted-source",
   "fixture-unavailable",
   "format-out-of-scope",
+  "ocr-disabled",
+  "output-budget-exceeded",
   "unsupported-format",
   "operation-not-required",
 ]).pipe(
@@ -199,72 +201,6 @@ export const FileProcessingSkipReason = LiteralKit([
  * @since 0.0.0
  */
 export type FileProcessingSkipReason = typeof FileProcessingSkipReason.Type;
-
-/**
- * Redacted technical failure raised inside a concrete driver boundary.
- *
- * @example
- * ```ts
- * import { FileProcessingDriverError } from "@beep/file-processing/Strategy"
- *
- * const error = FileProcessingDriverError.fromReason("tika", "engine-unavailable")
- * console.log(error.driver)
- * ```
- *
- * @category errors
- * @since 0.0.0
- */
-export class FileProcessingDriverError extends TaggedErrorClass<FileProcessingDriverError>(
-  $I`FileProcessingDriverError`
-)(
-  "FileProcessingDriverError",
-  {
-    cause: S.optionalKey(S.String),
-    driver: FileProcessingEngineFamily,
-    reason: S.NonEmptyString,
-  },
-  $I.annote("FileProcessingDriverError", {
-    description: "Redacted technical failure raised inside a file-processing driver boundary.",
-  })
-) {
-  /**
-   * Create a redacted driver technical error.
-   *
-   * @category constructors
-   * @since 0.0.0
-   */
-  static readonly fromReason = (
-    driver: FileProcessingEngineFamily,
-    reason: string,
-    options: { readonly cause?: string } = {}
-  ): FileProcessingDriverError =>
-    FileProcessingDriverError.make({
-      driver,
-      reason,
-      ...O.getSomesStruct({
-        cause: O.fromUndefinedOr(options.cause),
-      }),
-    });
-}
-
-/**
- * Bind a concrete engine family to a typed driver error factory.
- *
- * @example
- * ```ts
- * import { makeFileProcessingDriverErrorFactory } from "@beep/file-processing/Strategy"
- *
- * const makeTikaError = makeFileProcessingDriverErrorFactory("tika")
- * console.log(makeTikaError("engine-unavailable").reason)
- * ```
- *
- * @category constructors
- * @since 0.0.0
- */
-export const makeFileProcessingDriverErrorFactory =
-  <Reason extends string>(driver: FileProcessingEngineFamily) =>
-  (reason: Reason, options: { readonly cause?: string } = {}): FileProcessingDriverError =>
-    FileProcessingDriverError.fromReason(driver, reason, options);
 
 /**
  * Preferred engine selection for an operation.
@@ -290,6 +226,106 @@ export class StrategyPreference extends S.Class<StrategyPreference>($I`StrategyP
 ) {}
 
 /**
+ * Strategy selected when an operation is supported.
+ *
+ * @example
+ * ```ts
+ * import { SupportedSelectedStrategy } from "@beep/file-processing/Strategy"
+ *
+ * const strategy = SupportedSelectedStrategy.make({
+ *   disposition: "supported",
+ *   engine: "tika",
+ *   format: "docx",
+ *   operationKind: "extract"
+ * })
+ *
+ * console.log(strategy.disposition) // "supported"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SupportedSelectedStrategy extends S.Class<SupportedSelectedStrategy>($I`SupportedSelectedStrategy`)(
+  {
+    disposition: S.Literal("supported"),
+    engine: FileProcessingEngineFamily,
+    format: FileFormatFamily,
+    operationKind: FileProcessingOperationKind,
+  },
+  $I.annote("SupportedSelectedStrategy", {
+    description: "Resolved strategy for a supported source artifact operation.",
+  })
+) {}
+
+/**
+ * Strategy selected when an operation is intentionally deferred.
+ *
+ * @example
+ * ```ts
+ * import { DeferredSelectedStrategy } from "@beep/file-processing/Strategy"
+ *
+ * const strategy = DeferredSelectedStrategy.make({
+ *   disposition: "deferred",
+ *   engine: "libpff",
+ *   format: "pst",
+ *   operationKind: "export-archive",
+ *   skipReason: "engine-unavailable"
+ * })
+ *
+ * console.log(strategy.skipReason) // "engine-unavailable"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DeferredSelectedStrategy extends S.Class<DeferredSelectedStrategy>($I`DeferredSelectedStrategy`)(
+  {
+    disposition: S.Literal("deferred"),
+    engine: FileProcessingEngineFamily,
+    format: FileFormatFamily,
+    operationKind: FileProcessingOperationKind,
+    skipReason: FileProcessingSkipReason,
+  },
+  $I.annote("DeferredSelectedStrategy", {
+    description: "Resolved strategy for an intentionally deferred source artifact operation.",
+  })
+) {}
+
+/**
+ * Strategy selected when an operation is unsupported.
+ *
+ * @example
+ * ```ts
+ * import { UnsupportedSelectedStrategy } from "@beep/file-processing/Strategy"
+ *
+ * const strategy = UnsupportedSelectedStrategy.make({
+ *   disposition: "unsupported",
+ *   engine: "tika",
+ *   format: "xls",
+ *   operationKind: "extract",
+ *   skipReason: "format-out-of-scope"
+ * })
+ *
+ * console.log(strategy.format) // "xls"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class UnsupportedSelectedStrategy extends S.Class<UnsupportedSelectedStrategy>($I`UnsupportedSelectedStrategy`)(
+  {
+    disposition: S.Literal("unsupported"),
+    engine: FileProcessingEngineFamily,
+    format: FileFormatFamily,
+    operationKind: FileProcessingOperationKind,
+    skipReason: FileProcessingSkipReason,
+  },
+  $I.annote("UnsupportedSelectedStrategy", {
+    description: "Resolved strategy for an unsupported source artifact operation.",
+  })
+) {}
+
+/**
  * Strategy selected for a concrete operation.
  *
  * @example
@@ -302,18 +338,24 @@ export class StrategyPreference extends S.Class<StrategyPreference>($I`StrategyP
  * @category models
  * @since 0.0.0
  */
-export class SelectedStrategy extends S.Class<SelectedStrategy>($I`SelectedStrategy`)(
-  {
-    disposition: FileProcessingSupportDisposition,
-    engine: FileProcessingEngineFamily,
-    format: FileFormatFamily,
-    operationKind: FileProcessingOperationKind,
-    skipReason: S.optionalKey(FileProcessingSkipReason),
-  },
-  $I.annote("SelectedStrategy", {
+export const SelectedStrategy = S.Union([
+  SupportedSelectedStrategy,
+  DeferredSelectedStrategy,
+  UnsupportedSelectedStrategy,
+]).pipe(
+  S.toTaggedUnion("disposition"),
+  $I.annoteSchema("SelectedStrategy", {
     description: "Resolved engine and support strategy for a source artifact operation.",
   })
-) {}
+);
+
+/**
+ * Type for {@link SelectedStrategy}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SelectedStrategy = typeof SelectedStrategy.Type;
 
 /**
  * Runtime-neutral engine descriptor.

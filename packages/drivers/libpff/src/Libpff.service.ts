@@ -10,6 +10,7 @@ import { ArchiveExportResult } from "@beep/file-processing/Extraction";
 import { DetectionResult, FileProcessingOperationError } from "@beep/file-processing/Operation";
 import { FileProcessingEngineDescriptor } from "@beep/file-processing/Strategy";
 import { $LibpffId } from "@beep/identity";
+import { PosixPath } from "@beep/schema/PosixPath";
 import { Effect, Match } from "effect";
 import * as S from "effect/Schema";
 import { makeLibpffError } from "./Libpff.errors.ts";
@@ -86,8 +87,32 @@ const mapLibpffErrorToOperationError = (
     )
   );
 
+const decodeLibpffArtifactPath = (
+  path: string,
+  operation: ExportArchiveOperation
+): Effect.Effect<PosixPath, FileProcessingOperationError> =>
+  S.decodeUnknownEffect(PosixPath)(path).pipe(
+    Effect.mapError(() =>
+      FileProcessingOperationError.fromReason("archive-export-failed", {
+        artifactId: operation.source.id,
+        engine: LibpffFileProcessingEngineDescriptor.name,
+        format: operation.format,
+        message: "libpff child artifact path was not POSIX-normalized.",
+        operationId: operation.operationId,
+      })
+    )
+  );
+
 /**
  * Options for the P1 libpff engine scaffold.
+ *
+ * @example
+ * ```ts
+ * import { LibpffFileProcessingEngineOptions } from "@beep/libpff"
+ *
+ * const options = LibpffFileProcessingEngineOptions.make({ syntheticExport: true })
+ * console.log(options.syntheticExport) // true
+ * ```
  *
  * @category configuration
  * @since 0.0.0
@@ -145,10 +170,11 @@ export const makeLibpffFileProcessingEngine = (
       return yield* mapLibpffErrorToOperationError(makeLibpffError("engine-unavailable"), operation);
     }
 
+    const childRelativePath = yield* decodeLibpffArtifactPath("children/synthetic-libpff-message.txt", operation);
     const child = ArtifactReference.make({
       id: operation.source.id,
       mediaType: "text/plain",
-      relativePath: "children/synthetic-libpff-message.txt",
+      relativePath: childRelativePath,
       sizeBytes: 34,
     });
 
@@ -173,6 +199,13 @@ export const makeLibpffFileProcessingEngine = (
 
 /**
  * P1 libpff file-processing engine value with typed unavailable deferrals.
+ *
+ * @example
+ * ```ts
+ * import { LibpffFileProcessingEngine } from "@beep/libpff"
+ *
+ * console.log(LibpffFileProcessingEngine.descriptor.engine) // "libpff"
+ * ```
  *
  * @category services
  * @since 0.0.0

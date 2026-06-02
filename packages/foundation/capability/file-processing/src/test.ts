@@ -9,8 +9,10 @@ import { ArtifactReference } from "@beep/file-processing/Artifact";
 import { ArchiveExportResult, ExtractionResult } from "@beep/file-processing/Extraction";
 import { DetectionResult, FileProcessingOperationError } from "@beep/file-processing/Operation";
 import { FileProcessingEngineDescriptor } from "@beep/file-processing/Strategy";
+import { PosixPath } from "@beep/schema/PosixPath";
 import { A } from "@beep/utils";
 import { Effect, Match } from "effect";
+import * as S from "effect/Schema";
 import type {
   DetectFileOperation,
   ExportArchiveOperation,
@@ -20,6 +22,13 @@ import type { FileProcessingEngineShape } from "@beep/file-processing/Service";
 
 /**
  * Synthetic engine descriptor used by tests and proof fixtures.
+ *
+ * @example
+ * ```ts
+ * import { TestFileProcessingEngineDescriptor } from "@beep/file-processing/test"
+ *
+ * console.log(TestFileProcessingEngineDescriptor.supportedFormats.includes("pst")) // true
+ * ```
  *
  * @category fixtures
  * @since 0.0.0
@@ -49,8 +58,30 @@ const classifyExtension = Match.type<string | undefined>().pipe(
   Match.orElse(() => "unknown" as const)
 );
 
+const decodeTestArtifactPath = (
+  path: string,
+  operation: ExportArchiveOperation
+): Effect.Effect<PosixPath, FileProcessingOperationError> =>
+  S.decodeUnknownEffect(PosixPath)(path).pipe(
+    Effect.mapError(() =>
+      FileProcessingOperationError.fromReason("archive-export-failed", {
+        artifactId: operation.source.id,
+        format: operation.format,
+        message: "Synthetic child artifact path was not POSIX-normalized.",
+        operationId: operation.operationId,
+      })
+    )
+  );
+
 /**
  * Synthetic file-processing engine for generated fixtures.
+ *
+ * @example
+ * ```ts
+ * import { TestFileProcessingEngine } from "@beep/file-processing/test"
+ *
+ * console.log(TestFileProcessingEngine.descriptor.engine) // "test"
+ * ```
  *
  * @category fixtures
  * @since 0.0.0
@@ -76,10 +107,11 @@ export const TestFileProcessingEngine: FileProcessingEngineShape = {
       });
     }
 
+    const childRelativePath = yield* decodeTestArtifactPath("children/synthetic-message.txt", operation);
     const child = ArtifactReference.make({
       id: operation.source.id,
       mediaType: "text/plain",
-      relativePath: "children/synthetic-message.txt",
+      relativePath: childRelativePath,
       sizeBytes: 29,
     });
 

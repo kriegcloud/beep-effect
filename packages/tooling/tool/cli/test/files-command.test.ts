@@ -1,7 +1,9 @@
 import { Chalk } from "@beep/chalk";
 import { createColors } from "@beep/colors";
 import {
+  ChildArtifactRecord,
   FileProcessingCoverageSummary,
+  FileProcessingFailureRecord,
   ProcessRunManifest,
   SourceProcessingRecord,
 } from "@beep/file-processing/Extraction";
@@ -37,10 +39,15 @@ const runFilesCommand = Command.runWith(filesCommand, { version: "0.0.0" });
 const decodeArchivePoorCandidatesManifest = S.decodeUnknownSync(S.fromJsonString(ArchivePoorCandidatesManifest));
 const decodeDetectBordersReport = S.decodeUnknownSync(S.fromJsonString(DetectBordersReport));
 const decodeDetectFacesReport = S.decodeUnknownEffect(S.fromJsonString(DetectFacesReport));
-const decodeFileProcessingCoverageSummary = S.decodeUnknownSync(S.fromJsonString(FileProcessingCoverageSummary));
+const decodeChildArtifactRecord = S.decodeUnknownEffect(S.fromJsonString(ChildArtifactRecord));
+const decodeFileProcessingCoverageSummary = S.decodeUnknownEffect(S.fromJsonString(FileProcessingCoverageSummary));
+const decodeFileProcessingFailureRecord = S.decodeUnknownEffect(S.fromJsonString(FileProcessingFailureRecord));
 const decodeNormalizeManifest = S.decodeUnknownSync(S.fromJsonString(NormalizeManifest));
-const decodeProcessRunManifest = S.decodeUnknownSync(S.fromJsonString(ProcessRunManifest));
-const decodeSourceProcessingRecord = S.decodeUnknownSync(S.fromJsonString(SourceProcessingRecord));
+const decodeProcessRunManifest = S.decodeUnknownEffect(S.fromJsonString(ProcessRunManifest));
+const decodeSourceProcessingRecord = S.decodeUnknownEffect(S.fromJsonString(SourceProcessingRecord));
+const decodeChildArtifactRecordLine = (line: string) => decodeChildArtifactRecord(line);
+const decodeFileProcessingFailureRecordLine = (line: string) => decodeFileProcessingFailureRecord(line);
+const decodeSourceProcessingRecordLine = (line: string) => decodeSourceProcessingRecord(line);
 const isString = (value: unknown): value is string => typeof value === "string";
 
 class FilesTestError extends Data.TaggedError("FilesTestError")<{ readonly cause: unknown }> {}
@@ -444,29 +451,67 @@ describe.sequential("files command", () => {
             "continue",
           ]);
 
-          const runManifest = decodeProcessRunManifest(yield* fs.readFileString(path.join(outDir, "run.json")));
-          const coverage = decodeFileProcessingCoverageSummary(
+          const runManifest = yield* decodeProcessRunManifest(yield* fs.readFileString(path.join(outDir, "run.json")));
+          const coverage = yield* decodeFileProcessingCoverageSummary(
             yield* fs.readFileString(path.join(outDir, "coverage.json"))
           );
-          const sourceRecords = pipe(
+          const sourceLines = pipe(
             yield* fs.readFileString(path.join(outDir, "sources.jsonl")),
             Str.split("\n"),
-            A.filter((line) => line.length > 0),
-            A.map((line) => decodeSourceProcessingRecord(line))
+            A.filter((line) => line.length > 0)
           );
+          const sourceRecords = yield* Effect.forEach(sourceLines, decodeSourceProcessingRecordLine);
+          const failureLines = pipe(
+            yield* fs.readFileString(path.join(outDir, "failures.jsonl")),
+            Str.split("\n"),
+            A.filter((line) => line.length > 0)
+          );
+          const failureRecords = yield* Effect.forEach(failureLines, decodeFileProcessingFailureRecordLine);
           const textRecord = O.getOrThrow(A.findFirst(sourceRecords, (record) => record.relativePath === "note.txt"));
           const pstRecord = O.getOrThrow(A.findFirst(sourceRecords, (record) => record.relativePath === "mailbox.pst"));
+          const xlsRecord = O.getOrThrow(A.findFirst(sourceRecords, (record) => record.relativePath === "table.xls"));
+          const xlsFailure = O.getOrThrow(A.findFirst(failureRecords, (record) => record.relativePath === "table.xls"));
+          const childPath = path.join(outDir, "children", `${pstRecord.artifactId}`, "artifacts.jsonl");
+          const childRecords = yield* Effect.forEach(
+            pipe(
+              yield* fs.readFileString(childPath),
+              Str.split("\n"),
+              A.filter((line) => line.length > 0)
+            ),
+            decodeChildArtifactRecordLine
+          );
 
           expect(runManifest.manifestVersion).toBe("beep.file-processing.run.v1");
+          expect(runManifest.outputRoot).toBe(".");
+          expect(runManifest.sourceRootLabel).toBe("input");
+          expect(runManifest).not.toHaveProperty("outDir");
+          expect(runManifest).not.toHaveProperty("sourceRoot");
           expect(coverage.sourceCount).toBe(3);
           expect(coverage.succeededCount).toBe(2);
           expect(coverage.skippedCount).toBe(1);
+          expect(A.map(sourceRecords, (record) => record.relativePath)).toEqual([
+            "mailbox.pst",
+            "note.txt",
+            "table.xls",
+          ]);
+          expect(textRecord.status).toBe("succeeded");
+          if (textRecord.status !== "succeeded") {
+            throw new Error("Expected note.txt to succeed in the file-processing proof manifest.");
+          }
           expect(textRecord.textPath).toBe(`text/${textRecord.operationId}.txt`);
+          expect(xlsRecord.status).toBe("skipped");
+          if (xlsRecord.status !== "skipped") {
+            throw new Error("Expected table.xls to be skipped in the file-processing proof manifest.");
+          }
+          expect(xlsRecord.skipReason).toBe("format-out-of-scope");
+          expect(xlsFailure.status).toBe("skipped");
+          expect(xlsFailure.reason).toBe("format-out-of-scope");
+          expect(childRecords).toHaveLength(1);
+          expect(childRecords[0]?.sourceArtifactId).toBe(pstRecord.artifactId);
+          expect(childRecords[0]?.child.relativePath).toBe("children/synthetic-libpff-message.txt");
           expect(yield* fs.readFileString(path.join(outDir, textRecord.textPath ?? ""))).toBe("hello proof");
           expect(yield* fs.exists(path.join(outDir, "failures.jsonl"))).toBe(true);
-          expect(yield* fs.exists(path.join(outDir, "children", `${pstRecord.artifactId}`, "artifacts.jsonl"))).toBe(
-            true
-          );
+          expect(yield* fs.exists(childPath)).toBe(true);
         })
       )
     ));

@@ -9,6 +9,7 @@ import { ArtifactId, OperationId, SourceArtifact } from "@beep/file-processing/A
 import { FileFormatFamily, StrategyPreference } from "@beep/file-processing/Strategy";
 import { $FileProcessingId } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { MimeType } from "@beep/schema/MimeType";
 import * as S from "effect/Schema";
 
 const $I = $FileProcessingId.create("Operation");
@@ -144,7 +145,7 @@ export class DetectionResult extends S.Class<DetectionResult>($I`DetectionResult
     confidence: S.optionalKey(S.Number),
     engine: S.String,
     format: FileFormatFamily,
-    mediaType: S.optionalKey(S.String),
+    mediaType: S.optionalKey(MimeType),
     operationId: OperationId,
     sourceArtifactId: ArtifactId,
   },

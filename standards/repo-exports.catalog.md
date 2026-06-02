@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1048 |
-| publicExportEntries | 13624 |
-| uniquePackageSymbols | 6093 |
+| publicExportEntries | 13658 |
+| uniquePackageSymbols | 6105 |
 
 ## Seed Discovery Proof
 
@@ -59,7 +59,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 20 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
 | 21 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
 | 22 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 19 | 15 |
-| 23 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | has-public-exports | 13 | 132 | 55 |
+| 23 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | has-public-exports | 13 | 166 | 67 |
 | 24 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
 | 25 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | has-public-exports | 5 | 27 | 7 |
 | 26 | `@beep/colors` | `packages/foundation/capability/colors` | has-public-exports | 4 | 34 | 8 |
@@ -1119,7 +1119,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docs/index` | `DocsSection` | type | `packages/tooling/tool/cli/src/commands/Docs/Docs.command.ts:96` | Documentation section model. |
 | `@beep/repo-cli/commands/Files` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:944` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1542` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5305` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5426` | Archive obvious poor image candidates out of a dataset directory. |
 | `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1566` | Assessed image candidate with an archive or keep decision. |
 | `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1706` | Manifest written by a successful poor-candidate archive run. |
 | `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1491` | JSON-safe options recorded in a poor-candidate archive manifest. |
@@ -1154,7 +1154,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:591` | Numeric threshold ratio used by candidate-quality triage. |
 | `@beep/repo-cli/commands/Files` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:893` | Classify an analyzed image from its matched border sides. |
 | `@beep/repo-cli/commands/Files` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:416` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5325` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5446` | Create same-stem caption sidecar files for direct image files. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1105` | Options used by caption sidecar creation. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1182` | Planned caption sidecar creation run. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1128` | Planned caption sidecar file creation. |
@@ -1162,7 +1162,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:278` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:299` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1206` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5345` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5466` | Crop solid or near-solid borders from direct image files. |
 | `@beep/repo-cli/commands/Files` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1813` | Options used by the image border cropping operation. |
 | `@beep/repo-cli/commands/Files` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2129` | Planned border crop entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2098` | Planned crop for an image with detected solid borders. |
@@ -1179,7 +1179,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2345` | Decode an unknown rotation value into an optional number. |
 | `@beep/repo-cli/commands/Files` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2358` | Decode an unknown safe filename prefix. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1886` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5365` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5486` | Detect solid or near-solid borders in direct image files. |
 | `@beep/repo-cli/commands/Files` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1860` | Measurement for one scanned image side. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1735` | Options used by the image border detection operation. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1962` | JSON report emitted by an image border detection run. |
@@ -1188,7 +1188,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:382` | Reason a direct directory entry was skipped by `files detect-borders`. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1938` | Summary counts for an image border detection run. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1987` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5385` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5506` | Detect human faces in direct image files. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:429` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:447` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1760` | Options used by the image face detection operation. |
@@ -1208,9 +1208,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:834` | Video stream metadata returned by `ffprobe`. |
 | `@beep/repo-cli/commands/Files` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:501` | File curation command group. |
 | `@beep/repo-cli/commands/Files` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:39` | Error raised by file curation commands. |
-| `@beep/repo-cli/commands/Files` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:407` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5289` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:322` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:420` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5410` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:335` | Service contract for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:28` | Shared concurrency caps for Files command phases. |
 | `@beep/repo-cli/commands/Files` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:72` | SHA-256 hash recorded for normalized file bytes. |
 | `@beep/repo-cli/commands/Files` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:91` | SHA-256 hash recorded for normalized file bytes. |
@@ -1235,7 +1235,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:104` | Non-negative pixel offset schema. |
 | `@beep/repo-cli/commands/Files` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:132` | Non-negative pixel offset value. |
 | `@beep/repo-cli/commands/Files` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:355` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5405` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5526` | Normalize direct image files into an output directory and write a transform manifest. |
 | `@beep/repo-cli/commands/Files` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1231` | Options used by the image normalization operation. |
 | `@beep/repo-cli/commands/Files` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:220` | Canonical image output format emitted by `files normalize`. |
 | `@beep/repo-cli/commands/Files` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:232` | Canonical image output format emitted by `files normalize`. |
@@ -1254,8 +1254,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1373` | Summary counts for an image normalization run. |
 | `@beep/repo-cli/commands/Files` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:31` | Positive media dimension schema. |
 | `@beep/repo-cli/commands/Files` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:59` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4521` | Print the files command index. |
-| `@beep/repo-cli/commands/Files` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5425` | Process a file or directory into the V1 file-processing proof manifest tree. |
+| `@beep/repo-cli/commands/Files` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4642` | Print the files command index. |
+| `@beep/repo-cli/commands/Files` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5547` | Process a file or directory into the V1 file-processing proof manifest tree. |
 | `@beep/repo-cli/commands/Files` | `ProcessFilesFailurePolicy` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2244` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files` | `ProcessFilesFailurePolicy` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2256` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files` | `ProcessFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2269` | Validated options used by `files process`. |
@@ -1290,9 +1290,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:701` | Resolve the sharp encoder name for a canonical normalize format. |
 | `@beep/repo-cli/commands/Files` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:944` | File discovered for deterministic rename planning. |
 | `@beep/repo-cli/commands/Files` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2179` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5448` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5570` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
 | `@beep/repo-cli/commands/Files` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:999` | Summary returned by `sortAndRenameFiles`. |
-| `@beep/repo-cli/commands/Files` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5475` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5597` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2221` | Planned metadata stripping entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1032` | Planned metadata strip for a selected image or video file. |
 | `@beep/repo-cli/commands/Files` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1056` | Summary returned by `stripMetadataFiles`. |
@@ -1468,22 +1468,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1056` | Summary returned by `stripMetadataFiles`. |
 | `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:170` | Image extension schema supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:182` | Image extension supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5305` | Archive obvious poor image candidates out of a dataset directory. |
-| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5325` | Create same-stem caption sidecar files for direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5345` | Crop solid or near-solid borders from direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5365` | Detect solid or near-solid borders in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5385` | Detect human faces in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:407` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5289` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:322` | Service contract for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5405` | Normalize direct image files into an output directory and write a transform manifest. |
-| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4521` | Print the files command index. |
-| `@beep/repo-cli/commands/Files/Files.service` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5425` | Process a file or directory into the V1 file-processing proof manifest tree. |
-| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5448` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
-| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5475` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5426` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5446` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5466` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5486` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5506` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:420` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5410` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:335` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5526` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4642` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/Files.service` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5547` | Process a file or directory into the V1 file-processing proof manifest tree. |
+| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5570` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5597` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files/index` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:944` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1542` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5305` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5426` | Archive obvious poor image candidates out of a dataset directory. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1566` | Assessed image candidate with an archive or keep decision. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1706` | Manifest written by a successful poor-candidate archive run. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1491` | JSON-safe options recorded in a poor-candidate archive manifest. |
@@ -1518,7 +1518,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:591` | Numeric threshold ratio used by candidate-quality triage. |
 | `@beep/repo-cli/commands/Files/index` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:893` | Classify an analyzed image from its matched border sides. |
 | `@beep/repo-cli/commands/Files/index` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:416` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5325` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5446` | Create same-stem caption sidecar files for direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1105` | Options used by caption sidecar creation. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1182` | Planned caption sidecar creation run. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1128` | Planned caption sidecar file creation. |
@@ -1526,7 +1526,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:278` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:299` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1206` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5345` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5466` | Crop solid or near-solid borders from direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1813` | Options used by the image border cropping operation. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2129` | Planned border crop entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2098` | Planned crop for an image with detected solid borders. |
@@ -1543,7 +1543,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2345` | Decode an unknown rotation value into an optional number. |
 | `@beep/repo-cli/commands/Files/index` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2358` | Decode an unknown safe filename prefix. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1886` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5365` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5486` | Detect solid or near-solid borders in direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1860` | Measurement for one scanned image side. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1735` | Options used by the image border detection operation. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1962` | JSON report emitted by an image border detection run. |
@@ -1552,7 +1552,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:382` | Reason a direct directory entry was skipped by `files detect-borders`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1938` | Summary counts for an image border detection run. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1987` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5385` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5506` | Detect human faces in direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:429` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:447` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1760` | Options used by the image face detection operation. |
@@ -1572,9 +1572,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:834` | Video stream metadata returned by `ffprobe`. |
 | `@beep/repo-cli/commands/Files/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:501` | File curation command group. |
 | `@beep/repo-cli/commands/Files/index` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:39` | Error raised by file curation commands. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:407` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5289` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:322` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:420` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5410` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:335` | Service contract for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files/index` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:28` | Shared concurrency caps for Files command phases. |
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:72` | SHA-256 hash recorded for normalized file bytes. |
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:91` | SHA-256 hash recorded for normalized file bytes. |
@@ -1599,7 +1599,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:104` | Non-negative pixel offset schema. |
 | `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:132` | Non-negative pixel offset value. |
 | `@beep/repo-cli/commands/Files/index` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:355` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5405` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5526` | Normalize direct image files into an output directory and write a transform manifest. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1231` | Options used by the image normalization operation. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:220` | Canonical image output format emitted by `files normalize`. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:232` | Canonical image output format emitted by `files normalize`. |
@@ -1618,8 +1618,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1373` | Summary counts for an image normalization run. |
 | `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:31` | Positive media dimension schema. |
 | `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:59` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4521` | Print the files command index. |
-| `@beep/repo-cli/commands/Files/index` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5425` | Process a file or directory into the V1 file-processing proof manifest tree. |
+| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4642` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/index` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5547` | Process a file or directory into the V1 file-processing proof manifest tree. |
 | `@beep/repo-cli/commands/Files/index` | `ProcessFilesFailurePolicy` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2244` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files/index` | `ProcessFilesFailurePolicy` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2256` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files/index` | `ProcessFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2269` | Validated options used by `files process`. |
@@ -1654,9 +1654,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:701` | Resolve the sharp encoder name for a canonical normalize format. |
 | `@beep/repo-cli/commands/Files/index` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:944` | File discovered for deterministic rename planning. |
 | `@beep/repo-cli/commands/Files/index` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2179` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5448` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5570` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
 | `@beep/repo-cli/commands/Files/index` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:999` | Summary returned by `sortAndRenameFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5475` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5597` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2221` | Planned metadata stripping entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1032` | Planned metadata strip for a selected image or video file. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1056` | Summary returned by `stripMetadataFiles`. |
@@ -2745,132 +2745,166 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/file-processing` | `Service` | SourceFile | `packages/foundation/capability/file-processing/src/Service/index.ts:8` |  |
 | `@beep/file-processing` | `Strategy` | SourceFile | `packages/foundation/capability/file-processing/src/Strategy/index.ts:8` |  |
 | `@beep/file-processing` | `VERSION` | const | `packages/foundation/capability/file-processing/src/index.ts:57` | Package version. |
-| `@beep/file-processing/Artifact` | `ArtifactId` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:27` | Stable artifact identifier derived from a content digest. |
-| `@beep/file-processing/Artifact` | `ArtifactId` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:40` | Type for {@link ArtifactId}. |
-| `@beep/file-processing/Artifact` | `ArtifactLocator` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:139` | Runtime-neutral artifact locator. |
-| `@beep/file-processing/Artifact` | `ArtifactLocatorKind` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:111` | Origin kind for a source artifact locator. |
-| `@beep/file-processing/Artifact` | `ArtifactLocatorKind` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:123` | Type for {@link ArtifactLocatorKind}. |
-| `@beep/file-processing/Artifact` | `ArtifactReference` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:193` | Lightweight reference to a materialized artifact. |
-| `@beep/file-processing/Artifact` | `ContentDigest` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:83` | SHA-256 content digest recorded with the source or emitted artifact. |
-| `@beep/file-processing/Artifact` | `ContentDigest` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:96` | Type for {@link ContentDigest}. |
-| `@beep/file-processing/Artifact` | `OperationId` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:55` | Stable operation identifier derived from source, operation kind, and strategy. |
-| `@beep/file-processing/Artifact` | `OperationId` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:68` | Type for {@link OperationId}. |
-| `@beep/file-processing/Artifact` | `SourceArtifact` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:162` | Source artifact supplied to a file-processing operation. |
-| `@beep/file-processing/Artifact/index` | `ArtifactId` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:27` | Stable artifact identifier derived from a content digest. |
-| `@beep/file-processing/Artifact/index` | `ArtifactId` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:40` | Type for {@link ArtifactId}. |
-| `@beep/file-processing/Artifact/index` | `ArtifactLocator` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:139` | Runtime-neutral artifact locator. |
-| `@beep/file-processing/Artifact/index` | `ArtifactLocatorKind` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:111` | Origin kind for a source artifact locator. |
-| `@beep/file-processing/Artifact/index` | `ArtifactLocatorKind` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:123` | Type for {@link ArtifactLocatorKind}. |
-| `@beep/file-processing/Artifact/index` | `ArtifactReference` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:193` | Lightweight reference to a materialized artifact. |
-| `@beep/file-processing/Artifact/index` | `ContentDigest` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:83` | SHA-256 content digest recorded with the source or emitted artifact. |
-| `@beep/file-processing/Artifact/index` | `ContentDigest` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:96` | Type for {@link ContentDigest}. |
-| `@beep/file-processing/Artifact/index` | `OperationId` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:55` | Stable operation identifier derived from source, operation kind, and strategy. |
-| `@beep/file-processing/Artifact/index` | `OperationId` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:68` | Type for {@link OperationId}. |
-| `@beep/file-processing/Artifact/index` | `SourceArtifact` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:162` | Source artifact supplied to a file-processing operation. |
-| `@beep/file-processing/Extraction` | `ArchiveExportResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:132` | Archive export result. |
-| `@beep/file-processing/Extraction` | `ChildArtifactRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:218` | Child artifact row written to children/<source-artifact-id>/artifacts.jsonl. |
-| `@beep/file-processing/Extraction` | `encodeChildArtifactRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:327` | JSONL encoder for {@link ChildArtifactRecord}. |
-| `@beep/file-processing/Extraction` | `encodeFileProcessingCoverageSummaryJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:299` | JSON encoder for {@link FileProcessingCoverageSummary}. |
-| `@beep/file-processing/Extraction` | `encodeFileProcessingFailureRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:317` | JSONL encoder for {@link FileProcessingFailureRecord}. |
-| `@beep/file-processing/Extraction` | `encodeProcessRunManifestJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:291` | JSON encoder for {@link ProcessRunManifest}. |
-| `@beep/file-processing/Extraction` | `encodeSourceProcessingRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:309` | JSONL encoder for {@link SourceProcessingRecord}. |
-| `@beep/file-processing/Extraction` | `ExtractionResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:103` | Text and metadata extraction result. |
-| `@beep/file-processing/Extraction` | `FileProcessingCoverageSummary` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:241` | Coverage summary written to coverage.json. |
-| `@beep/file-processing/Extraction` | `FileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:189` | Failure row written to failures.jsonl. |
-| `@beep/file-processing/Extraction` | `ProcessRunManifest` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:270` | Top-level run manifest written to run.json. |
-| `@beep/file-processing/Extraction` | `SourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:158` | Source row written to sources.jsonl. |
-| `@beep/file-processing/Extraction` | `SourceProcessingStatus` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:29` | Processing status emitted for each source row. |
-| `@beep/file-processing/Extraction` | `SourceProcessingStatus` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:41` | Type for {@link SourceProcessingStatus}. |
-| `@beep/file-processing/Extraction` | `TextArtifactReference` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:56` | Materialized text artifact reference. |
-| `@beep/file-processing/Extraction` | `TextSpan` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:79` | Text span emitted by a text extraction operation. |
-| `@beep/file-processing/Extraction/index` | `ArchiveExportResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:132` | Archive export result. |
-| `@beep/file-processing/Extraction/index` | `ChildArtifactRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:218` | Child artifact row written to children/<source-artifact-id>/artifacts.jsonl. |
-| `@beep/file-processing/Extraction/index` | `encodeChildArtifactRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:327` | JSONL encoder for {@link ChildArtifactRecord}. |
-| `@beep/file-processing/Extraction/index` | `encodeFileProcessingCoverageSummaryJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:299` | JSON encoder for {@link FileProcessingCoverageSummary}. |
-| `@beep/file-processing/Extraction/index` | `encodeFileProcessingFailureRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:317` | JSONL encoder for {@link FileProcessingFailureRecord}. |
-| `@beep/file-processing/Extraction/index` | `encodeProcessRunManifestJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:291` | JSON encoder for {@link ProcessRunManifest}. |
-| `@beep/file-processing/Extraction/index` | `encodeSourceProcessingRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:309` | JSONL encoder for {@link SourceProcessingRecord}. |
-| `@beep/file-processing/Extraction/index` | `ExtractionResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:103` | Text and metadata extraction result. |
-| `@beep/file-processing/Extraction/index` | `FileProcessingCoverageSummary` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:241` | Coverage summary written to coverage.json. |
-| `@beep/file-processing/Extraction/index` | `FileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:189` | Failure row written to failures.jsonl. |
-| `@beep/file-processing/Extraction/index` | `ProcessRunManifest` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:270` | Top-level run manifest written to run.json. |
-| `@beep/file-processing/Extraction/index` | `SourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:158` | Source row written to sources.jsonl. |
-| `@beep/file-processing/Extraction/index` | `SourceProcessingStatus` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:29` | Processing status emitted for each source row. |
-| `@beep/file-processing/Extraction/index` | `SourceProcessingStatus` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:41` | Type for {@link SourceProcessingStatus}. |
-| `@beep/file-processing/Extraction/index` | `TextArtifactReference` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:56` | Materialized text artifact reference. |
-| `@beep/file-processing/Extraction/index` | `TextSpan` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:79` | Text span emitted by a text extraction operation. |
+| `@beep/file-processing/Artifact` | `ArtifactId` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:68` | Stable artifact identifier derived from a content digest. |
+| `@beep/file-processing/Artifact` | `ArtifactId` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:81` | Type for {@link ArtifactId}. |
+| `@beep/file-processing/Artifact` | `ArtifactLocator` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:187` | Runtime-neutral artifact locator. |
+| `@beep/file-processing/Artifact` | `ArtifactLocatorKind` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:152` | Origin kind for a source artifact locator. |
+| `@beep/file-processing/Artifact` | `ArtifactLocatorKind` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:164` | Type for {@link ArtifactLocatorKind}. |
+| `@beep/file-processing/Artifact` | `ArtifactReference` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:241` | Lightweight reference to a materialized artifact. |
+| `@beep/file-processing/Artifact` | `ContentDigest` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:124` | SHA-256 content digest recorded with the source or emitted artifact. |
+| `@beep/file-processing/Artifact` | `ContentDigest` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:137` | Type for {@link ContentDigest}. |
+| `@beep/file-processing/Artifact` | `OperationId` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:96` | Stable operation identifier derived from source, operation kind, and strategy. |
+| `@beep/file-processing/Artifact` | `OperationId` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:109` | Type for {@link OperationId}. |
+| `@beep/file-processing/Artifact` | `SourceArtifact` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:210` | Source artifact supplied to a file-processing operation. |
+| `@beep/file-processing/Artifact/index` | `ArtifactId` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:68` | Stable artifact identifier derived from a content digest. |
+| `@beep/file-processing/Artifact/index` | `ArtifactId` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:81` | Type for {@link ArtifactId}. |
+| `@beep/file-processing/Artifact/index` | `ArtifactLocator` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:187` | Runtime-neutral artifact locator. |
+| `@beep/file-processing/Artifact/index` | `ArtifactLocatorKind` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:152` | Origin kind for a source artifact locator. |
+| `@beep/file-processing/Artifact/index` | `ArtifactLocatorKind` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:164` | Type for {@link ArtifactLocatorKind}. |
+| `@beep/file-processing/Artifact/index` | `ArtifactReference` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:241` | Lightweight reference to a materialized artifact. |
+| `@beep/file-processing/Artifact/index` | `ContentDigest` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:124` | SHA-256 content digest recorded with the source or emitted artifact. |
+| `@beep/file-processing/Artifact/index` | `ContentDigest` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:137` | Type for {@link ContentDigest}. |
+| `@beep/file-processing/Artifact/index` | `OperationId` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:96` | Stable operation identifier derived from source, operation kind, and strategy. |
+| `@beep/file-processing/Artifact/index` | `OperationId` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:109` | Type for {@link OperationId}. |
+| `@beep/file-processing/Artifact/index` | `SourceArtifact` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:210` | Source artifact supplied to a file-processing operation. |
+| `@beep/file-processing/Extraction` | `ArchiveExportProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:239` | Successful archive export result of a full source processing operation. |
+| `@beep/file-processing/Extraction` | `ArchiveExportResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:133` | Archive export result. |
+| `@beep/file-processing/Extraction` | `ChildArtifactRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:715` | Child artifact row written to children/<source-artifact-id>/artifacts.jsonl. |
+| `@beep/file-processing/Extraction` | `encodeChildArtifactRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:965` | JSONL encoder for {@link ChildArtifactRecord}. |
+| `@beep/file-processing/Extraction` | `encodeFileProcessingCoverageSummaryJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:862` | JSON encoder for {@link FileProcessingCoverageSummary}. |
+| `@beep/file-processing/Extraction` | `encodeFileProcessingFailureRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:931` | JSONL encoder for {@link FileProcessingFailureRecord}. |
+| `@beep/file-processing/Extraction` | `encodeProcessRunManifestJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:826` | JSON encoder for {@link ProcessRunManifest}. |
+| `@beep/file-processing/Extraction` | `encodeSourceProcessingRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:898` | JSONL encoder for {@link SourceProcessingRecord}. |
+| `@beep/file-processing/Extraction` | `ExtractedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:186` | Successful extraction result of a full source processing operation. |
+| `@beep/file-processing/Extraction` | `ExtractionResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:104` | Text and metadata extraction result. |
+| `@beep/file-processing/Extraction` | `FailedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:653` | Hard failure row written to failures.jsonl. |
+| `@beep/file-processing/Extraction` | `FailedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:491` | Failed source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction` | `FileProcessingCoverageSummary` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:738` | Coverage summary written to coverage.json. |
+| `@beep/file-processing/Extraction` | `FileProcessingFailureReason` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:577` | Machine-readable failure row reason. |
+| `@beep/file-processing/Extraction` | `FileProcessingFailureReason` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:589` | Type for {@link FileProcessingFailureReason}. |
+| `@beep/file-processing/Extraction` | `FileProcessingFailureRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:684` | Failure row written to failures.jsonl. |
+| `@beep/file-processing/Extraction` | `FileProcessingFailureRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:700` | Type for {@link FileProcessingFailureRecord}. |
+| `@beep/file-processing/Extraction` | `ProcessFileResult` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:334` | Result of a full source processing operation. |
+| `@beep/file-processing/Extraction` | `ProcessFileResult` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:351` | Type for {@link ProcessFileResult}. |
+| `@beep/file-processing/Extraction` | `ProcessRunManifest` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:767` | Top-level run manifest written to run.json. |
+| `@beep/file-processing/Extraction` | `SkippedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:604` | Skipped row written to failures.jsonl. |
+| `@beep/file-processing/Extraction` | `SkippedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:288` | Intentional skip result of a full source processing operation. |
+| `@beep/file-processing/Extraction` | `SkippedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:440` | Skipped source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction` | `SourceProcessingRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:541` | Source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction` | `SourceProcessingRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:558` | Type for {@link SourceProcessingRecord}. |
+| `@beep/file-processing/Extraction` | `SourceProcessingStatus` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:30` | Processing status emitted for each source row. |
+| `@beep/file-processing/Extraction` | `SourceProcessingStatus` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:42` | Type for {@link SourceProcessingStatus}. |
+| `@beep/file-processing/Extraction` | `SucceededSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:387` | Succeeded source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction` | `TextArtifactReference` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:57` | Materialized text artifact reference. |
+| `@beep/file-processing/Extraction` | `TextSpan` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:80` | Text span emitted by a text extraction operation. |
+| `@beep/file-processing/Extraction/index` | `ArchiveExportProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:239` | Successful archive export result of a full source processing operation. |
+| `@beep/file-processing/Extraction/index` | `ArchiveExportResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:133` | Archive export result. |
+| `@beep/file-processing/Extraction/index` | `ChildArtifactRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:715` | Child artifact row written to children/<source-artifact-id>/artifacts.jsonl. |
+| `@beep/file-processing/Extraction/index` | `encodeChildArtifactRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:965` | JSONL encoder for {@link ChildArtifactRecord}. |
+| `@beep/file-processing/Extraction/index` | `encodeFileProcessingCoverageSummaryJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:862` | JSON encoder for {@link FileProcessingCoverageSummary}. |
+| `@beep/file-processing/Extraction/index` | `encodeFileProcessingFailureRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:931` | JSONL encoder for {@link FileProcessingFailureRecord}. |
+| `@beep/file-processing/Extraction/index` | `encodeProcessRunManifestJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:826` | JSON encoder for {@link ProcessRunManifest}. |
+| `@beep/file-processing/Extraction/index` | `encodeSourceProcessingRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:898` | JSONL encoder for {@link SourceProcessingRecord}. |
+| `@beep/file-processing/Extraction/index` | `ExtractedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:186` | Successful extraction result of a full source processing operation. |
+| `@beep/file-processing/Extraction/index` | `ExtractionResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:104` | Text and metadata extraction result. |
+| `@beep/file-processing/Extraction/index` | `FailedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:653` | Hard failure row written to failures.jsonl. |
+| `@beep/file-processing/Extraction/index` | `FailedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:491` | Failed source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction/index` | `FileProcessingCoverageSummary` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:738` | Coverage summary written to coverage.json. |
+| `@beep/file-processing/Extraction/index` | `FileProcessingFailureReason` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:577` | Machine-readable failure row reason. |
+| `@beep/file-processing/Extraction/index` | `FileProcessingFailureReason` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:589` | Type for {@link FileProcessingFailureReason}. |
+| `@beep/file-processing/Extraction/index` | `FileProcessingFailureRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:684` | Failure row written to failures.jsonl. |
+| `@beep/file-processing/Extraction/index` | `FileProcessingFailureRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:700` | Type for {@link FileProcessingFailureRecord}. |
+| `@beep/file-processing/Extraction/index` | `ProcessFileResult` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:334` | Result of a full source processing operation. |
+| `@beep/file-processing/Extraction/index` | `ProcessFileResult` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:351` | Type for {@link ProcessFileResult}. |
+| `@beep/file-processing/Extraction/index` | `ProcessRunManifest` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:767` | Top-level run manifest written to run.json. |
+| `@beep/file-processing/Extraction/index` | `SkippedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:604` | Skipped row written to failures.jsonl. |
+| `@beep/file-processing/Extraction/index` | `SkippedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:288` | Intentional skip result of a full source processing operation. |
+| `@beep/file-processing/Extraction/index` | `SkippedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:440` | Skipped source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction/index` | `SourceProcessingRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:541` | Source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction/index` | `SourceProcessingRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:558` | Type for {@link SourceProcessingRecord}. |
+| `@beep/file-processing/Extraction/index` | `SourceProcessingStatus` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:30` | Processing status emitted for each source row. |
+| `@beep/file-processing/Extraction/index` | `SourceProcessingStatus` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:42` | Type for {@link SourceProcessingStatus}. |
+| `@beep/file-processing/Extraction/index` | `SucceededSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:387` | Succeeded source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction/index` | `TextArtifactReference` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:57` | Materialized text artifact reference. |
+| `@beep/file-processing/Extraction/index` | `TextSpan` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:80` | Text span emitted by a text extraction operation. |
 | `@beep/file-processing/index` | `Artifact` | SourceFile | `packages/foundation/capability/file-processing/src/Artifact/index.ts:8` |  |
 | `@beep/file-processing/index` | `Extraction` | SourceFile | `packages/foundation/capability/file-processing/src/Extraction/index.ts:8` |  |
 | `@beep/file-processing/index` | `Operation` | SourceFile | `packages/foundation/capability/file-processing/src/Operation/index.ts:8` |  |
 | `@beep/file-processing/index` | `Service` | SourceFile | `packages/foundation/capability/file-processing/src/Service/index.ts:8` |  |
 | `@beep/file-processing/index` | `Strategy` | SourceFile | `packages/foundation/capability/file-processing/src/Strategy/index.ts:8` |  |
 | `@beep/file-processing/index` | `VERSION` | const | `packages/foundation/capability/file-processing/src/index.ts:57` | Package version. |
-| `@beep/file-processing/Operation` | `DetectFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:117` | Operation request for format detection. |
-| `@beep/file-processing/Operation` | `DetectionResult` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:142` | Result emitted by format detection. |
-| `@beep/file-processing/Operation` | `ExportArchiveOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:196` | Operation request for archive child export. |
-| `@beep/file-processing/Operation` | `ExtractFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:169` | Operation request for text and metadata extraction. |
-| `@beep/file-processing/Operation` | `FileProcessingOperationError` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:68` | Sanitized file-processing operation error. |
-| `@beep/file-processing/Operation` | `FileProcessingOperationErrorReason` | const | `packages/foundation/capability/file-processing/src/Operation/index.ts:29` | Machine-readable file-processing operation failure reasons. |
-| `@beep/file-processing/Operation` | `FileProcessingOperationErrorReason` | type | `packages/foundation/capability/file-processing/src/Operation/index.ts:50` | Type for {@link FileProcessingOperationErrorReason}. |
-| `@beep/file-processing/Operation` | `ProcessFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:223` | Operation request for a full source processing pass. |
-| `@beep/file-processing/Operation/index` | `DetectFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:117` | Operation request for format detection. |
-| `@beep/file-processing/Operation/index` | `DetectionResult` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:142` | Result emitted by format detection. |
-| `@beep/file-processing/Operation/index` | `ExportArchiveOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:196` | Operation request for archive child export. |
-| `@beep/file-processing/Operation/index` | `ExtractFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:169` | Operation request for text and metadata extraction. |
-| `@beep/file-processing/Operation/index` | `FileProcessingOperationError` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:68` | Sanitized file-processing operation error. |
-| `@beep/file-processing/Operation/index` | `FileProcessingOperationErrorReason` | const | `packages/foundation/capability/file-processing/src/Operation/index.ts:29` | Machine-readable file-processing operation failure reasons. |
-| `@beep/file-processing/Operation/index` | `FileProcessingOperationErrorReason` | type | `packages/foundation/capability/file-processing/src/Operation/index.ts:50` | Type for {@link FileProcessingOperationErrorReason}. |
-| `@beep/file-processing/Operation/index` | `ProcessFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:223` | Operation request for a full source processing pass. |
-| `@beep/file-processing/Service` | `detectFile` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:181` | Detect a source artifact with the configured service. |
-| `@beep/file-processing/Service` | `exportArchive` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:207` | Export child artifacts from an archive source with the configured service. |
-| `@beep/file-processing/Service` | `extractFile` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:194` | Extract text and metadata from a source artifact with the configured service. |
-| `@beep/file-processing/Service` | `FileProcessingEngineShape` | type | `packages/foundation/capability/file-processing/src/Service/index.ts:42` | Runtime-neutral file-processing engine shape implemented by drivers. |
-| `@beep/file-processing/Service` | `FileProcessingService` | class | `packages/foundation/capability/file-processing/src/Service/index.ts:87` | File-processing service tag. |
-| `@beep/file-processing/Service` | `FileProcessingServiceShape` | type | `packages/foundation/capability/file-processing/src/Service/index.ts:65` | Service contract exposed by the file-processing capability. |
-| `@beep/file-processing/Service` | `makeFileProcessingServiceLayer` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:134` | Build a runtime-neutral file-processing service layer from concrete drivers. |
-| `@beep/file-processing/Service/index` | `detectFile` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:181` | Detect a source artifact with the configured service. |
-| `@beep/file-processing/Service/index` | `exportArchive` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:207` | Export child artifacts from an archive source with the configured service. |
-| `@beep/file-processing/Service/index` | `extractFile` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:194` | Extract text and metadata from a source artifact with the configured service. |
-| `@beep/file-processing/Service/index` | `FileProcessingEngineShape` | type | `packages/foundation/capability/file-processing/src/Service/index.ts:42` | Runtime-neutral file-processing engine shape implemented by drivers. |
-| `@beep/file-processing/Service/index` | `FileProcessingService` | class | `packages/foundation/capability/file-processing/src/Service/index.ts:87` | File-processing service tag. |
-| `@beep/file-processing/Service/index` | `FileProcessingServiceShape` | type | `packages/foundation/capability/file-processing/src/Service/index.ts:65` | Service contract exposed by the file-processing capability. |
-| `@beep/file-processing/Service/index` | `makeFileProcessingServiceLayer` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:134` | Build a runtime-neutral file-processing service layer from concrete drivers. |
-| `@beep/file-processing/Strategy` | `FileFormatFamily` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:82` | V1 file format families recognized by the capability. |
-| `@beep/file-processing/Strategy` | `FileFormatFamily` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:109` | Type for {@link FileFormatFamily}. |
-| `@beep/file-processing/Strategy` | `FileProcessingCapability` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:124` | Processing capability advertised by an engine. |
-| `@beep/file-processing/Strategy` | `FileProcessingCapability` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:141` | Type for {@link FileProcessingCapability}. |
-| `@beep/file-processing/Strategy` | `FileProcessingDriverError` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:217` | Redacted technical failure raised inside a concrete driver boundary. |
-| `@beep/file-processing/Strategy` | `FileProcessingEngineDescriptor` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:331` | Runtime-neutral engine descriptor. |
-| `@beep/file-processing/Strategy` | `FileProcessingEngineFamily` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:55` | Concrete engine families known to P1. |
-| `@beep/file-processing/Strategy` | `FileProcessingEngineFamily` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:67` | Type for {@link FileProcessingEngineFamily}. |
-| `@beep/file-processing/Strategy` | `FileProcessingOperationKind` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:28` | Operation kinds supported by the capability contract. |
-| `@beep/file-processing/Strategy` | `FileProcessingOperationKind` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:40` | Type for {@link FileProcessingOperationKind}. |
-| `@beep/file-processing/Strategy` | `FileProcessingSkipReason` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:183` | Reason a source was skipped or deferred. |
-| `@beep/file-processing/Strategy` | `FileProcessingSkipReason` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:201` | Type for {@link FileProcessingSkipReason}. |
-| `@beep/file-processing/Strategy` | `FileProcessingSupportDisposition` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:156` | Support disposition selected for a source artifact. |
-| `@beep/file-processing/Strategy` | `FileProcessingSupportDisposition` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:168` | Type for {@link FileProcessingSupportDisposition}. |
-| `@beep/file-processing/Strategy` | `makeFileProcessingDriverErrorFactory` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:264` | Bind a concrete engine family to a typed driver error factory. |
-| `@beep/file-processing/Strategy` | `SelectedStrategy` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:305` | Strategy selected for a concrete operation. |
-| `@beep/file-processing/Strategy` | `StrategyPreference` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:283` | Preferred engine selection for an operation. |
-| `@beep/file-processing/Strategy/index` | `FileFormatFamily` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:82` | V1 file format families recognized by the capability. |
-| `@beep/file-processing/Strategy/index` | `FileFormatFamily` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:109` | Type for {@link FileFormatFamily}. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingCapability` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:124` | Processing capability advertised by an engine. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingCapability` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:141` | Type for {@link FileProcessingCapability}. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingDriverError` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:217` | Redacted technical failure raised inside a concrete driver boundary. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingEngineDescriptor` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:331` | Runtime-neutral engine descriptor. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingEngineFamily` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:55` | Concrete engine families known to P1. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingEngineFamily` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:67` | Type for {@link FileProcessingEngineFamily}. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingOperationKind` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:28` | Operation kinds supported by the capability contract. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingOperationKind` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:40` | Type for {@link FileProcessingOperationKind}. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingSkipReason` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:183` | Reason a source was skipped or deferred. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingSkipReason` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:201` | Type for {@link FileProcessingSkipReason}. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingSupportDisposition` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:156` | Support disposition selected for a source artifact. |
-| `@beep/file-processing/Strategy/index` | `FileProcessingSupportDisposition` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:168` | Type for {@link FileProcessingSupportDisposition}. |
-| `@beep/file-processing/Strategy/index` | `makeFileProcessingDriverErrorFactory` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:264` | Bind a concrete engine family to a typed driver error factory. |
-| `@beep/file-processing/Strategy/index` | `SelectedStrategy` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:305` | Strategy selected for a concrete operation. |
-| `@beep/file-processing/Strategy/index` | `StrategyPreference` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:283` | Preferred engine selection for an operation. |
-| `@beep/file-processing/test` | `TestFileProcessingEngine` | const | `packages/foundation/capability/file-processing/src/test.ts:58` | Synthetic file-processing engine for generated fixtures. |
-| `@beep/file-processing/test` | `TestFileProcessingEngineDescriptor` | const | `packages/foundation/capability/file-processing/src/test.ts:27` | Synthetic engine descriptor used by tests and proof fixtures. |
+| `@beep/file-processing/Operation` | `DetectFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:118` | Operation request for format detection. |
+| `@beep/file-processing/Operation` | `DetectionResult` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:143` | Result emitted by format detection. |
+| `@beep/file-processing/Operation` | `ExportArchiveOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:197` | Operation request for archive child export. |
+| `@beep/file-processing/Operation` | `ExtractFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:170` | Operation request for text and metadata extraction. |
+| `@beep/file-processing/Operation` | `FileProcessingOperationError` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:69` | Sanitized file-processing operation error. |
+| `@beep/file-processing/Operation` | `FileProcessingOperationErrorReason` | const | `packages/foundation/capability/file-processing/src/Operation/index.ts:30` | Machine-readable file-processing operation failure reasons. |
+| `@beep/file-processing/Operation` | `FileProcessingOperationErrorReason` | type | `packages/foundation/capability/file-processing/src/Operation/index.ts:51` | Type for {@link FileProcessingOperationErrorReason}. |
+| `@beep/file-processing/Operation` | `ProcessFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:224` | Operation request for a full source processing pass. |
+| `@beep/file-processing/Operation/index` | `DetectFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:118` | Operation request for format detection. |
+| `@beep/file-processing/Operation/index` | `DetectionResult` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:143` | Result emitted by format detection. |
+| `@beep/file-processing/Operation/index` | `ExportArchiveOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:197` | Operation request for archive child export. |
+| `@beep/file-processing/Operation/index` | `ExtractFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:170` | Operation request for text and metadata extraction. |
+| `@beep/file-processing/Operation/index` | `FileProcessingOperationError` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:69` | Sanitized file-processing operation error. |
+| `@beep/file-processing/Operation/index` | `FileProcessingOperationErrorReason` | const | `packages/foundation/capability/file-processing/src/Operation/index.ts:30` | Machine-readable file-processing operation failure reasons. |
+| `@beep/file-processing/Operation/index` | `FileProcessingOperationErrorReason` | type | `packages/foundation/capability/file-processing/src/Operation/index.ts:51` | Type for {@link FileProcessingOperationErrorReason}. |
+| `@beep/file-processing/Operation/index` | `ProcessFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:224` | Operation request for a full source processing pass. |
+| `@beep/file-processing/Service` | `detectFile` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:332` | Detect a source artifact with the configured service. |
+| `@beep/file-processing/Service` | `exportArchive` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:435` | Export child artifacts from an archive source with the configured service. |
+| `@beep/file-processing/Service` | `extractFile` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:384` | Extract text and metadata from a source artifact with the configured service. |
+| `@beep/file-processing/Service` | `FileProcessingEngineShape` | type | `packages/foundation/capability/file-processing/src/Service/index.ts:51` | Runtime-neutral file-processing engine shape implemented by drivers. |
+| `@beep/file-processing/Service` | `FileProcessingService` | class | `packages/foundation/capability/file-processing/src/Service/index.ts:96` | File-processing service tag. |
+| `@beep/file-processing/Service` | `FileProcessingServiceShape` | type | `packages/foundation/capability/file-processing/src/Service/index.ts:74` | Service contract exposed by the file-processing capability. |
+| `@beep/file-processing/Service` | `makeFileProcessingServiceLayer` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:196` | Build a runtime-neutral file-processing service layer from concrete drivers. |
+| `@beep/file-processing/Service` | `processFile` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:487` | Process a source artifact with the configured service. |
+| `@beep/file-processing/Service/index` | `detectFile` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:332` | Detect a source artifact with the configured service. |
+| `@beep/file-processing/Service/index` | `exportArchive` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:435` | Export child artifacts from an archive source with the configured service. |
+| `@beep/file-processing/Service/index` | `extractFile` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:384` | Extract text and metadata from a source artifact with the configured service. |
+| `@beep/file-processing/Service/index` | `FileProcessingEngineShape` | type | `packages/foundation/capability/file-processing/src/Service/index.ts:51` | Runtime-neutral file-processing engine shape implemented by drivers. |
+| `@beep/file-processing/Service/index` | `FileProcessingService` | class | `packages/foundation/capability/file-processing/src/Service/index.ts:96` | File-processing service tag. |
+| `@beep/file-processing/Service/index` | `FileProcessingServiceShape` | type | `packages/foundation/capability/file-processing/src/Service/index.ts:74` | Service contract exposed by the file-processing capability. |
+| `@beep/file-processing/Service/index` | `makeFileProcessingServiceLayer` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:196` | Build a runtime-neutral file-processing service layer from concrete drivers. |
+| `@beep/file-processing/Service/index` | `processFile` | const | `packages/foundation/capability/file-processing/src/Service/index.ts:487` | Process a source artifact with the configured service. |
+| `@beep/file-processing/Strategy` | `DeferredSelectedStrategy` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:281` | Strategy selected when an operation is intentionally deferred. |
+| `@beep/file-processing/Strategy` | `FileFormatFamily` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:81` | V1 file format families recognized by the capability. |
+| `@beep/file-processing/Strategy` | `FileFormatFamily` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:108` | Type for {@link FileFormatFamily}. |
+| `@beep/file-processing/Strategy` | `FileProcessingCapability` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:123` | Processing capability advertised by an engine. |
+| `@beep/file-processing/Strategy` | `FileProcessingCapability` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:140` | Type for {@link FileProcessingCapability}. |
+| `@beep/file-processing/Strategy` | `FileProcessingEngineDescriptor` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:373` | Runtime-neutral engine descriptor. |
+| `@beep/file-processing/Strategy` | `FileProcessingEngineFamily` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:54` | Concrete engine families known to P1. |
+| `@beep/file-processing/Strategy` | `FileProcessingEngineFamily` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:66` | Type for {@link FileProcessingEngineFamily}. |
+| `@beep/file-processing/Strategy` | `FileProcessingOperationKind` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:27` | Operation kinds supported by the capability contract. |
+| `@beep/file-processing/Strategy` | `FileProcessingOperationKind` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:39` | Type for {@link FileProcessingOperationKind}. |
+| `@beep/file-processing/Strategy` | `FileProcessingSkipReason` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:182` | Reason a source was skipped or deferred. |
+| `@beep/file-processing/Strategy` | `FileProcessingSkipReason` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:203` | Type for {@link FileProcessingSkipReason}. |
+| `@beep/file-processing/Strategy` | `FileProcessingSupportDisposition` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:155` | Support disposition selected for a source artifact. |
+| `@beep/file-processing/Strategy` | `FileProcessingSupportDisposition` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:167` | Type for {@link FileProcessingSupportDisposition}. |
+| `@beep/file-processing/Strategy` | `SelectedStrategy` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:341` | Strategy selected for a concrete operation. |
+| `@beep/file-processing/Strategy` | `SelectedStrategy` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:358` | Type for {@link SelectedStrategy}. |
+| `@beep/file-processing/Strategy` | `StrategyPreference` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:219` | Preferred engine selection for an operation. |
+| `@beep/file-processing/Strategy` | `SupportedSelectedStrategy` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:248` | Strategy selected when an operation is supported. |
+| `@beep/file-processing/Strategy` | `UnsupportedSelectedStrategy` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:315` | Strategy selected when an operation is unsupported. |
+| `@beep/file-processing/Strategy/index` | `DeferredSelectedStrategy` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:281` | Strategy selected when an operation is intentionally deferred. |
+| `@beep/file-processing/Strategy/index` | `FileFormatFamily` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:81` | V1 file format families recognized by the capability. |
+| `@beep/file-processing/Strategy/index` | `FileFormatFamily` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:108` | Type for {@link FileFormatFamily}. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingCapability` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:123` | Processing capability advertised by an engine. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingCapability` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:140` | Type for {@link FileProcessingCapability}. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingEngineDescriptor` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:373` | Runtime-neutral engine descriptor. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingEngineFamily` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:54` | Concrete engine families known to P1. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingEngineFamily` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:66` | Type for {@link FileProcessingEngineFamily}. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingOperationKind` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:27` | Operation kinds supported by the capability contract. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingOperationKind` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:39` | Type for {@link FileProcessingOperationKind}. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingSkipReason` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:182` | Reason a source was skipped or deferred. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingSkipReason` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:203` | Type for {@link FileProcessingSkipReason}. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingSupportDisposition` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:155` | Support disposition selected for a source artifact. |
+| `@beep/file-processing/Strategy/index` | `FileProcessingSupportDisposition` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:167` | Type for {@link FileProcessingSupportDisposition}. |
+| `@beep/file-processing/Strategy/index` | `SelectedStrategy` | const | `packages/foundation/capability/file-processing/src/Strategy/index.ts:341` | Strategy selected for a concrete operation. |
+| `@beep/file-processing/Strategy/index` | `SelectedStrategy` | type | `packages/foundation/capability/file-processing/src/Strategy/index.ts:358` | Type for {@link SelectedStrategy}. |
+| `@beep/file-processing/Strategy/index` | `StrategyPreference` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:219` | Preferred engine selection for an operation. |
+| `@beep/file-processing/Strategy/index` | `SupportedSelectedStrategy` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:248` | Strategy selected when an operation is supported. |
+| `@beep/file-processing/Strategy/index` | `UnsupportedSelectedStrategy` | class | `packages/foundation/capability/file-processing/src/Strategy/index.ts:315` | Strategy selected when an operation is unsupported. |
+| `@beep/file-processing/test` | `TestFileProcessingEngine` | const | `packages/foundation/capability/file-processing/src/test.ts:89` | Synthetic file-processing engine for generated fixtures. |
+| `@beep/file-processing/test` | `TestFileProcessingEngineDescriptor` | const | `packages/foundation/capability/file-processing/src/test.ts:36` | Synthetic engine descriptor used by tests and proof fixtures. |
 
 ### @beep/agent-capability-use-cases
 
@@ -6553,60 +6587,60 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/tika` | `makeTikaError` | const | `packages/drivers/tika/src/Tika.errors.ts:71` | Create a Tika technical error with a typed reason. |
-| `@beep/tika` | `makeTikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:142` | Create the P1 Tika file-processing engine. |
-| `@beep/tika` | `TikaError` | type | `packages/drivers/tika/src/Tika.errors.ts:63` | Technical failure raised inside the Tika driver boundary. |
-| `@beep/tika` | `TikaErrorReason` | const | `packages/drivers/tika/src/Tika.errors.ts:28` | Technical Tika failure reasons. |
-| `@beep/tika` | `TikaErrorReason` | type | `packages/drivers/tika/src/Tika.errors.ts:47` | Type for {@link TikaErrorReason}. |
-| `@beep/tika` | `TikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:230` | P1 Tika file-processing engine value. |
-| `@beep/tika` | `TikaFileProcessingEngineDescriptor` | const | `packages/drivers/tika/src/Tika.service.ts:39` | Tika file-processing engine descriptor. |
+| `@beep/tika` | `makeTikaError` | const | `packages/drivers/tika/src/Tika.errors.ts:114` | Create a Tika technical error with a typed reason. |
+| `@beep/tika` | `makeTikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:160` | Create the P1 Tika file-processing engine. |
+| `@beep/tika` | `TikaError` | class | `packages/drivers/tika/src/Tika.errors.ts:72` | Technical failure raised inside the Tika driver boundary. |
+| `@beep/tika` | `TikaErrorReason` | const | `packages/drivers/tika/src/Tika.errors.ts:29` | Technical Tika failure reasons. |
+| `@beep/tika` | `TikaErrorReason` | type | `packages/drivers/tika/src/Tika.errors.ts:56` | Type for {@link TikaErrorReason}. |
+| `@beep/tika` | `TikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:256` | P1 Tika file-processing engine value. |
+| `@beep/tika` | `TikaFileProcessingEngineDescriptor` | const | `packages/drivers/tika/src/Tika.service.ts:41` | Tika file-processing engine descriptor. |
 | `@beep/tika` | `VERSION` | const | `packages/drivers/tika/src/index.ts:36` | Package version. |
-| `@beep/tika/index` | `makeTikaError` | const | `packages/drivers/tika/src/Tika.errors.ts:71` | Create a Tika technical error with a typed reason. |
-| `@beep/tika/index` | `makeTikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:142` | Create the P1 Tika file-processing engine. |
-| `@beep/tika/index` | `TikaError` | type | `packages/drivers/tika/src/Tika.errors.ts:63` | Technical failure raised inside the Tika driver boundary. |
-| `@beep/tika/index` | `TikaErrorReason` | const | `packages/drivers/tika/src/Tika.errors.ts:28` | Technical Tika failure reasons. |
-| `@beep/tika/index` | `TikaErrorReason` | type | `packages/drivers/tika/src/Tika.errors.ts:47` | Type for {@link TikaErrorReason}. |
-| `@beep/tika/index` | `TikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:230` | P1 Tika file-processing engine value. |
-| `@beep/tika/index` | `TikaFileProcessingEngineDescriptor` | const | `packages/drivers/tika/src/Tika.service.ts:39` | Tika file-processing engine descriptor. |
+| `@beep/tika/index` | `makeTikaError` | const | `packages/drivers/tika/src/Tika.errors.ts:114` | Create a Tika technical error with a typed reason. |
+| `@beep/tika/index` | `makeTikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:160` | Create the P1 Tika file-processing engine. |
+| `@beep/tika/index` | `TikaError` | class | `packages/drivers/tika/src/Tika.errors.ts:72` | Technical failure raised inside the Tika driver boundary. |
+| `@beep/tika/index` | `TikaErrorReason` | const | `packages/drivers/tika/src/Tika.errors.ts:29` | Technical Tika failure reasons. |
+| `@beep/tika/index` | `TikaErrorReason` | type | `packages/drivers/tika/src/Tika.errors.ts:56` | Type for {@link TikaErrorReason}. |
+| `@beep/tika/index` | `TikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:256` | P1 Tika file-processing engine value. |
+| `@beep/tika/index` | `TikaFileProcessingEngineDescriptor` | const | `packages/drivers/tika/src/Tika.service.ts:41` | Tika file-processing engine descriptor. |
 | `@beep/tika/index` | `VERSION` | const | `packages/drivers/tika/src/index.ts:36` | Package version. |
-| `@beep/tika/Tika.errors` | `makeTikaError` | const | `packages/drivers/tika/src/Tika.errors.ts:71` | Create a Tika technical error with a typed reason. |
-| `@beep/tika/Tika.errors` | `TikaError` | type | `packages/drivers/tika/src/Tika.errors.ts:63` | Technical failure raised inside the Tika driver boundary. |
-| `@beep/tika/Tika.errors` | `TikaErrorReason` | const | `packages/drivers/tika/src/Tika.errors.ts:28` | Technical Tika failure reasons. |
-| `@beep/tika/Tika.errors` | `TikaErrorReason` | type | `packages/drivers/tika/src/Tika.errors.ts:47` | Type for {@link TikaErrorReason}. |
-| `@beep/tika/Tika.service` | `makeTikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:142` | Create the P1 Tika file-processing engine. |
-| `@beep/tika/Tika.service` | `TikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:230` | P1 Tika file-processing engine value. |
-| `@beep/tika/Tika.service` | `TikaFileProcessingEngineDescriptor` | const | `packages/drivers/tika/src/Tika.service.ts:39` | Tika file-processing engine descriptor. |
+| `@beep/tika/Tika.errors` | `makeTikaError` | const | `packages/drivers/tika/src/Tika.errors.ts:114` | Create a Tika technical error with a typed reason. |
+| `@beep/tika/Tika.errors` | `TikaError` | class | `packages/drivers/tika/src/Tika.errors.ts:72` | Technical failure raised inside the Tika driver boundary. |
+| `@beep/tika/Tika.errors` | `TikaErrorReason` | const | `packages/drivers/tika/src/Tika.errors.ts:29` | Technical Tika failure reasons. |
+| `@beep/tika/Tika.errors` | `TikaErrorReason` | type | `packages/drivers/tika/src/Tika.errors.ts:56` | Type for {@link TikaErrorReason}. |
+| `@beep/tika/Tika.service` | `makeTikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:160` | Create the P1 Tika file-processing engine. |
+| `@beep/tika/Tika.service` | `TikaFileProcessingEngine` | const | `packages/drivers/tika/src/Tika.service.ts:256` | P1 Tika file-processing engine value. |
+| `@beep/tika/Tika.service` | `TikaFileProcessingEngineDescriptor` | const | `packages/drivers/tika/src/Tika.service.ts:41` | Tika file-processing engine descriptor. |
 
 ### @beep/libpff
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/libpff` | `LibpffError` | type | `packages/drivers/libpff/src/Libpff.errors.ts:62` | Technical failure raised inside the libpff driver boundary. |
-| `@beep/libpff` | `LibpffErrorReason` | const | `packages/drivers/libpff/src/Libpff.errors.ts:28` | Technical libpff failure reasons. |
-| `@beep/libpff` | `LibpffErrorReason` | type | `packages/drivers/libpff/src/Libpff.errors.ts:46` | Type for {@link LibpffErrorReason}. |
-| `@beep/libpff` | `LibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:180` | P1 libpff file-processing engine value with typed unavailable deferrals. |
-| `@beep/libpff` | `LibpffFileProcessingEngineDescriptor` | const | `packages/drivers/libpff/src/Libpff.service.ts:39` | libpff file-processing engine descriptor. |
-| `@beep/libpff` | `LibpffFileProcessingEngineOptions` | class | `packages/drivers/libpff/src/Libpff.service.ts:95` | Options for the P1 libpff engine scaffold. |
-| `@beep/libpff` | `makeLibpffError` | const | `packages/drivers/libpff/src/Libpff.errors.ts:70` | Create a libpff technical error with a typed reason. |
-| `@beep/libpff` | `makeLibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:120` | Create the P1 libpff file-processing engine. |
+| `@beep/libpff` | `LibpffError` | class | `packages/drivers/libpff/src/Libpff.errors.ts:71` | Technical failure raised inside the libpff driver boundary. |
+| `@beep/libpff` | `LibpffErrorReason` | const | `packages/drivers/libpff/src/Libpff.errors.ts:29` | Technical libpff failure reasons. |
+| `@beep/libpff` | `LibpffErrorReason` | type | `packages/drivers/libpff/src/Libpff.errors.ts:55` | Type for {@link LibpffErrorReason}. |
+| `@beep/libpff` | `LibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:213` | P1 libpff file-processing engine value with typed unavailable deferrals. |
+| `@beep/libpff` | `LibpffFileProcessingEngineDescriptor` | const | `packages/drivers/libpff/src/Libpff.service.ts:40` | libpff file-processing engine descriptor. |
+| `@beep/libpff` | `LibpffFileProcessingEngineOptions` | class | `packages/drivers/libpff/src/Libpff.service.ts:120` | Options for the P1 libpff engine scaffold. |
+| `@beep/libpff` | `makeLibpffError` | const | `packages/drivers/libpff/src/Libpff.errors.ts:113` | Create a libpff technical error with a typed reason. |
+| `@beep/libpff` | `makeLibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:145` | Create the P1 libpff file-processing engine. |
 | `@beep/libpff` | `VERSION` | const | `packages/drivers/libpff/src/index.ts:36` | Package version. |
-| `@beep/libpff/index` | `LibpffError` | type | `packages/drivers/libpff/src/Libpff.errors.ts:62` | Technical failure raised inside the libpff driver boundary. |
-| `@beep/libpff/index` | `LibpffErrorReason` | const | `packages/drivers/libpff/src/Libpff.errors.ts:28` | Technical libpff failure reasons. |
-| `@beep/libpff/index` | `LibpffErrorReason` | type | `packages/drivers/libpff/src/Libpff.errors.ts:46` | Type for {@link LibpffErrorReason}. |
-| `@beep/libpff/index` | `LibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:180` | P1 libpff file-processing engine value with typed unavailable deferrals. |
-| `@beep/libpff/index` | `LibpffFileProcessingEngineDescriptor` | const | `packages/drivers/libpff/src/Libpff.service.ts:39` | libpff file-processing engine descriptor. |
-| `@beep/libpff/index` | `LibpffFileProcessingEngineOptions` | class | `packages/drivers/libpff/src/Libpff.service.ts:95` | Options for the P1 libpff engine scaffold. |
-| `@beep/libpff/index` | `makeLibpffError` | const | `packages/drivers/libpff/src/Libpff.errors.ts:70` | Create a libpff technical error with a typed reason. |
-| `@beep/libpff/index` | `makeLibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:120` | Create the P1 libpff file-processing engine. |
+| `@beep/libpff/index` | `LibpffError` | class | `packages/drivers/libpff/src/Libpff.errors.ts:71` | Technical failure raised inside the libpff driver boundary. |
+| `@beep/libpff/index` | `LibpffErrorReason` | const | `packages/drivers/libpff/src/Libpff.errors.ts:29` | Technical libpff failure reasons. |
+| `@beep/libpff/index` | `LibpffErrorReason` | type | `packages/drivers/libpff/src/Libpff.errors.ts:55` | Type for {@link LibpffErrorReason}. |
+| `@beep/libpff/index` | `LibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:213` | P1 libpff file-processing engine value with typed unavailable deferrals. |
+| `@beep/libpff/index` | `LibpffFileProcessingEngineDescriptor` | const | `packages/drivers/libpff/src/Libpff.service.ts:40` | libpff file-processing engine descriptor. |
+| `@beep/libpff/index` | `LibpffFileProcessingEngineOptions` | class | `packages/drivers/libpff/src/Libpff.service.ts:120` | Options for the P1 libpff engine scaffold. |
+| `@beep/libpff/index` | `makeLibpffError` | const | `packages/drivers/libpff/src/Libpff.errors.ts:113` | Create a libpff technical error with a typed reason. |
+| `@beep/libpff/index` | `makeLibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:145` | Create the P1 libpff file-processing engine. |
 | `@beep/libpff/index` | `VERSION` | const | `packages/drivers/libpff/src/index.ts:36` | Package version. |
-| `@beep/libpff/Libpff.errors` | `LibpffError` | type | `packages/drivers/libpff/src/Libpff.errors.ts:62` | Technical failure raised inside the libpff driver boundary. |
-| `@beep/libpff/Libpff.errors` | `LibpffErrorReason` | const | `packages/drivers/libpff/src/Libpff.errors.ts:28` | Technical libpff failure reasons. |
-| `@beep/libpff/Libpff.errors` | `LibpffErrorReason` | type | `packages/drivers/libpff/src/Libpff.errors.ts:46` | Type for {@link LibpffErrorReason}. |
-| `@beep/libpff/Libpff.errors` | `makeLibpffError` | const | `packages/drivers/libpff/src/Libpff.errors.ts:70` | Create a libpff technical error with a typed reason. |
-| `@beep/libpff/Libpff.service` | `LibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:180` | P1 libpff file-processing engine value with typed unavailable deferrals. |
-| `@beep/libpff/Libpff.service` | `LibpffFileProcessingEngineDescriptor` | const | `packages/drivers/libpff/src/Libpff.service.ts:39` | libpff file-processing engine descriptor. |
-| `@beep/libpff/Libpff.service` | `LibpffFileProcessingEngineOptions` | class | `packages/drivers/libpff/src/Libpff.service.ts:95` | Options for the P1 libpff engine scaffold. |
-| `@beep/libpff/Libpff.service` | `makeLibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:120` | Create the P1 libpff file-processing engine. |
+| `@beep/libpff/Libpff.errors` | `LibpffError` | class | `packages/drivers/libpff/src/Libpff.errors.ts:71` | Technical failure raised inside the libpff driver boundary. |
+| `@beep/libpff/Libpff.errors` | `LibpffErrorReason` | const | `packages/drivers/libpff/src/Libpff.errors.ts:29` | Technical libpff failure reasons. |
+| `@beep/libpff/Libpff.errors` | `LibpffErrorReason` | type | `packages/drivers/libpff/src/Libpff.errors.ts:55` | Type for {@link LibpffErrorReason}. |
+| `@beep/libpff/Libpff.errors` | `makeLibpffError` | const | `packages/drivers/libpff/src/Libpff.errors.ts:113` | Create a libpff technical error with a typed reason. |
+| `@beep/libpff/Libpff.service` | `LibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:213` | P1 libpff file-processing engine value with typed unavailable deferrals. |
+| `@beep/libpff/Libpff.service` | `LibpffFileProcessingEngineDescriptor` | const | `packages/drivers/libpff/src/Libpff.service.ts:40` | libpff file-processing engine descriptor. |
+| `@beep/libpff/Libpff.service` | `LibpffFileProcessingEngineOptions` | class | `packages/drivers/libpff/src/Libpff.service.ts:120` | Options for the P1 libpff engine scaffold. |
+| `@beep/libpff/Libpff.service` | `makeLibpffFileProcessingEngine` | const | `packages/drivers/libpff/src/Libpff.service.ts:145` | Create the P1 libpff file-processing engine. |
 
 ### @beep/venice-ai
 
