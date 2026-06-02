@@ -83,6 +83,11 @@ type ArchiveRecord = {
   readonly versionId: string;
 };
 
+type MigrationManifest = {
+  readonly source?: string | undefined;
+  readonly target?: string | undefined;
+};
+
 const defaults = {
   account: "832907639880",
   archiveRoot: ".pulumi-migration-archive",
@@ -152,6 +157,12 @@ const parseArgs = (argv: ReadonlyArray<string>): CliOptions => {
   return { account, deleteSource, dryRun, region, source, target, yes };
 };
 
+const validateOptions = (options: CliOptions): void => {
+  if (options.source === options.target) {
+    fail(`Source and target buckets must be different: ${options.source}.`);
+  }
+};
+
 const fail = (message: string): never => {
   process.stderr.write(`${message}\n\n${usage}`);
   process.exit(1);
@@ -184,7 +195,15 @@ const aws = async (args: ReadonlyArray<string>, options: AwsRunOptions = {}): Pr
   return result;
 };
 
-const parseJson = <T>(raw: string): T => JSON.parse(raw) as T;
+const parseJson = <T>(raw: string, context: string): T => {
+  try {
+    return JSON.parse(raw) as T;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const snippet = raw.trim().slice(0, 500);
+    throw new Error(`Failed to parse JSON for ${context}: ${message}\nRaw output: ${snippet}`);
+  }
+};
 
 const requireYesForMutation = (options: CliOptions): void => {
   if (!options.yes) {
@@ -194,7 +213,7 @@ const requireYesForMutation = (options: CliOptions): void => {
 
 const assertExpectedIdentity = async (expectedAccount: string): Promise<Identity> => {
   const result = await aws(["sts", "get-caller-identity", "--output", "json"]);
-  const identity = parseJson<Identity>(result.stdout);
+  const identity = parseJson<Identity>(result.stdout, "sts get-caller-identity");
 
   if (identity.Account !== expectedAccount) {
     fail(`Refusing to run in AWS account ${identity.Account}; expected ${expectedAccount}.`);
@@ -211,13 +230,13 @@ const bucketExists = async (bucket: string): Promise<boolean> => {
 
 const listCurrentObjects = async (bucket: string, prefix: string): Promise<ReadonlyArray<CurrentObject>> => {
   const result = await aws(["s3api", "list-objects-v2", "--bucket", bucket, "--prefix", prefix, "--output", "json"]);
-  const response = parseJson<CurrentObjectsResponse>(result.stdout);
+  const response = parseJson<CurrentObjectsResponse>(result.stdout, `s3api list-objects-v2 ${bucket}/${prefix}`);
   return response.Contents ?? [];
 };
 
 const listObjectVersions = async (bucket: string): Promise<ObjectVersionsResponse> => {
   const result = await aws(["s3api", "list-object-versions", "--bucket", bucket, "--output", "json"]);
-  return parseJson<ObjectVersionsResponse>(result.stdout);
+  return parseJson<ObjectVersionsResponse>(result.stdout, `s3api list-object-versions ${bucket}`);
 };
 
 const assertNoCurrentLocks = async (bucket: string): Promise<void> => {
@@ -460,27 +479,38 @@ const verifyCurrentStateCopy = async (source: string, target: string): Promise<v
   const sourceObjects = await listCurrentObjects(source, defaults.currentStatePrefix);
   const targetObjects = await listCurrentObjects(target, defaults.currentStatePrefix);
   const targetByKey = new Map(targetObjects.map((object) => [object.Key, object]));
-  const missing = sourceObjects.filter((object) => targetByKey.get(object.Key)?.Size !== object.Size);
+  const unverified = sourceObjects.filter((object) => {
+    const targetObject = targetByKey.get(object.Key);
+    return targetObject === undefined || targetObject.Size !== object.Size || targetObject.ETag !== object.ETag;
+  });
 
-  if (missing.length > 0) {
-    fail(`Target state copy is missing ${missing.length} current object(s).`);
+  if (unverified.length > 0) {
+    fail(`Target state copy failed size/ETag verification for ${unverified.length} current object(s).`);
   }
 
   await assertRequiredStateObjects(target);
-  log(`Verified ${sourceObjects.length} current Pulumi state object(s) in ${target}.`);
+  log(`Verified ${sourceObjects.length} current Pulumi state object(s) in ${target} by size and ETag.`);
 };
 
-const assertMigrationMarker = async (target: string): Promise<void> => {
-  const result = await aws(["s3api", "head-object", "--bucket", target, "--key", defaults.latestManifestKey], {
+const assertMigrationMarker = async (source: string, target: string): Promise<void> => {
+  const result = await aws(["s3", "cp", `s3://${target}/${defaults.latestManifestKey}`, "-"], {
     allowFailure: true,
   });
   if (result.exitCode !== 0) {
     fail(`Refusing to delete source before migration marker exists in ${target}.`);
   }
+  const manifest = parseJson<MigrationManifest>(result.stdout, `s3://${target}/${defaults.latestManifestKey}`);
+  if (manifest.source !== source || manifest.target !== target) {
+    fail(
+      `Refusing to delete ${source}; migration marker records source=${manifest.source ?? "<missing>"} target=${
+        manifest.target ?? "<missing>"
+      }.`
+    );
+  }
 };
 
 const deleteSourceBucket = async (source: string, target: string, tmp: string): Promise<void> => {
-  await assertMigrationMarker(target);
+  await assertMigrationMarker(source, target);
   await assertRequiredStateObjects(target);
 
   const versionsResponse = await listObjectVersions(source);
@@ -545,6 +575,7 @@ const migrate = async (options: CliOptions, tmp: string): Promise<void> => {
 
 const main = async (): Promise<void> => {
   const options = parseArgs(process.argv.slice(2));
+  validateOptions(options);
   const tmp = await mkdtemp(join(tmpdir(), "oip-state-bucket-migration-"));
   await mkdir(tmp, { recursive: true });
   try {

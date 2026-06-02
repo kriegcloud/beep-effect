@@ -50,5 +50,10 @@ The managed S3 asset buckets were also replaced through Pulumi:
 - `assets.opip.law` -> `assets.oip.law`
 - `staging-assets.opip.law` -> `staging-assets.oip.law`
 
+The legacy `apps/opip-web` path is no longer a package, workspace, or Vercel
+deployment root; the active app is `apps/oip-web`. Only stale generated PWA
+artifacts remained under `apps/opip-web/public`, so removing those files does
+not remove the current OIP service worker or OPIP redirect behavior.
+
 OIP DNS cutover and OPIP legacy redirects remain modeled but unapplied until the
 provider cutover gate is approved.
