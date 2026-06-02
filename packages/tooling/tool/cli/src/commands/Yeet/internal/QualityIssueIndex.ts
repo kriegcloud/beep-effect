@@ -14,7 +14,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { commandTextForStep, turboTaskForStep } from "../../../internal/repo-run/index.js";
+import { commandTextForStep, TurboWorkspacePackage, turboTaskForStep } from "../../../internal/repo-run/index.js";
 import type {
   RepoPlanStep,
   RepoRunContext,
@@ -390,11 +390,32 @@ const packageNameFromFilterArg = (arg: string): O.Option<string> =>
 const filteredPackageNamesForStep = (step: RepoPlanStep): ReadonlyArray<string> =>
   pipe(step.args, A.map(packageNameFromFilterArg), A.getSomes, A.dedupe, A.sort(Order.String));
 
+const turboWorkspacePackageFromTask = (task: TurboPlanTask): O.Option<TurboWorkspacePackage> =>
+  pipe(
+    O.all({
+      name: optionalStringFromStep(task.packageName),
+      path: optionalStringFromStep(task.packagePath),
+    }),
+    O.filter(({ name }) => !Str.Equivalence(name, "//")),
+    O.map(({ name, path }) => TurboWorkspacePackage.make({ name, path }))
+  );
+
+const workspacePackagesForContext = (context: RepoRunContext): ReadonlyArray<TurboWorkspacePackage> => {
+  const packageCatalog = context.turbo.packages ?? A.empty<TurboWorkspacePackage>();
+  const taskPackages = pipe(context.turbo.tasks, A.map(turboWorkspacePackageFromTask), A.getSomes);
+
+  return pipe(
+    [...packageCatalog, ...taskPackages],
+    A.dedupeWith((left, right) => Str.Equivalence(left.name, right.name) && Str.Equivalence(left.path, right.path)),
+    A.sort(Order.mapInput(Order.String, (pkg: TurboWorkspacePackage) => pkg.name))
+  );
+};
+
 const packagePathForPackageName = (context: RepoRunContext, packageName: string): O.Option<string> =>
   pipe(
-    context.turbo.tasks,
-    A.findFirst((task) => Str.Equivalence(task.packageName ?? "", packageName)),
-    O.flatMap((task) => optionalStringFromStep(task.packagePath))
+    workspacePackagesForContext(context),
+    A.findFirst((pkg) => Str.Equivalence(pkg.name, packageName)),
+    O.map((pkg) => pkg.path)
   );
 
 const turboTaskForPackageName = (
@@ -421,23 +442,30 @@ const turboTaskForPackageName = (
 
 const packageNameForFile = (context: RepoRunContext, file: string): O.Option<string> =>
   pipe(
-    context.turbo.tasks,
-    A.filter((task) =>
+    workspacePackagesForContext(context),
+    A.filter((pkg) => Str.Equivalence(file, pkg.path) || Str.startsWith(`${pkg.path}/`)(file)),
+    A.sort(Order.mapInput(Order.Number, (pkg: TurboWorkspacePackage) => -Str.length(pkg.path))),
+    A.head,
+    O.map((pkg) => pkg.name)
+  );
+
+const issueIdPathIdentity = (packageName: O.Option<string>, file: O.Option<string>): O.Option<string> =>
+  pipe(
+    file,
+    O.orElse(() =>
       pipe(
-        optionalStringFromStep(task.packagePath),
-        O.exists((packagePath) => Str.Equivalence(file, packagePath) || Str.startsWith(`${packagePath}/`)(file))
+        packageName,
+        O.map((name) => `package:${name}`)
       )
     ),
-    A.sort(Order.mapInput(Order.Number, (task: TurboPlanTask) => -Str.length(task.packagePath ?? ""))),
-    A.head,
-    O.flatMap((task) => optionalStringFromStep(task.packageName)),
-    O.filter((packageName) => !Str.Equivalence(packageName, "//"))
+    O.filter(Str.isNonEmpty)
   );
 
 const issueId = (
   step: RepoPlanStep,
   category: QualityIssueCategory,
   message: string,
+  packageName: O.Option<string>,
   file: O.Option<string>,
   line: O.Option<number>
 ): string =>
@@ -445,7 +473,10 @@ const issueId = (
     [
       step.id,
       category,
-      O.getOrElse(file, () => "repo"),
+      pipe(
+        issueIdPathIdentity(packageName, file),
+        O.getOrElse(() => "repo")
+      ),
       pipe(
         line,
         O.map((value) => `${value}`),
@@ -549,7 +580,7 @@ const diagnosticIssueFromLine = (
   return O.some(
     QualityIssue.make({
       ...issueBase(context, step, result, category, message, inferredPackageName),
-      id: issueId(step, category, message, file, startLine),
+      id: issueId(step, category, message, inferredPackageName, file, startLine),
       severity: severityForLine(match.groups.severity ?? "error"),
       confidence: "structured",
       evidence: [line],
@@ -570,7 +601,7 @@ const fallbackIssueFromResult = (
   const message = `${step.label} failed with exit code ${result.exitCode}.`;
   return QualityIssue.make({
     ...issueBase(context, step, result, category, message, inferredPackageName),
-    id: issueId(step, category, message, O.none(), O.none()),
+    id: issueId(step, category, message, inferredPackageName, O.none(), O.none()),
     severity: "error",
     confidence: "raw",
   });

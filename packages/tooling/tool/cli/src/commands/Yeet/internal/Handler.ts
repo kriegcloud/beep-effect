@@ -21,6 +21,7 @@ import {
   runRepoCommandCapture,
   TurboPlanSnapshot,
   TurboPlanTask,
+  TurboWorkspacePackage,
 } from "../../../internal/repo-run/index.js";
 import { YeetCommandError } from "../Yeet.errors.js";
 import { renderPackageQualityPacketMarkdown } from "./PacketRenderer.js";
@@ -341,6 +342,16 @@ const packagePathsByName = (document: TurboQueryLsDocument): Record<string, stri
     R.fromEntries
   );
 
+const turboWorkspacePackageFromQueryPackage = (pkg: TurboQueryPackage): TurboWorkspacePackage =>
+  TurboWorkspacePackage.make({
+    name: pkg.name,
+    path: pkg.path,
+  });
+
+const turboWorkspacePackagesFromQueryDocument = (
+  document: TurboQueryLsDocument
+): ReadonlyArray<TurboWorkspacePackage> => pipe(document.packages.items, A.map(turboWorkspacePackageFromQueryPackage));
+
 const turboPlanTaskFromAffectedTask =
   (pathsByName: Record<string, string>) =>
   (task: TurboQueryAffectedTask): TurboPlanTask => {
@@ -397,11 +408,19 @@ const collectTurboPlanSnapshot = Effect.fn("Yeet.collectTurboPlanSnapshot")(func
     "turbo query affected"
   );
   const packageJson = yield* runTurboQueryJson(repoRoot, ["query", "ls", "--output", "json"], "turbo query ls");
-  const tasks = yield* decodeTurboPlanTasksFromQueryJson(affectedJson, packageJson);
+  const affectedDocument = yield* decodeTurboQueryAffectedDocument(affectedJson).pipe(
+    Effect.mapError(YeetCommandError.new("Failed to decode Turbo affected query JSON."))
+  );
+  const packageDocument = yield* decodeTurboQueryLsDocument(packageJson).pipe(
+    Effect.mapError(YeetCommandError.new("Failed to decode Turbo package query JSON."))
+  );
+  const tasks = turboPlanTasksFromQueryDocuments(affectedDocument, packageDocument);
+  const packages = turboWorkspacePackagesFromQueryDocument(packageDocument);
 
   return TurboPlanSnapshot.make({
     ...emptyTurboPlanSnapshot([]),
     ...(O.isSome(turboVersion) ? { turboVersion: turboVersion.value } : {}),
+    packages,
     tasks,
   });
 });

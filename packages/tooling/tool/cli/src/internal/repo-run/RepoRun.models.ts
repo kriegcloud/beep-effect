@@ -176,6 +176,29 @@ export class TurboPlanTask extends S.Class<TurboPlanTask>($I`TurboPlanTask`)(
 ) {}
 
 /**
+ * Workspace package metadata captured from Turbo graph queries.
+ *
+ * @example
+ * ```ts
+ * import { TurboWorkspacePackage } from "@beep/repo-cli/internal/repo-run"
+ *
+ * const pkg = TurboWorkspacePackage.make({ name: "@beep/repo-cli", path: "packages/tooling/tool/cli" })
+ * console.log(pkg.name)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class TurboWorkspacePackage extends S.Class<TurboWorkspacePackage>($I`TurboWorkspacePackage`)(
+  {
+    name: S.String,
+    path: S.String,
+  },
+  $I.annote("TurboWorkspacePackage", {
+    description: "One workspace package known to Turbo.",
+  })
+) {}
+
+/**
  * Turbo snapshot stored in the shared run context.
  *
  * @example
@@ -194,6 +217,7 @@ export class TurboPlanSnapshot extends S.Class<TurboPlanSnapshot>($I`TurboPlanSn
     graphHealthWarnings: S.Array(S.String),
     turboVersion: S.optionalKey(S.String),
     tasks: S.Array(TurboPlanTask),
+    packages: TurboWorkspacePackage.pipe(S.Array, S.optionalKey),
   },
   $I.annote("TurboPlanSnapshot", {
     description: "Turbo planning and graph-health metadata for a repo run.",

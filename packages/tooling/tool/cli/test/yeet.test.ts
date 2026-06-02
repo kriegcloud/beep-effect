@@ -11,6 +11,7 @@ import {
   renderPackageQualityPacketMarkdown,
   TurboPlanSnapshot,
   TurboPlanTask,
+  TurboWorkspacePackage,
 } from "@beep/repo-cli/test/Yeet";
 import { Effect } from "effect";
 import * as A from "effect/Array";
@@ -31,15 +32,41 @@ const turboTask = (
     task,
   });
 
-const turboSnapshot = (tasks: ReadonlyArray<TurboPlanTask>): TurboPlanSnapshot =>
+const turboPackage = (name: string, path: string): TurboWorkspacePackage =>
+  TurboWorkspacePackage.make({
+    name,
+    path,
+  });
+
+const turboPackageFromTask = (task: TurboPlanTask): O.Option<TurboWorkspacePackage> =>
+  task.packageName !== undefined && task.packagePath !== undefined
+    ? O.some(turboPackage(task.packageName, task.packagePath))
+    : O.none();
+
+const turboPackagesFromTasks = (tasks: ReadonlyArray<TurboPlanTask>): ReadonlyArray<TurboWorkspacePackage> =>
+  pipe(
+    tasks,
+    A.map(turboPackageFromTask),
+    A.getSomes,
+    A.dedupeWith((left, right) => left.name === right.name && left.path === right.path)
+  );
+
+const turboSnapshot = (
+  tasks: ReadonlyArray<TurboPlanTask>,
+  packages: ReadonlyArray<TurboWorkspacePackage> = turboPackagesFromTasks(tasks)
+): TurboPlanSnapshot =>
   TurboPlanSnapshot.make({
     graphHealthStatus: "ok",
     graphHealthWarnings: [],
     turboVersion: "2.9.16",
+    packages,
     tasks,
   });
 
-const contextWithTasks = (tasks: ReadonlyArray<TurboPlanTask>): RepoRunContext =>
+const contextWithTasks = (
+  tasks: ReadonlyArray<TurboPlanTask>,
+  packages: ReadonlyArray<TurboWorkspacePackage> = turboPackagesFromTasks(tasks)
+): RepoRunContext =>
   RepoRunContext.make({
     repoRoot: "/repo",
     cwd: "/repo",
@@ -48,7 +75,7 @@ const contextWithTasks = (tasks: ReadonlyArray<TurboPlanTask>): RepoRunContext =
     branch: "repo-cli-yeet",
     packetDir: ".beep/yeet",
     originalArgv: [],
-    turbo: turboSnapshot(tasks),
+    turbo: turboSnapshot(tasks, packages),
   });
 
 const context = contextWithTasks([turboTask("build"), turboTask("check"), turboTask("lint"), turboTask("test")]);
@@ -417,5 +444,60 @@ describe("yeet quality issue index", () => {
         issueCount: 1,
       }),
     ]);
+    expect(
+      new Set(
+        pipe(
+          index.issues,
+          A.map((issue) => issue.id)
+        )
+      ).size
+    ).toBe(2);
+    expect(
+      pipe(
+        index.issues,
+        A.map((issue) => issue.id)
+      )
+    ).toEqual([
+      "feedback:test-test::test::package:@beep/repo-cli::0::feedback:test failed with exit code 1.",
+      "feedback:test-test::test::package:@beep/schema::0::feedback:test failed with exit code 1.",
+    ]);
+  });
+
+  it("uses the workspace package catalog for full-proof diagnostic package attribution", () => {
+    const fullContext = contextWithTasks(
+      [turboTask("check")],
+      [
+        turboPackage("@beep/repo-cli", "packages/tooling/tool/cli"),
+        turboPackage("@beep/schema", "packages/foundation/modeling/schema"),
+      ]
+    );
+    const step = RepoPlanStep.make({
+      id: "full:quality",
+      label: "full:quality",
+      phase: "full",
+      command: "bun",
+      args: ["run", "beep", "quality", "github-checks", "quality"],
+      cwd: "/repo",
+      scope: "repo",
+      mutability: "readonly",
+      resume: "never",
+    });
+    const issues = qualityIssuesFromStepResult(
+      fullContext,
+      step,
+      RepoStepRunResult.make({
+        stepId: step.id,
+        commandText: "bun run beep quality github-checks quality",
+        exitCode: 1,
+        output: "packages/foundation/modeling/schema/src/example.ts:3:1 - error TS2322: nope",
+      })
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      file: "packages/foundation/modeling/schema/src/example.ts",
+      packageName: "@beep/schema",
+      packagePath: "packages/foundation/modeling/schema",
+    });
   });
 });
