@@ -321,3 +321,44 @@ Recommended next steps:
    - quality output parsing categories for `QualityIssueIndex`.
 4. Keep the parent session as the coordinator/synthesis thread to preserve
    context.
+
+## Implementation Note: Task-Aware Feedback Filters
+
+Captured 2026-06-02 after implementing the scoped feedback lane.
+
+What landed:
+
+- `yeet` now hydrates `RepoRunContext.turbo.tasks` from:
+  - `turbo query affected --tasks build check lint test --base <base> --head <head>`
+  - `turbo query ls --output json`
+- The feedback phase derives exact `--filter=<package>` selectors per task from
+  that Turbo query snapshot.
+- Feedback steps no longer pass `--affected`; this keeps package-scoped
+  feedback fast and suppresses the slow repo-wide lint policy/sidecar tail
+  because the existing quality adapter already treats `--filter` as explicit
+  Turbo scope.
+- Feedback tasks with an empty affected package set are omitted. If every
+  feedback task is empty, feedback is a no-op and does not fall back to an
+  all-package run.
+- The write-mode `prepare:lint:fix` step still uses Turbo affected semantics,
+  but base/head are supplied through `TURBO_SCM_BASE` and `TURBO_SCM_HEAD`.
+
+Important Turbo correction:
+
+- `turbo run ... --affected-base=<base> --affected-head=<head>` was not a valid
+  run-shape for the installed Turbo `2.9.16` CLI. For `turbo run --affected`,
+  Yeet uses `TURBO_SCM_BASE` and `TURBO_SCM_HEAD`; for structured planning, it
+  uses `turbo query affected --base <base> --head <head>`.
+
+Safety fallback:
+
+- The scoped feedback phase is only fast backpressure. The final
+  `full:quality` phase remains an unscoped canonical proof immediately before
+  staging, commit, and push. This is the named fallback that allows scoped
+  feedback without weakening release readiness.
+
+Deferred:
+
+- The edited-package-first two-tier feedback pass remains deferred. The landed
+  v1 uses Turbo's affected task set directly and does not rely on dependency
+  direction filter microsyntax.

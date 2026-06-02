@@ -16,7 +16,7 @@ import {
   RepoRunPlan,
   TurboPlanSnapshot,
 } from "../../../internal/repo-run/index.js";
-import type { RepoRunContext } from "../../../internal/repo-run/index.js";
+import type { RepoRunContext, TurboPlanTask } from "../../../internal/repo-run/index.js";
 
 /**
  * Default ignored directory for yeet run artifacts.
@@ -26,14 +26,17 @@ import type { RepoRunContext } from "../../../internal/repo-run/index.js";
  */
 export const DEFAULT_YEET_PACKET_DIR = ".beep/yeet" as const;
 
-const affectedArgs = (context: RepoRunContext): ReadonlyArray<string> => [
-  "--affected",
-  `--affected-base=${context.base}`,
-  `--affected-head=${context.head}`,
-  "--continue=dependencies-successful",
-  "--summarize",
-  "--ui=stream",
-];
+/**
+ * Turbo tasks used by the Yeet feedback phase.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const YEET_FEEDBACK_TASKS = ["build", "check", "lint", "test"] as const;
+
+const sharedFeedbackTurboArgs = ["--continue=dependencies-successful", "--summarize", "--ui=stream"] as const;
+
+const affectedArgs = (): ReadonlyArray<string> => ["--affected", ...sharedFeedbackTurboArgs];
 
 const bunRunStep = (
   context: RepoRunContext,
@@ -44,7 +47,8 @@ const bunRunStep = (
   args: ReadonlyArray<string>,
   mutability: RepoPlanStep["mutability"],
   scope: RepoPlanStep["scope"],
-  task: O.Option<string> = O.none()
+  task: O.Option<string> = O.none(),
+  env: O.Option<Record<string, string | undefined>> = O.none()
 ): RepoPlanStep =>
   enforceConservativeResume(
     RepoPlanStep.make({
@@ -58,6 +62,7 @@ const bunRunStep = (
       mutability,
       resume: "never",
       ...(O.isSome(task) ? { task: task.value } : {}),
+      ...(O.isSome(env) ? { env: env.value } : {}),
     })
   );
 
@@ -95,6 +100,56 @@ export const emptyTurboPlanSnapshot = (warnings: ReadonlyArray<string>): TurboPl
     tasks: [],
   });
 
+const affectedEnv = (context: RepoRunContext): Record<string, string | undefined> => ({
+  TURBO_SCM_BASE: context.base,
+  TURBO_SCM_HEAD: context.head,
+});
+
+const packageNameForFeedbackTask =
+  (feedbackTask: string) =>
+  (task: TurboPlanTask): O.Option<string> =>
+    pipe(
+      O.fromUndefinedOr(task.packageName),
+      O.filter((packageName) => task.task === feedbackTask && packageName !== "//")
+    );
+
+const feedbackFilterArgs = (context: RepoRunContext, feedbackTask: string): ReadonlyArray<string> =>
+  pipe(
+    context.turbo.tasks,
+    A.map(packageNameForFeedbackTask(feedbackTask)),
+    A.getSomes,
+    A.dedupe,
+    A.sort(Order.String),
+    A.map((packageName) => `--filter=${packageName}`)
+  );
+
+const feedbackStep = (
+  context: RepoRunContext,
+  id: string,
+  label: string,
+  script: string,
+  task: string
+): O.Option<RepoPlanStep> => {
+  const filters = feedbackFilterArgs(context, task);
+  if (A.isReadonlyArrayEmpty(filters)) {
+    return O.none();
+  }
+
+  return O.some(
+    bunRunStep(
+      context,
+      id,
+      label,
+      "feedback",
+      script,
+      ["--", ...filters, ...sharedFeedbackTurboArgs],
+      "readonly",
+      "package",
+      O.some(task)
+    )
+  );
+};
+
 /**
  * Build the v1 yeet run plan.
  *
@@ -122,9 +177,11 @@ export const buildYeetRunPlan: {
       "prepare:lint:fix",
       "prepare",
       "lint:fix",
-      ["--", ...affectedArgs(context)],
+      ["--", ...affectedArgs()],
       "write",
-      "repo"
+      "repo",
+      O.none(),
+      O.some(affectedEnv(context))
     ),
     bunRunStep(
       context,
@@ -136,50 +193,12 @@ export const buildYeetRunPlan: {
       "write",
       "repo"
     ),
-    bunRunStep(
-      context,
-      "feedback:01-build",
-      "feedback:build",
-      "feedback",
-      "build",
-      ["--", ...affectedArgs(context)],
-      "readonly",
-      "package",
-      O.some("build")
-    ),
-    bunRunStep(
-      context,
-      "feedback:02-check",
-      "feedback:check",
-      "feedback",
-      "check",
-      ["--", ...affectedArgs(context)],
-      "readonly",
-      "package",
-      O.some("check")
-    ),
-    bunRunStep(
-      context,
-      "feedback:03-lint",
-      "feedback:lint",
-      "feedback",
-      "lint",
-      ["--", ...affectedArgs(context)],
-      "readonly",
-      "package",
-      O.some("lint")
-    ),
-    bunRunStep(
-      context,
-      "feedback:04-test",
-      "feedback:test",
-      "feedback",
-      "test",
-      ["--", ...affectedArgs(context)],
-      "readonly",
-      "package",
-      O.some("test")
-    ),
+    ...A.getSomes([
+      feedbackStep(context, "feedback:01-build", "feedback:build", "build", "build"),
+      feedbackStep(context, "feedback:02-check", "feedback:check", "check", "check"),
+      feedbackStep(context, "feedback:03-lint", "feedback:lint", "lint", "lint"),
+      feedbackStep(context, "feedback:04-test", "feedback:test", "test", "test"),
+    ]),
     bunRunStep(
       context,
       "full:01-quality",

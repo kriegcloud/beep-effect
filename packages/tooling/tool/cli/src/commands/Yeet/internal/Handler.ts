@@ -10,6 +10,7 @@ import { findRepoRoot } from "@beep/repo-utils";
 import { Console, Effect, FileSystem, Path, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { printCommandJson } from "../../../internal/cli/Json.js";
@@ -18,10 +19,12 @@ import {
   RepoRunContext,
   resolveLocalRepoBinary,
   runRepoCommandCapture,
+  TurboPlanSnapshot,
+  TurboPlanTask,
 } from "../../../internal/repo-run/index.js";
 import { YeetCommandError } from "../Yeet.errors.js";
 import { renderPackageQualityPacketMarkdown } from "./PacketRenderer.js";
-import { buildYeetRunPlan, DEFAULT_YEET_PACKET_DIR, emptyTurboPlanSnapshot } from "./Planner.js";
+import { buildYeetRunPlan, DEFAULT_YEET_PACKET_DIR, emptyTurboPlanSnapshot, YEET_FEEDBACK_TASKS } from "./Planner.js";
 import { buildQualityIssueIndex, qualityIssuesFromStepResult } from "./QualityIssueIndex.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { RepoPlanStep, RepoRunPlan, RepoStepRunResult } from "../../../internal/repo-run/index.js";
@@ -29,6 +32,99 @@ import type { PackageQualityReport, QualityIssue, QualityIssueIndex } from "./Qu
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Handler");
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
+
+class TurboQueryAffectedReason extends S.Class<TurboQueryAffectedReason>($I`TurboQueryAffectedReason`)(
+  {
+    __typename: S.String,
+  },
+  $I.annote("TurboQueryAffectedReason", {
+    description: "Turbo affected query reason metadata.",
+  })
+) {}
+
+class TurboQueryAffectedPackageRef extends S.Class<TurboQueryAffectedPackageRef>($I`TurboQueryAffectedPackageRef`)(
+  {
+    name: S.String,
+  },
+  $I.annote("TurboQueryAffectedPackageRef", {
+    description: "Package reference nested in a Turbo affected task result.",
+  })
+) {}
+
+class TurboQueryAffectedTask extends S.Class<TurboQueryAffectedTask>($I`TurboQueryAffectedTask`)(
+  {
+    fullName: S.String,
+    name: S.String,
+    package: TurboQueryAffectedPackageRef,
+    reason: S.optionalKey(TurboQueryAffectedReason),
+  },
+  $I.annote("TurboQueryAffectedTask", {
+    description: "One task returned by Turbo query affected.",
+  })
+) {}
+
+class TurboQueryAffectedTaskConnection extends S.Class<TurboQueryAffectedTaskConnection>(
+  $I`TurboQueryAffectedTaskConnection`
+)(
+  {
+    items: S.Array(TurboQueryAffectedTask),
+    length: S.Number,
+  },
+  $I.annote("TurboQueryAffectedTaskConnection", {
+    description: "Turbo affected task connection payload.",
+  })
+) {}
+
+class TurboQueryAffectedData extends S.Class<TurboQueryAffectedData>($I`TurboQueryAffectedData`)(
+  {
+    affectedTasks: TurboQueryAffectedTaskConnection,
+  },
+  $I.annote("TurboQueryAffectedData", {
+    description: "Data payload returned by Turbo query affected.",
+  })
+) {}
+
+class TurboQueryAffectedDocument extends S.Class<TurboQueryAffectedDocument>($I`TurboQueryAffectedDocument`)(
+  {
+    data: TurboQueryAffectedData,
+  },
+  $I.annote("TurboQueryAffectedDocument", {
+    description: "Turbo query affected JSON document.",
+  })
+) {}
+
+class TurboQueryPackage extends S.Class<TurboQueryPackage>($I`TurboQueryPackage`)(
+  {
+    name: S.String,
+    path: S.String,
+  },
+  $I.annote("TurboQueryPackage", {
+    description: "One workspace package returned by Turbo query ls.",
+  })
+) {}
+
+class TurboQueryPackageConnection extends S.Class<TurboQueryPackageConnection>($I`TurboQueryPackageConnection`)(
+  {
+    count: S.Number,
+    items: S.Array(TurboQueryPackage),
+  },
+  $I.annote("TurboQueryPackageConnection", {
+    description: "Turbo package list connection payload.",
+  })
+) {}
+
+class TurboQueryLsDocument extends S.Class<TurboQueryLsDocument>($I`TurboQueryLsDocument`)(
+  {
+    packageManager: S.optionalKey(S.String),
+    packages: TurboQueryPackageConnection,
+  },
+  $I.annote("TurboQueryLsDocument", {
+    description: "Turbo query ls JSON document.",
+  })
+) {}
+
+const decodeTurboQueryAffectedDocument = S.decodeUnknownEffect(S.fromJsonString(TurboQueryAffectedDocument));
+const decodeTurboQueryLsDocument = S.decodeUnknownEffect(S.fromJsonString(TurboQueryLsDocument));
 
 /**
  * Runtime options accepted by the yeet handler.
@@ -117,6 +213,60 @@ const runGitOutput = Effect.fn("Yeet.runGitOutput")(function* (
   return Str.trim(result.output);
 });
 
+const jsonObjectTextFromMixedOutput = (output: string): O.Option<string> =>
+  pipe(
+    O.all({
+      end: Str.lastIndexOf("}")(output),
+      start: Str.indexOf("{")(output),
+    }),
+    O.filter(({ end, start }) => start <= end),
+    O.map(({ end, start }) => Str.slice(start, end + 1)(output))
+  );
+
+const runTurboQueryJson = Effect.fn("Yeet.runTurboQueryJson")(function* (
+  repoRoot: string,
+  args: ReadonlyArray<string>,
+  label: string
+): Effect.fn.Return<
+  string,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const turbo = yield* resolveLocalRepoBinary(repoRoot, "turbo");
+  const result = yield* runRepoCommandCapture(turbo, args, repoRoot).pipe(
+    Effect.mapError(YeetCommandError.new(`Failed to run ${label}.`))
+  );
+  if (result.exitCode !== 0) {
+    return yield* YeetCommandError.make({
+      message: `${label} failed with exit code ${result.exitCode}.`,
+      command: `${turbo} ${A.join(args, " ")}`,
+      exitCode: result.exitCode,
+    });
+  }
+  if (result.truncated) {
+    return yield* YeetCommandError.make({
+      message: `${label} output exceeded the repo-run capture limit.`,
+      command: `${turbo} ${A.join(args, " ")}`,
+      exitCode: 1,
+    });
+  }
+
+  return yield* pipe(
+    jsonObjectTextFromMixedOutput(result.output),
+    O.match({
+      onNone: () =>
+        Effect.fail(
+          YeetCommandError.make({
+            message: `${label} did not emit a JSON object.`,
+            command: `${turbo} ${A.join(args, " ")}`,
+            exitCode: 1,
+          })
+        ),
+      onSome: Effect.succeed,
+    })
+  );
+});
+
 const collectTurboVersion = Effect.fn("Yeet.collectTurboVersion")(function* (
   repoRoot: string
 ): Effect.fn.Return<
@@ -132,6 +282,78 @@ const collectTurboVersion = Effect.fn("Yeet.collectTurboVersion")(function* (
     O.map((output) => Str.trim(output.output)),
     O.filter(Str.isNonEmpty)
   );
+});
+
+const packagePathsByName = (document: TurboQueryLsDocument): Record<string, string> =>
+  pipe(
+    document.packages.items,
+    A.map((pkg) => [pkg.name, pkg.path] as const),
+    R.fromEntries
+  );
+
+const turboPlanTaskFromAffectedTask =
+  (pathsByName: Record<string, string>) =>
+  (task: TurboQueryAffectedTask): TurboPlanTask => {
+    const packagePath = R.get(pathsByName, task.package.name);
+    return TurboPlanTask.make({
+      taskId: task.fullName,
+      packageName: task.package.name,
+      task: task.name,
+      ...(O.isSome(packagePath) ? { packagePath: packagePath.value } : {}),
+    });
+  };
+
+const turboPlanTasksFromQueryDocuments = (
+  affectedDocument: TurboQueryAffectedDocument,
+  packageDocument: TurboQueryLsDocument
+): ReadonlyArray<TurboPlanTask> => {
+  const pathsByName = packagePathsByName(packageDocument);
+  return pipe(affectedDocument.data.affectedTasks.items, A.map(turboPlanTaskFromAffectedTask(pathsByName)));
+};
+
+const decodeTurboPlanTasksFromQueryJson = Effect.fn("Yeet.decodeTurboPlanTasksFromQueryJson")(function* (
+  affectedJson: string,
+  packageJson: string
+): Effect.fn.Return<ReadonlyArray<TurboPlanTask>, YeetCommandError> {
+  const affectedDocument = yield* decodeTurboQueryAffectedDocument(affectedJson).pipe(
+    Effect.mapError(YeetCommandError.new("Failed to decode Turbo affected query JSON."))
+  );
+  const packageDocument = yield* decodeTurboQueryLsDocument(packageJson).pipe(
+    Effect.mapError(YeetCommandError.new("Failed to decode Turbo package query JSON."))
+  );
+  return turboPlanTasksFromQueryDocuments(affectedDocument, packageDocument);
+});
+
+/**
+ * Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const decodeTurboPlanTasksFromQueryJsonForTesting = decodeTurboPlanTasksFromQueryJson;
+
+const collectTurboPlanSnapshot = Effect.fn("Yeet.collectTurboPlanSnapshot")(function* (
+  repoRoot: string,
+  options: YeetRunOptions
+): Effect.fn.Return<
+  TurboPlanSnapshot,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const turboVersion = yield* collectTurboVersion(repoRoot);
+  const affectedJson = yield* runTurboQueryJson(
+    repoRoot,
+    ["query", "affected", "--tasks", ...YEET_FEEDBACK_TASKS, "--base", options.base, "--head", options.head],
+    "turbo query affected"
+  );
+  const packageJson = yield* runTurboQueryJson(repoRoot, ["query", "ls", "--output", "json"], "turbo query ls");
+  const tasks = yield* decodeTurboPlanTasksFromQueryJson(affectedJson, packageJson);
+
+  return TurboPlanSnapshot.make({
+    ...emptyTurboPlanSnapshot([]),
+    ...(O.isSome(turboVersion) ? { turboVersion: turboVersion.value } : {}),
+    tasks,
+  });
 });
 
 /**
@@ -157,7 +379,7 @@ export const hydrateYeetRunContext = Effect.fn("Yeet.hydrateYeetRunContext")(fun
 > {
   const repoRoot = yield* findRepoRoot().pipe(Effect.mapError(YeetCommandError.new("Failed to locate repo root.")));
   const branch = yield* runGitOutput(repoRoot, ["rev-parse", "--abbrev-ref", "HEAD"]);
-  const turboVersion = yield* collectTurboVersion(repoRoot);
+  const turbo = yield* collectTurboPlanSnapshot(repoRoot, options);
 
   return RepoRunContext.make({
     repoRoot,
@@ -167,10 +389,7 @@ export const hydrateYeetRunContext = Effect.fn("Yeet.hydrateYeetRunContext")(fun
     branch,
     packetDir: options.packetDir,
     originalArgv: [],
-    turbo: {
-      ...emptyTurboPlanSnapshot([]),
-      ...(O.isSome(turboVersion) ? { turboVersion: turboVersion.value } : {}),
-    },
+    turbo,
   });
 });
 
