@@ -2073,30 +2073,30 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `NetworkUnavailableError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:89` | Network unavailable during upstream version resolution. |
 | `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:115` | Drift detected in check mode (non-zero exit). |
 | `@beep/repo-cli/commands/VersionSync/VersionSync.errors` | `VersionSyncError` | class | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.errors.ts:40` | Operational error during version sync (file read/write, parse failures). |
-| `@beep/repo-cli/commands/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:219` | Package-level issue report rendered into a quality packet. |
-| `@beep/repo-cli/commands/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:165` | One normalized quality issue. |
-| `@beep/repo-cli/commands/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:39` | Classification domain for normalized yeet quality findings. |
-| `@beep/repo-cli/commands/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:66` | Type-level union of normalized yeet quality finding categories. |
-| `@beep/repo-cli/commands/Yeet` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:106` | Parser confidence for a normalized issue. |
-| `@beep/repo-cli/commands/Yeet` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:118` | Parser confidence for a normalized issue. |
-| `@beep/repo-cli/commands/Yeet` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:245` | Complete quality issue index for a yeet run. |
-| `@beep/repo-cli/commands/Yeet` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:133` | Specialist routing hint for one issue. |
-| `@beep/repo-cli/commands/Yeet` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:80` | Blocking level assigned to a normalized yeet quality finding. |
-| `@beep/repo-cli/commands/Yeet` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:92` | Type-level union of yeet quality severity literals. |
+| `@beep/repo-cli/commands/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:71` | Type-level union of normalized yeet quality finding categories. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:111` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:123` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:250` | Complete quality issue index for a yeet run. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:138` | Specialist routing hint for one issue. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:85` | Blocking level assigned to a normalized yeet quality finding. |
+| `@beep/repo-cli/commands/Yeet` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:97` | Type-level union of yeet quality severity literals. |
 | `@beep/repo-cli/commands/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commit/push. |
 | `@beep/repo-cli/commands/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
 | `@beep/repo-cli/commands/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:142` | Runtime options accepted by the yeet handler. |
 | `@beep/repo-cli/commands/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:169` | Result returned by a yeet execution attempt. |
-| `@beep/repo-cli/commands/Yeet/index` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:219` | Package-level issue report rendered into a quality packet. |
-| `@beep/repo-cli/commands/Yeet/index` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:165` | One normalized quality issue. |
-| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:39` | Classification domain for normalized yeet quality findings. |
-| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:66` | Type-level union of normalized yeet quality finding categories. |
-| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:106` | Parser confidence for a normalized issue. |
-| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:118` | Parser confidence for a normalized issue. |
-| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:245` | Complete quality issue index for a yeet run. |
-| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:133` | Specialist routing hint for one issue. |
-| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:80` | Blocking level assigned to a normalized yeet quality finding. |
-| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:92` | Type-level union of yeet quality severity literals. |
+| `@beep/repo-cli/commands/Yeet/index` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:71` | Type-level union of normalized yeet quality finding categories. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:111` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:123` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:250` | Complete quality issue index for a yeet run. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:138` | Specialist routing hint for one issue. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:85` | Blocking level assigned to a normalized yeet quality finding. |
+| `@beep/repo-cli/commands/Yeet/index` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:97` | Type-level union of yeet quality severity literals. |
 | `@beep/repo-cli/commands/Yeet/index` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commit/push. |
 | `@beep/repo-cli/commands/Yeet/index` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
 | `@beep/repo-cli/commands/Yeet/index` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:142` | Runtime options accepted by the yeet handler. |
@@ -2386,7 +2386,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:242` | Full version sync report across all categories. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:382` | Resolver output consumed by reporting and write-mode services. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:366` | YAML location to update in write mode. |
-| `@beep/repo-cli/test/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:587` | Build a schema-first issue index from normalized issues. |
+| `@beep/repo-cli/test/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:685` | Build a schema-first issue index from normalized issues. |
 | `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:179` | Build the v1 yeet run plan. |
 | `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:687` | Build a plan for tests without reading repository state. |
 | `@beep/repo-cli/test/Yeet` | `byRepoPlanStepAscending` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:350` | Order repository plan steps by phase, then identifier. |
@@ -2399,17 +2399,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Yeet` | `executeRepoPlanStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:162` | Execute a planned repository step and optionally persist its raw output. |
 | `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:374` | Hydrate a shared yeet run context from repository state. |
 | `@beep/repo-cli/test/Yeet` | `isConservativeResumeCandidate` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:420` | Determine whether a planned step may use conservative resume metadata. |
-| `@beep/repo-cli/test/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:219` | Package-level issue report rendered into a quality packet. |
-| `@beep/repo-cli/test/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:165` | One normalized quality issue. |
-| `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:39` | Classification domain for normalized yeet quality findings. |
-| `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:66` | Type-level union of normalized yeet quality finding categories. |
-| `@beep/repo-cli/test/Yeet` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:106` | Parser confidence for a normalized issue. |
-| `@beep/repo-cli/test/Yeet` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:118` | Parser confidence for a normalized issue. |
-| `@beep/repo-cli/test/Yeet` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:245` | Complete quality issue index for a yeet run. |
-| `@beep/repo-cli/test/Yeet` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:133` | Specialist routing hint for one issue. |
-| `@beep/repo-cli/test/Yeet` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:80` | Blocking level assigned to a normalized yeet quality finding. |
-| `@beep/repo-cli/test/Yeet` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:92` | Type-level union of yeet quality severity literals. |
-| `@beep/repo-cli/test/Yeet` | `qualityIssuesFromStepResult` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:533` | Convert a failed step result into quality issues. |
+| `@beep/repo-cli/test/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:71` | Type-level union of normalized yeet quality finding categories. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueConfidence` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:111` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueConfidence` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:123` | Parser confidence for a normalized issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueIndex` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:250` | Complete quality issue index for a yeet run. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:138` | Specialist routing hint for one issue. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:85` | Blocking level assigned to a normalized yeet quality finding. |
+| `@beep/repo-cli/test/Yeet` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:97` | Type-level union of yeet quality severity literals. |
+| `@beep/repo-cli/test/Yeet` | `qualityIssuesFromStepResult` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:631` | Convert a failed step result into quality issues. |
 | `@beep/repo-cli/test/Yeet` | `renderPackageQualityPacketDocument` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:126` | Build a Markdown AST document for one package quality report. |
 | `@beep/repo-cli/test/Yeet` | `renderPackageQualityPacketMarkdown` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:178` | Render one package quality packet as Markdown. |
 | `@beep/repo-cli/test/Yeet` | `RepoGraphHealthStatus` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:135` | Graph-health signal recorded while hydrating a run context. |

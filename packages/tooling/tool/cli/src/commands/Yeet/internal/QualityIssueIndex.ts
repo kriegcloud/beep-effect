@@ -15,7 +15,12 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { commandTextForStep, turboTaskForStep } from "../../../internal/repo-run/index.js";
-import type { RepoPlanStep, RepoRunContext, RepoStepRunResult } from "../../../internal/repo-run/index.js";
+import type {
+  RepoPlanStep,
+  RepoRunContext,
+  RepoStepRunResult,
+  TurboPlanTask,
+} from "../../../internal/repo-run/index.js";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/QualityIssueIndex");
 
@@ -279,6 +284,7 @@ const truncateExcerpt = (value: string): string =>
 const issuePackageName = (issue: QualityIssue): string => issue.packageName ?? "@beep/root";
 const issuePackagePath = (issue: QualityIssue): O.Option<string> => O.fromUndefinedOr(issue.packagePath);
 const packageKey = (issue: QualityIssue): string => `${issuePackageName(issue)}\u0000${issue.packagePath ?? ""}`;
+const filterArgPrefix = "--filter=";
 
 const routeForCategory = (category: QualityIssueCategory): ReadonlyArray<QualityIssueRouting> =>
   QualityIssueCategory.$match(category, {
@@ -373,6 +379,61 @@ const optionalStringFromStep = (value: string | undefined): O.Option<string> =>
 const optionalProp = <Key extends string, Value>(key: Key, value: O.Option<Value>): { readonly [K in Key]?: Value } =>
   O.isSome(value) ? ({ [key]: value.value } as { readonly [K in Key]?: Value }) : {};
 
+const packageNameFromFilterArg = (arg: string): O.Option<string> =>
+  pipe(
+    arg,
+    O.liftPredicate(Str.startsWith(filterArgPrefix)),
+    O.map(Str.replace(filterArgPrefix, "")),
+    O.filter(Str.isNonEmpty)
+  );
+
+const filteredPackageNamesForStep = (step: RepoPlanStep): ReadonlyArray<string> =>
+  pipe(step.args, A.map(packageNameFromFilterArg), A.getSomes, A.dedupe, A.sort(Order.String));
+
+const packagePathForPackageName = (context: RepoRunContext, packageName: string): O.Option<string> =>
+  pipe(
+    context.turbo.tasks,
+    A.findFirst((task) => Str.Equivalence(task.packageName ?? "", packageName)),
+    O.flatMap((task) => optionalStringFromStep(task.packagePath))
+  );
+
+const turboTaskForPackageName = (
+  context: RepoRunContext,
+  step: RepoPlanStep,
+  packageName: string
+): O.Option<TurboPlanTask> => {
+  const stepTask = optionalStringFromStep(step.task);
+  return A.findFirst(
+    context.turbo.tasks,
+    (task) =>
+      Str.Equivalence(task.packageName ?? "", packageName) &&
+      pipe(
+        stepTask,
+        O.match({
+          onNone: () => true,
+          onSome: (taskName) =>
+            O.exists(optionalStringFromStep(task.task), (taskValue) => Str.Equivalence(taskValue, taskName)) ||
+            Str.Equivalence(task.taskId, taskName),
+        })
+      )
+  );
+};
+
+const packageNameForFile = (context: RepoRunContext, file: string): O.Option<string> =>
+  pipe(
+    context.turbo.tasks,
+    A.filter((task) =>
+      pipe(
+        optionalStringFromStep(task.packagePath),
+        O.exists((packagePath) => Str.Equivalence(file, packagePath) || Str.startsWith(`${packagePath}/`)(file))
+      )
+    ),
+    A.sort(Order.mapInput(Order.Number, (task: TurboPlanTask) => -Str.length(task.packagePath ?? ""))),
+    A.head,
+    O.flatMap((task) => optionalStringFromStep(task.packageName)),
+    O.filter((packageName) => !Str.Equivalence(packageName, "//"))
+  );
+
 const issueId = (
   step: RepoPlanStep,
   category: QualityIssueCategory,
@@ -400,9 +461,27 @@ const issueBase = (
   step: RepoPlanStep,
   result: RepoStepRunResult,
   category: QualityIssueCategory,
-  message: string
+  message: string,
+  inferredPackageName: O.Option<string> = O.none()
 ) => {
-  const turboTask = turboTaskForStep(context, step);
+  const packageName = pipe(
+    optionalStringFromStep(step.packageName),
+    O.orElse(() => inferredPackageName)
+  );
+  const packagePath = pipe(
+    optionalStringFromStep(step.packagePath),
+    O.orElse(() =>
+      pipe(
+        packageName,
+        O.flatMap((name) => packagePathForPackageName(context, name))
+      )
+    )
+  );
+  const turboTask = pipe(
+    packageName,
+    O.flatMap((name) => turboTaskForPackageName(context, step, name)),
+    O.orElse(() => (step.scope === "repo" ? O.none() : turboTaskForStep(context, step)))
+  );
   return {
     category,
     blocking: true,
@@ -412,8 +491,8 @@ const issueBase = (
     parser: "yeet/raw-plus-known/v1",
     evidence: A.empty<string>(),
     routing: [...routeForCategory(category)],
-    ...optionalProp("packageName", optionalStringFromStep(step.packageName)),
-    ...optionalProp("packagePath", optionalStringFromStep(step.packagePath)),
+    ...optionalProp("packageName", packageName),
+    ...optionalProp("packagePath", packagePath),
     ...optionalProp("task", optionalStringFromStep(step.task)),
     ...optionalProp("label", O.some(step.label)),
     ...optionalProp("command", O.some(commandTextForStep(step))),
@@ -462,10 +541,14 @@ const diagnosticIssueFromLine = (
   const startColumn = optionalNumberFromString(match.groups.column);
   const message = match.groups.message ?? line;
   const category: QualityIssueCategory = lineIndicatesEffectDiagnostic(line) ? "effect-tsgo-policy" : "typecheck";
+  const inferredPackageName = pipe(
+    file,
+    O.flatMap((path) => packageNameForFile(context, path))
+  );
 
   return O.some(
     QualityIssue.make({
-      ...issueBase(context, step, result, category, message),
+      ...issueBase(context, step, result, category, message, inferredPackageName),
       id: issueId(step, category, message, file, startLine),
       severity: severityForLine(match.groups.severity ?? "error"),
       confidence: "structured",
@@ -480,16 +563,31 @@ const diagnosticIssueFromLine = (
 const fallbackIssueFromResult = (
   context: RepoRunContext,
   step: RepoPlanStep,
-  result: RepoStepRunResult
+  result: RepoStepRunResult,
+  inferredPackageName: O.Option<string> = O.none()
 ): QualityIssue => {
   const category = categoryForStep(step);
   const message = `${step.label} failed with exit code ${result.exitCode}.`;
   return QualityIssue.make({
-    ...issueBase(context, step, result, category, message),
+    ...issueBase(context, step, result, category, message, inferredPackageName),
     id: issueId(step, category, message, O.none(), O.none()),
     severity: "error",
     confidence: "raw",
   });
+};
+
+const fallbackIssuesFromResult = (
+  context: RepoRunContext,
+  step: RepoPlanStep,
+  result: RepoStepRunResult
+): ReadonlyArray<QualityIssue> => {
+  const packageNames = filteredPackageNamesForStep(step);
+  return A.isReadonlyArrayNonEmpty(packageNames)
+    ? pipe(
+        packageNames,
+        A.map((packageName) => fallbackIssueFromResult(context, step, result, O.some(packageName)))
+      )
+    : [fallbackIssueFromResult(context, step, result)];
 };
 
 /**
@@ -545,7 +643,7 @@ export const qualityIssuesFromStepResult: {
     A.getSomes
   );
 
-  return A.isReadonlyArrayNonEmpty(parsedIssues) ? parsedIssues : [fallbackIssueFromResult(context, step, result)];
+  return A.isReadonlyArrayNonEmpty(parsedIssues) ? parsedIssues : fallbackIssuesFromResult(context, step, result);
 });
 
 const packageReportForKey = (issues: ReadonlyArray<QualityIssue>, key: string): PackageQualityReport => {

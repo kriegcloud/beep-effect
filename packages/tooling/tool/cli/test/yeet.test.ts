@@ -68,6 +68,20 @@ const feedbackStep = (label: string, task: string): RepoPlanStep =>
     task,
   });
 
+const repoScopedFeedbackStep = (label: string, task: string, filters: ReadonlyArray<string>): RepoPlanStep =>
+  RepoPlanStep.make({
+    id: `feedback:test-${task}`,
+    label,
+    phase: "feedback",
+    command: "bun",
+    args: ["run", task, "--", ...filters],
+    cwd: "/repo",
+    scope: "repo",
+    mutability: "readonly",
+    resume: "never",
+    task,
+  });
+
 const findStep = (steps: ReadonlyArray<RepoPlanStep>, label: string): RepoPlanStep =>
   pipe(
     steps,
@@ -355,5 +369,43 @@ describe("yeet quality issue index", () => {
     expect(markdown).toContain("Effect tsgo diagnostic");
     expect(markdown).toContain("bun run check");
     expect(markdown).toContain("bun run lint");
+  });
+
+  it("keeps repo-scoped filtered raw failures attached to filtered packages", () => {
+    const scopedContext = contextWithTasks([
+      turboTask("test"),
+      turboTask("test", "@beep/schema", "packages/foundation/modeling/schema"),
+    ]);
+    const step = repoScopedFeedbackStep("feedback:test", "test", ["--filter=@beep/repo-cli", "--filter=@beep/schema"]);
+    const issues = qualityIssuesFromStepResult(
+      scopedContext,
+      step,
+      RepoStepRunResult.make({
+        stepId: step.id,
+        commandText: "bun run test -- --filter=@beep/repo-cli --filter=@beep/schema",
+        exitCode: 1,
+        output: "FAIL unknown test output without a diagnostic path",
+      })
+    );
+    const index = buildQualityIssueIndex(issues);
+
+    expect(
+      pipe(
+        index.packages,
+        A.map((report) => report.packageName)
+      )
+    ).toEqual(["@beep/repo-cli", "@beep/schema"]);
+    expect(index.packages).toEqual([
+      expect.objectContaining({
+        packageName: "@beep/repo-cli",
+        packagePath: "packages/tooling/tool/cli",
+        issueCount: 1,
+      }),
+      expect.objectContaining({
+        packageName: "@beep/schema",
+        packagePath: "packages/foundation/modeling/schema",
+        issueCount: 1,
+      }),
+    ]);
   });
 });
