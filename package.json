@@ -398,7 +398,6 @@
     "@lexical/link": "^0.45.0",
     "@lexical/list": "^0.45.0",
     "@lexical/markdown": "^0.45.0",
-    "effect": "^4.0.0-beta.74",
     "tailwindcss-jun-layout": "^0.9.0",
     "@lexical/overflow": "^0.45.0",
     "@lexical/rich-text": "^0.45.0",
