@@ -59,5 +59,16 @@ describe("nlp-mcp wink-backed handlers", () => {
         assert.isFalse(first.isFailure);
       })
     );
+
+    it.effect("Analyze encodes its nested AiAnalysis token array through the wink handler layer", () =>
+      Effect.gen(function* () {
+        const toolkit = yield* NlpToolkit;
+        const stream = yield* toolkit.handle("Analyze", { text: "The quick brown fox. It was fast." });
+        const results = yield* Stream.runCollect(stream);
+        const first = results[0];
+        assert.isDefined(first);
+        assert.isFalse(first.isFailure);
+      })
+    );
   });
 });
