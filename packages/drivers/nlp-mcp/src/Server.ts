@@ -1,7 +1,7 @@
 /**
  * MCP server wiring for the `@beep/nlp` MCP driver.
  *
- * Binds the {@link Tools.NlpToolkit} handlers to the pluggable
+ * Binds the {@link NlpToolkit} handlers to the pluggable
  * {@link @beep/nlp/Backend#NLPBackend} (defaulting to the wink-nlp backend) and
  * composes the stdio-transport MCP server layer. Each handler maps a backend
  * operation's result into its flat MCP output schema and translates backend
@@ -31,7 +31,7 @@ const toToolError =
     Schemas.NlpToolError.make({ message: error.message, operation });
 
 /**
- * Build the {@link Tools.NlpToolkit} handler record from an
+ * Build the {@link NlpToolkit} handler record from an
  * {@link @beep/nlp/Backend#NLPBackend}. Each handler maps a backend operation's
  * result into its flat MCP output schema and translates backend failures into
  * {@link Schemas.NlpToolError}. Exposed directly (not only as a layer) so tests
@@ -95,7 +95,7 @@ export const makeNlpHandlers = Effect.gen(function* () {
 });
 
 /**
- * The handler layer binding each {@link Tools.NlpToolkit} tool to an
+ * The handler layer binding each {@link NlpToolkit} tool to an
  * {@link @beep/nlp/Backend#NLPBackend} operation. Requires an `NLPBackend` in context.
  *
  * @example
@@ -144,7 +144,7 @@ export interface NlpMcpServerConfig {
 /**
  * Build the stdio-transport MCP server layer exposing the NLP toolkit.
  *
- * Registers {@link Tools.NlpToolkit} (with its wink-backed handlers) into an MCP
+ * Registers {@link NlpToolkit} (with its wink-backed handlers) into an MCP
  * server served over stdio with NDJSON-RPC framing. The resulting layer still
  * requires a `Stdio` service — provide `NodeStdio.layer` (from
  * `@effect/platform-node`) at the entrypoint (see `./bin.ts`). Keeping the node

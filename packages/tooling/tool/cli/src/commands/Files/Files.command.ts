@@ -15,6 +15,7 @@ import {
   DetectBordersOptions,
   DetectFacesOptions,
   NormalizeFilesOptions,
+  ProcessFilesOptions,
 } from "./Files.schemas.js";
 import {
   archivePoorCandidates,
@@ -25,6 +26,7 @@ import {
   FilesCommandServiceLive,
   normalizeFiles,
   printFilesIndex,
+  processFiles,
   sortAndRenameFiles,
   stripMetadataFiles,
 } from "./Files.service.js";
@@ -68,12 +70,32 @@ const archiveDirFlag = Flag.directory("archive-dir").pipe(
 const normalizeOutDirFlag = Flag.directory("out-dir").pipe(
   Flag.withDescription("Output directory for normalized image files")
 );
+const processInputFlag = Flag.path("input", { mustExist: true, pathType: "either" }).pipe(
+  Flag.withDescription("File or directory to process into a V1 proof manifest")
+);
+const processOutDirFlag = Flag.directory("out-dir").pipe(
+  Flag.withDescription("Output directory for the V1 file-processing proof manifest")
+);
 const normalizeFormatFlag = Flag.choiceWithValue("format", [
   ["png", "png"],
   ["jpg", "jpg"],
   ["jpeg", "jpg"],
   ["webp", "webp"],
 ]).pipe(Flag.withDefault("png"), Flag.withDescription("Output image format: png, jpg/jpeg, or webp"));
+const processEngineFlag = Flag.choiceWithValue("engine", [
+  ["auto", "auto"],
+  ["tika", "tika"],
+  ["libpff", "libpff"],
+  ["test", "test"],
+]).pipe(Flag.withDefault("auto"), Flag.withDescription("File-processing engine: auto, tika, libpff, or test"));
+const processFailurePolicyFlag = Flag.choiceWithValue("failure-policy", [
+  ["fail-on-error", "fail-on-error"],
+  ["continue", "continue"],
+]).pipe(Flag.withDefault("fail-on-error"), Flag.withDescription("Exit policy for failed source rows"));
+const maxMaterializedBytesFlag = Flag.integer("max-materialized-bytes").pipe(
+  Flag.withDescription("Maximum materialized text bytes per source"),
+  Flag.optional
+);
 const maxLongEdgeFlag = Flag.integer("max-long-edge").pipe(
   Flag.withDescription("Resize long edge down to this pixel count without upscaling"),
   Flag.optional
@@ -121,6 +143,9 @@ const normalizeDedupeFlag = Flag.boolean("dedupe").pipe(
     "Skip later files whose normalized bytes exactly duplicate an earlier normalized output; implied by --move-duplicates-to"
   )
 );
+const processExportChildrenFlag = Flag.boolean("export-children").pipe(
+  Flag.withDescription("Export child artifacts from archive-like sources such as PST")
+);
 const normalizeMoveDuplicatesToFlag = Flag.directory("move-duplicates-to").pipe(
   Flag.withDescription("Move later duplicate source files to this directory after exact normalized-byte dedupe"),
   Flag.optional
@@ -133,6 +158,9 @@ const overwriteFlag = Flag.boolean("overwrite").pipe(
 );
 const archiveOverwriteFlag = Flag.boolean("overwrite").pipe(
   Flag.withDescription("Overwrite existing archived files, sidecars, and manifest")
+);
+const processOverwriteFlag = Flag.boolean("overwrite").pipe(
+  Flag.withDescription("Overwrite an existing files process output directory")
 );
 const createCaptionsOverwriteFlag = Flag.boolean("overwrite").pipe(
   Flag.withDescription("Overwrite existing caption sidecar files")
@@ -398,6 +426,37 @@ const filesNormalizeCommand = Command.make(
   Command.provide(FilesCommandServiceLive)
 );
 
+const filesProcessCommand = Command.make(
+  "process",
+  {
+    engine: processEngineFlag,
+    exportChildren: processExportChildrenFlag,
+    failurePolicy: processFailurePolicyFlag,
+    input: processInputFlag,
+    maxMaterializedBytes: maxMaterializedBytesFlag,
+    outDir: processOutDirFlag,
+    overwrite: processOverwriteFlag,
+  },
+  Effect.fn(function* ({ engine, exportChildren, failurePolicy, input, maxMaterializedBytes, outDir, overwrite }) {
+    yield* runFilesProgram(
+      processFiles(
+        ProcessFilesOptions.make({
+          engine,
+          exportChildren,
+          failurePolicy,
+          input,
+          outDir,
+          overwrite,
+          ...(O.isNone(maxMaterializedBytes) ? {} : { maxMaterializedBytes: maxMaterializedBytes.value }),
+        })
+      )
+    );
+  })
+).pipe(
+  Command.withDescription("Process files into the V1 file-processing proof manifest tree"),
+  Command.provide(FilesCommandServiceLive)
+);
+
 const filesSortAndRenameCommand = Command.make(
   "sort-and-rename",
   {
@@ -448,6 +507,7 @@ export const filesCommand = Command.make("files", {}, () => printFilesIndex).pip
     filesDetectBordersCommand,
     filesDetectFacesCommand,
     filesNormalizeCommand,
+    filesProcessCommand,
     filesSortAndRenameCommand,
     filesStripMetadataCommand,
   ])

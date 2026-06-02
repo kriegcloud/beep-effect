@@ -62,7 +62,9 @@
     "packages/drivers/konva/dtslint/**/*.tst.*",
     "apps/canvas/dtslint/**/*.tst.*",
     "packages/drivers/nlp-mcp/dtslint/**/*.tst.*",
-    "packages/drivers/wink/dtslint/**/*.tst.*"
+    "packages/drivers/wink/dtslint/**/*.tst.*",
+    "packages/drivers/tika/dtslint/**/*.tst.*",
+    "packages/drivers/libpff/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }

@@ -12,9 +12,34 @@ import {
   makeFaceDetectionService,
   withDetector,
 } from "@beep/face-detection";
+import {
+  ArtifactId,
+  ArtifactLocator,
+  ContentDigest,
+  OperationId,
+  SourceArtifact,
+} from "@beep/file-processing/Artifact";
+import {
+  ChildArtifactRecord,
+  encodeChildArtifactRecordJson,
+  encodeFileProcessingCoverageSummaryJson,
+  encodeFileProcessingFailureRecordJson,
+  encodeProcessRunManifestJson,
+  encodeSourceProcessingRecordJson,
+  FileProcessingCoverageSummary,
+  FileProcessingFailureRecord,
+  ProcessRunManifest,
+  SourceProcessingRecord,
+} from "@beep/file-processing/Extraction";
+import { FileProcessingOperationError } from "@beep/file-processing/Operation";
+import { SelectedStrategy } from "@beep/file-processing/Strategy";
+import { TestFileProcessingEngine } from "@beep/file-processing/test";
 import { $RepoCliId } from "@beep/identity/packages";
+import { makeLibpffFileProcessingEngine } from "@beep/libpff";
 import { profilePhase } from "@beep/observability";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
+import { Sha256HexFromBytes } from "@beep/schema";
+import { makeTikaFileProcessingEngine } from "@beep/tika";
 import { A, P, Str } from "@beep/utils";
 import {
   Config,
@@ -26,6 +51,7 @@ import {
   HashMap,
   HashSet,
   Layer,
+  Match,
   Order,
   Path,
   pipe,
@@ -33,6 +59,7 @@ import {
 } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
 import { imageSizeFromFile } from "image-size/fromFile";
 import sharp from "sharp";
@@ -125,6 +152,7 @@ import {
   NormalizePlanEntry,
   NormalizeSkippedEntry,
   NormalizeSummary,
+  ProcessFilesSummary,
   RenamePlan,
   RenamePlanEntry,
   SortAndRenameSummary,
@@ -135,6 +163,8 @@ import {
   StripMetadataSummary,
 } from "./Files.schemas.js";
 import type { FaceDetection as DetectedFace, LoadedFaceDetector } from "@beep/face-detection";
+import type { FileProcessingEngineShape } from "@beep/file-processing/Service";
+import type { FileFormatFamily, FileProcessingSkipReason } from "@beep/file-processing/Strategy";
 import type { Terminal } from "effect";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type {
@@ -153,6 +183,7 @@ import type {
   NormalizeImageFormat,
   NormalizeSkippedReason,
   PositiveMediaDimension,
+  ProcessFilesOptions,
   SafeFilePrefix,
 } from "./Files.schemas.js";
 
@@ -163,6 +194,38 @@ type FilesCommandServiceRequirements =
   | Path.Path
   | Terminal.Terminal
   | ChildProcessSpawner.ChildProcessSpawner;
+
+interface ProcessCollectedFile {
+  readonly canonicalPath: string;
+  readonly extension: string;
+  readonly name: string;
+  readonly relativePath: string;
+  readonly sizeBytes: number;
+  readonly sourcePath: string;
+}
+
+interface ProcessPreparedSource {
+  readonly bytes: Uint8Array;
+  readonly digest: ContentDigest;
+  readonly format: FileFormatFamily;
+  readonly operationId: OperationId;
+  readonly source: SourceArtifact;
+  readonly sourceFile: ProcessCollectedFile;
+}
+
+interface ProcessInputCollection {
+  readonly canonicalSourceRoot: string;
+  readonly files: ReadonlyArray<ProcessCollectedFile>;
+  readonly sourceRoot: string;
+}
+
+interface ProcessSourceOutcome {
+  readonly childRecords: ReadonlyArray<ChildArtifactRecord>;
+  readonly failure: O.Option<FileProcessingFailureRecord>;
+  readonly sourceRecord: SourceProcessingRecord;
+  readonly strategy: SelectedStrategy;
+  readonly text: O.Option<readonly [string, string]>;
+}
 
 interface NormalizeSeenOutput {
   readonly entry: NormalizePlanEntry;
@@ -302,6 +365,13 @@ export interface FilesCommandServiceShape {
    * @since 0.0.0
    */
   readonly normalizeFiles: (options: NormalizeFilesOptions) => Effect.Effect<NormalizeSummary, FilesCommandError>;
+
+  /**
+   * Process a file or directory into the V1 file-processing proof manifest tree.
+   *
+   * @since 0.0.0
+   */
+  readonly processFiles: (options: ProcessFilesOptions) => Effect.Effect<ProcessFilesSummary, FilesCommandError>;
 
   /**
    * Sort direct regular files in a directory by size and rename them.
@@ -3710,6 +3780,733 @@ const logCropBordersPlan = Effect.fn("Files.logCropBordersPlan")(function* (plan
   });
 });
 
+const processPathSeparators = Str.replace(/\\/gu, "/");
+const processExtensionWithoutDot = flow(Str.replace(/^\./u, ""), Str.toLowerCase);
+const processUtf8Encoder = new TextEncoder();
+const processUtf8Decoder = new TextDecoder();
+const processTextLikeFormats: ReadonlyArray<FileFormatFamily> = ["html", "markdown", "plain-text", "xhtml"];
+const isProcessSelfOrNestedRelativePath = (relativePath: string): boolean =>
+  Str.isEmpty(relativePath) ||
+  (!Str.equivalence(relativePath, "..") && !Str.startsWith("../")(relativePath) && !Str.startsWith("/")(relativePath));
+
+const decodeContentDigest = S.decodeUnknownEffect(ContentDigest);
+const decodeArtifactId = S.decodeUnknownEffect(ArtifactId);
+const decodeOperationId = S.decodeUnknownEffect(OperationId);
+
+const classifyProcessExtension = Match.type<string>().pipe(
+  Match.when("doc", () => "doc" as const),
+  Match.when("docx", () => "docx" as const),
+  Match.when("docm", () => "docm" as const),
+  Match.when("rtf", () => "rtf" as const),
+  Match.whenOr("htm", "html", () => "html" as const),
+  Match.when("xhtml", () => "xhtml" as const),
+  Match.when("pdf", () => "pdf-text-layer" as const),
+  Match.when("pst", () => "pst" as const),
+  Match.whenOr("txt", "text", () => "plain-text" as const),
+  Match.whenOr("md", "markdown", () => "markdown" as const),
+  Match.whenOr("bmp", "gif", "jpeg", "jpg", "png", "tif", "tiff", "webp", () => "image-metadata" as const),
+  Match.when("xls", () => "xls" as const),
+  Match.when("xlsx", () => "xlsx" as const),
+  Match.orElse(() => "unknown" as const)
+);
+
+const mediaTypeForProcessFormat = Match.type<FileFormatFamily>().pipe(
+  Match.when("html", () => O.some("text/html")),
+  Match.when("xhtml", () => O.some("application/xhtml+xml")),
+  Match.when("markdown", () => O.some("text/markdown")),
+  Match.when("plain-text", () => O.some("text/plain")),
+  Match.when("rtf", () => O.some("application/rtf")),
+  Match.when("pdf-text-layer", () => O.some("application/pdf")),
+  Match.orElse(O.none<string>)
+);
+
+const processOperationErrorStatus = (error: FileProcessingOperationError): SourceProcessingRecord["status"] =>
+  error.reason === "engine-unavailable" || error.reason === "unsupported-file-format" ? "skipped" : "failed";
+
+const processOperationErrorSkipReason = (error: FileProcessingOperationError): O.Option<FileProcessingSkipReason> =>
+  Match.value(error.reason).pipe(
+    Match.when("engine-unavailable", () => O.some("engine-unavailable" as const)),
+    Match.when("unsupported-file-format", () => O.some("unsupported-format" as const)),
+    Match.orElse(O.none<FileProcessingSkipReason>)
+  );
+
+const processEngineFor = (
+  engine: ProcessFilesOptions["engine"],
+  format: FileFormatFamily
+): FileProcessingEngineShape => {
+  if (engine === "test") {
+    return TestFileProcessingEngine;
+  }
+  if (engine === "libpff") {
+    return makeLibpffFileProcessingEngine();
+  }
+  if (engine === "tika") {
+    return makeTikaFileProcessingEngine();
+  }
+
+  return format === "pst" ? makeLibpffFileProcessingEngine() : makeTikaFileProcessingEngine();
+};
+
+const syntheticLibpffEngine = (): FileProcessingEngineShape =>
+  makeLibpffFileProcessingEngine({ syntheticExport: true });
+
+const processHashBytes = Effect.fn("Files.processHashBytes")(function* (
+  bytes: Uint8Array,
+  label: string
+): Effect.fn.Return<string, FilesCommandError> {
+  return yield* S.decodeUnknownEffect(Sha256HexFromBytes)(bytes).pipe(
+    FilesCommandError.mapError(`Failed to compute SHA-256 for ${label}`)
+  );
+});
+
+const makeContentDigest = Effect.fn("Files.makeContentDigest")(function* (
+  bytes: Uint8Array,
+  label: string
+): Effect.fn.Return<ContentDigest, FilesCommandError> {
+  const hex = yield* processHashBytes(bytes, label);
+  return yield* decodeContentDigest(`sha256:${hex}`).pipe(
+    FilesCommandError.mapError(`Failed to decode content digest for ${label}`)
+  );
+});
+
+const makeArtifactId = Effect.fn("Files.makeArtifactId")(function* (
+  digest: ContentDigest,
+  label: string
+): Effect.fn.Return<ArtifactId, FilesCommandError> {
+  const hex = Str.slice("sha256:".length)(digest);
+  return yield* decodeArtifactId(`artifact:${hex}`).pipe(
+    FilesCommandError.mapError(`Failed to decode artifact id for ${label}`)
+  );
+});
+
+const makeOperationIdFromText = Effect.fn("Files.makeOperationIdFromText")(function* (
+  text: string,
+  label: string
+): Effect.fn.Return<OperationId, FilesCommandError> {
+  const hex = yield* processHashBytes(processUtf8Encoder.encode(text), label);
+  return yield* decodeOperationId(`operation:${hex}`).pipe(
+    FilesCommandError.mapError(`Failed to decode operation id for ${label}`)
+  );
+});
+
+const collectProcessDirectoryFiles = Effect.fn("Files.collectProcessDirectoryFiles")(function* (
+  sourceRoot: string,
+  canonicalSourceRoot: string,
+  currentDirectory: string
+): Effect.fn.Return<ReadonlyArray<ProcessCollectedFile>, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const entries = yield* fs
+    .readDirectory(currentDirectory)
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to read process input directory", currentDirectory, { cause })
+      )
+    );
+  let files: ReadonlyArray<ProcessCollectedFile> = A.empty();
+
+  for (const entry of A.sort(entries, Order.String)) {
+    const sourcePath = path.join(currentDirectory, entry);
+    const stat = yield* fs
+      .stat(sourcePath)
+      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat process input", sourcePath, { cause })));
+    const canonicalPath = yield* fs.realPath(sourcePath).pipe(Effect.option);
+
+    if (O.isNone(canonicalPath)) {
+      continue;
+    }
+
+    const canonicalRelativePath = pipe(path.relative(canonicalSourceRoot, canonicalPath.value), processPathSeparators);
+    if (Str.startsWith("../")(canonicalRelativePath) || Str.startsWith("/")(canonicalRelativePath)) {
+      continue;
+    }
+
+    if (stat.type === "Directory") {
+      files = A.appendAll(files, yield* collectProcessDirectoryFiles(sourceRoot, canonicalSourceRoot, sourcePath));
+      continue;
+    }
+
+    if (stat.type !== "File") {
+      continue;
+    }
+
+    const relativePath = pipe(path.relative(sourceRoot, sourcePath), processPathSeparators);
+    const extension = pipe(path.extname(entry), processExtensionWithoutDot);
+    files = A.append(files, {
+      canonicalPath: canonicalPath.value,
+      extension,
+      name: entry,
+      relativePath,
+      sizeBytes: Number(stat.size),
+      sourcePath,
+    });
+  }
+
+  return A.sort(
+    files,
+    Order.mapInput(Order.String, (file: ProcessCollectedFile) => file.relativePath)
+  );
+});
+
+const collectProcessInputFiles = Effect.fn("Files.collectProcessInputFiles")(function* (
+  input: string
+): Effect.fn.Return<ProcessInputCollection, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const sourcePath = path.resolve(input);
+  const stat = yield* fs
+    .stat(sourcePath)
+    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat process input", sourcePath, { cause })));
+
+  if (stat.type === "File") {
+    const sourceRoot = path.dirname(sourcePath);
+    const canonicalSourceRoot = yield* fs
+      .realPath(sourceRoot)
+      .pipe(
+        Effect.mapError((cause) => formatPlatformError("Failed to resolve process source root", sourceRoot, { cause }))
+      );
+    const canonicalPath = yield* fs
+      .realPath(sourcePath)
+      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to resolve process input", sourcePath, { cause })));
+    const name = path.basename(sourcePath);
+
+    return {
+      canonicalSourceRoot,
+      files: [
+        {
+          canonicalPath,
+          extension: pipe(path.extname(name), processExtensionWithoutDot),
+          name,
+          relativePath: name,
+          sizeBytes: Number(stat.size),
+          sourcePath,
+        },
+      ],
+      sourceRoot,
+    };
+  }
+
+  if (stat.type !== "Directory") {
+    return yield* FilesCommandError.make({
+      message: `Expected --input to be a file or directory: "${sourcePath}"`,
+    });
+  }
+
+  const canonicalSourceRoot = yield* fs
+    .realPath(sourcePath)
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to resolve process input directory", sourcePath, { cause })
+      )
+    );
+  const files = yield* collectProcessDirectoryFiles(sourcePath, canonicalSourceRoot, sourcePath);
+
+  return {
+    canonicalSourceRoot,
+    files,
+    sourceRoot: sourcePath,
+  };
+});
+
+const prepareProcessOutDir = Effect.fn("Files.prepareProcessOutDir")(function* (
+  outDir: string,
+  sourceRoot: string,
+  overwrite: boolean
+): Effect.fn.Return<string, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const outputDirectory = path.resolve(outDir);
+  const outputRelativeToSource = pipe(path.relative(sourceRoot, outputDirectory), processPathSeparators);
+  const sourceRelativeToOutput = pipe(path.relative(outputDirectory, sourceRoot), processPathSeparators);
+
+  if (
+    isProcessSelfOrNestedRelativePath(outputRelativeToSource) ||
+    isProcessSelfOrNestedRelativePath(sourceRelativeToOutput)
+  ) {
+    return yield* FilesCommandError.make({
+      message: `Refusing to write files process output in an overlapping source/output tree: "${outputDirectory}"`,
+    });
+  }
+
+  const outputExists = yield* fs.exists(outputDirectory).pipe(Effect.orElseSucceed(() => false));
+  if (outputExists && overwrite) {
+    yield* fs
+      .remove(outputDirectory, { force: true, recursive: true })
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to remove existing process output", outputDirectory, { cause })
+        )
+      );
+  }
+  if (outputExists && !overwrite) {
+    const entries = yield* fs
+      .readDirectory(outputDirectory)
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to inspect existing process output", outputDirectory, { cause })
+        )
+      );
+    if (A.length(entries) > 0) {
+      return yield* FilesCommandError.make({
+        message: `Refusing to write files process output to non-empty directory without --overwrite: "${outputDirectory}"`,
+      });
+    }
+  }
+
+  yield* fs
+    .makeDirectory(path.join(outputDirectory, "text"), { recursive: true })
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to create process text directory", outputDirectory, { cause })
+      )
+    );
+  yield* fs
+    .makeDirectory(path.join(outputDirectory, "children"), { recursive: true })
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to create process children directory", outputDirectory, { cause })
+      )
+    );
+
+  return outputDirectory;
+});
+
+const prepareProcessSource = Effect.fn("Files.prepareProcessSource")(function* (
+  sourceFile: ProcessCollectedFile,
+  engine: ProcessFilesOptions["engine"]
+): Effect.fn.Return<ProcessPreparedSource, FilesCommandError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const bytes = yield* fs
+    .readFile(sourceFile.sourcePath)
+    .pipe(
+      Effect.mapError((cause) => formatPlatformError("Failed to read process source", sourceFile.sourcePath, { cause }))
+    );
+  const digest = yield* makeContentDigest(bytes, sourceFile.relativePath);
+  const artifactId = yield* makeArtifactId(digest, sourceFile.relativePath);
+  const operationId = yield* makeOperationIdFromText(
+    `${sourceFile.relativePath}:${digest}:${engine}`,
+    `operation ${sourceFile.relativePath}`
+  );
+  const format = classifyProcessExtension(sourceFile.extension);
+  const mediaType = mediaTypeForProcessFormat(format);
+  const sourceText = A.contains(processTextLikeFormats, format)
+    ? O.some(processUtf8Decoder.decode(bytes))
+    : O.none<string>();
+
+  return {
+    bytes,
+    digest,
+    format,
+    operationId,
+    source: SourceArtifact.make({
+      bytes,
+      digest,
+      extension: sourceFile.extension,
+      id: artifactId,
+      locator: ArtifactLocator.make({ kind: "file", value: sourceFile.sourcePath }),
+      name: sourceFile.name,
+      relativePath: sourceFile.relativePath,
+      sizeBytes: sourceFile.sizeBytes,
+      ...R.getSomes({ mediaType, text: sourceText }),
+    }),
+    sourceFile,
+  };
+});
+
+const makeProcessSourceRecord = (
+  prepared: ProcessPreparedSource,
+  status: SourceProcessingRecord["status"],
+  options: {
+    readonly engine?: string;
+    readonly skipReason?: FileProcessingSkipReason;
+    readonly textPath?: string;
+  } = {}
+): SourceProcessingRecord =>
+  SourceProcessingRecord.make({
+    artifactId: prepared.source.id,
+    digest: prepared.digest,
+    format: prepared.format,
+    operationId: prepared.operationId,
+    relativePath: prepared.sourceFile.relativePath,
+    sizeBytes: prepared.sourceFile.sizeBytes,
+    status,
+    ...R.getSomes({
+      engine: O.fromUndefinedOr(options.engine),
+      skipReason: O.fromUndefinedOr(options.skipReason),
+      textPath: O.fromUndefinedOr(options.textPath),
+    }),
+  });
+
+const makeProcessFailureRecord = (
+  prepared: ProcessPreparedSource,
+  status: SourceProcessingRecord["status"],
+  message: string,
+  reason: string,
+  options: {
+    readonly engine?: string;
+    readonly format?: FileFormatFamily;
+  } = {}
+): FileProcessingFailureRecord =>
+  FileProcessingFailureRecord.make({
+    artifactId: prepared.source.id,
+    message,
+    operationId: prepared.operationId,
+    reason,
+    relativePath: prepared.sourceFile.relativePath,
+    status,
+    ...R.getSomes({
+      engine: O.fromUndefinedOr(options.engine),
+      format: O.fromUndefinedOr(options.format),
+    }),
+  });
+
+const makeProcessStrategy = (
+  engine: FileProcessingEngineShape,
+  prepared: ProcessPreparedSource,
+  disposition: SelectedStrategy["disposition"],
+  skipReason: O.Option<FileProcessingSkipReason>
+): SelectedStrategy =>
+  SelectedStrategy.make({
+    disposition,
+    engine: engine.descriptor.engine,
+    format: prepared.format,
+    operationKind: prepared.format === "pst" ? "export-archive" : "extract",
+    ...R.getSomes({ skipReason }),
+  });
+
+const processFailureOutcome = (
+  engine: FileProcessingEngineShape,
+  prepared: ProcessPreparedSource,
+  error: FileProcessingOperationError
+): ProcessSourceOutcome => {
+  const status = processOperationErrorStatus(error);
+  const skipReason = processOperationErrorSkipReason(error);
+
+  return {
+    childRecords: A.empty(),
+    failure: O.some(
+      makeProcessFailureRecord(prepared, status, error.message, error.reason, {
+        engine: error.engine ?? engine.descriptor.name,
+        format: error.format ?? prepared.format,
+      })
+    ),
+    sourceRecord: makeProcessSourceRecord(prepared, status, {
+      engine: error.engine ?? engine.descriptor.name,
+      ...R.getSomes({ skipReason }),
+    }),
+    strategy: makeProcessStrategy(engine, prepared, O.isNone(skipReason) ? "unsupported" : "deferred", skipReason),
+    text: O.none<readonly [string, string]>(),
+  };
+};
+
+const processSkippedOutcome = (
+  engine: FileProcessingEngineShape,
+  prepared: ProcessPreparedSource,
+  message: string,
+  reason: FileProcessingSkipReason
+): ProcessSourceOutcome => ({
+  childRecords: A.empty(),
+  failure: O.some(
+    makeProcessFailureRecord(prepared, "skipped", message, reason, {
+      engine: engine.descriptor.name,
+      format: prepared.format,
+    })
+  ),
+  sourceRecord: makeProcessSourceRecord(prepared, "skipped", {
+    engine: engine.descriptor.name,
+    skipReason: reason,
+  }),
+  strategy: makeProcessStrategy(engine, prepared, "deferred", O.some(reason)),
+  text: O.none<readonly [string, string]>(),
+});
+
+const processExtractionSuccessOutcome = (
+  engine: FileProcessingEngineShape,
+  prepared: ProcessPreparedSource,
+  text: O.Option<string>
+): ProcessSourceOutcome => {
+  const textRelativePath = O.map(text, () => `text/${prepared.operationId}.txt`);
+
+  return {
+    childRecords: A.empty(),
+    failure: O.none<FileProcessingFailureRecord>(),
+    sourceRecord: makeProcessSourceRecord(prepared, "succeeded", {
+      engine: engine.descriptor.name,
+      ...R.getSomes({ textPath: textRelativePath }),
+    }),
+    strategy: makeProcessStrategy(engine, prepared, "supported", O.none<FileProcessingSkipReason>()),
+    text:
+      O.isNone(text) || O.isNone(textRelativePath) ? O.none() : O.some([textRelativePath.value, text.value] as const),
+  };
+};
+
+const processArchiveSuccessOutcome = (
+  engine: FileProcessingEngineShape,
+  prepared: ProcessPreparedSource,
+  children: ReadonlyArray<ChildArtifactRecord>
+): ProcessSourceOutcome => ({
+  childRecords: children,
+  failure: O.none<FileProcessingFailureRecord>(),
+  sourceRecord: makeProcessSourceRecord(prepared, "succeeded", {
+    engine: engine.descriptor.name,
+  }),
+  strategy: makeProcessStrategy(engine, prepared, "supported", O.none<FileProcessingSkipReason>()),
+  text: O.none<readonly [string, string]>(),
+});
+
+const processPreparedSource = Effect.fn("Files.processPreparedSource")(function* (
+  prepared: ProcessPreparedSource,
+  options: ProcessFilesOptions
+): Effect.fn.Return<ProcessSourceOutcome, never> {
+  const engine =
+    options.engine === "test" && prepared.format === "pst"
+      ? syntheticLibpffEngine()
+      : processEngineFor(options.engine, prepared.format);
+
+  if (prepared.format === "docm" || prepared.format === "xls" || prepared.format === "xlsx") {
+    return processSkippedOutcome(
+      engine,
+      prepared,
+      `${prepared.format} was classified deterministically; deep extraction is out of scope for V1.`,
+      "format-out-of-scope"
+    );
+  }
+
+  if (prepared.format === "unknown") {
+    return processSkippedOutcome(
+      engine,
+      prepared,
+      "Source format is not supported by the V1 proof.",
+      "unsupported-format"
+    );
+  }
+
+  if (prepared.format === "pst") {
+    if (!options.exportChildren) {
+      return processSkippedOutcome(engine, prepared, "PST child export was not requested.", "operation-not-required");
+    }
+
+    return yield* engine
+      .exportArchive({
+        format: prepared.format,
+        operationId: prepared.operationId,
+        operationKind: "export-archive",
+        preference: { engine: options.engine },
+        source: prepared.source,
+        ...R.getSomes({
+          maxMaterializedBytes: O.fromUndefinedOr(options.maxMaterializedBytes),
+        }),
+      })
+      .pipe(
+        Effect.matchEffect({
+          onFailure: (error) => Effect.succeed(processFailureOutcome(engine, prepared, error)),
+          onSuccess: (result) =>
+            Effect.succeed(
+              processArchiveSuccessOutcome(
+                engine,
+                prepared,
+                A.map(result.children, (child) =>
+                  ChildArtifactRecord.make({
+                    child,
+                    sourceArtifactId: prepared.source.id,
+                  })
+                )
+              )
+            ),
+        })
+      );
+  }
+
+  return yield* engine
+    .extract({
+      format: prepared.format,
+      operationId: prepared.operationId,
+      operationKind: "extract",
+      preference: { engine: options.engine },
+      source: prepared.source,
+      ...R.getSomes({
+        maxMaterializedBytes: O.fromUndefinedOr(options.maxMaterializedBytes),
+      }),
+    })
+    .pipe(
+      Effect.matchEffect({
+        onFailure: (error) => Effect.succeed(processFailureOutcome(engine, prepared, error)),
+        onSuccess: (result) => {
+          if (
+            options.maxMaterializedBytes !== undefined &&
+            result.text !== undefined &&
+            processUtf8Encoder.encode(result.text).length > options.maxMaterializedBytes
+          ) {
+            return Effect.succeed(
+              processFailureOutcome(
+                engine,
+                prepared,
+                FileProcessingOperationError.fromReason("output-limit-exceeded", {
+                  artifactId: prepared.source.id,
+                  engine: engine.descriptor.name,
+                  format: prepared.format,
+                  message: "Extracted text exceeded --max-materialized-bytes.",
+                  operationId: prepared.operationId,
+                })
+              )
+            );
+          }
+
+          return Effect.succeed(processExtractionSuccessOutcome(engine, prepared, O.fromUndefinedOr(result.text)));
+        },
+      })
+    );
+});
+
+const makeProcessCoverage = (records: ReadonlyArray<SourceProcessingRecord>): FileProcessingCoverageSummary => {
+  const byFormat: Record<string, Record<string, number>> = {};
+
+  for (const record of records) {
+    const formatCounts = byFormat[record.format] ?? {};
+    formatCounts[record.status] = (formatCounts[record.status] ?? 0) + 1;
+    byFormat[record.format] = formatCounts;
+  }
+
+  return FileProcessingCoverageSummary.make({
+    byFormat,
+    failedCount: A.length(A.filter(records, (record) => record.status === "failed")),
+    skippedCount: A.length(A.filter(records, (record) => record.status === "skipped")),
+    sourceCount: A.length(records),
+    succeededCount: A.length(A.filter(records, (record) => record.status === "succeeded")),
+    textArtifactCount: A.length(A.filter(records, (record) => record.textPath !== undefined)),
+  });
+};
+
+const encodeProcessJsonLine = <AValue>(
+  value: AValue,
+  encode: (value: AValue) => Effect.Effect<string, S.SchemaError>,
+  label: string
+): Effect.Effect<string, FilesCommandError> =>
+  encode(value).pipe(
+    FilesCommandError.mapError(`Failed to encode ${label}`),
+    Effect.map((line) => `${line}\n`)
+  );
+
+const writeProcessStringFile = Effect.fn("Files.writeProcessStringFile")(function* (
+  outputPath: string,
+  content: string
+): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  yield* fs
+    .makeDirectory(path.dirname(outputPath), { recursive: true })
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to create process output directory", outputPath, { cause })
+      )
+    );
+  yield* fs
+    .writeFileString(outputPath, content)
+    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to write process output", outputPath, { cause })));
+});
+
+const writeProcessManifestTree = Effect.fn("Files.writeProcessManifestTree")(function* (
+  outputDirectory: string,
+  collection: ProcessInputCollection,
+  options: ProcessFilesOptions,
+  outcomes: ReadonlyArray<ProcessSourceOutcome>
+): Effect.fn.Return<
+  void,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const path = yield* Path.Path;
+  const sourceRecords = A.map(outcomes, (outcome) => outcome.sourceRecord);
+  const failureRecords = A.flatMap(outcomes, (outcome) => O.toArray(outcome.failure));
+  const coverage = makeProcessCoverage(sourceRecords);
+  const runId = yield* makeOperationIdFromText(
+    `${collection.sourceRoot}:${outputDirectory}:${options.engine}:${A.length(sourceRecords)}`,
+    "process run"
+  );
+  const runManifest = ProcessRunManifest.make({
+    coverage,
+    engine: options.engine,
+    manifestVersion: "beep.file-processing.run.v1",
+    outDir: outputDirectory,
+    runId,
+    sourceRoot: collection.sourceRoot,
+    strategies: A.map(outcomes, (outcome) => outcome.strategy),
+  });
+  const sourceLines = yield* Effect.forEach(sourceRecords, (record) =>
+    encodeProcessJsonLine(record, encodeSourceProcessingRecordJson, "process source record")
+  );
+  const failureLines = yield* Effect.forEach(failureRecords, (record) =>
+    encodeProcessJsonLine(record, encodeFileProcessingFailureRecordJson, "process failure record")
+  );
+  const coverageJson = yield* encodeFileProcessingCoverageSummaryJson(coverage).pipe(
+    FilesCommandError.mapError("Failed to encode process coverage")
+  );
+  const runJson = yield* encodeProcessRunManifestJson(runManifest).pipe(
+    FilesCommandError.mapError("Failed to encode process run manifest")
+  );
+
+  yield* writeProcessStringFile(path.join(outputDirectory, "run.json"), `${runJson}\n`);
+  yield* writeProcessStringFile(path.join(outputDirectory, "coverage.json"), `${coverageJson}\n`);
+  yield* writeProcessStringFile(path.join(outputDirectory, "sources.jsonl"), A.join("")(sourceLines));
+  yield* writeProcessStringFile(path.join(outputDirectory, "failures.jsonl"), A.join("")(failureLines));
+
+  for (const outcome of outcomes) {
+    if (O.isSome(outcome.text)) {
+      yield* writeProcessStringFile(path.join(outputDirectory, outcome.text.value[0]), outcome.text.value[1]);
+    }
+
+    if (A.length(outcome.childRecords) > 0) {
+      const childLines = yield* Effect.forEach(outcome.childRecords, (record) =>
+        encodeProcessJsonLine(record, encodeChildArtifactRecordJson, "process child artifact record")
+      );
+      yield* writeProcessStringFile(
+        path.join(outputDirectory, "children", `${outcome.sourceRecord.artifactId}`, "artifacts.jsonl"),
+        A.join("")(childLines)
+      );
+    }
+  }
+});
+
+const processFilesImpl = Effect.fn("FilesCommandService.processFiles")(function* (
+  options: ProcessFilesOptions
+): Effect.fn.Return<ProcessFilesSummary, FilesCommandError, FilesCommandServiceRequirements> {
+  const collection = yield* collectProcessInputFiles(options.input);
+  const outputDirectory = yield* prepareProcessOutDir(options.outDir, collection.sourceRoot, options.overwrite);
+  const preparedSources = yield* Effect.forEach(
+    collection.files,
+    (sourceFile) => prepareProcessSource(sourceFile, options.engine),
+    {
+      concurrency: FilesConcurrency.scan,
+    }
+  );
+  const outcomes = yield* Effect.forEach(preparedSources, (source) => processPreparedSource(source, options), {
+    concurrency: FilesConcurrency.scan,
+  });
+  const sourceRecords = A.map(outcomes, (outcome) => outcome.sourceRecord);
+  const coverage = makeProcessCoverage(sourceRecords);
+  const summary = ProcessFilesSummary.make({
+    failedCount: coverage.failedCount,
+    skippedCount: coverage.skippedCount,
+    sourceCount: coverage.sourceCount,
+    succeededCount: coverage.succeededCount,
+    textArtifactCount: coverage.textArtifactCount,
+  });
+
+  yield* writeProcessManifestTree(outputDirectory, collection, options, outcomes);
+  yield* Console.log(
+    `files process: ${summary.succeededCount} succeeded, ${summary.skippedCount} skipped, ${summary.failedCount} failed; wrote "${outputDirectory}".`
+  );
+
+  if (options.failurePolicy === "fail-on-error" && summary.failedCount > 0) {
+    return yield* FilesCommandError.make({
+      message: `files process: ${summary.failedCount} source file(s) failed. See "${outputDirectory}" for manifest details.`,
+    });
+  }
+
+  return summary;
+});
+
 /**
  * Print the files command index.
  *
@@ -3728,6 +4525,7 @@ export const printFilesIndex = printLines([
   "- bun run files strip-metadata --dir ./tmp",
   "- bun run files normalize --dir ./raw --out-dir ./dataset/images --format png",
   "- bun run files normalize --dir ./raw --out-dir ./dataset/images --format png --dedupe",
+  "- bun run files process --input ./sources --out-dir ./file-processing-proof",
   "- bun run files create-captions --dir ./dataset/images",
   "- bun run files archive-poor-candidates --dir ./dataset/images --archive-dir ./dataset/rejected",
   "- bun run files detect-borders --dir ./tmp",
@@ -4464,6 +5262,9 @@ const makeFilesCommandService = Effect.fn("FilesCommandService.make")(function* 
     normalizeFiles: Effect.fn("FilesCommandService.normalizeFiles")((options) =>
       normalizeFilesImpl(options).pipe(Effect.provide(runtimeContext))
     ),
+    processFiles: Effect.fn("FilesCommandService.processFiles")((options) =>
+      processFilesImpl(options).pipe(Effect.provide(runtimeContext))
+    ),
     sortAndRenameFiles: Effect.fn("FilesCommandService.sortAndRenameFiles")(
       (dir, prefix, dryRun, withDimensions = false) =>
         sortAndRenameFilesImpl(dir, prefix, dryRun, withDimensions).pipe(Effect.provide(runtimeContext))
@@ -4606,6 +5407,26 @@ export const normalizeFiles = Effect.fn("Files.normalizeFiles")(function* (
 ): Effect.fn.Return<NormalizeSummary, FilesCommandError, FilesCommandService> {
   const files = yield* FilesCommandService;
   return yield* files.normalizeFiles(options);
+});
+
+/**
+ * Process a file or directory into the V1 file-processing proof manifest tree.
+ *
+ * @param options - File-processing proof options.
+ * @returns Summary counts for the operation.
+ * @example
+ * ```ts
+ * import { processFiles } from "@beep/repo-cli/commands/Files"
+ * console.log(processFiles)
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const processFiles = Effect.fn("Files.processFiles")(function* (
+  options: ProcessFilesOptions
+): Effect.fn.Return<ProcessFilesSummary, FilesCommandError, FilesCommandService> {
+  const files = yield* FilesCommandService;
+  return yield* files.processFiles(options);
 });
 
 /**

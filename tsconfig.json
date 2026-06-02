@@ -1107,18 +1107,40 @@
         "./packages/foundation/capability/nlp/src/Handoff/index.ts"
       ],
       "@beep/nlp-mcp": ["./packages/drivers/nlp-mcp/src/index.ts"],
-      "@beep/nlp-mcp/*": [
-        "./packages/drivers/nlp-mcp/src/*"
-      ],
+      "@beep/nlp-mcp/*": ["./packages/drivers/nlp-mcp/src/*"],
       "@beep/ui/components/blocks/editor-00/nodes": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
       ],
-      "@beep/wink": [
-        "./packages/drivers/wink/src/index.ts"
+      "@beep/wink": ["./packages/drivers/wink/src/index.ts"],
+      "@beep/wink/*": ["./packages/drivers/wink/src/*"],
+      "@beep/file-processing": [
+        "./packages/foundation/capability/file-processing/src/index.ts"
       ],
-      "@beep/wink/*": [
-        "./packages/drivers/wink/src/*"
-      ]
+      "@beep/file-processing/Artifact": [
+        "./packages/foundation/capability/file-processing/src/Artifact/index.ts"
+      ],
+      "@beep/file-processing/Extraction": [
+        "./packages/foundation/capability/file-processing/src/Extraction/index.ts"
+      ],
+      "@beep/file-processing/Operation": [
+        "./packages/foundation/capability/file-processing/src/Operation/index.ts"
+      ],
+      "@beep/file-processing/Service": [
+        "./packages/foundation/capability/file-processing/src/Service/index.ts"
+      ],
+      "@beep/file-processing/Strategy": [
+        "./packages/foundation/capability/file-processing/src/Strategy/index.ts"
+      ],
+      "@beep/file-processing/test": [
+        "./packages/foundation/capability/file-processing/src/test.ts"
+      ],
+      "@beep/file-processing/*": [
+        "./packages/foundation/capability/file-processing/src/*"
+      ],
+      "@beep/tika": ["./packages/drivers/tika/src/index.ts"],
+      "@beep/tika/*": ["./packages/drivers/tika/src/*"],
+      "@beep/libpff": ["./packages/drivers/libpff/src/index.ts"],
+      "@beep/libpff/*": ["./packages/drivers/libpff/src/*"]
     }
   }
 }

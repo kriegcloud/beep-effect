@@ -1,5 +1,10 @@
 import { Chalk } from "@beep/chalk";
 import { createColors } from "@beep/colors";
+import {
+  FileProcessingCoverageSummary,
+  ProcessRunManifest,
+  SourceProcessingRecord,
+} from "@beep/file-processing/Extraction";
 import { filesCommand } from "@beep/repo-cli";
 import {
   ArchivePoorCandidatesManifest,
@@ -32,7 +37,10 @@ const runFilesCommand = Command.runWith(filesCommand, { version: "0.0.0" });
 const decodeArchivePoorCandidatesManifest = S.decodeUnknownSync(S.fromJsonString(ArchivePoorCandidatesManifest));
 const decodeDetectBordersReport = S.decodeUnknownSync(S.fromJsonString(DetectBordersReport));
 const decodeDetectFacesReport = S.decodeUnknownEffect(S.fromJsonString(DetectFacesReport));
+const decodeFileProcessingCoverageSummary = S.decodeUnknownSync(S.fromJsonString(FileProcessingCoverageSummary));
 const decodeNormalizeManifest = S.decodeUnknownSync(S.fromJsonString(NormalizeManifest));
+const decodeProcessRunManifest = S.decodeUnknownSync(S.fromJsonString(ProcessRunManifest));
+const decodeSourceProcessingRecord = S.decodeUnknownSync(S.fromJsonString(SourceProcessingRecord));
 const isString = (value: unknown): value is string => typeof value === "string";
 
 class FilesTestError extends Data.TaggedError("FilesTestError")<{ readonly cause: unknown }> {}
@@ -409,6 +417,59 @@ describe.sequential("files command", () => {
 
     expect(rendered).toBe("files normalize write <#####-----> 3/6 50.0%");
   });
+
+  it("writes the V1 file-processing proof manifest tree", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const outDir = path.join(tmpDir, "proof");
+
+          yield* fs.writeFileString(path.join(datasetDir, "note.txt"), "hello proof");
+          yield* fs.writeFileString(path.join(datasetDir, "table.xls"), "not extracted");
+          yield* fs.writeFileString(path.join(datasetDir, "mailbox.pst"), "pst");
+
+          yield* runFilesCommand([
+            "process",
+            "--input",
+            datasetDir,
+            "--out-dir",
+            outDir,
+            "--engine",
+            "test",
+            "--export-children",
+            "--failure-policy",
+            "continue",
+          ]);
+
+          const runManifest = decodeProcessRunManifest(yield* fs.readFileString(path.join(outDir, "run.json")));
+          const coverage = decodeFileProcessingCoverageSummary(
+            yield* fs.readFileString(path.join(outDir, "coverage.json"))
+          );
+          const sourceRecords = pipe(
+            yield* fs.readFileString(path.join(outDir, "sources.jsonl")),
+            Str.split("\n"),
+            A.filter((line) => line.length > 0),
+            A.map((line) => decodeSourceProcessingRecord(line))
+          );
+          const textRecord = O.getOrThrow(A.findFirst(sourceRecords, (record) => record.relativePath === "note.txt"));
+          const pstRecord = O.getOrThrow(A.findFirst(sourceRecords, (record) => record.relativePath === "mailbox.pst"));
+
+          expect(runManifest.manifestVersion).toBe("beep.file-processing.run.v1");
+          expect(coverage.sourceCount).toBe(3);
+          expect(coverage.succeededCount).toBe(2);
+          expect(coverage.skippedCount).toBe(1);
+          expect(textRecord.textPath).toBe(`text/${textRecord.operationId}.txt`);
+          expect(yield* fs.readFileString(path.join(outDir, textRecord.textPath ?? ""))).toBe("hello proof");
+          expect(yield* fs.exists(path.join(outDir, "failures.jsonl"))).toBe(true);
+          expect(yield* fs.exists(path.join(outDir, "children", `${pstRecord.artifactId}`, "artifacts.jsonl"))).toBe(
+            true
+          );
+        })
+      )
+    ));
 
   it("detects black pillarbox borders", () =>
     Effect.runPromise(

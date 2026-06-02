@@ -66,6 +66,8 @@ const config = {
     "apps/canvas/package.json",
     "packages/drivers/nlp-mcp/package.json",
     "packages/drivers/wink/package.json",
+    "packages/drivers/tika/package.json",
+    "packages/drivers/libpff/package.json",
   ],
   customTypes: {
     catalog: {

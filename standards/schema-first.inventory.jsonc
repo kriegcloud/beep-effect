@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-30",
+  "generatedOn": "2026-06-02",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -328,6 +328,22 @@
       "status": "candidate",
       "owner": "@beep/chalk",
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/file-processing/src/Service/index.ts",
+      "symbol": "FileProcessingEngineShape",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/file-processing",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/file-processing/src/Service/index.ts",
+      "symbol": "FileProcessingServiceShape",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/file-processing",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/foundation/capability/md/src/Md.model.ts",
