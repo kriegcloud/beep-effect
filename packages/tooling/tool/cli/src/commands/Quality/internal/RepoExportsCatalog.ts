@@ -1,11 +1,10 @@
-#!/usr/bin/env bun
-
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import { A, O, Str } from "@beep/utils";
+import { A, O, Str, thunkFalse } from "@beep/utils";
+import { Effect, FileSystem, Path } from "effect";
+import * as P from "effect/Predicate";
 import { Project } from "ts-morph";
 import {
   declarationKind,
+  defaultRepoRoot,
   discoverWorkspacePackages,
   escapeRegExp,
   formatJsonc,
@@ -13,17 +12,18 @@ import {
   ignoredSourceSuffixes,
   listSourceFiles,
   normalizeSlashes,
+  QualityArtifactGeneratorError,
   readText,
   repoRelative,
-  rootDir,
   summaryFromComment,
   tagsFromComment,
   topoSortPackageNames,
   valuesForTag,
-} from "./_shared.ts";
+} from "./QualityArtifactSupport.js";
 import type * as Ordering from "effect/Ordering";
+import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { Node, SourceFile } from "ts-morph";
-import type { JsonRecord, PackageJson, WorkspacePackageInfo } from "./_shared.ts";
+import type { JsonRecord, PackageJson, WorkspacePackageInfo } from "./QualityArtifactSupport.js";
 
 type ExportMapEntry = {
   readonly subpath: string;
@@ -88,11 +88,10 @@ type Catalog = {
   readonly packages: ReadonlyArray<PackageCatalog>;
 };
 
-const outputJsonPath = path.join(rootDir, "standards", "repo-exports.catalog.jsonc");
-const outputMarkdownPath = path.join(rootDir, "standards", "repo-exports.catalog.md");
+const outputJsonRelativePath = "standards/repo-exports.catalog.jsonc";
+const outputMarkdownRelativePath = "standards/repo-exports.catalog.md";
 const conditionPreference = ["types", "import", "default", "require"];
 const conditionNames = new Set(conditionPreference);
-const checkMode = A.contains(process.argv, "--check");
 const compareText = (left: string, right: string): Ordering.Ordering => Str.localeCompare(right)(left);
 const compareNumber = (left: number, right: number): Ordering.Ordering => {
   if (left < right) {
@@ -106,20 +105,62 @@ const compareNumber = (left: number, right: number): Ordering.Ordering => {
   return 0;
 };
 
+/**
+ * Options for building, writing, or checking the repo export catalog.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export type RepoExportsCatalogOptions = {
+  readonly rootDir?: string;
+  readonly outputJsonPath?: string;
+  readonly outputMarkdownPath?: string;
+  readonly check?: boolean;
+};
+
+/**
+ * Result returned after writing or checking repo export catalog artifacts.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type RepoExportsCatalogWriteResult = {
+  readonly outputJsonPath: string;
+  readonly outputMarkdownPath: string;
+  readonly totals: Catalog["totals"];
+  readonly findings: ReadonlyArray<string>;
+  readonly checked: boolean;
+  readonly written: boolean;
+};
+
+const resolveRepoExportsCatalogOptions = Effect.fn("RepoExportsCatalog.resolveOptions")(function* (
+  options: RepoExportsCatalogOptions = {}
+) {
+  const path = yield* Path.Path;
+  const repoRoot = options.rootDir ?? defaultRepoRoot;
+
+  return {
+    repoRoot,
+    outputJsonPath: options.outputJsonPath ?? path.join(repoRoot, outputJsonRelativePath),
+    outputMarkdownPath: options.outputMarkdownPath ?? path.join(repoRoot, outputMarkdownRelativePath),
+    check: options.check ?? false,
+  };
+});
+
 const markdownCell = (value: unknown): string =>
   Str.replace(/\|/g, "\\|")(Str.replace(/\r?\n/g, " ")(String(value ?? "")));
 
 const isIgnoredSourceTarget = (target: unknown): target is string =>
-  typeof target === "string" && A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(target));
+  P.isString(target) && A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(target));
 
 const exportTargetFrom = (value: unknown): string | undefined => {
   if (value === null || value === undefined) {
     return undefined;
   }
-  if (typeof value === "string") {
+  if (P.isString(value)) {
     return value;
   }
-  if (typeof value !== "object") {
+  if (!P.isObject(value)) {
     return undefined;
   }
 
@@ -204,7 +245,7 @@ const exportMapEntriesFrom = (packageJson: PackageJson): ReadonlyArray<ExportMap
 };
 
 const isSourceTarget = (target: unknown): target is string =>
-  typeof target === "string" &&
+  P.isString(target) &&
   (Str.endsWith(".ts")(target) || Str.endsWith(".tsx")(target)) &&
   !A.some(ignoredSourceSuffixes, (suffix) => Str.endsWith(suffix)(target));
 
@@ -237,13 +278,15 @@ const importSpecifierFor = (packageName: string, subpath: string): string => {
   return `${packageName}/${Str.replace(/^\.\//, "")(subpath)}`;
 };
 
-const exportedSourceFilePath = (packagePath: string, target: string): string =>
+const exportedSourceFilePath = (packagePath: string, target: string, path: Path.Path): string =>
   path.join(packagePath, Str.replace(/^\.\//, "")(normalizeSlashes(target)));
 
-const expandExportMap = (
+const expandExportMap = Effect.fn("RepoExportsCatalog.expandExportMap")(function* (
   packageInfo: WorkspacePackageInfo,
-  sourceFilePaths: ReadonlyArray<string>
-): ReadonlyArray<ExportExposure> => {
+  sourceFilePaths: ReadonlyArray<string>,
+  path: Path.Path
+): Effect.fn.Return<ReadonlyArray<ExportExposure>, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
   const exportEntries = exportMapEntriesFrom(packageInfo.packageJson);
   const deniedEntries = A.filter(exportEntries, (entry) => entry.denied);
   const activeEntries = A.filter(exportEntries, isActiveSourceExportEntry);
@@ -278,8 +321,9 @@ const expandExportMap = (
       continue;
     }
 
-    const sourceFilePath = exportedSourceFilePath(packageInfo.absolutePath, entry.target);
-    if (!existsSync(sourceFilePath) || subpathDenied(entry.subpath, deniedEntries)) {
+    const sourceFilePath = exportedSourceFilePath(packageInfo.absolutePath, entry.target, path);
+    const exists = yield* fs.exists(sourceFilePath).pipe(Effect.orElseSucceed(thunkFalse));
+    if (!exists || subpathDenied(entry.subpath, deniedEntries)) {
       continue;
     }
 
@@ -298,7 +342,7 @@ const expandExportMap = (
   return A.sortInPlace(exposures, (left, right) =>
     compareText(`${left.importSpecifier}:${left.targetPath}`, `${right.importSpecifier}:${right.targetPath}`)
   );
-};
+});
 
 const searchTextFor = (entry: CatalogEntryInput): string =>
   Str.trim(
@@ -330,18 +374,20 @@ const catalogEntryFor = (
   topoOrder: number,
   exposure: ExportExposure,
   symbolName: string,
-  declaration: Node
+  declaration: Node,
+  repoRoot: string,
+  path: Path.Path
 ): CatalogEntry => {
   const docText = getJsDocText(declaration);
   const categories = valuesForTag(docText, "@category");
-  const sourcePath = repoRelative(declaration.getSourceFile().getFilePath());
+  const sourcePath = repoRelative(declaration.getSourceFile().getFilePath(), repoRoot, path);
   const entry = {
     packageName: packageInfo.name,
     packagePath: packageInfo.path,
     topoOrder,
     importSpecifier: exposure.importSpecifier,
     exportSubpath: exposure.exportSubpath,
-    exportedFromPath: repoRelative(exposure.sourceFilePath),
+    exportedFromPath: repoRelative(exposure.sourceFilePath, repoRoot, path),
     symbolName,
     exportKind: declarationKind(declaration),
     sourcePath,
@@ -361,9 +407,14 @@ const catalogEntryFor = (
 const packageStatusFor = (exportCount: number): PackageCatalog["status"] =>
   exportCount === 0 ? "no-public-exports" : "has-public-exports";
 
-const analyzePackage = (packageInfo: WorkspacePackageInfo, topoOrder: number): PackageCatalog => {
+const analyzePackage = Effect.fn("RepoExportsCatalog.analyzePackage")(function* (
+  packageInfo: WorkspacePackageInfo,
+  topoOrder: number,
+  repoRoot: string,
+  path: Path.Path
+): Effect.fn.Return<PackageCatalog, QualityArtifactGeneratorError, FileSystem.FileSystem> {
   const sourceRoot = path.join(packageInfo.absolutePath, "src");
-  const sourceFilePaths = listSourceFiles(sourceRoot);
+  const sourceFilePaths = yield* listSourceFiles(sourceRoot, path);
   const project = new Project({ skipAddingFilesFromTsConfig: true });
   const sourceFileByPath = new Map<string, SourceFile>();
 
@@ -374,7 +425,7 @@ const analyzePackage = (packageInfo: WorkspacePackageInfo, topoOrder: number): P
   const exports: Array<CatalogEntry> = [];
   const seen = new Set<string>();
 
-  for (const exposure of expandExportMap(packageInfo, sourceFilePaths)) {
+  for (const exposure of yield* expandExportMap(packageInfo, sourceFilePaths, path)) {
     const sourceFile = sourceFileByPath.get(exposure.sourceFilePath);
     if (sourceFile === undefined) {
       continue;
@@ -387,7 +438,7 @@ const analyzePackage = (packageInfo: WorkspacePackageInfo, topoOrder: number): P
             exposure.importSpecifier,
             symbolName,
             declarationKind(declaration),
-            repoRelative(declaration.getSourceFile().getFilePath()),
+            repoRelative(declaration.getSourceFile().getFilePath(), repoRoot, path),
             `${declaration.getStartLineNumber()}`,
           ],
           ":"
@@ -398,7 +449,10 @@ const analyzePackage = (packageInfo: WorkspacePackageInfo, topoOrder: number): P
         }
 
         seen.add(key);
-        A.appendInPlace(exports, catalogEntryFor(packageInfo, topoOrder, exposure, symbolName, declaration));
+        A.appendInPlace(
+          exports,
+          catalogEntryFor(packageInfo, topoOrder, exposure, symbolName, declaration, repoRoot, path)
+        );
       }
     }
   }
@@ -436,7 +490,7 @@ const analyzePackage = (packageInfo: WorkspacePackageInfo, topoOrder: number): P
     },
     exports,
   };
-};
+});
 
 const analyzeMissingPackage = (packageName: string, topoOrder: number): PackageCatalog => ({
   packageName,
@@ -554,15 +608,33 @@ const renderMarkdown = (catalog: Catalog): string => {
   return `${A.join(lines, "\n")}\n`;
 };
 
-const buildCatalog = (): Catalog => {
-  const packageByName = discoverWorkspacePackages();
-  const topoNames = topoSortPackageNames();
-  const packages = A.map(topoNames, (packageName, index) => {
-    const packageInfo = packageByName.get(packageName);
-    return packageInfo === undefined
-      ? analyzeMissingPackage(packageName, index + 1)
-      : analyzePackage(packageInfo, index + 1);
-  });
+/**
+ * Build the deterministic repo export catalog for a repository.
+ *
+ * @category generators
+ * @since 0.0.0
+ */
+export const buildRepoExportsCatalog = Effect.fn("RepoExportsCatalog.build")(function* (
+  options: RepoExportsCatalogOptions = {}
+): Effect.fn.Return<
+  Catalog,
+  QualityArtifactGeneratorError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const path = yield* Path.Path;
+  const { repoRoot } = yield* resolveRepoExportsCatalogOptions(options);
+  const packageByName = yield* discoverWorkspacePackages(repoRoot, path);
+  const topoNames = yield* topoSortPackageNames(repoRoot);
+  const packages = yield* Effect.forEach(
+    topoNames,
+    (packageName, index) => {
+      const packageInfo = packageByName.get(packageName);
+      return packageInfo === undefined
+        ? Effect.succeed(analyzeMissingPackage(packageName, index + 1))
+        : analyzePackage(packageInfo, index + 1, repoRoot, path);
+    },
+    { concurrency: 1 }
+  );
 
   return {
     standard: "repo-exports-catalog",
@@ -582,48 +654,80 @@ const buildCatalog = (): Catalog => {
     totals: catalogTotals(packages),
     packages,
   };
-};
+});
 
-const checkFile = (filePath: string, content: string): ReadonlyArray<string> => {
-  if (!existsSync(filePath)) {
-    return [`${repoRelative(filePath)} is missing`];
+const checkFile = Effect.fn("RepoExportsCatalog.checkFile")(function* (
+  filePath: string,
+  content: string,
+  repoRoot: string,
+  path: Path.Path
+): Effect.fn.Return<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const exists = yield* fs.exists(filePath).pipe(Effect.orElseSucceed(thunkFalse));
+  if (!exists) {
+    return [`${repoRelative(filePath, repoRoot, path)} is missing`];
   }
 
-  const current = readText(filePath);
-  return current === content ? [] : [`${repoRelative(filePath)} is stale`];
-};
+  const current = yield* readText(filePath);
+  return current === content ? [] : [`${repoRelative(filePath, repoRoot, path)} is stale`];
+});
 
-const writeOrCheck = (jsonContent: string, markdownContent: string): void => {
-  if (checkMode) {
-    const findings = [...checkFile(outputJsonPath, jsonContent), ...checkFile(outputMarkdownPath, markdownContent)];
-    if (findings.length > 0) {
-      console.error("[repo-exports-catalog] generated artifacts are stale:");
-      for (const finding of findings) {
-        console.error(`- ${finding}`);
-      }
-      console.error("[repo-exports-catalog] run `bun run beep quality repo-exports-catalog` to refresh them.");
-      process.exit(1);
-    }
-
-    console.log("[repo-exports-catalog] generated artifacts are current");
-    return;
-  }
-
-  mkdirSync(path.dirname(outputJsonPath), { recursive: true });
-  writeFileSync(outputJsonPath, jsonContent);
-  writeFileSync(outputMarkdownPath, markdownContent);
-  console.log(`wrote ${repoRelative(outputJsonPath)}`);
-  console.log(`wrote ${repoRelative(outputMarkdownPath)}`);
-};
-
-const main = (): void => {
-  const catalog = buildCatalog();
+/**
+ * Write or freshness-check repo export catalog JSONC and Markdown artifacts.
+ *
+ * @category generators
+ * @since 0.0.0
+ */
+export const writeOrCheckRepoExportsCatalog = Effect.fn("RepoExportsCatalog.writeOrCheck")(function* (
+  options: RepoExportsCatalogOptions = {}
+): Effect.fn.Return<
+  RepoExportsCatalogWriteResult,
+  QualityArtifactGeneratorError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const { check, outputJsonPath, outputMarkdownPath, repoRoot } = yield* resolveRepoExportsCatalogOptions(options);
+  const catalog = yield* buildRepoExportsCatalog(options);
   const jsonContent = formatJsonc(catalog);
   const markdownContent = renderMarkdown(catalog);
-  writeOrCheck(jsonContent, markdownContent);
-  console.log(
-    `packages=${catalog.totals.packages} importSpecifiers=${catalog.totals.importSpecifiers} publicExportEntries=${catalog.totals.publicExportEntries}`
-  );
-};
 
-main();
+  if (check) {
+    const findings = [
+      ...(yield* checkFile(outputJsonPath, jsonContent, repoRoot, path)),
+      ...(yield* checkFile(outputMarkdownPath, markdownContent, repoRoot, path)),
+    ];
+
+    return {
+      outputJsonPath,
+      outputMarkdownPath,
+      totals: catalog.totals,
+      findings,
+      checked: true,
+      written: false,
+    };
+  }
+
+  yield* fs.makeDirectory(path.dirname(outputJsonPath), { recursive: true }).pipe(
+    QualityArtifactGeneratorError.mapError(`Failed to create artifact directory for ${outputJsonPath}.`, {
+      filePath: outputJsonPath,
+    })
+  );
+  yield* fs
+    .writeFileString(outputJsonPath, jsonContent)
+    .pipe(QualityArtifactGeneratorError.mapError(`Failed to write ${outputJsonPath}.`, { filePath: outputJsonPath }));
+  yield* fs.writeFileString(outputMarkdownPath, markdownContent).pipe(
+    QualityArtifactGeneratorError.mapError(`Failed to write ${outputMarkdownPath}.`, {
+      filePath: outputMarkdownPath,
+    })
+  );
+
+  return {
+    outputJsonPath,
+    outputMarkdownPath,
+    totals: catalog.totals,
+    findings: [],
+    checked: false,
+    written: true,
+  };
+});

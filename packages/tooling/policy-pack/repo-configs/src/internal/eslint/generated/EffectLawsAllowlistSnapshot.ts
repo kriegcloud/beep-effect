@@ -30,59 +30,43 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts",
       "kind": "new-map-set",
-      "reason": "The JSDoc inventory support generator is a standalone Bun/ts-morph workspace scanner that uses native Set and Map collections to mirror parser traversal state deterministically outside package runtime code.",
+      "reason": "The JSDoc inventory Quality command internal generator uses native Set and Map collections to mirror parser traversal state deterministically while scanning ts-morph workspace metadata.",
       "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+      "issue": "REPO-CLI-JSDOC-INVENTORY-QUALITY-INTERNAL"
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
-      "kind": "typeof-runtime",
-      "reason": "The JSDoc inventory support generator decodes untyped JSONC and ts-morph metadata in a standalone support-script boundary where simple runtime guards keep generated inventory deterministic.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
+      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts",
       "kind": "object-method",
-      "reason": "The JSDoc inventory support generator renders aggregate maps from plain JSON-compatible records and uses Object entries only at the generated-report boundary.",
+      "reason": "The JSDoc inventory Quality command internal generator renders aggregate maps from plain JSON-compatible records and uses Object entries only at the generated-report boundary.",
       "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
+      "issue": "REPO-CLI-JSDOC-INVENTORY-QUALITY-INTERNAL"
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-jsdoc-documentation-inventory.ts",
-      "kind": "new-date",
-      "reason": "The JSDoc inventory support generator stamps generated inventory metadata once during direct CLI execution outside package runtime code.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-JSDOC-INVENTORY-SUPPORT-SCRIPT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
+      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
       "kind": "new-map-set",
-      "reason": "The repo export catalog support generator is a standalone Bun/ts-morph workspace scanner that uses native Set and Map collections to mirror parser traversal state deterministically outside package runtime code.",
+      "reason": "The repo export catalog Quality command internal generator uses native Set and Map collections to mirror parser traversal state deterministically while scanning ts-morph workspace metadata.",
       "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
+      "issue": "REPO-CLI-EXPORT-CATALOG-QUALITY-INTERNAL"
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
+      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
       "kind": "typeof-runtime",
-      "reason": "The repo export catalog support generator decodes untyped JSONC and ts-morph metadata in a standalone support-script boundary where simple runtime guards keep generated catalog output deterministic.",
+      "reason": "The repo export catalog Quality command internal generator decodes untyped JSONC and ts-morph metadata where simple runtime guards keep generated catalog output deterministic.",
       "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
+      "issue": "REPO-CLI-EXPORT-CATALOG-QUALITY-INTERNAL"
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/support/generate-repo-exports-catalog.ts",
+      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
       "kind": "object-method",
-      "reason": "The repo export catalog support generator renders aggregate maps from plain JSON-compatible records and uses Object entries only at the generated-report boundary.",
+      "reason": "The repo export catalog Quality command internal generator renders aggregate maps from plain JSON-compatible records and uses Object entries only at the generated-report boundary.",
       "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-EXPORT-CATALOG-SUPPORT-SCRIPT"
+      "issue": "REPO-CLI-EXPORT-CATALOG-QUALITY-INTERNAL"
     }
   ],
   "diagnostics": []

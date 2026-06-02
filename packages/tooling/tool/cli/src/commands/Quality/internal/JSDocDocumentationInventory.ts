@@ -1,11 +1,10 @@
-#!/usr/bin/env bun
-
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import { A, Str } from "@beep/utils";
+import { A, Str, thunkFalse } from "@beep/utils";
+import { DateTime, Effect, FileSystem, Path } from "effect";
+import * as P from "effect/Predicate";
 import { Node, Project, SyntaxKind } from "ts-morph";
 import {
   declarationKind,
+  defaultRepoRoot,
   discoverWorkspacePackages,
   escapeRegExp,
   formatJsonc,
@@ -13,17 +12,18 @@ import {
   getJsDocText,
   listSourceFiles,
   normalizeSlashes,
+  QualityArtifactGeneratorError,
   readJsonc,
   repoRelative,
-  rootDir,
   stripCommentFraming,
   summaryFromComment,
   tagsFromComment,
   topoSortPackageNames,
   valuesForTag,
-} from "./_shared.ts";
+} from "./QualityArtifactSupport.js";
+import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { SourceFile } from "ts-morph";
-import type { JsonRecord, WorkspacePackageInfo } from "./_shared.ts";
+import type { JsonRecord, WorkspacePackageInfo } from "./QualityArtifactSupport.js";
 
 type DocumentationIssue = {
   readonly rule: string;
@@ -103,12 +103,52 @@ type DirectExportDescriptor =
       readonly declaration: Node;
     };
 
-const outputJsonPath = path.join(rootDir, "standards", "jsdoc-documentation.inventory.jsonc");
-const outputMarkdownPath = path.join(rootDir, "standards", "jsdoc-documentation.inventory.md");
+const outputJsonRelativePath = "standards/jsdoc-documentation.inventory.jsonc";
+const outputMarkdownRelativePath = "standards/jsdoc-documentation.inventory.md";
 const requiredExportTags = ["@example", "@category", "@since"];
 const requiredModuleTags = ["@since"];
 const forbiddenTags = ["@module", "@template"];
 const requiredTsdocCustomTags = ["@effects", "@precondition", "@postcondition", "@invariant"];
+
+/**
+ * Options for building or writing the JSDoc documentation inventory.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export type JSDocDocumentationInventoryOptions = {
+  readonly rootDir?: string;
+  readonly outputJsonPath?: string;
+  readonly outputMarkdownPath?: string;
+  readonly generatedAt?: string;
+};
+
+/**
+ * Result returned after writing JSDoc inventory artifacts.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type JSDocDocumentationInventoryWriteResult = {
+  readonly outputJsonPath: string;
+  readonly outputMarkdownPath: string;
+  readonly totals: Inventory["totals"];
+};
+
+const resolveJSDocInventoryOptions = Effect.fn("JSDocDocumentationInventory.resolveOptions")(function* (
+  options: JSDocDocumentationInventoryOptions = {}
+) {
+  const path = yield* Path.Path;
+  const repoRoot = options.rootDir ?? defaultRepoRoot;
+  const generatedAt = options.generatedAt ?? (yield* DateTime.now.pipe(Effect.map(DateTime.formatIso)));
+
+  return {
+    repoRoot,
+    outputJsonPath: options.outputJsonPath ?? path.join(repoRoot, outputJsonRelativePath),
+    outputMarkdownPath: options.outputMarkdownPath ?? path.join(repoRoot, outputMarkdownRelativePath),
+    generatedAt,
+  };
+});
 
 const markdownAnchor = (value: string): string =>
   Str.replace(/^-+|-+$/g, "")(Str.replace(/[^a-z0-9]+/g, "-")(Str.replace(/`/g, "")(Str.toLowerCase(value))));
@@ -152,7 +192,8 @@ const packageSourceMatchesExclude = (
   packagePath: string,
   srcDir: string,
   sourceFilePath: string,
-  pattern: string
+  pattern: string,
+  path: Path.Path
 ): boolean => {
   const packageRelative = normalizeSlashes(path.relative(packagePath, sourceFilePath));
   const srcRelative = Str.startsWith(`${srcDir}/`)(packageRelative)
@@ -376,8 +417,14 @@ const topFileoverview = (sourceFile: SourceFile): string | undefined => {
   return match === null ? undefined : match[1];
 };
 
-const analyzeModule = (sourceFile: SourceFile, packagePath: string, exportCount: number): InventoryEntry => {
-  const filePath = repoRelative(sourceFile.getFilePath());
+const analyzeModule = (
+  sourceFile: SourceFile,
+  packagePath: string,
+  exportCount: number,
+  repoRoot: string,
+  path: Path.Path
+): InventoryEntry => {
+  const filePath = repoRelative(sourceFile.getFilePath(), repoRoot, path);
   const relativeFilePath = normalizeSlashes(path.relative(packagePath, sourceFile.getFilePath()));
   const fileoverview = topFileoverview(sourceFile);
   const presentTags = fileoverview === undefined ? [] : tagsFromComment(fileoverview);
@@ -417,12 +464,18 @@ const analyzeModule = (sourceFile: SourceFile, packagePath: string, exportCount:
   };
 };
 
-const analyzeExportDeclaration = (declaration: Node, sourceFile: SourceFile, packagePath: string): InventoryEntry => {
+const analyzeExportDeclaration = (
+  declaration: Node,
+  sourceFile: SourceFile,
+  packagePath: string,
+  repoRoot: string,
+  path: Path.Path
+): InventoryEntry => {
   const commentText = `${leadingJsDocText(declaration)}\n${declaration.getText()}`;
   const presentTags = tagsFromComment(commentText);
   const missingTags = missingRequiredTags(presentTags, requiredExportTags);
   const filePath = normalizeSlashes(path.relative(packagePath, sourceFile.getFilePath()));
-  const repoPath = repoRelative(sourceFile.getFilePath());
+  const repoPath = repoRelative(sourceFile.getFilePath(), repoRoot, path);
   const line = declaration.getStartLineNumber();
   const malformedTags = malformedConditionalTags(commentText);
   const importIssues = exampleImportViolations(commentText);
@@ -463,13 +516,15 @@ const analyzeDirectExport = (
   name: string,
   declaration: Node,
   sourceFile: SourceFile,
-  packagePath: string
+  packagePath: string,
+  repoRoot: string,
+  path: Path.Path
 ): InventoryEntry => {
   const docText = getJsDocText(declaration);
   const presentTags = tagsFromComment(docText);
   const missingTags = missingRequiredTags(presentTags, requiredExportTags);
   const filePath = normalizeSlashes(path.relative(packagePath, sourceFile.getFilePath()));
-  const repoPath = repoRelative(sourceFile.getFilePath());
+  const repoPath = repoRelative(sourceFile.getFilePath(), repoRoot, path);
   const line = declaration.getStartLineNumber();
   const malformedTags = malformedConditionalTags(docText);
   const importIssues = exampleImportViolations(docText);
@@ -510,7 +565,9 @@ const analyzeDirectExport = (
 
 const exportedDeclarationsFor = (
   sourceFile: SourceFile,
-  packagePath: string
+  packagePath: string,
+  repoRoot: string,
+  path: Path.Path
 ): ReadonlyArray<DirectExportDescriptor> => {
   const exports: Array<DirectExportDescriptor> = [];
   const seen = new Set<string>();
@@ -523,7 +580,7 @@ const exportedDeclarationsFor = (
     seen.add(key);
     A.appendInPlace(exports, {
       key,
-      analysis: analyzeExportDeclaration(declaration, sourceFile, packagePath),
+      analysis: analyzeExportDeclaration(declaration, sourceFile, packagePath, repoRoot, path),
     });
   }
 
@@ -544,19 +601,25 @@ const exportedDeclarationsFor = (
   return exports;
 };
 
-const analyzePackage = (packageInfo: WorkspacePackageInfo, topoOrder: number): PackageInventory => {
+const analyzePackage = Effect.fn("JSDocDocumentationInventory.analyzePackage")(function* (
+  packageInfo: WorkspacePackageInfo,
+  topoOrder: number,
+  repoRoot: string,
+  path: Path.Path
+): Effect.fn.Return<PackageInventory, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
   const docgenPath = path.join(packageInfo.absolutePath, "docgen.json");
-  const hasDocgenConfig = existsSync(docgenPath);
-  const docgenConfig = hasDocgenConfig ? readJsonc(docgenPath) : {};
-  const srcDir = typeof docgenConfig.srcDir === "string" ? docgenConfig.srcDir : "src";
-  const exclude = A.isArray(docgenConfig.exclude)
-    ? docgenConfig.exclude.filter((item): item is string => typeof item === "string")
-    : [];
+  const hasDocgenConfig = yield* fs.exists(docgenPath).pipe(Effect.orElseSucceed(thunkFalse));
+  const docgenConfig = hasDocgenConfig ? yield* readJsonc(docgenPath) : {};
+  const srcDir = P.isString(docgenConfig.srcDir) ? docgenConfig.srcDir : "src";
+  const exclude = A.isArray(docgenConfig.exclude) ? A.filter(docgenConfig.exclude, P.isString) : [];
   const sourceRoot = path.join(packageInfo.absolutePath, srcDir);
   const sourceFiles = A.filter(
-    listSourceFiles(sourceRoot),
+    yield* listSourceFiles(sourceRoot, path),
     (sourceFilePath) =>
-      !exclude.some((pattern) => packageSourceMatchesExclude(packageInfo.absolutePath, srcDir, sourceFilePath, pattern))
+      !A.some(exclude, (pattern) =>
+        packageSourceMatchesExclude(packageInfo.absolutePath, srcDir, sourceFilePath, pattern, path)
+      )
   );
   const project = new Project({ skipAddingFilesFromTsConfig: true });
   const modules: Array<InventoryEntry> = [];
@@ -565,25 +628,28 @@ const analyzePackage = (packageInfo: WorkspacePackageInfo, topoOrder: number): P
   for (const sourceFilePath of sourceFiles) {
     const sourceFile = project.addSourceFileAtPath(sourceFilePath);
     const packageExports: Array<InventoryEntry> = [];
-    const directExports = exportedDeclarationsFor(sourceFile, packageInfo.absolutePath);
+    const directExports = exportedDeclarationsFor(sourceFile, packageInfo.absolutePath, repoRoot, path);
 
     for (const entry of directExports) {
       if (entry.analysis !== undefined) {
         A.appendInPlace(packageExports, {
           ...entry.analysis,
           filePath: normalizeSlashes(path.relative(packageInfo.absolutePath, sourceFile.getFilePath())),
-          repoPath: repoRelative(sourceFile.getFilePath()),
+          repoPath: repoRelative(sourceFile.getFilePath(), repoRoot, path),
         });
         continue;
       }
       A.appendInPlace(
         packageExports,
-        analyzeDirectExport(entry.name, entry.declaration, sourceFile, packageInfo.absolutePath)
+        analyzeDirectExport(entry.name, entry.declaration, sourceFile, packageInfo.absolutePath, repoRoot, path)
       );
     }
 
     if (packageExports.length > 0) {
-      A.appendInPlace(modules, analyzeModule(sourceFile, packageInfo.absolutePath, packageExports.length));
+      A.appendInPlace(
+        modules,
+        analyzeModule(sourceFile, packageInfo.absolutePath, packageExports.length, repoRoot, path)
+      );
       A.appendAllInPlace(exports, packageExports);
     }
   }
@@ -634,7 +700,7 @@ const analyzePackage = (packageInfo: WorkspacePackageInfo, topoOrder: number): P
     modules,
     exports,
   };
-};
+});
 
 const analyzeMissingPackage = (packageName: string, topoOrder: number): PackageInventory => ({
   packageName,
@@ -670,9 +736,12 @@ const analyzeMissingPackage = (packageName: string, topoOrder: number): PackageI
   exports: [] as Array<InventoryEntry>,
 });
 
-const analyzeRootPolicy = (): RootPolicyInventory => {
-  const tsdocPath = path.join(rootDir, "tsdoc.json");
-  const tsdoc = readJsonc(tsdocPath);
+const analyzeRootPolicy = Effect.fn("JSDocDocumentationInventory.analyzeRootPolicy")(function* (
+  repoRoot: string,
+  path: Path.Path
+): Effect.fn.Return<RootPolicyInventory, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const tsdocPath = path.join(repoRoot, "tsdoc.json");
+  const tsdoc = yield* readJsonc(tsdocPath);
   const tagDefinitions: Array<JsonRecord> = A.isArray(tsdoc.tagDefinitions)
     ? (tsdoc.tagDefinitions as Array<JsonRecord>)
     : [];
@@ -696,7 +765,7 @@ const analyzeRootPolicy = (): RootPolicyInventory => {
     customTags,
     status: A.every(customTags, (entry) => entry.status === "resolved") ? "resolved" : "open",
   };
-};
+});
 
 const inventoryTotals = (packages: ReadonlyArray<PackageInventory>, rootPolicy: RootPolicyInventory) => {
   const openPackageCount = packages.filter((entry) => entry.status === "needs-remediation").length;
@@ -834,20 +903,39 @@ const renderMarkdown = (inventory: Inventory): string => {
   return `${A.join(lines, "\n")}\n`;
 };
 
-const main = (): void => {
-  const packageByName = discoverWorkspacePackages();
-  const topoNames = topoSortPackageNames();
-  const rootPolicy = analyzeRootPolicy();
-  const packages = A.map(topoNames, (packageName, index) => {
-    const packageInfo = packageByName.get(packageName);
-    return packageInfo === undefined
-      ? analyzeMissingPackage(packageName, index + 1)
-      : analyzePackage(packageInfo, index + 1);
-  });
-  const inventory = {
+/**
+ * Build the deterministic JSDoc documentation inventory for a repository.
+ *
+ * @category generators
+ * @since 0.0.0
+ */
+export const buildJSDocDocumentationInventory = Effect.fn("JSDocDocumentationInventory.build")(function* (
+  options: JSDocDocumentationInventoryOptions = {}
+): Effect.fn.Return<
+  Inventory,
+  QualityArtifactGeneratorError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const path = yield* Path.Path;
+  const { generatedAt, repoRoot } = yield* resolveJSDocInventoryOptions(options);
+  const packageByName = yield* discoverWorkspacePackages(repoRoot, path);
+  const topoNames = yield* topoSortPackageNames(repoRoot);
+  const rootPolicy = yield* analyzeRootPolicy(repoRoot, path);
+  const packages = yield* Effect.forEach(
+    topoNames,
+    (packageName, index) => {
+      const packageInfo = packageByName.get(packageName);
+      return packageInfo === undefined
+        ? Effect.succeed(analyzeMissingPackage(packageName, index + 1))
+        : analyzePackage(packageInfo, index + 1, repoRoot, path);
+    },
+    { concurrency: 1 }
+  );
+
+  return {
     standard: "jsdoc-documentation",
     version: 1,
-    generatedAt: new Date().toISOString(),
+    generatedAt,
     source: {
       packageUniverseCommand: "bun run topo-sort",
       generator: "bun run beep quality jsdoc-inventory",
@@ -861,15 +949,46 @@ const main = (): void => {
     totals: inventoryTotals(packages, rootPolicy),
     packages,
   };
+});
 
-  mkdirSync(path.dirname(outputJsonPath), { recursive: true });
-  writeFileSync(outputJsonPath, formatJsonc(inventory));
-  writeFileSync(outputMarkdownPath, renderMarkdown(inventory));
-  console.log(`wrote ${repoRelative(outputJsonPath)}`);
-  console.log(`wrote ${repoRelative(outputMarkdownPath)}`);
-  console.log(
-    `packages=${inventory.totals.packages} openPackages=${inventory.totals.packagesNeedingRemediation} openExports=${inventory.totals.openExports} openModules=${inventory.totals.openModules} rootPolicyOpen=${inventory.totals.rootPolicyOpen}`
+/**
+ * Write JSDoc inventory JSONC and Markdown artifacts.
+ *
+ * @category generators
+ * @since 0.0.0
+ */
+export const writeJSDocDocumentationInventory = Effect.fn("JSDocDocumentationInventory.write")(function* (
+  options: JSDocDocumentationInventoryOptions = {}
+): Effect.fn.Return<
+  JSDocDocumentationInventoryWriteResult,
+  QualityArtifactGeneratorError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const { generatedAt, outputJsonPath, outputMarkdownPath, repoRoot } = yield* resolveJSDocInventoryOptions(options);
+  const inventory = yield* buildJSDocDocumentationInventory({
+    ...options,
+    rootDir: repoRoot,
+    generatedAt,
+  });
+  yield* fs.makeDirectory(path.dirname(outputJsonPath), { recursive: true }).pipe(
+    QualityArtifactGeneratorError.mapError(`Failed to create artifact directory for ${outputJsonPath}.`, {
+      filePath: outputJsonPath,
+    })
   );
-};
+  yield* fs
+    .writeFileString(outputJsonPath, formatJsonc(inventory))
+    .pipe(QualityArtifactGeneratorError.mapError(`Failed to write ${outputJsonPath}.`, { filePath: outputJsonPath }));
+  yield* fs.writeFileString(outputMarkdownPath, renderMarkdown(inventory)).pipe(
+    QualityArtifactGeneratorError.mapError(`Failed to write ${outputMarkdownPath}.`, {
+      filePath: outputMarkdownPath,
+    })
+  );
 
-main();
+  return {
+    outputJsonPath,
+    outputMarkdownPath,
+    totals: inventory.totals,
+  };
+});
