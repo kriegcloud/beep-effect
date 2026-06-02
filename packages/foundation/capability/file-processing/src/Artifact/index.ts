@@ -6,7 +6,7 @@
  */
 
 import { $FileProcessingId } from "@beep/identity";
-import { LiteralKit, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
+import { LiteralKit, NonNegativeInt, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { FileExtension } from "@beep/schema/FileExtension";
 import { FileName } from "@beep/schema/FileName";
 import { MimeType } from "@beep/schema/MimeType";
@@ -247,7 +247,7 @@ export class SourceArtifact extends S.Class<SourceArtifact>($I`SourceArtifact`)(
     mediaType: S.optionalKey(MimeType),
     name: ArtifactName,
     relativePath: PosixPath,
-    sizeBytes: S.Number,
+    sizeBytes: NonNegativeInt,
     text: S.optionalKey(S.String),
   },
   $I.annote("SourceArtifact", {
@@ -274,7 +274,7 @@ export class ArtifactReference extends S.Class<ArtifactReference>($I`ArtifactRef
     id: ArtifactId,
     mediaType: S.optionalKey(MimeType),
     relativePath: PosixPath,
-    sizeBytes: S.optionalKey(S.Number),
+    sizeBytes: S.optionalKey(NonNegativeInt),
   },
   $I.annote("ArtifactReference", {
     description: "Reference to an artifact materialized by an operation.",

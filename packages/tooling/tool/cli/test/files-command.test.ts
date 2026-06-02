@@ -12,7 +12,10 @@ import {
   ArchivePoorCandidatesManifest,
   DetectBordersReport,
   DetectFacesReport,
+  FilesCommandServiceLive,
   NormalizeManifest,
+  ProcessFilesOptions,
+  processFiles,
   renderFilesProgressBar,
 } from "@beep/repo-cli/commands/Files";
 import { A, O, Str } from "@beep/utils";
@@ -572,6 +575,80 @@ describe.sequential("files command", () => {
           expect(yield* fs.exists(path.join(outDir, "children", `${pstRecord.artifactId}`, "artifacts.jsonl"))).toBe(
             false
           );
+        })
+      )
+    ));
+
+  it("refuses to overwrite a non-directory process output path", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const outPath = path.join(tmpDir, "proof-file");
+
+          yield* fs.writeFileString(path.join(datasetDir, "note.txt"), "hello proof");
+          yield* fs.writeFileString(outPath, "keep me");
+
+          const exit = yield* Effect.exit(
+            processFiles(
+              ProcessFilesOptions.make({
+                engine: "test",
+                exportChildren: false,
+                failurePolicy: "continue",
+                input: datasetDir,
+                outDir: outPath,
+                overwrite: true,
+              })
+            ).pipe(Effect.provide(FilesCommandServiceLive))
+          );
+          const output = Exit.isFailure(exit) ? Cause.pretty(exit.cause) : "";
+
+          expect(output).toContain("Refusing to write files process output to a non-directory path");
+          expect(yield* fs.readFileString(outPath)).toBe("keep me");
+        })
+      )
+    ));
+
+  it("skips recursive symlink loops while collecting process sources", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const outDir = path.join(tmpDir, "proof");
+
+          yield* fs.writeFileString(path.join(datasetDir, "note.txt"), "hello proof");
+          yield* fs.symlink(datasetDir, path.join(datasetDir, "loop"));
+
+          yield* runFilesCommand([
+            "process",
+            "--input",
+            datasetDir,
+            "--out-dir",
+            outDir,
+            "--engine",
+            "test",
+            "--failure-policy",
+            "continue",
+          ]);
+
+          const coverage = yield* decodeFileProcessingCoverageSummary(
+            yield* fs.readFileString(path.join(outDir, "coverage.json"))
+          );
+          const sourceRecords = yield* Effect.forEach(
+            pipe(
+              yield* fs.readFileString(path.join(outDir, "sources.jsonl")),
+              Str.split("\n"),
+              A.filter((line) => line.length > 0)
+            ),
+            decodeSourceProcessingRecordLine
+          );
+
+          expect(coverage.sourceCount).toBe(1);
+          expect(A.map(sourceRecords, (record) => record.relativePath)).toEqual(["note.txt"]);
         })
       )
     ));

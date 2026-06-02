@@ -7,6 +7,7 @@ import {
 } from "@beep/file-processing/Artifact";
 import { ExportArchiveOperation } from "@beep/file-processing/Operation";
 import { LibpffFileProcessingEngine, makeLibpffFileProcessingEngine } from "@beep/libpff";
+import { NonNegativeInt } from "@beep/schema";
 import { PosixPath } from "@beep/schema/PosixPath";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
@@ -42,7 +43,7 @@ const source = Effect.fn("LibpffTest.source")(function* (ids: FixtureIds) {
     locator: ArtifactLocator.make({ kind: "synthetic", value: relativePath }),
     name: "mailbox.pst",
     relativePath,
-    sizeBytes: 4,
+    sizeBytes: NonNegativeInt.make(4),
   });
 });
 

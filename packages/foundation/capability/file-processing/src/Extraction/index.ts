@@ -358,6 +358,7 @@ export type ProcessFileResult = typeof ProcessFileResult.Type;
  * ```ts
  * import { ArtifactId, ContentDigest, OperationId } from "@beep/file-processing/Artifact"
  * import { SucceededSourceProcessingRecord } from "@beep/file-processing/Extraction"
+ * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
@@ -376,7 +377,7 @@ export type ProcessFileResult = typeof ProcessFileResult.Type;
  *     format: "markdown",
  *     operationId,
  *     relativePath,
- *     sizeBytes: 11,
+ *     sizeBytes: NonNegativeInt.make(11),
  *     status: "succeeded",
  *     textPath
  *   }).status
@@ -398,7 +399,7 @@ export class SucceededSourceProcessingRecord extends S.Class<SucceededSourceProc
     format: FileFormatFamily,
     operationId: OperationId,
     relativePath: PosixPath,
-    sizeBytes: S.Number,
+    sizeBytes: NonNegativeInt,
     status: S.Literal("succeeded"),
     textPath: S.optionalKey(PosixPath),
   },
@@ -414,6 +415,7 @@ export class SucceededSourceProcessingRecord extends S.Class<SucceededSourceProc
  * ```ts
  * import { ArtifactId, ContentDigest, OperationId } from "@beep/file-processing/Artifact"
  * import { SkippedSourceProcessingRecord } from "@beep/file-processing/Extraction"
+ * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
@@ -431,7 +433,7 @@ export class SucceededSourceProcessingRecord extends S.Class<SucceededSourceProc
  *     format: "xls",
  *     operationId,
  *     relativePath,
- *     sizeBytes: 64,
+ *     sizeBytes: NonNegativeInt.make(64),
  *     skipReason: "format-out-of-scope",
  *     status: "skipped"
  *   }).skipReason
@@ -453,7 +455,7 @@ export class SkippedSourceProcessingRecord extends S.Class<SkippedSourceProcessi
     format: FileFormatFamily,
     operationId: OperationId,
     relativePath: PosixPath,
-    sizeBytes: S.Number,
+    sizeBytes: NonNegativeInt,
     skipReason: FileProcessingSkipReason,
     status: S.Literal("skipped"),
   },
@@ -469,6 +471,7 @@ export class SkippedSourceProcessingRecord extends S.Class<SkippedSourceProcessi
  * ```ts
  * import { ArtifactId, ContentDigest, OperationId } from "@beep/file-processing/Artifact"
  * import { FailedSourceProcessingRecord } from "@beep/file-processing/Extraction"
+ * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
@@ -485,7 +488,7 @@ export class SkippedSourceProcessingRecord extends S.Class<SkippedSourceProcessi
  *     format: "unknown",
  *     operationId,
  *     relativePath,
- *     sizeBytes: 0,
+ *     sizeBytes: NonNegativeInt.make(0),
  *     status: "failed"
  *   }).status
  * })
@@ -506,7 +509,7 @@ export class FailedSourceProcessingRecord extends S.Class<FailedSourceProcessing
     format: FileFormatFamily,
     operationId: OperationId,
     relativePath: PosixPath,
-    sizeBytes: S.Number,
+    sizeBytes: NonNegativeInt,
     status: S.Literal("failed"),
   },
   $I.annote("FailedSourceProcessingRecord", {
@@ -601,9 +604,9 @@ export type FileProcessingFailureReason = typeof FileProcessingFailureReason.Typ
  *
  * @example
  * ```ts
- * import { FileProcessingFailureRecord } from "@beep/file-processing/Extraction"
+ * import { SkippedFileProcessingFailureRecord } from "@beep/file-processing/Extraction"
  *
- * console.log(FileProcessingFailureRecord)
+ * console.log(SkippedFileProcessingFailureRecord)
  * ```
  *
  * @category models
@@ -880,6 +883,7 @@ export const encodeFileProcessingCoverageSummaryJson = S.encodeUnknownEffect(
  * ```ts
  * import { ArtifactId, ContentDigest, OperationId } from "@beep/file-processing/Artifact"
  * import { encodeSourceProcessingRecordJson, SucceededSourceProcessingRecord } from "@beep/file-processing/Extraction"
+ * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
@@ -896,7 +900,7 @@ export const encodeFileProcessingCoverageSummaryJson = S.encodeUnknownEffect(
  *     format: "plain-text",
  *     operationId,
  *     relativePath,
- *     sizeBytes: 4,
+ *     sizeBytes: NonNegativeInt.make(4),
  *     status: "succeeded"
  *   }))
  * })
@@ -953,6 +957,7 @@ export const encodeFileProcessingFailureRecordJson = S.encodeUnknownEffect(
  * ```ts
  * import { ArtifactId, ArtifactReference } from "@beep/file-processing/Artifact"
  * import { ChildArtifactRecord, encodeChildArtifactRecordJson } from "@beep/file-processing/Extraction"
+ * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
@@ -964,7 +969,7 @@ export const encodeFileProcessingFailureRecordJson = S.encodeUnknownEffect(
  *     id: artifactId,
  *     mediaType: "text/plain",
  *     relativePath,
- *     sizeBytes: 12
+ *     sizeBytes: NonNegativeInt.make(12)
  *   })
  *
  *   return yield* encodeChildArtifactRecordJson(ChildArtifactRecord.make({ child, sourceArtifactId: artifactId }))

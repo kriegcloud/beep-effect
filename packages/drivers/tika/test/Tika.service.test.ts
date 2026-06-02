@@ -6,6 +6,7 @@ import {
   SourceArtifact,
 } from "@beep/file-processing/Artifact";
 import { ExtractFileOperation } from "@beep/file-processing/Operation";
+import { NonNegativeInt } from "@beep/schema";
 import { PosixPath } from "@beep/schema/PosixPath";
 import { TikaFileProcessingEngine } from "@beep/tika";
 import { describe, expect, it } from "@effect/vitest";
@@ -42,7 +43,7 @@ const source = Effect.fn("TikaTest.source")(function* (ids: FixtureIds, extensio
     locator: ArtifactLocator.make({ kind: "synthetic", value: relativePath }),
     name: `fixture.${extension}`,
     relativePath,
-    sizeBytes: 1,
+    sizeBytes: NonNegativeInt.make(1),
     text: "a",
   });
 });

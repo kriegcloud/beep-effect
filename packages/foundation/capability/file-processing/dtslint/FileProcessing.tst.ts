@@ -10,6 +10,7 @@ import type { ExtractionResult, ProcessFileResult, SourceProcessingRecord } from
 import type { FileProcessingOperationError } from "@beep/file-processing/Operation";
 import type { FileProcessingEngineShape, FileProcessingService } from "@beep/file-processing/Service";
 import type { FileFormatFamily } from "@beep/file-processing/Strategy";
+import type { NonNegativeInt } from "@beep/schema";
 import type { PosixPath } from "@beep/schema/PosixPath";
 import type { Effect, Layer } from "effect";
 
@@ -17,6 +18,7 @@ declare const artifactId: ArtifactId;
 declare const digest: ContentDigest;
 declare const operationId: OperationId;
 declare const fixturePath: PosixPath;
+declare const sizeBytes: NonNegativeInt;
 
 const source = SourceArtifact.make({
   digest,
@@ -25,7 +27,7 @@ const source = SourceArtifact.make({
   locator: ArtifactLocator.make({ kind: "synthetic", value: fixturePath }),
   name: "fixture.md",
   relativePath: fixturePath,
-  sizeBytes: 11,
+  sizeBytes,
   text: "hello proof",
 });
 

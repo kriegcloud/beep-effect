@@ -214,7 +214,7 @@ interface ProcessCollectedFile {
   readonly extension: string;
   readonly name: string;
   readonly relativePath: string;
-  readonly sizeBytes: number;
+  readonly sizeBytes: NonNegativeInt;
   readonly sourcePath: string;
 }
 
@@ -231,6 +231,11 @@ interface ProcessInputCollection {
   readonly canonicalSourceRoot: string;
   readonly files: ReadonlyArray<ProcessCollectedFile>;
   readonly sourceRoot: string;
+}
+
+interface ProcessDirectoryCollection {
+  readonly files: ReadonlyArray<ProcessCollectedFile>;
+  readonly visitedDirectories: HashSet.HashSet<string>;
 }
 
 interface ProcessSourceOutcome {
@@ -3823,6 +3828,7 @@ const decodeContentDigest = S.decodeUnknownEffect(ContentDigest);
 const decodeArtifactId = S.decodeUnknownEffect(ArtifactId);
 const decodeOperationId = S.decodeUnknownEffect(OperationId);
 const decodeProcessPosixPath = S.decodeUnknownEffect(NativePathToPosixPath);
+const processCount = (count: number): NonNegativeInt => NonNegativeInt.make(count);
 
 const classifyProcessExtension = Match.type<string>().pipe(
   Match.when("doc", () => "doc" as const),
@@ -3932,8 +3938,9 @@ const makeOperationIdFromText = Effect.fn("Files.makeOperationIdFromText")(funct
 const collectProcessDirectoryFiles = Effect.fn("Files.collectProcessDirectoryFiles")(function* (
   sourceRoot: string,
   canonicalSourceRoot: string,
-  currentDirectory: string
-): Effect.fn.Return<ReadonlyArray<ProcessCollectedFile>, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  currentDirectory: string,
+  visitedDirectories: HashSet.HashSet<string>
+): Effect.fn.Return<ProcessDirectoryCollection, FilesCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const entries = yield* fs
@@ -3944,6 +3951,7 @@ const collectProcessDirectoryFiles = Effect.fn("Files.collectProcessDirectoryFil
       )
     );
   let files: ReadonlyArray<ProcessCollectedFile> = A.empty();
+  let visited = visitedDirectories;
 
   for (const entry of A.sort(entries, Order.String)) {
     const sourcePath = path.join(currentDirectory, entry);
@@ -3962,7 +3970,14 @@ const collectProcessDirectoryFiles = Effect.fn("Files.collectProcessDirectoryFil
     }
 
     if (stat.type === "Directory") {
-      files = A.appendAll(files, yield* collectProcessDirectoryFiles(sourceRoot, canonicalSourceRoot, sourcePath));
+      if (HashSet.has(visited, canonicalPath.value)) {
+        continue;
+      }
+
+      visited = HashSet.add(visited, canonicalPath.value);
+      const childCollection = yield* collectProcessDirectoryFiles(sourceRoot, canonicalSourceRoot, sourcePath, visited);
+      files = A.appendAll(files, childCollection.files);
+      visited = childCollection.visitedDirectories;
       continue;
     }
 
@@ -3977,15 +3992,18 @@ const collectProcessDirectoryFiles = Effect.fn("Files.collectProcessDirectoryFil
       extension,
       name: entry,
       relativePath,
-      sizeBytes: Number(stat.size),
+      sizeBytes: processCount(Number(stat.size)),
       sourcePath,
     });
   }
 
-  return A.sort(
-    files,
-    Order.mapInput(Order.String, (file: ProcessCollectedFile) => file.relativePath)
-  );
+  return {
+    files: A.sort(
+      files,
+      Order.mapInput(Order.String, (file: ProcessCollectedFile) => file.relativePath)
+    ),
+    visitedDirectories: visited,
+  };
 });
 
 const collectProcessInputFiles = Effect.fn("Files.collectProcessInputFiles")(function* (
@@ -4018,7 +4036,7 @@ const collectProcessInputFiles = Effect.fn("Files.collectProcessInputFiles")(fun
           extension: pipe(path.extname(name), processExtensionWithoutDot),
           name,
           relativePath: name,
-          sizeBytes: Number(stat.size),
+          sizeBytes: processCount(Number(stat.size)),
           sourcePath,
         },
       ],
@@ -4039,25 +4057,64 @@ const collectProcessInputFiles = Effect.fn("Files.collectProcessInputFiles")(fun
         formatPlatformError("Failed to resolve process input directory", sourcePath, { cause })
       )
     );
-  const files = yield* collectProcessDirectoryFiles(sourcePath, canonicalSourceRoot, sourcePath);
+  const collection = yield* collectProcessDirectoryFiles(
+    sourcePath,
+    canonicalSourceRoot,
+    sourcePath,
+    HashSet.add(HashSet.empty<string>(), canonicalSourceRoot)
+  );
 
   return {
     canonicalSourceRoot,
-    files,
+    files: collection.files,
     sourceRoot: sourcePath,
   };
 });
 
+const canonicalizeProcessTargetPath = Effect.fn("Files.canonicalizeProcessTargetPath")(function* (
+  targetPath: string
+): Effect.fn.Return<string, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const absolutePath = path.resolve(targetPath);
+  const canonicalPath = yield* fs.realPath(absolutePath).pipe(Effect.option);
+
+  if (O.isSome(canonicalPath)) {
+    return canonicalPath.value;
+  }
+
+  const parentPath = path.dirname(absolutePath);
+  if (Str.equivalence(parentPath, absolutePath)) {
+    return yield* fs
+      .realPath(absolutePath)
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to resolve process output path", absolutePath, { cause })
+        )
+      );
+  }
+
+  const canonicalParentPath = yield* canonicalizeProcessTargetPath(parentPath);
+  return path.join(canonicalParentPath, path.basename(absolutePath));
+});
+
 const prepareProcessOutDir = Effect.fn("Files.prepareProcessOutDir")(function* (
   outDir: string,
-  sourceRoot: string,
+  canonicalSourceRoot: string,
   overwrite: boolean
 ): Effect.fn.Return<string, FilesCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const outputDirectory = path.resolve(outDir);
-  const outputRelativeToSource = pipe(path.relative(sourceRoot, outputDirectory), processPathSeparators);
-  const sourceRelativeToOutput = pipe(path.relative(outputDirectory, sourceRoot), processPathSeparators);
+  const canonicalOutputDirectory = yield* canonicalizeProcessTargetPath(outputDirectory);
+  const outputRelativeToSource = pipe(
+    path.relative(canonicalSourceRoot, canonicalOutputDirectory),
+    processPathSeparators
+  );
+  const sourceRelativeToOutput = pipe(
+    path.relative(canonicalOutputDirectory, canonicalSourceRoot),
+    processPathSeparators
+  );
 
   if (
     isProcessSelfOrNestedRelativePath(outputRelativeToSource) ||
@@ -4068,7 +4125,13 @@ const prepareProcessOutDir = Effect.fn("Files.prepareProcessOutDir")(function* (
     });
   }
 
-  const outputExists = yield* fs.exists(outputDirectory).pipe(Effect.orElseSucceed(() => false));
+  const outputStat = yield* fs.stat(outputDirectory).pipe(Effect.option);
+  const outputExists = O.isSome(outputStat);
+  if (outputExists && outputStat.value.type !== "Directory") {
+    return yield* FilesCommandError.make({
+      message: `Refusing to write files process output to a non-directory path: "${outputDirectory}"`,
+    });
+  }
   if (outputExists && overwrite) {
     yield* fs
       .remove(outputDirectory, { force: true, recursive: true })
@@ -4378,8 +4441,6 @@ const makeZeroProcessCoverageByFormat = (): Record<FileFormatFamily, Record<Sour
   return byFormat;
 };
 
-const processCount = (count: number): NonNegativeInt => NonNegativeInt.make(count);
-
 const makeProcessCoverageByFormat = (
   byFormat: Record<FileFormatFamily, Record<SourceProcessingStatus, number>>
 ): FileProcessingCoverageSummary["byFormat"] => {
@@ -4626,17 +4687,21 @@ const processFilesImpl = Effect.fn("FilesCommandService.processFiles")(function*
   options: ProcessFilesOptions
 ): Effect.fn.Return<ProcessFilesSummary, FilesCommandError, FilesCommandServiceRequirements> {
   const collection = yield* collectProcessInputFiles(options.input);
-  const outputDirectory = yield* prepareProcessOutDir(options.outDir, collection.sourceRoot, options.overwrite);
-  const preparedSources = yield* Effect.forEach(
+  const outputDirectory = yield* prepareProcessOutDir(
+    options.outDir,
+    collection.canonicalSourceRoot,
+    options.overwrite
+  );
+  const outcomes = yield* Effect.forEach(
     collection.files,
-    (sourceFile) => prepareProcessSource(sourceFile, options.engine),
+    (sourceFile) =>
+      prepareProcessSource(sourceFile, options.engine).pipe(
+        Effect.flatMap((prepared) => processPreparedSource(prepared, options))
+      ),
     {
       concurrency: FilesConcurrency.scan,
     }
   );
-  const outcomes = yield* Effect.forEach(preparedSources, (source) => processPreparedSource(source, options), {
-    concurrency: FilesConcurrency.scan,
-  });
   const sourceRecords = A.map(outcomes, (outcome) => outcome.sourceRecord);
   const coverage = makeProcessCoverage(sourceRecords);
   const summary = ProcessFilesSummary.make({
