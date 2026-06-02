@@ -15,20 +15,15 @@
 
 import { $NlpMcpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { pipe } from "effect";
+import { Clock, Duration, Effect, pipe } from "effect";
 import * as A from "effect/Array";
-import * as Clock from "effect/Clock";
-import * as Duration from "effect/Duration";
-import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import { readLines, readTextFile } from "./TextStream.ts";
-import type * as FileSystem from "effect/FileSystem";
-import type * as Path from "effect/Path";
-import type { PlatformError } from "effect/PlatformError";
 import type { TextEncoding } from "./TextStream.ts";
 
 const $I = $NlpMcpId.create("Streaming/DatasetLoader");
@@ -197,35 +192,18 @@ const parseJson = (value: string, location: string): Effect.Effect<unknown, Data
  * ```
  *
  * @since 0.0.0
- * @category loading
+ * @category constructors
  */
-export const loadText = (
+export const loadText = Effect.fn("DatasetLoader.loadText")(function* (
   location: string,
   options: {
     readonly encoding?: TextEncoding | undefined;
     readonly timeout?: number | undefined;
   } = {}
-): Effect.Effect<
-  DatasetResult<string>,
-  DatasetLoadError | PlatformError,
-  FileSystem.FileSystem | HttpClient.HttpClient | Path.Path
-> =>
-  Effect.gen(function* () {
-    const loadedAt = yield* Clock.currentTimeMillis;
-    if (isUrl(location)) {
-      const data = yield* fetchText(location, options.timeout ?? DEFAULT_TIMEOUT_MS);
-      return {
-        data,
-        meta: DatasetMeta.make({
-          format: "text",
-          loadedAt,
-          location,
-          sizeBytes: byteLength(data),
-          sourceType: "url",
-        }),
-      };
-    }
-    const data = yield* readTextFile(location, options.encoding ?? "utf-8");
+) {
+  const loadedAt = yield* Clock.currentTimeMillis;
+  if (isUrl(location)) {
+    const data = yield* fetchText(location, options.timeout ?? DEFAULT_TIMEOUT_MS);
     return {
       data,
       meta: DatasetMeta.make({
@@ -233,10 +211,22 @@ export const loadText = (
         loadedAt,
         location,
         sizeBytes: byteLength(data),
-        sourceType: "file",
+        sourceType: "url",
       }),
     };
-  });
+  }
+  const data = yield* readTextFile(location, options.encoding ?? "utf-8");
+  return {
+    data,
+    meta: DatasetMeta.make({
+      format: "text",
+      loadedAt,
+      location,
+      sizeBytes: byteLength(data),
+      sourceType: "file",
+    }),
+  };
+});
 
 /**
  * Load a dataset as an array of lines from a file or remote URL.
@@ -249,64 +239,55 @@ export const loadText = (
  * ```
  *
  * @since 0.0.0
- * @category loading
+ * @category constructors
  */
-export const loadLines = (
+export const loadLines = Effect.fn("DatasetLoader.loadLines")(function* (
   location: string,
   options: {
     readonly skipEmpty?: boolean | undefined;
     readonly timeout?: number | undefined;
     readonly trim?: boolean | undefined;
   } = {}
-): Effect.Effect<
-  DatasetResult<ReadonlyArray<string>>,
-  DatasetLoadError | PlatformError,
-  FileSystem.FileSystem | HttpClient.HttpClient | Path.Path
-> =>
-  Effect.gen(function* () {
-    const loadedAt = yield* Clock.currentTimeMillis;
-    if (isUrl(location)) {
-      const text = yield* fetchText(location, options.timeout ?? DEFAULT_TIMEOUT_MS);
-      // Split on CRLF or LF so remote datasets decode identically to local files
-      // (where `Stream.splitLines` already strips the trailing `\r`).
-      const data = pipe(
-        Str.split(/\r?\n/)(text),
-        A.map((line) => (options.trim === true ? Str.trim(line) : line)),
-        A.filter((line) => options.skipEmpty !== true || Str.isNonEmpty(line))
-      );
-      return {
-        data,
-        meta: DatasetMeta.make({
-          format: "lines",
-          loadedAt,
-          location,
-          sizeBytes: byteLength(text),
-          sourceType: "url",
-        }),
-      };
-    }
-    const lineOptions: {
-      readonly skipEmpty?: boolean;
-      readonly trim?: boolean;
-    } = {
-      ...(options.skipEmpty === undefined ? {} : { skipEmpty: options.skipEmpty }),
-      ...(options.trim === undefined ? {} : { trim: options.trim }),
-    };
-    const data = yield* readLines(location, lineOptions);
-    // Read the raw text once more so file sources report `sizeBytes` like URL
-    // sources do, keeping the provenance record consistent across channels.
-    const rawText = yield* readTextFile(location, "utf-8");
+) {
+  const loadedAt = yield* Clock.currentTimeMillis;
+  if (isUrl(location)) {
+    const text = yield* fetchText(location, options.timeout ?? DEFAULT_TIMEOUT_MS);
+    // Split on CRLF or LF so remote datasets decode identically to local files
+    // (where `Stream.splitLines` already strips the trailing `\r`).
+    const data = pipe(
+      Str.split(/\r?\n/)(text),
+      A.map((line) => (options.trim === true ? Str.trim(line) : line)),
+      A.filter((line) => options.skipEmpty !== true || Str.isNonEmpty(line))
+    );
     return {
       data,
       meta: DatasetMeta.make({
         format: "lines",
         loadedAt,
         location,
-        sizeBytes: byteLength(rawText),
-        sourceType: "file",
+        sizeBytes: byteLength(text),
+        sourceType: "url",
       }),
     };
-  });
+  }
+  const data = yield* readLines(
+    location,
+    R.getSomes({ skipEmpty: O.fromUndefinedOr(options.skipEmpty), trim: O.fromUndefinedOr(options.trim) })
+  );
+  // Read the raw text once more so file sources report `sizeBytes` like URL
+  // sources do, keeping the provenance record consistent across channels.
+  const rawText = yield* readTextFile(location, "utf-8");
+  return {
+    data,
+    meta: DatasetMeta.make({
+      format: "lines",
+      loadedAt,
+      location,
+      sizeBytes: byteLength(rawText),
+      sourceType: "file",
+    }),
+  };
+});
 
 /**
  * Load a JSONL dataset as an array of parsed records from a file or remote URL.
@@ -322,50 +303,45 @@ export const loadLines = (
  * ```
  *
  * @since 0.0.0
- * @category loading
+ * @category constructors
  */
-export const loadJsonl = (
+export const loadJsonl = Effect.fn("DatasetLoader.loadJsonl")(function* (
   location: string,
   options: {
     readonly skipInvalid?: boolean | undefined;
     readonly timeout?: number | undefined;
   } = {}
-): Effect.Effect<
-  DatasetResult<ReadonlyArray<unknown>>,
-  DatasetLoadError | PlatformError,
-  FileSystem.FileSystem | HttpClient.HttpClient | Path.Path
-> =>
-  Effect.gen(function* () {
-    const loadedAt = yield* Clock.currentTimeMillis;
-    const skipInvalid = options.skipInvalid ?? false;
-    const text = isUrl(location)
-      ? yield* fetchText(location, options.timeout ?? DEFAULT_TIMEOUT_MS)
-      : yield* readTextFile(location, "utf-8");
+) {
+  const loadedAt = yield* Clock.currentTimeMillis;
+  const skipInvalid = options.skipInvalid ?? false;
+  const text = isUrl(location)
+    ? yield* fetchText(location, options.timeout ?? DEFAULT_TIMEOUT_MS)
+    : yield* readTextFile(location, "utf-8");
 
-    const lines = pipe(Str.split(/\r?\n/)(text), A.map(Str.trim), A.filter(Str.isNonEmpty));
-    const records: Array<unknown> = [];
-    for (const line of lines) {
-      if (skipInvalid) {
-        const parsed = yield* Effect.option(parseJson(line, location));
-        if (O.isSome(parsed)) {
-          records.push(parsed.value);
-        }
-      } else {
-        records.push(yield* parseJson(line, location));
+  const lines = pipe(Str.split(/\r?\n/)(text), A.map(Str.trim), A.filter(Str.isNonEmpty));
+  const records: Array<unknown> = [];
+  for (const line of lines) {
+    if (skipInvalid) {
+      const parsed = yield* Effect.option(parseJson(line, location));
+      if (O.isSome(parsed)) {
+        records.push(parsed.value);
       }
+    } else {
+      records.push(yield* parseJson(line, location));
     }
+  }
 
-    return {
-      data: records,
-      meta: DatasetMeta.make({
-        format: "jsonl",
-        loadedAt,
-        location,
-        sizeBytes: byteLength(text),
-        sourceType: isUrl(location) ? "url" : "file",
-      }),
-    };
-  });
+  return {
+    data: records,
+    meta: DatasetMeta.make({
+      format: "jsonl",
+      loadedAt,
+      location,
+      sizeBytes: byteLength(text),
+      sourceType: isUrl(location) ? "url" : "file",
+    }),
+  };
+});
 
 /**
  * Load and parse a single JSON document from a file or remote URL.
@@ -378,27 +354,22 @@ export const loadJsonl = (
  * ```
  *
  * @since 0.0.0
- * @category loading
+ * @category constructors
  */
-export const loadJson = (
+export const loadJson = Effect.fn("DatasetLoader.loadJson")(function* (
   location: string,
   options: { readonly timeout?: number | undefined } = {}
-): Effect.Effect<
-  DatasetResult<unknown>,
-  DatasetLoadError | PlatformError,
-  FileSystem.FileSystem | HttpClient.HttpClient | Path.Path
-> =>
-  Effect.gen(function* () {
-    const result = yield* loadText(location, options);
-    const data = yield* parseJson(result.data, location);
-    return {
-      data,
-      meta: DatasetMeta.make({
-        format: "json",
-        loadedAt: result.meta.loadedAt,
-        location: result.meta.location,
-        ...(result.meta.sizeBytes === undefined ? {} : { sizeBytes: result.meta.sizeBytes }),
-        sourceType: result.meta.sourceType,
-      }),
-    };
-  });
+) {
+  const result = yield* loadText(location, options);
+  const data = yield* parseJson(result.data, location);
+  return {
+    data,
+    meta: DatasetMeta.make({
+      format: "json",
+      loadedAt: result.meta.loadedAt,
+      location: result.meta.location,
+      ...R.getSomes({ sizeBytes: O.fromUndefinedOr(result.meta.sizeBytes) }),
+      sourceType: result.meta.sourceType,
+    }),
+  };
+});

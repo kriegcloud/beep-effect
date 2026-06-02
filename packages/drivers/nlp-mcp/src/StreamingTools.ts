@@ -737,7 +737,7 @@ export const CountJsonl = Tool.make("stream_count_jsonl", {
  * ```
  *
  * @since 0.0.0
- * @category toolkit
+ * @category tools
  */
 export const StreamingToolkit = Toolkit.make(
   ReadLines,
@@ -763,6 +763,6 @@ export const StreamingToolkit = Toolkit.make(
  * Type of the {@link StreamingToolkit}.
  *
  * @since 0.0.0
- * @category toolkit
+ * @category tools
  */
 export type StreamingToolkit = typeof StreamingToolkit;

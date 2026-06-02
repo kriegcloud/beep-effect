@@ -11,12 +11,8 @@
  * @packageDocumentation
  */
 
+import { Effect, FileSystem, Path, Random, Stream } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
-import * as Path from "effect/Path";
-import * as Random from "effect/Random";
-import * as Stream from "effect/Stream";
 import type { PlatformError } from "effect/PlatformError";
 
 /**
@@ -96,7 +92,7 @@ const byteLength = (value: string): number => new TextEncoder().encode(value).le
  * ```
  *
  * @since 0.0.0
- * @category streaming
+ * @category streams
  */
 export const streamLines = (
   filePath: string,
@@ -140,7 +136,7 @@ export const streamLines = (
  * ```
  *
  * @since 0.0.0
- * @category reading
+ * @category utilities
  */
 export const readLines = (
   filePath: string,
@@ -159,17 +155,16 @@ export const readLines = (
  * ```
  *
  * @since 0.0.0
- * @category reading
+ * @category utilities
  */
-export const readTextFile = (
+export const readTextFile = Effect.fn("TextStream.readTextFile")(function* (
   filePath: string,
   encoding: TextEncoding = "utf-8"
-): Effect.Effect<string, PlatformError, FileSystem.FileSystem | Path.Path> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    return yield* fs.readFileString(path.resolve(filePath), encoding);
-  });
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  return yield* fs.readFileString(path.resolve(filePath), encoding);
+});
 
 /**
  * Read the first `n` processed lines of a text file.
@@ -182,7 +177,7 @@ export const readTextFile = (
  * ```
  *
  * @since 0.0.0
- * @category reading
+ * @category utilities
  */
 export const head = (
   filePath: string,
@@ -202,7 +197,7 @@ export const head = (
  * ```
  *
  * @since 0.0.0
- * @category reading
+ * @category utilities
  */
 export const tail = (
   filePath: string,
@@ -226,24 +221,23 @@ export const tail = (
  * ```
  *
  * @since 0.0.0
- * @category sampling
+ * @category utilities
  */
-export const sampleLines = (
+export const sampleLines = Effect.fn("TextStream.sampleLines")(function* (
   filePath: string,
   sampleSize: number,
   options: TextReadOptions = {}
-): Effect.Effect<ReadonlyArray<string>, PlatformError, FileSystem.FileSystem | Path.Path> =>
-  Effect.gen(function* () {
-    const lines = yield* readLines(filePath, options);
-    if (lines.length <= sampleSize) {
-      return lines;
-    }
-    const indices = yield* Random.shuffle(A.makeBy(lines.length, (index) => index));
-    return indices
-      .slice(0, sampleSize)
-      .sort((left, right) => left - right)
-      .map((index) => lines[index] as string);
-  });
+) {
+  const lines = yield* readLines(filePath, options);
+  if (lines.length <= sampleSize) {
+    return lines;
+  }
+  const indices = yield* Random.shuffle(A.makeBy(lines.length, (index) => index));
+  return indices
+    .slice(0, sampleSize)
+    .sort((left, right) => left - right)
+    .map((index) => lines[index] as string);
+});
 
 /**
  * Count the processed lines in a text file without buffering them.
@@ -256,7 +250,7 @@ export const sampleLines = (
  * ```
  *
  * @since 0.0.0
- * @category statistics
+ * @category diagnostics
  */
 export const countLines = (
   filePath: string,
@@ -275,16 +269,13 @@ export const countLines = (
  * ```
  *
  * @since 0.0.0
- * @category statistics
+ * @category diagnostics
  */
-export const fileExists = (
-  filePath: string
-): Effect.Effect<boolean, PlatformError, FileSystem.FileSystem | Path.Path> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    return yield* fs.exists(path.resolve(filePath));
-  });
+export const fileExists = Effect.fn("TextStream.fileExists")(function* (filePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  return yield* fs.exists(path.resolve(filePath));
+});
 
 /**
  * Report the size of a file in bytes.
@@ -297,17 +288,14 @@ export const fileExists = (
  * ```
  *
  * @since 0.0.0
- * @category statistics
+ * @category diagnostics
  */
-export const getFileSize = (
-  filePath: string
-): Effect.Effect<number, PlatformError, FileSystem.FileSystem | Path.Path> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const info = yield* fs.stat(path.resolve(filePath));
-    return Number(info.size);
-  });
+export const getFileSize = Effect.fn("TextStream.getFileSize")(function* (filePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const info = yield* fs.stat(path.resolve(filePath));
+  return Number(info.size);
+});
 
 /**
  * Compute aggregate line-length and byte statistics for a text file.
@@ -323,7 +311,7 @@ export const getFileSize = (
  * ```
  *
  * @since 0.0.0
- * @category statistics
+ * @category diagnostics
  */
 export const computeStats = (
   filePath: string,

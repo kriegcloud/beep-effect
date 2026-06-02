@@ -16,12 +16,9 @@
  */
 
 import { AiToolError } from "@beep/nlp/Tools";
+import { Data, Effect, Result, Stream } from "effect";
 import * as A from "effect/Array";
-import * as Data from "effect/Data";
-import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
-import * as Result from "effect/Result";
-import * as Stream from "effect/Stream";
 import * as DatasetLoader from "./Streaming/DatasetLoader.ts";
 import * as Jsonl from "./Streaming/Jsonl.ts";
 import * as Pipeline from "./Streaming/Pipeline.ts";
@@ -232,8 +229,8 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
         function* ({ location, options }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(location));
           const result = yield* DatasetLoader.loadJsonl(location, {
-            ...(options?.skipInvalid === undefined ? {} : { skipInvalid: options.skipInvalid }),
-            ...(options?.timeout === undefined ? {} : { timeout: options.timeout }),
+            skipInvalid: options?.skipInvalid,
+            timeout: options?.timeout,
           });
           const records = options?.maxRecords === undefined ? result.data : result.data.slice(0, options.maxRecords);
           yield* Effect.annotateCurrentSpan(countAttribute("count", records.length));
@@ -246,9 +243,9 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
         function* ({ location, options }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(location));
           const result = yield* DatasetLoader.loadLines(location, {
-            ...(options?.skipEmpty === undefined ? {} : { skipEmpty: options.skipEmpty }),
-            ...(options?.timeout === undefined ? {} : { timeout: options.timeout }),
-            ...(options?.trim === undefined ? {} : { trim: options.trim }),
+            skipEmpty: options?.skipEmpty,
+            timeout: options?.timeout,
+            trim: options?.trim,
           });
           const lines = options?.maxLines === undefined ? result.data : result.data.slice(0, options.maxLines);
           yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
@@ -261,8 +258,8 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
         function* ({ location, options }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(location));
           const result = yield* DatasetLoader.loadText(location, {
-            ...(options?.encoding === undefined ? {} : { encoding: options.encoding }),
-            ...(options?.timeout === undefined ? {} : { timeout: options.timeout }),
+            encoding: options?.encoding,
+            timeout: options?.timeout,
           });
           if (result.meta.sizeBytes !== undefined) {
             yield* Effect.annotateCurrentSpan({ size_bytes: `${result.meta.sizeBytes}` });
@@ -276,9 +273,9 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
         function* ({ options, path, stages }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(path));
           const result = yield* Pipeline.processFile(path, stages, {
-            ...(options?.maxLines === undefined ? {} : { maxLines: options.maxLines }),
-            ...(options?.skipEmpty === undefined ? {} : { skipEmpty: options.skipEmpty }),
-            ...(options?.stopOnError === undefined ? {} : { stopOnError: options.stopOnError }),
+            maxLines: options?.maxLines,
+            skipEmpty: options?.skipEmpty,
+            stopOnError: options?.stopOnError,
           });
           yield* Effect.annotateCurrentSpan(countAttribute("processed", result.processed));
           return {
@@ -318,9 +315,10 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
               ...(errors.length > 0 ? { errors } : {}),
             };
           }
-          const collected = yield* Jsonl.streamJsonl(path, {
-            ...(options?.skipInvalid === undefined ? {} : { skipInvalid: options.skipInvalid }),
-          }).pipe(Stream.take(maxRecords + 1), Stream.runCollect);
+          const collected = yield* Jsonl.streamJsonl(path, { skipInvalid: options?.skipInvalid }).pipe(
+            Stream.take(maxRecords + 1),
+            Stream.runCollect
+          );
           const truncated = collected.length > maxRecords;
           const records = truncated ? collected.slice(0, maxRecords) : collected;
           yield* Effect.annotateCurrentSpan(countAttribute("count", records.length));
@@ -333,10 +331,10 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
         function* ({ options, path }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(path));
           const maxLines = options?.maxLines ?? 1000;
-          const readOptions: { encoding?: TextStream.TextEncoding; skipEmpty?: boolean; trim?: boolean } = {
+          const readOptions = {
             encoding: options?.encoding ?? "utf-8",
-            ...(options?.skipEmpty === undefined ? {} : { skipEmpty: options.skipEmpty }),
-            ...(options?.trim === undefined ? {} : { trim: options.trim }),
+            skipEmpty: options?.skipEmpty,
+            trim: options?.trim,
           };
           if (options?.tail !== undefined) {
             // The tail window returns the last `tail` lines by design; the
@@ -361,9 +359,7 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
       stream_sample_jsonl: Effect.fn("StreamingToolkit.stream_sample_jsonl")(
         function* ({ options, path, sampleSize }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(path));
-          const records = yield* Jsonl.sampleJsonl(path, sampleSize, {
-            ...(options?.skipInvalid === undefined ? {} : { skipInvalid: options.skipInvalid }),
-          });
+          const records = yield* Jsonl.sampleJsonl(path, sampleSize, { skipInvalid: options?.skipInvalid });
           yield* Effect.annotateCurrentSpan(countAttribute("count", records.length));
           return { count: records.length, records, truncated: false };
         },
@@ -374,8 +370,8 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
         function* ({ options, path, sampleSize }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(path));
           const lines = yield* TextStream.sampleLines(path, sampleSize, {
-            ...(options?.skipEmpty === undefined ? {} : { skipEmpty: options.skipEmpty }),
-            ...(options?.trim === undefined ? {} : { trim: options.trim }),
+            skipEmpty: options?.skipEmpty,
+            trim: options?.trim,
           });
           yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
           return { count: lines.length, lines, truncated: false };
@@ -387,8 +383,8 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
         function* ({ options, path }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(path));
           const stats = yield* TextStream.computeStats(path, {
-            ...(options?.skipEmpty === undefined ? {} : { skipEmpty: options.skipEmpty }),
-            ...(options?.trim === undefined ? {} : { trim: options.trim }),
+            skipEmpty: options?.skipEmpty,
+            trim: options?.trim,
           });
           yield* Effect.annotateCurrentSpan(countAttribute("total_lines", stats.totalLines));
           return {

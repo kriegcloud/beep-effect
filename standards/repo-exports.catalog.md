@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1048 |
-| publicExportEntries | 13696 |
-| uniquePackageSymbols | 6121 |
+| publicExportEntries | 13694 |
+| uniquePackageSymbols | 6120 |
 
 ## Seed Discovery Proof
 
@@ -55,7 +55,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1649 | 593 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
-| 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 77 | 64 |
+| 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 75 | 63 |
 | 20 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
 | 21 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
 | 22 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 19 | 15 |
@@ -2643,52 +2643,50 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp-mcp` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
 | `@beep/nlp-mcp` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:742` | The complete streaming toolkit grouping all 17 streaming tools. |
 | `@beep/nlp-mcp` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:768` | Type of the {@link StreamingToolkit}. |
-| `@beep/nlp-mcp` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:96` | Live handler layer for the streaming toolkit. |
-| `@beep/nlp-mcp` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:12` |  |
+| `@beep/nlp-mcp` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
 | `@beep/nlp-mcp/bin` | `SERVER_CONFIG` | const | `packages/drivers/nlp-mcp/src/bin.ts:27` | The server identity advertised to MCP clients by this entrypoint. |
 | `@beep/nlp-mcp/index` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
 | `@beep/nlp-mcp/index` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
 | `@beep/nlp-mcp/index` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:742` | The complete streaming toolkit grouping all 17 streaming tools. |
 | `@beep/nlp-mcp/index` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:768` | Type of the {@link StreamingToolkit}. |
-| `@beep/nlp-mcp/index` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:96` | Live handler layer for the streaming toolkit. |
-| `@beep/nlp-mcp/index` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:12` |  |
+| `@beep/nlp-mcp/index` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
 | `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
 | `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetLoadError` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:89` | Structured failure raised when a remote fetch or JSON decode fails. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetMeta` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:42` | Provenance metadata returned alongside every loaded dataset. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:76` | A loaded dataset payload paired with its {@link DatasetMeta}. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `isUrl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:114` | Report whether a location should be treated as a remote `http(s)` URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJson` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:383` | Load and parse a single JSON document from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:327` | Load a JSONL dataset as an array of parsed records from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadLines` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:254` | Load a dataset as an array of lines from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadText` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:202` | Load raw text from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `computeJsonlStats` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:161` | Compute aggregate parse statistics for a JSONL file. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlLineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:32` | Structured parse failure for a single JSONL line. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:45` | Aggregate parse statistics for a JSONL file. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `readJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:142` | Collect parsed JSONL records into an array. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `sampleJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:224` | Sample up to `sampleSize` parsed JSONL records uniformly at random. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:95` | Stream parsed JSONL records, optionally dropping invalid lines. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonlResults` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:124` | Stream per-line parse results, never failing on malformed JSON. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `validateJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:189` | Validate a JSONL file, returning parsed records and collected line errors. |
-| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:39` | A single pipeline failure entry describing the item, message, and stage. |
-| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:54` | Outcome of running a line-transform pipeline over a file. |
-| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineStage` | type | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:31` | Identifier of a supported, pure line transform stage. |
-| `@beep/nlp-mcp/Streaming/Pipeline` | `processFile` | const | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:100` | Run an ordered list of line transforms over the lines of a file. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `computeStats` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:328` | Compute aggregate line-length and byte statistics for a text file. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `countLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:261` | Count the processed lines in a text file without buffering them. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `fileExists` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:280` | Report whether a path exists. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `getFileSize` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:302` | Report the size of a file in bytes. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `head` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:187` | Read the first `n` processed lines of a text file. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `readLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:145` | Collect a text file into an array of processed lines. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `readTextFile` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:164` | Read an entire text file into a single decoded string. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `sampleLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:231` | Sample up to `sampleSize` processed lines uniformly at random. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `streamLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:101` | Stream a text file as a sequence of processed lines. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `tail` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:207` | Read the last `n` processed lines of a text file. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `TextEncoding` | type | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:28` | Text decoding labels accepted by the streaming text helpers. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `TextReadOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:36` | Per-line processing options shared by the read-oriented helpers. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:51` | Streaming options that extend {@link TextReadOptions} with windowing controls. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:64` | Aggregate line-length and byte statistics computed for a text file. |
-| `@beep/nlp-mcp/StreamingHandlers` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:96` | Live handler layer for the streaming toolkit. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetLoadError` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:84` | Structured failure raised when a remote fetch or JSON decode fails. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetMeta` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:37` | Provenance metadata returned alongside every loaded dataset. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:71` | A loaded dataset payload paired with its {@link DatasetMeta}. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `isUrl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:109` | Report whether a location should be treated as a remote `http(s)` URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJson` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:359` | Load and parse a single JSON document from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:308` | Load a JSONL dataset as an array of parsed records from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadLines` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:244` | Load a dataset as an array of lines from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadText` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:197` | Load raw text from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `computeJsonlStats` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:158` | Compute aggregate parse statistics for a JSONL file. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlLineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:29` | Structured parse failure for a single JSONL line. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:42` | Aggregate parse statistics for a JSONL file. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `readJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:139` | Collect parsed JSONL records into an array. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `sampleJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:221` | Sample up to `sampleSize` parsed JSONL records uniformly at random. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:92` | Stream parsed JSONL records, optionally dropping invalid lines. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonlResults` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:121` | Stream per-line parse results, never failing on malformed JSON. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `validateJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:186` | Validate a JSONL file, returning parsed records and collected line errors. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:33` | A single pipeline failure entry describing the item, message, and stage. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:48` | Outcome of running a line-transform pipeline over a file. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineStage` | type | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:25` | Identifier of a supported, pure line transform stage. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `processFile` | const | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:94` | Run an ordered list of line transforms over the lines of a file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `computeStats` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:316` | Compute aggregate line-length and byte statistics for a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `countLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:255` | Count the processed lines in a text file without buffering them. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `fileExists` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:274` | Report whether a path exists. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `getFileSize` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:293` | Report the size of a file in bytes. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `head` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:182` | Read the first `n` processed lines of a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `readLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:141` | Collect a text file into an array of processed lines. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `readTextFile` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:160` | Read an entire text file into a single decoded string. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `sampleLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:226` | Sample up to `sampleSize` processed lines uniformly at random. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `streamLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:97` | Stream a text file as a sequence of processed lines. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `tail` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:202` | Read the last `n` processed lines of a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextEncoding` | type | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:24` | Text decoding labels accepted by the streaming text helpers. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextReadOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:32` | Per-line processing options shared by the read-oriented helpers. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:47` | Streaming options that extend {@link TextReadOptions} with windowing controls. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:60` | Aggregate line-length and byte statistics computed for a text file. |
+| `@beep/nlp-mcp/StreamingHandlers` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
 | `@beep/nlp-mcp/StreamingTools` | `CountJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:720` | Tool: count valid JSONL records in a file. |
 | `@beep/nlp-mcp/StreamingTools` | `CountLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:706` | Tool: count total lines in a file. |
 | `@beep/nlp-mcp/StreamingTools` | `DataOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:254` | Output schema pairing loaded data with its {@link DatasetMetaOutput}. |

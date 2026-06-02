@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-30",
+  "generatedOn": "2026-06-02",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -226,20 +226,308 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/drivers/nlp-mcp/src/Schemas.ts",
-      "symbol": "anonymous@104",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
       "file": "packages/drivers/nlp-mcp/src/Server.ts",
       "symbol": "NlpMcpServerConfig",
       "kind": "exported-interface",
       "status": "candidate",
       "owner": "@beep/nlp-mcp",
       "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts",
+      "symbol": "DatasetResult",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts",
+      "symbol": "JsonlLineError",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts",
+      "symbol": "JsonlStats",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts",
+      "symbol": "PipelineError",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts",
+      "symbol": "PipelineResult",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
+      "symbol": "TextReadOptions",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
+      "symbol": "TextStreamOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
+      "symbol": "TextStreamStats",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "CountJsonlParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "CountLinesParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "CountOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "CountWithErrorsOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "DataOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "DatasetMetaOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "ExtractMatchesParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "FileInfoOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "FileInfoParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "FilterLinesParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "JsonlLineErrorOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "JsonlOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "JsonlStatsOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "JsonlStatsParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "LinesOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "LoadJsonParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "LoadJsonlParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "LoadLinesParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "LoadTextParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "PipelineErrorOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "PipelineOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "ProcessFileParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "ReadJsonlParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "ReadLinesParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "SampleJsonlParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "SampleLinesParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "TextStatsOutput",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "TextStatsParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
+      "symbol": "ValidateJsonlParameters",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp-mcp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
       "file": "packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts",
@@ -714,12 +1002,300 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
+      "file": "packages/foundation/capability/nlp/src/Tools/BagOfWords.ts",
+      "symbol": "BagOfWordsSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts",
+      "symbol": "BowCosineSimilaritySuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts",
+      "symbol": "ChunkBySentencesSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/DeleteCorpus.ts",
+      "symbol": "DeleteCorpusSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/ExtractEntities.ts",
+      "symbol": "ExtractEntitiesSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/ExtractKeywords.ts",
+      "symbol": "ExtractKeywordsSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts",
+      "symbol": "LearnCorpusSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts",
+      "symbol": "LearnCustomEntitiesSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/NGrams.ts",
+      "symbol": "NGramsSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/Paragraphize.ts",
+      "symbol": "ParagraphizeSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts",
+      "symbol": "QueryCorpusSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts",
+      "symbol": "RankByRelevanceSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/RemoveStopWords.ts",
+      "symbol": "RemoveStopWordsSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/Sentences.ts",
+      "symbol": "SentencesSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/Stem.ts",
+      "symbol": "StemSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts",
+      "symbol": "TextSimilaritySuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/Tokenize.ts",
+      "symbol": "TokenizeSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
       "file": "packages/foundation/capability/nlp/src/Tools/ToolExport.ts",
       "symbol": "ExportedTool",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/nlp",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/TransformText.ts",
+      "symbol": "TransformTextSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts",
+      "symbol": "TverskySimilaritySuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/WordCount.ts",
+      "symbol": "WordCountSuccess",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiAnalysis",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiCorpusConfig",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiCorpusIdf",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiCorpusMatrixShape",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiCorpusRankedDocument",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiCorpusStats",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiCorpusSummary",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiDocumentStats",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiEntity",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiKeyword",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiNGram",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiPhoneticMatch",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiRankedText",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiSentence",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiSentenceChunk",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
+      "symbol": "AiToken",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/nlp",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
       "file": "packages/foundation/capability/sandbox/src/Agent.provider.ts",

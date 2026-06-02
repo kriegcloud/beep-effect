@@ -3,7 +3,7 @@
  * tools.
  *
  * Records are parsed line-by-line on top of {@link streamLines}, with
- * optional skip-invalid behaviour and structured per-line error collection. All
+ * optional skip-invalid behavior and structured per-line error collection. All
  * operations require the {@link FileSystem.FileSystem} and {@link Path.Path}
  * services and surface the platform error channel.
  *
@@ -11,12 +11,9 @@
  * @packageDocumentation
  */
 
+import { Effect, Random, Result, Stream } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
-import * as Random from "effect/Random";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { streamLines } from "./TextStream.ts";
 import type * as FileSystem from "effect/FileSystem";
@@ -90,7 +87,7 @@ const streamIndexedLines = (
  * ```
  *
  * @since 0.0.0
- * @category streaming
+ * @category streams
  */
 export const streamJsonl = (
   filePath: string,
@@ -119,7 +116,7 @@ export const streamJsonl = (
  * ```
  *
  * @since 0.0.0
- * @category streaming
+ * @category streams
  */
 export const streamJsonlResults = (
   filePath: string
@@ -137,7 +134,7 @@ export const streamJsonlResults = (
  * ```
  *
  * @since 0.0.0
- * @category reading
+ * @category utilities
  */
 export const readJsonl = (
   filePath: string,
@@ -156,7 +153,7 @@ export const readJsonl = (
  * ```
  *
  * @since 0.0.0
- * @category statistics
+ * @category diagnostics
  */
 export const computeJsonlStats = (
   filePath: string
@@ -207,7 +204,7 @@ export const validateJsonl = (
 /**
  * Sample up to `sampleSize` parsed JSONL records uniformly at random.
  *
- * Records are first parsed (honouring `skipInvalid`); when at most `sampleSize`
+ * Records are first parsed (honoring `skipInvalid`); when at most `sampleSize`
  * are available they are returned in order, otherwise a {@link Random} shuffle
  * selects the sample which is then re-sorted into original order.
  *
@@ -219,21 +216,20 @@ export const validateJsonl = (
  * ```
  *
  * @since 0.0.0
- * @category sampling
+ * @category utilities
  */
-export const sampleJsonl = (
+export const sampleJsonl = Effect.fn("Jsonl.sampleJsonl")(function* (
   filePath: string,
   sampleSize: number,
   options: { readonly skipInvalid?: boolean | undefined } = {}
-): Effect.Effect<ReadonlyArray<unknown>, JsonlLineError | PlatformError, FileSystem.FileSystem | Path.Path> =>
-  Effect.gen(function* () {
-    const records = yield* readJsonl(filePath, options);
-    if (records.length <= sampleSize) {
-      return records;
-    }
-    const indices = yield* Random.shuffle(A.makeBy(records.length, (index) => index));
-    return indices
-      .slice(0, sampleSize)
-      .sort((left, right) => left - right)
-      .map((index) => records[index]);
-  });
+) {
+  const records = yield* readJsonl(filePath, options);
+  if (records.length <= sampleSize) {
+    return records;
+  }
+  const indices = yield* Random.shuffle(A.makeBy(records.length, (index) => index));
+  return indices
+    .slice(0, sampleSize)
+    .sort((left, right) => left - right)
+    .map((index) => records[index]);
+});

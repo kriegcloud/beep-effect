@@ -11,16 +11,10 @@
  * @packageDocumentation
  */
 
-import { flow } from "effect";
+import { Clock, Effect, flow, Match } from "effect";
 import * as A from "effect/Array";
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
-import * as Match from "effect/Match";
 import * as Str from "effect/String";
 import { readLines } from "./TextStream.ts";
-import type * as FileSystem from "effect/FileSystem";
-import type * as Path from "effect/Path";
-import type { PlatformError } from "effect/PlatformError";
 
 /**
  * Identifier of a supported, pure line transform stage.
@@ -95,9 +89,9 @@ const applyStages = (stages: ReadonlyArray<PipelineStage>, value: string): strin
  * ```
  *
  * @since 0.0.0
- * @category pipeline
+ * @category processes
  */
-export const processFile = (
+export const processFile = Effect.fn("Pipeline.processFile")(function* (
   filePath: string,
   stages: ReadonlyArray<PipelineStage>,
   options: {
@@ -105,25 +99,24 @@ export const processFile = (
     readonly skipEmpty?: boolean | undefined;
     readonly stopOnError?: boolean | undefined;
   } = {}
-): Effect.Effect<PipelineResult, PlatformError, FileSystem.FileSystem | Path.Path> =>
-  Effect.gen(function* () {
-    const startedAt = yield* Clock.currentTimeMillis;
+) {
+  const startedAt = yield* Clock.currentTimeMillis;
 
-    // Read raw lines (blanks included) so we can report how many were skipped;
-    // `maxLines` still caps how many raw lines are read.
-    const allLines = yield* readLines(filePath, options.maxLines === undefined ? {} : { maxLines: options.maxLines });
-    const lines = options.skipEmpty === true ? A.filter(allLines, (line) => Str.isNonEmpty(Str.trim(line))) : allLines;
-    const skipped = allLines.length - lines.length;
+  // Read raw lines (blanks included) so we can report how many were skipped;
+  // `maxLines` still caps how many raw lines are read.
+  const allLines = yield* readLines(filePath, options.maxLines === undefined ? {} : { maxLines: options.maxLines });
+  const lines = options.skipEmpty === true ? A.filter(allLines, (line) => Str.isNonEmpty(Str.trim(line))) : allLines;
+  const skipped = allLines.length - lines.length;
 
-    const results = A.map(lines, (line) => applyStages(stages, line));
-    const finishedAt = yield* Clock.currentTimeMillis;
+  const results = A.map(lines, (line) => applyStages(stages, line));
+  const finishedAt = yield* Clock.currentTimeMillis;
 
-    return {
-      durationMs: finishedAt - startedAt,
-      errors: [],
-      failed: 0,
-      processed: results.length,
-      results,
-      skipped,
-    };
-  });
+  return {
+    durationMs: finishedAt - startedAt,
+    errors: [],
+    failed: 0,
+    processed: results.length,
+    results,
+    skipped,
+  };
+});
