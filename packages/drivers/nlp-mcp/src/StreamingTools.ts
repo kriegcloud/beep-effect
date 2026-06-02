@@ -432,7 +432,10 @@ const ProcessFileParameters = S.Struct({
     S.Struct({
       maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
       skipEmpty: S.optionalKey(S.Boolean),
-      stopOnError: S.optionalKey(S.Boolean),
+      stopOnError: S.optionalKey(S.Boolean).annotateKey({
+        description:
+          "Reserved for future custom stages. The built-in transform stages are total and never fail, so this option currently has no effect.",
+      }),
     })
   ),
   path: S.String.check(S.isMinLength(1)),

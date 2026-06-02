@@ -15,6 +15,7 @@ const $I = $NlpId.create("Tools/ExtractEntities");
 class ExtractEntitiesParameters extends S.Class<ExtractEntitiesParameters>($I`ExtractEntitiesParameters`)(
   {
     includeCustom: S.optionalKey(S.Boolean).annotateKey({
+      default: true,
       description: "Include custom entities learned via LearnCustomEntities (default: true)",
     }),
     text: S.String.annotateKey({

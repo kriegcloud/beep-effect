@@ -1,4 +1,5 @@
 import { NlpToolkit, NlpTools } from "@beep/nlp/Tools/NlpToolkit";
+import { StreamingToolkit } from "@beep/nlp-mcp/StreamingTools";
 import { WinkNlpToolkitLive } from "@beep/wink";
 import { assert, describe, it, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -11,6 +12,20 @@ describe("nlp-mcp tool surface", () => {
     assert.strictEqual(new Set(names).size, names.length);
     assert.strictEqual(Object.keys(NlpToolkit.tools).length, 25);
     assert.isTrue(names.includes("Tokenize"));
+  });
+
+  it("exposes a combined 42-tool surface across both mounted toolkits", () => {
+    // Guards the server contract from `makeServerLayer`: both toolkits must be
+    // mounted, with no cross-toolkit name collision, summing to 42 unique tools.
+    const nlpNames = Object.keys(NlpToolkit.tools);
+    const streamingNames = Object.keys(StreamingToolkit.tools);
+    const merged = [...nlpNames, ...streamingNames];
+
+    assert.strictEqual(streamingNames.length, 17);
+    assert.strictEqual(merged.length, 42);
+    assert.strictEqual(new Set(merged).size, 42, "NLP and streaming tool names must be disjoint");
+    assert.isTrue(merged.includes("Tokenize"), "NLP toolkit tool must be present");
+    assert.isTrue(merged.includes("stream_read_lines"), "streaming toolkit tool must be present");
   });
 });
 

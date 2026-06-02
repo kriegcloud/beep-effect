@@ -16,8 +16,10 @@
  */
 
 import { AiToolError } from "@beep/nlp/Tools";
+import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
 import * as DatasetLoader from "./Streaming/DatasetLoader.ts";
@@ -37,7 +39,7 @@ const toStreamToolError =
     AiToolError.make({
       message: error instanceof Error ? error.message : String(error),
       operation,
-      reason: typeof error === "object" && error !== null && "_tag" in error ? String(error._tag) : "StreamingError",
+      reason: P.hasProperty(error, "_tag") ? String(error._tag) : "StreamingError",
       retryable: false,
       toolName,
     });
@@ -51,12 +53,27 @@ class InvalidPatternError extends Data.TaggedError("InvalidPatternError")<{
   readonly message: string;
 }> {}
 
+/**
+ * Upper bound on tool-supplied regex length. Patterns above this are rejected
+ * before reaching `new RegExp`, bounding the ReDoS surface from catastrophic
+ * backtracking on adversarial inputs (the pattern is attacker-controlled via the
+ * MCP tool parameters).
+ */
+const MAX_PATTERN_LENGTH = 1_000;
+
 const compileRegex = (pattern: string, flags: string): Effect.Effect<RegExp, InvalidPatternError> =>
-  Effect.try({
-    catch: (cause) =>
-      new InvalidPatternError({ cause, message: cause instanceof Error ? cause.message : String(cause) }),
-    try: () => new RegExp(pattern, flags),
-  });
+  pattern.length > MAX_PATTERN_LENGTH
+    ? Effect.fail(
+        new InvalidPatternError({
+          cause: undefined,
+          message: `Pattern exceeds the maximum supported length of ${MAX_PATTERN_LENGTH} characters`,
+        })
+      )
+    : Effect.try({
+        catch: (cause) =>
+          new InvalidPatternError({ cause, message: cause instanceof Error ? cause.message : String(cause) }),
+        try: () => new RegExp(pattern, flags),
+      });
 
 /**
  * Live handler layer for the streaming toolkit.
@@ -125,17 +142,19 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
           const maxMatches = options?.maxMatches ?? 1000;
           if (options?.fullLines === true) {
             const lineRegex = yield* compileRegex(pattern, options.caseInsensitive === true ? "i" : "");
-            const lines = yield* TextStream.streamLines(path, { skipEmpty: true, trim: true }).pipe(
+            const collected = yield* TextStream.streamLines(path, { skipEmpty: true, trim: true }).pipe(
               Stream.filter((line) => lineRegex.test(line)),
-              Stream.take(maxMatches),
+              Stream.take(maxMatches + 1),
               Stream.runCollect
             );
+            const truncated = collected.length > maxMatches;
+            const lines = truncated ? collected.slice(0, maxMatches) : collected;
             yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
-            return { count: lines.length, lines, truncated: lines.length >= maxMatches };
+            return { count: lines.length, lines, truncated };
           }
           const regex = yield* compileRegex(pattern, `g${options?.caseInsensitive === true ? "i" : ""}`);
           const content = yield* TextStream.readTextFile(path);
-          const allMatches = Array.from(content.matchAll(regex), (match) => match[0]);
+          const allMatches = A.map(A.fromIterable(content.matchAll(regex)), (match) => match[0]);
           const matches = allMatches.slice(0, maxMatches);
           yield* Effect.annotateCurrentSpan(countAttribute("count", matches.length));
           return { count: matches.length, lines: matches, truncated: allMatches.length > maxMatches };
@@ -166,16 +185,18 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
           yield* Effect.annotateCurrentSpan(pathAttribute(path));
           const regex = yield* compileRegex(pattern, options?.caseInsensitive === true ? "i" : "");
           const maxLines = options?.maxLines ?? 1000;
-          const lines = yield* TextStream.streamLines(path, { skipEmpty: true, trim: true }).pipe(
+          const collected = yield* TextStream.streamLines(path, { skipEmpty: true, trim: true }).pipe(
             Stream.filter((line) => {
               const matches = regex.test(line);
               return options?.invert === true ? !matches : matches;
             }),
-            Stream.take(maxLines),
+            Stream.take(maxLines + 1),
             Stream.runCollect
           );
+          const truncated = collected.length > maxLines;
+          const lines = truncated ? collected.slice(0, maxLines) : collected;
           yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
-          return { count: lines.length, lines, truncated: lines.length >= maxLines };
+          return { count: lines.length, lines, truncated };
         },
         finalize("stream_filter_lines", "filter_lines")
       ),
@@ -277,7 +298,12 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
           yield* Effect.annotateCurrentSpan(pathAttribute(path));
           const maxRecords = options?.maxRecords ?? 1000;
           if (options?.collectErrors === true) {
-            const results = yield* Jsonl.streamJsonlResults(path).pipe(Stream.take(maxRecords), Stream.runCollect);
+            const collected = yield* Jsonl.streamJsonlResults(path).pipe(
+              Stream.take(maxRecords + 1),
+              Stream.runCollect
+            );
+            const truncated = collected.length > maxRecords;
+            const results = truncated ? collected.slice(0, maxRecords) : collected;
             const records = results.flatMap((result) =>
               Result.match(result, { onFailure: () => [], onSuccess: (value) => [value] })
             );
@@ -288,15 +314,17 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
             return {
               count: records.length,
               records,
-              truncated: results.length >= maxRecords,
+              truncated,
               ...(errors.length > 0 ? { errors } : {}),
             };
           }
-          const records = yield* Jsonl.streamJsonl(path, {
+          const collected = yield* Jsonl.streamJsonl(path, {
             ...(options?.skipInvalid === undefined ? {} : { skipInvalid: options.skipInvalid }),
-          }).pipe(Stream.take(maxRecords), Stream.runCollect);
+          }).pipe(Stream.take(maxRecords + 1), Stream.runCollect);
+          const truncated = collected.length > maxRecords;
+          const records = truncated ? collected.slice(0, maxRecords) : collected;
           yield* Effect.annotateCurrentSpan(countAttribute("count", records.length));
-          return { count: records.length, records, truncated: records.length >= maxRecords };
+          return { count: records.length, records, truncated };
         },
         finalize("stream_read_jsonl", "read_jsonl")
       ),
@@ -310,12 +338,22 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
             ...(options?.skipEmpty === undefined ? {} : { skipEmpty: options.skipEmpty }),
             ...(options?.trim === undefined ? {} : { trim: options.trim }),
           };
-          const lines =
-            options?.tail === undefined
-              ? yield* TextStream.readLines(path, { ...readOptions, maxLines, skip: options?.skip ?? 0 })
-              : yield* TextStream.tail(path, options.tail, readOptions);
+          if (options?.tail !== undefined) {
+            // The tail window returns the last `tail` lines by design; the
+            // result is never a truncated prefix of the file, so report `false`.
+            const lines = yield* TextStream.tail(path, options.tail, readOptions);
+            yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
+            return { count: lines.length, lines, truncated: false };
+          }
+          const collected = yield* TextStream.readLines(path, {
+            ...readOptions,
+            maxLines: maxLines + 1,
+            skip: options?.skip ?? 0,
+          });
+          const truncated = collected.length > maxLines;
+          const lines = truncated ? collected.slice(0, maxLines) : collected;
           yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
-          return { count: lines.length, lines, truncated: lines.length >= maxLines };
+          return { count: lines.length, lines, truncated };
         },
         finalize("stream_read_lines", "read_lines")
       ),
@@ -375,7 +413,9 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
           return {
             count: records.length,
             records,
-            truncated: false,
+            // `truncated` reflects that the error list was clipped to `maxErrors`,
+            // so callers can tell additional malformed lines were omitted.
+            truncated: errors.length > maxErrors,
             ...(limitedErrors.length > 0 ? { errors: limitedErrors } : {}),
           };
         },

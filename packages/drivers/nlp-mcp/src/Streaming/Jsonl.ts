@@ -2,7 +2,7 @@
  * JSONL (JSON Lines / NDJSON) streaming helpers backing the streaming JSONL
  * tools.
  *
- * Records are parsed line-by-line on top of {@link TextStream.streamLines}, with
+ * Records are parsed line-by-line on top of {@link streamLines}, with
  * optional skip-invalid behaviour and structured per-line error collection. All
  * operations require the {@link FileSystem.FileSystem} and {@link Path.Path}
  * services and surface the platform error channel.
@@ -11,11 +11,13 @@
  * @packageDocumentation
  */
 
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Random from "effect/Random";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { streamLines } from "./TextStream.ts";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
@@ -57,6 +59,22 @@ const parseLine = (line: string, lineNumber: number): Result.Result<unknown, Jso
   Result.mapError(decodeJsonLine(line), (error): JsonlLineError => ({ error: String(error), lineNumber }));
 
 /**
+ * Stream `[trimmedLine, physicalLineNumber]` pairs for non-blank lines.
+ *
+ * Indexing happens on the raw stream (before blank lines are dropped) so the
+ * reported `lineNumber` is the zero-based position of the line within the file,
+ * even when blank lines precede a malformed record.
+ */
+const streamIndexedLines = (
+  filePath: string
+): Stream.Stream<readonly [string, number], PlatformError, FileSystem.FileSystem | Path.Path> =>
+  streamLines(filePath).pipe(
+    Stream.zipWithIndex,
+    Stream.map(([line, index]) => [Str.trim(line), index] as const),
+    Stream.filter(([line]) => Str.isNonEmpty(line))
+  );
+
+/**
  * Stream parsed JSONL records, optionally dropping invalid lines.
  *
  * Blank lines are filtered before parsing. When `skipInvalid` is `true` parse
@@ -79,8 +97,7 @@ export const streamJsonl = (
   options: { readonly skipInvalid?: boolean | undefined } = {}
 ): Stream.Stream<unknown, JsonlLineError | PlatformError, FileSystem.FileSystem | Path.Path> => {
   const skipInvalid = options.skipInvalid ?? false;
-  return streamLines(filePath, { skipEmpty: true, trim: true }).pipe(
-    Stream.zipWithIndex,
+  return streamIndexedLines(filePath).pipe(
     skipInvalid
       ? Stream.filterMap(([line, lineNumber]) => parseLine(line, lineNumber))
       : Stream.mapEffect(([line, lineNumber]) => Effect.fromResult(parseLine(line, lineNumber)))
@@ -107,10 +124,7 @@ export const streamJsonl = (
 export const streamJsonlResults = (
   filePath: string
 ): Stream.Stream<Result.Result<unknown, JsonlLineError>, PlatformError, FileSystem.FileSystem | Path.Path> =>
-  streamLines(filePath, { skipEmpty: true, trim: true }).pipe(
-    Stream.zipWithIndex,
-    Stream.map(([line, lineNumber]) => parseLine(line, lineNumber))
-  );
+  streamIndexedLines(filePath).pipe(Stream.map(([line, lineNumber]) => parseLine(line, lineNumber)));
 
 /**
  * Collect parsed JSONL records into an array.
@@ -217,7 +231,7 @@ export const sampleJsonl = (
     if (records.length <= sampleSize) {
       return records;
     }
-    const indices = yield* Random.shuffle(Array.from({ length: records.length }, (_, index) => index));
+    const indices = yield* Random.shuffle(A.makeBy(records.length, (index) => index));
     return indices
       .slice(0, sampleSize)
       .sort((left, right) => left - right)

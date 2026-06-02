@@ -665,12 +665,11 @@ export const AiCorpusMatrixShape = S.Struct({
 export const AiCorpusStats = S.Struct({
   averageDocumentLength: describe(S.Number, "Average normalized token count per learned document."),
   corpusId: describe(S.String, "Stable corpus identifier."),
-  documentTermMatrix: describe(
-    S.Array(S.Number).pipe(S.Array),
-    "Optional document-term matrix, one row per learned document."
+  documentTermMatrix: S.optionalKey(
+    describe(S.Array(S.Number).pipe(S.Array), "Optional document-term matrix, one row per learned document.")
   ),
-  idfValues: describe(S.Array(AiCorpusIdf), "Optional IDF values sorted by descending score."),
-  matrixShape: AiCorpusMatrixShape,
+  idfValues: S.optionalKey(describe(S.Array(AiCorpusIdf), "Optional IDF values sorted by descending score.")),
+  matrixShape: S.optionalKey(AiCorpusMatrixShape),
   terms: describe(S.Array(S.String), "Learned corpus vocabulary terms in vector order."),
   totalDocuments: describe(S.Number, "Number of learned documents currently in the corpus."),
   vocabularySize: describe(S.Number, "Number of unique normalized terms across the corpus."),

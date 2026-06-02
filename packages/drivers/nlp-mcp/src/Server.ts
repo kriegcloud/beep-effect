@@ -49,16 +49,29 @@ export interface NlpMcpServerConfig {
  * its {@link StreamingToolkitHandlersLive} handlers) into one MCP server served
  * over stdio with NDJSON-RPC framing. Handler-layer initialization failures are
  * promoted to defects via {@link Layer.orDie}, so the resolved layer has no
- * error channel. The layer requires the `Stdio` transport plus the
- * `FileSystem`/`Path` services used by the streaming handlers; provide
- * `NodeStdio.layer`, `NodeFileSystem.layer`, and `NodePath.layer` (from
- * `@effect/platform-node`) at the entrypoint.
+ * error channel. The layer requires the `Stdio` transport, the
+ * `FileSystem`/`Path` services used by the streaming handlers, and an
+ * `HttpClient` for URL-backed dataset loads; provide `NodeStdio.layer`,
+ * `NodeFileSystem.layer`, `NodePath.layer` (from `@effect/platform-node`) and
+ * `FetchHttpClient.layer` (from `effect/unstable/http`) at the entrypoint.
  *
  * @example
  * ```ts
+ * import { Layer } from "effect"
  * import { makeServerLayer } from "@beep/nlp-mcp/Server"
+ * import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem"
+ * import * as NodePath from "@effect/platform-node/NodePath"
+ * import * as NodeStdio from "@effect/platform-node/NodeStdio"
+ * import { FetchHttpClient } from "effect/unstable/http"
  *
- * void makeServerLayer({ name: "beep-nlp", version: "0.0.0" })
+ * const server = makeServerLayer({ name: "beep-nlp", version: "0.0.0" }).pipe(
+ *   Layer.provide(NodeStdio.layer),
+ *   Layer.provide(NodeFileSystem.layer),
+ *   Layer.provide(NodePath.layer),
+ *   Layer.provide(FetchHttpClient.layer)
+ * )
+ *
+ * void Layer.launch(server)
  * ```
  *
  * @since 0.0.0

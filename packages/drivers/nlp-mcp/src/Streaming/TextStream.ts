@@ -11,6 +11,7 @@
  * @packageDocumentation
  */
 
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
@@ -237,7 +238,7 @@ export const sampleLines = (
     if (lines.length <= sampleSize) {
       return lines;
     }
-    const indices = yield* Random.shuffle(Array.from({ length: lines.length }, (_, index) => index));
+    const indices = yield* Random.shuffle(A.makeBy(lines.length, (index) => index));
     return indices
       .slice(0, sampleSize)
       .sort((left, right) => left - right)

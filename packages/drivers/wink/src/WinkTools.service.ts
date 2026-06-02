@@ -104,13 +104,18 @@ const buildCreateCorpusParameters = (params: {
   ]);
 
 const tokenBagOfWords = (tokens: ReadonlyArray<Token>): Record<string, number> =>
-  A.reduce(tokens, emptyTermBag, (bag, token) =>
-    Str.isEmpty(normalizeTerm(token))
-      ? bag
-      : {
-          ...bag,
-          [normalizeTerm(token)]: (bag[normalizeTerm(token)] ?? 0) + 1,
-        }
+  pipe(
+    tokens,
+    A.filter(isWordLikeToken),
+    A.reduce(emptyTermBag, (bag, token) => {
+      const term = normalizeTerm(token);
+      return Str.isEmpty(term)
+        ? bag
+        : {
+            ...bag,
+            [term]: (bag[term] ?? 0) + 1,
+          };
+    })
   );
 
 const tokenToAi = (token: Token) => ({

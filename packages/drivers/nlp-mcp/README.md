@@ -15,8 +15,16 @@ The server mounts two toolkits into a single stdio MCP server (~42 tools total):
 
 ## Installation
 
-```bash
-bun add @beep/nlp-mcp
+`@beep/nlp-mcp` is a private workspace package; depend on it from another package
+in the monorepo:
+
+```jsonc
+// package.json
+{
+  "dependencies": {
+    "@beep/nlp-mcp": "workspace:^"
+  }
+}
 ```
 
 ## Usage
@@ -25,14 +33,15 @@ bun add @beep/nlp-mcp
 import { VERSION } from "@beep/nlp-mcp"
 ```
 
-Run the server over stdio (the entrypoint provides the Node `Stdio`, `FileSystem`,
-`Path`, and HTTP layers):
+Run the server over stdio from the repository root (the entrypoint provides the
+Node `Stdio`, `FileSystem`, `Path`, and `HttpClient` layers):
 
 ```bash
-bun run ./packages/drivers/nlp-mcp/src/bin.ts
+bun run packages/drivers/nlp-mcp/src/bin.ts
 ```
 
-It is registered in the repo `.mcp.json` as the `nlp` stdio server.
+This is the exact command the repo `.mcp.json` registers as the `nlp` stdio
+server, so MCP clients launch it the same way.
 
 ## Development
 

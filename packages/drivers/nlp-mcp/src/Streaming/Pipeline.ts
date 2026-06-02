@@ -11,8 +11,12 @@
  * @packageDocumentation
  */
 
+import { flow } from "effect";
+import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
+import * as Match from "effect/Match";
+import * as Str from "effect/String";
 import { readLines } from "./TextStream.ts";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
@@ -62,23 +66,17 @@ export interface PipelineResult {
   readonly skipped: number;
 }
 
-const applyStage = (stage: PipelineStage, value: string): string => {
-  switch (stage) {
-    case "lowercase":
-      return value.toLowerCase();
-    case "normalizeWhitespace":
-      return value.replace(/\s+/g, " ").trim();
-    case "removePunctuation":
-      return value.replace(/[^\w\s]/g, "");
-    case "trim":
-      return value.trim();
-    case "uppercase":
-      return value.toUpperCase();
-  }
-};
+const stageTransform: (stage: PipelineStage) => (value: string) => string = Match.type<PipelineStage>().pipe(
+  Match.when("lowercase", () => Str.toLowerCase),
+  Match.when("uppercase", () => Str.toUpperCase),
+  Match.when("trim", () => Str.trim),
+  Match.when("normalizeWhitespace", () => flow(Str.replace(/\s+/g, " "), Str.trim)),
+  Match.when("removePunctuation", () => Str.replace(/[^\w\s]/g, "")),
+  Match.exhaustive
+);
 
 const applyStages = (stages: ReadonlyArray<PipelineStage>, value: string): string =>
-  stages.reduce((acc, stage) => applyStage(stage, acc), value);
+  A.reduce(stages, value, (acc, stage) => stageTransform(stage)(acc));
 
 /**
  * Run an ordered list of line transforms over the lines of a file.
@@ -111,13 +109,13 @@ export const processFile = (
   Effect.gen(function* () {
     const startedAt = yield* Clock.currentTimeMillis;
 
-    const readOptions: { readonly maxLines?: number; readonly skipEmpty?: boolean } = {
-      ...(options.maxLines === undefined ? {} : { maxLines: options.maxLines }),
-      ...(options.skipEmpty === undefined ? {} : { skipEmpty: options.skipEmpty }),
-    };
-    const lines = yield* readLines(filePath, readOptions);
+    // Read raw lines (blanks included) so we can report how many were skipped;
+    // `maxLines` still caps how many raw lines are read.
+    const allLines = yield* readLines(filePath, options.maxLines === undefined ? {} : { maxLines: options.maxLines });
+    const lines = options.skipEmpty === true ? A.filter(allLines, (line) => Str.isNonEmpty(Str.trim(line))) : allLines;
+    const skipped = allLines.length - lines.length;
 
-    const results = lines.map((line) => applyStages(stages, line));
+    const results = A.map(lines, (line) => applyStages(stages, line));
     const finishedAt = yield* Clock.currentTimeMillis;
 
     return {
@@ -126,6 +124,6 @@ export const processFile = (
       failed: 0,
       processed: results.length,
       results,
-      skipped: 0,
+      skipped,
     };
   });
