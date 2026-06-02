@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { Console, Effect, FileSystem, Path, pipe, Result } from "effect";
+import { Console, Effect, FileSystem, Order, Path, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -180,6 +180,15 @@ export class YeetRunResult extends S.Class<YeetRunResult>($I`YeetRunResult`)(
   })
 ) {}
 
+class YeetPublishIntent extends S.Class<YeetPublishIntent>($I`YeetPublishIntent`)(
+  {
+    paths: S.Array(S.String),
+  },
+  $I.annote("YeetPublishIntent", {
+    description: "Reviewed Git index paths that yeet is allowed to publish.",
+  })
+) {}
+
 const optionFromNonEmpty = (value: string): O.Option<string> => pipe(O.some(Str.trim(value)), O.filter(Str.isNonEmpty));
 const commandFailure = (result: RepoStepRunResult, message: string): YeetCommandError =>
   YeetCommandError.make({
@@ -192,6 +201,53 @@ const safeArtifactName = (value: string): string =>
   pipe(value, Str.replace(/[^a-zA-Z0-9._-]+/gu, "_"), Str.replace(/^_+|_+$/gu, ""), (name) =>
     Str.isNonEmpty(name) ? name : "repo"
   );
+
+const sortedUniquePaths = (paths: ReadonlyArray<string>): ReadonlyArray<string> =>
+  pipe(paths, A.filter(Str.isNonEmpty), A.dedupe, A.sort(Order.String));
+
+const gitPathListFromNulOutput = (output: string): ReadonlyArray<string> =>
+  pipe(output, Str.split("\0"), sortedUniquePaths);
+
+const publishPathsOutsideIntent = (
+  intendedPaths: ReadonlyArray<string>,
+  observedPaths: ReadonlyArray<string>
+): ReadonlyArray<string> =>
+  pipe(
+    observedPaths,
+    A.filter((filePath) => !A.contains(intendedPaths, filePath)),
+    sortedUniquePaths
+  );
+
+const formatPublishPaths = (paths: ReadonlyArray<string>): string =>
+  pipe(
+    paths,
+    sortedUniquePaths,
+    A.map((filePath) => `  - ${filePath}`),
+    A.join("\n")
+  );
+
+const publishScopeError = (message: string, paths: ReadonlyArray<string>): YeetCommandError =>
+  YeetCommandError.make({
+    message: `${message}\n${formatPublishPaths(paths)}`,
+    command: "git status --short",
+    exitCode: 1,
+  });
+
+/**
+ * Parse NUL-delimited Git path output for Yeet publish-safety tests.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const gitPathListFromNulOutputForTesting = gitPathListFromNulOutput;
+
+/**
+ * Return observed paths that are not part of the reviewed Yeet publish intent.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const publishPathsOutsideIntentForTesting = publishPathsOutsideIntent;
 
 const renderJson = Effect.fn("Yeet.renderJson")(function* (value: unknown): Effect.fn.Return<string, YeetCommandError> {
   return yield* encodeJson(value).pipe(Effect.mapError(YeetCommandError.new("Failed to encode yeet JSON output.")));
@@ -213,6 +269,114 @@ const runGitOutput = Effect.fn("Yeet.runGitOutput")(function* (
     });
   }
   return Str.trim(result.output);
+});
+
+const runGitPathList = Effect.fn("Yeet.runGitPathList")(function* (
+  repoRoot: string,
+  args: ReadonlyArray<string>
+): Effect.fn.Return<ReadonlyArray<string>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const output = yield* runGitOutput(repoRoot, args);
+  return gitPathListFromNulOutput(output);
+});
+
+const collectStagedPublishPaths = Effect.fn("Yeet.collectStagedPublishPaths")(function* (
+  repoRoot: string
+): Effect.fn.Return<ReadonlyArray<string>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  return yield* runGitPathList(repoRoot, ["diff", "--cached", "--name-only", "-z"]);
+});
+
+const collectUnstagedTrackedPaths = Effect.fn("Yeet.collectUnstagedTrackedPaths")(function* (
+  repoRoot: string
+): Effect.fn.Return<ReadonlyArray<string>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  return yield* runGitPathList(repoRoot, ["diff", "--name-only", "-z"]);
+});
+
+const collectUntrackedPaths = Effect.fn("Yeet.collectUntrackedPaths")(function* (
+  repoRoot: string
+): Effect.fn.Return<ReadonlyArray<string>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  return yield* runGitPathList(repoRoot, ["ls-files", "--others", "--exclude-standard", "-z"]);
+});
+
+const collectPublishIntent = Effect.fn("Yeet.collectPublishIntent")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<YeetPublishIntent, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);
+  const unstagedPaths = yield* collectUnstagedTrackedPaths(context.repoRoot);
+  const untrackedPaths = yield* collectUntrackedPaths(context.repoRoot);
+
+  if (A.isReadonlyArrayEmpty(stagedPaths)) {
+    return yield* YeetCommandError.make({
+      message: "yeet publish requires reviewed staged changes. Stage the intended files before running yeet.",
+      command: "git diff --cached --name-only",
+      exitCode: 1,
+    });
+  }
+
+  if (!A.isReadonlyArrayEmpty(untrackedPaths)) {
+    return yield* publishScopeError(
+      "yeet publish refuses untracked files. Stage intended new files or remove ignored-sensitive leftovers before running yeet.",
+      untrackedPaths
+    );
+  }
+
+  if (!A.isReadonlyArrayEmpty(unstagedPaths)) {
+    return yield* publishScopeError(
+      "yeet publish refuses unstaged tracked changes. Stage the reviewed files before running yeet.",
+      unstagedPaths
+    );
+  }
+
+  return YeetPublishIntent.make({ paths: stagedPaths });
+});
+
+const validatePublishIntentStillSafe = Effect.fn("Yeet.validatePublishIntentStillSafe")(function* (
+  context: RepoRunContext,
+  intent: YeetPublishIntent
+): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);
+  const unstagedPaths = yield* collectUnstagedTrackedPaths(context.repoRoot);
+  const untrackedPaths = yield* collectUntrackedPaths(context.repoRoot);
+  const unexpectedStagedPaths = publishPathsOutsideIntent(intent.paths, stagedPaths);
+  const unexpectedUnstagedPaths = publishPathsOutsideIntent(intent.paths, unstagedPaths);
+
+  if (!A.isReadonlyArrayEmpty(untrackedPaths)) {
+    return yield* publishScopeError(
+      "yeet publish stopped because new untracked files appeared during quality.",
+      untrackedPaths
+    );
+  }
+
+  if (!A.isReadonlyArrayEmpty(unexpectedStagedPaths)) {
+    return yield* publishScopeError(
+      "yeet publish stopped because new staged paths appeared outside the reviewed intent.",
+      unexpectedStagedPaths
+    );
+  }
+
+  if (!A.isReadonlyArrayEmpty(unexpectedUnstagedPaths)) {
+    return yield* publishScopeError(
+      "yeet publish stopped because quality changed paths outside the reviewed intent.",
+      unexpectedUnstagedPaths
+    );
+  }
+});
+
+const stageReviewedPublishIntent = Effect.fn("Yeet.stageReviewedPublishIntent")(function* (
+  context: RepoRunContext,
+  intent: YeetPublishIntent
+): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  yield* validatePublishIntentStillSafe(context, intent);
+  yield* runGitOutput(context.repoRoot, ["add", "--", ...intent.paths]);
+  yield* validatePublishIntentStillSafe(context, intent);
+
+  const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);
+  if (A.isReadonlyArrayEmpty(stagedPaths)) {
+    return yield* YeetCommandError.make({
+      message: "yeet publish has no staged changes after reviewed staging.",
+      command: "git diff --cached --name-only",
+      exitCode: 1,
+    });
+  }
 });
 
 const isEscapedQuote = (output: string, index: number): boolean => {
@@ -669,6 +833,7 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   const feedbackSteps = A.filter(plan.steps, (step) => step.phase === "feedback");
   const fullSteps = A.filter(plan.steps, (step) => step.phase === "full");
   const publishSteps = A.filter(plan.steps, (step) => step.phase === "publish");
+  const publishIntent = yield* collectPublishIntent(plan.context);
 
   const prepareResults = yield* runPhase(plan.context, prepareSteps);
   if (A.some(prepareResults, (result) => result.exitCode !== 0)) {
@@ -686,6 +851,7 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   }
 
   yield* validateCommitMessage(plan.context, message);
+  yield* stageReviewedPublishIntent(plan.context, publishIntent);
   const publishResults = yield* runPhase(plan.context, publishSteps);
   if (A.some(publishResults, (result) => result.exitCode !== 0)) {
     return yield* failWithIssueArtifacts(plan.context, publishSteps, publishResults, "yeet publish phase failed.");

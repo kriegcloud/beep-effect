@@ -10,7 +10,7 @@ import { runYeet, YeetRunOptions } from "./internal/Handler.js";
 import { DEFAULT_YEET_PACKET_DIR } from "./internal/Planner.js";
 
 /**
- * Command that runs fast quality feedback, canonical full proof, then commit/push.
+ * Command that runs fast quality feedback, canonical full proof, then commits and pushes reviewed staged changes.
  *
  * @example
  * ```ts
@@ -46,4 +46,4 @@ export const yeetCommand = Command.make(
     ),
   },
   (options) => runYeet(YeetRunOptions.make(options))
-).pipe(Command.withDescription("Run repo quality feedback, full proof, commit, and push"));
+).pipe(Command.withDescription("Run repo quality feedback, full proof, then commit and push reviewed staged changes"));

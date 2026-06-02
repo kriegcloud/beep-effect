@@ -3,7 +3,9 @@ import {
   buildYeetRunPlanForTesting,
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
+  gitPathListFromNulOutputForTesting,
   jsonObjectTextFromMixedOutputForTesting,
+  publishPathsOutsideIntentForTesting,
   qualityIssuesFromStepResult,
   RepoPlanStep,
   RepoRunContext,
@@ -134,8 +136,8 @@ describe("yeet planner", () => {
       "feedback:lint",
       "feedback:test",
       "full:quality",
-      "publish:git:add",
       "publish:git:commit",
+      "publish:secrets",
       "publish:git:push",
     ]);
     expect(
@@ -146,13 +148,20 @@ describe("yeet planner", () => {
       )
     ).toEqual(["prepare", "feedback", "full", "publish"]);
 
-    const stage = findStep(plan.steps, "publish:git:add");
     const commit = findStep(plan.steps, "publish:git:commit");
+    const secrets = findStep(plan.steps, "publish:secrets");
     const push = findStep(plan.steps, "publish:git:push");
 
-    expect(stage.args).toEqual(["add", "-A"]);
     expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
+    expect(secrets.args).toEqual(["run", "beep", "quality", "github-checks", "secrets"]);
+    expect(secrets.mutability).toBe("readonly");
     expect(push.args).toEqual(["push"]);
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.args)
+      )
+    ).not.toContainEqual(["add", "-A"]);
   });
 
   it("threads task-aware affected filters into feedback runs", () => {
@@ -231,9 +240,16 @@ describe("yeet planner", () => {
       "prepare:lint:fix",
       "prepare:docgen:local",
       "full:quality",
-      "publish:git:add",
       "publish:git:commit",
+      "publish:secrets",
       "publish:git:push",
+    ]);
+  });
+
+  it("filters publish paths against the reviewed staged intent", () => {
+    expect(gitPathListFromNulOutputForTesting("src/z.ts\0src/a.ts\0src/a.ts\0")).toEqual(["src/a.ts", "src/z.ts"]);
+    expect(publishPathsOutsideIntentForTesting(["src/a.ts", "src/z.ts"], ["src/a.ts", "secrets/local.env"])).toEqual([
+      "secrets/local.env",
     ]);
   });
 

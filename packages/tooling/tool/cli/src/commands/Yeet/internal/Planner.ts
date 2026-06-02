@@ -220,8 +220,17 @@ export const buildYeetRunPlan: {
       "readonly",
       "repo"
     ),
-    gitStep(context, "publish:01-stage", "publish:git:add", ["add", "-A"]),
-    gitStep(context, "publish:02-commit", "publish:git:commit", ["commit", "-m", commitMessage]),
+    gitStep(context, "publish:01-commit", "publish:git:commit", ["commit", "-m", commitMessage]),
+    bunRunStep(
+      context,
+      "publish:02-secrets",
+      "publish:secrets",
+      "publish",
+      "beep",
+      ["quality", "github-checks", "secrets"],
+      "readonly",
+      "repo"
+    ),
     gitStep(context, "publish:03-push", "publish:git:push", ["push"]),
   ];
 

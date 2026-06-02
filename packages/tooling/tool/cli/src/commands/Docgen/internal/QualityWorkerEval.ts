@@ -796,15 +796,6 @@ const resolveCodexSdkVersionOrUnknown: Effect.Effect<string, never, FileSystem.F
 
 type CodexSdkModule = typeof import("@openai/codex-sdk");
 
-const processEnvRecord = (): Record<string, string> =>
-  pipe(
-    process.env,
-    R.toEntries,
-    A.filter((entry) => entry[1] !== undefined),
-    A.map(([key, value]) => [key, value ?? ""] as const),
-    R.fromEntries
-  );
-
 const ossProviderBaseUrl = (value: string): string => {
   const trimmed = Str.trim(value);
   const normalized = Str.replace(/\/+$/, "")(trimmed);
@@ -845,7 +836,6 @@ const makeCodexRunner = (sdkModule: CodexSdkModule): DocgenQualityWorkerEvalRunn
             nonEmptyBaseUrl,
             O.map((value) => ({
               env: {
-                ...processEnvRecord(),
                 CODEX_OSS_BASE_URL: ossProviderBaseUrl(value),
               },
             })),
