@@ -115,9 +115,10 @@ const noIssueBlocks = [
  * @returns Markdown document AST.
  * @example
  * ```ts
- * import { renderPackageQualityPacketDocument } from "@beep/repo-cli/test/Yeet"
+ * import { PackageQualityReport, renderPackageQualityPacketDocument } from "@beep/repo-cli/test/Yeet"
  *
- * console.log(renderPackageQualityPacketDocument)
+ * const report = PackageQualityReport.make({ blockingCount: 0, issueCount: 0, issues: [], packageName: "@beep/repo-cli" })
+ * console.log(renderPackageQualityPacketDocument(report))
  * ```
  * @category formatting
  * @since 0.0.0
@@ -166,9 +167,10 @@ export const renderPackageQualityPacketDocument = (report: PackageQualityReport)
  * @returns Rendered Markdown, or render adapter failure.
  * @example
  * ```ts
- * import { renderPackageQualityPacketMarkdown } from "@beep/repo-cli/test/Yeet"
+ * import { PackageQualityReport, renderPackageQualityPacketMarkdown } from "@beep/repo-cli/test/Yeet"
  *
- * console.log(renderPackageQualityPacketMarkdown)
+ * const report = PackageQualityReport.make({ blockingCount: 0, issueCount: 0, issues: [], packageName: "@beep/repo-cli" })
+ * console.log(renderPackageQualityPacketMarkdown(report))
  * ```
  * @category formatting
  * @since 0.0.0

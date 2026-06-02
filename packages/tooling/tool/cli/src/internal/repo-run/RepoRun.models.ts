@@ -9,9 +9,10 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { Order } from "effect";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $RepoCliId.create("internal/repo-run/RepoRun.models");
 
@@ -351,11 +352,23 @@ export const byRepoPlanStepAscending: Order.Order<RepoPlanStep> = Order.combine(
   Order.mapInput(Order.String, (step: RepoPlanStep) => step.id)
 );
 
+const shellSafeArgPattern = /^[A-Za-z0-9_@%+=:,./-]+$/u;
+
+const quoteCommandArg = (arg: string): string => {
+  if (Str.isEmpty(arg)) {
+    return "''";
+  }
+  if (shellSafeArgPattern.test(arg)) {
+    return arg;
+  }
+  return `'${Str.replace(/'/gu, "'\\''")(arg)}'`;
+};
+
 /**
  * Render a planned step as a shell-like command string.
  *
  * @param step - Planned repository step.
- * @returns Command text with argv joined by spaces.
+ * @returns Command text with argv parts quoted when shell-sensitive.
  * @example
  * ```ts
  * import { commandTextForStep, RepoPlanStep } from "@beep/repo-cli/internal/repo-run"
@@ -376,7 +389,8 @@ export const byRepoPlanStepAscending: Order.Order<RepoPlanStep> = Order.combine(
  * @category formatting
  * @since 0.0.0
  */
-export const commandTextForStep = (step: RepoPlanStep): string => A.join([step.command, ...step.args], " ");
+export const commandTextForStep = (step: RepoPlanStep): string =>
+  pipe([step.command, ...step.args], A.map(quoteCommandArg), A.join(" "));
 
 /**
  * Determine whether a planned step may use conservative resume metadata.
@@ -385,9 +399,20 @@ export const commandTextForStep = (step: RepoPlanStep): string => A.join([step.c
  * @returns Whether the step is read-only, package-scoped feedback.
  * @example
  * ```ts
- * import { isConservativeResumeCandidate } from "@beep/repo-cli/internal/repo-run"
+ * import { isConservativeResumeCandidate, RepoPlanStep } from "@beep/repo-cli/internal/repo-run"
  *
- * console.log(isConservativeResumeCandidate)
+ * const step = RepoPlanStep.make({
+ *   args: ["run", "check"],
+ *   command: "bun",
+ *   cwd: "/repo",
+ *   id: "feedback:check",
+ *   label: "feedback:check",
+ *   mutability: "readonly",
+ *   phase: "feedback",
+ *   resume: "fingerprint-match",
+ *   scope: "package"
+ * })
+ * console.log(isConservativeResumeCandidate(step))
  * ```
  * @category predicates
  * @since 0.0.0

@@ -144,7 +144,7 @@ const feedbackStep = (
       script,
       ["--", ...filters, ...sharedFeedbackTurboArgs],
       "readonly",
-      "package",
+      "repo",
       O.some(task)
     )
   );
@@ -158,9 +158,20 @@ const feedbackStep = (
  * @returns Ordered repository run plan.
  * @example
  * ```ts
- * import { buildYeetRunPlan } from "@beep/repo-cli/test/Yeet"
+ * import { buildYeetRunPlan, RepoRunContext, TurboPlanSnapshot } from "@beep/repo-cli/test/Yeet"
+ * import * as O from "effect/Option"
  *
- * console.log(buildYeetRunPlan)
+ * const context = RepoRunContext.make({
+ *   base: "origin/main",
+ *   branch: "repo-cli-yeet",
+ *   cwd: "/repo",
+ *   head: "HEAD",
+ *   originalArgv: [],
+ *   packetDir: ".beep/yeet",
+ *   repoRoot: "/repo",
+ *   turbo: TurboPlanSnapshot.make({ graphHealthStatus: "ok", graphHealthWarnings: [], tasks: [] })
+ * })
+ * console.log(buildYeetRunPlan(context, O.some("feat(repo-cli): add yeet")))
  * ```
  * @category workflows
  * @since 0.0.0

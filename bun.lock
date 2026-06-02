@@ -516,6 +516,8 @@
       "name": "@beep/box",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/identity": "workspace:*",
+        "@beep/schema": "workspace:*",
         "box-node-sdk": "catalog:",
         "effect": "catalog:",
       },

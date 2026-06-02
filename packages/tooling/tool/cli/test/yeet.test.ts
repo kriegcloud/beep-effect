@@ -1,6 +1,7 @@
 import {
   buildQualityIssueIndex,
   buildYeetRunPlanForTesting,
+  commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
   qualityIssuesFromStepResult,
   RepoPlanStep,
@@ -133,6 +134,7 @@ describe("yeet planner", () => {
       "--ui=stream",
     ]);
     expect(findStep(plan.steps, "feedback:check").args).not.toContain("--affected");
+    expect(findStep(plan.steps, "feedback:check").scope).toBe("repo");
   });
 
   it("uses Turbo SCM environment for write-mode affected prepare steps", () => {
@@ -254,6 +256,14 @@ describe("yeet planner", () => {
     expect(findStep(plan.steps, "feedback:check").resume).toBe("never");
     expect(findStep(plan.steps, "full:quality").resume).toBe("never");
     expect(findStep(plan.steps, "publish:git:commit").resume).toBe("never");
+  });
+
+  it("quotes command text without changing argv", () => {
+    const plan = buildYeetRunPlanForTesting(context, O.some("feat(repo-cli): add yeet"));
+    const commit = findStep(plan.steps, "publish:git:commit");
+
+    expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
+    expect(commandTextForStep(commit)).toBe("git commit -m 'feat(repo-cli): add yeet'");
   });
 });
 

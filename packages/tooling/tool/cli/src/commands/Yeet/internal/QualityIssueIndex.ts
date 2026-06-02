@@ -501,9 +501,31 @@ const fallbackIssueFromResult = (
  * @returns Structured or raw issues; successful results produce no issues.
  * @example
  * ```ts
- * import { qualityIssuesFromStepResult } from "@beep/repo-cli/test/Yeet"
+ * import { qualityIssuesFromStepResult, RepoPlanStep, RepoRunContext, RepoStepRunResult, TurboPlanSnapshot } from "@beep/repo-cli/test/Yeet"
  *
- * console.log(qualityIssuesFromStepResult)
+ * const context = RepoRunContext.make({
+ *   base: "origin/main",
+ *   branch: "repo-cli-yeet",
+ *   cwd: "/repo",
+ *   head: "HEAD",
+ *   originalArgv: [],
+ *   packetDir: ".beep/yeet",
+ *   repoRoot: "/repo",
+ *   turbo: TurboPlanSnapshot.make({ graphHealthStatus: "ok", graphHealthWarnings: [], tasks: [] })
+ * })
+ * const step = RepoPlanStep.make({
+ *   args: ["run", "check"],
+ *   command: "bun",
+ *   cwd: "/repo",
+ *   id: "feedback:check",
+ *   label: "feedback:check",
+ *   mutability: "readonly",
+ *   phase: "feedback",
+ *   resume: "never",
+ *   scope: "repo"
+ * })
+ * const result = RepoStepRunResult.make({ commandText: "bun run check", exitCode: 1, output: "check failed", stepId: step.id })
+ * console.log(qualityIssuesFromStepResult(context, step, result))
  * ```
  * @category parsing
  * @since 0.0.0

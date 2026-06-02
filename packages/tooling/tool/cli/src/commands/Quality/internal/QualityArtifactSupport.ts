@@ -43,6 +43,12 @@ export class QualityArtifactGeneratorError extends TaggedErrorClass<QualityArtif
     description: "Typed failure raised by repo quality artifact generators.",
   })
 ) {
+  /**
+   * Construct or map a quality artifact generator error.
+   *
+   * @category constructors
+   * @since 0.0.0
+   */
   static readonly new: {
     (cause: unknown, message: string, opts?: QualityArtifactGeneratorErrorOptions): QualityArtifactGeneratorError;
     (message: string, opts?: QualityArtifactGeneratorErrorOptions): (cause: unknown) => QualityArtifactGeneratorError;

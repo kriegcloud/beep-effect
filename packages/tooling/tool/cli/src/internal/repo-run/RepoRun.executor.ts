@@ -60,9 +60,11 @@ const appendOutputChunk = (state: BoundedOutputState, chunk: string): BoundedOut
   };
 };
 
-const collectOutput = <E>(stream: Stream.Stream<Uint8Array, E>) =>
-  stream.pipe(
-    Stream.decodeText(),
+const decodeOutputText = <E>(stream: Stream.Stream<Uint8Array, E>) => stream.pipe(Stream.decodeText());
+
+const collectCombinedOutput = <E1, E2>(stdout: Stream.Stream<Uint8Array, E1>, stderr: Stream.Stream<Uint8Array, E2>) =>
+  decodeOutputText(stdout).pipe(
+    Stream.merge(decodeOutputText(stderr)),
     Stream.runFold(() => emptyOutputState, appendOutputChunk)
   );
 
@@ -81,7 +83,8 @@ const collectOutput = <E>(stream: Stream.Stream<Uint8Array, E>) =>
  * ```ts
  * import { runRepoCommandCapture } from "@beep/repo-cli/internal/repo-run"
  *
- * console.log(runRepoCommandCapture)
+ * const capture = runRepoCommandCapture("git", ["status", "--short"], process.cwd())
+ * console.log(capture)
  * ```
  * @category execution
  * @since 0.0.0
@@ -103,15 +106,14 @@ export const runRepoCommandCapture = Effect.fn("RepoRun.runRepoCommandCapture")(
         stdout: "pipe",
         stderr: "pipe",
       });
-      const [stdout, stderr, exitCode] = yield* Effect.all(
-        [collectOutput(handle.stdout), collectOutput(handle.stderr), handle.exitCode],
+      const [output, exitCode] = yield* Effect.all(
+        [collectCombinedOutput(handle.stdout, handle.stderr), handle.exitCode],
         { concurrency: "unbounded" }
       );
-      const output = A.join(A.filter([Str.trim(stdout.text), Str.trim(stderr.text)], Str.isNonEmpty), "\n");
       return {
         exitCode,
-        output,
-        truncated: stdout.truncated || stderr.truncated,
+        output: Str.trim(output.text),
+        truncated: output.truncated,
       };
     })
   ).pipe(Effect.mapError(DomainError.newCause(`Failed to spawn ${commandText}.`)));
@@ -139,9 +141,20 @@ const writeRawOutput = Effect.fn("RepoRun.writeRawOutput")(function* (
  * @returns Captured step result.
  * @example
  * ```ts
- * import { executeRepoPlanStep } from "@beep/repo-cli/internal/repo-run"
+ * import { executeRepoPlanStep, RepoPlanStep } from "@beep/repo-cli/internal/repo-run"
  *
- * console.log(executeRepoPlanStep)
+ * const step = RepoPlanStep.make({
+ *   args: ["status", "--short"],
+ *   command: "git",
+ *   cwd: process.cwd(),
+ *   id: "git-status",
+ *   label: "git status",
+ *   mutability: "readonly",
+ *   phase: "feedback",
+ *   resume: "never",
+ *   scope: "git"
+ * })
+ * console.log(executeRepoPlanStep(step))
  * ```
  * @category execution
  * @since 0.0.0
@@ -181,7 +194,8 @@ export const executeRepoPlanStep = Effect.fn("RepoRun.executeRepoPlanStep")(func
  * ```ts
  * import { resolveLocalRepoBinary } from "@beep/repo-cli/internal/repo-run"
  *
- * console.log(resolveLocalRepoBinary)
+ * const turbo = resolveLocalRepoBinary(process.cwd(), "turbo")
+ * console.log(turbo)
  * ```
  * @category utilities
  * @since 0.0.0

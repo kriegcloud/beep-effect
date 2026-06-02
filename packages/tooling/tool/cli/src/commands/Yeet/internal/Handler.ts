@@ -363,9 +363,10 @@ const collectTurboPlanSnapshot = Effect.fn("Yeet.collectTurboPlanSnapshot")(func
  * @returns Shared run context.
  * @example
  * ```ts
- * import { hydrateYeetRunContext } from "@beep/repo-cli/test/Yeet"
+ * import { defaultYeetRunOptions, hydrateYeetRunContext } from "@beep/repo-cli/test/Yeet"
  *
- * console.log(hydrateYeetRunContext)
+ * const context = hydrateYeetRunContext(defaultYeetRunOptions({ plan: true }))
+ * console.log(context)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -393,12 +394,20 @@ export const hydrateYeetRunContext = Effect.fn("Yeet.hydrateYeetRunContext")(fun
   });
 });
 
+const artifactDirForContext = Effect.fn("Yeet.artifactDirForContext")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<string, never, Path.Path> {
+  const path = yield* Path.Path;
+  return path.isAbsolute(context.packetDir) ? context.packetDir : path.join(context.repoRoot, context.packetDir);
+});
+
 const rawOutputPathForStep = Effect.fn("Yeet.rawOutputPathForStep")(function* (
   context: RepoRunContext,
   step: RepoPlanStep
 ): Effect.fn.Return<string, never, Path.Path> {
   const path = yield* Path.Path;
-  return path.join(context.repoRoot, context.packetDir, "logs", `${safeArtifactName(step.id)}.log`);
+  const artifactDir = yield* artifactDirForContext(context);
+  return path.join(artifactDir, "logs", `${safeArtifactName(step.id)}.log`);
 });
 
 const executeStepWithArtifacts = Effect.fn("Yeet.executeStepWithArtifacts")(function* (
@@ -434,7 +443,7 @@ const writeIssueArtifacts = Effect.fn("Yeet.writeIssueArtifacts")(function* (
   index: QualityIssueIndex
 ): Effect.fn.Return<YeetRunResult, YeetCommandError, FileSystem.FileSystem | Path.Path> {
   const path = yield* Path.Path;
-  const artifactDir = path.join(context.repoRoot, context.packetDir);
+  const artifactDir = yield* artifactDirForContext(context);
   const indexPath = path.join(artifactDir, "quality-issue-index.json");
   yield* writeTextFile(indexPath, `${yield* renderJson(index)}\n`);
 
@@ -480,13 +489,37 @@ const issuesFromResults = (
     )
   );
 
-const publishResult = (context: RepoRunContext): YeetRunResult =>
-  YeetRunResult.make({
-    artifactDir: `${context.repoRoot}/${context.packetDir}`,
+const publishResult = Effect.fn("Yeet.publishResult")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<YeetRunResult, never, Path.Path> {
+  const artifactDir = yield* artifactDirForContext(context);
+  return YeetRunResult.make({
+    artifactDir,
     committed: true,
     pushed: true,
     packetPaths: [],
   });
+});
+
+const commitMessagePathForContext = Effect.fn("Yeet.commitMessagePathForContext")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<string, never, Path.Path> {
+  const path = yield* Path.Path;
+  const artifactDir = yield* artifactDirForContext(context);
+  return path.join(artifactDir, "commit-message.txt");
+});
+
+const emptyPlanResult = Effect.fn("Yeet.emptyPlanResult")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<YeetRunResult, never, Path.Path> {
+  const artifactDir = yield* artifactDirForContext(context);
+  return YeetRunResult.make({
+    artifactDir,
+    committed: false,
+    pushed: false,
+    packetPaths: [],
+  });
+});
 
 const validateRequiredMessage = (options: YeetRunOptions): Effect.Effect<O.Option<string>, YeetCommandError> => {
   const message = optionFromNonEmpty(options.message);
@@ -509,9 +542,8 @@ const validateCommitMessage = Effect.fn("Yeet.validateCommitMessage")(function* 
   YeetCommandError,
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
-  const path = yield* Path.Path;
   const commitlint = yield* resolveLocalRepoBinary(context.repoRoot, "commitlint");
-  const messagePath = path.join(context.repoRoot, context.packetDir, "commit-message.txt");
+  const messagePath = yield* commitMessagePathForContext(context);
   yield* writeTextFile(messagePath, `${message}\n`);
   const result = yield* runRepoCommandCapture(commitlint, ["--edit", messagePath], context.repoRoot).pipe(
     Effect.mapError(YeetCommandError.new("Failed to run commitlint."))
@@ -590,7 +622,7 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
     return yield* failWithIssueArtifacts(plan.context, publishSteps, publishResults, "yeet publish phase failed.");
   }
 
-  return publishResult(plan.context);
+  return yield* publishResult(plan.context);
 });
 
 const renderPlan = Effect.fn("Yeet.renderPlan")(function* (
@@ -617,9 +649,10 @@ const renderPlan = Effect.fn("Yeet.renderPlan")(function* (
  * @returns Yeet run result when execution succeeds.
  * @example
  * ```ts
- * import { runYeet } from "@beep/repo-cli/test/Yeet"
+ * import { defaultYeetRunOptions, runYeet } from "@beep/repo-cli/test/Yeet"
  *
- * console.log(runYeet)
+ * const result = runYeet(defaultYeetRunOptions({ plan: true }))
+ * console.log(result)
  * ```
  * @category use-cases
  * @since 0.0.0
@@ -636,12 +669,7 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
   const plan = buildYeetRunPlan(context, message);
   if (options.plan) {
     yield* renderPlan(plan, options.json);
-    return YeetRunResult.make({
-      artifactDir: context.packetDir,
-      committed: false,
-      pushed: false,
-      packetPaths: [],
-    });
+    return yield* emptyPlanResult(context);
   }
 
   return yield* runPlanExecution(

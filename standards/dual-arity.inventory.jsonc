@@ -578,18 +578,6 @@
       "column": 19,
       "parameterCount": 3,
       "diagnostics": ["third-param-not-object-like"]
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-      "qualifiedName": "QualityArtifactGeneratorError.new",
-      "kind": "static-function-property",
-      "status": "candidate",
-      "owner": "@beep/repo-cli",
-      "reason": "Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
-      "line": 46,
-      "column": 19,
-      "parameterCount": 3,
-      "diagnostics": ["third-param-not-object-like"]
     }
   ]
 }

@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 81 |
 | packagesWithoutPublicExports | 1 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1037 |
-| publicExportEntries | 13616 |
-| uniquePackageSymbols | 6068 |
+| importSpecifiers | 1038 |
+| publicExportEntries | 13617 |
+| uniquePackageSymbols | 6069 |
 
 ## Seed Discovery Proof
 
@@ -84,7 +84,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 45 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 12 | 97 | 63 |
 | 46 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 330 | 110 |
 | 47 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
-| 48 | `@beep/box` | `packages/drivers/box` | has-public-exports | 4 | 8 | 7 |
+| 48 | `@beep/box` | `packages/drivers/box` | has-public-exports | 5 | 9 | 8 |
 | 49 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
 | 50 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
 | 51 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 1 | 1 |
@@ -2386,19 +2386,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncReport` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:242` | Full version sync report across all categories. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:382` | Resolver output consumed by reporting and write-mode services. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:366` | YAML location to update in write mode. |
-| `@beep/repo-cli/test/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:565` | Build a schema-first issue index from normalized issues. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:168` | Build the v1 yeet run plan. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:659` | Build a plan for tests without reading repository state. |
-| `@beep/repo-cli/test/Yeet` | `byRepoPlanStepAscending` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:349` | Order repository plan steps by phase, then identifier. |
-| `@beep/repo-cli/test/Yeet` | `commandTextForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:379` | Render a planned step as a shell-like command string. |
+| `@beep/repo-cli/test/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:587` | Build a schema-first issue index from normalized issues. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:179` | Build the v1 yeet run plan. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:687` | Build a plan for tests without reading repository state. |
+| `@beep/repo-cli/test/Yeet` | `byRepoPlanStepAscending` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:350` | Order repository plan steps by phase, then identifier. |
+| `@beep/repo-cli/test/Yeet` | `commandTextForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:392` | Render a planned step as a shell-like command string. |
 | `@beep/repo-cli/test/Yeet` | `decodeTurboPlanTasksFromQueryJsonForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:333` | Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests. |
 | `@beep/repo-cli/test/Yeet` | `DEFAULT_YEET_PACKET_DIR` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:27` | Default ignored directory for yeet run artifacts. |
-| `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:669` | Construct baseline yeet options for focused tests. |
+| `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:697` | Construct baseline yeet options for focused tests. |
 | `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:96` | Create an empty Turbo metadata snapshot. |
-| `@beep/repo-cli/test/Yeet` | `enforceConservativeResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:406` | Ensure a step's resume field follows v1 safety rules. |
-| `@beep/repo-cli/test/Yeet` | `executeRepoPlanStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:149` | Execute a planned repository step and optionally persist its raw output. |
-| `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:373` | Hydrate a shared yeet run context from repository state. |
-| `@beep/repo-cli/test/Yeet` | `isConservativeResumeCandidate` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:395` | Determine whether a planned step may use conservative resume metadata. |
+| `@beep/repo-cli/test/Yeet` | `enforceConservativeResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:431` | Ensure a step's resume field follows v1 safety rules. |
+| `@beep/repo-cli/test/Yeet` | `executeRepoPlanStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:162` | Execute a planned repository step and optionally persist its raw output. |
+| `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:374` | Hydrate a shared yeet run context from repository state. |
+| `@beep/repo-cli/test/Yeet` | `isConservativeResumeCandidate` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:420` | Determine whether a planned step may use conservative resume metadata. |
 | `@beep/repo-cli/test/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:219` | Package-level issue report rendered into a quality packet. |
 | `@beep/repo-cli/test/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:165` | One normalized quality issue. |
 | `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:39` | Classification domain for normalized yeet quality findings. |
@@ -2409,33 +2409,33 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Yeet` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:133` | Specialist routing hint for one issue. |
 | `@beep/repo-cli/test/Yeet` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:80` | Blocking level assigned to a normalized yeet quality finding. |
 | `@beep/repo-cli/test/Yeet` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:92` | Type-level union of yeet quality severity literals. |
-| `@beep/repo-cli/test/Yeet` | `qualityIssuesFromStepResult` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:511` | Convert a failed step result into quality issues. |
-| `@beep/repo-cli/test/Yeet` | `renderPackageQualityPacketDocument` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:125` | Build a Markdown AST document for one package quality report. |
-| `@beep/repo-cli/test/Yeet` | `renderPackageQualityPacketMarkdown` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:176` | Render one package quality packet as Markdown. |
-| `@beep/repo-cli/test/Yeet` | `RepoGraphHealthStatus` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:134` | Graph-health signal recorded while hydrating a run context. |
-| `@beep/repo-cli/test/Yeet` | `RepoGraphHealthStatus` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:146` | Graph-health signal recorded while hydrating a run context. |
-| `@beep/repo-cli/test/Yeet` | `RepoPlanPhase` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:30` | Plan phase used by repository run orchestration. |
-| `@beep/repo-cli/test/Yeet` | `RepoPlanPhase` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:42` | Plan phase used by repository run orchestration. |
-| `@beep/repo-cli/test/Yeet` | `RepoPlanStep` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:263` | One subprocess or git operation planned for a repo run. |
-| `@beep/repo-cli/test/Yeet` | `RepoPlanStepMutability` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:56` | Step mutability classification. |
-| `@beep/repo-cli/test/Yeet` | `RepoPlanStepMutability` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:68` | Step mutability classification. |
-| `@beep/repo-cli/test/Yeet` | `RepoPlanStepResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:108` | Conservative resume eligibility for a planned step. |
-| `@beep/repo-cli/test/Yeet` | `RepoPlanStepResume` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:120` | Conservative resume eligibility for a planned step. |
-| `@beep/repo-cli/test/Yeet` | `RepoPlanStepScope` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:82` | Step scope classification. |
-| `@beep/repo-cli/test/Yeet` | `RepoPlanStepScope` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:94` | Step scope classification. |
-| `@beep/repo-cli/test/Yeet` | `RepoRunContext` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:224` | Shared run context hydrated before planning. |
-| `@beep/repo-cli/test/Yeet` | `RepoRunPlan` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:298` | Repository run plan. |
-| `@beep/repo-cli/test/Yeet` | `RepoStepRunResult` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:321` | Captured subprocess result for a planned step. |
-| `@beep/repo-cli/test/Yeet` | `resolveLocalRepoBinary` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:189` | Resolve a local node_modules binary when present. |
-| `@beep/repo-cli/test/Yeet` | `runRepoCommandCapture` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:89` | Execute a command and capture combined output. |
-| `@beep/repo-cli/test/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:627` | Run yeet with the provided options. |
-| `@beep/repo-cli/test/Yeet` | `TurboPlanSnapshot` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:190` | Turbo snapshot stored in the shared run context. |
-| `@beep/repo-cli/test/Yeet` | `TurboPlanTask` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:161` | Turbo task metadata captured from dry-runs or summaries. |
-| `@beep/repo-cli/test/Yeet` | `turboTaskForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:423` | Lookup Turbo metadata for a planned step, if available. |
+| `@beep/repo-cli/test/Yeet` | `qualityIssuesFromStepResult` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:533` | Convert a failed step result into quality issues. |
+| `@beep/repo-cli/test/Yeet` | `renderPackageQualityPacketDocument` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:126` | Build a Markdown AST document for one package quality report. |
+| `@beep/repo-cli/test/Yeet` | `renderPackageQualityPacketMarkdown` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts:178` | Render one package quality packet as Markdown. |
+| `@beep/repo-cli/test/Yeet` | `RepoGraphHealthStatus` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:135` | Graph-health signal recorded while hydrating a run context. |
+| `@beep/repo-cli/test/Yeet` | `RepoGraphHealthStatus` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:147` | Graph-health signal recorded while hydrating a run context. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanPhase` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:31` | Plan phase used by repository run orchestration. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanPhase` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:43` | Plan phase used by repository run orchestration. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStep` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:264` | One subprocess or git operation planned for a repo run. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepMutability` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:57` | Step mutability classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepMutability` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:69` | Step mutability classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:109` | Conservative resume eligibility for a planned step. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepResume` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:121` | Conservative resume eligibility for a planned step. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepScope` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:83` | Step scope classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoPlanStepScope` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:95` | Step scope classification. |
+| `@beep/repo-cli/test/Yeet` | `RepoRunContext` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:225` | Shared run context hydrated before planning. |
+| `@beep/repo-cli/test/Yeet` | `RepoRunPlan` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:299` | Repository run plan. |
+| `@beep/repo-cli/test/Yeet` | `RepoStepRunResult` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:322` | Captured subprocess result for a planned step. |
+| `@beep/repo-cli/test/Yeet` | `resolveLocalRepoBinary` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:203` | Resolve a local node_modules binary when present. |
+| `@beep/repo-cli/test/Yeet` | `runRepoCommandCapture` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:92` | Execute a command and capture combined output. |
+| `@beep/repo-cli/test/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:660` | Run yeet with the provided options. |
+| `@beep/repo-cli/test/Yeet` | `TurboPlanSnapshot` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:191` | Turbo snapshot stored in the shared run context. |
+| `@beep/repo-cli/test/Yeet` | `TurboPlanTask` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:162` | Turbo task metadata captured from dry-runs or summaries. |
+| `@beep/repo-cli/test/Yeet` | `turboTaskForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:448` | Lookup Turbo metadata for a planned step, if available. |
 | `@beep/repo-cli/test/Yeet` | `YEET_FEEDBACK_TASKS` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:35` | Turbo tasks used by the Yeet feedback phase. |
 | `@beep/repo-cli/test/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commit/push. |
 | `@beep/repo-cli/test/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
-| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:231` | Return plan phases in execution order. |
+| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:242` | Return plan phases in execution order. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:142` | Runtime options accepted by the yeet handler. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:169` | Result returned by a yeet execution attempt. |
 
@@ -6974,6 +6974,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/box/Box.config` | `layerConfig` | const | `packages/drivers/box/src/Box.config.ts:62` | Construct a Box configuration layer from an explicit token. |
 | `@beep/box/Box.errors` | `BoxError` | class | `packages/drivers/box/src/Box.errors.ts:35` | Typed Box driver error. |
 | `@beep/box/Box.errors` | `BoxErrorContextInfo` | class | `packages/drivers/box/src/Box.errors.ts:20` | Additional context supplied by Box API error payloads. |
+| `@beep/box/Box.service` | `BOX_SERVICE_IMPLEMENTATION_STATUS` | const | `packages/drivers/box/src/Box.service.ts:18` | Implementation status for the deferred Box service adapter. |
 | `@beep/box/index` | `VERSION` | const | `packages/drivers/box/src/index.ts:14` | Current package version for the Box driver. |
 
 ### @beep/openai-compat
