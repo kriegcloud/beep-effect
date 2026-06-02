@@ -1,7 +1,8 @@
 config:
   oipWeb:attachProductionDomains: "false"
   oipWeb:attachStagingDomain: "true"
-  oipWeb:assetsBucketName: staging-assets.opip.law
+  oipWeb:assetsBucketName: staging-assets.oip.law
+  oipWeb:pulumiStateBucketName: oip-law-pulumi-state
   oipWeb:awsRegion: us-east-1
   oipWeb:cloudflareZoneId: 144f81bdbe12b3a7530cdcc8d56b13cc
   oipWeb:legacyCloudflareZoneId: 0d26e874202f4579081926dc38b3bf80

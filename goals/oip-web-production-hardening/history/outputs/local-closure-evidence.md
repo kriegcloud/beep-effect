@@ -2,6 +2,11 @@
 
 <!-- cspell:words HSTS nvxfl VWLOD -->
 
+2026-06-02 update: this file records the original OPIP hardening closure. The
+legacy S3 state and asset bucket names below are superseded by
+`history/outputs/oip-state-bucket-rename-evidence.md`; the Pulumi project
+namespace remains `opip-web` for state continuity.
+
 ## Local App And Quality
 
 - `bun run config-sync:check` passed.

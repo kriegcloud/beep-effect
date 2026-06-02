@@ -50,7 +50,7 @@ fallbacks.
 - Temporary state backend:
   - AWS profile: `codedank-elpresidank`
   - region: `us-east-1`
-  - bucket: `opip-law-pulumi-state`
+  - bucket: `oip-law-pulumi-state`
   - public access blocked
   - versioning enabled
   - default SSE-S3 encryption enabled
@@ -58,7 +58,7 @@ fallbacks.
   - lifecycle policy for noncurrent versions
   - no website hosting and no public assets
 - Pulumi S3 backend:
-  - `pulumi login s3://opip-law-pulumi-state`
+  - `pulumi login s3://oip-law-pulumi-state`
   - no DynamoDB lock table
   - `PULUMI_CONFIG_PASSPHRASE` comes from 1Password
 - Dedicated OIP AWS organization migration is a tracked follow-up after OIP

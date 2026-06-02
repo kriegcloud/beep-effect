@@ -3,10 +3,10 @@
 ## Status
 
 Implementation is wired and the OIP rename has been applied to the source,
-package, app assets, and IaC intent. The previous staging infrastructure was
-applied for `staging.opip.law`; the new `staging.oip.law`, `www.oip.law`, and
-legacy redirect records are provider cutover gates until the OIP Cloudflare and
-Vercel changes are applied.
+package, app assets, IaC intent, Pulumi S3 backend, and managed asset buckets.
+The previous staging infrastructure was applied for `staging.opip.law`; the new
+`staging.oip.law`, `www.oip.law`, and legacy redirect records are provider
+cutover gates until the OIP Cloudflare and Vercel changes are applied.
 
 - Sanity live content remains unconfigured because no OIP Sanity project/token
   is present in `OIP_SECRETS`; the app renders checked-in reviewed fallback
@@ -36,8 +36,9 @@ The first production path is managed-first and lean:
 - Cloudflare owns DNS for `oip.law` and `opip.law`; Pulumi now models OIP
   canonical records plus OPIP legacy redirects.
 - Pulumi is configured for a temporary private S3 state bucket in codedank until
-  a dedicated OIP AWS organization exists. The bucket keeps its historical
-  `opip-law-pulumi-state` name to avoid state migration during the rename.
+  a dedicated OIP AWS organization exists. The backend has migrated from the
+  historical `opip-law-pulumi-state` bucket to `oip-law-pulumi-state` while
+  retaining the Pulumi project namespace for state continuity.
 
 ## Read This First
 
@@ -68,11 +69,13 @@ The first production path is managed-first and lean:
   proof are recorded in [history/outputs/local-closure-evidence.md](./history/outputs/local-closure-evidence.md).
 - The OIP rename/provider preflight is recorded in
   [history/outputs/oip-rename-cutover-addendum.md](./history/outputs/oip-rename-cutover-addendum.md).
+- The completed OIP state and asset bucket rename is recorded in
+  [history/outputs/oip-state-bucket-rename-evidence.md](./history/outputs/oip-state-bucket-rename-evidence.md).
 - The encrypted S3 backend, staging Vercel project/domain/env, disabled Vercel
-  Authentication posture, and staging asset bucket have been applied from
+  Authentication posture, and staging asset bucket are managed from
   `infra/oip-web`.
-- The production stack has been initialized historically; OIP production apply
-  still requires provider cutover.
+- The production stack has been updated for the OIP state backend and asset
+  bucket rename; production DNS cutover still requires explicit approval.
 - Cloudflare staging DNS is applied for `staging.opip.law`. OIP DNS records are
   represented in IaC and pending apply.
 - Staging Lighthouse proof is 100 across performance, accessibility, best
