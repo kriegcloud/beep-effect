@@ -1121,7 +1121,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docs/index` | `DocsSection` | type | `packages/tooling/tool/cli/src/commands/Docs/Docs.command.ts:96` | Documentation section model. |
 | `@beep/repo-cli/commands/Files` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:944` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1542` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5426` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5427` | Archive obvious poor image candidates out of a dataset directory. |
 | `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1566` | Assessed image candidate with an archive or keep decision. |
 | `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1706` | Manifest written by a successful poor-candidate archive run. |
 | `@beep/repo-cli/commands/Files` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1491` | JSON-safe options recorded in a poor-candidate archive manifest. |
@@ -1156,7 +1156,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:591` | Numeric threshold ratio used by candidate-quality triage. |
 | `@beep/repo-cli/commands/Files` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:893` | Classify an analyzed image from its matched border sides. |
 | `@beep/repo-cli/commands/Files` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:416` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5446` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5447` | Create same-stem caption sidecar files for direct image files. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1105` | Options used by caption sidecar creation. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1182` | Planned caption sidecar creation run. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1128` | Planned caption sidecar file creation. |
@@ -1164,7 +1164,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:278` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:299` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1206` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5466` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5467` | Crop solid or near-solid borders from direct image files. |
 | `@beep/repo-cli/commands/Files` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1813` | Options used by the image border cropping operation. |
 | `@beep/repo-cli/commands/Files` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2129` | Planned border crop entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2098` | Planned crop for an image with detected solid borders. |
@@ -1181,7 +1181,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2345` | Decode an unknown rotation value into an optional number. |
 | `@beep/repo-cli/commands/Files` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2358` | Decode an unknown safe filename prefix. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1886` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5486` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5487` | Detect solid or near-solid borders in direct image files. |
 | `@beep/repo-cli/commands/Files` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1860` | Measurement for one scanned image side. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1735` | Options used by the image border detection operation. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1962` | JSON report emitted by an image border detection run. |
@@ -1190,7 +1190,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:382` | Reason a direct directory entry was skipped by `files detect-borders`. |
 | `@beep/repo-cli/commands/Files` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1938` | Summary counts for an image border detection run. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1987` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5506` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5507` | Detect human faces in direct image files. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:429` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:447` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1760` | Options used by the image face detection operation. |
@@ -1210,9 +1210,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:834` | Video stream metadata returned by `ffprobe`. |
 | `@beep/repo-cli/commands/Files` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:501` | File curation command group. |
 | `@beep/repo-cli/commands/Files` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:39` | Error raised by file curation commands. |
-| `@beep/repo-cli/commands/Files` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:420` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5410` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:335` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:421` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5411` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:336` | Service contract for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:28` | Shared concurrency caps for Files command phases. |
 | `@beep/repo-cli/commands/Files` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:72` | SHA-256 hash recorded for normalized file bytes. |
 | `@beep/repo-cli/commands/Files` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:91` | SHA-256 hash recorded for normalized file bytes. |
@@ -1237,7 +1237,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:104` | Non-negative pixel offset schema. |
 | `@beep/repo-cli/commands/Files` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:132` | Non-negative pixel offset value. |
 | `@beep/repo-cli/commands/Files` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:355` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5526` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5527` | Normalize direct image files into an output directory and write a transform manifest. |
 | `@beep/repo-cli/commands/Files` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1231` | Options used by the image normalization operation. |
 | `@beep/repo-cli/commands/Files` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:220` | Canonical image output format emitted by `files normalize`. |
 | `@beep/repo-cli/commands/Files` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:232` | Canonical image output format emitted by `files normalize`. |
@@ -1256,8 +1256,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1373` | Summary counts for an image normalization run. |
 | `@beep/repo-cli/commands/Files` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:31` | Positive media dimension schema. |
 | `@beep/repo-cli/commands/Files` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:59` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4642` | Print the files command index. |
-| `@beep/repo-cli/commands/Files` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5547` | Process a file or directory into the V1 file-processing proof manifest tree. |
+| `@beep/repo-cli/commands/Files` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4643` | Print the files command index. |
+| `@beep/repo-cli/commands/Files` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5548` | Process a file or directory into the V1 file-processing proof manifest tree. |
 | `@beep/repo-cli/commands/Files` | `ProcessFilesFailurePolicy` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2244` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files` | `ProcessFilesFailurePolicy` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2256` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files` | `ProcessFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2269` | Validated options used by `files process`. |
@@ -1292,9 +1292,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:701` | Resolve the sharp encoder name for a canonical normalize format. |
 | `@beep/repo-cli/commands/Files` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:944` | File discovered for deterministic rename planning. |
 | `@beep/repo-cli/commands/Files` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2179` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5570` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5571` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
 | `@beep/repo-cli/commands/Files` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:999` | Summary returned by `sortAndRenameFiles`. |
-| `@beep/repo-cli/commands/Files` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5597` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5598` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2221` | Planned metadata stripping entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1032` | Planned metadata strip for a selected image or video file. |
 | `@beep/repo-cli/commands/Files` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1056` | Summary returned by `stripMetadataFiles`. |
@@ -1470,22 +1470,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/Files.schemas` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1056` | Summary returned by `stripMetadataFiles`. |
 | `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:170` | Image extension schema supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files/Files.schemas` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:182` | Image extension supported by metadata stripping. |
-| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5426` | Archive obvious poor image candidates out of a dataset directory. |
-| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5446` | Create same-stem caption sidecar files for direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5466` | Crop solid or near-solid borders from direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5486` | Detect solid or near-solid borders in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5506` | Detect human faces in direct image files. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:420` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5410` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:335` | Service contract for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5526` | Normalize direct image files into an output directory and write a transform manifest. |
-| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4642` | Print the files command index. |
-| `@beep/repo-cli/commands/Files/Files.service` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5547` | Process a file or directory into the V1 file-processing proof manifest tree. |
-| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5570` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
-| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5597` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5427` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/Files.service` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5447` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5467` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5487` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5507` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:421` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5411` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:336` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/Files.service` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5527` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/Files.service` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4643` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/Files.service` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5548` | Process a file or directory into the V1 file-processing proof manifest tree. |
+| `@beep/repo-cli/commands/Files/Files.service` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5571` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/Files.service` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5598` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files/index` | `analyzeSolidBorders` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:944` | Analyze raw RGB image pixels for near-solid borders on all four sides. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivedSidecarEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1542` | Caption or metadata sidecar moved with an archived image. |
-| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5426` | Archive obvious poor image candidates out of a dataset directory. |
+| `@beep/repo-cli/commands/Files/index` | `archivePoorCandidates` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5427` | Archive obvious poor image candidates out of a dataset directory. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1566` | Assessed image candidate with an archive or keep decision. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifest` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1706` | Manifest written by a successful poor-candidate archive run. |
 | `@beep/repo-cli/commands/Files/index` | `ArchivePoorCandidatesManifestOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1491` | JSON-safe options recorded in a poor-candidate archive manifest. |
@@ -1520,7 +1520,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `CandidateRatioThreshold` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:591` | Numeric threshold ratio used by candidate-quality triage. |
 | `@beep/repo-cli/commands/Files/index` | `classifyBorderSides` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:893` | Classify an analyzed image from its matched border sides. |
 | `@beep/repo-cli/commands/Files/index` | `collectText` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:416` | Collect a byte stream into trimmed text. |
-| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5446` | Create same-stem caption sidecar files for direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `createCaptionFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5447` | Create same-stem caption sidecar files for direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1105` | Options used by caption sidecar creation. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1182` | Planned caption sidecar creation run. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1128` | Planned caption sidecar file creation. |
@@ -1528,7 +1528,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:278` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:299` | Reason a direct directory entry was skipped by `files create-captions`. |
 | `@beep/repo-cli/commands/Files/index` | `CreateCaptionFilesSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1206` | Summary returned by `createCaptionFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5466` | Crop solid or near-solid borders from direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `cropBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5467` | Crop solid or near-solid borders from direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1813` | Options used by the image border cropping operation. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2129` | Planned border crop entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `CropBordersPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2098` | Planned crop for an image with detected solid borders. |
@@ -1545,7 +1545,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `decodeRotationNumber` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2345` | Decode an unknown rotation value into an optional number. |
 | `@beep/repo-cli/commands/Files/index` | `decodeSafeFilePrefix` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2358` | Decode an unknown safe filename prefix. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1886` | Image entry analyzed by `files detect-borders`. |
-| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5486` | Detect solid or near-solid borders in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `detectBordersFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5487` | Detect solid or near-solid borders in direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBorderSideMeasurement` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1860` | Measurement for one scanned image side. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1735` | Options used by the image border detection operation. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersReport` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1962` | JSON report emitted by an image border detection run. |
@@ -1554,7 +1554,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersSkippedReason` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:382` | Reason a direct directory entry was skipped by `files detect-borders`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectBordersSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1938` | Summary counts for an image border detection run. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1987` | Image entry analyzed by `files detect-faces`. |
-| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5506` | Detect human faces in direct image files. |
+| `@beep/repo-cli/commands/Files/index` | `detectFacesFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5507` | Detect human faces in direct image files. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:429` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesFlag` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:447` | Triage flag emitted by `files detect-faces`. |
 | `@beep/repo-cli/commands/Files/index` | `DetectFacesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1760` | Options used by the image face detection operation. |
@@ -1574,9 +1574,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `FfprobeStream` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:834` | Video stream metadata returned by `ffprobe`. |
 | `@beep/repo-cli/commands/Files/index` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:501` | File curation command group. |
 | `@beep/repo-cli/commands/Files/index` | `FilesCommandError` | class | `packages/tooling/tool/cli/src/commands/Files/Files.errors.ts:39` | Error raised by file curation commands. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:420` | Service tag for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5410` | Live service layer for dataset file curation operations. |
-| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:335` | Service contract for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandService` | class | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:421` | Service tag for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceLive` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5411` | Live service layer for dataset file curation operations. |
+| `@beep/repo-cli/commands/Files/index` | `FilesCommandServiceShape` | interface | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:336` | Service contract for dataset file curation operations. |
 | `@beep/repo-cli/commands/Files/index` | `FilesConcurrency` | const | `packages/tooling/tool/cli/src/commands/Files/Files.progress.ts:28` | Shared concurrency caps for Files command phases. |
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:72` | SHA-256 hash recorded for normalized file bytes. |
 | `@beep/repo-cli/commands/Files/index` | `FileSha256Hash` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:91` | SHA-256 hash recorded for normalized file bytes. |
@@ -1601,7 +1601,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:104` | Non-negative pixel offset schema. |
 | `@beep/repo-cli/commands/Files/index` | `NonNegativePixelOffset` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:132` | Non-negative pixel offset value. |
 | `@beep/repo-cli/commands/Files/index` | `normalizeBareExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:355` | Normalize a file extension to a lowercase bare extension. |
-| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5526` | Normalize direct image files into an output directory and write a transform manifest. |
+| `@beep/repo-cli/commands/Files/index` | `normalizeFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5527` | Normalize direct image files into an output directory and write a transform manifest. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1231` | Options used by the image normalization operation. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:220` | Canonical image output format emitted by `files normalize`. |
 | `@beep/repo-cli/commands/Files/index` | `NormalizeImageFormat` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:232` | Canonical image output format emitted by `files normalize`. |
@@ -1620,8 +1620,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `NormalizeSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1373` | Summary counts for an image normalization run. |
 | `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:31` | Positive media dimension schema. |
 | `@beep/repo-cli/commands/Files/index` | `PositiveMediaDimension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:59` | Positive media dimension value. |
-| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4642` | Print the files command index. |
-| `@beep/repo-cli/commands/Files/index` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5547` | Process a file or directory into the V1 file-processing proof manifest tree. |
+| `@beep/repo-cli/commands/Files/index` | `printFilesIndex` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:4643` | Print the files command index. |
+| `@beep/repo-cli/commands/Files/index` | `processFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5548` | Process a file or directory into the V1 file-processing proof manifest tree. |
 | `@beep/repo-cli/commands/Files/index` | `ProcessFilesFailurePolicy` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2244` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files/index` | `ProcessFilesFailurePolicy` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2256` | Failure policy for `files process`. |
 | `@beep/repo-cli/commands/Files/index` | `ProcessFilesOptions` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2269` | Validated options used by `files process`. |
@@ -1656,9 +1656,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `sharpFormatForNormalize` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:701` | Resolve the sharp encoder name for a canonical normalize format. |
 | `@beep/repo-cli/commands/Files/index` | `SortableFile` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:944` | File discovered for deterministic rename planning. |
 | `@beep/repo-cli/commands/Files/index` | `SortableFileCollection` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2179` | Files selected for rename planning plus skipped file counts. |
-| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5570` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
+| `@beep/repo-cli/commands/Files/index` | `sortAndRenameFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5571` | Sort direct regular files in a directory by size and rename them with a generated prefix. |
 | `@beep/repo-cli/commands/Files/index` | `SortAndRenameSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:999` | Summary returned by `sortAndRenameFiles`. |
-| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5597` | Strip user-authored metadata from direct image and video files in a directory. |
+| `@beep/repo-cli/commands/Files/index` | `stripMetadataFiles` | const | `packages/tooling/tool/cli/src/commands/Files/Files.service.ts:5598` | Strip user-authored metadata from direct image and video files in a directory. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataPlan` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:2221` | Planned metadata stripping entries plus skipped file counts. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataPlanEntry` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1032` | Planned metadata strip for a selected image or video file. |
 | `@beep/repo-cli/commands/Files/index` | `StripMetadataSummary` | class | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:1056` | Summary returned by `stripMetadataFiles`. |
@@ -2855,66 +2855,66 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/file-processing/Artifact/index` | `OperationId` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:96` | Stable operation identifier derived from source, operation kind, and strategy. |
 | `@beep/file-processing/Artifact/index` | `OperationId` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:109` | Type for {@link OperationId}. |
 | `@beep/file-processing/Artifact/index` | `SourceArtifact` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:210` | Source artifact supplied to a file-processing operation. |
-| `@beep/file-processing/Extraction` | `ArchiveExportProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:239` | Successful archive export result of a full source processing operation. |
-| `@beep/file-processing/Extraction` | `ArchiveExportResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:133` | Archive export result. |
-| `@beep/file-processing/Extraction` | `ChildArtifactRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:715` | Child artifact row written to children/<source-artifact-id>/artifacts.jsonl. |
-| `@beep/file-processing/Extraction` | `encodeChildArtifactRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:965` | JSONL encoder for {@link ChildArtifactRecord}. |
-| `@beep/file-processing/Extraction` | `encodeFileProcessingCoverageSummaryJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:862` | JSON encoder for {@link FileProcessingCoverageSummary}. |
-| `@beep/file-processing/Extraction` | `encodeFileProcessingFailureRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:931` | JSONL encoder for {@link FileProcessingFailureRecord}. |
-| `@beep/file-processing/Extraction` | `encodeProcessRunManifestJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:826` | JSON encoder for {@link ProcessRunManifest}. |
-| `@beep/file-processing/Extraction` | `encodeSourceProcessingRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:898` | JSONL encoder for {@link SourceProcessingRecord}. |
-| `@beep/file-processing/Extraction` | `ExtractedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:186` | Successful extraction result of a full source processing operation. |
-| `@beep/file-processing/Extraction` | `ExtractionResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:104` | Text and metadata extraction result. |
-| `@beep/file-processing/Extraction` | `FailedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:653` | Hard failure row written to failures.jsonl. |
-| `@beep/file-processing/Extraction` | `FailedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:491` | Failed source row written to sources.jsonl. |
-| `@beep/file-processing/Extraction` | `FileProcessingCoverageSummary` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:738` | Coverage summary written to coverage.json. |
-| `@beep/file-processing/Extraction` | `FileProcessingFailureReason` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:577` | Machine-readable failure row reason. |
-| `@beep/file-processing/Extraction` | `FileProcessingFailureReason` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:589` | Type for {@link FileProcessingFailureReason}. |
-| `@beep/file-processing/Extraction` | `FileProcessingFailureRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:684` | Failure row written to failures.jsonl. |
-| `@beep/file-processing/Extraction` | `FileProcessingFailureRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:700` | Type for {@link FileProcessingFailureRecord}. |
-| `@beep/file-processing/Extraction` | `ProcessFileResult` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:334` | Result of a full source processing operation. |
-| `@beep/file-processing/Extraction` | `ProcessFileResult` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:351` | Type for {@link ProcessFileResult}. |
-| `@beep/file-processing/Extraction` | `ProcessRunManifest` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:767` | Top-level run manifest written to run.json. |
-| `@beep/file-processing/Extraction` | `SkippedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:604` | Skipped row written to failures.jsonl. |
-| `@beep/file-processing/Extraction` | `SkippedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:288` | Intentional skip result of a full source processing operation. |
-| `@beep/file-processing/Extraction` | `SkippedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:440` | Skipped source row written to sources.jsonl. |
-| `@beep/file-processing/Extraction` | `SourceProcessingRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:541` | Source row written to sources.jsonl. |
-| `@beep/file-processing/Extraction` | `SourceProcessingRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:558` | Type for {@link SourceProcessingRecord}. |
-| `@beep/file-processing/Extraction` | `SourceProcessingStatus` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:30` | Processing status emitted for each source row. |
-| `@beep/file-processing/Extraction` | `SourceProcessingStatus` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:42` | Type for {@link SourceProcessingStatus}. |
-| `@beep/file-processing/Extraction` | `SucceededSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:387` | Succeeded source row written to sources.jsonl. |
-| `@beep/file-processing/Extraction` | `TextArtifactReference` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:57` | Materialized text artifact reference. |
-| `@beep/file-processing/Extraction` | `TextSpan` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:80` | Text span emitted by a text extraction operation. |
-| `@beep/file-processing/Extraction/index` | `ArchiveExportProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:239` | Successful archive export result of a full source processing operation. |
-| `@beep/file-processing/Extraction/index` | `ArchiveExportResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:133` | Archive export result. |
-| `@beep/file-processing/Extraction/index` | `ChildArtifactRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:715` | Child artifact row written to children/<source-artifact-id>/artifacts.jsonl. |
-| `@beep/file-processing/Extraction/index` | `encodeChildArtifactRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:965` | JSONL encoder for {@link ChildArtifactRecord}. |
-| `@beep/file-processing/Extraction/index` | `encodeFileProcessingCoverageSummaryJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:862` | JSON encoder for {@link FileProcessingCoverageSummary}. |
-| `@beep/file-processing/Extraction/index` | `encodeFileProcessingFailureRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:931` | JSONL encoder for {@link FileProcessingFailureRecord}. |
-| `@beep/file-processing/Extraction/index` | `encodeProcessRunManifestJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:826` | JSON encoder for {@link ProcessRunManifest}. |
-| `@beep/file-processing/Extraction/index` | `encodeSourceProcessingRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:898` | JSONL encoder for {@link SourceProcessingRecord}. |
-| `@beep/file-processing/Extraction/index` | `ExtractedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:186` | Successful extraction result of a full source processing operation. |
-| `@beep/file-processing/Extraction/index` | `ExtractionResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:104` | Text and metadata extraction result. |
-| `@beep/file-processing/Extraction/index` | `FailedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:653` | Hard failure row written to failures.jsonl. |
-| `@beep/file-processing/Extraction/index` | `FailedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:491` | Failed source row written to sources.jsonl. |
-| `@beep/file-processing/Extraction/index` | `FileProcessingCoverageSummary` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:738` | Coverage summary written to coverage.json. |
-| `@beep/file-processing/Extraction/index` | `FileProcessingFailureReason` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:577` | Machine-readable failure row reason. |
-| `@beep/file-processing/Extraction/index` | `FileProcessingFailureReason` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:589` | Type for {@link FileProcessingFailureReason}. |
-| `@beep/file-processing/Extraction/index` | `FileProcessingFailureRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:684` | Failure row written to failures.jsonl. |
-| `@beep/file-processing/Extraction/index` | `FileProcessingFailureRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:700` | Type for {@link FileProcessingFailureRecord}. |
-| `@beep/file-processing/Extraction/index` | `ProcessFileResult` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:334` | Result of a full source processing operation. |
-| `@beep/file-processing/Extraction/index` | `ProcessFileResult` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:351` | Type for {@link ProcessFileResult}. |
-| `@beep/file-processing/Extraction/index` | `ProcessRunManifest` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:767` | Top-level run manifest written to run.json. |
-| `@beep/file-processing/Extraction/index` | `SkippedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:604` | Skipped row written to failures.jsonl. |
-| `@beep/file-processing/Extraction/index` | `SkippedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:288` | Intentional skip result of a full source processing operation. |
-| `@beep/file-processing/Extraction/index` | `SkippedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:440` | Skipped source row written to sources.jsonl. |
-| `@beep/file-processing/Extraction/index` | `SourceProcessingRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:541` | Source row written to sources.jsonl. |
-| `@beep/file-processing/Extraction/index` | `SourceProcessingRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:558` | Type for {@link SourceProcessingRecord}. |
-| `@beep/file-processing/Extraction/index` | `SourceProcessingStatus` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:30` | Processing status emitted for each source row. |
-| `@beep/file-processing/Extraction/index` | `SourceProcessingStatus` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:42` | Type for {@link SourceProcessingStatus}. |
-| `@beep/file-processing/Extraction/index` | `SucceededSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:387` | Succeeded source row written to sources.jsonl. |
-| `@beep/file-processing/Extraction/index` | `TextArtifactReference` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:57` | Materialized text artifact reference. |
-| `@beep/file-processing/Extraction/index` | `TextSpan` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:80` | Text span emitted by a text extraction operation. |
+| `@beep/file-processing/Extraction` | `ArchiveExportProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:240` | Successful archive export result of a full source processing operation. |
+| `@beep/file-processing/Extraction` | `ArchiveExportResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:134` | Archive export result. |
+| `@beep/file-processing/Extraction` | `ChildArtifactRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:725` | Child artifact row written to children/<source-artifact-id>/artifacts.jsonl. |
+| `@beep/file-processing/Extraction` | `encodeChildArtifactRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:979` | JSONL encoder for {@link ChildArtifactRecord}. |
+| `@beep/file-processing/Extraction` | `encodeFileProcessingCoverageSummaryJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:872` | JSON encoder for {@link FileProcessingCoverageSummary}. |
+| `@beep/file-processing/Extraction` | `encodeFileProcessingFailureRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:945` | JSONL encoder for {@link FileProcessingFailureRecord}. |
+| `@beep/file-processing/Extraction` | `encodeProcessRunManifestJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:836` | JSON encoder for {@link ProcessRunManifest}. |
+| `@beep/file-processing/Extraction` | `encodeSourceProcessingRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:910` | JSONL encoder for {@link SourceProcessingRecord}. |
+| `@beep/file-processing/Extraction` | `ExtractedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:187` | Successful extraction result of a full source processing operation. |
+| `@beep/file-processing/Extraction` | `ExtractionResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:105` | Text and metadata extraction result. |
+| `@beep/file-processing/Extraction` | `FailedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:663` | Hard failure row written to failures.jsonl. |
+| `@beep/file-processing/Extraction` | `FailedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:499` | Failed source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction` | `FileProcessingCoverageSummary` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:748` | Coverage summary written to coverage.json. |
+| `@beep/file-processing/Extraction` | `FileProcessingFailureReason` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:585` | Machine-readable failure row reason. |
+| `@beep/file-processing/Extraction` | `FileProcessingFailureReason` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:597` | Type for {@link FileProcessingFailureReason}. |
+| `@beep/file-processing/Extraction` | `FileProcessingFailureRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:694` | Failure row written to failures.jsonl. |
+| `@beep/file-processing/Extraction` | `FileProcessingFailureRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:710` | Type for {@link FileProcessingFailureRecord}. |
+| `@beep/file-processing/Extraction` | `ProcessFileResult` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:335` | Result of a full source processing operation. |
+| `@beep/file-processing/Extraction` | `ProcessFileResult` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:352` | Type for {@link ProcessFileResult}. |
+| `@beep/file-processing/Extraction` | `ProcessRunManifest` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:777` | Top-level run manifest written to run.json. |
+| `@beep/file-processing/Extraction` | `SkippedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:612` | Skipped row written to failures.jsonl. |
+| `@beep/file-processing/Extraction` | `SkippedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:289` | Intentional skip result of a full source processing operation. |
+| `@beep/file-processing/Extraction` | `SkippedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:446` | Skipped source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction` | `SourceProcessingRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:549` | Source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction` | `SourceProcessingRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:566` | Type for {@link SourceProcessingRecord}. |
+| `@beep/file-processing/Extraction` | `SourceProcessingStatus` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:31` | Processing status emitted for each source row. |
+| `@beep/file-processing/Extraction` | `SourceProcessingStatus` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:43` | Type for {@link SourceProcessingStatus}. |
+| `@beep/file-processing/Extraction` | `SucceededSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:391` | Succeeded source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction` | `TextArtifactReference` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:58` | Materialized text artifact reference. |
+| `@beep/file-processing/Extraction` | `TextSpan` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:81` | Text span emitted by a text extraction operation. |
+| `@beep/file-processing/Extraction/index` | `ArchiveExportProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:240` | Successful archive export result of a full source processing operation. |
+| `@beep/file-processing/Extraction/index` | `ArchiveExportResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:134` | Archive export result. |
+| `@beep/file-processing/Extraction/index` | `ChildArtifactRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:725` | Child artifact row written to children/<source-artifact-id>/artifacts.jsonl. |
+| `@beep/file-processing/Extraction/index` | `encodeChildArtifactRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:979` | JSONL encoder for {@link ChildArtifactRecord}. |
+| `@beep/file-processing/Extraction/index` | `encodeFileProcessingCoverageSummaryJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:872` | JSON encoder for {@link FileProcessingCoverageSummary}. |
+| `@beep/file-processing/Extraction/index` | `encodeFileProcessingFailureRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:945` | JSONL encoder for {@link FileProcessingFailureRecord}. |
+| `@beep/file-processing/Extraction/index` | `encodeProcessRunManifestJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:836` | JSON encoder for {@link ProcessRunManifest}. |
+| `@beep/file-processing/Extraction/index` | `encodeSourceProcessingRecordJson` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:910` | JSONL encoder for {@link SourceProcessingRecord}. |
+| `@beep/file-processing/Extraction/index` | `ExtractedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:187` | Successful extraction result of a full source processing operation. |
+| `@beep/file-processing/Extraction/index` | `ExtractionResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:105` | Text and metadata extraction result. |
+| `@beep/file-processing/Extraction/index` | `FailedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:663` | Hard failure row written to failures.jsonl. |
+| `@beep/file-processing/Extraction/index` | `FailedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:499` | Failed source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction/index` | `FileProcessingCoverageSummary` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:748` | Coverage summary written to coverage.json. |
+| `@beep/file-processing/Extraction/index` | `FileProcessingFailureReason` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:585` | Machine-readable failure row reason. |
+| `@beep/file-processing/Extraction/index` | `FileProcessingFailureReason` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:597` | Type for {@link FileProcessingFailureReason}. |
+| `@beep/file-processing/Extraction/index` | `FileProcessingFailureRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:694` | Failure row written to failures.jsonl. |
+| `@beep/file-processing/Extraction/index` | `FileProcessingFailureRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:710` | Type for {@link FileProcessingFailureRecord}. |
+| `@beep/file-processing/Extraction/index` | `ProcessFileResult` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:335` | Result of a full source processing operation. |
+| `@beep/file-processing/Extraction/index` | `ProcessFileResult` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:352` | Type for {@link ProcessFileResult}. |
+| `@beep/file-processing/Extraction/index` | `ProcessRunManifest` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:777` | Top-level run manifest written to run.json. |
+| `@beep/file-processing/Extraction/index` | `SkippedFileProcessingFailureRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:612` | Skipped row written to failures.jsonl. |
+| `@beep/file-processing/Extraction/index` | `SkippedProcessFileResult` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:289` | Intentional skip result of a full source processing operation. |
+| `@beep/file-processing/Extraction/index` | `SkippedSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:446` | Skipped source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction/index` | `SourceProcessingRecord` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:549` | Source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction/index` | `SourceProcessingRecord` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:566` | Type for {@link SourceProcessingRecord}. |
+| `@beep/file-processing/Extraction/index` | `SourceProcessingStatus` | const | `packages/foundation/capability/file-processing/src/Extraction/index.ts:31` | Processing status emitted for each source row. |
+| `@beep/file-processing/Extraction/index` | `SourceProcessingStatus` | type | `packages/foundation/capability/file-processing/src/Extraction/index.ts:43` | Type for {@link SourceProcessingStatus}. |
+| `@beep/file-processing/Extraction/index` | `SucceededSourceProcessingRecord` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:391` | Succeeded source row written to sources.jsonl. |
+| `@beep/file-processing/Extraction/index` | `TextArtifactReference` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:58` | Materialized text artifact reference. |
+| `@beep/file-processing/Extraction/index` | `TextSpan` | class | `packages/foundation/capability/file-processing/src/Extraction/index.ts:81` | Text span emitted by a text extraction operation. |
 | `@beep/file-processing/index` | `Artifact` | SourceFile | `packages/foundation/capability/file-processing/src/Artifact/index.ts:8` |  |
 | `@beep/file-processing/index` | `Extraction` | SourceFile | `packages/foundation/capability/file-processing/src/Extraction/index.ts:8` |  |
 | `@beep/file-processing/index` | `Operation` | SourceFile | `packages/foundation/capability/file-processing/src/Operation/index.ts:8` |  |

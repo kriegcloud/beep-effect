@@ -46,7 +46,7 @@ import { makeLibpffFileProcessingEngine } from "@beep/libpff";
 import { profilePhase } from "@beep/observability";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { Sha256HexFromBytes } from "@beep/schema";
-import { NativePathToPosixPath } from "@beep/schema/PosixPath";
+import { NativePathToPosixPath, normalizePath } from "@beep/schema/PosixPath";
 import { makeTikaFileProcessingEngine } from "@beep/tika";
 import { A, P, Str } from "@beep/utils";
 import {
@@ -178,6 +178,7 @@ import type {
 } from "@beep/file-processing/Extraction";
 import type { FileProcessingEngineShape } from "@beep/file-processing/Service";
 import type { FileFormatFamily, FileProcessingSkipReason, SelectedStrategy } from "@beep/file-processing/Strategy";
+import type { PosixPath } from "@beep/schema/PosixPath";
 import type { Terminal } from "effect";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type {
@@ -4160,7 +4161,7 @@ const makeProcessSourceRecord = (
   options: {
     readonly engine?: string;
     readonly skipReason?: FileProcessingSkipReason;
-    readonly textPath?: string;
+    readonly textPath?: PosixPath;
   } = {}
 ): SourceProcessingRecord => {
   const base = {
@@ -4168,7 +4169,7 @@ const makeProcessSourceRecord = (
     digest: prepared.digest,
     format: prepared.format,
     operationId: prepared.operationId,
-    relativePath: prepared.sourceFile.relativePath,
+    relativePath: prepared.source.relativePath,
     sizeBytes: prepared.sourceFile.sizeBytes,
     ...R.getSomes({
       engine: O.fromUndefinedOr(options.engine),
@@ -4213,7 +4214,7 @@ const makeProcessSkippedFailureRecord = (
     message,
     operationId: prepared.operationId,
     reason,
-    relativePath: prepared.sourceFile.relativePath,
+    relativePath: prepared.source.relativePath,
     status: "skipped",
     ...R.getSomes({
       engine: O.fromUndefinedOr(options.engine),
@@ -4235,7 +4236,7 @@ const makeProcessFailedFailureRecord = (
     message,
     operationId: prepared.operationId,
     reason,
-    relativePath: prepared.sourceFile.relativePath,
+    relativePath: prepared.source.relativePath,
     status: "failed",
     ...R.getSomes({
       engine: O.fromUndefinedOr(options.engine),
@@ -4328,7 +4329,7 @@ const processExtractionSuccessOutcome = (
   prepared: ProcessPreparedSource,
   text: O.Option<string>
 ): ProcessSourceOutcome => {
-  const textRelativePath = O.map(text, () => `text/${prepared.operationId}.txt`);
+  const textRelativePath = O.map(text, () => normalizePath(`text/${prepared.operationId}.txt`));
 
   return {
     childRecords: A.empty(),
