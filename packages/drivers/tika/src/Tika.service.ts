@@ -5,16 +5,13 @@
  * @since 0.0.0
  */
 
-import { ArtifactReference } from "@beep/file-processing/Artifact";
-import { ArchiveExportResult, ExtractionResult } from "@beep/file-processing/Extraction";
+import { ExtractionResult } from "@beep/file-processing/Extraction";
 import { DetectionResult, FileProcessingOperationError } from "@beep/file-processing/Operation";
 import { FileProcessingEngineDescriptor } from "@beep/file-processing/Strategy";
-import { PosixPath } from "@beep/schema/PosixPath";
 import { A } from "@beep/utils";
 import { Effect, Match } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
-import * as S from "effect/Schema";
 import { makeTikaError } from "./Tika.errors.ts";
 import type {
   DetectFileOperation,
@@ -127,22 +124,6 @@ const decodeSourceText = (operation: ExtractFileOperation): Effect.Effect<string
   });
 };
 
-const decodeTikaArtifactPath = (
-  path: string,
-  operation: ExportArchiveOperation
-): Effect.Effect<PosixPath, FileProcessingOperationError> =>
-  S.decodeUnknownEffect(PosixPath)(path).pipe(
-    Effect.mapError(() =>
-      FileProcessingOperationError.fromReason("archive-export-failed", {
-        artifactId: operation.source.id,
-        engine: TikaFileProcessingEngineDescriptor.name,
-        format: operation.format,
-        message: "Tika child artifact path was not POSIX-normalized.",
-        operationId: operation.operationId,
-      })
-    )
-  );
-
 /**
  * Create the P1 Tika file-processing engine.
  *
@@ -172,18 +153,12 @@ export const makeTikaFileProcessingEngine = (): FileProcessingEngineShape => ({
     });
   }),
   exportArchive: Effect.fn("TikaFileProcessingEngine.exportArchive")(function* (operation: ExportArchiveOperation) {
-    const childRelativePath = yield* decodeTikaArtifactPath("children/not-exported-by-tika", operation);
-    const child = ArtifactReference.make({
-      id: operation.source.id,
-      relativePath: childRelativePath,
-    });
-
-    return ArchiveExportResult.make({
-      children: [child],
+    return yield* FileProcessingOperationError.fromReason("unsupported-file-format", {
+      artifactId: operation.source.id,
       engine: TikaFileProcessingEngineDescriptor.name,
+      format: operation.format,
+      message: "Tika does not export archive children in the P1 proof.",
       operationId: operation.operationId,
-      sourceArtifactId: operation.source.id,
-      warnings: ["Tika does not export archive children in the P1 proof."],
     });
   }),
   extract: Effect.fn("TikaFileProcessingEngine.extract")(function* (operation: ExtractFileOperation) {

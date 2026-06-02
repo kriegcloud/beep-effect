@@ -508,10 +508,70 @@ describe.sequential("files command", () => {
           expect(xlsFailure.reason).toBe("format-out-of-scope");
           expect(childRecords).toHaveLength(1);
           expect(childRecords[0]?.sourceArtifactId).toBe(pstRecord.artifactId);
+          expect(childRecords[0]?.child.id).not.toBe(pstRecord.artifactId);
           expect(childRecords[0]?.child.relativePath).toBe("children/synthetic-libpff-message.txt");
           expect(yield* fs.readFileString(path.join(outDir, textRecord.textPath ?? ""))).toBe("hello proof");
           expect(yield* fs.exists(path.join(outDir, "failures.jsonl"))).toBe(true);
           expect(yield* fs.exists(childPath)).toBe(true);
+        })
+      )
+    ));
+
+  it("skips PST child export when the selected engine lacks archive-export capability", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const outDir = path.join(tmpDir, "proof");
+
+          yield* fs.writeFileString(path.join(datasetDir, "mailbox.pst"), "pst");
+
+          yield* runFilesCommand([
+            "process",
+            "--input",
+            datasetDir,
+            "--out-dir",
+            outDir,
+            "--engine",
+            "tika",
+            "--export-children",
+            "--failure-policy",
+            "continue",
+          ]);
+
+          const sourceRecords = yield* Effect.forEach(
+            pipe(
+              yield* fs.readFileString(path.join(outDir, "sources.jsonl")),
+              Str.split("\n"),
+              A.filter((line) => line.length > 0)
+            ),
+            decodeSourceProcessingRecordLine
+          );
+          const failureRecords = yield* Effect.forEach(
+            pipe(
+              yield* fs.readFileString(path.join(outDir, "failures.jsonl")),
+              Str.split("\n"),
+              A.filter((line) => line.length > 0)
+            ),
+            decodeFileProcessingFailureRecordLine
+          );
+          const pstRecord = O.getOrThrow(A.findFirst(sourceRecords, (record) => record.relativePath === "mailbox.pst"));
+          const pstFailure = O.getOrThrow(
+            A.findFirst(failureRecords, (record) => record.relativePath === "mailbox.pst")
+          );
+
+          expect(pstRecord.status).toBe("skipped");
+          if (pstRecord.status !== "skipped") {
+            throw new Error("Expected mailbox.pst to be skipped for Tika archive export.");
+          }
+          expect(pstRecord.skipReason).toBe("engine-unavailable");
+          expect(pstFailure.status).toBe("skipped");
+          expect(pstFailure.reason).toBe("engine-unavailable");
+          expect(yield* fs.exists(path.join(outDir, "children", `${pstRecord.artifactId}`, "artifacts.jsonl"))).toBe(
+            false
+          );
         })
       )
     ));

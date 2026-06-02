@@ -6,11 +6,13 @@
  */
 
 import { $FileProcessingId } from "@beep/identity";
-import { LiteralKit, Sha256Hex } from "@beep/schema";
+import { LiteralKit, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { FileExtension } from "@beep/schema/FileExtension";
 import { FileName } from "@beep/schema/FileName";
 import { MimeType } from "@beep/schema/MimeType";
 import { PosixPath } from "@beep/schema/PosixPath";
+import { A } from "@beep/utils";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $FileProcessingId.create("Artifact");
@@ -135,6 +137,34 @@ export const ContentDigest = S.TemplateLiteral(["sha256:", Sha256Hex]).pipe(
  * @since 0.0.0
  */
 export type ContentDigest = typeof ContentDigest.Type;
+
+const deriveArtifactIdDigest = S.decodeUnknownEffect(Sha256HexFromBytes);
+const decodeDerivedArtifactId = S.decodeUnknownEffect(ArtifactId);
+const artifactIdTextEncoder = new TextEncoder();
+
+/**
+ * Derive a stable artifact identifier from deterministic artifact parts.
+ *
+ * @example
+ * ```ts
+ * import { deriveArtifactId } from "@beep/file-processing/Artifact"
+ * import { Effect } from "effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const id = yield* deriveArtifactId(["artifact:parent", "children/message.txt"])
+ *   return id.startsWith("artifact:")
+ * })
+ *
+ * Effect.runPromise(program).then((valid) => console.log(valid)) // true
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const deriveArtifactId = Effect.fn("Artifact.deriveArtifactId")(function* (parts: ReadonlyArray<string>) {
+  const digest = yield* deriveArtifactIdDigest(artifactIdTextEncoder.encode(A.join("\x1f")(parts)));
+  return yield* decodeDerivedArtifactId(`artifact:${digest}`);
+});
 
 /**
  * Origin kind for a source artifact locator.

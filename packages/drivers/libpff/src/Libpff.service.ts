@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { ArtifactReference } from "@beep/file-processing/Artifact";
+import { ArtifactReference, deriveArtifactId } from "@beep/file-processing/Artifact";
 import { ArchiveExportResult } from "@beep/file-processing/Extraction";
 import { DetectionResult, FileProcessingOperationError } from "@beep/file-processing/Operation";
 import { FileProcessingEngineDescriptor } from "@beep/file-processing/Strategy";
@@ -103,6 +103,22 @@ const decodeLibpffArtifactPath = (
     )
   );
 
+const deriveLibpffChildArtifactId = (
+  operation: ExportArchiveOperation,
+  relativePath: PosixPath
+): Effect.Effect<ArtifactReference["id"], FileProcessingOperationError> =>
+  deriveArtifactId([operation.source.id, relativePath]).pipe(
+    Effect.mapError(() =>
+      FileProcessingOperationError.fromReason("archive-export-failed", {
+        artifactId: operation.source.id,
+        engine: LibpffFileProcessingEngineDescriptor.name,
+        format: operation.format,
+        message: "libpff child artifact id could not be derived.",
+        operationId: operation.operationId,
+      })
+    )
+  );
+
 /**
  * Options for the P1 libpff engine scaffold.
  *
@@ -171,8 +187,9 @@ export const makeLibpffFileProcessingEngine = (
     }
 
     const childRelativePath = yield* decodeLibpffArtifactPath("children/synthetic-libpff-message.txt", operation);
+    const childArtifactId = yield* deriveLibpffChildArtifactId(operation, childRelativePath);
     const child = ArtifactReference.make({
-      id: operation.source.id,
+      id: childArtifactId,
       mediaType: "text/plain",
       relativePath: childRelativePath,
       sizeBytes: 34,

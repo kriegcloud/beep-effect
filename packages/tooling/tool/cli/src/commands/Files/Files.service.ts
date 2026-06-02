@@ -45,7 +45,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { makeLibpffFileProcessingEngine } from "@beep/libpff";
 import { profilePhase } from "@beep/observability";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
-import { Sha256HexFromBytes } from "@beep/schema";
+import { NonNegativeInt, Sha256HexFromBytes } from "@beep/schema";
 import { NativePathToPosixPath, normalizePath } from "@beep/schema/PosixPath";
 import { makeTikaFileProcessingEngine } from "@beep/tika";
 import { A, P, Str } from "@beep/utils";
@@ -3886,6 +3886,10 @@ const processEngineFor = (
 const syntheticLibpffEngine = (): FileProcessingEngineShape =>
   makeLibpffFileProcessingEngine({ syntheticExport: true });
 
+const processEngineSupportsChildExport = (engine: FileProcessingEngineShape, format: FileFormatFamily): boolean =>
+  A.contains(engine.descriptor.capabilities, "export-children") &&
+  A.contains(engine.descriptor.supportedFormats, format);
+
 const processHashBytes = Effect.fn("Files.processHashBytes")(function* (
   bytes: Uint8Array,
   label: string
@@ -4374,6 +4378,25 @@ const makeZeroProcessCoverageByFormat = (): Record<FileFormatFamily, Record<Sour
   return byFormat;
 };
 
+const processCount = (count: number): NonNegativeInt => NonNegativeInt.make(count);
+
+const makeProcessCoverageByFormat = (
+  byFormat: Record<FileFormatFamily, Record<SourceProcessingStatus, number>>
+): FileProcessingCoverageSummary["byFormat"] => {
+  let brandedByFormat = R.empty<FileFormatFamily, Record<SourceProcessingStatus, NonNegativeInt>>();
+
+  for (const format of processCoverageFormats) {
+    const counts = byFormat[format];
+    brandedByFormat = R.set(brandedByFormat, format, {
+      failed: processCount(counts.failed),
+      skipped: processCount(counts.skipped),
+      succeeded: processCount(counts.succeeded),
+    });
+  }
+
+  return brandedByFormat as FileProcessingCoverageSummary["byFormat"];
+};
+
 const sourceRecordHasTextPath = (record: SourceProcessingRecord): boolean =>
   record.status === "succeeded" && record.textPath !== undefined;
 
@@ -4407,6 +4430,15 @@ const processPreparedSource = Effect.fn("Files.processPreparedSource")(function*
   if (prepared.format === "pst") {
     if (!options.exportChildren) {
       return processSkippedOutcome(engine, prepared, "PST child export was not requested.", "operation-not-required");
+    }
+
+    if (!processEngineSupportsChildExport(engine, prepared.format)) {
+      return processSkippedOutcome(
+        engine,
+        prepared,
+        `${engine.descriptor.name} does not support PST child export in the P1 proof.`,
+        "engine-unavailable"
+      );
     }
 
     return yield* engine
@@ -4491,12 +4523,12 @@ const makeProcessCoverage = (records: ReadonlyArray<SourceProcessingRecord>): Fi
   }
 
   return FileProcessingCoverageSummary.make({
-    byFormat,
-    failedCount: A.length(A.filter(records, (record) => record.status === "failed")),
-    skippedCount: A.length(A.filter(records, (record) => record.status === "skipped")),
-    sourceCount: A.length(records),
-    succeededCount: A.length(A.filter(records, (record) => record.status === "succeeded")),
-    textArtifactCount: A.length(A.filter(records, sourceRecordHasTextPath)),
+    byFormat: makeProcessCoverageByFormat(byFormat),
+    failedCount: processCount(A.length(A.filter(records, (record) => record.status === "failed"))),
+    skippedCount: processCount(A.length(A.filter(records, (record) => record.status === "skipped"))),
+    sourceCount: processCount(A.length(records)),
+    succeededCount: processCount(A.length(A.filter(records, (record) => record.status === "succeeded"))),
+    textArtifactCount: processCount(A.length(A.filter(records, sourceRecordHasTextPath))),
   });
 };
 
@@ -4532,7 +4564,8 @@ const writeProcessStringFile = Effect.fn("Files.writeProcessStringFile")(functio
 const writeProcessManifestTree = Effect.fn("Files.writeProcessManifestTree")(function* (
   outputDirectory: string,
   options: ProcessFilesOptions,
-  outcomes: ReadonlyArray<ProcessSourceOutcome>
+  outcomes: ReadonlyArray<ProcessSourceOutcome>,
+  coverage: FileProcessingCoverageSummary
 ): Effect.fn.Return<
   void,
   FilesCommandError,
@@ -4541,7 +4574,6 @@ const writeProcessManifestTree = Effect.fn("Files.writeProcessManifestTree")(fun
   const path = yield* Path.Path;
   const sourceRecords = A.map(outcomes, (outcome) => outcome.sourceRecord);
   const failureRecords = A.flatMap(outcomes, (outcome) => O.toArray(outcome.failure));
-  const coverage = makeProcessCoverage(sourceRecords);
   const runId = yield* makeOperationIdFromText(
     `${options.engine}:${A.join("|")(A.map(sourceRecords, (record) => `${record.relativePath}:${record.operationId}`))}`,
     "process run"
@@ -4615,7 +4647,7 @@ const processFilesImpl = Effect.fn("FilesCommandService.processFiles")(function*
     textArtifactCount: coverage.textArtifactCount,
   });
 
-  yield* writeProcessManifestTree(outputDirectory, options, outcomes);
+  yield* writeProcessManifestTree(outputDirectory, options, outcomes, coverage);
   yield* Console.log(
     `files process: ${summary.succeededCount} succeeded, ${summary.skippedCount} skipped, ${summary.failedCount} failed; wrote "${outputDirectory}".`
   );

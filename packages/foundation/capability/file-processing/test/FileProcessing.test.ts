@@ -2,6 +2,7 @@ import {
   ArtifactId,
   ArtifactLocator,
   ContentDigest,
+  deriveArtifactId,
   OperationId,
   SourceArtifact,
 } from "@beep/file-processing/Artifact";
@@ -61,6 +62,16 @@ const provideScopedLayer =
 const serviceLayer = makeFileProcessingServiceLayer([TestFileProcessingEngine]);
 
 describe("@beep/file-processing", () => {
+  it.effect("derives child artifact ids distinct from their source artifact", () =>
+    Effect.gen(function* () {
+      const ids = yield* fixtureIds;
+      const childId = yield* deriveArtifactId([ids.artifactId, "children/synthetic-message.txt"]);
+
+      expect(childId).not.toBe(ids.artifactId);
+      expect(childId.startsWith("artifact:")).toBe(true);
+    })
+  );
+
   it.effect("extracts synthetic text through the service contract", () =>
     Effect.gen(function* () {
       const ids = yield* fixtureIds;
@@ -115,6 +126,7 @@ describe("@beep/file-processing", () => {
       expect(result.resultKind).toBe("archive-exported");
       if (result.resultKind === "archive-exported") {
         expect(result.archiveExport.children).toHaveLength(1);
+        expect(result.archiveExport.children[0]?.id).not.toBe(ids.artifactId);
       }
     })
   );

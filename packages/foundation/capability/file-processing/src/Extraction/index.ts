@@ -9,7 +9,7 @@ import { ArtifactId, ArtifactReference, ContentDigest, OperationId } from "@beep
 import { FileProcessingOperationErrorReason } from "@beep/file-processing/Operation";
 import { FileFormatFamily, FileProcessingSkipReason, SelectedStrategy } from "@beep/file-processing/Strategy";
 import { $FileProcessingId } from "@beep/identity";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { PosixPath } from "@beep/schema/PosixPath";
 import * as S from "effect/Schema";
 
@@ -749,12 +749,12 @@ export class FileProcessingCoverageSummary extends S.Class<FileProcessingCoverag
   $I`FileProcessingCoverageSummary`
 )(
   {
-    byFormat: S.Record(FileFormatFamily, S.Record(SourceProcessingStatus, S.Number)),
-    failedCount: S.Number,
-    skippedCount: S.Number,
-    sourceCount: S.Number,
-    succeededCount: S.Number,
-    textArtifactCount: S.Number,
+    byFormat: S.Record(FileFormatFamily, S.Record(SourceProcessingStatus, NonNegativeInt)),
+    failedCount: NonNegativeInt,
+    skippedCount: NonNegativeInt,
+    sourceCount: NonNegativeInt,
+    succeededCount: NonNegativeInt,
+    textArtifactCount: NonNegativeInt,
   },
   $I.annote("FileProcessingCoverageSummary", {
     description: "Aggregate processing coverage counts for the proof manifest.",

@@ -80,6 +80,7 @@ describe("@beep/libpff", () => {
 
       return yield* Effect.sync(() => {
         expect(result.children).toHaveLength(1);
+        expect(result.children[0]?.id).not.toBe(ids.artifactId);
         expect(result.engine).toBe("libpff");
       });
     })

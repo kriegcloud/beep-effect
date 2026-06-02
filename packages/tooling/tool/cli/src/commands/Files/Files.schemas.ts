@@ -8,7 +8,7 @@
 import { FaceDetection, FaceDetectionConfidence, FaceDetectionPercentage } from "@beep/face-detection";
 import { FileProcessingEngineFamily } from "@beep/file-processing/Strategy";
 import { $RepoCliId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { Str } from "@beep/utils";
 import { Effect } from "effect";
 import * as O from "effect/Option";
@@ -2294,11 +2294,11 @@ export class ProcessFilesOptions extends S.Class<ProcessFilesOptions>($I`Process
  */
 export class ProcessFilesSummary extends S.Class<ProcessFilesSummary>($I`ProcessFilesSummary`)(
   {
-    failedCount: S.Number,
-    skippedCount: S.Number,
-    sourceCount: S.Number,
-    succeededCount: S.Number,
-    textArtifactCount: S.Number,
+    failedCount: NonNegativeInt,
+    skippedCount: NonNegativeInt,
+    sourceCount: NonNegativeInt,
+    succeededCount: NonNegativeInt,
+    textArtifactCount: NonNegativeInt,
   },
   $I.annote("ProcessFilesSummary", {
     description: "Summary counts returned by files process.",
