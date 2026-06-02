@@ -107,6 +107,7 @@ export const resolveCreatePackageTemplateDir = Effect.fn(function* (
  * @since 0.0.0
  */
 const VALID_TYPES = ["library", "tool", "app"] as const;
+const VALID_APP_KINDS = ["nextjs", "tauri", "runtime-proof"] as const;
 const VALID_FAMILIES = ["drivers", "foundation", "tooling"] as const;
 const VALID_FOUNDATION_KINDS = ["primitive", "modeling", "capability", "ui-system"] as const;
 const VALID_TOOLING_KINDS = ["library", "tool", "policy-pack", "test-kit"] as const;
@@ -121,6 +122,21 @@ const PackageType = LiteralKit(VALID_TYPES).pipe(
 type PackageType = typeof PackageType.Type;
 const isPackageType = S.is(PackageType);
 const packageTypeEquivalence = SchemaUtils.toEquivalence(PackageType);
+
+const AppKind = LiteralKit(VALID_APP_KINDS).pipe(
+  $I.annoteSchema("AppKind", {
+    description: "Supported app scaffold kinds.",
+  })
+);
+type AppKind = typeof AppKind.Type;
+const isAppKind = S.is(AppKind);
+const decodeAppKindEffect = (input: unknown) =>
+  S.decodeUnknownEffect(AppKind)(input).pipe(
+    Effect.mapError(
+      DomainError.newCause(`Invalid app kind "${input}". Must be one of: ${A.join(VALID_APP_KINDS, ", ")}`)
+    )
+  );
+const appKindEquivalence = SchemaUtils.toEquivalence(AppKind);
 
 const PackageFamily = LiteralKit(VALID_FAMILIES).pipe(
   $I.annoteSchema("PackageFamily", {
@@ -203,7 +219,7 @@ const isPackageName = S.is(PackageName);
  * @category configuration
  * @since 0.0.0
  */
-const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
+const PACKAGE_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
   TemplateSpec.make({
     templateName: "tsconfig.json.hbs",
     outputPath: "tsconfig.json",
@@ -233,13 +249,122 @@ const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
   }),
 ];
 
+const NEXTJS_APP_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
+  TemplateSpec.make({
+    templateName: "app-next-tsconfig.json.hbs",
+    outputPath: "tsconfig.json",
+  }),
+  TemplateSpec.make({
+    templateName: "app-next-next-env.d.ts.hbs",
+    outputPath: "next-env.d.ts",
+  }),
+  TemplateSpec.make({
+    templateName: "app-next-next.config.ts.hbs",
+    outputPath: "next.config.ts",
+  }),
+  TemplateSpec.make({
+    templateName: "app-next-src-app-globals.css.hbs",
+    outputPath: "src/app/globals.css",
+  }),
+  TemplateSpec.make({
+    templateName: "app-next-src-app-layout.tsx.hbs",
+    outputPath: "src/app/layout.tsx",
+  }),
+  TemplateSpec.make({
+    templateName: "app-next-src-app-page.tsx.hbs",
+    outputPath: "src/app/page.tsx",
+  }),
+  TemplateSpec.make({ templateName: "LICENSE.hbs", outputPath: "LICENSE" }),
+  TemplateSpec.make({ templateName: "app-real-README.md.hbs", outputPath: "README.md" }),
+  TemplateSpec.make({ templateName: "app-real-AGENTS.md.hbs", outputPath: "AGENTS.md" }),
+  TemplateSpec.make({
+    templateName: "app-next-vitest.config.ts.hbs",
+    outputPath: "vitest.config.ts",
+  }),
+  TemplateSpec.make({
+    templateName: "app-next-test-app.test.tsx.hbs",
+    outputPath: "test/app.test.tsx",
+  }),
+];
+
+const TAURI_APP_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
+  TemplateSpec.make({
+    templateName: "app-tauri-tsconfig.json.hbs",
+    outputPath: "tsconfig.json",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-index.html.hbs",
+    outputPath: "index.html",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-src-App.tsx.hbs",
+    outputPath: "src/App.tsx",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-src-main.tsx.hbs",
+    outputPath: "src/main.tsx",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-vite.config.ts.hbs",
+    outputPath: "vite.config.ts",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-vitest.config.ts.hbs",
+    outputPath: "vitest.config.ts",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-test-App.test.tsx.hbs",
+    outputPath: "test/App.test.tsx",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-src-tauri-Cargo.toml.hbs",
+    outputPath: "src-tauri/Cargo.toml",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-src-tauri-build.rs.hbs",
+    outputPath: "src-tauri/build.rs",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-src-tauri-tauri.conf.json.hbs",
+    outputPath: "src-tauri/tauri.conf.json",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-src-tauri-capabilities-default.json.hbs",
+    outputPath: "src-tauri/capabilities/default.json",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-src-tauri-src-main.rs.hbs",
+    outputPath: "src-tauri/src/main.rs",
+  }),
+  TemplateSpec.make({
+    templateName: "app-tauri-src-tauri-src-lib.rs.hbs",
+    outputPath: "src-tauri/src/lib.rs",
+  }),
+  TemplateSpec.make({ templateName: "LICENSE.hbs", outputPath: "LICENSE" }),
+  TemplateSpec.make({ templateName: "app-real-README.md.hbs", outputPath: "README.md" }),
+  TemplateSpec.make({ templateName: "app-real-AGENTS.md.hbs", outputPath: "AGENTS.md" }),
+];
+
+const templateSpecsFor = (appKind: O.Option<AppKind>): ReadonlyArray<TemplateSpec> =>
+  pipe(
+    appKind,
+    O.match({
+      onNone: () => PACKAGE_TEMPLATE_SPECS,
+      onSome: (kind) => {
+        if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_TEMPLATE_SPECS;
+        if (appKindEquivalence(kind, "tauri")) return TAURI_APP_TEMPLATE_SPECS;
+        return PACKAGE_TEMPLATE_SPECS;
+      },
+    })
+  );
+
 /**
  * Ordered list of all generated files for dry-run and summary output.
  *
  * @category configuration
  * @since 0.0.0
  */
-const ALL_FILES = [
+const PACKAGE_FILES = [
   "package.json",
   "tsconfig.json",
   "tsconfig.test.json",
@@ -255,6 +380,56 @@ const ALL_FILES = [
   "docs/index.md",
 ] as const;
 
+const NEXTJS_APP_FILES = [
+  "package.json",
+  "tsconfig.json",
+  "next-env.d.ts",
+  "next.config.ts",
+  "src/app/globals.css",
+  "src/app/layout.tsx",
+  "src/app/page.tsx",
+  "test/app.test.tsx",
+  "LICENSE",
+  "README.md",
+  "AGENTS.md",
+  "CLAUDE.md -> AGENTS.md (symlink)",
+  "vitest.config.ts",
+] as const;
+
+const TAURI_APP_FILES = [
+  "package.json",
+  "tsconfig.json",
+  "index.html",
+  "src/App.tsx",
+  "src/main.tsx",
+  "test/App.test.tsx",
+  "vite.config.ts",
+  "vitest.config.ts",
+  "src-tauri/Cargo.toml",
+  "src-tauri/build.rs",
+  "src-tauri/tauri.conf.json",
+  "src-tauri/capabilities/default.json",
+  "src-tauri/src/main.rs",
+  "src-tauri/src/lib.rs",
+  "LICENSE",
+  "README.md",
+  "AGENTS.md",
+  "CLAUDE.md -> AGENTS.md (symlink)",
+] as const;
+
+const filesFor = (appKind: O.Option<AppKind>): ReadonlyArray<string> =>
+  pipe(
+    appKind,
+    O.match({
+      onNone: () => PACKAGE_FILES,
+      onSome: (kind) => {
+        if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_FILES;
+        if (appKindEquivalence(kind, "tauri")) return TAURI_APP_FILES;
+        return PACKAGE_FILES;
+      },
+    })
+  );
+
 /**
  * Root-relative directories created for each package.
  *
@@ -262,6 +437,37 @@ const ALL_FILES = [
  * @since 0.0.0
  */
 const PACKAGE_DIRECTORIES = ["src", "test", "dtslint", "docs"] as const;
+const NEXTJS_APP_DIRECTORIES = ["src", "src/app", "test"] as const;
+const TAURI_APP_DIRECTORIES = ["src", "test", "src-tauri", "src-tauri/capabilities", "src-tauri/src"] as const;
+
+const directoriesFor = (appKind: O.Option<AppKind>): ReadonlyArray<string> =>
+  pipe(
+    appKind,
+    O.match({
+      onNone: () => PACKAGE_DIRECTORIES,
+      onSome: (kind) => {
+        if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_DIRECTORIES;
+        if (appKindEquivalence(kind, "tauri")) return TAURI_APP_DIRECTORIES;
+        return PACKAGE_DIRECTORIES;
+      },
+    })
+  );
+
+const gitkeepFilesFor = (appKind: O.Option<AppKind>): ReadonlyArray<PlannedFile> =>
+  O.isSome(appKind) && !appKindEquivalence(appKind.value, "runtime-proof")
+    ? A.empty<PlannedFile>()
+    : [
+        PlannedFile.make({ relativePath: "test/.gitkeep", content: "" }),
+        PlannedFile.make({ relativePath: "dtslint/.gitkeep", content: "" }),
+      ];
+
+const appKindIs = (appKind: O.Option<AppKind>, kind: AppKind): boolean =>
+  O.isSome(appKind) && appKindEquivalence(appKind.value, kind);
+
+const isRealAppKind = (appKind: O.Option<AppKind>): boolean =>
+  O.isSome(appKind) && !appKindEquivalence(appKind.value, "runtime-proof");
+
+const shouldRegisterIdentityFor = (appKind: O.Option<AppKind>): boolean => !isRealAppKind(appKind);
 
 const templateService = createTemplateService();
 const fileGenerationPlanService = createFileGenerationPlanService();
@@ -297,9 +503,14 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
     rootRelative: S.String,
     family: S.optionalKey(PackageFamily),
     kind: S.optionalKey(PackageKind),
+    appKind: S.optionalKey(AppKind),
     isTool: S.Boolean,
     isApp: S.Boolean,
     isLibrary: S.Boolean,
+    isNextjsApp: S.Boolean,
+    isTauriApp: S.Boolean,
+    isRuntimeProofApp: S.Boolean,
+    isRealApp: S.Boolean,
   },
   $I.annote("TemplateContext", {
     description: "Variables passed into every template during package scaffolding.",
@@ -581,6 +792,10 @@ export const createPackageCommand = Command.make(
       Flag.withDescription("Package type: library, tool, or app"),
       Flag.withDefault("library")
     ),
+    appKind: Flag.string("app-kind").pipe(
+      Flag.withDescription("App scaffold kind for --type app. Supports: nextjs, tauri, or runtime-proof"),
+      Flag.withDefault("")
+    ),
     parentDir: Flag.string("parent-dir").pipe(
       Flag.withDescription("Optional output parent directory relative to repo root (e.g. tooling or packages/shared)"),
       Flag.withDefault("")
@@ -608,6 +823,7 @@ export const createPackageCommand = Command.make(
     const {
       name,
       type,
+      appKind: appKindOption,
       parentDir: parentDirOverride,
       family: familyOption,
       kind: kindOption,
@@ -624,6 +840,29 @@ export const createPackageCommand = Command.make(
     }
     const packageType = type;
 
+    if (!packageTypeEquivalence(packageType, "app") && Str.isNonEmpty(appKindOption)) {
+      return yield* DomainError.make({
+        message: `--app-kind is only valid with --type app.`,
+      });
+    }
+
+    if (packageTypeEquivalence(packageType, "app") && Str.isEmpty(appKindOption)) {
+      return yield* DomainError.make({
+        message: `--type app requires --app-kind nextjs, tauri, or runtime-proof. Use --app-kind runtime-proof for package-like proof harnesses.`,
+      });
+    }
+
+    if (Str.isNonEmpty(appKindOption) && P.not(isAppKind)(appKindOption)) {
+      return yield* DomainError.make({
+        message: `Invalid app kind "${appKindOption}". Must be one of: ${A.join(VALID_APP_KINDS, ", ")}`,
+      });
+    }
+
+    const appKind: O.Option<AppKind> = Str.isNonEmpty(appKindOption)
+      ? O.some(yield* decodeAppKindEffect(appKindOption))
+      : O.none();
+    const shouldRegisterIdentity = shouldRegisterIdentityFor(appKind);
+
     // ── Validate family/kind ──────────────────────────────────────────
     if (Str.isNonEmpty(familyOption) && P.not(isPackageFamily)(familyOption)) {
       return yield* DomainError.make({
@@ -633,6 +872,12 @@ export const createPackageCommand = Command.make(
     const requestedPackageFamily = Str.isNonEmpty(familyOption)
       ? O.some(yield* decodePackageFamilyEffect(familyOption))
       : O.none();
+
+    if (packageTypeEquivalence(packageType, "app") && O.isSome(requestedPackageFamily)) {
+      return yield* DomainError.make({
+        message: `--family is only valid for package scaffolds; --type app uses --app-kind and defaults to apps/.`,
+      });
+    }
 
     if (O.isNone(requestedPackageFamily) && Str.isNonEmpty(kindOption)) {
       return yield* DomainError.make({
@@ -757,7 +1002,7 @@ export const createPackageCommand = Command.make(
 
     // ── Discover repo root ─────────────────────────────────────────────
     const repoRoot = yield* findRepoRoot();
-    const identityPackagesFilePath = yield* resolveIdentityPackagesFilePath(repoRoot);
+    const identityPackagesFilePath = shouldRegisterIdentity ? yield* resolveIdentityPackagesFilePath(repoRoot) : "";
 
     // ── Determine output directory ─────────────────────────────────────
     const outputDir = path.join(repoRoot, packagePath);
@@ -775,13 +1020,14 @@ export const createPackageCommand = Command.make(
     // ── Dry-run: preview output and bootstrap repo mutations ───────────
     if (dryRun) {
       const workspaceEntryNeeded = yield* rootWorkspaceEntryNeeded(repoRoot, packagePath);
-      const identityRegistrationMissing = yield* identityPackageRegistrationNeeded(
-        repoRoot,
-        identityPackagesFilePath,
-        name
-      );
+      const identityRegistrationMissing = shouldRegisterIdentity
+        ? yield* identityPackageRegistrationNeeded(repoRoot, identityPackagesFilePath, name)
+        : false;
 
       yield* Console.log(`[dry-run] Would create package @beep/${name} (type: ${type})`);
+      if (O.isSome(appKind)) {
+        yield* Console.log(`[dry-run] App kind: ${appKind.value}`);
+      }
       if (O.isSome(packageFamily)) {
         yield* Console.log(`[dry-run] Family: ${packageFamily.value}`);
       }
@@ -795,10 +1041,16 @@ export const createPackageCommand = Command.make(
       yield* printLines([
         `[dry-run] Directory: ${outputDir}`,
         `[dry-run] Files:`,
-        ...A.map(ALL_FILES, (file) => `  - ${file}`),
+        ...A.map(filesFor(appKind), (file) => `  - ${file}`),
         `[dry-run] Root bootstrap updates:`,
         `  - package.json workspaces: ${workspaceEntryNeeded ? `Add "${packagePath}"` : "SKIP (already covered by an existing workspace entry)"}`,
-        `  - ${identityPackagesFilePath}: ${identityRegistrationMissing ? `Register "${name}" and export ${toIdentityAccessorName(name)}` : "SKIP (already registered)"}`,
+        `  - ${shouldRegisterIdentity ? identityPackagesFilePath : "@beep/identity package registration"}: ${
+          shouldRegisterIdentity
+            ? identityRegistrationMissing
+              ? `Register "${name}" and export ${toIdentityAccessorName(name)}`
+              : "SKIP (already registered)"
+            : "SKIP (real app scaffold does not register package identity composers)"
+        }`,
         `[dry-run] Derived repo configs: shared sync runs after scaffolding to update tsconfig references, aliases, tstyche, syncpack, and docgen`,
       ]);
 
@@ -816,10 +1068,14 @@ export const createPackageCommand = Command.make(
       parentDir,
       packagePath,
       rootRelative: toRootRelative(packagePath),
-      ...R.getSomes({ family: packageFamily, kind: packageKind }),
+      ...R.getSomes({ family: packageFamily, kind: packageKind, appKind }),
       isTool: packageTypeEquivalence(packageType, "tool"),
       isApp: packageTypeEquivalence(packageType, "app"),
       isLibrary: packageTypeEquivalence(packageType, "library"),
+      isNextjsApp: appKindIs(appKind, "nextjs"),
+      isTauriApp: appKindIs(appKind, "tauri"),
+      isRuntimeProofApp: appKindIs(appKind, "runtime-proof"),
+      isRealApp: isRealAppKind(appKind),
     });
 
     // ── Render templates and generate plan ─────────────────────────────
@@ -827,7 +1083,7 @@ export const createPackageCommand = Command.make(
     const templateFiles = yield* templateService.renderTemplates(
       TemplateRenderRequest.make({
         templateDir,
-        templates: TEMPLATE_SPECS,
+        templates: templateSpecsFor(appKind),
         context: { ...ctx },
       })
     );
@@ -838,12 +1094,19 @@ export const createPackageCommand = Command.make(
           ...(O.isSome(packageKind) ? { kind: packageKind.value } : {}),
         })
       : O.none<BeepPackageMetadata>();
-    const packageJson = yield* generatePackageJson(name, packageType, description, packagePath, packageMetadata);
+    const packageJson = yield* generatePackageJson(
+      name,
+      packageType,
+      description,
+      packagePath,
+      packageMetadata,
+      appKind
+    );
 
     const plan = fileGenerationPlanService.createPlan(
       FileGenerationPlanInput.make({
         outputDir,
-        directories: PACKAGE_DIRECTORIES,
+        directories: directoriesFor(appKind),
         files: pipe(
           A.make(
             A.of(
@@ -858,10 +1121,7 @@ export const createPackageCommand = Command.make(
                 content: file.content,
               })
             ),
-            [
-              PlannedFile.make({ relativePath: "test/.gitkeep", content: "" }),
-              PlannedFile.make({ relativePath: "dtslint/.gitkeep", content: "" }),
-            ]
+            gitkeepFilesFor(appKind)
           ),
           A.flatten
         ),
@@ -878,7 +1138,9 @@ export const createPackageCommand = Command.make(
     yield* fileGenerationPlanService.executePlan(plan);
 
     const workspaceUpdated = yield* ensureRootWorkspaceEntry(repoRoot, packagePath);
-    const identityUpdated = yield* ensureIdentityPackageRegistration(identityPackagesFilePath, name);
+    const identityUpdated = shouldRegisterIdentity
+      ? yield* ensureIdentityPackageRegistration(identityPackagesFilePath, name)
+      : false;
     const syncResult = yield* syncTsconfigAtRoot(repoRoot, {
       mode: "sync",
       filter: undefined,
@@ -889,7 +1151,7 @@ export const createPackageCommand = Command.make(
     yield* printLines([
       `Created package @beep/${name} at ${outputDir}`,
       `Files created:`,
-      ...A.map(ALL_FILES, (file) => `  - ${file}`),
+      ...A.map(filesFor(appKind), (file) => `  - ${file}`),
     ]);
     if (workspaceUpdated || identityUpdated || syncResult.changedFiles > 0) {
       yield* Console.log(`\nRepo registration and config sync:`);
@@ -906,13 +1168,23 @@ export const createPackageCommand = Command.make(
         )
       );
     }
-    yield* printLines([
-      `\nNext steps:`,
-      `  1. Run "bun install" to link the new package`,
-      `  2. Start building in src/index.ts`,
-    ]);
+    const nextSteps = appKindIs(appKind, "nextjs")
+      ? [
+          'Run "bun install" to link the new app',
+          'Run "bun run dev" from the app workspace',
+          "Start building in src/app/page.tsx",
+        ]
+      : appKindIs(appKind, "tauri")
+        ? [
+            'Run "bun install" to link the new app',
+            'Run "bun run dev" for the web shell or "bun run dev:tauri" for Tauri',
+            "Start building in src/App.tsx",
+          ]
+        : ['Run "bun install" to link the new package', "Start building in src/index.ts"];
+
+    yield* printLines([`\nNext steps:`, ...A.map(nextSteps, (step, index) => `  ${index + 1}. ${step}`)]);
   })
-).pipe(Command.withDescription("Create a new package following Effect v4 conventions"));
+).pipe(Command.withDescription("Create a new package or app workspace following Effect v4 conventions"));
 
 // ── Template generators ────────────────────────────────────────────────────
 
@@ -927,6 +1199,7 @@ export const createPackageCommand = Command.make(
  * @param type - One of `"library"`, `"tool"`, or `"app"`. Tools receive an extra `@effect/platform-node` dependency.
  * @param description - Human-readable package description for the `"description"` field.
  * @param packagePath - Package path relative to repo root (e.g. `"packages/tooling/library/my-utils"`).
+ * @param appKind - Optional app scaffold kind. Real app kinds generate framework manifests without package exports.
  * @returns A JSON string (with trailing newline) ready to be written to disk.
  * @category utilities
  * @since 0.0.0
@@ -936,20 +1209,13 @@ const generatePackageJson: (
   type: PackageType,
   description: string,
   packagePath: string,
-  packageMetadata: O.Option<BeepPackageMetadata>
+  packageMetadata: O.Option<BeepPackageMetadata>,
+  appKind: O.Option<AppKind>
 ) => Effect.Effect<string, DomainError | S.SchemaError> = Effect.fn(
-  function* (name, type, description, packagePath, packageMetadata) {
+  function* (name, type, description, packagePath, packageMetadata, appKind) {
     const rootRelative = toRootRelative(packagePath);
     const babelScript = "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps";
-    const dependencies: Record<string, string> = {
-      effect: "catalog:",
-    };
-
-    if (packageTypeEquivalence(type, "tool")) {
-      dependencies["@effect/platform-node"] = "catalog:";
-    }
-
-    const pkg = {
+    const baseManifest = {
       name: `@beep/${name}`,
       version: "0.0.0",
       type: "module",
@@ -962,6 +1228,105 @@ const generatePackageJson: (
         url: "git@github.com:kriegcloud/beep-effect.git",
         directory: packagePath,
       },
+    };
+
+    if (appKindIs(appKind, "nextjs")) {
+      const pkg = {
+        ...baseManifest,
+        scripts: {
+          audit: "bun run --if-present beep:audit",
+          codegen: "echo 'no codegen needed'",
+          dev: "next dev --turbopack",
+          "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+          "beep:build": "next build --turbopack",
+          start: "next start",
+          "beep:check": "tsgo -b tsconfig.json",
+          "beep:lint": "biome check .",
+          "beep:lint:fix": "biome check . --write",
+          "beep:test": "bunx --bun vitest run",
+          build: "bun run beep:build",
+          check: "bun run beep:check",
+          coverage: "bunx --bun vitest run --coverage",
+          lint: "bun run beep:lint",
+          "lint:fix": "bun run beep:lint:fix",
+          test: "bun run beep:test",
+        },
+        dependencies: {
+          next: "catalog:",
+          react: "catalog:",
+          "react-dom": "catalog:",
+        },
+        devDependencies: {
+          "@effect/vitest": "catalog:",
+          "@testing-library/dom": "catalog:",
+          "@testing-library/react": "catalog:",
+          "@types/node": "catalog:",
+          "@types/react": "catalog:",
+          "@types/react-dom": "catalog:",
+          jsdom: "catalog:",
+          typescript: "catalog:",
+        },
+      };
+
+      const json = yield* encodePackageJsonCanonicalPrettyEffect(pkg);
+      return `${json}\n`;
+    }
+
+    if (appKindIs(appKind, "tauri")) {
+      const pkg = {
+        ...baseManifest,
+        scripts: {
+          audit: "bun run --if-present beep:audit",
+          codegen: "echo 'no codegen needed'",
+          dev: "vite --host 127.0.0.1",
+          "dev:tauri": "tauri dev",
+          "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+          "beep:build": "vite build",
+          "beep:check": "tsgo -b tsconfig.json",
+          "beep:lint": "biome check .",
+          "beep:lint:fix": "biome check . --write",
+          "beep:test": "bunx --bun vitest run",
+          build: "bun run beep:build",
+          check: "bun run beep:check",
+          coverage: "bunx --bun vitest run --coverage",
+          lint: "bun run beep:lint",
+          "lint:fix": "bun run beep:lint:fix",
+          test: "bun run beep:test",
+        },
+        dependencies: {
+          "@tauri-apps/api": "catalog:",
+          react: "catalog:",
+          "react-dom": "catalog:",
+        },
+        devDependencies: {
+          "@effect/vitest": "catalog:",
+          "@tauri-apps/cli": "catalog:",
+          "@testing-library/dom": "catalog:",
+          "@testing-library/react": "catalog:",
+          "@types/node": "catalog:",
+          "@types/react": "catalog:",
+          "@types/react-dom": "catalog:",
+          "@vitejs/plugin-react": "catalog:",
+          jsdom: "catalog:",
+          typescript: "catalog:",
+          vite: "catalog:",
+        },
+      };
+
+      const json = yield* encodePackageJsonCanonicalPrettyEffect(pkg);
+      return `${json}\n`;
+    }
+
+    const dependencies: Record<string, string> = {
+      effect: "catalog:",
+    };
+
+    if (packageTypeEquivalence(type, "tool")) {
+      dependencies["@effect/platform-node"] = "catalog:";
+    }
+
+    const pkg = {
+      ...baseManifest,
       ...(O.isSome(packageMetadata)
         ? {
             beep: packageMetadata.value,

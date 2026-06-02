@@ -1,6 +1,8 @@
+import { $RepoCliId } from "@beep/identity/packages";
 import { A, Str, thunkFalse } from "@beep/utils";
 import { DateTime, Effect, FileSystem, Path } from "effect";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { Node, Project, SyntaxKind } from "ts-morph";
 import {
   declarationKind,
@@ -10,6 +12,7 @@ import {
   formatJsonc,
   getDocNode,
   getJsDocText,
+  JsonRecord,
   listSourceFiles,
   normalizeSlashes,
   QualityArtifactGeneratorError,
@@ -23,7 +26,9 @@ import {
 } from "./QualityArtifactSupport.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { SourceFile } from "ts-morph";
-import type { JsonRecord, WorkspacePackageInfo } from "./QualityArtifactSupport.js";
+import type { WorkspacePackageInfo } from "./QualityArtifactSupport.js";
+
+const $I = $RepoCliId.create("commands/Quality/internal/JSDocDocumentationInventory");
 
 type DocumentationIssue = {
   readonly rule: string;
@@ -110,18 +115,41 @@ const requiredModuleTags = ["@since"];
 const forbiddenTags = ["@module", "@template"];
 const requiredTsdocCustomTags = ["@effects", "@precondition", "@postcondition", "@invariant"];
 
+const JSDocInventoryDirectoryPath = S.String.pipe(
+  $I.annoteSchema("JSDocInventoryDirectoryPath", {
+    description: "Directory path used while building JSDoc documentation inventory artifacts.",
+  })
+);
+const JSDocInventoryOutputPath = S.String.pipe(
+  $I.annoteSchema("JSDocInventoryOutputPath", {
+    description: "Output file path used by JSDoc documentation inventory artifacts.",
+  })
+);
+const JSDocInventoryGeneratedAt = S.String.pipe(
+  $I.annoteSchema("JSDocInventoryGeneratedAt", {
+    description: "ISO timestamp recorded on generated JSDoc documentation inventory artifacts.",
+  })
+);
+
 /**
  * Options for building or writing the JSDoc documentation inventory.
  *
  * @category configuration
  * @since 0.0.0
  */
-export type JSDocDocumentationInventoryOptions = {
-  readonly rootDir?: string;
-  readonly outputJsonPath?: string;
-  readonly outputMarkdownPath?: string;
-  readonly generatedAt?: string;
-};
+export class JSDocDocumentationInventoryOptions extends S.Class<JSDocDocumentationInventoryOptions>(
+  $I`JSDocDocumentationInventoryOptions`
+)(
+  {
+    rootDir: S.optionalKey(JSDocInventoryDirectoryPath),
+    outputJsonPath: S.optionalKey(JSDocInventoryOutputPath),
+    outputMarkdownPath: S.optionalKey(JSDocInventoryOutputPath),
+    generatedAt: S.optionalKey(JSDocInventoryGeneratedAt),
+  },
+  $I.annote("JSDocDocumentationInventoryOptions", {
+    description: "Options for building or writing the JSDoc documentation inventory artifacts.",
+  })
+) {}
 
 /**
  * Result returned after writing JSDoc inventory artifacts.
@@ -129,11 +157,18 @@ export type JSDocDocumentationInventoryOptions = {
  * @category models
  * @since 0.0.0
  */
-export type JSDocDocumentationInventoryWriteResult = {
-  readonly outputJsonPath: string;
-  readonly outputMarkdownPath: string;
-  readonly totals: Inventory["totals"];
-};
+export class JSDocDocumentationInventoryWriteResult extends S.Class<JSDocDocumentationInventoryWriteResult>(
+  $I`JSDocDocumentationInventoryWriteResult`
+)(
+  {
+    outputJsonPath: S.String,
+    outputMarkdownPath: S.String,
+    totals: JsonRecord,
+  },
+  $I.annote("JSDocDocumentationInventoryWriteResult", {
+    description: "Output metadata returned after writing JSDoc documentation inventory artifacts.",
+  })
+) {}
 
 const resolveJSDocInventoryOptions = Effect.fn("JSDocDocumentationInventory.resolveOptions")(function* (
   options: JSDocDocumentationInventoryOptions = {}

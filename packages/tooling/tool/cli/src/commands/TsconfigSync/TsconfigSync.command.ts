@@ -630,6 +630,7 @@ export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`Workspa
     relativeDir: S.String,
     ownerTsconfigPath: S.UndefinedOr(S.String),
     hasProjectTsconfig: S.Boolean,
+    hasDtslintDirectory: S.Boolean,
     hasDocgenConfig: S.Boolean,
     directWorkspaceDependencies: S.Array(S.String),
     rootAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
@@ -895,15 +896,30 @@ const buildCanonicalTstycheTestFileMatch = (
   workspaces: ReadonlyArray<WorkspaceDescriptor>,
   workspacePatterns: ReadonlyArray<string>
 ): ReadonlyArray<string> => {
-  const managedWorkspacePatterns = A.filter(workspacePatterns, isManagedTstycheWorkspace);
+  const managedWorkspaces = pipe(
+    workspaces,
+    A.filter((workspace) => isManagedTstycheWorkspace(workspace.relativeDir))
+  );
+  const managedWorkspacePatterns = pipe(
+    workspacePatterns,
+    A.filter(isManagedTstycheWorkspace),
+    A.filter((pattern) => {
+      const coveredWorkspaces = A.filter(managedWorkspaces, (workspace) =>
+        workspacePatternCoversPath(pattern, workspace.relativeDir)
+      );
+      return (
+        !A.isArrayEmpty(coveredWorkspaces) && A.every(coveredWorkspaces, (workspace) => workspace.hasDtslintDirectory)
+      );
+    })
+  );
   const workspacePatternEntries = pipe(
     managedWorkspacePatterns,
     A.map((pattern) => `${pattern}/dtslint/**/*.tst.*`)
   );
   const explicitWorkspacePatterns = pipe(
-    workspaces,
+    managedWorkspaces,
+    A.filter((workspace) => workspace.hasDtslintDirectory),
     A.map((workspace) => workspace.relativeDir),
-    A.filter(isManagedTstycheWorkspace),
     A.filter((relativeDir) => !A.some(managedWorkspacePatterns, workspacePatternCoversPath(relativeDir))),
     A.map((relativeDir) => `${relativeDir}/dtslint/**/*.tst.*`),
     A.sort(byStringAscending)
@@ -995,6 +1011,9 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
     const hasDocgenConfig = yield* fs
       .exists(path.join(absoluteDir, DOCGEN_CONFIG_FILENAME))
       .pipe(Effect.orElseSucceed(thunkFalse));
+    const hasDtslintDirectory = yield* fs
+      .exists(path.join(absoluteDir, "dtslint"))
+      .pipe(Effect.orElseSucceed(thunkFalse));
     const directWorkspaceDependencies = collectDocgenWorkspaceDependencyNames(packageJson);
     const aliasTargets = pipe(
       packageJson.exports,
@@ -1032,6 +1051,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
         relativeDir,
         ownerTsconfigPath,
         hasProjectTsconfig,
+        hasDtslintDirectory,
         hasDocgenConfig,
         directWorkspaceDependencies: [...directWorkspaceDependencies],
         ...aliasTargetFields,

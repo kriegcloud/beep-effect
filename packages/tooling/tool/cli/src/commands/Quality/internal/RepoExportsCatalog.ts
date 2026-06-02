@@ -1,6 +1,8 @@
+import { $RepoCliId } from "@beep/identity/packages";
 import { A, O, Str, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, Path } from "effect";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { Project } from "ts-morph";
 import {
   declarationKind,
@@ -10,6 +12,7 @@ import {
   formatJsonc,
   getJsDocText,
   ignoredSourceSuffixes,
+  JsonRecord,
   listSourceFiles,
   normalizeSlashes,
   QualityArtifactGeneratorError,
@@ -23,7 +26,9 @@ import {
 import type * as Ordering from "effect/Ordering";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { Node, SourceFile } from "ts-morph";
-import type { JsonRecord, PackageJson, WorkspacePackageInfo } from "./QualityArtifactSupport.js";
+import type { PackageJson, WorkspacePackageInfo } from "./QualityArtifactSupport.js";
+
+const $I = $RepoCliId.create("commands/Quality/internal/RepoExportsCatalog");
 
 type ExportMapEntry = {
   readonly subpath: string;
@@ -111,12 +116,17 @@ const compareNumber = (left: number, right: number): Ordering.Ordering => {
  * @category configuration
  * @since 0.0.0
  */
-export type RepoExportsCatalogOptions = {
-  readonly rootDir?: string;
-  readonly outputJsonPath?: string;
-  readonly outputMarkdownPath?: string;
-  readonly check?: boolean;
-};
+export class RepoExportsCatalogOptions extends S.Class<RepoExportsCatalogOptions>($I`RepoExportsCatalogOptions`)(
+  {
+    rootDir: S.optionalKey(S.String),
+    outputJsonPath: S.optionalKey(S.String),
+    outputMarkdownPath: S.optionalKey(S.String),
+    check: S.optionalKey(S.Boolean),
+  },
+  $I.annote("RepoExportsCatalogOptions", {
+    description: "Options for building, writing, or checking the repo export catalog artifacts.",
+  })
+) {}
 
 /**
  * Result returned after writing or checking repo export catalog artifacts.
@@ -124,14 +134,21 @@ export type RepoExportsCatalogOptions = {
  * @category models
  * @since 0.0.0
  */
-export type RepoExportsCatalogWriteResult = {
-  readonly outputJsonPath: string;
-  readonly outputMarkdownPath: string;
-  readonly totals: Catalog["totals"];
-  readonly findings: ReadonlyArray<string>;
-  readonly checked: boolean;
-  readonly written: boolean;
-};
+export class RepoExportsCatalogWriteResult extends S.Class<RepoExportsCatalogWriteResult>(
+  $I`RepoExportsCatalogWriteResult`
+)(
+  {
+    outputJsonPath: S.String,
+    outputMarkdownPath: S.String,
+    totals: JsonRecord,
+    findings: S.Array(S.String),
+    checked: S.Boolean,
+    written: S.Boolean,
+  },
+  $I.annote("RepoExportsCatalogWriteResult", {
+    description: "Output metadata returned after writing or checking repo export catalog artifacts.",
+  })
+) {}
 
 const resolveRepoExportsCatalogOptions = Effect.fn("RepoExportsCatalog.resolveOptions")(function* (
   options: RepoExportsCatalogOptions = {}

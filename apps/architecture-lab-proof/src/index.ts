@@ -19,21 +19,6 @@ const $I = $ArchitectureLabProofId.create("index");
 const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 
 /**
- * Package version for the architecture lab proof harness.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/architecture-lab-proof"
- *
- * console.log(VERSION)
- * ```
- *
- * @category workflows
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * App-level WorkItem proof result.
  *
  * @example

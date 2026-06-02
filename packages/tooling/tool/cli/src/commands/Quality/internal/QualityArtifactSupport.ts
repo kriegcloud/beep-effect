@@ -17,13 +17,11 @@ import type { ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $RepoCliId.create("commands/Quality/internal/QualityArtifactSupport");
 
-type QualityArtifactGeneratorErrorOptions =
-  | undefined
-  | {
-      readonly command?: undefined | string;
-      readonly exitCode?: undefined | number;
-      readonly filePath?: undefined | string;
-    };
+type QualityArtifactGeneratorErrorOptions = {
+  readonly command?: undefined | string;
+  readonly exitCode?: undefined | number;
+  readonly filePath?: undefined | string;
+};
 
 /**
  * Error raised while building or checking Quality command generated artifacts.
@@ -47,19 +45,21 @@ export class QualityArtifactGeneratorError extends TaggedErrorClass<QualityArtif
   })
 ) {
   static readonly new: {
-    (cause: unknown, message: string, opts?: QualityArtifactGeneratorErrorOptions): QualityArtifactGeneratorError;
-    (message: string, opts?: QualityArtifactGeneratorErrorOptions): (cause: unknown) => QualityArtifactGeneratorError;
+    (cause: unknown, message: string, opts: QualityArtifactGeneratorErrorOptions): QualityArtifactGeneratorError;
+    (message: string, opts: QualityArtifactGeneratorErrorOptions): (cause: unknown) => QualityArtifactGeneratorError;
   } = dual(
     3,
-    (cause, message, { command, exitCode, filePath } = {}): QualityArtifactGeneratorError =>
+    (
+      cause,
+      message,
+      { command, exitCode, filePath }: QualityArtifactGeneratorErrorOptions
+    ): QualityArtifactGeneratorError =>
       QualityArtifactGeneratorError.make({
         cause,
         message,
-        ...R.getSomes({
-          command: O.fromUndefinedOr(command),
-          exitCode: O.fromUndefinedOr(exitCode),
-          filePath: O.fromUndefinedOr(filePath),
-        }),
+        ...R.getSomes({ command: O.fromUndefinedOr(command) }),
+        ...R.getSomes({ exitCode: O.fromUndefinedOr(exitCode) }),
+        ...R.getSomes({ filePath: O.fromUndefinedOr(filePath) }),
       })
   );
 
@@ -184,6 +184,8 @@ export const readJsonc = Effect.fn("QualityArtifactSupport.readJsonc")(function*
 /**
  * Format a JSON-compatible value as deterministic JSONC text.
  *
+ * @param value - JSON-compatible value to render.
+ * @returns Deterministically formatted JSONC text with a trailing newline.
  * @category rendering
  * @since 0.0.0
  */
@@ -201,6 +203,8 @@ export const formatJsonc = (value: unknown): string => {
 /**
  * Convert Windows path separators to repo-standard slash separators.
  *
+ * @param value - Path text that may contain backslash separators.
+ * @returns Path text using slash separators.
  * @category paths
  * @since 0.0.0
  */
@@ -209,15 +213,25 @@ export const normalizeSlashes = (value: string): string => Str.replaceAll("\\", 
 /**
  * Render an absolute path relative to the repository root.
  *
+ * @param absolutePath - Absolute path to make repository-relative.
+ * @param repoRoot - Absolute repository root path.
+ * @param path - Effect path service used for platform path operations.
+ * @returns Slash-normalized repository-relative path, or `.` for the root.
  * @category paths
  * @since 0.0.0
  */
-export const repoRelative = (absolutePath: string, repoRoot: string, path: Path.Path): string =>
-  normalizeSlashes(path.relative(repoRoot, absolutePath) || ".");
+export const repoRelative: {
+  (absolutePath: string, repoRoot: string, path: Path.Path): string;
+  (repoRoot: string, path: Path.Path): (absolutePath: string) => string;
+} = dual(3, (absolutePath: string, repoRoot: string, path: Path.Path): string =>
+  normalizeSlashes(path.relative(repoRoot, absolutePath) || ".")
+);
 
 /**
  * Escape user text for safe inclusion in a regular expression.
  *
+ * @param value - Literal text to escape.
+ * @returns Regular expression source that matches the input text literally.
  * @category parsing
  * @since 0.0.0
  */
@@ -258,6 +272,8 @@ export const readRootPackage = Effect.fn("QualityArtifactSupport.readRootPackage
 /**
  * Extract workspace glob patterns from a package manifest workspace field.
  *
+ * @param workspaces - Raw package manifest `workspaces` value.
+ * @returns Workspace glob patterns declared by the manifest.
  * @category workspaces
  * @since 0.0.0
  */
@@ -274,14 +290,24 @@ export const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string
 /**
  * Expand a workspace glob pattern into package directories.
  *
+ * @param pattern - Workspace glob pattern to expand.
+ * @param repoRoot - Absolute repository root path.
+ * @param path - Effect path service used for platform path operations.
+ * @returns Package directories containing a `package.json` matched by the pattern.
  * @category workspaces
  * @since 0.0.0
  */
-export const expandWorkspacePattern = (
-  pattern: string,
-  repoRoot: string,
-  path: Path.Path
-): Effect.Effect<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem> =>
+export const expandWorkspacePattern: {
+  (
+    pattern: string,
+    repoRoot: string,
+    path: Path.Path
+  ): Effect.Effect<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem>;
+  (
+    repoRoot: string,
+    path: Path.Path
+  ): (pattern: string) => Effect.Effect<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem>;
+} = dual(3, (pattern: string, repoRoot: string, path: Path.Path) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const segments = A.filter(Str.split("/")(normalizeSlashes(pattern)), Str.isNonEmpty);
@@ -330,7 +356,8 @@ export const expandWorkspacePattern = (
     QualityArtifactGeneratorError.mapError(`Failed to expand workspace pattern ${pattern}.`, {
       filePath: repoRoot,
     })
-  );
+  )
+);
 
 /**
  * Discover workspace packages available to Quality artifact generators.
@@ -493,6 +520,8 @@ export const listSourceFiles = Effect.fn("QualityArtifactSupport.listSourceFiles
 /**
  * Remove JSDoc comment framing from a comment block.
  *
+ * @param commentText - Raw JSDoc comment text.
+ * @returns Comment lines without the opening, closing, or leading star framing.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -504,6 +533,8 @@ export const stripCommentFraming = (commentText: string): ReadonlyArray<string> 
 /**
  * Extract the summary sentence from a JSDoc comment block.
  *
+ * @param commentText - Raw JSDoc comment text.
+ * @returns First non-empty prose line, when the comment has one.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -521,6 +552,8 @@ export const summaryFromComment = (commentText: string): string | undefined => {
 /**
  * Extract tag names from a JSDoc comment block.
  *
+ * @param commentText - Raw JSDoc comment text.
+ * @returns Unique JSDoc tag names in first-seen order.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -561,6 +594,8 @@ export const valuesForTag: {
 /**
  * Resolve the ts-morph node that owns a declaration's documentation.
  *
+ * @param node - Declaration or export node to inspect.
+ * @returns Node whose leading JSDoc should be used for documentation analysis.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -577,6 +612,8 @@ export const getDocNode = (node: Node): Node => {
 /**
  * Read the nearest JSDoc text for a ts-morph declaration node.
  *
+ * @param node - Declaration or export node to inspect.
+ * @returns Raw JSDoc text, or an empty string when no JSDoc is available.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -592,6 +629,8 @@ export const getJsDocText = (node: Node): string => {
 /**
  * Classify a ts-morph declaration node for generated reports.
  *
+ * @param node - Declaration node to classify.
+ * @returns Stable declaration kind label used in quality artifacts.
  * @category jsdoc
  * @since 0.0.0
  */

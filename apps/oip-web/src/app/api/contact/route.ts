@@ -5,9 +5,13 @@
  * @since 0.0.0
  */
 
+import { Str } from "@beep/utils";
 import { Effect } from "effect";
+import { oipContactHttpApiWebHandler } from "./ContactHttpApiRoute";
 import { contactRequestResponse } from "./ContactRouteResponse";
-import type { NextResponse } from "next/server";
+
+const isJsonContactSubmission = (request: Request): boolean =>
+  Str.includes("application/json")(request.headers.get("content-type") ?? "");
 
 /**
  * Handles OIP contact submissions at the Next.js route boundary.
@@ -23,6 +27,7 @@ import type { NextResponse } from "next/server";
  * @category constructors
  * @since 0.0.0
  */
-export function POST(request: Request): Promise<NextResponse> {
-  return Effect.runPromise(contactRequestResponse(request));
-}
+export const POST: (request: Request) => Promise<Response> = (request) =>
+  isJsonContactSubmission(request)
+    ? oipContactHttpApiWebHandler(request)
+    : Effect.runPromise(contactRequestResponse(request));
