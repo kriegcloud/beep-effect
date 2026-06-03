@@ -86,9 +86,6 @@
       "@beep/schema": [
         "../../../packages/foundation/modeling/schema/src/index.ts"
       ],
-      "@beep/schema/*": [
-        "../../../packages/foundation/modeling/schema/src/*.ts"
-      ],
       "@beep/schema/AbortSignal": [
         "../../../packages/foundation/modeling/schema/src/AbortSignal.ts"
       ],
