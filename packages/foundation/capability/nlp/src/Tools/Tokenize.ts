@@ -24,15 +24,14 @@ class TokenizeParameters extends S.Class<TokenizeParameters>($I`TokenizeParamete
   })
 ) {}
 
-class TokenizeSuccess extends S.Class<TokenizeSuccess>($I`TokenizeSuccess`)(
-  {
-    tokenCount: S.Number,
-    tokens: S.Array(AiToken),
-  },
-  $I.annote("TokenizeSuccess", {
+const TokenizeSuccess = S.Struct({
+  tokenCount: S.Number,
+  tokens: S.Array(AiToken),
+}).pipe(
+  $I.annoteSchema("TokenizeSuccess", {
     description: "Annotated token stream and total token count for an input text.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for tokenizing text into annotated

@@ -24,15 +24,14 @@ class SentencesParameters extends S.Class<SentencesParameters>($I`SentencesParam
   })
 ) {}
 
-class SentencesSuccess extends S.Class<SentencesSuccess>($I`SentencesSuccess`)(
-  {
-    sentenceCount: S.Number,
-    sentences: S.Array(AiSentence),
-  },
-  $I.annote("SentencesSuccess", {
+const SentencesSuccess = S.Struct({
+  sentenceCount: S.Number,
+  sentences: S.Array(AiSentence),
+}).pipe(
+  $I.annoteSchema("SentencesSuccess", {
     description: "Sentence segmentation result and the total number of detected sentences.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for splitting text into sentence

@@ -38,16 +38,15 @@ class RankByRelevanceParameters extends S.Class<RankByRelevanceParameters>($I`Ra
   })
 ) {}
 
-class RankByRelevanceSuccess extends S.Class<RankByRelevanceSuccess>($I`RankByRelevanceSuccess`)(
-  {
-    ranked: S.Array(AiRankedText),
-    returned: S.Number,
-    totalTexts: S.Number,
-  },
-  $I.annote("RankByRelevanceSuccess", {
+const RankByRelevanceSuccess = S.Struct({
+  ranked: S.Array(AiRankedText),
+  returned: S.Number,
+  totalTexts: S.Number,
+}).pipe(
+  $I.annoteSchema("RankByRelevanceSuccess", {
     description: "Ranked relevance results and source-text count metadata.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for ranking candidate texts by

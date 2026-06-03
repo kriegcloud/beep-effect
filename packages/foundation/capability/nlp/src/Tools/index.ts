@@ -6,6 +6,7 @@
  */
 
 import {
+  AiAnalysis as AiAnalysisSource,
   AiCorpusConfig as AiCorpusConfigSource,
   AiCorpusIdf as AiCorpusIdfSource,
   AiCorpusMatrixShape as AiCorpusMatrixShapeSource,
@@ -23,6 +24,8 @@ import {
   AiToken as AiTokenSource,
   AiToolError as AiToolErrorSource,
 } from "./_schemas.ts";
+import { Analyze as AnalyzeSource } from "./Analyze.ts";
+import { BagOfWords as BagOfWordsSource } from "./BagOfWords.ts";
 import { BowCosineSimilarity as BowCosineSimilaritySource } from "./BowCosineSimilarity.ts";
 import { ChunkBySentences as ChunkBySentencesSource } from "./ChunkBySentences.ts";
 import { CorpusStats as CorpusStatsSource } from "./CorpusStats.ts";
@@ -35,16 +38,34 @@ import { LearnCorpus as LearnCorpusSource } from "./LearnCorpus.ts";
 import { LearnCustomEntities as LearnCustomEntitiesSource } from "./LearnCustomEntities.ts";
 import { NGrams as NGramsSource } from "./NGrams.ts";
 import { NlpToolkit as NlpToolkitSource, NlpTools as NlpToolsSource } from "./NlpToolkit.ts";
+import { Paragraphize as ParagraphizeSource } from "./Paragraphize.ts";
 import { PhoneticMatch as PhoneticMatchSource } from "./PhoneticMatch.ts";
 import { QueryCorpus as QueryCorpusSource } from "./QueryCorpus.ts";
 import { RankByRelevance as RankByRelevanceSource } from "./RankByRelevance.ts";
+import { RemoveStopWords as RemoveStopWordsSource } from "./RemoveStopWords.ts";
 import { Sentences as SentencesSource } from "./Sentences.ts";
+import { Stem as StemSource } from "./Stem.ts";
 import { TextSimilarity as TextSimilaritySource } from "./TextSimilarity.ts";
 import { Tokenize as TokenizeSource } from "./Tokenize.ts";
 import { exportTools as exportToolsSource } from "./ToolExport.ts";
 import { TransformText as TransformTextSource } from "./TransformText.ts";
 import { TverskySimilarity as TverskySimilaritySource } from "./TverskySimilarity.ts";
+import { WordCount as WordCountSource } from "./WordCount.ts";
 
+/**
+ * Ai analysis tool schema.
+ *
+ * @example
+ * ```ts
+ * import { AiAnalysis } from "@beep/nlp/Tools"
+ *
+ * console.log(AiAnalysis)
+ * ```
+ *
+ * @since 0.0.0
+ * @category tool-schemas
+ */
+export const AiAnalysis = AiAnalysisSource;
 /**
  * Ai corpus config tool schema.
  *
@@ -277,6 +298,34 @@ export const AiToolError = AiToolErrorSource;
  */
 export const AiToken = AiTokenSource;
 /**
+ * Analyze tool.
+ *
+ * @example
+ * ```ts
+ * import { Analyze } from "@beep/nlp/Tools"
+ *
+ * console.log(Analyze)
+ * ```
+ *
+ * @since 0.0.0
+ * @category tools
+ */
+export const Analyze = AnalyzeSource;
+/**
+ * Bag of words tool.
+ *
+ * @example
+ * ```ts
+ * import { BagOfWords } from "@beep/nlp/Tools"
+ *
+ * console.log(BagOfWords)
+ * ```
+ *
+ * @since 0.0.0
+ * @category tools
+ */
+export const BagOfWords = BagOfWordsSource;
+/**
  * Bow cosine similarity tool.
  *
  * @example
@@ -431,6 +480,20 @@ export const LearnCustomEntities = LearnCustomEntitiesSource;
  */
 export const NGrams = NGramsSource;
 /**
+ * Paragraphize tool.
+ *
+ * @example
+ * ```ts
+ * import { Paragraphize } from "@beep/nlp/Tools"
+ *
+ * console.log(Paragraphize)
+ * ```
+ *
+ * @since 0.0.0
+ * @category tools
+ */
+export const Paragraphize = ParagraphizeSource;
+/**
  * Phonetic match tool.
  *
  * @example
@@ -473,6 +536,20 @@ export const QueryCorpus = QueryCorpusSource;
  */
 export const RankByRelevance = RankByRelevanceSource;
 /**
+ * Remove stop words tool.
+ *
+ * @example
+ * ```ts
+ * import { RemoveStopWords } from "@beep/nlp/Tools"
+ *
+ * console.log(RemoveStopWords)
+ * ```
+ *
+ * @since 0.0.0
+ * @category tools
+ */
+export const RemoveStopWords = RemoveStopWordsSource;
+/**
  * Sentences tool.
  *
  * @example
@@ -486,6 +563,20 @@ export const RankByRelevance = RankByRelevanceSource;
  * @category tools
  */
 export const Sentences = SentencesSource;
+/**
+ * Stem tool.
+ *
+ * @example
+ * ```ts
+ * import { Stem } from "@beep/nlp/Tools"
+ *
+ * console.log(Stem)
+ * ```
+ *
+ * @since 0.0.0
+ * @category tools
+ */
+export const Stem = StemSource;
 /**
  * Text similarity tool.
  *
@@ -542,6 +633,20 @@ export const TransformText = TransformTextSource;
  * @category tools
  */
 export const TverskySimilarity = TverskySimilaritySource;
+/**
+ * Word count tool.
+ *
+ * @example
+ * ```ts
+ * import { WordCount } from "@beep/nlp/Tools"
+ *
+ * console.log(WordCount)
+ * ```
+ *
+ * @since 0.0.0
+ * @category tools
+ */
+export const WordCount = WordCountSource;
 
 /**
  * Nlp toolkit tool.

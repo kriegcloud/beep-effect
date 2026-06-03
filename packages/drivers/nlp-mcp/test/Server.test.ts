@@ -1,65 +1,88 @@
-import * as Schemas from "@beep/nlp-mcp/Schemas";
-import * as Server from "@beep/nlp-mcp/Server";
-import * as Tools from "@beep/nlp-mcp/Tools";
-import { A } from "@beep/utils";
+import { NlpToolkit, NlpTools } from "@beep/nlp/Tools/NlpToolkit";
+import { StreamingToolkit } from "@beep/nlp-mcp/StreamingTools";
+import { WinkNlpToolkitLive } from "@beep/wink";
 import { assert, describe, it, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Stream from "effect/Stream";
 
-describe("nlp-mcp Tools", () => {
-  it("exposes the five NLP tools with stable names", () => {
-    assert.strictEqual(Tools.Sentencize.name, "nlp_sentencize");
-    assert.strictEqual(Tools.Tokenize.name, "nlp_tokenize");
-    assert.strictEqual(Tools.PosTag.name, "nlp_pos_tag");
-    assert.strictEqual(Tools.Lemmatize.name, "nlp_lemmatize");
-    assert.strictEqual(Tools.ExtractEntities.name, "nlp_entities");
+describe("nlp-mcp tool surface", () => {
+  it("mounts the full @beep/nlp NlpToolkit", () => {
+    const names = NlpTools.map((tool) => tool.name);
+    assert.strictEqual(names.length, 25);
+    assert.strictEqual(new Set(names).size, names.length);
+    assert.strictEqual(Object.keys(NlpToolkit.tools).length, 25);
+    assert.isTrue(names.includes("Tokenize"));
+  });
+
+  it("exposes a combined 42-tool surface across both mounted toolkits", () => {
+    // Guards the server contract from `makeServerLayer`: both toolkits must be
+    // mounted, with no cross-toolkit name collision, summing to 42 unique tools.
+    const nlpNames = Object.keys(NlpToolkit.tools);
+    const streamingNames = Object.keys(StreamingToolkit.tools);
+    const merged = [...nlpNames, ...streamingNames];
+
+    assert.strictEqual(streamingNames.length, 17);
+    assert.strictEqual(merged.length, 42);
+    assert.strictEqual(new Set(merged).size, 42, "NLP and streaming tool names must be disjoint");
+    assert.isTrue(merged.includes("Tokenize"), "NLP toolkit tool must be present");
+    assert.isTrue(merged.includes("stream_read_lines"), "streaming toolkit tool must be present");
   });
 });
 
-describe("nlp-mcp Server handlers", () => {
-  layer(Server.BackendLive)("backed by wink-nlp", (it) => {
-    it.effect("nlp_tokenize returns tokens with a matching count", () =>
+describe("nlp-mcp wink-backed handlers", () => {
+  layer(WinkNlpToolkitLive)("via the mounted toolkit", (it) => {
+    it.effect("Tokenize resolves through the wink handler layer", () =>
       Effect.gen(function* () {
-        const handlers = yield* Server.makeNlpHandlers;
-        const result = yield* handlers.nlp_tokenize(Schemas.TextInput.make({ text: "Hello world." }));
-        assert.isTrue(result.count > 0);
-        assert.strictEqual(result.count, A.length(result.result));
+        const toolkit = yield* NlpToolkit;
+        const stream = yield* toolkit.handle("Tokenize", { text: "Hello world." });
+        const results = yield* Stream.runCollect(stream);
+        const first = results[0];
+        assert.isDefined(first);
+        assert.isFalse(first.isFailure);
       })
     );
 
-    it.effect("nlp_sentencize returns sentences with a matching count", () =>
+    it.effect("WordCount resolves through the wink handler layer", () =>
       Effect.gen(function* () {
-        const handlers = yield* Server.makeNlpHandlers;
-        const result = yield* handlers.nlp_sentencize(
-          Schemas.TextInput.make({ text: "First sentence. Second sentence." })
-        );
-        assert.isTrue(result.count >= 1);
-        assert.strictEqual(result.count, A.length(result.result));
+        const toolkit = yield* NlpToolkit;
+        const stream = yield* toolkit.handle("WordCount", { text: "Hello brave new world." });
+        const results = yield* Stream.runCollect(stream);
+        const first = results[0];
+        assert.isDefined(first);
+        assert.isFalse(first.isFailure);
       })
     );
 
-    it.effect("nlp_pos_tag tags every token with a position and tag", () =>
+    it.effect("Stem resolves through the wink handler layer", () =>
       Effect.gen(function* () {
-        const handlers = yield* Server.makeNlpHandlers;
-        const result = yield* handlers.nlp_pos_tag(Schemas.TextInput.make({ text: "Cats sleep." }));
-        assert.isTrue(result.count > 0);
-        assert.strictEqual(result.count, A.length(result.result));
-        yield* Effect.forEach(result.result, (entry) =>
-          Effect.sync(() => {
-            assert.isString(entry.tag);
-            assert.isString(entry.text);
-          })
-        );
+        const toolkit = yield* NlpToolkit;
+        const stream = yield* toolkit.handle("Stem", { text: "running runners ran" });
+        const results = yield* Stream.runCollect(stream);
+        const first = results[0];
+        assert.isDefined(first);
+        assert.isFalse(first.isFailure);
       })
     );
 
-    it.effect("nlp_entities yields entities with a type", () =>
+    it.effect("BagOfWords encodes its nested AiNGram array through the wink handler layer", () =>
       Effect.gen(function* () {
-        const handlers = yield* Server.makeNlpHandlers;
-        const result = yield* handlers.nlp_entities(
-          Schemas.TextInput.make({ text: "Barack Obama visited Paris in March." })
-        );
-        assert.strictEqual(result.count, A.length(result.result));
-        yield* Effect.forEach(result.result, (entry) => Effect.sync(() => assert.isString(entry.entityType)));
+        const toolkit = yield* NlpToolkit;
+        const stream = yield* toolkit.handle("BagOfWords", { text: "the cat sat on the mat" });
+        const results = yield* Stream.runCollect(stream);
+        const first = results[0];
+        assert.isDefined(first);
+        assert.isFalse(first.isFailure);
+      })
+    );
+
+    it.effect("Analyze encodes its nested AiAnalysis token array through the wink handler layer", () =>
+      Effect.gen(function* () {
+        const toolkit = yield* NlpToolkit;
+        const stream = yield* toolkit.handle("Analyze", { text: "The quick brown fox. It was fast." });
+        const results = yield* Stream.runCollect(stream);
+        const first = results[0];
+        assert.isDefined(first);
+        assert.isFalse(first.isFailure);
       })
     );
   });

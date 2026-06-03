@@ -13,6 +13,12 @@
     },
     {
       "path": "../../foundation/capability/nlp/tsconfig.json"
+    },
+    {
+      "path": "../../foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../foundation/modeling/schema/tsconfig.json"
     }
   ]
 }
