@@ -260,6 +260,7 @@ const contactResponseForError = (_error: ContactSubmissionError): ContactSubmiss
  *
  * @example
  * ```ts
+ * import { NonNegativeInt } from "@beep/schema"
  * import { Effect } from "effect"
  * import { submitContact } from "@beep/oip-web/contact"
  *
@@ -267,7 +268,7 @@ const contactResponseForError = (_error: ContactSubmissionError): ContactSubmiss
  *   email: "builder@example.com",
  *   message: "I would like to discuss a patent matter.",
  *   name: "Builder",
- *   submittedAt: 0
+ *   submittedAt: NonNegativeInt.make(0)
  * })
  *
  * Effect.runPromise(program)

@@ -2,14 +2,9 @@ import { Button } from "@beep/ui/components/ui/button";
 import { render, screen } from "@testing-library/react";
 import * as React from "react";
 import { describe, expect, it } from "vitest";
-import Home from "../src/app/page.tsx";
-import { VERSION } from "../src/index.ts";
+import Home from "@/app/page";
 
 describe("@beep/codedank-web", () => {
-  it("exposes the package version constant", () => {
-    expect(VERSION).toBe("0.0.0");
-  });
-
   it("renders a shared @beep/ui button", () => {
     render(<Button>Shared UI Button</Button>);
 

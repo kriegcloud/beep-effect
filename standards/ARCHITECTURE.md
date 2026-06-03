@@ -57,6 +57,14 @@ Start with the smallest boundary that owns the meaning:
 | Browser/client product state, adapters, or interaction behavior | The slice `client` or `ui` package. |
 | App runtime wiring | The app entrypoint or an app-local `src/runtime/Layer.ts` helper. |
 
+Apps are executable workspaces, not reusable package surfaces by default.
+Framework apps such as Next.js and Tauri should keep their runtime modules
+app-local through `@/*` and should not publish a public `@beep/<app>` TypeScript
+API, root `src/index.ts`, package exports, docgen, dtslint, or type-test
+surface. Runtime proof apps are the explicit exception: they may stay
+package-like when the app exists to prove a runtime contract from a public
+workspace API.
+
 The core vocabulary is deliberately small at the entry point: slice, domain,
 use-cases, adapter, driver, shared kernel, foundation, config contract, Layer,
 and canonical subpath name. More specialized terms remain canonical, but use the

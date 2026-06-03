@@ -403,16 +403,36 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
         function* ({ options, path }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(path));
           const maxErrors = options?.maxErrors ?? 100;
-          const { errors, records } = yield* Jsonl.validateJsonl(path);
-          const limitedErrors = errors.slice(0, maxErrors);
+          const maxRecords = options?.maxRecords ?? 1000;
+          const collected = yield* Jsonl.streamJsonlResults(path).pipe(
+            Stream.take(maxErrors + maxRecords + 1),
+            Stream.runCollect
+          );
+          const { errors, records, truncated } = A.reduce(
+            collected,
+            {
+              errors: [] as ReadonlyArray<Jsonl.JsonlLineError>,
+              records: [] as ReadonlyArray<unknown>,
+              truncated: false,
+            },
+            (acc, result) =>
+              Result.match(result, {
+                onFailure: (error) =>
+                  acc.errors.length >= maxErrors
+                    ? { ...acc, truncated: true }
+                    : { ...acc, errors: [...acc.errors, error] },
+                onSuccess: (value) =>
+                  acc.records.length >= maxRecords
+                    ? { ...acc, truncated: true }
+                    : { ...acc, records: [...acc.records, value] },
+              })
+          );
           yield* Effect.annotateCurrentSpan(countAttribute("count", records.length));
           return {
             count: records.length,
             records,
-            // `truncated` reflects that the error list was clipped to `maxErrors`,
-            // so callers can tell additional malformed lines were omitted.
-            truncated: errors.length > maxErrors,
-            ...(limitedErrors.length > 0 ? { errors: limitedErrors } : {}),
+            truncated,
+            ...(errors.length > 0 ? { errors } : {}),
           };
         },
         finalize("stream_validate_jsonl", "validate_jsonl")

@@ -6,6 +6,7 @@
  * @since 0.0.0
  */
 
+import { $StackInstallerId } from "@beep/identity/packages";
 import { isOnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
 import { Badge } from "@beep/ui/components/badge";
 import { Button } from "@beep/ui/components/button";
@@ -14,70 +15,107 @@ import { Progress } from "@beep/ui/components/progress";
 import { Separator } from "@beep/ui/components/separator";
 import { useAtom } from "@effect/atom-react";
 import {
-  CheckCircle,
-  ClipboardText,
-  DiscordLogo,
-  LockKey,
-  Play,
-  ShieldCheck,
-  TerminalWindow,
+  CheckCircleIcon,
+  ClipboardTextIcon,
+  DiscordLogoIcon,
+  LockKeyIcon,
+  PlayIcon,
+  ShieldCheckIcon,
+  TerminalWindowIcon,
 } from "@phosphor-icons/react";
 import { invoke } from "@tauri-apps/api/core";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { Atom } from "effect/unstable/reactivity";
 import { p1aDryRunRegistry, p1aDryRunSnapshot } from "./dry-run-registry.js";
 import { P1_REQUIRED_PLATFORMS } from "./proof/P1ProofArtifacts.js";
-import type { FormEvent } from "react";
+import type { ComponentProps } from "react";
+
+const $I = $StackInstallerId.create("App");
 
 const workbenchSteps = [
   {
-    icon: TerminalWindow,
+    icon: TerminalWindowIcon,
     label: "Dependencies",
     status: "Dry-run ready",
   },
   {
-    icon: LockKey,
+    icon: LockKeyIcon,
     label: "Secret References",
     status: "1Password refs only",
   },
   {
-    icon: ShieldCheck,
+    icon: ShieldCheckIcon,
     label: "Providers",
     status: "Claude + Codex",
   },
   {
-    icon: DiscordLogo,
+    icon: DiscordLogoIcon,
     label: "Discord",
     status: "Only v1 channel",
   },
 ] as const;
 
-type ProofState =
-  | {
-      readonly _tag: "idle";
-    }
-  | {
-      readonly _tag: "running";
-    }
-  | {
-      readonly _tag: "failed";
-      readonly message: string;
-    }
-  | {
-      readonly _tag: "completed";
-      readonly output: string;
-    };
+class IdleProofState extends S.TaggedClass<IdleProofState>($I`IdleProofState`)(
+  "idle",
+  {},
+  $I.annote("IdleProofState", {
+    description: "Initial P1 proof form state.",
+  })
+) {}
 
-type P1ManualProofFormRequest = {
-  readonly discordBotTokenReference: string;
-  readonly discordChannelDisplayName: string;
-  readonly discordChannelId: string;
-  readonly discordGuildId: string;
-  readonly operatorLabel: string;
-  readonly targetPlatform: string;
-  readonly testMessageContent: string;
-};
+class RunningProofState extends S.TaggedClass<RunningProofState>($I`RunningProofState`)(
+  "running",
+  {},
+  $I.annote("RunningProofState", {
+    description: "P1 proof form state while the proof command is running.",
+  })
+) {}
+
+class FailedProofState extends S.TaggedClass<FailedProofState>($I`FailedProofState`)(
+  "failed",
+  {
+    message: S.String,
+  },
+  $I.annote("FailedProofState", {
+    description: "P1 proof form state when proof execution fails.",
+  })
+) {}
+
+class CompletedProofState extends S.TaggedClass<CompletedProofState>($I`CompletedProofState`)(
+  "completed",
+  {
+    output: S.String,
+  },
+  $I.annote("CompletedProofState", {
+    description: "P1 proof form state containing sanitized proof output.",
+  })
+) {}
+
+const ProofState = S.Union([CompletedProofState, FailedProofState, IdleProofState, RunningProofState]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("ProofState", {
+    description: "P1 live proof form lifecycle state.",
+  })
+);
+
+type ProofState = typeof ProofState.Type;
+
+class P1ManualProofFormRequest extends S.Class<P1ManualProofFormRequest>($I`P1ManualProofFormRequest`)(
+  {
+    discordBotTokenReference: S.String,
+    discordChannelDisplayName: S.String,
+    discordChannelId: S.String,
+    discordGuildId: S.String,
+    operatorLabel: S.String,
+    targetPlatform: S.String,
+    testMessageContent: S.String,
+  },
+  $I.annote("P1ManualProofFormRequest", {
+    description: "Form request payload submitted from the app shell to the P1 proof command.",
+  })
+) {}
 
 type RunP1ManualProof = (request: P1ManualProofFormRequest) => Promise<string>;
 
@@ -101,7 +139,7 @@ const errorMessage = (error: unknown): string => {
 };
 
 const submitProof = (
-  event: FormEvent<HTMLFormElement>,
+  event: Parameters<NonNullable<ComponentProps<"form">["onSubmit"]>>[0],
   setProofState: (state: ProofState) => void,
   runP1ManualProof: RunP1ManualProof
 ) => {
@@ -144,11 +182,11 @@ function AppHeader() {
           <Badge variant="outline">P1</Badge>
           <Badge variant="secondary">Live proof ready</Badge>
           <Button variant="outline" size="sm">
-            <ClipboardText weight="bold" />
+            <ClipboardTextIcon weight="bold" />
             Manifest
           </Button>
           <Button size="sm">
-            <Play weight="fill" />
+            <PlayIcon weight="fill" />
             Preview
           </Button>
         </div>
@@ -229,7 +267,7 @@ function ValidationFeed() {
       <CardContent className="space-y-3">
         {A.map(p1aDryRunSnapshot.validationEvents, (event) => (
           <div key={event.id} className="grid grid-cols-[auto_1fr] gap-3">
-            <CheckCircle className="mt-0.5 size-5 text-emerald-600" weight="fill" />
+            <CheckCircleIcon className="mt-0.5 size-5 text-emerald-600" weight="fill" />
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-medium">{event.subject}</p>
@@ -376,7 +414,7 @@ function LiveProofPanel({ runP1ManualProof }: { readonly runP1ManualProof: RunP1
             />
           </label>
           <Button className="w-fit" disabled={proofState._tag === "running"} type="submit">
-            <Play weight="fill" />
+            <PlayIcon weight="fill" />
             {proofState._tag === "running" ? "Running" : "Run Proof"}
           </Button>
           {proofState._tag === "failed" ? (

@@ -216,9 +216,37 @@ describe("StreamingToolkit integration", () => {
             count: number;
             errors?: ReadonlyArray<{ lineNumber: number }>;
             records: ReadonlyArray<unknown>;
+            truncated: boolean;
           };
           assert.strictEqual(output.count, 2);
           assert.strictEqual(output.errors?.length, 1);
+          assert.strictEqual(output.truncated, false);
+        })
+      )
+    );
+
+    it.effect("stream_validate_jsonl caps returned records and errors", () =>
+      withTempFixture("validate-capped.jsonl", '{"id":1}\nbroken\n{"id":2}\nstill broken\n{"id":3}\n', (file) =>
+        Effect.gen(function* () {
+          const tk = yield* StreamingToolkit;
+          const stream = yield* tk.handle("stream_validate_jsonl", {
+            options: { maxErrors: 1, maxRecords: 2 },
+            path: file,
+          });
+          const results = yield* Stream.runCollect(stream);
+          const first = results[0];
+          assert.isDefined(first);
+          assert.strictEqual(first.isFailure, false);
+          const output = first.encodedResult as {
+            count: number;
+            errors?: ReadonlyArray<{ lineNumber: number }>;
+            records: ReadonlyArray<unknown>;
+            truncated: boolean;
+          };
+          assert.strictEqual(output.count, 2);
+          assert.deepStrictEqual(output.records, [{ id: 1 }, { id: 2 }]);
+          assert.strictEqual(output.errors?.length, 1);
+          assert.strictEqual(output.truncated, true);
         })
       )
     );

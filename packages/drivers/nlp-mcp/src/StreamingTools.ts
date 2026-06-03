@@ -370,6 +370,7 @@ const ValidateJsonlParameters = S.Struct({
   options: S.optionalKey(
     S.Struct({
       maxErrors: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+      maxRecords: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
     })
   ),
   path: S.String.check(S.isMinLength(1)),

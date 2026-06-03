@@ -52,6 +52,14 @@ const TstycheConfig = S.Struct({
 const PackageScripts = S.Struct({
   scripts: S.Record(S.String, S.String),
 });
+const GeneratedPackageManifest = S.Struct({
+  scripts: S.Record(S.String, S.String),
+  exports: S.optionalKey(S.Unknown),
+  files: S.optionalKey(S.Unknown),
+  publishConfig: S.optionalKey(S.Unknown),
+  dependencies: S.optionalKey(S.Record(S.String, S.String)),
+  devDependencies: S.optionalKey(S.Record(S.String, S.String)),
+});
 const FoundationPackageMetadata = S.Struct({
   beep: S.Struct({
     family: S.Literal("foundation"),
@@ -78,6 +86,7 @@ const decodeTsconfigReferences = S.decodeUnknownSync(TsconfigReferences);
 const decodeTsconfigPaths = S.decodeUnknownSync(TsconfigPaths);
 const decodeTstycheConfig = S.decodeUnknownSync(TstycheConfig);
 const decodePackageScripts = S.decodeUnknownSync(PackageScripts);
+const decodeGeneratedPackageManifest = S.decodeUnknownSync(GeneratedPackageManifest);
 const decodeFoundationPackageMetadata = S.decodeUnknownSync(FoundationPackageMetadata);
 const decodeToolingPackageMetadata = S.decodeUnknownSync(ToolingPackageMetadata);
 const decodeDriverPackageMetadata = S.decodeUnknownSync(DriverPackageMetadata);
@@ -100,6 +109,42 @@ const ExpectedGeneratedQualityScripts = {
   "lint:fix": "bun run beep:lint:fix",
   test: "bun run beep:test",
   "test:integration": "bun run beep:test:integration",
+} as const;
+const ExpectedNextjsAppScripts = {
+  audit: "bun run --if-present beep:audit",
+  codegen: "echo 'no codegen needed'",
+  dev: "next dev --turbopack",
+  "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+  "beep:build": "next build --turbopack",
+  "beep:check": "tsgo -b tsconfig.json",
+  "beep:lint": "biome check .",
+  "beep:lint:fix": "biome check . --write",
+  "beep:test": "bunx --bun vitest run",
+  build: "bun run beep:build",
+  check: "bun run beep:check",
+  coverage: "bunx --bun vitest run --coverage",
+  lint: "bun run beep:lint",
+  "lint:fix": "bun run beep:lint:fix",
+  start: "next start",
+  test: "bun run beep:test",
+} as const;
+const ExpectedTauriAppScripts = {
+  audit: "bun run --if-present beep:audit",
+  codegen: "echo 'no codegen needed'",
+  dev: "vite --host 127.0.0.1",
+  "dev:tauri": "tauri dev",
+  "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+  "beep:build": "vite build",
+  "beep:check": "tsgo -b tsconfig.json",
+  "beep:lint": "biome check .",
+  "beep:lint:fix": "biome check . --write",
+  "beep:test": "bunx --bun vitest run",
+  build: "bun run beep:build",
+  check: "bun run beep:check",
+  coverage: "bunx --bun vitest run --coverage",
+  lint: "bun run beep:lint",
+  "lint:fix": "bun run beep:lint:fix",
+  test: "bun run beep:test",
 } as const;
 
 const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
@@ -145,6 +190,11 @@ const readJsoncFile = Effect.fn(function* (filePath: string) {
     disallowComments: false,
   });
 });
+
+const toFailureMessage = (error: unknown): string =>
+  typeof error === "object" && error !== null && "message" in error && typeof error.message === "string"
+    ? error.message
+    : String(error);
 
 const writeSyncpackConfig = (filePath: string, sources: ReadonlyArray<string>) =>
   writeTextFile(
@@ -222,6 +272,7 @@ const bootstrapIdentityWorkspace = Effect.fn(function* (
   });
   yield* writeTextFile(path.join(identityDir, "src", "index.ts"), `export * from "./packages.ts";\n`);
   yield* writeTextFile(path.join(identityDir, "src", "Id.ts"), `export type IdentityComposer<T extends string> = T;\n`);
+  yield* writeTextFile(path.join(identityDir, "dtslint", ".gitkeep"), "");
   yield* writeTextFile(
     path.join(identityDir, "src", "packages.ts"),
     `import * as Identity from "./Id.ts";
@@ -405,6 +456,238 @@ describe.sequential("create-package", () => {
             );
             expect(identityPackages).toContain(`"example-domain"`);
             expect(identityPackages).toContain(`export const $ExampleDomainId`);
+          })
+        )
+      ),
+    CreatePackageTestTimeoutMs
+  );
+
+  it(
+    "requires an explicit app kind for app scaffolds",
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const result = yield* runCreatePackageCommand(["proof-app", "--type", "app"]).pipe(
+              Effect.match({
+                onFailure: toFailureMessage,
+                onSuccess: () => "success",
+              })
+            );
+
+            expect(result).toContain("--type app requires --app-kind nextjs, tauri, or runtime-proof");
+          })
+        )
+      ),
+    CreatePackageTestTimeoutMs
+  );
+
+  it(
+    "creates Next.js apps without package API boilerplate",
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const rootDir = process.cwd();
+
+            yield* bootstrapRootConfig(rootDir, {
+              workspaces: [],
+              references: [],
+              paths: {},
+              testFileMatch: [],
+              syncpackSources: ["package.json"],
+            });
+
+            yield* runCreatePackageCommand([
+              "marketing-web",
+              "--type",
+              "app",
+              "--app-kind",
+              "nextjs",
+              "--description",
+              "A Next.js marketing app",
+            ]);
+
+            const packageDir = path.join(rootDir, "apps", "marketing-web");
+            const generatedPackage = decodeGeneratedPackageManifest(
+              yield* readJsonFile(path.join(packageDir, "package.json"))
+            );
+
+            expect(generatedPackage.scripts).toMatchObject(ExpectedNextjsAppScripts);
+            expect(generatedPackage.scripts.docgen).toBeUndefined();
+            expect(generatedPackage.scripts.dtslint).toBeUndefined();
+            expect(generatedPackage.scripts["type-test"]).toBeUndefined();
+            expect(generatedPackage.exports).toBeUndefined();
+            expect(generatedPackage.files).toBeUndefined();
+            expect(generatedPackage.publishConfig).toBeUndefined();
+            expect(generatedPackage.dependencies).toMatchObject({
+              next: "catalog:",
+              react: "catalog:",
+              "react-dom": "catalog:",
+            });
+
+            expect(yield* fs.exists(path.join(packageDir, "src", "index.ts"))).toBe(false);
+            expect(yield* fs.exists(path.join(packageDir, "dtslint"))).toBe(false);
+            expect(yield* fs.exists(path.join(packageDir, "docgen.json"))).toBe(false);
+            expect(yield* fs.exists(path.join(packageDir, "src", "app", "page.tsx"))).toBe(true);
+
+            const appTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(packageDir, "tsconfig.json")));
+            expect(appTsconfig.compilerOptions.paths).toMatchObject({
+              "@/*": ["./src/*"],
+            });
+
+            const rootTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
+            expect(rootTsconfig.compilerOptions.paths["@beep/marketing-web"]).toBeUndefined();
+            expect(rootTsconfig.compilerOptions.paths["@beep/marketing-web/*"]).toBeUndefined();
+
+            const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
+            expect(tstycheConfig.testFileMatch).toEqual([]);
+
+            const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
+            expect(syncpackConfig).toContain(`"apps/marketing-web/package.json"`);
+          })
+        )
+      ),
+    CreatePackageTestTimeoutMs
+  );
+
+  it(
+    "creates Tauri apps without package API boilerplate",
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const rootDir = process.cwd();
+
+            yield* bootstrapRootConfig(rootDir, {
+              workspaces: [],
+              references: [],
+              paths: {},
+              testFileMatch: [],
+              syncpackSources: ["package.json"],
+            });
+
+            yield* runCreatePackageCommand([
+              "desktop-shell",
+              "--type",
+              "app",
+              "--app-kind",
+              "tauri",
+              "--description",
+              "A Tauri desktop shell",
+            ]);
+
+            const packageDir = path.join(rootDir, "apps", "desktop-shell");
+            const generatedPackage = decodeGeneratedPackageManifest(
+              yield* readJsonFile(path.join(packageDir, "package.json"))
+            );
+
+            expect(generatedPackage.scripts).toMatchObject(ExpectedTauriAppScripts);
+            expect(generatedPackage.scripts.docgen).toBeUndefined();
+            expect(generatedPackage.scripts.dtslint).toBeUndefined();
+            expect(generatedPackage.scripts["type-test"]).toBeUndefined();
+            expect(generatedPackage.exports).toBeUndefined();
+            expect(generatedPackage.files).toBeUndefined();
+            expect(generatedPackage.publishConfig).toBeUndefined();
+            expect(generatedPackage.dependencies).toMatchObject({
+              "@tauri-apps/api": "catalog:",
+              react: "catalog:",
+              "react-dom": "catalog:",
+            });
+
+            expect(yield* fs.exists(path.join(packageDir, "src", "index.ts"))).toBe(false);
+            expect(yield* fs.exists(path.join(packageDir, "dtslint"))).toBe(false);
+            expect(yield* fs.exists(path.join(packageDir, "docgen.json"))).toBe(false);
+            expect(yield* fs.exists(path.join(packageDir, "src", "App.tsx"))).toBe(true);
+            expect(yield* fs.exists(path.join(packageDir, "src-tauri", "tauri.conf.json"))).toBe(true);
+
+            const appTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(packageDir, "tsconfig.json")));
+            expect(appTsconfig.compilerOptions.paths).toMatchObject({
+              "@/*": ["./src/*"],
+            });
+
+            const viteConfig = yield* fs.readFileString(path.join(packageDir, "vite.config.ts"));
+            const vitestConfig = yield* fs.readFileString(path.join(packageDir, "vitest.config.ts"));
+            expect(viteConfig).toContain(`"@": fileURLToPath(new URL("./src", import.meta.url))`);
+            expect(vitestConfig).toContain(`"@": fileURLToPath(new URL("./src", import.meta.url))`);
+
+            const rootTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
+            expect(rootTsconfig.compilerOptions.paths["@beep/desktop-shell"]).toBeUndefined();
+            expect(rootTsconfig.compilerOptions.paths["@beep/desktop-shell/*"]).toBeUndefined();
+
+            const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
+            expect(tstycheConfig.testFileMatch).toEqual([]);
+          })
+        )
+      ),
+    CreatePackageTestTimeoutMs
+  );
+
+  it(
+    "keeps runtime-proof apps package-like",
+    () =>
+      Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const rootDir = process.cwd();
+
+            yield* bootstrapRootConfig(rootDir, {
+              workspaces: ["packages/foundation/modeling/identity"],
+              references: ["packages/foundation/modeling/identity"],
+              paths: {
+                "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+                "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
+              },
+              testFileMatch: ["packages/foundation/modeling/identity/dtslint/**/*.tst.*"],
+              syncpackSources: ["package.json", "packages/foundation/modeling/identity/package.json"],
+            });
+            yield* bootstrapIdentityWorkspace(rootDir);
+
+            yield* runCreatePackageCommand([
+              "runtime-proof-lab",
+              "--type",
+              "app",
+              "--app-kind",
+              "runtime-proof",
+              "--description",
+              "A runtime proof harness",
+            ]);
+
+            const packageDir = path.join(rootDir, "apps", "runtime-proof-lab");
+            const generatedPackage = decodeGeneratedPackageManifest(
+              yield* readJsonFile(path.join(packageDir, "package.json"))
+            );
+
+            expect(generatedPackage.scripts).toMatchObject(ExpectedGeneratedQualityScripts);
+            expect(generatedPackage.scripts.docgen).toBe("bun run ../../packages/tooling/tool/docgen/src/bin.ts");
+            expect(generatedPackage.exports).toMatchObject({
+              ".": "./src/index.ts",
+              "./package.json": "./package.json",
+            });
+            expect(yield* fs.exists(path.join(packageDir, "src", "index.ts"))).toBe(true);
+            expect(yield* fs.exists(path.join(packageDir, "dtslint"))).toBe(true);
+            expect(yield* fs.exists(path.join(packageDir, "docgen.json"))).toBe(true);
+
+            const rootTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
+            expect(rootTsconfig.compilerOptions.paths).toMatchObject({
+              "@beep/runtime-proof-lab": ["./apps/runtime-proof-lab/src/index.ts"],
+              "@beep/runtime-proof-lab/*": ["./apps/runtime-proof-lab/src/*"],
+            });
+
+            const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
+            expect(tstycheConfig.testFileMatch).toContain("apps/runtime-proof-lab/dtslint/**/*.tst.*");
+
+            const identityPackages = yield* fs.readFileString(
+              path.join(rootDir, "packages", "foundation", "modeling", "identity", "src", "packages.ts")
+            );
+            expect(identityPackages).toContain(`"runtime-proof-lab"`);
+            expect(identityPackages).toContain(`export const $RuntimeProofLabId`);
           })
         )
       ),

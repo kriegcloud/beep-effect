@@ -17,12 +17,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Metric | Count |
 |---|---:|
 | packages | 86 |
-| packagesWithPublicExports | 81 |
-| packagesWithoutPublicExports | 1 |
+| packagesWithPublicExports | 76 |
+| packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1048 |
-| publicExportEntries | 13694 |
-| uniquePackageSymbols | 6120 |
+| importSpecifiers | 1032 |
+| publicExportEntries | 13621 |
+| uniquePackageSymbols | 6055 |
 
 ## Seed Discovery Proof
 
@@ -52,7 +52,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 13 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 14 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 15 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1649 | 593 |
+| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1653 | 597 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 75 | 63 |
@@ -70,11 +70,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 31 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | has-public-exports | 5 | 46 | 25 |
 | 32 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | has-public-exports | 4 | 60 | 20 |
 | 33 | `@beep/types` | `packages/foundation/primitive/types` | has-public-exports | 6 | 14 | 10 |
-| 34 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 12 | 46 | 41 |
+| 34 | `@beep/oip-web` | `apps/oip-web` | no-public-exports | 0 | 0 | 0 |
 | 35 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
 | 36 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
 | 37 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
-| 38 | `@beep/canvas` | `apps/canvas` | has-public-exports | 1 | 23 | 20 |
+| 38 | `@beep/canvas` | `apps/canvas` | no-public-exports | 0 | 0 | 0 |
 | 39 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
 | 40 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
 | 41 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 781 | 580 |
@@ -86,11 +86,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 47 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
 | 48 | `@beep/box` | `packages/drivers/box` | has-public-exports | 5 | 9 | 8 |
 | 49 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
-| 50 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
-| 51 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 1 | 1 |
+| 50 | `@beep/stack-installer` | `apps/stack-installer` | no-public-exports | 0 | 0 | 0 |
+| 51 | `@beep/professional-desktop` | `apps/professional-desktop` | no-public-exports | 0 | 0 | 0 |
 | 52 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
 | 53 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
-| 54 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
+| 54 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 3 | 3 |
 | 55 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
 | 56 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 82 | 892 | 458 |
 | 57 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
@@ -98,7 +98,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 59 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
 | 60 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 67 | 1751 | 512 |
 | 61 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
-| 62 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
+| 62 | `@beep/codedank-web` | `apps/codedank-web` | no-public-exports | 0 | 0 | 0 |
 | 63 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
 | 64 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
 | 65 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
@@ -107,7 +107,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 68 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
 | 69 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
 | 70 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
-| 71 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
+| 71 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 2 | 2 |
 | 72 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
 | 73 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 74 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
@@ -811,7 +811,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:46` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:54` | CLI command for synchronizing version pins across the monorepo. |
 | `@beep/repo-cli` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commits and pushes reviewed staged changes. |
 | `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
@@ -996,9 +996,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:163` | Planned generation action. |
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:87` | A file write operation. |
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:108` | A symlink operation. |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:599` | CLI command that scaffolds a new package with templates, a Schema-validated |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:810` | CLI command that scaffolds a new package with templates, a Schema-validated |
 | `@beep/repo-cli/commands/CreatePackage/Handler` | `resolveCreatePackageTemplateDir` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:83` | Resolve create-package template directory for both src and dist runtimes. |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:289` | Variables passed into every template during package scaffolding. |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:495` | Variables passed into every template during package scaffolding. |
 | `@beep/repo-cli/commands/CreatePackage/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:22` | Package creation command. |
 | `@beep/repo-cli/commands/CreatePackage/TemplateService` | `createTemplateService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:155` | Construct the default template service implementation. |
 | `@beep/repo-cli/commands/CreatePackage/TemplateService` | `RenderedTemplate` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:50` | Rendered template output. |
@@ -1944,10 +1944,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1686` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1706` | Synchronize tsconfig references and root aliases under a specific repository root. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
@@ -1958,17 +1958,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:704` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:684` | Minimal tsconfig shape containing optional `references`. |
 | `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1686` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1706` | Synchronize tsconfig references and root aliases under a specific repository root. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
@@ -1979,17 +1979,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:704` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:684` | Minimal tsconfig shape containing optional `references`. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1686` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1706` | Synchronize tsconfig references and root aliases under a specific repository root. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:191` | Command execution mode. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:591` | Result emitted after a sync run. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:606` | Result emitted after a sync run. |
@@ -1997,8 +1997,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:704` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:684` | Minimal tsconfig shape containing optional `references`. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
@@ -2271,8 +2271,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:31` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:61` | Summary of terse Effect style migration results. |
-| `@beep/repo-cli/test/Quality` | `buildJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:912` | Build the deterministic JSDoc documentation inventory for a repository. |
-| `@beep/repo-cli/test/Quality` | `buildRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:617` | Build the deterministic repo export catalog for a repository. |
+| `@beep/repo-cli/test/Quality` | `buildJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:947` | Build the deterministic JSDoc documentation inventory for a repository. |
+| `@beep/repo-cli/test/Quality` | `buildRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:634` | Build the deterministic repo export catalog for a repository. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:72` | A package name referenced by a changeset file. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:102` | Summary emitted by the changeset package graph guard. |
@@ -2282,6 +2282,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:402` | Find changeset package references that are not in the workspace graph. |
 | `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:141` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:158` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:140` | Options for building or writing the JSDoc documentation inventory. |
+| `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:160` | Result returned after writing JSDoc inventory artifacts. |
 | `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
 | `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:103` | Package-local script profile used by the quality task adapter. |
 | `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1097` | Parse a raw argv vector into a quality task invocation when the first token is |
@@ -2294,6 +2296,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:69` | Canonical quality task name. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:86` | Canonical quality task name. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:130` | Planned subprocess invocation. |
+| `@beep/repo-cli/test/Quality` | `RepoExportsCatalogOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:119` | Options for building, writing, or checking the repo export catalog. |
+| `@beep/repo-cli/test/Quality` | `RepoExportsCatalogWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:137` | Result returned after writing or checking repo export catalog artifacts. |
 | `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:994` | Build root quality task subprocess steps. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:361` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
 | `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
@@ -2313,8 +2317,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:818` | Resolve the SQL integration database connection URI from environment variables. |
 | `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:785` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/test/Quality` | `writeJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:960` | Write JSDoc inventory JSONC and Markdown artifacts. |
-| `@beep/repo-cli/test/Quality` | `writeOrCheckRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:681` | Write or freshness-check repo export catalog JSONC and Markdown artifacts. |
+| `@beep/repo-cli/test/Quality` | `writeJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:995` | Write JSDoc inventory JSONC and Markdown artifacts. |
+| `@beep/repo-cli/test/Quality` | `writeOrCheckRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:698` | Write or freshness-check repo export catalog JSONC and Markdown artifacts. |
 | `@beep/repo-cli/test/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/test/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
 | `@beep/repo-cli/test/Reuse` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
@@ -2641,14 +2645,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/nlp-mcp` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
 | `@beep/nlp-mcp` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
-| `@beep/nlp-mcp` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:742` | The complete streaming toolkit grouping all 17 streaming tools. |
-| `@beep/nlp-mcp` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:768` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:743` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:769` | Type of the {@link StreamingToolkit}. |
 | `@beep/nlp-mcp` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
 | `@beep/nlp-mcp/bin` | `SERVER_CONFIG` | const | `packages/drivers/nlp-mcp/src/bin.ts:27` | The server identity advertised to MCP clients by this entrypoint. |
 | `@beep/nlp-mcp/index` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
 | `@beep/nlp-mcp/index` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
-| `@beep/nlp-mcp/index` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:742` | The complete streaming toolkit grouping all 17 streaming tools. |
-| `@beep/nlp-mcp/index` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:768` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp/index` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:743` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp/index` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:769` | Type of the {@link StreamingToolkit}. |
 | `@beep/nlp-mcp/index` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
 | `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
 | `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
@@ -2687,33 +2691,33 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:47` | Streaming options that extend {@link TextReadOptions} with windowing controls. |
 | `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:60` | Aggregate line-length and byte statistics computed for a text file. |
 | `@beep/nlp-mcp/StreamingHandlers` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
-| `@beep/nlp-mcp/StreamingTools` | `CountJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:720` | Tool: count valid JSONL records in a file. |
-| `@beep/nlp-mcp/StreamingTools` | `CountLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:706` | Tool: count total lines in a file. |
+| `@beep/nlp-mcp/StreamingTools` | `CountJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:721` | Tool: count valid JSONL records in a file. |
+| `@beep/nlp-mcp/StreamingTools` | `CountLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:707` | Tool: count total lines in a file. |
 | `@beep/nlp-mcp/StreamingTools` | `DataOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:254` | Output schema pairing loaded data with its {@link DatasetMetaOutput}. |
 | `@beep/nlp-mcp/StreamingTools` | `DatasetMetaOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:224` | Output schema for dataset provenance metadata. |
-| `@beep/nlp-mcp/StreamingTools` | `ExtractMatches` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:692` | Tool: extract regex matches from a file. |
-| `@beep/nlp-mcp/StreamingTools` | `FileInfo` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:510` | Tool: report whether a file exists plus its size and line count. |
+| `@beep/nlp-mcp/StreamingTools` | `ExtractMatches` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:693` | Tool: extract regex matches from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `FileInfo` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:511` | Tool: report whether a file exists plus its size and line count. |
 | `@beep/nlp-mcp/StreamingTools` | `FileInfoOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:102` | Output schema for file existence and size metadata. |
-| `@beep/nlp-mcp/StreamingTools` | `FilterLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:678` | Tool: filter file lines by a regex pattern. |
+| `@beep/nlp-mcp/StreamingTools` | `FilterLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:679` | Tool: filter file lines by a regex pattern. |
 | `@beep/nlp-mcp/StreamingTools` | `JsonlOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:162` | Output schema for JSONL record reads, with optional collected errors. |
-| `@beep/nlp-mcp/StreamingTools` | `JsonlStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:566` | Tool: compute JSONL parse statistics for a file. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:567` | Tool: compute JSONL parse statistics for a file. |
 | `@beep/nlp-mcp/StreamingTools` | `JsonlStatsOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:193` | Output schema for JSONL parse statistics. |
 | `@beep/nlp-mcp/StreamingTools` | `LinesOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:77` | Output schema for line-returning streaming tools. |
-| `@beep/nlp-mcp/StreamingTools` | `LoadJson` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:650` | Tool: load and parse JSON from a local file or remote URL. |
-| `@beep/nlp-mcp/StreamingTools` | `LoadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:636` | Tool: load JSONL records from a local file or remote URL. |
-| `@beep/nlp-mcp/StreamingTools` | `LoadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:622` | Tool: load lines from a local file or remote URL. |
-| `@beep/nlp-mcp/StreamingTools` | `LoadText` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:608` | Tool: load text from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadJson` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:651` | Tool: load and parse JSON from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:637` | Tool: load JSONL records from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:623` | Tool: load lines from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadText` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:609` | Tool: load text from a local file or remote URL. |
 | `@beep/nlp-mcp/StreamingTools` | `PipelineOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:285` | Output schema for line-transform pipeline runs. |
-| `@beep/nlp-mcp/StreamingTools` | `ProcessFile` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:664` | Tool: run a line-transform pipeline over a file. |
-| `@beep/nlp-mcp/StreamingTools` | `ReadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:552` | Tool: read JSONL/NDJSON records from a file. |
-| `@beep/nlp-mcp/StreamingTools` | `ReadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:495` | Tool: read lines from a text file with optional head/tail windowing. |
-| `@beep/nlp-mcp/StreamingTools` | `SampleJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:594` | Tool: sample random JSONL records from a file. |
-| `@beep/nlp-mcp/StreamingTools` | `SampleLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:538` | Tool: sample random lines from a text file. |
-| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:742` | The complete streaming toolkit grouping all 17 streaming tools. |
-| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:768` | Type of the {@link StreamingToolkit}. |
-| `@beep/nlp-mcp/StreamingTools` | `TextStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:524` | Tool: compute aggregate line-length and byte statistics for a file. |
+| `@beep/nlp-mcp/StreamingTools` | `ProcessFile` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:665` | Tool: run a line-transform pipeline over a file. |
+| `@beep/nlp-mcp/StreamingTools` | `ReadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:553` | Tool: read JSONL/NDJSON records from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `ReadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:496` | Tool: read lines from a text file with optional head/tail windowing. |
+| `@beep/nlp-mcp/StreamingTools` | `SampleJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:595` | Tool: sample random JSONL records from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `SampleLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:539` | Tool: sample random lines from a text file. |
+| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:743` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:769` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp/StreamingTools` | `TextStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:525` | Tool: compute aggregate line-length and byte statistics for a file. |
 | `@beep/nlp-mcp/StreamingTools` | `TextStatsOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:134` | Output schema for aggregate text statistics. |
-| `@beep/nlp-mcp/StreamingTools` | `ValidateJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:580` | Tool: validate a JSONL file and collect parse errors. |
+| `@beep/nlp-mcp/StreamingTools` | `ValidateJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:581` | Tool: validate a JSONL file and collect parse errors. |
 
 ### @beep/law-practice-domain
 
@@ -4321,57 +4325,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/types/TUtils.types` | `Simplify` | type | `packages/foundation/primitive/types/src/TUtils.types.ts:52` | Expands an object type into a readable readonly property map. |
 | `@beep/types/TUtils.types` | `UnionToIntersection` | type | `packages/foundation/primitive/types/src/TUtils.types.ts:27` | Converts a union type into an intersection type. |
 
-### @beep/oip-web
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/oip-web` | `VERSION` | const | `apps/oip-web/src/index.ts:21` | Package version for the oip web app. |
-| `@beep/oip-web/app/api/contact/ContactRouteResponse` | `contactRequestResponse` | const | `apps/oip-web/src/app/api/contact/ContactRouteResponse.ts:141` | Builds an OIP contact route response inside an Effect runtime. |
-| `@beep/oip-web/app/api/contact/ContactRouteResponse` | `contactRequestResponseWithSubmit` | const | `apps/oip-web/src/app/api/contact/ContactRouteResponse.ts:83` | Builds an OIP contact route response using an injected contact workflow. |
-| `@beep/oip-web/app/api/contact/route` | `POST` | function | `apps/oip-web/src/app/api/contact/route.ts:26` | Handles OIP contact submissions at the Next.js route boundary. |
-| `@beep/oip-web/app/llms.txt/route` | `GET` | function | `apps/oip-web/src/app/llms.txt/route.ts:24` | Returns `llms.txt` for oip.law. |
-| `@beep/oip-web/app/manifest` | `default` | function | `apps/oip-web/src/app/manifest.ts:23` | Returns the static web manifest for oip web. |
-| `@beep/oip-web/app/robots` | `default` | function | `apps/oip-web/src/app/robots.ts:24` | Returns the robots policy for OIP. |
-| `@beep/oip-web/app/sitemap` | `default` | function | `apps/oip-web/src/app/sitemap.ts:24` | Returns the OIP sitemap. |
-| `@beep/oip-web/config/OipRedirects` | `oipRedirects` | const | `apps/oip-web/src/config/OipRedirects.ts:24` | Returns the canonical OIP redirect table for legacy OPIP compatibility. |
-| `@beep/oip-web/contact` | `contactResponseBody` | const | `apps/oip-web/src/contact/ContactSubmission.service.ts:333` | Builds a JSON-safe contact response object. |
-| `@beep/oip-web/contact` | `ContactSubmission` | class | `apps/oip-web/src/contact/ContactSubmission.model.ts:119` | Browser-submitted OIP contact form payload. |
-| `@beep/oip-web/contact` | `ContactSubmissionResponse` | class | `apps/oip-web/src/contact/ContactSubmission.model.ts:154` | Public contact submission response. |
-| `@beep/oip-web/contact` | `ContactSubmissionStatus` | const | `apps/oip-web/src/contact/ContactSubmission.model.ts:74` | Public contact submission status. |
-| `@beep/oip-web/contact` | `ContactSubmissionStatus` | type | `apps/oip-web/src/contact/ContactSubmission.model.ts:94` | Type for {@link ContactSubmissionStatus}. |
-| `@beep/oip-web/contact` | `decodeContactSubmission` | const | `apps/oip-web/src/contact/ContactSubmission.model.ts:185` | Decodes unknown input into a contact submission. |
-| `@beep/oip-web/contact` | `submitContact` | const | `apps/oip-web/src/contact/ContactSubmission.service.ts:281` | Submits an OIP contact payload to HubSpot when runtime config is present. |
-| `@beep/oip-web/content` | `AboutPanel` | class | `apps/oip-web/src/content/OipContent.model.ts:341` | Biographical bridge panel. |
-| `@beep/oip-web/content` | `ClientLogo` | class | `apps/oip-web/src/content/OipContent.model.ts:446` | Client logo reference. |
-| `@beep/oip-web/content` | `ContactContent` | class | `apps/oip-web/src/content/OipContent.model.ts:516` | Public contact and legal notice content. |
-| `@beep/oip-web/content` | `decodeOipSiteContent` | const | `apps/oip-web/src/content/OipContent.model.ts:596` | Decodes unknown input into {@link OipSiteContent} in an Effect workflow. |
-| `@beep/oip-web/content` | `decodeOipSiteContentResult` | const | `apps/oip-web/src/content/OipContent.model.ts:579` | Decodes unknown input into {@link OipSiteContent}. |
-| `@beep/oip-web/content` | `ExternalLink` | class | `apps/oip-web/src/content/OipContent.model.ts:97` | External link displayed by the public site. |
-| `@beep/oip-web/content` | `getOipSiteContent` | const | `apps/oip-web/src/content/OipContent.runtime.ts:190` | Promise boundary for Next.js server components. |
-| `@beep/oip-web/content` | `HeroContent` | class | `apps/oip-web/src/content/OipContent.model.ts:304` | Hero citation and opening claim. |
-| `@beep/oip-web/content` | `launchReviewGates` | const | `apps/oip-web/src/content/OipContent.data.ts:397` | Review gate statuses that must be closed before public launch. |
-| `@beep/oip-web/content` | `loadOipSiteContent` | const | `apps/oip-web/src/content/OipContent.runtime.ts:165` | Loads OIP site content from Sanity when configured, falling back to the |
-| `@beep/oip-web/content` | `makeJsonLdGraph` | const | `apps/oip-web/src/content/OipSeo.ts:36` | Builds conservative JSON-LD graph data for the OIP website. |
-| `@beep/oip-web/content` | `makeLlmsText` | const | `apps/oip-web/src/content/OipSeo.ts:115` | Builds `llms.txt` content from reviewed OIP site content. |
-| `@beep/oip-web/content` | `MatterItem` | class | `apps/oip-web/src/content/OipContent.model.ts:408` | Selected matter summary. |
-| `@beep/oip-web/content` | `NavItem` | class | `apps/oip-web/src/content/OipContent.model.ts:268` | Anchor navigation item. |
-| `@beep/oip-web/content` | `oipSiteContent` | const | `apps/oip-web/src/content/OipContent.data.ts:382` | Decoded OIP launch content. |
-| `@beep/oip-web/content` | `OipSiteContent` | class | `apps/oip-web/src/content/OipContent.model.ts:543` | Complete content contract for the OIP public site. |
-| `@beep/oip-web/content` | `oipTwitterHandle` | const | `apps/oip-web/src/content/OipSeo.ts:92` | Derives the firm's X/Twitter handle (e.g. `@opiplaw`) from the social links, |
-| `@beep/oip-web/content` | `PracticeArea` | class | `apps/oip-web/src/content/OipContent.model.ts:373` | Practice-area summary. |
-| `@beep/oip-web/content` | `PressItem` | class | `apps/oip-web/src/content/OipContent.model.ts:481` | Press item summary. |
-| `@beep/oip-web/content` | `ReviewGate` | class | `apps/oip-web/src/content/OipContent.model.ts:69` | Review note attached to a public website claim. |
-| `@beep/oip-web/content` | `ReviewStatus` | const | `apps/oip-web/src/content/OipContent.model.ts:29` | Review state for public claims that need launch approval. |
-| `@beep/oip-web/content` | `ReviewStatus` | type | `apps/oip-web/src/content/OipContent.model.ts:49` | Runtime type for {@link ReviewStatus}. |
-| `@beep/oip-web/content` | `SiteAsset` | class | `apps/oip-web/src/content/OipContent.model.ts:205` | Runtime asset reference served from the OIP app public folder. |
-| `@beep/oip-web/content` | `SiteMetadataContent` | class | `apps/oip-web/src/content/OipContent.model.ts:240` | Top-level metadata used by Next.js and JSON-LD generation. |
-| `@beep/oip-web/content` | `SocialLink` | class | `apps/oip-web/src/content/OipContent.model.ts:172` | Public social media profile link for the OIP firm. |
-| `@beep/oip-web/content` | `SocialPlatform` | const | `apps/oip-web/src/content/OipContent.model.ts:121` | Social platform the OIP firm maintains a public profile on. |
-| `@beep/oip-web/content` | `SocialPlatform` | type | `apps/oip-web/src/content/OipContent.model.ts:151` | Runtime type for {@link SocialPlatform}. |
-| `@beep/oip-web/mdx-components` | `useMDXComponents` | function | `apps/oip-web/src/mdx-components.tsx:26` | Returns the MDX component overrides used by oip web. |
-| `@beep/oip-web/proxy` | `config` | const | `apps/oip-web/src/proxy.ts:106` | Route matcher for the OIP CSP proxy. |
-| `@beep/oip-web/proxy` | `proxy` | function | `apps/oip-web/src/proxy.ts:75` | Adds a per-request CSP nonce to OIP document responses. |
-
 ### @beep/agent-capability-domain
 
 | Import | Symbol | Kind | Source | Summary |
@@ -4671,34 +4624,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/md/Md.utils` | `renderInlineCode` | const | `packages/foundation/capability/md/src/Md.utils.ts:342` | Builds a Markdown inline code span with an adaptive backtick fence. |
 | `@beep/md/Md.utils` | `sanitizeCodeFenceLanguage` | const | `packages/foundation/capability/md/src/Md.utils.ts:287` | Sanitizes Markdown fenced-code info strings to a single language token. |
 | `@beep/md/Md.utils` | `sanitizeUrlDestination` | const | `packages/foundation/capability/md/src/Md.utils.ts:224` | Normalizes URL-like destinations before rendering Markdown or HTML output. |
-
-### @beep/canvas
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/canvas` | `App` | function | `apps/canvas/src/App.tsx:85` | Canvas desktop shell root component. |
-| `@beep/canvas` | `CanvasCommandBridgeEffect` | type | `apps/canvas/src/commandBridge.ts:500` | Effect that builds or runs against the app-local canvas command bridge. |
-| `@beep/canvas` | `CanvasCommandError` | class | `apps/canvas/src/commandBridge.ts:355` | App command bridge failure. |
-| `@beep/canvas` | `CanvasCommandName` | const | `apps/canvas/src/commandBridge.ts:92` | Native command name schema for the canvas app shell. |
-| `@beep/canvas` | `CanvasCommandName` | type | `apps/canvas/src/commandBridge.ts:111` | Type for {@link CanvasCommandName}. |
-| `@beep/canvas` | `CanvasCommandRuntime` | type | `apps/canvas/src/commandBridge.ts:51` | Runtime returned by {@link makeCanvasCommandRuntime}. |
-| `@beep/canvas` | `CanvasHealth` | class | `apps/canvas/src/commandBridge.ts:137` | Canvas shell health payload. |
-| `@beep/canvas` | `CanvasScene` | const | `apps/canvas/src/commandBridge.ts:165` | Serializable scene shape crossing the app command bridge. |
-| `@beep/canvas` | `CanvasScene` | type | `apps/canvas/src/commandBridge.ts:190` | Type for {@link CanvasScene}. |
-| `@beep/canvas` | `CanvasSceneNode` | const | `apps/canvas/src/commandBridge.ts:206` | Serializable node shape crossing the app command bridge. |
-| `@beep/canvas` | `CanvasSceneNode` | type | `apps/canvas/src/commandBridge.ts:230` | Type for {@link CanvasSceneNode}. |
-| `@beep/canvas` | `commandSurface` | const | `apps/canvas/src/commandBridge.ts:66` | Native command names exposed by the canvas app shell. |
-| `@beep/canvas` | `decodeCanvasNodeId` | const | `apps/canvas/src/commandBridge.ts:539` | Decode a user-provided string into a canvas node identifier. |
-| `@beep/canvas` | `decodeCanvasNodeKind` | const | `apps/canvas/src/commandBridge.ts:557` | Decode a user-provided value into a canvas node kind. |
-| `@beep/canvas` | `decodeCanvasProjectId` | const | `apps/canvas/src/commandBridge.ts:519` | Decode a user-provided string into a canvas project identifier. |
-| `@beep/canvas` | `makeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:695` | Build the default app command bridge. |
-| `@beep/canvas` | `makeCanvasCommandRuntime` | const | `apps/canvas/src/commandBridge.ts:34` | Managed runtime for app-local canvas command effects. |
-| `@beep/canvas` | `makeNativeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:671` | Build the desktop bridge: Tauri owns only app-local OS/file IO while scene |
-| `@beep/canvas` | `makePreviewCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:577` | Build a browser-safe preview bridge backed by the public CanvasProject use-case contract. |
-| `@beep/canvas` | `previewHealth` | const | `apps/canvas/src/commandBridge.ts:335` | Browser preview health payload. |
-| `@beep/canvas` | `SceneLoadRequest` | class | `apps/canvas/src/commandBridge.ts:280` | Scene load request. |
-| `@beep/canvas` | `SceneSaveRequest` | class | `apps/canvas/src/commandBridge.ts:256` | Scene save request. |
-| `@beep/canvas` | `VERSION` | const | `apps/canvas/src/index.ts:22` | Package version for `@beep/canvas`. |
 
 ### @beep/workspace-domain
 
@@ -7085,21 +7010,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/openai-compat` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
 | `@beep/openai-compat` | `VERSION` | const | `packages/drivers/openai-compat/src/index.ts:23` | OpenAI-compatible driver package version. |
 
-### @beep/stack-installer
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `packages/installer/server/src/Layer.ts:870` | Complete installer server layer. |
-| `@beep/stack-installer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:905` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/stack-installer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:885` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/stack-installer` | `VERSION` | const | `apps/stack-installer/src/index.ts:22` | App version marker. |
-
-### @beep/professional-desktop
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/professional-desktop` | `VERSION` | const | `apps/professional-desktop/src/index.ts:21` | Package version. |
-
 ### @beep/epistemic-domain
 
 | Import | Symbol | Kind | Source | Summary |
@@ -7209,10 +7119,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/professional-runtime-proof` | `runProfessionalRuntimeScenario` | const | `apps/professional-runtime-proof/src/index.ts:532` | Run one deterministic professional-runtime proof scenario end to end. |
-| `@beep/professional-runtime-proof` | `ScenarioId` | type | `apps/professional-runtime-proof/src/index.ts:167` | Deterministic proof scenario identifiers. |
-| `@beep/professional-runtime-proof` | `toPlain` | const | `apps/professional-runtime-proof/src/index.ts:200` | Convert decoded Schema class instances into JSON-comparable plain data. |
-| `@beep/professional-runtime-proof` | `VERSION` | const | `apps/professional-runtime-proof/src/index.ts:55` | Package version. |
+| `@beep/professional-runtime-proof` | `runProfessionalRuntimeScenario` | const | `apps/professional-runtime-proof/src/index.ts:517` | Run one deterministic professional-runtime proof scenario end to end. |
+| `@beep/professional-runtime-proof` | `ScenarioId` | type | `apps/professional-runtime-proof/src/index.ts:152` | Deterministic proof scenario identifiers. |
+| `@beep/professional-runtime-proof` | `toPlain` | const | `apps/professional-runtime-proof/src/index.ts:185` | Convert decoded Schema class instances into JSON-comparable plain data. |
 
 ### @beep/acp
 
@@ -8498,7 +8407,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/Tools/index` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:621` | Transform text tool. |
 | `@beep/nlp/Tools/index` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:635` | Tversky similarity tool. |
 | `@beep/nlp/Tools/index` | `WordCount` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:649` | Word count tool. |
-| `@beep/nlp/Tools/LearnCorpus` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts:79` | Defines the agent-facing tool contract for incrementally learning documents |
+| `@beep/nlp/Tools/LearnCorpus` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts:80` | Defines the agent-facing tool contract for incrementally learning documents |
 | `@beep/nlp/Tools/LearnCustomEntities` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts:98` | Defines the agent-facing tool contract for learning custom entity patterns |
 | `@beep/nlp/Tools/NGrams` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/NGrams.ts:86` | Defines the agent-facing tool contract for extracting fixed-size character |
 | `@beep/nlp/Tools/NlpToolkit` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:140` | Effect AI toolkit definition containing the full NLP tool surface. |
@@ -12283,12 +12192,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Yaml` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:73` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
 | `@beep/schema/Yaml` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:92` | Schema transformation that decodes YAML text into an unknown parsed value. |
 
-### @beep/codedank-web
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/codedank-web` | `VERSION` | const | `apps/codedank-web/src/index.ts:21` | Package version for the codedank web app. |
-
 ### @beep/onepassword-cli
 
 | Import | Symbol | Kind | Source | Summary |
@@ -12665,9 +12568,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/architecture-lab-proof` | `ArchitectureLabProofResult` | class | `apps/architecture-lab-proof/src/index.ts:49` | App-level WorkItem proof result. |
-| `@beep/architecture-lab-proof` | `runArchitectureLabProof` | const | `apps/architecture-lab-proof/src/index.ts:75` | Execute the architecture lab proof harness against the composed server layer. |
-| `@beep/architecture-lab-proof` | `VERSION` | const | `apps/architecture-lab-proof/src/index.ts:34` | Package version for the architecture lab proof harness. |
+| `@beep/architecture-lab-proof` | `ArchitectureLabProofResult` | class | `apps/architecture-lab-proof/src/index.ts:34` | App-level WorkItem proof result. |
+| `@beep/architecture-lab-proof` | `runArchitectureLabProof` | const | `apps/architecture-lab-proof/src/index.ts:60` | Execute the architecture lab proof harness against the composed server layer. |
 
 ### @beep/installer-server
 

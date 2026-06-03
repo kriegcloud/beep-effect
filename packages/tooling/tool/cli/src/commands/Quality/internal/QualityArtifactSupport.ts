@@ -3,7 +3,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Err, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, Order, Result, SchemaGetter, Stream } from "effect";
+import { Effect, FileSystem, MutableHashMap, Order, Result, SchemaGetter, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -50,19 +50,21 @@ export class QualityArtifactGeneratorError extends TaggedErrorClass<QualityArtif
    * @since 0.0.0
    */
   static readonly new: {
-    (cause: unknown, message: string, opts?: QualityArtifactGeneratorErrorOptions): QualityArtifactGeneratorError;
-    (message: string, opts?: QualityArtifactGeneratorErrorOptions): (cause: unknown) => QualityArtifactGeneratorError;
+    (cause: unknown, message: string, opts: QualityArtifactGeneratorErrorOptions): QualityArtifactGeneratorError;
+    (message: string, opts: QualityArtifactGeneratorErrorOptions): (cause: unknown) => QualityArtifactGeneratorError;
   } = dual(
     3,
-    (cause, message, { command, exitCode, filePath } = {}): QualityArtifactGeneratorError =>
+    (
+      cause,
+      message,
+      { command, exitCode, filePath }: QualityArtifactGeneratorErrorOptions
+    ): QualityArtifactGeneratorError =>
       QualityArtifactGeneratorError.make({
         cause,
         message,
-        ...R.getSomes({
-          command: O.fromUndefinedOr(command),
-          exitCode: O.fromUndefinedOr(exitCode),
-          filePath: O.fromUndefinedOr(filePath),
-        }),
+        ...R.getSomes({ command: O.fromUndefinedOr(command) }),
+        ...R.getSomes({ exitCode: O.fromUndefinedOr(exitCode) }),
+        ...R.getSomes({ filePath: O.fromUndefinedOr(filePath) }),
       })
   );
 
@@ -185,8 +187,8 @@ export const readJsonc = Effect.fn("QualityArtifactSupport.readJsonc")(function*
 /**
  * Format a JSON-compatible value as deterministic JSONC text.
  *
- * @param value - JSON-compatible artifact value to render.
- * @returns Effect that renders two-space JSON text with a trailing newline.
+ * @param value - JSON-compatible value to render.
+ * @returns Deterministically formatted JSONC text with a trailing newline.
  * @category rendering
  * @since 0.0.0
  */
@@ -195,15 +197,15 @@ export const formatJsonc = Effect.fn("QualityArtifactSupport.formatJsonc")(funct
 ): Effect.fn.Return<string, QualityArtifactGeneratorError> {
   const rendered = yield* stringifyJsonPretty
     .run(O.some(value), {})
-    .pipe(QualityArtifactGeneratorError.mapError("Failed to format generated JSONC artifact."));
+    .pipe(QualityArtifactGeneratorError.mapError("Failed to format generated JSONC artifact.", {}));
   return `${O.getOrElse(rendered, thunkEmptyStr)}\n`;
 });
 
 /**
  * Convert Windows path separators to repo-standard slash separators.
  *
- * @param value - Path text to normalize.
- * @returns Path text with slash separators.
+ * @param value - Path text that may contain backslash separators.
+ * @returns Path text using slash separators.
  * @category paths
  * @since 0.0.0
  */
@@ -212,10 +214,10 @@ export const normalizeSlashes = (value: string): string => Str.replaceAll("\\", 
 /**
  * Render an absolute path relative to the repository root.
  *
- * @param absolutePath - Path to render relative to `repoRoot`.
- * @param repoRoot - Repository root used as the relative base.
- * @param path - Effect platform path service.
- * @returns Repo-relative path with slash separators.
+ * @param absolutePath - Absolute path to make repository-relative.
+ * @param repoRoot - Absolute repository root path.
+ * @param path - Effect path service used for platform path operations.
+ * @returns Slash-normalized repository-relative path, or `.` for the root.
  * @category paths
  * @since 0.0.0
  */
@@ -230,7 +232,7 @@ export const repoRelative: {
  * Escape user text for safe inclusion in a regular expression.
  *
  * @param value - Literal text to escape.
- * @returns Regular-expression escaped text.
+ * @returns Regular expression source that matches the input text literally.
  * @category parsing
  * @since 0.0.0
  */
@@ -373,11 +375,16 @@ export const expandWorkspacePattern: {
 export const discoverWorkspacePackages = Effect.fn("QualityArtifactSupport.discoverWorkspacePackages")(function* (
   repoRoot: string,
   path: Path.Path
-): Effect.fn.Return<Map<string, WorkspacePackageInfo>, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+): Effect.fn.Return<
+  MutableHashMap.MutableHashMap<string, WorkspacePackageInfo>,
+  QualityArtifactGeneratorError,
+  FileSystem.FileSystem
+> {
   const rootPackage = yield* readRootPackage(repoRoot, path);
-  const packages = new Map<string, WorkspacePackageInfo>();
+  const packages = MutableHashMap.empty<string, WorkspacePackageInfo>();
 
-  packages.set(
+  MutableHashMap.set(
+    packages,
     rootPackage.name,
     WorkspacePackageInfo.make({
       name: rootPackage.name,
@@ -390,7 +397,8 @@ export const discoverWorkspacePackages = Effect.fn("QualityArtifactSupport.disco
   for (const pattern of workspacePatternsFrom(rootPackage.workspaces)) {
     for (const packagePath of yield* expandWorkspacePattern(pattern, repoRoot, path)) {
       const packageJson = yield* readPackageJson(path.join(packagePath, "package.json"));
-      packages.set(
+      MutableHashMap.set(
+        packages,
         packageJson.name,
         WorkspacePackageInfo.make({
           name: packageJson.name,
@@ -523,7 +531,7 @@ export const listSourceFiles = Effect.fn("QualityArtifactSupport.listSourceFiles
  * Remove JSDoc comment framing from a comment block.
  *
  * @param commentText - Raw JSDoc comment text.
- * @returns Comment lines without `/**`, `*`, or closing framing.
+ * @returns Comment lines without the opening, closing, or leading star framing.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -536,7 +544,7 @@ export const stripCommentFraming = (commentText: string): ReadonlyArray<string> 
  * Extract the summary sentence from a JSDoc comment block.
  *
  * @param commentText - Raw JSDoc comment text.
- * @returns First non-empty non-tag summary line, when present.
+ * @returns First non-empty prose line, when the comment has one.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -555,7 +563,7 @@ export const summaryFromComment = (commentText: string): string | undefined => {
  * Extract tag names from a JSDoc comment block.
  *
  * @param commentText - Raw JSDoc comment text.
- * @returns Unique JSDoc tag names in encounter order.
+ * @returns Unique JSDoc tag names in first-seen order.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -597,7 +605,7 @@ export const valuesForTag: {
  * Resolve the ts-morph node that owns a declaration's documentation.
  *
  * @param node - Declaration or export node to inspect.
- * @returns Node that should own the documentation comment.
+ * @returns Node whose leading JSDoc should be used for documentation analysis.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -614,8 +622,8 @@ export const getDocNode = (node: Node): Node => {
 /**
  * Read the nearest JSDoc text for a ts-morph declaration node.
  *
- * @param node - Declaration node to inspect.
- * @returns Text of the nearest JSDoc block, or an empty string.
+ * @param node - Declaration or export node to inspect.
+ * @returns Raw JSDoc text, or an empty string when no JSDoc is available.
  * @category jsdoc
  * @since 0.0.0
  */
@@ -632,7 +640,7 @@ export const getJsDocText = (node: Node): string => {
  * Classify a ts-morph declaration node for generated reports.
  *
  * @param node - Declaration node to classify.
- * @returns Human-readable declaration kind for reports.
+ * @returns Stable declaration kind label used in quality artifacts.
  * @category jsdoc
  * @since 0.0.0
  */

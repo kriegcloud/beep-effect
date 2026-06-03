@@ -6,10 +6,14 @@
  * @since 0.0.0
  */
 
+import { $StackInstallerId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { P1ManualProofRequest } from "@beep/installer-use-cases";
+
+const $I = $StackInstallerId.create("proof/P1ProofCommands");
 
 /**
  * Inputs used to build a proof command transcript.
@@ -17,10 +21,15 @@ import type { P1ManualProofRequest } from "@beep/installer-use-cases";
  * @category models
  * @since 0.0.0
  */
-type P1ProofCommandsTextOptions = {
-  readonly requestJson: string;
-  readonly outputDir: string;
-};
+class P1ProofCommandsTextOptions extends S.Class<P1ProofCommandsTextOptions>($I`P1ProofCommandsTextOptions`)(
+  {
+    outputDir: S.String,
+    requestJson: S.String,
+  },
+  $I.annote("P1ProofCommandsTextOptions", {
+    description: "Inputs used to build a proof command transcript.",
+  })
+) {}
 
 const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
 

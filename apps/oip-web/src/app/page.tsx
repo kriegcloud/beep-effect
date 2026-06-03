@@ -6,6 +6,7 @@
  */
 
 import { A, Str } from "@beep/utils";
+import { Clock, Effect } from "effect";
 import * as S from "effect/Schema";
 import { headers } from "next/headers";
 import { connection } from "next/server";
@@ -109,6 +110,7 @@ export default function Home({ searchParams }: HomeProps) {
       const nonce = requestHeaders.get("x-nonce") ?? undefined;
       const contactStatusValue = A.isArray(params?.contact) ? params.contact[0] : params?.contact;
       const contactStatus = isContactSubmissionStatus(contactStatusValue) ? contactStatusValue : undefined;
+      const initialContactSubmittedAt = Effect.runSync(Clock.currentTimeMillis);
 
       return (
         <>
@@ -120,7 +122,11 @@ export default function Home({ searchParams }: HomeProps) {
             // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD is generated server-side and escaped before injection.
             dangerouslySetInnerHTML={{ __html: safeJsonScript(makeJsonLdGraph(content)) }}
           />
-          <OipHomePage contactStatus={contactStatus} content={content} />
+          <OipHomePage
+            contactStatus={contactStatus}
+            content={content}
+            initialContactSubmittedAt={initialContactSubmittedAt}
+          />
         </>
       );
     });

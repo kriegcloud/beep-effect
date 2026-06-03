@@ -14,25 +14,34 @@ import { oipSiteContent, oipTwitterHandle } from "@/content";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
+import { dual, thunkTrue } from "@beep/utils";
 
 const { metadata: siteMetadata } = oipSiteContent;
 const twitterHandle = oipTwitterHandle(oipSiteContent);
 const REACT_GRAB_VERSION = "0.1.37";
 const REACT_GRAB_INTEGRITY = "sha384-bu1FPBrtnXa6EIFQzS/zbLFeLLKPK06RmfHZYCTbWTXxXVjiIGvjdMjo/jDi+fVu";
 const configStringOptionSync = (name: string): O.Option<string> => Effect.runSync(Config.option(Config.string(name)));
-const configStringEqualsSync = (name: string, expected: string): boolean =>
+const configStringEqualsSync: {
+  (name: string, expected: string): boolean;
+  (expected: string): (name: string) => boolean;
+} = dual(2, (name: string, expected: string): boolean =>
   pipe(
     configStringOptionSync(name),
     O.exists((value) => value === expected)
-  );
-const configStringNotEqualsSync = (name: string, expected: string): boolean =>
+  )
+);
+const configStringNotEqualsSync: {
+  (name: string, expected: string): boolean;
+  (expected: string): (name: string) => boolean;
+} = dual(2, (name: string, expected: string): boolean =>
   pipe(
     configStringOptionSync(name),
     O.match({
-      onNone: () => true,
+      onNone: thunkTrue,
       onSome: (value) => value !== expected,
     })
-  );
+  )
+);
 const shouldLoadReactGrab =
   configStringEqualsSync("NODE_ENV", "development") && configStringNotEqualsSync("NEXT_PUBLIC_REACT_GRAB", "0");
 const shouldLoadVercelInsights =

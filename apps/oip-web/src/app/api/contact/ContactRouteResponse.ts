@@ -5,44 +5,42 @@
  * @since 0.0.0
  */
 
-import { Str } from "@beep/utils";
-import { Effect, Exit, Match } from "effect";
+import { $OipWebId } from "@beep/identity/packages";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { Effect, Exit } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import { NextResponse } from "next/server";
-import { ContactSubmissionResponse, contactResponseBody, submitContact } from "../../../contact";
+import { ContactSubmissionResponse, contactSubmissionPayloadFromFormDataEffect, submitContact } from "../../../contact";
+
+const $I = $OipWebId.create("app/api/contact/ContactRouteResponse");
 
 type SubmitContact = (payload: unknown) => Effect.Effect<ContactSubmissionResponse>;
+
+const ContactRoutePayloadErrorReason = LiteralKit(["form-data", "schema"]).pipe(
+  $I.annoteSchema("ContactRoutePayloadErrorReason", {
+    description: "Sanitized contact route form payload failure reason.",
+  })
+);
+
+type ContactRoutePayloadErrorReason = typeof ContactRoutePayloadErrorReason.Type;
+
+class ContactRoutePayloadError extends TaggedErrorClass<ContactRoutePayloadError>($I`ContactRoutePayloadError`)(
+  "ContactRoutePayloadError",
+  {
+    reason: ContactRoutePayloadErrorReason,
+  },
+  $I.annote("ContactRoutePayloadError", {
+    description: "Typed OIP contact route form payload failure.",
+  })
+) {
+  static readonly fromReason = (reason: ContactRoutePayloadErrorReason): ContactRoutePayloadError =>
+    ContactRoutePayloadError.make({ reason });
+}
 
 const rejected = ContactSubmissionResponse.make({
   message: "The submission could not be accepted.",
   status: "rejected",
-});
-
-const submittedAtValue = (value: FormDataEntryValue | null) => {
-  if (!P.isString(value)) {
-    return 0;
-  }
-
-  const submittedAt = Number(value);
-
-  return Number.isFinite(submittedAt) ? submittedAt : 0;
-};
-
-const formTextValue = (value: FormDataEntryValue | null) =>
-  O.getOrUndefined(O.filter(O.map(O.filter(O.fromNullishOr(value), P.isString), Str.trim), Str.isNonEmpty));
-
-const formDataPayload = (formData: FormData) => ({
-  company: formTextValue(formData.get("company")),
-  email: formTextValue(formData.get("email")),
-  message: formTextValue(formData.get("message")),
-  name: formTextValue(formData.get("name")),
-  phone: formTextValue(formData.get("phone")),
-  posture: formTextValue(formData.get("posture")),
-  submittedAt: submittedAtValue(formData.get("submittedAt")),
-  technology: formTextValue(formData.get("technology")),
-  website: formTextValue(formData.get("website")),
 });
 
 const redirectToContact = (request: Request, response: ContactSubmissionResponse) => {
@@ -53,13 +51,19 @@ const redirectToContact = (request: Request, response: ContactSubmissionResponse
   return NextResponse.redirect(url, 303);
 };
 
-const rejectedJsonResponse = () =>
-  NextResponse.json(contactResponseBody(rejected), {
-    status: 400,
+const readContactFormPayload = Effect.fn("OipContact.readContactFormPayload")(function* (request: Request) {
+  const formData = yield* Effect.tryPromise({
+    try: () => request.formData(),
+    catch: () => ContactRoutePayloadError.fromReason("form-data"),
   });
 
+  return yield* contactSubmissionPayloadFromFormDataEffect(formData).pipe(
+    Effect.mapError(() => ContactRoutePayloadError.fromReason("schema"))
+  );
+});
+
 /**
- * Builds an OIP contact route response using an injected contact workflow.
+ * Builds an OIP form-post redirect response using an injected contact workflow.
  *
  * @example
  * ```ts
@@ -75,8 +79,8 @@ const rejectedJsonResponse = () =>
  * Effect.runPromise(program)
  * ```
  *
- * @effects Reads request bodies and delegates contact submission to the supplied
- * workflow before creating JSON or redirect responses.
+ * @effects Reads browser form data and delegates contact submission to the
+ * supplied workflow before creating a contact-section redirect response.
  * @category workflows
  * @since 0.0.0
  */
@@ -86,34 +90,19 @@ export const contactRequestResponseWithSubmit: {
 } = dual(
   2,
   Effect.fn("OipContact.contactRequestResponseWithSubmit")(function* (request: Request, submit: SubmitContact) {
-    const contentType = request.headers.get("content-type") ?? "";
-    const isJsonSubmission = Str.includes("application/json")(contentType);
-    const payloadExit = yield* Effect.exit(
-      Effect.promise(() => (isJsonSubmission ? request.json() : request.formData().then(formDataPayload)))
+    const payloadOption = yield* readContactFormPayload(request).pipe(
+      Effect.map(O.some),
+      Effect.catchTag("ContactRoutePayloadError", () => Effect.succeed(O.none()))
     );
 
-    if (Exit.isFailure(payloadExit)) {
-      return isJsonSubmission ? rejectedJsonResponse() : redirectToContact(request, rejected);
+    if (O.isNone(payloadOption)) {
+      return redirectToContact(request, rejected);
     }
 
-    const payload = payloadExit.value;
-    const exit = yield* Effect.exit(submit(payload));
+    const exit = yield* Effect.exit(submit(payloadOption.value));
     const response = Exit.isSuccess(exit) ? exit.value : rejected;
 
-    if (!isJsonSubmission) {
-      return redirectToContact(request, response);
-    }
-
-    return NextResponse.json(contactResponseBody(response), {
-      status: Match.value(response.status).pipe(
-        Match.when(
-          () => Exit.isFailure(exit),
-          () => 500
-        ),
-        Match.when("accepted", () => 202),
-        Match.orElse(() => 400)
-      ),
-    });
+    return redirectToContact(request, response);
   })
 );
 
@@ -133,8 +122,8 @@ export const contactRequestResponseWithSubmit: {
  * Effect.runPromise(program)
  * ```
  *
- * @effects Reads request bodies, submits contact payloads, and creates JSON or
- * redirect responses.
+ * @effects Reads browser form data, submits contact payloads, and creates a
+ * contact-section redirect response.
  * @category workflows
  * @since 0.0.0
  */

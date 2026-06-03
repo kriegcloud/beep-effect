@@ -104,11 +104,21 @@ belong to that archetype.
 
 ### `create-package`
 
-Create a new package following effect-smol patterns.
+Create a new package or app workspace following repo topology rules.
 
 ```bash
-bunx @beep/repo-cli create-package <name> [--type=library|tool|app]
+bunx @beep/repo-cli create-package <name> [--type=library|tool]
+bunx @beep/repo-cli create-package <name> --type=app --app-kind=nextjs
+bunx @beep/repo-cli create-package <name> --type=app --app-kind=tauri
+bunx @beep/repo-cli create-package <name> --type=app --app-kind=runtime-proof
 ```
+
+`--type app` requires `--app-kind`. `nextjs` and `tauri` generate framework
+apps without a public `@beep/<app>` TypeScript package API: no `src/index.ts`,
+package exports, docgen, dtslint, or type-test script. Use app-local `@/*`
+imports for tests and internal modules. `runtime-proof` is the explicit
+exception for app workspaces that intentionally prove runtime package contracts;
+it keeps the package-like scaffold.
 
 ### `codegen`
 
