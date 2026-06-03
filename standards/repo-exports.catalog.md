@@ -2660,10 +2660,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetMeta` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:37` | Provenance metadata returned alongside every loaded dataset. |
 | `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:71` | A loaded dataset payload paired with its {@link DatasetMeta}. |
 | `@beep/nlp-mcp/Streaming/DatasetLoader` | `isUrl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:109` | Report whether a location should be treated as a remote `http(s)` URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJson` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:359` | Load and parse a single JSON document from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:308` | Load a JSONL dataset as an array of parsed records from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadLines` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:244` | Load a dataset as an array of lines from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadText` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:197` | Load raw text from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJson` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:363` | Load and parse a single JSON document from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:312` | Load a JSONL dataset as an array of parsed records from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadLines` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:248` | Load a dataset as an array of lines from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadText` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:201` | Load raw text from a file or remote URL. |
 | `@beep/nlp-mcp/Streaming/Jsonl` | `computeJsonlStats` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:158` | Compute aggregate parse statistics for a JSONL file. |
 | `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlLineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:29` | Structured parse failure for a single JSONL line. |
 | `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:42` | Aggregate parse statistics for a JSONL file. |

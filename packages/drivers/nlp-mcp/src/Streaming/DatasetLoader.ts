@@ -125,7 +125,11 @@ const isBlockedRemoteHost = (hostname: string): boolean => {
     host === "::" ||
     host === "::1" ||
     Str.startsWith("127.")(host) ||
+    Str.startsWith("::ffff:127.")(host) ||
+    Str.startsWith("::ffff:7f")(host) ||
     Str.startsWith("169.254.")(host) ||
+    Str.startsWith("::ffff:169.254.")(host) ||
+    Str.startsWith("::ffff:a9fe:")(host) ||
     Str.startsWith("fe80:")(host) ||
     Str.startsWith("fc")(host) ||
     Str.startsWith("fd")(host)

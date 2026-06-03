@@ -171,6 +171,22 @@ describe("StreamingToolkit integration", () => {
       )
     );
 
+    it.effect("stream_load_text rejects IPv4-mapped internal URLs", () =>
+      Effect.gen(function* () {
+        const tk = yield* StreamingToolkit;
+        const assertBlocked = Effect.fn("assertBlocked")(function* (location: string) {
+          const stream = yield* tk.handle("stream_load_text", { location });
+          const results = yield* Stream.runCollect(stream);
+          const first = results[0];
+          assert.isDefined(first);
+          assert.strictEqual(first.isFailure, true);
+        });
+
+        yield* assertBlocked("http://[::ffff:127.0.0.1]/data.txt");
+        yield* assertBlocked("http://[::ffff:169.254.169.254]/latest/meta-data");
+      })
+    );
+
     it.effect("stream_file_info reports existence and line count", () =>
       withTempFixture("info.txt", "a\nbb\nccc\n", (file) =>
         Effect.gen(function* () {
