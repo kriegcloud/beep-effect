@@ -33,9 +33,6 @@
       "@beep/ontology": [
         "../../../../packages/foundation/modeling/ontology/src/index.ts"
       ],
-      "@beep/ontology/*": [
-        "../../../../packages/foundation/modeling/ontology/src/*.ts"
-      ],
       "@beep/identity": [
         "../../../../packages/foundation/modeling/identity/src/index.ts"
       ],

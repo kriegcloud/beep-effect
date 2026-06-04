@@ -65,8 +65,8 @@
     "@beep/observability": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
-    "firecrawl": "^4.25.2",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "firecrawl": "^4.25.2"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
