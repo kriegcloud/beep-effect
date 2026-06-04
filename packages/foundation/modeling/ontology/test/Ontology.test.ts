@@ -3,14 +3,19 @@ import {
   getOntologyKeyMetadata,
   getOntologyMetadata,
   isOntologyClassAnnotationDraft,
+  isOntologyPredicateAnnotationDraft,
   Ontology,
   OntologyAssemblyError,
+  parseJsonLdOntology,
   projectJsonLdContext,
+  projectJsonLdOntology,
   projectTurtle,
+  VERSION,
 } from "@beep/ontology";
-import { XSD_STRING } from "@beep/rdf/Vocab/Xsd";
+import { makeNamedNode } from "@beep/rdf/Rdf";
+import { XSD_ANY_URI, XSD_BOOLEAN, XSD_STRING } from "@beep/rdf/Vocab/Xsd";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, pipe, Result } from "effect";
+import { Cause, Effect, Exit, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -20,6 +25,14 @@ const { Ont, $I } = Ontology.create({
   baseIri: "https://example.org/test#",
   preferredPrefix: "test",
   label: "Ontology Package Test",
+});
+
+const CommentedOntologyScope = Ontology.create({
+  identity: $OntologyId.create("ontology-package-commented-test"),
+  baseIri: makeNamedNode("https://example.org/commented#"),
+  preferredPrefix: "commented",
+  label: "Commented Ontology Package Test",
+  comment: "Scope-level ontology comment.",
 });
 
 class Parent extends S.Class<Parent>($I`Parent`)(
@@ -73,6 +86,77 @@ class Child extends S.Class<Child>($I`Child`)(
   )
 ) {}
 
+class RichClass extends S.Class<RichClass>($I`RichClass`)(
+  {
+    title: S.NonEmptyString.pipe(
+      $I.annoteKey(
+        "RichClass.title",
+        Ont.dataPredicate({
+          comment: "Title predicate comment.",
+          description: "Rich class title.",
+          iri: Ont.iri("https://example.org/custom#", "title"),
+          label: "Title",
+          range: XSD_STRING,
+          termName: "title",
+        })
+      )
+    ),
+    homepage: S.NonEmptyString.pipe(
+      $I.annoteKey(
+        "RichClass.homepage",
+        Ont.dataPredicate({
+          description: "Homepage predicate.",
+          range: XSD_ANY_URI,
+        })
+      )
+    ),
+    enabled: S.Boolean.pipe(
+      $I.annoteKey(
+        "RichClass.enabled",
+        Ont.dataPredicate({
+          description: "Enabled predicate.",
+          range: XSD_BOOLEAN,
+        })
+      )
+    ),
+    parent: Parent.pipe(
+      $I.annoteKey(
+        "RichClass.parent",
+        Ont.objectPredicate({
+          comment: "Parent predicate comment.",
+          description: "Parent object predicate.",
+          iri: Ont.iri("https://example.org/custom#", "parent"),
+          label: "Parent",
+          range: Parent,
+          termName: "parent",
+        })
+      )
+    ),
+  },
+  $I.annote(
+    "RichClass",
+    Ont.class({
+      altLabels: ["Rich alternate label"],
+      children: [Ont.child(Child)],
+      closeMatches: [Ont.closeMatch("https://schema.org/Thing")],
+      comment: "Rich class comment.",
+      definition: "Rich class definition.",
+      deprecated: false,
+      description: "Rich class description.",
+      equivalentClasses: [Ont.equivalentClass(Parent)],
+      exactMatches: [Ont.exact("https://schema.org/CreativeWork")],
+      iri: Ont.iri("https://example.org/custom#", "RichClass"),
+      isDefinedBy: [Ont.ref(makeNamedNode("https://example.org/defined-by"))],
+      label: "Rich Class",
+      parents: [Ont.parent("Parent")],
+      sameAs: [Ont.sameAs("https://schema.org/Thing")],
+      seeAlso: [Ont.ref("https://example.org/see-also")],
+      source: Ont.iri("https://example.org/source"),
+      termName: Ont.termName("RichClass"),
+    })
+  )
+) {}
+
 class MultilineComment extends S.Class<MultilineComment>($I`MultilineComment`)(
   {},
   $I.annote(
@@ -94,9 +178,258 @@ class DeprecatedClass extends S.Class<DeprecatedClass>($I`DeprecatedClass`)(
   )
 ) {}
 
+const MissingIdentityClass = S.String.annotate({
+  ontologyMetadata: Ont.class({
+    description: "Class metadata without identity annotations.",
+  }),
+});
+
+const MissingSchemaIdentityClass = S.String.annotate({
+  identifier: "MissingSchemaIdentityClass",
+  ontologyMetadata: Ont.class({
+    description: "Class metadata without schema identity.",
+  }),
+});
+
+class MissingClassMetadata extends S.Class<MissingClassMetadata>($I`MissingClassMetadata`)(
+  {
+    value: S.String,
+  },
+  $I.annote("MissingClassMetadata", {
+    description: "Identity annotations without ontology class metadata.",
+  })
+) {}
+
+const InvalidClassMetadata = S.String.annotate(
+  $I.annote("InvalidClassMetadata", {
+    ontologyMetadata: Ont.dataPredicate({
+      range: XSD_STRING,
+    }),
+  })
+);
+
+const ScalarClass = S.String.annotate(
+  $I.annote(
+    "ScalarClass",
+    Ont.class({
+      description: "Scalar metadata cannot assemble as an object class.",
+    })
+  )
+);
+
+const StructBackedClass = S.Struct({
+  value: S.String.pipe(
+    $I.annoteKey(
+      "StructBackedClass.value",
+      Ont.dataPredicate({
+        description: "Struct-backed value predicate.",
+        range: XSD_STRING,
+      })
+    )
+  ),
+}).annotate(
+  $I.annote(
+    "StructBackedClass",
+    Ont.class({
+      description: "Struct-backed class metadata.",
+    })
+  )
+);
+
+const SymbolFieldName = Symbol.for("ontology-package-test.symbol-field");
+
+const SymbolFieldNameClass = S.Struct({
+  [SymbolFieldName]: S.String.pipe(
+    $I.annoteKey(
+      "SymbolFieldNameClass.value",
+      Ont.dataPredicate({
+        description: "Symbol-backed value predicate.",
+        range: XSD_STRING,
+      })
+    )
+  ),
+}).annotate(
+  $I.annote(
+    "SymbolFieldNameClass",
+    Ont.class({
+      description: "Class with an unsupported symbol field name.",
+    })
+  )
+);
+
+class MissingPredicateMetadata extends S.Class<MissingPredicateMetadata>($I`MissingPredicateMetadata`)(
+  {
+    value: S.String,
+  },
+  $I.annote(
+    "MissingPredicateMetadata",
+    Ont.class({
+      description: "Class with an unannotated field.",
+    })
+  )
+) {}
+
+class MissingPredicateSchemaIdentity extends S.Class<MissingPredicateSchemaIdentity>(
+  $I`MissingPredicateSchemaIdentity`
+)(
+  {
+    value: S.String.annotateKey({
+      ontologyMetadata: Ont.dataPredicate({
+        description: "Predicate metadata without key identity.",
+        range: XSD_STRING,
+      }),
+    }),
+  },
+  $I.annote(
+    "MissingPredicateSchemaIdentity",
+    Ont.class({
+      description: "Class with predicate metadata missing key identity.",
+    })
+  )
+) {}
+
+class MissingPredicateIdentifier extends S.Class<MissingPredicateIdentifier>($I`MissingPredicateIdentifier`)(
+  {
+    value: S.String.annotateKey({
+      ontologyMetadata: Ont.dataPredicate({
+        description: "Predicate metadata without key identifier.",
+        range: XSD_STRING,
+      }),
+      schemaId: Symbol.for("MissingPredicateIdentifier.value"),
+    }),
+  },
+  $I.annote(
+    "MissingPredicateIdentifier",
+    Ont.class({
+      description: "Class with predicate metadata missing key identifier.",
+    })
+  )
+) {}
+
+class InvalidPredicateMetadata extends S.Class<InvalidPredicateMetadata>($I`InvalidPredicateMetadata`)(
+  {
+    value: S.String.pipe(
+      $I.annoteKey("InvalidPredicateMetadata.value", {
+        ontologyMetadata: Ont.class({
+          description: "Class draft stored where predicate metadata belongs.",
+        }),
+      })
+    ),
+  },
+  $I.annote(
+    "InvalidPredicateMetadata",
+    Ont.class({
+      description: "Class with invalid field metadata.",
+    })
+  )
+) {}
+
+class ExternalTarget extends S.Class<ExternalTarget>($I`ExternalTarget`)(
+  {},
+  $I.annote(
+    "ExternalTarget",
+    Ont.class({
+      description: "External class intentionally omitted from an ontology build.",
+    })
+  )
+) {}
+
+class MissingTargetReference extends S.Class<MissingTargetReference>($I`MissingTargetReference`)(
+  {
+    external: ExternalTarget.pipe(
+      $I.annoteKey(
+        "MissingTargetReference.external",
+        Ont.objectPredicate({
+          description: "Relationship to an omitted target class.",
+          range: ExternalTarget,
+        })
+      )
+    ),
+  },
+  $I.annote(
+    "MissingTargetReference",
+    Ont.class({
+      description: "Class with an omitted target relationship.",
+    })
+  )
+) {}
+
+class MissingTargetIdentityReference extends S.Class<MissingTargetIdentityReference>(
+  $I`MissingTargetIdentityReference`
+)(
+  {
+    external: S.String.pipe(
+      $I.annoteKey(
+        "MissingTargetIdentityReference.external",
+        Ont.objectPredicate({
+          description: "Relationship to a target schema without identity metadata.",
+          range: S.String,
+        })
+      )
+    ),
+  },
+  $I.annote(
+    "MissingTargetIdentityReference",
+    Ont.class({
+      description: "Class with a relationship target missing identity metadata.",
+    })
+  )
+) {}
+
 const isOntologyAssemblyError = S.is(OntologyAssemblyError);
 
+const expectAssemblyFailure = (effect: Effect.Effect<unknown, OntologyAssemblyError>, reason: string): void => {
+  const exit = Effect.runSync(Effect.exit(effect));
+
+  expect(Exit.isFailure(exit)).toBe(true);
+  if (Exit.isFailure(exit)) {
+    const error = Cause.findErrorOption(exit.cause);
+    expect(O.isSome(error)).toBe(true);
+    if (O.isSome(error)) {
+      expect(isOntologyAssemblyError(error.value)).toBe(true);
+      if (isOntologyAssemblyError(error.value)) {
+        expect(error.value.reason).toBe(reason);
+      }
+    }
+  }
+};
+
 describe("@beep/ontology", () => {
+  it("exports the package version and creates commented ontology scopes", () => {
+    expect(VERSION).toBe("0.0.0");
+    expect(CommentedOntologyScope.metadata.comment).toEqual(O.some("Scope-level ontology comment."));
+    expect(CommentedOntologyScope.Ont.iri(makeNamedNode("https://example.org/commented#Term"))).toBe(
+      "https://example.org/commented#Term"
+    );
+    expect(CommentedOntologyScope.Ont.iri("https://example.org/commented#", "Term")).toBe(
+      "https://example.org/commented#Term"
+    );
+    expect(CommentedOntologyScope.Ont.iri("https://example.org/commented/base", "Term")).toBe(
+      "https://example.org/commented/base#Term"
+    );
+    expect(() => Ont.iri("not an iri")).toThrow("Expected a valid RFC 3987 IRI");
+  });
+
+  it("normalizes public reference aliases", () => {
+    const ontology = Effect.runSync(Ont.build([Parent, Child]));
+    const child = pipe(
+      ontology.classes,
+      A.findFirst((ontologyClass) => ontologyClass.termName === "Child"),
+      O.getOrThrow
+    );
+    const parentReference = pipe(child.parents, A.head, O.getOrThrow);
+
+    expect(Ont.ref(parentReference).kind).toBe("iri");
+    expect(Ont.ref(makeNamedNode("https://example.org/reference")).kind).toBe("iri");
+    expect(Ont.parent("Parent").kind).toBe("term");
+    expect(Ont.child(Child).kind).toBe("schema");
+    expect(Ont.equivalentClass(Parent).kind).toBe("schema");
+    expect(Ont.exactMatch("https://schema.org/Thing").kind).toBe("iri");
+    expect(Ont.exact("https://schema.org/Thing").kind).toBe("iri");
+    expect(Ont.closeMatch("https://schema.org/Thing").kind).toBe("iri");
+    expect(Ont.sameAs("https://schema.org/Thing").kind).toBe("iri");
+  });
+
   it("stores class and key ontology annotations on Effect schemas", () => {
     const classMetadata = getOntologyMetadata(Parent);
     const keyMetadata = getOntologyKeyMetadata(Child.fields.parent);
@@ -104,6 +437,7 @@ describe("@beep/ontology", () => {
     expect(classMetadata?.kind).toBe("classDraft");
     expect(isOntologyClassAnnotationDraft(classMetadata)).toBe(true);
     expect(keyMetadata?.kind).toBe("objectPredicateDraft");
+    expect(isOntologyPredicateAnnotationDraft(keyMetadata)).toBe(true);
   });
 
   it("assembles schema references into ontology metadata", () => {
@@ -127,16 +461,43 @@ describe("@beep/ontology", () => {
     }
   });
 
+  it("assembles plain struct schemas with ontology annotations", () => {
+    const ontology = Effect.runSync(Ont.build([StructBackedClass]));
+    const ontologyClass = pipe(ontology.classes, A.head, O.getOrThrow);
+
+    expect(ontologyClass.termName).toBe("StructBackedClass");
+    expect(ontologyClass.predicates[0]?.fieldName).toBe("value");
+  });
+
   it("projects JSON-LD and Turtle", () => {
-    const ontology = Effect.runSync(Ont.build([Parent, Child]));
+    const ontology = Effect.runSync(Ont.build([Parent, Child, RichClass]));
     const context = projectJsonLdContext(ontology);
+    const jsonLd = projectJsonLdOntology(ontology);
     const turtle = projectTurtle(ontology);
 
     expect(context["@context"].Child).toEqual({
       "@id": "https://example.org/test#Child",
     });
+    expect(context["@context"].title).toEqual({
+      "@id": "https://example.org/custom#title",
+      "@type": XSD_STRING.value,
+    });
+    expect(jsonLd.comment).toBeUndefined();
+    expect(
+      CommentedOntologyScope.Ont.toJsonLD(Effect.runSync(CommentedOntologyScope.Ont.build([Parent]))).comment
+    ).toBe("Scope-level ontology comment.");
+    expect(jsonLd["@context"].children).toEqual({
+      "@reverse": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "@type": "@id",
+    });
     expect(turtle).toContain("<https://example.org/test#Child> a rdfs:Class");
     expect(turtle).toContain("<https://example.org/test#parent> a owl:ObjectProperty");
+    expect(turtle).toContain('skos:altLabel "Rich alternate label"');
+    expect(turtle).toContain("dcterms:source <https://example.org/source>");
+    expect(turtle).toContain(
+      "<https://example.org/test#Child> rdfs:subClassOf <https://example.org/custom#RichClass> ."
+    );
+    expect(turtle).toContain("<https://example.org/test#homepage> a owl:DatatypeProperty");
   });
 
   it("escapes Turtle string literal control characters", () => {
@@ -155,13 +516,14 @@ describe("@beep/ontology", () => {
   });
 
   it("round-trips projected JSON-LD", () => {
-    const ontology = Effect.runSync(Ont.build([Parent, Child]));
+    const ontology = Effect.runSync(Ont.build([Parent, Child, RichClass]));
     const roundTrip = Ont.fromJsonLD(Ont.toJsonLD(ontology));
 
     expect(Result.isSuccess(roundTrip)).toBe(true);
     if (Result.isSuccess(roundTrip)) {
       expect(A.length(roundTrip.success.classes)).toBe(A.length(ontology.classes));
       expect(roundTrip.success.metadata.baseIri).toBe("https://example.org/test#");
+      expect(roundTrip.success.classes[0]?.predicates.length).toBeGreaterThanOrEqual(1);
     }
   });
 
@@ -179,5 +541,35 @@ describe("@beep/ontology", () => {
 
       expect(failure.reason).toBe("missingClassMetadata");
     }
+  });
+
+  it("returns schema errors for malformed JSON-LD ontology documents", () => {
+    const result = parseJsonLdOntology({});
+
+    expect(Result.isFailure(result)).toBe(true);
+    if (Result.isFailure(result)) {
+      expect(isOntologyAssemblyError(result.failure)).toBe(false);
+    }
+  });
+
+  it("returns typed assembly failures for invalid class metadata", () => {
+    expectAssemblyFailure(Ont.build([MissingClassMetadata]), "missingClassMetadata");
+    expectAssemblyFailure(Ont.build([MissingIdentityClass]), "invalidClassMetadata");
+    expectAssemblyFailure(Ont.build([MissingSchemaIdentityClass]), "invalidClassMetadata");
+    expectAssemblyFailure(Ont.build([InvalidClassMetadata]), "invalidClassMetadata");
+    expectAssemblyFailure(Ont.build([ScalarClass]), "unsupportedClassAst");
+  });
+
+  it("returns typed assembly failures for invalid predicate metadata", () => {
+    expectAssemblyFailure(Ont.build([MissingPredicateMetadata]), "missingPredicateMetadata");
+    expectAssemblyFailure(Ont.build([SymbolFieldNameClass]), "unsupportedFieldName");
+    expectAssemblyFailure(Ont.build([MissingPredicateSchemaIdentity]), "invalidPredicateMetadata");
+    expectAssemblyFailure(Ont.build([MissingPredicateIdentifier]), "invalidPredicateMetadata");
+    expectAssemblyFailure(Ont.build([InvalidPredicateMetadata]), "invalidPredicateMetadata");
+  });
+
+  it("returns typed assembly failures for unresolved relationship targets", () => {
+    expectAssemblyFailure(Ont.build([MissingTargetReference]), "unresolvedReferenceTarget");
+    expectAssemblyFailure(Ont.build([MissingTargetIdentityReference]), "unresolvedReferenceTarget");
   });
 });

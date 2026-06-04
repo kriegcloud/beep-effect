@@ -49,7 +49,10 @@ export const OntologyReferenceTargetInput = S.Union([
   OntologyTermNameInput,
   OntologyReference,
   OntologyReferenceTarget,
-  S.declare((u: unknown): u is S.Top => S.isSchema(u)),
+  S.declare(
+    /* istanbul ignore next -- reference target schema inputs are accepted directly and not decoded through this union */
+    (u: unknown): u is S.Top => S.isSchema(u)
+  ),
 ]).pipe(
   $I.annoteSchema("OntologyReferenceTargetInput", {
     description:

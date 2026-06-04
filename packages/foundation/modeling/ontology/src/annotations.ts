@@ -121,7 +121,10 @@ export type OntologyObjectPredicateAnnotationInput = typeof OntologyObjectPredic
 
 export class OntologyCreateInputFields extends S.Class<OntologyCreateInputFields>($I`OntologyCreateInputFields`)(
   {
-    identity: S.declare((u: unknown): u is IdentityComposer<string> => S.is(S.String)(u)),
+    identity: S.declare(
+      /* istanbul ignore next -- create input identity is typed by callers and not decoded through this internal schema */
+      (u: unknown): u is IdentityComposer<string> => S.is(S.String)(u)
+    ),
     baseIri: OntologyIriInput,
     preferredPrefix: S.String,
     label: S.String,
@@ -168,7 +171,10 @@ export const keyLeafTermName = (identifier: string): OntologyTermName =>
     identifier,
     Str.split("."),
     A.last,
-    O.getOrElse(() => identifier),
+    O.getOrElse(
+      /* istanbul ignore next -- splitting a string always yields at least one segment */
+      () => identifier
+    ),
     normalizeTermNameInput
   );
 

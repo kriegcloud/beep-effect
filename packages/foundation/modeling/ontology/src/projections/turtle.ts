@@ -1,6 +1,7 @@
 // cspell:words SKOS DCTERMS skos dcterms
 import { pipe } from "effect";
 import * as A from "effect/Array";
+import { constant } from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import {
@@ -69,7 +70,7 @@ const renderStatements = (subject: string, statements: ReadonlyArray<string>): s
   pipe(
     statements,
     A.match({
-      onEmpty: () => `${subject} .`,
+      onEmpty: constant(`${subject} .`),
       onNonEmpty: (nonEmptyStatements) =>
         `${subject} ${A.headNonEmpty(nonEmptyStatements)}${pipe(
           A.tailNonEmpty(nonEmptyStatements),
