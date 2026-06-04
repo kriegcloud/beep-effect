@@ -13,7 +13,7 @@ import { makeNamedNode } from "../Rdf.ts";
  *
  * @example
  * ```ts
- * import { RDF_NAMESPACE } from "@beep/rdf/vocab/rdf"
+ * import { RDF_NAMESPACE } from "@beep/rdf/Vocab/Rdf"
  *
  * console.log(RDF_NAMESPACE)
  * ```
@@ -28,7 +28,7 @@ export const RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as co
  *
  * @example
  * ```ts
- * import { RDF_TYPE } from "@beep/rdf/vocab/rdf"
+ * import { RDF_TYPE } from "@beep/rdf/Vocab/Rdf"
  *
  * console.log(RDF_TYPE)
  * ```
@@ -43,7 +43,7 @@ export const RDF_TYPE = makeNamedNode(`${RDF_NAMESPACE}type`);
  *
  * @example
  * ```ts
- * import { RDF_FIRST } from "@beep/rdf/vocab/rdf"
+ * import { RDF_FIRST } from "@beep/rdf/Vocab/Rdf"
  *
  * console.log(RDF_FIRST)
  * ```
@@ -58,7 +58,7 @@ export const RDF_FIRST = makeNamedNode(`${RDF_NAMESPACE}first`);
  *
  * @example
  * ```ts
- * import { RDF_REST } from "@beep/rdf/vocab/rdf"
+ * import { RDF_REST } from "@beep/rdf/Vocab/Rdf"
  *
  * console.log(RDF_REST)
  * ```
@@ -73,7 +73,7 @@ export const RDF_REST = makeNamedNode(`${RDF_NAMESPACE}rest`);
  *
  * @example
  * ```ts
- * import { RDF_NIL } from "@beep/rdf/vocab/rdf"
+ * import { RDF_NIL } from "@beep/rdf/Vocab/Rdf"
  *
  * console.log(RDF_NIL)
  * ```

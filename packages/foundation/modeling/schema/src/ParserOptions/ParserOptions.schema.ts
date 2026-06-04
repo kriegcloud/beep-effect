@@ -37,7 +37,7 @@ const SingleCharacterText = S.String.check(
 
 const decodeRegExpResult = S.decodeResult(RegExpFromStr);
 const ParserOptionsErrorFields = {
-  cause: S.OptionFromOptionalKey(S.DefectWithStack),
+  cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
   message: S.String,
 } satisfies S.Struct.Fields;
 const ParserOptionsErrorBase: TaggedErrorClassFromFields<

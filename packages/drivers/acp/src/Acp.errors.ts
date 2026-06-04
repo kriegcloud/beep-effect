@@ -32,7 +32,7 @@ const $I = $AcpId.create("errors");
 export class AcpSpawnError extends TaggedErrorClass<AcpSpawnError>($I`AcpSpawnError`)(
   "AcpSpawnError",
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     command: S.optionalKey(S.String),
   },
   $I.annote("AcpSpawnError", {
@@ -63,7 +63,7 @@ export class AcpSpawnError extends TaggedErrorClass<AcpSpawnError>($I`AcpSpawnEr
 export class AcpProcessExitedError extends TaggedErrorClass<AcpProcessExitedError>($I`AcpProcessExitedError`)(
   "AcpProcessExitedError",
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     code: S.optionalKey(S.Number),
   },
   $I.annote("AcpProcessExitedError", {
@@ -92,7 +92,7 @@ export class AcpProcessExitedError extends TaggedErrorClass<AcpProcessExitedErro
 export class AcpProtocolParseError extends TaggedErrorClass<AcpProtocolParseError>($I`AcpProtocolParseError`)(
   "AcpProtocolParseError",
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     detail: S.String,
   },
   $I.annote("AcpProtocolParseError", {
@@ -133,7 +133,7 @@ export class AcpProtocolParseError extends TaggedErrorClass<AcpProtocolParseErro
 export class AcpTransportError extends TaggedErrorClass<AcpTransportError>($I`AcpTransportError`)(
   "AcpTransportError",
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     detail: S.String,
   },
   $I.annote("AcpTransportError", {

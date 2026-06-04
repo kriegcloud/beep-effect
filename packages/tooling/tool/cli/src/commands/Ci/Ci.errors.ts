@@ -27,7 +27,7 @@ export class CiCommandError extends TaggedErrorClass<CiCommandError>($I`CiComman
   "CiCommandError",
   {
     message: S.String,
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("CiCommandError", {
     description: "Failure raised by CI helper commands.",

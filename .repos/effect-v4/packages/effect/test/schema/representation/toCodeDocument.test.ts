@@ -89,8 +89,20 @@ describe("toCodeDocument", () => {
     })
 
     it("Error", () => {
-      assertSchema({ schema: Schema.Error }, {
-        codes: makeCode(`Schema.Error`, "globalThis.Error")
+      assertSchema({ schema: Schema.Error() }, {
+        codes: makeCode(`Schema.Error()`, "globalThis.Error")
+      })
+    })
+
+    it("Error with stack", () => {
+      assertSchema({ schema: Schema.Error({ includeStack: true }) }, {
+        codes: makeCode(`Schema.Error({"includeStack":true})`, "globalThis.Error")
+      })
+    })
+
+    it("Error with excluded cause", () => {
+      assertSchema({ schema: Schema.Error({ excludeCause: true }) }, {
+        codes: makeCode(`Schema.Error({"excludeCause":true})`, "globalThis.Error")
       })
     })
 
@@ -393,6 +405,15 @@ describe("toCodeDocument", () => {
           { schema: Schema.String.check(Schema.isIncludes("a")) },
           {
             codes: makeCode(`Schema.String.check(Schema.isIncludes("a"))`, "string")
+          }
+        )
+      })
+
+      it("isGUID with annotations", () => {
+        assertSchema(
+          { schema: Schema.String.check(Schema.isGUID({ message: "message" })) },
+          {
+            codes: makeCode(`Schema.String.check(Schema.isGUID({ "message": "message" }))`, "string")
           }
         )
       })

@@ -13,7 +13,7 @@ import { makeNamedNode } from "../Rdf.ts";
  *
  * @example
  * ```ts
- * import { RDFS_NAMESPACE } from "@beep/rdf/vocab/rdfs"
+ * import { RDFS_NAMESPACE } from "@beep/rdf/Vocab/Rdfs"
  *
  * console.log(RDFS_NAMESPACE)
  * ```
@@ -28,7 +28,7 @@ export const RDFS_NAMESPACE = "http://www.w3.org/2000/01/rdf-schema#" as const;
  *
  * @example
  * ```ts
- * import { RDFS_LABEL } from "@beep/rdf/vocab/rdfs"
+ * import { RDFS_LABEL } from "@beep/rdf/Vocab/Rdfs"
  *
  * console.log(RDFS_LABEL)
  * ```
@@ -43,7 +43,7 @@ export const RDFS_LABEL = makeNamedNode(`${RDFS_NAMESPACE}label`);
  *
  * @example
  * ```ts
- * import { RDFS_COMMENT } from "@beep/rdf/vocab/rdfs"
+ * import { RDFS_COMMENT } from "@beep/rdf/Vocab/Rdfs"
  *
  * console.log(RDFS_COMMENT)
  * ```
@@ -58,7 +58,7 @@ export const RDFS_COMMENT = makeNamedNode(`${RDFS_NAMESPACE}comment`);
  *
  * @example
  * ```ts
- * import { RDFS_CLASS } from "@beep/rdf/vocab/rdfs"
+ * import { RDFS_CLASS } from "@beep/rdf/Vocab/Rdfs"
  *
  * console.log(RDFS_CLASS)
  * ```

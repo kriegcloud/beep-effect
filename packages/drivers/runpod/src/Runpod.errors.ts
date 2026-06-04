@@ -252,7 +252,7 @@ export class RunpodDocsError extends TaggedErrorClass<RunpodDocsError>($I`Runpod
  */
 export class RunpodErrorOptions extends S.Class<RunpodErrorOptions>($I`RunpodErrorOptions`)(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     status: S.optionalKey(S.Number),
   },
   $I.annote("RunpodErrorOptions", {
@@ -280,7 +280,7 @@ export class RunpodErrorOptions extends S.Class<RunpodErrorOptions>($I`RunpodErr
  */
 export class RunpodRawErrorOptions extends S.Class<RunpodRawErrorOptions>($I`RunpodRawErrorOptions`)(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     method: RunpodHttpMethod,
     path: S.String,
     reason: RunpodErrorReason,
@@ -309,7 +309,7 @@ export class RunpodRawErrorOptions extends S.Class<RunpodRawErrorOptions>($I`Run
  */
 export class RunpodDocsErrorOptions extends S.Class<RunpodDocsErrorOptions>($I`RunpodDocsErrorOptions`)(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     status: S.optionalKey(S.Number),
     url: S.optionalKey(S.String),
   },

@@ -139,7 +139,7 @@ export class SanityError extends TaggedErrorClass<SanityError>($I`SanityError`)(
  */
 export class SanityErrorOptions extends S.Class<SanityErrorOptions>($I`SanityErrorOptions`)(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     status: S.optionalKey(S.Number),
     url: S.optionalKey(S.String),
   },

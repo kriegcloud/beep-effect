@@ -7,10 +7,9 @@
 
 import { $DrizzleId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { A, O, Str } from "@beep/utils";
+import { A, O, P, Str } from "@beep/utils";
 import { Cause, flow, pipe, Result } from "effect";
 import { dual } from "effect/Function";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $DrizzleId.create("Drizzle.errors");
@@ -88,7 +87,9 @@ const readCauseReasons = (cause: Cause.Cause<unknown>): ReadonlyArray<Cause.Reas
   );
 
 const optionFromSafeDefect = (value: unknown): O.Option<unknown> =>
-  safeBoolean(() => S.is(S.DefectWithStack)(value)) ? O.some(value) : O.none();
+  P.hasInspectableObjectShape(value) && safeBoolean(() => S.is(S.Defect({ includeStack: true }))(value))
+    ? O.some(value)
+    : O.none();
 
 const contextFromDrizzleMessageMatch = (matched: RegExpMatchArray): DrizzleErrorContext => {
   const paramsText = O.getOrUndefined(O.map(O.fromUndefinedOr(matched[2]), Str.trim));
@@ -239,7 +240,7 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError
   "DrizzleError",
   {
     operation: S.String,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
     query: S.OptionFromOptionalKey(S.String),
     params: S.OptionFromOptionalKey(S.Unknown.pipe(S.Array)),
   },

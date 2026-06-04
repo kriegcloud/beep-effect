@@ -1,14 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
-import { layer as GlobLayer, Glob as GlobService } from "@beep/utils/Glob";
+import { GlobError, layer as GlobLayer, Glob as GlobService } from "@beep/utils/Glob";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { Effect, Layer, Match } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { describe, expect, it } from "vitest";
-import type { GlobError, GlobOptions, Pattern } from "@beep/utils/Glob";
+import type { GlobOptions, Pattern } from "@beep/utils/Glob";
 
 type TestEffect<A, E = never> = Effect.Effect<A, E, never>;
 
@@ -93,7 +94,7 @@ class BunGlobMutationError extends TaggedErrorClass<BunGlobMutationError>("BunGl
   "BunGlobMutationError",
   {
     action: S.String,
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
   }
 ) {}
 
@@ -128,6 +129,14 @@ const withBunGlobDisabled = (effect: GlobProgram) => {
 };
 
 describe("@beep/utils Glob", () => {
+  it("accepts encoded optional causes in GlobError helpers", () => {
+    const error = GlobError.new("src/*.ts", undefined);
+    const thunkError = GlobError.newThunk("src/*.ts", undefined)();
+
+    expect(O.isNone(error.cause)).toBe(true);
+    expect(O.isNone(thunkError.cause)).toBe(true);
+  });
+
   it("supports array patterns, ignore filters, and deduped deterministic output", () =>
     runTest(
       Effect.gen(function* () {

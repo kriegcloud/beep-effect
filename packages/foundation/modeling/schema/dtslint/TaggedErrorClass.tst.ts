@@ -21,7 +21,7 @@ class StructuredBeepError extends TaggedErrorClass<StructuredBeepError>("Structu
 class RequiredCauseError extends CauseTaggedError<RequiredCauseError>("RequiredCauseError")("RequiredCauseError") {}
 
 class OptionalCauseError extends TaggedErrorClass<OptionalCauseError>("OptionalCauseError")("OptionalCauseError", {
-  cause: S.optionalKey(S.DefectWithStack),
+  cause: S.optionalKey(S.Defect({ includeStack: true })),
   message: S.String,
 }) {}
 
@@ -30,7 +30,7 @@ class ExtendedBeepError extends BeepError.extend<ExtendedBeepError>("ExtendedBee
 }) {}
 
 class ExtendedCauseError extends BeepError.extend<ExtendedCauseError>("ExtendedCauseError")({
-  cause: S.DefectWithStack,
+  cause: S.Defect({ includeStack: true }),
   count: S.Number,
 }) {}
 

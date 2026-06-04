@@ -1,168 +1,73 @@
-import { XSD_STRING } from "@beep/semantic-web/vocab/xsd";
-import { Cause, Effect, Exit } from "effect";
-import * as A from "effect/Array";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "@effect/vitest";
 import {
-  $I,
-  ExampleActorAttributesTerm,
-  ExampleExternalActorRoleTerm,
-  ExampleLegalNameIri,
-  ExampleLegalNameTerm,
-  ExampleOntology,
-  ExampleOntologyBaseIri,
-  ExampleOrganizationIri,
-  ExampleRoleInDocumentTerm,
-  FolioActorPlayerIri,
-  FolioExampleOntology,
-  Ont,
-  OntologyAssemblyError,
-  Organization,
   getOntologyKeyMetadata,
   getOntologyMetadata,
-  projectTurtle,
+  isOntologyClassAnnotationDraft,
+} from "@beep/ontology";
+import { pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import {
+  ExampleJsonLdContext,
+  ExampleJsonLdOntology,
+  ExampleJsonLdRoundTrip,
+  ExampleOntology,
+  ExampleTurtleOntology,
+  Organization,
 } from "../index.js";
 
-describe("scratch ontology builder annotations", () => {
-  it("stores class authoring metadata in Effect schema annotations", () => {
-    const metadata = getOntologyMetadata(Organization);
+describe("scratchpad ontology builder", () => {
+  it("stores ontology metadata on schema annotations", () => {
+    const classMetadata = getOntologyMetadata(Organization);
+    const keyMetadata = getOntologyKeyMetadata(Organization.fields.legalName);
 
-    expect(S.resolveAnnotations(Organization)?.ontologyMetadata).toEqual(metadata);
-    expect(metadata).toMatchObject({
-      kind: "classDraft",
-    });
-    if (metadata?.kind === "classDraft") {
-      expect(O.getOrUndefined(metadata.description)).toBe("Neutral organization class used by the scratch ontology builder.");
+    expect(classMetadata?.kind).toBe("classDraft");
+    expect(isOntologyClassAnnotationDraft(classMetadata)).toBe(true);
+    expect(keyMetadata?.kind).toBe("datatypePredicateDraft");
+  });
+
+  it("assembles class and predicate relationships from schemas", () => {
+    const person = pipe(
+      ExampleOntology.classes,
+      A.findFirst((ontologyClass) => ontologyClass.termName === "Person"),
+      O.getOrThrow
+    );
+    const memberOf = pipe(
+      person.predicates,
+      A.findFirst((predicate) => predicate.fieldName === "memberOf"),
+      O.getOrThrow
+    );
+
+    expect(person.parents[0]?.iri).toBe("https://example.org/ontology#LegalActor");
+    expect(person.equivalentClasses[0]?.iri).toBe("https://schema.org/Person");
+    expect(memberOf.kind).toBe("objectPredicate");
+    expect(memberOf.iri).toBe("https://example.org/ontology#memberOf");
+    if (memberOf.kind === "objectPredicate") {
+      expect(memberOf.rangeClassIri).toBe("https://example.org/ontology#Organization");
     }
   });
 
-  it("stores predicate authoring metadata in Effect key annotations", () => {
-    const legalNameField = S.NonEmptyString.pipe(
-      $I.annoteKey(
-        "Organization.legalName",
-        Ont.dataPredicate({
-          description: "Legal display name for the organization.",
-          range: XSD_STRING,
-        })
-      )
-    );
-    const metadata = getOntologyKeyMetadata(legalNameField);
-
-    expect(S.resolveAnnotationsKey(legalNameField)?.ontologyMetadata).toEqual(metadata);
-    expect(metadata).toMatchObject({
-      kind: "datatypePredicateDraft",
-      rangeDatatypeIri: XSD_STRING.value,
+  it("projects JSON-LD context and ontology documents", () => {
+    expect(ExampleJsonLdContext["@context"].Person).toEqual({
+      "@id": "https://example.org/ontology#Person",
     });
+    expect(ExampleJsonLdContext["@context"].memberOf).toEqual({
+      "@id": "https://example.org/ontology#memberOf",
+      "@type": "@id",
+    });
+    expect(A.length(ExampleJsonLdOntology["@graph"])).toBe(7);
   });
 
-  it("assembles final class and predicate metadata from annotation drafts", () =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const ontology = yield* ExampleOntology;
+  it("round-trips through JSON-LD", () => {
+    expect(A.length(ExampleJsonLdRoundTrip.classes)).toBe(A.length(ExampleOntology.classes));
+    expect(ExampleJsonLdRoundTrip.metadata.baseIri).toBe(ExampleOntology.metadata.baseIri);
+    expect(O.isSome(ExampleJsonLdRoundTrip.metadata.comment)).toBe(true);
+  });
 
-        expect(ontology.classes).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              iri: ExampleOrganizationIri,
-              predicates: expect.arrayContaining([
-                expect.objectContaining({
-                  kind: "datatypePredicate",
-                  schemaIdentity: $I.make("Organization.legalName"),
-                  termName: ExampleLegalNameTerm,
-                  iri: ExampleLegalNameIri,
-                  label: "legal name",
-                  rangeDatatypeIri: XSD_STRING.value,
-                }),
-              ]),
-            }),
-          ])
-        );
-      })
-    ));
-});
-
-describe("scratch ontology builder relationships", () => {
-  it("resolves bare schema relationship targets during ontology assembly", () =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const ontology = yield* FolioExampleOntology;
-        const maybeActorPlayer = A.findFirst(ontology.classes, (ontologyClass) => ontologyClass.iri === FolioActorPlayerIri);
-        expect(O.isSome(maybeActorPlayer)).toBe(true);
-        if (O.isSome(maybeActorPlayer)) {
-          const actorPlayer = maybeActorPlayer.value;
-
-          expect(actorPlayer.children).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({
-                iri: Ont.iri(ExampleOntologyBaseIri, ExampleRoleInDocumentTerm),
-              }),
-              expect.objectContaining({
-                iri: Ont.iri(ExampleOntologyBaseIri, ExampleActorAttributesTerm),
-              }),
-            ])
-          );
-          expect(actorPlayer.equivalentClasses).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({
-                iri: Ont.iri(ExampleOntologyBaseIri, ExampleExternalActorRoleTerm),
-              }),
-            ])
-          );
-        }
-      })
-    ));
-
-  it("projects authorable children as reverse subclass triples in Turtle", () =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const ontology = yield* FolioExampleOntology;
-        const turtle = projectTurtle(ontology);
-
-        expect(turtle).toContain(
-          `<${Ont.iri(ExampleOntologyBaseIri, ExampleRoleInDocumentTerm)}> rdfs:subClassOf <${FolioActorPlayerIri}> .`
-        );
-        expect(turtle).toContain(
-          `<${Ont.iri(ExampleOntologyBaseIri, ExampleActorAttributesTerm)}> rdfs:subClassOf <${FolioActorPlayerIri}> .`
-        );
-      })
-    ));
-
-  it("fails with a typed assembly error when a schema relationship target is not in the build set", () =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        class UnbuiltParent extends S.Class<UnbuiltParent>($I`UnbuiltParent`)(
-          {},
-          $I.annote(
-            "UnbuiltParent",
-            Ont.class({
-              description: "Class intentionally omitted from the ontology build set.",
-            })
-          )
-        ) {}
-
-        class ChildWithUnbuiltParent extends S.Class<ChildWithUnbuiltParent>($I`ChildWithUnbuiltParent`)(
-          {},
-          $I.annote(
-            "ChildWithUnbuiltParent",
-            Ont.class({
-              description: "Class with a relationship target omitted from the ontology build set.",
-              parents: [UnbuiltParent],
-            })
-          )
-        ) {}
-
-        const exit = yield* Effect.exit(Ont.build([ChildWithUnbuiltParent]));
-
-        expect(Exit.isFailure(exit)).toBe(true);
-        if (Exit.isFailure(exit)) {
-          const error = Cause.findErrorOption(exit.cause);
-          expect(O.isSome(error)).toBe(true);
-          if (O.isSome(error)) {
-            expect(error.value).toBeInstanceOf(OntologyAssemblyError);
-            expect(error.value.reason).toBe("unresolvedReferenceTarget");
-          }
-        }
-      })
-    ));
+  it("projects Turtle for human review", () => {
+    expect(ExampleTurtleOntology).toContain("@prefix ex:");
+    expect(ExampleTurtleOntology).toContain("<https://example.org/ontology#Person> a rdfs:Class");
+    expect(ExampleTurtleOntology).toContain("owl:equivalentClass <https://schema.org/Person>");
+    expect(ExampleTurtleOntology).toContain("<https://example.org/ontology#memberOf> a owl:ObjectProperty");
+  });
 });

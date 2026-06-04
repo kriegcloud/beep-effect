@@ -13,7 +13,7 @@ import { makeNamedNode } from "../Rdf.ts";
  *
  * @example
  * ```ts
- * import { OA_NAMESPACE } from "@beep/rdf/vocab/oa"
+ * import { OA_NAMESPACE } from "@beep/rdf/Vocab/Oa"
  *
  * console.log(OA_NAMESPACE)
  * ```
@@ -28,7 +28,7 @@ export const OA_NAMESPACE = "http://www.w3.org/ns/oa#" as const;
  *
  * @example
  * ```ts
- * import { OA_ANNOTATION } from "@beep/rdf/vocab/oa"
+ * import { OA_ANNOTATION } from "@beep/rdf/Vocab/Oa"
  *
  * console.log(OA_ANNOTATION)
  * ```
@@ -43,7 +43,7 @@ export const OA_ANNOTATION = makeNamedNode(`${OA_NAMESPACE}Annotation`);
  *
  * @example
  * ```ts
- * import { OA_HAS_TARGET } from "@beep/rdf/vocab/oa"
+ * import { OA_HAS_TARGET } from "@beep/rdf/Vocab/Oa"
  *
  * console.log(OA_HAS_TARGET)
  * ```
@@ -58,7 +58,7 @@ export const OA_HAS_TARGET = makeNamedNode(`${OA_NAMESPACE}hasTarget`);
  *
  * @example
  * ```ts
- * import { OA_HAS_SELECTOR } from "@beep/rdf/vocab/oa"
+ * import { OA_HAS_SELECTOR } from "@beep/rdf/Vocab/Oa"
  *
  * console.log(OA_HAS_SELECTOR)
  * ```

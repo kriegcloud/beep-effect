@@ -192,7 +192,7 @@ const uriChecks = makeNonEmptyReferenceChecks("URI", "URI", "An RFC 3986 URI.", 
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { URIReference } from "@beep/rdf/uri"
+ * import { URIReference } from "@beep/rdf/Uri"
  *
  * const decoded = S.decodeUnknownSync(URIReference)("https://example.com/path")
  * console.log(decoded) // "https://example.com/path"
@@ -214,7 +214,7 @@ export const URIReference = S.String.check(uriReferenceChecks).pipe(
  *
  * @example
  * ```ts
- * import type { URIReference } from "@beep/rdf/uri"
+ * import type { URIReference } from "@beep/rdf/Uri"
  *
  * const acceptURIReference = (value: URIReference) => value
  * console.log(acceptURIReference)
@@ -231,7 +231,7 @@ export type URIReference = typeof URIReference.Type;
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { RelativeURIReference } from "@beep/rdf/uri"
+ * import { RelativeURIReference } from "@beep/rdf/Uri"
  *
  * const decoded = S.decodeUnknownSync(RelativeURIReference)("/path/to/resource")
  * console.log(decoded) // "/path/to/resource"
@@ -253,7 +253,7 @@ export const RelativeURIReference = S.String.check(relativeUriReferenceChecks).p
  *
  * @example
  * ```ts
- * import type { RelativeURIReference } from "@beep/rdf/uri"
+ * import type { RelativeURIReference } from "@beep/rdf/Uri"
  *
  * const acceptRelativeURIReference = (value: RelativeURIReference) => value
  * console.log(acceptRelativeURIReference)
@@ -270,7 +270,7 @@ export type RelativeURIReference = typeof RelativeURIReference.Type;
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { AbsoluteURI } from "@beep/rdf/uri"
+ * import { AbsoluteURI } from "@beep/rdf/Uri"
  *
  * const decoded = S.decodeUnknownSync(AbsoluteURI)("https://example.com")
  * console.log(decoded) // "https://example.com"
@@ -292,7 +292,7 @@ export const AbsoluteURI = S.String.check(absoluteUriChecks).pipe(
  *
  * @example
  * ```ts
- * import type { AbsoluteURI } from "@beep/rdf/uri"
+ * import type { AbsoluteURI } from "@beep/rdf/Uri"
  *
  * const acceptAbsoluteURI = (value: AbsoluteURI) => value
  * console.log(acceptAbsoluteURI)
@@ -309,7 +309,7 @@ export type AbsoluteURI = typeof AbsoluteURI.Type;
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { URI } from "@beep/rdf/uri"
+ * import { URI } from "@beep/rdf/Uri"
  *
  * const decoded = S.decodeUnknownSync(URI)("https://example.com/page#anchor")
  * console.log(decoded) // "https://example.com/page#anchor"
@@ -331,7 +331,7 @@ export const URI = S.String.check(uriChecks).pipe(
  *
  * @example
  * ```ts
- * import type { URI } from "@beep/rdf/uri"
+ * import type { URI } from "@beep/rdf/Uri"
  *
  * const acceptURI = (value: URI) => value
  * console.log(acceptURI)
@@ -347,7 +347,7 @@ export type URI = typeof URI.Type;
  *
  * @example
  * ```typescript
- * import { normalizeUriReference } from "@beep/rdf/uri"
+ * import { normalizeUriReference } from "@beep/rdf/Uri"
  *
  * const normalized = normalizeUriReference("HTTP://Example.COM:80/Path")
  * console.log(normalized) // "http://example.com/Path"
@@ -366,7 +366,7 @@ export const normalizeUriReference = (value: URIReference | string): string =>
  *
  * @example
  * ```typescript
- * import { resolveUriReference } from "@beep/rdf/uri"
+ * import { resolveUriReference } from "@beep/rdf/Uri"
  *
  * const resolved = resolveUriReference("https://example.com/a/b", "../c")
  * console.log(resolved) // "https://example.com/c"
@@ -390,7 +390,7 @@ export const resolveUriReference: {
  *
  * @example
  * ```typescript
- * import { areUrisEquivalent } from "@beep/rdf/uri"
+ * import { areUrisEquivalent } from "@beep/rdf/Uri"
  *
  * const same = areUrisEquivalent("HTTP://Example.COM/", "http://example.com/")
  * console.log(same) // true

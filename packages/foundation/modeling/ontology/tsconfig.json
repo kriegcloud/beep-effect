@@ -6,5 +6,16 @@
     "types": ["node"],
     "outDir": "dist",
     "rootDir": "src"
-  }
+  },
+  "references": [
+    {
+      "path": "../identity/tsconfig.json"
+    },
+    {
+      "path": "../rdf/tsconfig.json"
+    },
+    {
+      "path": "../schema/tsconfig.json"
+    }
+  ]
 }

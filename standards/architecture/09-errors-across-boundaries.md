@@ -80,7 +80,7 @@ export class PostgresError extends TaggedErrorClass<PostgresError>(
     operation: S.String,
     sqlState: S.OptionFromOptionalKey(S.String),
     query: S.OptionFromOptionalKey(S.String),
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("PostgresError", {
     description: "Technical Postgres driver failure scoped to a driver operation.",

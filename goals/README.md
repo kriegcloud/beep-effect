@@ -140,6 +140,44 @@ git diff --check -- goals/<slug>
    packet `reference` or `paused` with an explicit non-executable rationale in
    `README.md` and `ops/manifest.json`.
 
+## Current Goals Snapshot
+
+This snapshot was retained from the local `main` saving commit during the
+`firecrawl-and-ontology-packet-plus-poc` merge. Use the filesystem and manifest
+commands below as the source of truth when the snapshot drifts.
+
+- `ai-metrics-stack`
+- `agent-effectiveness-loop` — Phase 1 complete Phoenix-backed coding-agent
+  effectiveness loop; follow-up work now lives in separate goals.
+- `agent-effectiveness-phoenix-enrichment` — Phoenix-native annotations,
+  datasets, experiments, evals, and prompt/config comparison follow-up.
+- `agent-effectiveness-workflow-integration` — repo workflow, operator, CI, and
+  agent-handoff integration follow-up.
+- `agentic-professional-runtime`
+- `agent-governance-control-plane`
+- `canvas`
+- `codex-security-findings` — local Codex Security finding catalog, current-HEAD
+  triage, and remediation queue.
+- `file-processing-capability` — schema-first file processing contracts,
+  Tika/libpff driver split, and `beep files process` proof packet.
+- `ip-law-knowledge-graph`
+- `oip-web-production-hardening`
+- `ontology-modeling-foundation` — foundation modeling packet for the
+  `@beep/rdf` and `@beep/ontology` package split and schema-annotation ontology
+  builder POC.
+- `oip-web-launch` — implementation complete; launch review pending.
+- `repo-codegraph` — deterministic-first codegraph lookup and retrieval
+  implementation packet.
+- `repo-quality-acceleration` — research-first quality feedback speedup packet.
+- `repo-quality-convergence` — 9/10 repo-health scorecard, release guardrail,
+  and quality closure packet.
+- `repo-context-topology` — generated topology and export catalog work for
+  coding-agent symbol discovery.
+- `stack-installer`
+- `trustgraph-doc-ontology`
+- `unified-ai-toolchain` — schema-first AI agent configuration contract packet
+  for Claude Code, Codex, Grok Build, JetBrains AI Assistant, and Junie.
+
 ## Index Policy
 
 This README defines the packet standard. It should not maintain a hand-written

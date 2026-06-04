@@ -175,7 +175,7 @@ const observeVectorizer = (operation: string) =>
 export class VectorizerError extends TaggedErrorClass<VectorizerError>($I`VectorizerError`)(
   "VectorizerError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
     operation: S.String,
   },

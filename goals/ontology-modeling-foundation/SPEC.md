@@ -1,155 +1,114 @@
-# Ontology Modeling Foundation Spec
+# Ontology Modeling Foundation Specification
 
-## Objective
+## Status
 
-Create a domain-safe foundation modeling stack for schema-backed ontology
-authoring:
+**ACTIVE**
 
-- `packages/foundation/modeling/rdf` publishes `@beep/rdf`.
-- `packages/foundation/modeling/ontology` publishes `@beep/ontology`.
-- The scratch ontology builder becomes a thin consumer example.
-- `@beep/semantic-web` keeps compatibility re-exports for existing pure-value
-  imports and remains the home for capability services/adapters.
+## Mission
 
-## Non-Goals
+Create a small foundation modeling stack for schema-backed ontology authoring:
+Effect Schema classes remain the source of truth, ontology metadata is stored in
+custom schema annotations, and projections are derived from assembled annotated
+schemas.
 
-- Do not create legal-domain ontology semantics in foundation packages.
-- Do not move PROV, evidence, service contracts, live Layers, SHACL engines,
-  SPARQL engines, or JSON-LD document adapters into `@beep/rdf` in V1.
-- Do not make `@beep/ontology` depend on `foundation/capability`.
-- Do not remove existing `@beep/semantic-web/iri`, `/rdf`, `/jsonld`, or
-  `/vocab/*` import paths in this initiative.
-- Do not implement OWL Functional Syntax, Manchester Syntax, RDF/XML, SHACL
-  generation, or legal ontology packages in V1.
+## Package Boundary
 
-## Source Hierarchy
+### `@beep/rdf`
 
-1. User objective that created this packet.
-2. `AGENTS.md`, `CLAUDE.md`, and required skills.
-3. Governing architecture/package standards.
-4. This `SPEC.md`.
-5. `PLAN.md`.
-6. `GOAL.md`.
-7. Supporting `research/`, `ops/`, and `history` files.
+`@beep/rdf` owns pure RDF and linked-data value models:
 
-Higher sources outrank lower sources when they conflict.
+- IRI and URI schemas
+- RDF/JS-style terms, quads, datasets, and namespace bindings
+- JSON-LD document primitives
+- common RDF, RDFS, OWL, XSD, OA, and PROV vocabularies
 
-## Architecture Contract
+It must not own ontology authoring policy, legal ontology concepts, service
+Layers, external fetchers, or driver behavior.
 
-`@beep/rdf` is a `foundation/modeling` package. It owns pure domain-safe
-RDF/linked-data value models that domain packages may import:
+### `@beep/ontology`
 
-- IRI/URI schemas and constructors.
-- RDF/JS-aligned value families and deterministic helpers.
-- JSON-LD value/document schemas that are pure data models.
-- Core vocabulary modules for RDF, RDFS, OWL, XSD, OA, and PROV constants.
+`@beep/ontology` owns ontology authoring over Effect Schema:
 
-`@beep/ontology` is a `foundation/modeling` package. It owns schema-first
-ontology metadata, Effect Schema annotation helpers, ontology assembly, and
-pure projections that can be used while defining domain schemas.
+- ontology metadata schema models
+- authoring drafts stored in `ontologyMetadata` annotations
+- identity wrapper helpers for root and key annotations
+- relationship reference normalization and resolution
+- assembly from annotated schemas
+- JSON-LD context/document projection and import
+- Turtle projection for review and interoperability
 
-`@beep/semantic-web` stays `foundation/capability`. It owns semantic-web
-services/adapters and may depend on `@beep/rdf`. It must preserve compatibility
-re-exports for pure-value subpaths during this initiative.
+It depends on `@beep/rdf` for RDF value safety and vocabularies.
 
-## Rejected Homes
+### `@beep/semantic-web`
 
-| Home | Rejection |
-| --- | --- |
-| Fold ontology into `@beep/semantic-web` | `@beep/semantic-web` is `foundation/capability`; domain packages cannot depend on it. |
-| Place `@beep/ontology` under `foundation/capability` | Ontology annotations are intended for domain schema authoring, which must stay modeling-safe. |
-| Put legal ontology semantics in foundation | Legal/FOLIO examples are product/domain fixtures, not domain-agnostic substrate. |
-| Temporary modeling-to-capability dependency | This creates architecture drift exactly where the package exists to prove domain-safe authoring. |
+`@beep/semantic-web` remains a capability package. Existing pure RDF modules may
+be compatibility re-exports from `@beep/rdf`, while future active semantic-web
+capabilities can live here without forcing ontology authoring into the same
+package.
 
-## Target Surfaces
+## Authoring Contract
 
-- `goals/ontology-modeling-foundation/**`
-- `packages/foundation/modeling/rdf/**`
-- `packages/foundation/modeling/ontology/**`
-- `packages/foundation/capability/semantic-web/**`
-- `packages/foundation/modeling/identity/src/packages.ts`
-- root generated config, lockfile, and export catalog files touched by the
-  scaffold or package promotion
-- `scratchpad/**` ontology example files
+The public POC syntax is:
 
-## Public Surface
+```ts
+import { Ontology } from "@beep/ontology"
+import { $ScratchpadId } from "@beep/identity/packages"
 
-`@beep/rdf` canonical imports use PascalCase concept subpaths:
+const { Ont, $I } = Ontology.create({
+  identity: $ScratchpadId.create("example-ontology"),
+  baseIri: "https://example.org/ontology#",
+  preferredPrefix: "ex",
+  label: "Example Ontology"
+})
+```
 
-- `@beep/rdf/Iri`
-- `@beep/rdf/Uri`
-- `@beep/rdf/Rdf`
-- `@beep/rdf/JsonLd`
-- `@beep/rdf/Vocab/Rdf`
-- `@beep/rdf/Vocab/Rdfs`
-- `@beep/rdf/Vocab/Owl`
-- `@beep/rdf/Vocab/Xsd`
-- `@beep/rdf/Vocab/Oa`
-- `@beep/rdf/Vocab/Prov`
+Classes use `S.Class(..., $I.annote("Name", Ont.class(...)))`. Fields use
+`schema.pipe($I.annoteKey("Class.field", Ont.dataPredicate(...)))` or
+`Ont.objectPredicate(...)`.
 
-`@beep/ontology` exposes `Ontology` from the package root for terse authoring
-and may also expose explicit concept subpaths for metadata, references, and
-projections.
+Relationship fields accept schema references where possible:
 
-Scratchpad examples should import from `@beep/ontology` and `@beep/rdf` after
-promotion.
+```ts
+sameAs: [Ont.sameAs(ExternalActor)]
+parents: [Ont.parent(Agent)]
+equivalentClasses: [Ont.equivalentClass(FolioActor)]
+```
 
-## Constraints
+The builder resolves schema references only when those schemas are included in
+the same `Ont.build([...])` call.
 
-- Use schema-first models with `S.Class`, `LiteralKit`, branded schemas, and
-  typed tagged errors where data can be modeled by Schema.
-- Use `@beep/identity` package composers generated by the scaffold.
-- Preserve unrelated dirty worktree changes.
-- Keep `@beep/semantic-web` compatibility paths working.
-- Keep `@beep/ontology` free of `foundation/capability`, driver, tooling,
-  server, table, UI, app, and product-slice dependencies.
-- Keep projections pure and Layer-free in V1.
+## Annotation Contract
+
+`@beep/ontology` augments `effect/Schema` annotations with:
+
+```ts
+ontologyMetadata?: OntologyMetadataAnnotationPayload
+```
+
+Root annotations store ontology class drafts. Key annotations store predicate
+drafts. Assembly retrieves both via Effect Schema annotation APIs and fails with
+a typed `OntologyAssemblyError` when required metadata is missing, malformed, or
+unresolvable.
+
+## Projection Contract
+
+`Ont.build([Class1, Class2])` returns an `Effect` that yields an
+`AssembledOntology`. Projections are pure once assembly has succeeded:
+
+- `Ont.toJsonLD(assembled)`
+- `Ont.fromJsonLD(document)`
+- `projectJsonLdContext(assembled)`
+- `projectTurtle(assembled)`
+
+The JSON-LD round-trip must preserve assembled ontology metadata and predicate
+relationships for the POC surface.
 
 ## Acceptance Criteria
 
-- [ ] `@beep/rdf` exists as `packages/foundation/modeling/rdf` with
-  `beep.family = "foundation"` and `beep.kind = "modeling"`.
-- [ ] `@beep/ontology` exists as `packages/foundation/modeling/ontology` with
-  `beep.family = "foundation"` and `beep.kind = "modeling"`.
-- [ ] `@beep/rdf` owns the pure IRI/URI/RDF/JSON-LD/vocab surface required by
-  ontology authoring.
-- [ ] Existing pure `@beep/semantic-web` import paths remain available as
-  compatibility re-exports.
-- [ ] `@beep/ontology` promotes the scratch builder API:
-  `Ontology.create`, `$I`, class/datatype/object predicate metadata,
-  relationship refs, assembly, JSON-LD projection/parse, and Turtle projection.
-- [ ] Scratchpad imports `@beep/ontology` and `@beep/rdf` rather than owning the
-  reusable builder implementation.
-- [ ] Tests prove annotation storage, assembly, relationships, projections,
-  round trip, and missing target failures.
-- [ ] No unrelated refactors or formatting churn.
-
-## Verification Matrix
-
-| Check | Command or evidence | Required result |
-| --- | --- | --- |
-| Packet launcher size | `test "$(wc -m < goals/ontology-modeling-foundation/GOAL.md)" -le 4000` | Passes |
-| Manifest JSON | `jq . goals/ontology-modeling-foundation/ops/manifest.json` | Passes |
-| Packet references | `rg -n "ontology-modeling-foundation|GOAL.md|agentLaunchers|packetAnchorDocument" goals/ontology-modeling-foundation` | Finds expected references |
-| Packet whitespace | `git diff --check -- goals/ontology-modeling-foundation` | Passes |
-| RDF package | `bun run --filter=@beep/rdf check test lint` | Passes |
-| Ontology package | `bun run --filter=@beep/ontology check test lint` | Passes |
-| Scratch tsgo | `bunx tsgo -p scratchpad/tsconfig.json` | Passes |
-| Scratch tsc | `bunx tsc -p scratchpad/tsconfig.json --noEmit --pretty false` | Passes |
-| Scratch tests | `bunx vitest run --config scratchpad/vitest.config.ts` | Passes |
-| Local docgen | `bun run docgen:local` | Passes or unrelated failure recorded |
-| Export catalog | `bun run repo-exports:catalog:check` | Passes |
-
-## Stop Conditions
-
-- Required source files are missing or materially contradictory.
-- The implementation would exceed named scope.
-- Verification requires credentials, cost, destructive side effects, or policy
-  approval not named in this spec.
-- The same blocker repeats after reasonable investigation.
-
-## Exception Ledger
-
-| Exception | Scope | Owner | Rationale | Removal condition |
-| --- | --- | --- | --- | --- |
-| None | N/A | N/A | N/A | N/A |
+- `@beep/rdf` and `@beep/ontology` are valid foundation/modeling workspaces.
+- `@beep/semantic-web` compatibility imports keep compiling.
+- Scratchpad examples import public package entrypoints only.
+- Tests prove root and key schema annotations store ontology metadata.
+- Tests prove schema references resolve for class relationships.
+- Tests prove JSON-LD projection and import round-trip.
+- Scratchpad TypeScript verification passes.

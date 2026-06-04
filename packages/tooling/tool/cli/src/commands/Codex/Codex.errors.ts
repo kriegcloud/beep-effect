@@ -37,7 +37,7 @@ export class CodexCommandError extends TaggedErrorClass<CodexCommandError>($I`Co
   {
     message: S.String,
     exitCode: S.optionalKey(S.Number),
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("CodexCommandError", {
     description: "Failure raised by Codex helper commands.",

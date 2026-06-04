@@ -170,7 +170,7 @@ export class HubSpotError extends TaggedErrorClass<HubSpotError>($I`HubSpotError
  */
 export class HubSpotErrorOptions extends S.Class<HubSpotErrorOptions>($I`HubSpotErrorOptions`)(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     email: S.optionalKey(S.String),
     formGuid: S.optionalKey(S.String),
     status: S.optionalKey(S.Number),

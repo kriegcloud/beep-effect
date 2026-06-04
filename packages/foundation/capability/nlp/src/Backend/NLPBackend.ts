@@ -80,7 +80,7 @@ export class BackendInitError extends TaggedErrorClass<BackendInitError>($I`Back
   "BackendInitError",
   {
     backend: S.String,
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
   },
   $I.annote("BackendInitError", {
@@ -111,7 +111,7 @@ export class BackendOperationError extends TaggedErrorClass<BackendOperationErro
   "BackendOperationError",
   {
     backend: S.String,
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
     operation: S.String,
   },

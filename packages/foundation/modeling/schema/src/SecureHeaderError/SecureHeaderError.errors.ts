@@ -13,7 +13,7 @@ import type { TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
 const $I = $SchemaId.create("SecureHeaderError");
 const commonFields = {
   message: S.String,
-  cause: S.OptionFromOptionalKey(S.DefectWithStack),
+  cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
 } satisfies S.Struct.Fields;
 const makeSecureHeaderErrorBase = <Self, Tag extends string>(
   name: string,

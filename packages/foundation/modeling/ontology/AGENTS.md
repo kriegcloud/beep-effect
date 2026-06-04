@@ -1,34 +1,9 @@
-# @beep/ontology Agent Guide
+# @beep/ontology
 
-## Purpose & Fit
-- Ontology modeling package
+Schema-backed ontology authoring for Effect Schema models.
 
-## Surface Map
-| Surface | Key exports | Notes |
-| --- | --- | --- |
-| entry module | VERSION | package entry point |
-
-## Laws
-- Follow repository laws through command discovery.
-- Run `bun run beep docs laws`.
-- Prefer tersest equivalent helper forms when behavior is unchanged.
-- In `test/` and `dtslint/`, import package source through `@beep/ontology` or other `@beep/*` package aliases; keep relative imports for local helpers, fixtures, and snapshots only.
-- Keep package guidance concise and avoid duplicating long policy prose.
-
-## Quick Recipes
-```ts
-import { VERSION } from "@beep/ontology"
-```
-
-## Verifications
-- `bunx turbo run test --filter=@beep/ontology`
-- `bunx turbo run test:integration --filter=@beep/ontology`
-- `bunx turbo run lint --filter=@beep/ontology`
-- `bunx turbo run check --filter=@beep/ontology`
-
-## Contributor Checklist
-- [ ] New exports include jsdoc metadata
-- [ ] Tests added or updated for behavior changes
-- [ ] `bun run check` passes
-- [ ] `bun run test` passes
-- [ ] `bun run lint` passes
+- This is a `foundation/modeling` package.
+- Keep it domain-safe: no capability, driver, tooling, app, slice, server,
+  table, UI, or live Layer dependencies.
+- Use schema-first models and `$OntologyId` identities.
+- Import RDF/IRI/vocab values from `@beep/rdf`, not `@beep/semantic-web`.

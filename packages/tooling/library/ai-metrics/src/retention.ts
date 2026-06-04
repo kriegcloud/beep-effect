@@ -167,7 +167,7 @@ const validateRawArchivePath = (
 export class AiMetricsRetentionError extends TaggedErrorClass<AiMetricsRetentionError>($I`AiMetricsRetentionError`)(
   "AiMetricsRetentionError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
   },
   $I.annote("AiMetricsRetentionError", {

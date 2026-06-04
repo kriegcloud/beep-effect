@@ -4,7 +4,7 @@
  * Effect v4 `@beep/nlp` implementation notes:
  * each `Data.TaggedError` becomes a {@link @beep/schema#TaggedErrorClass} scoped
  * by a `$NlpId` composer, `unknown` cause fields become
- * `S.DefectWithStack`, and the `NodeId` brand is carried as `S.String`.
+ * `S.Defect({ includeStack: true })`, and the `NodeId` brand is carried as `S.String`.
  *
  * @since 0.0.0
  * @packageDocumentation
@@ -105,7 +105,7 @@ export class TimeoutError extends TaggedErrorClass<TimeoutError>($I`TimeoutError
 export class OperationError extends TaggedErrorClass<OperationError>($I`OperationError`)(
   "OperationError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     nodeId: S.String,
     operationName: S.String,
   },
@@ -169,7 +169,7 @@ export class GraphError extends TaggedErrorClass<GraphError>($I`GraphError`)(
 export class StorageError extends TaggedErrorClass<StorageError>($I`StorageError`)(
   "StorageError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     operation: S.Literals(["store", "retrieve", "delete", "query"]),
   },
   $I.annote("StorageError", {
@@ -199,7 +199,7 @@ export class StorageError extends TaggedErrorClass<StorageError>($I`StorageError
 export class ExecutionError extends TaggedErrorClass<ExecutionError>($I`ExecutionError`)(
   "ExecutionError",
   {
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
     message: S.String,
   },
   $I.annote("ExecutionError", {

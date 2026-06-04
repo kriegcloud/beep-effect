@@ -13,7 +13,7 @@ import { makeNamedNode } from "../Rdf.ts";
  *
  * @example
  * ```ts
- * import { OWL_NAMESPACE } from "@beep/rdf/vocab/owl"
+ * import { OWL_NAMESPACE } from "@beep/rdf/Vocab/Owl"
  *
  * console.log(OWL_NAMESPACE)
  * ```
@@ -28,7 +28,7 @@ export const OWL_NAMESPACE = "http://www.w3.org/2002/07/owl#" as const;
  *
  * @example
  * ```ts
- * import { OWL_CLASS } from "@beep/rdf/vocab/owl"
+ * import { OWL_CLASS } from "@beep/rdf/Vocab/Owl"
  *
  * console.log(OWL_CLASS)
  * ```
@@ -43,7 +43,7 @@ export const OWL_CLASS = makeNamedNode(`${OWL_NAMESPACE}Class`);
  *
  * @example
  * ```ts
- * import { OWL_OBJECT_PROPERTY } from "@beep/rdf/vocab/owl"
+ * import { OWL_OBJECT_PROPERTY } from "@beep/rdf/Vocab/Owl"
  *
  * console.log(OWL_OBJECT_PROPERTY)
  * ```
@@ -58,7 +58,7 @@ export const OWL_OBJECT_PROPERTY = makeNamedNode(`${OWL_NAMESPACE}ObjectProperty
  *
  * @example
  * ```ts
- * import { OWL_DATATYPE_PROPERTY } from "@beep/rdf/vocab/owl"
+ * import { OWL_DATATYPE_PROPERTY } from "@beep/rdf/Vocab/Owl"
  *
  * console.log(OWL_DATATYPE_PROPERTY)
  * ```

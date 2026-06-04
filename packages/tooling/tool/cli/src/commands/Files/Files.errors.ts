@@ -16,7 +16,7 @@ const $I = $RepoCliId.create("commands/Files/Files.errors");
 
 class PlatformErrorOptions extends S.Class<PlatformErrorOptions>($I`PlatformErrorOptions`)(
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
   },
   $I.annote("PlatformErrorOptions", {
     description: "Options for platform errors, including a cause.",
@@ -40,7 +40,7 @@ export class FilesCommandError extends TaggedErrorClass<FilesCommandError>($I`Fi
   "FilesCommandError",
   {
     message: S.String,
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("FilesCommandError", {
     description: "A failure raised while preparing or applying a file curation operation.",

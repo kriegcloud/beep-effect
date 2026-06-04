@@ -42,7 +42,7 @@ const jsonLdBlankNodeIdentifierChecks = S.makeFilterGroup(
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { JsonLdKeyword } from "@beep/rdf/jsonld"
+ * import { JsonLdKeyword } from "@beep/rdf/JsonLd"
  *
  * console.log(S.is(JsonLdKeyword)("@context")) // true
  * console.log(S.is(JsonLdKeyword)("@invalid")) // false
@@ -71,7 +71,7 @@ export const JsonLdKeyword = LiteralKit([
  *
  * @example
  * ```ts
- * import type { JsonLdKeyword } from "@beep/rdf/jsonld"
+ * import type { JsonLdKeyword } from "@beep/rdf/JsonLd"
  *
  * const acceptJsonLdKeyword = (value: JsonLdKeyword) => value
  * console.log(acceptJsonLdKeyword)
@@ -88,7 +88,7 @@ export type JsonLdKeyword = typeof JsonLdKeyword.Type;
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { JsonLdTermDefinition } from "@beep/rdf/jsonld"
+ * import { JsonLdTermDefinition } from "@beep/rdf/JsonLd"
  *
  * const term = S.decodeUnknownSync(JsonLdTermDefinition)({
  *
@@ -123,7 +123,7 @@ export class JsonLdTermDefinition extends S.Class<JsonLdTermDefinition>($I`JsonL
  *
  * @example
  * ```ts
- * import { JsonLdContext } from "@beep/rdf/jsonld"
+ * import { JsonLdContext } from "@beep/rdf/JsonLd"
  *
  * console.log(JsonLdContext)
  * ```
@@ -157,7 +157,7 @@ export class JsonLdContext extends S.Class<JsonLdContext>($I`JsonLdContext`)(
  *
  * @example
  * ```ts
- * import { JsonLdBlankNodeIdentifier } from "@beep/rdf/jsonld"
+ * import { JsonLdBlankNodeIdentifier } from "@beep/rdf/JsonLd"
  *
  * console.log(JsonLdBlankNodeIdentifier)
  * ```
@@ -187,7 +187,7 @@ export const JsonLdBlankNodeIdentifier = S.String.check(jsonLdBlankNodeIdentifie
  *
  * @example
  * ```ts
- * import type { JsonLdBlankNodeIdentifier } from "@beep/rdf/jsonld"
+ * import type { JsonLdBlankNodeIdentifier } from "@beep/rdf/JsonLd"
  *
  * const acceptJsonLdBlankNodeIdentifier = (value: JsonLdBlankNodeIdentifier) => value
  * console.log(acceptJsonLdBlankNodeIdentifier)
@@ -203,7 +203,7 @@ export type JsonLdBlankNodeIdentifier = typeof JsonLdBlankNodeIdentifier.Type;
  *
  * @example
  * ```ts
- * import { JsonLdNodeIdentifier } from "@beep/rdf/jsonld"
+ * import { JsonLdNodeIdentifier } from "@beep/rdf/JsonLd"
  *
  * console.log(JsonLdNodeIdentifier)
  * ```
@@ -232,7 +232,7 @@ export const JsonLdNodeIdentifier = S.Union([IRIReference, JsonLdBlankNodeIdenti
  *
  * @example
  * ```ts
- * import type { JsonLdNodeIdentifier } from "@beep/rdf/jsonld"
+ * import type { JsonLdNodeIdentifier } from "@beep/rdf/JsonLd"
  *
  * const acceptJsonLdNodeIdentifier = (value: JsonLdNodeIdentifier) => value
  * console.log(acceptJsonLdNodeIdentifier)
@@ -248,7 +248,7 @@ export type JsonLdNodeIdentifier = typeof JsonLdNodeIdentifier.Type;
  *
  * @example
  * ```ts
- * import { JsonLdReferenceValue } from "@beep/rdf/jsonld"
+ * import { JsonLdReferenceValue } from "@beep/rdf/JsonLd"
  *
  * console.log(JsonLdReferenceValue)
  * ```
@@ -280,7 +280,7 @@ export class JsonLdReferenceValue extends S.Class<JsonLdReferenceValue>($I`JsonL
  *
  * @example
  * ```ts
- * import { JsonLdLiteralValue } from "@beep/rdf/jsonld"
+ * import { JsonLdLiteralValue } from "@beep/rdf/JsonLd"
  *
  * console.log(JsonLdLiteralValue)
  * ```
@@ -313,7 +313,7 @@ export class JsonLdLiteralValue extends S.Class<JsonLdLiteralValue>($I`JsonLdLit
  *
  * @example
  * ```ts
- * import { JsonLdPropertyValue } from "@beep/rdf/jsonld"
+ * import { JsonLdPropertyValue } from "@beep/rdf/JsonLd"
  *
  * console.log(JsonLdPropertyValue)
  * ```
@@ -332,7 +332,7 @@ export const JsonLdPropertyValue = S.Union([JsonLdReferenceValue, JsonLdLiteralV
  *
  * @example
  * ```ts
- * import type { JsonLdPropertyValue } from "@beep/rdf/jsonld"
+ * import type { JsonLdPropertyValue } from "@beep/rdf/JsonLd"
  *
  * const acceptJsonLdPropertyValue = (value: JsonLdPropertyValue) => value
  * console.log(acceptJsonLdPropertyValue)
@@ -348,7 +348,7 @@ export type JsonLdPropertyValue = typeof JsonLdPropertyValue.Type;
  *
  * @example
  * ```ts
- * import { JsonLdNodeObject } from "@beep/rdf/jsonld"
+ * import { JsonLdNodeObject } from "@beep/rdf/JsonLd"
  *
  * console.log(JsonLdNodeObject)
  * ```
@@ -383,7 +383,7 @@ export class JsonLdNodeObject extends S.Class<JsonLdNodeObject>($I`JsonLdNodeObj
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { JsonLdDocument } from "@beep/rdf/jsonld"
+ * import { JsonLdDocument } from "@beep/rdf/JsonLd"
  *
  * const doc = S.decodeUnknownSync(JsonLdDocument)({ "@graph": [] })
  * console.log(doc["@graph"].length) // 0
@@ -418,7 +418,7 @@ export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
  *
  * @example
  * ```ts
- * import { JsonLdFrame } from "@beep/rdf/jsonld"
+ * import { JsonLdFrame } from "@beep/rdf/JsonLd"
  *
  * console.log(JsonLdFrame)
  * ```

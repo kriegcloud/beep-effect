@@ -1,40 +1,24 @@
 # @beep/rdf
 
-RDF modeling package
+Domain-safe RDF and linked-data modeling primitives.
 
-## Installation
+`@beep/rdf` owns pure value models for IRI/URI identifiers, RDF/JS-aligned
+terms and datasets, bounded JSON-LD value shapes, and core vocabulary constants.
+It is a `foundation/modeling` package so domain schemas can import it without
+taking a dependency on `@beep/semantic-web`.
 
-```bash
-bun add @beep/rdf
-```
-
-## Usage
+## Canonical Imports
 
 ```ts
-import { VERSION } from "@beep/rdf"
+import { IRI } from "@beep/rdf/Iri"
+import { NamedNode, makeNamedNode } from "@beep/rdf/Rdf"
+import { XSD_STRING } from "@beep/rdf/Vocab/Xsd"
 ```
 
 ## Development
 
 ```bash
-# Build
-bun run build
-
-# Type check
-bun run check
-
-# Test
-bun run test
-
-# Integration test
-bun run test:integration
-
-# Lint
-bun run lint:fix
+bun run --filter=@beep/rdf check
+bun run --filter=@beep/rdf test
+bun run --filter=@beep/rdf lint
 ```
-
-Unit tests stay outside `test/integration`; package integration tests live under `test/integration` and use `bun run test:integration`. Tests and dtslint files import package source through `@beep/rdf` or other `@beep/*` aliases. Use relative imports only for local helpers, fixtures, and snapshots.
-
-## License
-
-MIT

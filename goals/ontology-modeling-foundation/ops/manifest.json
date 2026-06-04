@@ -8,119 +8,44 @@
     "updated": "2026-06-04",
     "packetAnchorDocument": "SPEC.md"
   },
-  "packetPath": "goals/ontology-modeling-foundation",
-  "lifecycle": "active",
-  "executionCapable": true,
-  "mission": "Create domain-safe RDF and ontology modeling packages, promote the scratch ontology builder into @beep/ontology, and preserve @beep/semantic-web compatibility re-exports.",
-  "targetPackages": [
+  "mission": "Promote the scratch ontology builder into foundation modeling packages built around @beep/rdf and @beep/ontology while preserving @beep/semantic-web compatibility.",
+  "currentSourceOfTruth": "SPEC.md",
+  "currentTargetPhase": "P3",
+  "packages": [
     {
       "name": "@beep/rdf",
       "path": "packages/foundation/modeling/rdf",
       "family": "foundation",
-      "kind": "modeling",
-      "description": "RDF modeling package",
-      "scaffoldCommand": "bun run create-package rdf --family foundation --kind modeling --description \"RDF modeling package\""
+      "kind": "modeling"
     },
     {
       "name": "@beep/ontology",
       "path": "packages/foundation/modeling/ontology",
       "family": "foundation",
-      "kind": "modeling",
-      "description": "Ontology modeling package",
-      "scaffoldCommand": "bun run create-package ontology --family foundation --kind modeling --description \"Ontology modeling package\""
+      "kind": "modeling"
+    },
+    {
+      "name": "@beep/semantic-web",
+      "path": "packages/foundation/capability/semantic-web",
+      "family": "foundation",
+      "kind": "capability",
+      "role": "compatibility-and-capability-home"
     }
   ],
-  "compatibilityTargets": [
-    "@beep/semantic-web/iri",
-    "@beep/semantic-web/uri",
-    "@beep/semantic-web/rdf",
-    "@beep/semantic-web/jsonld",
-    "@beep/semantic-web/vocab/*"
-  ],
-  "currentSourceOfTruth": [
-    "AGENTS.md",
-    "CLAUDE.md",
-    ".claude/skills/effect-first-development/SKILL.md",
-    ".claude/skills/schema-first-development/SKILL.md",
-    "standards/ARCHITECTURE.md",
-    "standards/architecture/07-non-slice-families.md",
-    "goals/ontology-modeling-foundation/SPEC.md",
-    "goals/ontology-modeling-foundation/PLAN.md",
-    "goals/ontology-modeling-foundation/GOAL.md"
-  ],
-  "agentLaunchers": [
-    {
-      "kind": "codex-goal",
-      "path": "GOAL.md",
-      "targetChars": 3500,
-      "maxChars": 4000,
-      "command": "/goal follow the instructions in goals/ontology-modeling-foundation/GOAL.md"
-    }
-  ],
-  "keyDecisions": [
-    {
-      "id": "domain-safe-authoring",
-      "decision": "@beep/ontology lives in foundation/modeling, not foundation/capability.",
-      "rationale": "Ontology annotations are intended for domain schema authoring, and domain packages may import foundation/modeling packages."
-    },
-    {
-      "id": "rdf-extraction",
-      "decision": "Extract pure IRI/URI/RDF/JSON-LD/vocab models into @beep/rdf.",
-      "rationale": "@beep/ontology must avoid depending on @beep/semantic-web because semantic-web is foundation/capability."
-    },
-    {
-      "id": "semantic-web-compat",
-      "decision": "Keep semantic-web pure-value subpaths as compatibility re-exports.",
-      "rationale": "Existing consumers should not break during the package split."
-    }
-  ],
-  "phases": [
-    {
-      "id": "P0",
-      "name": "Packet Bootstrap",
-      "status": "in-progress"
-    },
-    {
-      "id": "P1",
-      "name": "Scaffold Modeling Packages",
-      "status": "pending"
-    },
-    {
-      "id": "P2",
-      "name": "RDF Modeling Extraction",
-      "status": "pending"
-    },
-    {
-      "id": "P3",
-      "name": "Ontology Package Promotion",
-      "status": "pending"
-    },
-    {
-      "id": "P4",
-      "name": "Scratchpad Consumer Example",
-      "status": "pending"
-    },
-    {
-      "id": "P5",
-      "name": "Quality And Handoff",
-      "status": "pending"
-    }
-  ],
-  "verificationCommands": [
-    "test \"$(wc -m < goals/ontology-modeling-foundation/GOAL.md)\" -le 4000",
-    "jq . goals/ontology-modeling-foundation/ops/manifest.json",
-    "rg -n \"ontology-modeling-foundation|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/ontology-modeling-foundation",
-    "git diff --check -- goals/ontology-modeling-foundation",
-    "bun run --filter=@beep/rdf check test lint",
-    "bun run --filter=@beep/ontology check test lint",
+  "verification": [
+    "bunx tsgo -p packages/foundation/modeling/rdf/tsconfig.json",
+    "bunx tsgo -p packages/foundation/modeling/ontology/tsconfig.json",
     "bunx tsgo -p scratchpad/tsconfig.json",
     "bunx tsc -p scratchpad/tsconfig.json --noEmit --pretty false",
+    "bun run --filter=@beep/rdf test",
+    "bun run --filter=@beep/ontology test",
     "bunx vitest run --config scratchpad/vitest.config.ts"
   ],
-  "stopConditions": [
-    "Required source files are missing or materially contradictory.",
-    "The implementation would exceed named scope.",
-    "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
-    "The same blocker repeats after reasonable investigation."
-  ]
+  "decisions": {
+    "ontologyPackage": "new-foundation-modeling-package",
+    "rdfPackage": "new-foundation-modeling-package",
+    "semanticWebPackage": "capability-compatibility-home",
+    "annotationRetrieval": "effect-schema-display-annotation-map",
+    "identity": "@beep/identity-composer-wrapper"
+  }
 }

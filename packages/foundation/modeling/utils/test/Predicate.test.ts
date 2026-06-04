@@ -53,4 +53,19 @@ describe("Predicate utilities", () => {
     expect(P.hasProperties({ foo: 1 }, ["foo", "bar"] as const)).toBe(false);
     expect(P.hasProperties(null, ["foo"] as const)).toBe(false);
   });
+
+  it("detects objects that cannot be safely reflected", () => {
+    const blocked = new Proxy(
+      {},
+      {
+        ownKeys: () => {
+          throw new Error("blocked");
+        },
+      }
+    );
+
+    expect(P.hasInspectableObjectShape({ ok: true })).toBe(true);
+    expect(P.hasInspectableObjectShape("value")).toBe(true);
+    expect(P.hasInspectableObjectShape(blocked)).toBe(false);
+  });
 });

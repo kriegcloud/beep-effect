@@ -202,7 +202,7 @@ const BlankNodeLabelChecks = S.makeFilterGroup(
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { PrefixLabel } from "@beep/rdf/rdf"
+ * import { PrefixLabel } from "@beep/rdf/Rdf"
  *
  * const decoded = S.decodeUnknownSync(PrefixLabel)("schema")
  * console.log(decoded) // "schema"
@@ -236,7 +236,7 @@ export const PrefixLabel = S.String.check(PrefixLabelChecks).pipe(
  *
  * @example
  * ```ts
- * import type { PrefixLabel } from "@beep/rdf/rdf"
+ * import type { PrefixLabel } from "@beep/rdf/Rdf"
  *
  * const acceptPrefixLabel = (value: PrefixLabel) => value
  * console.log(acceptPrefixLabel)
@@ -252,7 +252,7 @@ export type PrefixLabel = typeof PrefixLabel.Type;
  *
  * @example
  * ```ts
- * import { Curie } from "@beep/rdf/rdf"
+ * import { Curie } from "@beep/rdf/Rdf"
  *
  * console.log(Curie)
  * ```
@@ -273,7 +273,7 @@ export const Curie = S.String.check(CurieChecks).pipe(
  *
  * @example
  * ```ts
- * import type { Curie } from "@beep/rdf/rdf"
+ * import type { Curie } from "@beep/rdf/Rdf"
  *
  * const acceptCurie = (value: Curie) => value
  * console.log(acceptCurie)
@@ -289,7 +289,7 @@ export type Curie = typeof Curie.Type;
  *
  * @example
  * ```ts
- * import { LanguageTag } from "@beep/rdf/rdf"
+ * import { LanguageTag } from "@beep/rdf/Rdf"
  *
  * console.log(LanguageTag)
  * ```
@@ -323,7 +323,7 @@ export const LanguageTag = S.String.check(LanguageTagChecks).pipe(
  *
  * @example
  * ```ts
- * import type { LanguageTag } from "@beep/rdf/rdf"
+ * import type { LanguageTag } from "@beep/rdf/Rdf"
  *
  * const acceptLanguageTag = (value: LanguageTag) => value
  * console.log(acceptLanguageTag)
@@ -339,7 +339,7 @@ export type LanguageTag = typeof LanguageTag.Type;
  *
  * @example
  * ```ts
- * import { NamedNode } from "@beep/rdf/rdf"
+ * import { NamedNode } from "@beep/rdf/Rdf"
  *
  * console.log(NamedNode)
  * ```
@@ -363,7 +363,7 @@ export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
  *
  * @example
  * ```ts
- * import { BlankNode } from "@beep/rdf/rdf"
+ * import { BlankNode } from "@beep/rdf/Rdf"
  *
  * console.log(BlankNode)
  * ```
@@ -402,7 +402,7 @@ export class BlankNode extends S.Class<BlankNode>($I`BlankNode`)(
  *
  * @example
  * ```ts
- * import { Literal } from "@beep/rdf/rdf"
+ * import { Literal } from "@beep/rdf/Rdf"
  *
  * console.log(Literal)
  * ```
@@ -428,7 +428,7 @@ export class Literal extends S.Class<Literal>($I`Literal`)(
  *
  * @example
  * ```ts
- * import { DefaultGraph } from "@beep/rdf/rdf"
+ * import { DefaultGraph } from "@beep/rdf/Rdf"
  *
  * console.log(DefaultGraph)
  * ```
@@ -465,7 +465,7 @@ export class DefaultGraph extends S.Class<DefaultGraph>($I`DefaultGraph`)(
  *
  * @example
  * ```ts
- * import { Term } from "@beep/rdf/rdf"
+ * import { Term } from "@beep/rdf/Rdf"
  *
  * console.log(Term)
  * ```
@@ -501,7 +501,7 @@ export const Term = S.Union([NamedNode, BlankNode, Literal, DefaultGraph]).pipe(
  *
  * @example
  * ```ts
- * import type { Term } from "@beep/rdf/rdf"
+ * import type { Term } from "@beep/rdf/Rdf"
  *
  * const acceptTerm = (value: Term) => value
  * console.log(acceptTerm)
@@ -517,7 +517,7 @@ export type Term = typeof Term.Type;
  *
  * @example
  * ```ts
- * import { Subject } from "@beep/rdf/rdf"
+ * import { Subject } from "@beep/rdf/Rdf"
  *
  * console.log(Subject)
  * ```
@@ -537,7 +537,7 @@ export const Subject = S.Union([NamedNode, BlankNode]).pipe(
  *
  * @example
  * ```ts
- * import type { Subject } from "@beep/rdf/rdf"
+ * import type { Subject } from "@beep/rdf/Rdf"
  *
  * const acceptSubject = (value: Subject) => value
  * console.log(acceptSubject)
@@ -553,7 +553,7 @@ export type Subject = typeof Subject.Type;
  *
  * @example
  * ```ts
- * import { ObjectTerm } from "@beep/rdf/rdf"
+ * import { ObjectTerm } from "@beep/rdf/Rdf"
  *
  * console.log(ObjectTerm)
  * ```
@@ -573,7 +573,7 @@ export const ObjectTerm = S.Union([NamedNode, BlankNode, Literal]).pipe(
  *
  * @example
  * ```ts
- * import type { ObjectTerm } from "@beep/rdf/rdf"
+ * import type { ObjectTerm } from "@beep/rdf/Rdf"
  *
  * const acceptObjectTerm = (value: ObjectTerm) => value
  * console.log(acceptObjectTerm)
@@ -589,7 +589,7 @@ export type ObjectTerm = typeof ObjectTerm.Type;
  *
  * @example
  * ```ts
- * import { GraphTerm } from "@beep/rdf/rdf"
+ * import { GraphTerm } from "@beep/rdf/Rdf"
  *
  * console.log(GraphTerm)
  * ```
@@ -609,7 +609,7 @@ export const GraphTerm = S.Union([NamedNode, BlankNode, DefaultGraph]).pipe(
  *
  * @example
  * ```ts
- * import type { GraphTerm } from "@beep/rdf/rdf"
+ * import type { GraphTerm } from "@beep/rdf/Rdf"
  *
  * const acceptGraphTerm = (value: GraphTerm) => value
  * console.log(acceptGraphTerm)
@@ -625,7 +625,7 @@ export type GraphTerm = typeof GraphTerm.Type;
  *
  * @example
  * ```ts
- * import { Quad } from "@beep/rdf/rdf"
+ * import { Quad } from "@beep/rdf/Rdf"
  *
  * console.log(Quad)
  * ```
@@ -651,7 +651,7 @@ export class Quad extends S.Class<Quad>($I`Quad`)(
  *
  * @example
  * ```ts
- * import { Dataset } from "@beep/rdf/rdf"
+ * import { Dataset } from "@beep/rdf/Rdf"
  *
  * console.log(Dataset)
  * ```
@@ -674,7 +674,7 @@ export class Dataset extends S.Class<Dataset>($I`Dataset`)(
  *
  * @example
  * ```ts
- * import { NamespaceBinding } from "@beep/rdf/rdf"
+ * import { NamespaceBinding } from "@beep/rdf/Rdf"
  *
  * console.log(NamespaceBinding)
  * ```
@@ -698,7 +698,7 @@ export class NamespaceBinding extends S.Class<NamespaceBinding>($I`NamespaceBind
  *
  * @example
  * ```ts
- * import { PrefixMap } from "@beep/rdf/rdf"
+ * import { PrefixMap } from "@beep/rdf/Rdf"
  *
  * console.log(PrefixMap)
  * ```
@@ -731,7 +731,7 @@ export const PrefixMap = S.Record(PrefixLabel, IRI).pipe(
  *
  * @example
  * ```ts
- * import type { PrefixMap } from "@beep/rdf/rdf"
+ * import type { PrefixMap } from "@beep/rdf/Rdf"
  *
  * const acceptPrefixMap = (value: PrefixMap) => value
  * console.log(acceptPrefixMap)
@@ -750,7 +750,7 @@ const decodeLiteralResult = S.decodeUnknownResult(Literal);
  *
  * @example
  * ```typescript
- * import { makeNamedNode } from "@beep/rdf/rdf"
+ * import { makeNamedNode } from "@beep/rdf/Rdf"
  *
  * const node = makeNamedNode("https://schema.org/Person")
  * console.log(node.termType) // "NamedNode"
@@ -776,7 +776,7 @@ export const makeNamedNode = (value: string): NamedNode =>
  *
  * @example
  * ```typescript
- * import { makeBlankNode } from "@beep/rdf/rdf"
+ * import { makeBlankNode } from "@beep/rdf/Rdf"
  *
  * const node = makeBlankNode("b0")
  * console.log(node.termType) // "BlankNode"
@@ -799,7 +799,7 @@ export const makeBlankNode = (value: string): BlankNode =>
  *
  * @example
  * ```ts
- * import type { MakeLiteralOptions } from "@beep/rdf/rdf"
+ * import type { MakeLiteralOptions } from "@beep/rdf/Rdf"
  *
  * const options: MakeLiteralOptions = { language: "en" }
  * console.log(options)
@@ -837,7 +837,7 @@ const makeLiteralInternal = (value: string, datatype: string, options: MakeLiter
  *
  * @example
  * ```typescript
- * import { makeLiteral } from "@beep/rdf/rdf"
+ * import { makeLiteral } from "@beep/rdf/Rdf"
  *
  * const lit = makeLiteral("hello", "http://www.w3.org/2001/XMLSchema#string", { language: "en" })
  * console.log(lit.termType) // "Literal"
@@ -863,7 +863,7 @@ export const makeLiteral: {
  *
  * @example
  * ```ts
- * import type { MakeQuadOptions } from "@beep/rdf/rdf"
+ * import type { MakeQuadOptions } from "@beep/rdf/Rdf"
  *
  * const acceptOptions = (options: MakeQuadOptions) => options
  * console.log(acceptOptions)
@@ -896,7 +896,7 @@ const makeDefaultGraph = (): DefaultGraph =>
  *
  * @example
  * ```typescript
- * import { makeNamedNode, makeLiteral, makeQuad } from "@beep/rdf/rdf"
+ * import { makeNamedNode, makeLiteral, makeQuad } from "@beep/rdf/Rdf"
  *
  * const subject = makeNamedNode("https://example.org/alice")
  * const predicate = makeNamedNode("https://schema.org/name")
@@ -932,7 +932,7 @@ export const makeQuad: {
  *
  * @example
  * ```typescript
- * import { makeNamedNode, makeLiteral, makeQuad, makeDataset } from "@beep/rdf/rdf"
+ * import { makeNamedNode, makeLiteral, makeQuad, makeDataset } from "@beep/rdf/Rdf"
  *
  * const quad = makeQuad(
  *   makeNamedNode("https://example.org/alice"),
@@ -955,7 +955,7 @@ export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make
  *
  * @example
  * ```typescript
- * import { makeNamedNode, serializeTerm } from "@beep/rdf/rdf"
+ * import { makeNamedNode, serializeTerm } from "@beep/rdf/Rdf"
  *
  * const serialized = serializeTerm(makeNamedNode("https://example.org/x"))
  * console.log(serialized) // "<https://example.org/x>"
@@ -982,7 +982,7 @@ export const serializeTerm = (term: Term): string =>
  *
  * @example
  * ```typescript
- * import { makeNamedNode, makeLiteral, makeQuad, serializeQuad } from "@beep/rdf/rdf"
+ * import { makeNamedNode, makeLiteral, makeQuad, serializeQuad } from "@beep/rdf/Rdf"
  *
  * const quad = makeQuad(
  *   makeNamedNode("https://example.org/alice"),
@@ -1007,7 +1007,7 @@ const byQuadLexicalAscending: Order.Order<Quad> = Order.mapInput(Order.String, s
  *
  * @example
  * ```typescript
- * import { makeDataset, sortDatasetQuads } from "@beep/rdf/rdf"
+ * import { makeDataset, sortDatasetQuads } from "@beep/rdf/Rdf"
  *
  * const dataset = makeDataset([])
  * const sorted = sortDatasetQuads(dataset)
@@ -1027,7 +1027,7 @@ export const sortDatasetQuads = (dataset: Dataset): ReadonlyArray<Quad> =>
  *
  * @example
  * ```typescript
- * import { makeDataset, areDatasetsEquivalent } from "@beep/rdf/rdf"
+ * import { makeDataset, areDatasetsEquivalent } from "@beep/rdf/Rdf"
  *
  * const a = makeDataset([])
  * const b = makeDataset([])

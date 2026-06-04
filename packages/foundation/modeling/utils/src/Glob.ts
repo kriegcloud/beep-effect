@@ -10,6 +10,7 @@ import { $UtilsId } from "@beep/identity/packages";
 import { Context, Effect, flow, Layer, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import picomatch from "picomatch";
@@ -116,12 +117,16 @@ export declare namespace GlobError {
  * An error raised when glob pattern matching fails.
  *
  * Carries the offending `pattern` and an optional `cause` with stack trace.
+ * Accepts both the decoded `Option` cause and the encoded optional cause shape
+ * for constructor compatibility.
  *
  * @example
  * ```ts
  * import { GlobError } from "@beep/utils/Glob"
  *
- * const error = GlobError.new("src/*.ts", undefined)
+ * import * as O from "effect/Option"
+ *
+ * const error = GlobError.new("src/*.ts", O.none())
  * console.log(error)
  * ```
  *
@@ -132,25 +137,30 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
   "GlobError",
   {
     pattern: Pattern,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("GlobError", {
     description: "An error that occurs during glob pattern matching",
   })
 ) {
   static readonly new: {
-    (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]): GlobError;
-    (pattern: GlobError.Encoded["pattern"]): (cause: GlobError.Encoded["cause"]) => GlobError;
-  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) =>
-    GlobError.make({ pattern, cause })
+    (pattern: GlobError.Encoded["pattern"], cause: GlobErrorCauseInput): GlobError;
+    (pattern: GlobError.Encoded["pattern"]): (cause: GlobErrorCauseInput) => GlobError;
+  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobErrorCauseInput) =>
+    GlobError.make({ pattern, cause: normalizeGlobErrorCause(cause) })
   );
   static readonly newThunk: {
-    (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]): () => GlobError;
-    (pattern: GlobError.Encoded["pattern"]): (cause: GlobError.Encoded["cause"]) => () => GlobError;
-  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) =>
-    thunk(GlobError.make({ pattern, cause }))
+    (pattern: GlobError.Encoded["pattern"], cause: GlobErrorCauseInput): () => GlobError;
+    (pattern: GlobError.Encoded["pattern"]): (cause: GlobErrorCauseInput) => () => GlobError;
+  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobErrorCauseInput) =>
+    thunk(GlobError.make({ pattern, cause: normalizeGlobErrorCause(cause) }))
   );
 }
+
+type GlobErrorCauseInput = GlobError["cause"] | GlobError.Encoded["cause"];
+
+const normalizeGlobErrorCause = (cause: GlobErrorCauseInput): GlobError["cause"] =>
+  O.isOption(cause) ? cause : S.decodeUnknownOption(S.Defect({ includeStack: true }))(cause);
 
 /**
  * Service interface for performing glob-based file matching.
@@ -223,7 +233,7 @@ function toGlobError(pattern: Pattern): (cause: unknown) => GlobError {
       Match.orElse((error) =>
         GlobError.make({
           pattern,
-          cause: S.decodeUnknownOption(S.DefectWithStack)(error),
+          cause: S.decodeUnknownOption(S.Defect({ includeStack: true }))(error),
         })
       )
     );

@@ -1,40 +1,25 @@
 # @beep/ontology
 
-Ontology modeling package
+Effect Schema style ontology authoring.
 
-## Installation
-
-```bash
-bun add @beep/ontology
-```
+`@beep/ontology` stores ontology metadata in Effect Schema annotations, assembles
+annotated schemas into an ontology model, and projects the result to compact
+developer-friendly formats.
 
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/ontology"
+import { Ontology } from "@beep/ontology"
+import { XSD_STRING } from "@beep/rdf/Vocab/Xsd"
+
+console.log(Ontology)
+console.log(XSD_STRING)
 ```
 
 ## Development
 
 ```bash
-# Build
-bun run build
-
-# Type check
-bun run check
-
-# Test
-bun run test
-
-# Integration test
-bun run test:integration
-
-# Lint
-bun run lint:fix
+bun run --filter=@beep/ontology check
+bun run --filter=@beep/ontology test
+bun run --filter=@beep/ontology lint
 ```
-
-Unit tests stay outside `test/integration`; package integration tests live under `test/integration` and use `bun run test:integration`. Tests and dtslint files import package source through `@beep/ontology` or other `@beep/*` aliases. Use relative imports only for local helpers, fixtures, and snapshots.
-
-## License
-
-MIT

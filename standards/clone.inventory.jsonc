@@ -1,17 +1,7 @@
 {
   "version": 1,
-  "generatedOn": "2026-05-29",
+  "generatedOn": "2026-06-04",
   "entries": [
-    {
-      "id": "reuse-clone:120:3e5e535fafe46900",
-      "title": "Structural clone of RunpodDocsError across 2 packages",
-      "occurrences": 2,
-      "packages": 2,
-      "members": [
-        "packages/drivers/runpod/src/Runpod.errors.ts#RunpodDocsError",
-        "packages/drivers/sanity/src/Sanity.errors.ts#SanityError"
-      ]
-    },
     {
       "id": "reuse-clone:50:3716dfdbaca45d3c",
       "title": "Structural clone of model across 3 packages",
@@ -41,16 +31,6 @@
       "members": [
         "packages/drivers/hubspot/src/HubSpot.service.ts#HubSpotFormContext",
         "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts#OperationPlanApplyResult"
-      ]
-    },
-    {
-      "id": "reuse-clone:51:a5b570fedc10dce4",
-      "title": "Structural clone of RunpodDocsErrorOptions across 2 packages",
-      "occurrences": 2,
-      "packages": 2,
-      "members": [
-        "packages/drivers/runpod/src/Runpod.errors.ts#RunpodDocsErrorOptions",
-        "packages/drivers/sanity/src/Sanity.errors.ts#SanityErrorOptions"
       ]
     },
     {
@@ -94,6 +74,16 @@
       "members": [
         "packages/drivers/venice-ai/src/VeniceAI.service.ts#VeniceAITextResponse",
         "packages/drivers/xai/src/XAi.models.ts#XAiTextResponse"
+      ]
+    },
+    {
+      "id": "reuse-clone:56:d1a8bc84e1bcf66e",
+      "title": "Structural clone of RunpodDocsErrorOptions across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/runpod/src/Runpod.errors.ts#RunpodDocsErrorOptions",
+        "packages/drivers/sanity/src/Sanity.errors.ts#SanityErrorOptions"
       ]
     },
     {
@@ -149,7 +139,7 @@
       ]
     },
     {
-      "id": "reuse-clone:69:f7c094f8481c834d",
+      "id": "reuse-clone:74:51aaed08d72d9f1d",
       "title": "Structural clone of FFmpegErrorFromUnknownOptions across 2 packages",
       "occurrences": 2,
       "packages": 2,
@@ -160,12 +150,12 @@
     },
     {
       "id": "reuse-clone:76:c020359bce27b04",
-      "title": "Structural clone of FaceDetectionConfidence across 3 packages",
+      "title": "Structural clone of FaceDetectionPercentage across 3 packages",
       "occurrences": 7,
       "packages": 3,
       "members": [
-        "packages/drivers/face-detection/src/FaceDetection.models.ts#FaceDetectionConfidence",
         "packages/drivers/face-detection/src/FaceDetection.models.ts#FaceDetectionPercentage",
+        "packages/drivers/face-detection/src/FaceDetection.models.ts#FaceDetectionConfidence",
         "packages/drivers/ffmpeg/src/FFmpeg.models.ts#SafeFramePrefix",
         "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#BorderDetectionPercentage",
         "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#BorderDetectionMaxScanPercentage",
@@ -213,16 +203,6 @@
       "members": [
         "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.repository.ts#WorkItemRepositoryShape",
         "packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts#CanvasProjectRepositoryShape"
-      ]
-    },
-    {
-      "id": "reuse-clone:89:de300150c2a9a7f5",
-      "title": "Structural clone of make across 2 packages",
-      "occurrences": 2,
-      "packages": 2,
-      "members": [
-        "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts#make",
-        "packages/drivers/xai/src/XAiLanguageModel.service.ts#make"
       ]
     },
     {

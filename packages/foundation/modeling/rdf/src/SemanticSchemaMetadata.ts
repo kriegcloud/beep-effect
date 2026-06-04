@@ -25,7 +25,7 @@ const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.Sc
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { SemanticSchemaMetadataKind } from "@beep/rdf/semantic-schema-metadata"
+ * import { SemanticSchemaMetadataKind } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * console.log(S.is(SemanticSchemaMetadataKind)("identifier")) // true
  * console.log(S.is(SemanticSchemaMetadataKind)("unknown")) // false
@@ -54,7 +54,7 @@ export const SemanticSchemaMetadataKind = LiteralKit([
  *
  * @example
  * ```ts
- * import type { SemanticSchemaMetadataKind } from "@beep/rdf/semantic-schema-metadata"
+ * import type { SemanticSchemaMetadataKind } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * const acceptSemanticSchemaMetadataKind = (value: SemanticSchemaMetadataKind) => value
  * console.log(acceptSemanticSchemaMetadataKind)
@@ -70,7 +70,7 @@ export type SemanticSchemaMetadataKind = typeof SemanticSchemaMetadataKind.Type;
  *
  * @example
  * ```ts
- * import { SemanticSchemaStatus } from "@beep/rdf/semantic-schema-metadata"
+ * import { SemanticSchemaStatus } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * console.log(SemanticSchemaStatus)
  * ```
@@ -89,7 +89,7 @@ export const SemanticSchemaStatus = LiteralKit(["experimental", "stable", "depre
  *
  * @example
  * ```ts
- * import type { SemanticSchemaStatus } from "@beep/rdf/semantic-schema-metadata"
+ * import type { SemanticSchemaStatus } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * const acceptSemanticSchemaStatus = (value: SemanticSchemaStatus) => value
  * console.log(acceptSemanticSchemaStatus)
@@ -105,7 +105,7 @@ export type SemanticSchemaStatus = typeof SemanticSchemaStatus.Type;
  *
  * @example
  * ```ts
- * import { SemanticSchemaSpecificationDisposition } from "@beep/rdf/semantic-schema-metadata"
+ * import { SemanticSchemaSpecificationDisposition } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * console.log(SemanticSchemaSpecificationDisposition)
  * ```
@@ -124,7 +124,7 @@ export const SemanticSchemaSpecificationDisposition = LiteralKit(["normative", "
  *
  * @example
  * ```ts
- * import type { SemanticSchemaSpecificationDisposition } from "@beep/rdf/semantic-schema-metadata"
+ * import type { SemanticSchemaSpecificationDisposition } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * const acceptSemanticSchemaSpecificationDisposition = (value: SemanticSchemaSpecificationDisposition) => value
  * console.log(acceptSemanticSchemaSpecificationDisposition)
@@ -140,7 +140,7 @@ export type SemanticSchemaSpecificationDisposition = typeof SemanticSchemaSpecif
  *
  * @example
  * ```ts
- * import { SemanticRepresentationKind } from "@beep/rdf/semantic-schema-metadata"
+ * import { SemanticRepresentationKind } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * console.log(SemanticRepresentationKind)
  * ```
@@ -166,7 +166,7 @@ export const SemanticRepresentationKind = LiteralKit([
  *
  * @example
  * ```ts
- * import type { SemanticRepresentationKind } from "@beep/rdf/semantic-schema-metadata"
+ * import type { SemanticRepresentationKind } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * const acceptSemanticRepresentationKind = (value: SemanticRepresentationKind) => value
  * console.log(acceptSemanticRepresentationKind)
@@ -182,7 +182,7 @@ export type SemanticRepresentationKind = typeof SemanticRepresentationKind.Type;
  *
  * @example
  * ```ts
- * import { SemanticSchemaSpecification } from "@beep/rdf/semantic-schema-metadata"
+ * import { SemanticSchemaSpecification } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * console.log(SemanticSchemaSpecification)
  * ```
@@ -209,7 +209,7 @@ export class SemanticSchemaSpecification extends S.Class<SemanticSchemaSpecifica
  *
  * @example
  * ```ts
- * import { SemanticRepresentation } from "@beep/rdf/semantic-schema-metadata"
+ * import { SemanticRepresentation } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * console.log(SemanticRepresentation)
  * ```
@@ -232,7 +232,7 @@ export class SemanticRepresentation extends S.Class<SemanticRepresentation>($I`S
  *
  * @example
  * ```ts
- * import { SemanticSchemaMetadata } from "@beep/rdf/semantic-schema-metadata"
+ * import { SemanticSchemaMetadata } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * console.log(SemanticSchemaMetadata)
  * ```
@@ -269,7 +269,7 @@ export class SemanticSchemaMetadata extends S.Class<SemanticSchemaMetadata>($I`S
  *
  * @example
  * ```ts
- * import type { SemanticSchemaMetadataAnnotationPayload } from "@beep/rdf/semantic-schema-metadata"
+ * import type { SemanticSchemaMetadataAnnotationPayload } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * const acceptSemanticSchemaMetadataAnnotationPayload = (value: SemanticSchemaMetadataAnnotationPayload) => value
  * console.log(acceptSemanticSchemaMetadataAnnotationPayload)
@@ -295,7 +295,7 @@ const decodeSemanticSchemaMetadataResult = S.decodeUnknownResult(SemanticSchemaM
  *
  * @example
  * ```typescript
- * import { makeSemanticSchemaMetadata } from "@beep/rdf/semantic-schema-metadata"
+ * import { makeSemanticSchemaMetadata } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * const metadata = makeSemanticSchemaMetadata({
  *   kind: "identifier",
@@ -324,7 +324,7 @@ export const makeSemanticSchemaMetadata = (
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { annotateSemanticSchema } from "@beep/rdf/semantic-schema-metadata"
+ * import { annotateSemanticSchema } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * const MySchema = annotateSemanticSchema(S.String, {
  *   kind: "identifier",
@@ -413,7 +413,7 @@ const findSemanticSchemaMetadata = (
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { getSemanticSchemaMetadata } from "@beep/rdf/semantic-schema-metadata"
+ * import { getSemanticSchemaMetadata } from "@beep/rdf/SemanticSchemaMetadata"
  *
  * const metadata = getSemanticSchemaMetadata(S.String)
  * console.log(metadata) // undefined (no metadata attached)

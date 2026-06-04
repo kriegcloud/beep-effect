@@ -514,14 +514,15 @@ describe("toJsonSchemaDocument", () => {
     })
 
     it("Error", () => {
-      const schema = Schema.Error
+      const schema = Schema.Error()
       assertJsonSchemaDocument(schema, {
         schema: {
           "type": "object",
           "properties": {
             "name": { "type": "string" },
             "message": { "type": "string" },
-            "stack": { "type": "string" }
+            "stack": { "type": "string" },
+            "cause": {}
           },
           "required": ["message"],
           "additionalProperties": false
@@ -1306,7 +1307,24 @@ describe("toJsonSchemaDocument", () => {
                 {
                   "format": "uuid",
                   "pattern":
-                    "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$"
+                    "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|[fF]{8}-[fF]{4}-[fF]{4}-[fF]{4}-[fF]{12})$"
+                }
+              ]
+            }
+          }
+        )
+      })
+
+      it("isGUID", () => {
+        assertJsonSchemaDocument(
+          Schema.String.annotate({ description: "description" }).check(Schema.isGUID()),
+          {
+            schema: {
+              "type": "string",
+              "description": "description",
+              "allOf": [
+                {
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"
                 }
               ]
             }

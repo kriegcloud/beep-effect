@@ -67,7 +67,7 @@ const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => new Set(t
 export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`SimilarityError`)(
   "SimilarityError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
     operation: S.String,
   },

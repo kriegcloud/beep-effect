@@ -13,7 +13,7 @@ import { makeNamedNode } from "../Rdf.ts";
  *
  * @example
  * ```ts
- * import { PROV_NAMESPACE } from "@beep/rdf/vocab/prov"
+ * import { PROV_NAMESPACE } from "@beep/rdf/Vocab/Prov"
  *
  * console.log(PROV_NAMESPACE)
  * ```
@@ -28,7 +28,7 @@ export const PROV_NAMESPACE = "http://www.w3.org/ns/prov#" as const;
  *
  * @example
  * ```ts
- * import { PROV_ENTITY } from "@beep/rdf/vocab/prov"
+ * import { PROV_ENTITY } from "@beep/rdf/Vocab/Prov"
  *
  * console.log(PROV_ENTITY)
  * ```
@@ -43,7 +43,7 @@ export const PROV_ENTITY = makeNamedNode(`${PROV_NAMESPACE}Entity`);
  *
  * @example
  * ```ts
- * import { PROV_ACTIVITY } from "@beep/rdf/vocab/prov"
+ * import { PROV_ACTIVITY } from "@beep/rdf/Vocab/Prov"
  *
  * console.log(PROV_ACTIVITY)
  * ```
@@ -58,7 +58,7 @@ export const PROV_ACTIVITY = makeNamedNode(`${PROV_NAMESPACE}Activity`);
  *
  * @example
  * ```ts
- * import { PROV_AGENT } from "@beep/rdf/vocab/prov"
+ * import { PROV_AGENT } from "@beep/rdf/Vocab/Prov"
  *
  * console.log(PROV_AGENT)
  * ```
@@ -73,7 +73,7 @@ export const PROV_AGENT = makeNamedNode(`${PROV_NAMESPACE}Agent`);
  *
  * @example
  * ```ts
- * import { PROV_WAS_GENERATED_BY } from "@beep/rdf/vocab/prov"
+ * import { PROV_WAS_GENERATED_BY } from "@beep/rdf/Vocab/Prov"
  *
  * console.log(PROV_WAS_GENERATED_BY)
  * ```
@@ -88,7 +88,7 @@ export const PROV_WAS_GENERATED_BY = makeNamedNode(`${PROV_NAMESPACE}wasGenerate
  *
  * @example
  * ```ts
- * import { PROV_USED } from "@beep/rdf/vocab/prov"
+ * import { PROV_USED } from "@beep/rdf/Vocab/Prov"
  *
  * console.log(PROV_USED)
  * ```
