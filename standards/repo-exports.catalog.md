@@ -14416,10 +14416,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/notification-card` | `NotificationStatus` | type | `packages/foundation/ui-system/ui/src/components/notification-card.tsx:34` | Notification status type. |
 | `@beep/ui/components/orb` | `AgentState` | type | `packages/foundation/ui-system/ui/src/components/orb.tsx:27` | Agent state type. |
 | `@beep/ui/components/orb` | `Orb` | function | `packages/foundation/ui-system/ui/src/components/orb.tsx:64` | Orb component. |
-| `@beep/ui/components/orb-background` | `OrbBackground` | function | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:211` | `OrbBackground` is a purely decorative, theme-aware backdrop of soft, blurred, |
+| `@beep/ui/components/orb-background` | `OrbBackground` | function | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:212` | `OrbBackground` is a purely decorative, theme-aware backdrop of soft, blurred, glowing orbs. |
 | `@beep/ui/components/orb-background` | `OrbBackgroundProps` | interface | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:152` | Props for {@link OrbBackground}. |
-| `@beep/ui/components/orb-background` | `OrbIntensity` | type | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:38` | Visual strength of the glow. Controls per-orb alpha and lightness so the same |
-| `@beep/ui/components/orb-background` | `OrbTone` | type | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:21` | Hue family for the glow. Each tone maps to a base HSL hue that drives every |
+| `@beep/ui/components/orb-background` | `OrbIntensity` | type | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:38` | Visual strength of the glow; controls per-orb alpha and lightness from a faint wash to a saturated bloom. |
+| `@beep/ui/components/orb-background` | `OrbTone` | type | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:22` | Hue family for the glow; each tone maps to a base HSL hue that drives every orb layer. |
 | `@beep/ui/components/pagination` | `Pagination` | function | `packages/foundation/ui-system/ui/src/components/pagination.tsx:19` | Pagination component. |
 | `@beep/ui/components/pagination` | `PaginationContent` | function | `packages/foundation/ui-system/ui/src/components/pagination.tsx:43` | Pagination content component. |
 | `@beep/ui/components/pagination` | `PaginationEllipsis` | function | `packages/foundation/ui-system/ui/src/components/pagination.tsx:155` | Pagination ellipsis component. |

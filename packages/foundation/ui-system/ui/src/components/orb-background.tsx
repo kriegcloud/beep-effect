@@ -4,8 +4,9 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
- * Hue family for the glow. Each tone maps to a base HSL hue that drives every
- * orb layer; adjacent layers are derived by small hue offsets for depth.
+ * Hue family for the glow; each tone maps to a base HSL hue that drives every orb layer.
+ *
+ * Adjacent layers are derived from that base by small hue offsets for depth.
  *
  * @example
  * ```ts
@@ -21,8 +22,7 @@ import type * as React from "react";
 type OrbTone = "green" | "emerald" | "teal" | "sky" | "violet" | "amber" | "rose";
 
 /**
- * Visual strength of the glow. Controls per-orb alpha and lightness so the same
- * layout reads as a faint wash or a saturated bloom.
+ * Visual strength of the glow; controls per-orb alpha and lightness from a faint wash to a saturated bloom.
  *
  * @example
  * ```ts
@@ -179,9 +179,10 @@ function buildGradient(hue: number, lightness: number, alpha: number): string {
 }
 
 /**
- * `OrbBackground` is a purely decorative, theme-aware backdrop of soft, blurred,
- * glowing orbs. It fills its nearest positioned ancestor, sits behind content
- * (`-z-10`), ignores pointer events, and is hidden from assistive technology.
+ * `OrbBackground` is a purely decorative, theme-aware backdrop of soft, blurred, glowing orbs.
+ *
+ * It fills its nearest positioned ancestor, sits behind content (`-z-10`),
+ * ignores pointer events, and is hidden from assistive technology.
  *
  * Each orb is a blurred radial gradient. On dark surfaces the layers blend
  * additively (`screen`) for a luminous bloom; on light surfaces they blend
