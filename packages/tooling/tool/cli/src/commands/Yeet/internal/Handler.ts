@@ -25,7 +25,13 @@ import {
 } from "../../../internal/repo-run/index.js";
 import { YeetCommandError } from "../Yeet.errors.js";
 import { renderPackageQualityPacketMarkdown } from "./PacketRenderer.js";
-import { buildYeetRunPlan, DEFAULT_YEET_PACKET_DIR, emptyTurboPlanSnapshot, YEET_FEEDBACK_TASKS } from "./Planner.js";
+import {
+  buildYeetRunPlanWithMode,
+  DEFAULT_YEET_PACKET_DIR,
+  emptyTurboPlanSnapshot,
+  YEET_FEEDBACK_TASKS,
+  YeetRunMode,
+} from "./Planner.js";
 import { buildQualityIssueIndex, qualityIssuesFromStepResult } from "./QualityIssueIndex.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { RepoPlanStep, RepoRunPlan, RepoStepRunResult } from "../../../internal/repo-run/index.js";
@@ -134,7 +140,7 @@ const decodeTurboQueryLsDocument = S.decodeUnknownEffect(S.fromJsonString(TurboQ
  * ```ts
  * import { YeetRunOptions } from "@beep/repo-cli/commands/Yeet"
  *
- * const options = YeetRunOptions.make({ base: "origin/main", head: "HEAD", json: false, message: "", packetDir: ".beep/yeet", plan: true })
+ * const options = YeetRunOptions.make({ base: "origin/main", head: "HEAD", json: false, message: "", mode: "verify", packetDir: ".beep/yeet", plan: true })
  * console.log(options.base)
  * ```
  * @category models
@@ -146,6 +152,7 @@ export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
     head: S.String,
     json: S.Boolean,
     message: S.String,
+    mode: YeetRunMode,
     packetDir: S.String,
     plan: S.Boolean,
   },
@@ -269,6 +276,35 @@ const runGitOutput = Effect.fn("Yeet.runGitOutput")(function* (
     });
   }
   return Str.trim(result.output);
+});
+
+const originRefPrefix = "origin/" as const;
+
+const originBranchFromBase = (base: string): O.Option<string> =>
+  pipe(
+    O.some(base),
+    O.filter(Str.startsWith(originRefPrefix)),
+    O.map(Str.replace(originRefPrefix, "")),
+    O.filter(Str.isNonEmpty)
+  );
+
+const refreshBaseRef = Effect.fn("Yeet.refreshBaseRef")(function* (
+  repoRoot: string,
+  base: string
+): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const originBranch = originBranchFromBase(base);
+  if (O.isSome(originBranch)) {
+    yield* runGitOutput(repoRoot, [
+      "fetch",
+      "--quiet",
+      "--no-tags",
+      "origin",
+      `${originBranch.value}:refs/remotes/origin/${originBranch.value}`,
+    ]);
+    return;
+  }
+
+  yield* runGitOutput(repoRoot, ["rev-parse", "--verify", base]);
 });
 
 const runGitPathList = Effect.fn("Yeet.runGitPathList")(function* (
@@ -613,6 +649,7 @@ export const hydrateYeetRunContext = Effect.fn("Yeet.hydrateYeetRunContext")(fun
 > {
   const repoRoot = yield* findRepoRoot().pipe(Effect.mapError(YeetCommandError.new("Failed to locate repo root.")));
   const branch = yield* runGitOutput(repoRoot, ["rev-parse", "--abbrev-ref", "HEAD"]);
+  yield* refreshBaseRef(repoRoot, options.base);
   const turbo = yield* collectTurboPlanSnapshot(repoRoot, options);
 
   return RepoRunContext.make({
@@ -756,12 +793,12 @@ const emptyPlanResult = Effect.fn("Yeet.emptyPlanResult")(function* (
 
 const validateRequiredMessage = (options: YeetRunOptions): Effect.Effect<O.Option<string>, YeetCommandError> => {
   const message = optionFromNonEmpty(options.message);
-  if (options.plan || O.isSome(message)) {
+  if (options.plan || options.mode !== "publish" || O.isSome(message)) {
     return Effect.succeed(message);
   }
   return Effect.fail(
     YeetCommandError.make({
-      message: "yeet requires --message with a conventional commit message unless --plan is used.",
+      message: "yeet publish requires --message with a conventional commit message unless --plan is used.",
       exitCode: 1,
     })
   );
@@ -823,7 +860,8 @@ const failWithIssueArtifacts = Effect.fn("Yeet.failWithIssueArtifacts")(function
 
 const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   plan: RepoRunPlan,
-  message: string
+  mode: YeetRunMode,
+  message: O.Option<string>
 ): Effect.fn.Return<
   YeetRunResult,
   YeetCommandError,
@@ -831,9 +869,9 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
 > {
   const prepareSteps = A.filter(plan.steps, (step) => step.phase === "prepare");
   const feedbackSteps = A.filter(plan.steps, (step) => step.phase === "feedback");
+  const commitSteps = A.filter(plan.steps, (step) => step.phase === "commit");
   const fullSteps = A.filter(plan.steps, (step) => step.phase === "full");
   const publishSteps = A.filter(plan.steps, (step) => step.phase === "publish");
-  const publishIntent = yield* collectPublishIntent(plan.context);
 
   const prepareResults = yield* runPhase(plan.context, prepareSteps);
   if (A.some(prepareResults, (result) => result.exitCode !== 0)) {
@@ -845,13 +883,33 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
     return yield* failWithIssueArtifacts(plan.context, feedbackSteps, feedbackResults, "yeet feedback phase failed.");
   }
 
-  const fullResults = yield* runPhase(plan.context, fullSteps);
-  if (A.some(fullResults, (result) => result.exitCode !== 0)) {
-    return yield* failWithIssueArtifacts(plan.context, fullSteps, fullResults, "yeet final full proof failed.");
+  if (mode === "repair") {
+    return yield* emptyPlanResult(plan.context);
   }
 
-  yield* validateCommitMessage(plan.context, message);
+  if (mode === "verify") {
+    const verifyResults = yield* runPhase(plan.context, fullSteps);
+    if (A.some(verifyResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(plan.context, fullSteps, verifyResults, "yeet verification proof failed.");
+    }
+    return yield* emptyPlanResult(plan.context);
+  }
+
+  const publishIntent = yield* collectPublishIntent(plan.context);
+  const commitMessage = O.getOrElse(message, () => "");
+  yield* validateCommitMessage(plan.context, commitMessage);
   yield* stageReviewedPublishIntent(plan.context, publishIntent);
+
+  const commitResults = yield* runPhase(plan.context, commitSteps);
+  if (A.some(commitResults, (result) => result.exitCode !== 0)) {
+    return yield* failWithIssueArtifacts(plan.context, commitSteps, commitResults, "yeet commit phase failed.");
+  }
+
+  const fullResults = yield* runPhase(plan.context, fullSteps);
+  if (A.some(fullResults, (result) => result.exitCode !== 0)) {
+    return yield* failWithIssueArtifacts(plan.context, fullSteps, fullResults, "yeet publish proof failed.");
+  }
+
   const publishResults = yield* runPhase(plan.context, publishSteps);
   if (A.some(publishResults, (result) => result.exitCode !== 0)) {
     return yield* failWithIssueArtifacts(plan.context, publishSteps, publishResults, "yeet publish phase failed.");
@@ -901,25 +959,30 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
 > {
   const message = yield* validateRequiredMessage(options);
   const context = yield* hydrateYeetRunContext(options);
-  const plan = buildYeetRunPlan(context, message);
+  const plan = buildYeetRunPlanWithMode(context, message, options.mode);
   if (options.plan) {
     yield* renderPlan(plan, options.json);
     return yield* emptyPlanResult(context);
   }
 
-  return yield* runPlanExecution(
-    plan,
-    O.getOrElse(message, () => "")
-  );
+  return yield* runPlanExecution(plan, options.mode, message);
 });
 
 /**
  * Build a plan for tests without reading repository state.
  *
+ * @param context - Hydrated test context.
+ * @param message - Optional publish commit message.
+ * @param mode - Yeet mode to plan.
+ * @returns Ordered Yeet run plan.
  * @category testing
  * @since 0.0.0
  */
-export const buildYeetRunPlanForTesting = buildYeetRunPlan;
+export const buildYeetRunPlanForTesting = (
+  context: RepoRunContext,
+  message: O.Option<string>,
+  mode: YeetRunMode = "publish"
+): RepoRunPlan => buildYeetRunPlanWithMode(context, message, mode);
 
 /**
  * Construct baseline yeet options for focused tests.
@@ -935,6 +998,7 @@ export const defaultYeetRunOptions = (overrides: Partial<YeetRunOptions> = {}): 
     head: "HEAD",
     json: false,
     message: "",
+    mode: "publish",
     packetDir: DEFAULT_YEET_PACKET_DIR,
     plan: false,
     ...overrides,

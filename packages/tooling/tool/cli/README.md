@@ -403,6 +403,32 @@ bun run beep quality repo-exports-catalog --check
 bun run beep quality changeset-graph
 ```
 
+### `yeet`
+
+Run the repo-native agent workflow candidate for repair, verification, and
+publishing. Yeet is not considered the canonical replacement for manual quality
+lanes until the dedicated proof PR passes GitHub Actions end to end.
+
+```bash
+bun run beep yeet repair
+bun run beep yeet verify
+bun run beep yeet publish --message "feat(repo-cli): harden yeet proof"
+```
+
+`repair` is the only mode that runs deterministic write steps. It currently
+runs affected lint fixes, local docgen, `repo-exports:catalog`, and then affected
+feedback. `verify` is read-only and runs affected feedback followed by
+`quality github-checks pre-push`, the shared proof surface that mirrors the
+all-up local GitHub Actions proof. `publish` does not run repair steps: it
+requires reviewed staged changes, commits them, runs the same `pre-push` proof
+against the new local commit, and pushes only after that proof passes. Bare
+`yeet --message ...` remains a publish alias.
+
+If `yeet verify` or `yeet publish` passes locally but the proof PR fails in
+GitHub Actions, treat that as a Yeet/quality parity bug or environment drift
+unless the failure is clearly an external outage. The custom Yeet agent skill
+should be added only after this proof loop is green.
+
 ### `ci`
 
 Render CI helper output from checked-in repo automation.

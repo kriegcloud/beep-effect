@@ -7,3 +7,4 @@
 
 export * from "./RepoRun.executor.js";
 export * from "./RepoRun.models.js";
+export * from "./RepoRun.proofs.js";

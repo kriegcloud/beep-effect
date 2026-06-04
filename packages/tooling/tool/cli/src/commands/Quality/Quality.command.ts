@@ -7,7 +7,6 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
-import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
@@ -20,6 +19,7 @@ import { ChildProcess } from "effect/unstable/process";
 import { XMLParser } from "fast-xml-parser";
 import { parse } from "jsonc-parser";
 import { printLines } from "../../internal/cli/Printer.js";
+import { GITHUB_CHECK_MODE_VALUES, GithubCheckMode as GithubCheckModeSchema } from "../../internal/repo-run/index.js";
 import { runChangesetGraphCheck } from "./ChangesetGraph.js";
 import { configStringEqualsSync } from "./internal/Config.js";
 import { writeJSDocDocumentationInventory } from "./internal/JSDocDocumentationInventory.js";
@@ -29,6 +29,7 @@ import { QualityScriptCommandError } from "./Quality.errors.js";
 import { QualityTaskStep } from "./Tasks.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { ParseError } from "jsonc-parser";
+import type { GithubCheckMode as GithubCheckModeType } from "../../internal/repo-run/index.js";
 
 /**
  * Public quality script command error export.
@@ -40,7 +41,6 @@ export { QualityScriptCommandError } from "./Quality.errors.js";
 
 const $I = $RepoCliId.create("commands/Quality/ScriptCommands");
 
-const GITHUB_CHECK_MODES = ["quality", "repo-sanity", "secrets", "security", "sast", "nix", "pre-push"] as const;
 const ignoredTestDirectoryNames = ["node_modules", "dist", "coverage", "tmp"] as const;
 const ignoredTestPathSegments = ["/test/fixtures/"] as const;
 const dtslintSearchRoots = ["apps", "packages", "tooling"] as const;
@@ -138,11 +138,7 @@ type TsgoDiagnosticOutput = {
  * @category models
  * @since 0.0.0
  */
-export const GithubCheckMode = LiteralKit(GITHUB_CHECK_MODES).pipe(
-  $I.annoteSchema("GithubCheckMode", {
-    description: "GitHub verification mode handled by the repo-cli quality command group.",
-  })
-);
+export const GithubCheckMode = GithubCheckModeSchema;
 
 /**
  * GitHub check mode handled by `beep quality github-checks`.
@@ -155,7 +151,7 @@ export const GithubCheckMode = LiteralKit(GITHUB_CHECK_MODES).pipe(
  * @category models
  * @since 0.0.0
  */
-export type GithubCheckMode = typeof GithubCheckMode.Type;
+export type GithubCheckMode = GithubCheckModeType;
 
 const commandText = (command: string, args: ReadonlyArray<string>) => A.join([command, ...args], " ");
 
@@ -1640,7 +1636,7 @@ const runQualityProgram = <A, R>(
 const githubChecksCommand = Command.make(
   "github-checks",
   {
-    mode: Argument.choice("mode", GITHUB_CHECK_MODES).pipe(Argument.withDescription("GitHub check mode to run")),
+    mode: Argument.choice("mode", GITHUB_CHECK_MODE_VALUES).pipe(Argument.withDescription("GitHub check mode to run")),
   },
   ({ mode }) => runQualityProgram(runGithubChecks(mode))
 ).pipe(Command.withDescription("Run repository GitHub verification lanes"));
