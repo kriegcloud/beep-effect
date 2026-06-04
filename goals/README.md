@@ -46,6 +46,9 @@ intentionally preserved until a dedicated manifest migration is planned.
   Tika/libpff driver split, and `beep files process` proof packet.
 - `ip-law-knowledge-graph`
 - `oip-web-production-hardening`
+- `ontology-modeling-foundation` — foundation modeling packet for the
+  `@beep/rdf` and `@beep/ontology` package split and schema-annotation
+  ontology builder POC.
 - `oip-web-launch` — implementation complete; launch review pending.
 - `repo-codegraph` — deterministic-first codegraph lookup and retrieval
   implementation packet.

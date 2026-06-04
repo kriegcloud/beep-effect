@@ -1,0 +1,5 @@
+{
+  "entryPoint": "src/index.ts",
+  "out": "docs/modules",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/rdf/src/"
+}

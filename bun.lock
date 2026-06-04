@@ -956,6 +956,7 @@
       "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/rdf": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
@@ -986,6 +987,34 @@
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
         "i18next": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/ontology": {
+      "name": "@beep/ontology",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/rdf": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/rdf": {
+      "name": "@beep/rdf",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
       },
       "devDependencies": {
         "@effect/vitest": "catalog:",
@@ -2089,6 +2118,8 @@
 
     "@beep/onepassword-cli": ["@beep/onepassword-cli@workspace:packages/drivers/onepassword-cli"],
 
+    "@beep/ontology": ["@beep/ontology@workspace:packages/foundation/modeling/ontology"],
+
     "@beep/openai-compat": ["@beep/openai-compat@workspace:packages/drivers/openai-compat"],
 
     "@beep/phoenix": ["@beep/phoenix@workspace:packages/drivers/phoenix"],
@@ -2098,6 +2129,8 @@
     "@beep/professional-desktop": ["@beep/professional-desktop@workspace:apps/professional-desktop"],
 
     "@beep/professional-runtime-proof": ["@beep/professional-runtime-proof@workspace:apps/professional-runtime-proof"],
+
+    "@beep/rdf": ["@beep/rdf@workspace:packages/foundation/modeling/rdf"],
 
     "@beep/repo-ai-metrics": ["@beep/repo-ai-metrics@workspace:packages/tooling/library/ai-metrics"],
 
