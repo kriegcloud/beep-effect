@@ -29,7 +29,7 @@ export class ImageCommandError extends TaggedErrorClass<ImageCommandError>($I`Im
   "ImageCommandError",
   {
     message: S.String,
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("ImageCommandError", {
     description: "A failure raised while preparing or applying an image curation operation.",

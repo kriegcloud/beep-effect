@@ -93,7 +93,7 @@ class BunGlobMutationError extends TaggedErrorClass<BunGlobMutationError>("BunGl
   "BunGlobMutationError",
   {
     action: S.String,
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
   }
 ) {}
 

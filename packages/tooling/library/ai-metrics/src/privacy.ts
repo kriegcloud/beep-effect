@@ -206,7 +206,7 @@ export class AiMetricsPrivacyCheckResult extends S.Class<AiMetricsPrivacyCheckRe
 export class AiMetricsPrivacyError extends TaggedErrorClass<AiMetricsPrivacyError>($I`AiMetricsPrivacyError`)(
   "AiMetricsPrivacyError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
   },
   $I.annote("AiMetricsPrivacyError", {

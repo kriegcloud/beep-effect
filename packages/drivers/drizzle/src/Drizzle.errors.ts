@@ -87,8 +87,27 @@ const readCauseReasons = (cause: Cause.Cause<unknown>): ReadonlyArray<Cause.Reas
     A.empty<Cause.Reason<unknown>>
   );
 
+const hasInspectableObjectShape = (value: unknown): boolean => {
+  if (!P.isObject(value)) {
+    return true;
+  }
+
+  return Result.getOrElse(
+    Result.try(() => {
+      Reflect.getPrototypeOf(value);
+      for (const key of Reflect.ownKeys(value)) {
+        Reflect.getOwnPropertyDescriptor(value, key);
+      }
+      return true;
+    }),
+    () => false
+  );
+};
+
 const optionFromSafeDefect = (value: unknown): O.Option<unknown> =>
-  safeBoolean(() => S.is(S.DefectWithStack)(value)) ? O.some(value) : O.none();
+  hasInspectableObjectShape(value) && safeBoolean(() => S.is(S.Defect({ includeStack: true }))(value))
+    ? O.some(value)
+    : O.none();
 
 const contextFromDrizzleMessageMatch = (matched: RegExpMatchArray): DrizzleErrorContext => {
   const paramsText = O.getOrUndefined(O.map(O.fromUndefinedOr(matched[2]), Str.trim));
@@ -239,7 +258,7 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError
   "DrizzleError",
   {
     operation: S.String,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
     query: S.OptionFromOptionalKey(S.String),
     params: S.OptionFromOptionalKey(S.Unknown.pipe(S.Array)),
   },

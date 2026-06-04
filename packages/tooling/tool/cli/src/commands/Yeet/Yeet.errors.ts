@@ -44,7 +44,7 @@ export class YeetCommandError extends TaggedErrorClass<YeetCommandError>($I`Yeet
     command: S.optionalKey(S.String),
     exitCode: S.optionalKey(S.Number),
     file: S.optionalKey(S.String),
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("YeetCommandError", {
     description: "Failure raised while planning or executing a yeet run.",

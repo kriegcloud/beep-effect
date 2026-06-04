@@ -100,7 +100,7 @@ export type PhoenixErrorReason = typeof PhoenixErrorReason.Type;
  */
 export class PhoenixErrorOptions extends S.Class<PhoenixErrorOptions>($I`PhoenixErrorOptions`)(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("PhoenixErrorOptions", {
     description: "Options for configuring PhoenixError instances, including optional redacted cause data.",

@@ -149,7 +149,7 @@ describe("StatusCauseTaggedErrorClass", () => {
     StatusCauseTaggedErrorClass<never>()("BadStatusError", { status: S.Number });
 
     // @ts-expect-error!
-    StatusCauseTaggedErrorClass<never>()("BadCauseError", { cause: S.DefectWithStack });
+    StatusCauseTaggedErrorClass<never>()("BadCauseError", { cause: S.Defect({ includeStack: true }) });
 
     // @ts-expect-error!
     StatusCauseTaggedErrorClass<never>()("StructPayloadError", ProviderPayload);

@@ -45,7 +45,7 @@ export class RepoCodegraphCatalogReadError extends TaggedErrorClass<RepoCodegrap
     operation: S.NonEmptyString,
     path: S.NonEmptyString,
     message: S.NonEmptyString,
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
   },
   $I.annote("RepoCodegraphCatalogReadError", {
     description: "Typed failure raised while reading repo-codegraph catalog and package policy inputs.",

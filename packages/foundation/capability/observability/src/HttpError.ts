@@ -91,7 +91,7 @@ export class ClientHttpError extends TaggedErrorClass<ClientHttpError>($I`Client
   {
     message: S.String,
     status: HttpStatus.HttpStatus4XX,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("ClientHttpError", {
     description: "Shared tagged error for 4xx HTTP responses.",
@@ -126,7 +126,7 @@ export class ServerHttpError extends TaggedErrorClass<ServerHttpError>($I`Server
   {
     message: S.String,
     status: HttpStatus.HttpStatus5XX,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("ServerHttpError", {
     description: "Shared tagged error for 5xx HTTP responses.",

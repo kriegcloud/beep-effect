@@ -45,7 +45,7 @@ export class ChangesetGraphError extends TaggedErrorClass<ChangesetGraphError>($
   {
     message: S.String,
     file: S.optionalKey(S.String),
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("ChangesetGraphError", {
     description: "Failure raised while validating changeset package references.",
@@ -93,7 +93,7 @@ export class QualityScriptCommandError extends TaggedErrorClass<QualityScriptCom
     message: S.String,
     command: S.optionalKey(S.String),
     exitCode: S.optionalKey(S.Number),
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("QualityScriptCommandError", {
     description: "Failure raised while running a migrated repo operational command.",

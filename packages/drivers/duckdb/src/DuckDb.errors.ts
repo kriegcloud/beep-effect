@@ -8,6 +8,7 @@
 import { make } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { O } from "@beep/utils";
+import { Result } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -15,7 +16,25 @@ import * as S from "effect/Schema";
 const { $DuckdbId } = make("duckdb");
 const $I = $DuckdbId.create("DuckDb.errors");
 
-const causeFromUnknown = (cause: unknown): unknown | undefined => (S.is(S.DefectWithStack)(cause) ? cause : undefined);
+const hasInspectableObjectShape = (value: unknown): boolean => {
+  if (!P.isObject(value)) {
+    return true;
+  }
+
+  return Result.getOrElse(
+    Result.try(() => {
+      Reflect.getPrototypeOf(value);
+      for (const key of Reflect.ownKeys(value)) {
+        Reflect.getOwnPropertyDescriptor(value, key);
+      }
+      return true;
+    }),
+    () => false
+  );
+};
+
+const causeFromUnknown = (cause: unknown): unknown | undefined =>
+  hasInspectableObjectShape(cause) && S.is(S.Defect({ includeStack: true }))(cause) ? cause : undefined;
 
 const existingDuckDbError = (cause: unknown): O.Option<DuckDbError> =>
   S.is(DuckDbError)(cause) ? O.some(cause) : O.none();
@@ -41,7 +60,7 @@ export class DuckDbErrorFromUnknownOptions extends S.Class<DuckDbErrorFromUnknow
   $I`DuckDbErrorFromUnknownOptions`
 )(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     databasePath: S.optionalKey(S.String),
     message: S.optionalKey(S.String),
     statement: S.optionalKey(S.String),
@@ -72,7 +91,7 @@ export class DuckDbErrorFromUnknownOptions extends S.Class<DuckDbErrorFromUnknow
 export class DuckDbError extends TaggedErrorClass<DuckDbError>($I`DuckDbError`)(
   "DuckDbError",
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     databasePath: S.optionalKey(S.String),
     message: S.String,
     operation: S.String,

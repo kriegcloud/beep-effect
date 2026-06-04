@@ -169,7 +169,7 @@ Same pattern, but imported from `@beep/schema`:
 ```ts
 class MyError extends TaggedErrorClass<MyError>($I`MyError`)(
   "MyError",
-  { message: S.String, cause: S.DefectWithStack },
+  { message: S.String, cause: S.Defect({ includeStack: true }) },
   $I.annote("MyError", {
     description: "Describes when and why this error occurs."
   })

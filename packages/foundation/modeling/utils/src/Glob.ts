@@ -121,7 +121,9 @@ export declare namespace GlobError {
  * ```ts
  * import { GlobError } from "@beep/utils/Glob"
  *
- * const error = GlobError.new("src/*.ts", undefined)
+ * import * as O from "effect/Option"
+ *
+ * const error = GlobError.new("src/*.ts", O.none())
  * console.log(error)
  * ```
  *
@@ -132,22 +134,20 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
   "GlobError",
   {
     pattern: Pattern,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("GlobError", {
     description: "An error that occurs during glob pattern matching",
   })
 ) {
   static readonly new: {
-    (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]): GlobError;
-    (pattern: GlobError.Encoded["pattern"]): (cause: GlobError.Encoded["cause"]) => GlobError;
-  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) =>
-    GlobError.make({ pattern, cause })
-  );
+    (pattern: GlobError.Encoded["pattern"], cause: GlobError["cause"]): GlobError;
+    (pattern: GlobError.Encoded["pattern"]): (cause: GlobError["cause"]) => GlobError;
+  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobError["cause"]) => GlobError.make({ pattern, cause }));
   static readonly newThunk: {
-    (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]): () => GlobError;
-    (pattern: GlobError.Encoded["pattern"]): (cause: GlobError.Encoded["cause"]) => () => GlobError;
-  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) =>
+    (pattern: GlobError.Encoded["pattern"], cause: GlobError["cause"]): () => GlobError;
+    (pattern: GlobError.Encoded["pattern"]): (cause: GlobError["cause"]) => () => GlobError;
+  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobError["cause"]) =>
     thunk(GlobError.make({ pattern, cause }))
   );
 }
@@ -223,7 +223,7 @@ function toGlobError(pattern: Pattern): (cause: unknown) => GlobError {
       Match.orElse((error) =>
         GlobError.make({
           pattern,
-          cause: S.decodeUnknownOption(S.DefectWithStack)(error),
+          cause: S.decodeUnknownOption(S.Defect({ includeStack: true }))(error),
         })
       )
     );

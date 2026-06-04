@@ -150,7 +150,7 @@ const sanitizeNGramResult = (
 export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtilsError`)(
   "WinkUtilsError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
     operation: S.String,
   },

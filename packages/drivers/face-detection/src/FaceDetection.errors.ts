@@ -7,14 +7,33 @@
 
 import { $FaceDetectionId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { pipe } from "effect";
+import { pipe, Result } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $FaceDetectionId.create("FaceDetection.errors");
 
-const causeFromUnknown = (cause: unknown): unknown | undefined => (S.is(S.DefectWithStack)(cause) ? cause : undefined);
+const hasInspectableObjectShape = (value: unknown): boolean => {
+  if (!P.isObject(value)) {
+    return true;
+  }
+
+  return Result.getOrElse(
+    Result.try(() => {
+      Reflect.getPrototypeOf(value);
+      for (const key of Reflect.ownKeys(value)) {
+        Reflect.getOwnPropertyDescriptor(value, key);
+      }
+      return true;
+    }),
+    () => false
+  );
+};
+
+const causeFromUnknown = (cause: unknown): unknown | undefined =>
+  hasInspectableObjectShape(cause) && S.is(S.Defect({ includeStack: true }))(cause) ? cause : undefined;
 
 const causeMessage = (cause: unknown): O.Option<string> =>
   cause instanceof Error && cause.message.length > 0 ? O.some(cause.message) : O.none();
@@ -47,7 +66,7 @@ export class FaceDetectionErrorFromUnknownOptions extends S.Class<FaceDetectionE
   $I`FaceDetectionErrorFromUnknownOptions`
 )(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     imagePath: S.optionalKey(S.String),
     modelPath: S.optionalKey(S.String),
   },
@@ -73,7 +92,7 @@ export class FaceDetectionErrorFromUnknownOptions extends S.Class<FaceDetectionE
 export class FaceDetectionError extends TaggedErrorClass<FaceDetectionError>($I`FaceDetectionError`)(
   "FaceDetectionError",
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     imagePath: S.optionalKey(S.String),
     message: S.String,
     modelPath: S.optionalKey(S.String),

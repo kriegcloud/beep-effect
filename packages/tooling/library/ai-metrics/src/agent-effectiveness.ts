@@ -140,7 +140,7 @@ export type AgentEffectivenessAnnotationValue = typeof AgentEffectivenessAnnotat
 export class AgentEffectivenessError extends TaggedErrorClass<AgentEffectivenessError>($I`AgentEffectivenessError`)(
   "AgentEffectivenessError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
   },
   $I.annote("AgentEffectivenessError", {

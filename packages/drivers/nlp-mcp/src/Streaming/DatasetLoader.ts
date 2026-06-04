@@ -82,7 +82,7 @@ export interface DatasetResult<A> {
  * @category errors
  */
 export class DatasetLoadError extends TaggedErrorClass<DatasetLoadError>($I`DatasetLoadError`)("DatasetLoadError", {
-  cause: S.optionalKey(S.DefectWithStack),
+  cause: S.optionalKey(S.Defect({ includeStack: true })),
   message: S.String,
   location: S.String,
 }) {}

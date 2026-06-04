@@ -38,7 +38,7 @@ const getEntityNameOption = (options: { readonly entityName?: string | undefined
 export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEngineError`)(
   "WinkEngineError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
     operation: S.String,
   },
@@ -87,7 +87,7 @@ export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEn
 export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationError>($I`WinkTokenizationError`)(
   "WinkTokenizationError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
     operation: S.String,
     text: S.OptionFromOptionalKey(S.String),
@@ -140,7 +140,7 @@ export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationErro
 export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEntityError`)(
   "WinkEntityError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     entityName: S.OptionFromOptionalKey(S.String),
     message: S.String,
     operation: S.String,

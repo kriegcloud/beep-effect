@@ -143,7 +143,7 @@ describe("CauseTaggedError", () => {
     CauseTaggedError<never>()("BadMessageError", { message: S.String });
 
     // @ts-expect-error!
-    CauseTaggedError<never>()("BadCauseError", { cause: S.DefectWithStack });
+    CauseTaggedError<never>()("BadCauseError", { cause: S.Defect({ includeStack: true }) });
 
     // @ts-expect-error!
     CauseTaggedError<never>()("StructPayloadError", OperationPayload);

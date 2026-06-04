@@ -37,7 +37,7 @@ export class QualityArtifactGeneratorError extends TaggedErrorClass<QualityArtif
     command: S.optionalKey(S.String),
     exitCode: S.optionalKey(S.Number),
     filePath: S.optionalKey(S.String),
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("QualityArtifactGeneratorError", {
     description: "Typed failure raised by repo quality artifact generators.",

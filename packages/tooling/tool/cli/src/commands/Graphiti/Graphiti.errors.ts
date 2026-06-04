@@ -38,7 +38,7 @@ export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxy
   "GraphitiProxyConfigLoadError",
   {
     message: S.String,
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("GraphitiProxyConfigLoadError", {
     description: "Raised when graphiti proxy config cannot be decoded from Effect Config values.",
@@ -81,7 +81,7 @@ export class GraphitiProxyOpsError extends TaggedErrorClass<GraphitiProxyOpsErro
     message: S.String,
     command: S.optionalKey(S.String),
     exitCode: S.optionalKey(S.Number),
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("GraphitiProxyOpsError", {
     description: "Failure raised while managing the local Graphiti proxy.",

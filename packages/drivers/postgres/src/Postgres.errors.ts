@@ -275,8 +275,29 @@ const extractPostgresError = (value: unknown, seen: ReadonlyArray<object> = []):
 
 const optionFrom = <A>(value: A | undefined): O.Option<A> => O.fromUndefinedOr(value);
 
+const hasInspectableObjectShape = (value: unknown): boolean => {
+  if (!isObject(value)) {
+    return true;
+  }
+
+  return pipe(
+    Result.try(() => {
+      Reflect.getPrototypeOf(value);
+      for (const key of Reflect.ownKeys(value)) {
+        Reflect.getOwnPropertyDescriptor(value, key);
+      }
+      return true;
+    }),
+    Result.getOrElse(thunkFalse)
+  );
+};
+
 const optionFromSafeDefect = (value: unknown): O.Option<unknown> =>
-  !isCause(value) && safeBoolean(() => S.is(S.DefectWithStack)(value)) ? optionFrom(value) : O.none();
+  !isCause(value) &&
+  hasInspectableObjectShape(value) &&
+  safeBoolean(() => S.is(S.Defect({ includeStack: true }))(value))
+    ? optionFrom(value)
+    : O.none();
 
 /**
  * Technical failure raised by the `@beep/postgres` driver boundary.
@@ -296,7 +317,7 @@ export class PostgresError extends TaggedErrorClass<PostgresError>($I`PostgresEr
   "PostgresError",
   {
     operation: S.String,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
     message: S.OptionFromOptionalKey(S.String),
     sqlState: S.OptionFromOptionalKey(S.String),
     sqlStateName: S.OptionFromOptionalKey(S.String),

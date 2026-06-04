@@ -714,8 +714,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/face-detection` | `FaceDetectionBox` | class | `packages/drivers/face-detection/src/FaceDetection.models.ts:265` | Bounding box emitted by a face detector. |
 | `@beep/face-detection` | `FaceDetectionConfidence` | const | `packages/drivers/face-detection/src/FaceDetection.models.ts:61` | Detection confidence between zero and one. |
 | `@beep/face-detection` | `FaceDetectionConfidence` | type | `packages/drivers/face-detection/src/FaceDetection.models.ts:95` | Detection confidence between zero and one. |
-| `@beep/face-detection` | `FaceDetectionError` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:73` | Technical failure raised by the `@beep/face-detection` driver boundary. |
-| `@beep/face-detection` | `FaceDetectionErrorFromUnknownOptions` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:46` | Options used when normalizing unknown face detection boundary failures. |
+| `@beep/face-detection` | `FaceDetectionError` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:92` | Technical failure raised by the `@beep/face-detection` driver boundary. |
+| `@beep/face-detection` | `FaceDetectionErrorFromUnknownOptions` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:65` | Options used when normalizing unknown face detection boundary failures. |
 | `@beep/face-detection` | `FaceDetectionImageRequest` | class | `packages/drivers/face-detection/src/FaceDetection.models.ts:217` | Request to detect faces in one image with a loaded detector. |
 | `@beep/face-detection` | `FaceDetectionLandmarks` | class | `packages/drivers/face-detection/src/FaceDetection.models.ts:290` | Five landmark points emitted by YuNet-compatible face detection models. |
 | `@beep/face-detection` | `FaceDetectionModelConfig` | class | `packages/drivers/face-detection/src/FaceDetection.models.ts:194` | Request to load a YuNet-compatible ONNX face detector. |
@@ -732,8 +732,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/face-detection` | `PositivePixelDimension` | const | `packages/drivers/face-detection/src/FaceDetection.models.ts:27` | Pixel dimension greater than zero. |
 | `@beep/face-detection` | `PositivePixelDimension` | type | `packages/drivers/face-detection/src/FaceDetection.models.ts:46` | Pixel dimension greater than zero. |
 | `@beep/face-detection` | `withDetector` | const | `packages/drivers/face-detection/src/FaceDetection.service.ts:652` | Run a workflow with a loaded face detector. |
-| `@beep/face-detection/FaceDetection.errors` | `FaceDetectionError` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:73` | Technical failure raised by the `@beep/face-detection` driver boundary. |
-| `@beep/face-detection/FaceDetection.errors` | `FaceDetectionErrorFromUnknownOptions` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:46` | Options used when normalizing unknown face detection boundary failures. |
+| `@beep/face-detection/FaceDetection.errors` | `FaceDetectionError` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:92` | Technical failure raised by the `@beep/face-detection` driver boundary. |
+| `@beep/face-detection/FaceDetection.errors` | `FaceDetectionErrorFromUnknownOptions` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:65` | Options used when normalizing unknown face detection boundary failures. |
 | `@beep/face-detection/FaceDetection.models` | `decodeFaceDetectionImageRequest` | const | `packages/drivers/face-detection/src/FaceDetection.models.ts:380` | Decode an image request from unknown input. |
 | `@beep/face-detection/FaceDetection.models` | `decodeFaceDetectionModelConfig` | const | `packages/drivers/face-detection/src/FaceDetection.models.ts:365` | Decode a model config from unknown input. |
 | `@beep/face-detection/FaceDetection.models` | `FaceDetection` | class | `packages/drivers/face-detection/src/FaceDetection.models.ts:316` | One face detection emitted for an image. |
@@ -762,8 +762,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/face-detection/index` | `FaceDetectionBox` | class | `packages/drivers/face-detection/src/FaceDetection.models.ts:265` | Bounding box emitted by a face detector. |
 | `@beep/face-detection/index` | `FaceDetectionConfidence` | const | `packages/drivers/face-detection/src/FaceDetection.models.ts:61` | Detection confidence between zero and one. |
 | `@beep/face-detection/index` | `FaceDetectionConfidence` | type | `packages/drivers/face-detection/src/FaceDetection.models.ts:95` | Detection confidence between zero and one. |
-| `@beep/face-detection/index` | `FaceDetectionError` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:73` | Technical failure raised by the `@beep/face-detection` driver boundary. |
-| `@beep/face-detection/index` | `FaceDetectionErrorFromUnknownOptions` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:46` | Options used when normalizing unknown face detection boundary failures. |
+| `@beep/face-detection/index` | `FaceDetectionError` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:92` | Technical failure raised by the `@beep/face-detection` driver boundary. |
+| `@beep/face-detection/index` | `FaceDetectionErrorFromUnknownOptions` | class | `packages/drivers/face-detection/src/FaceDetection.errors.ts:65` | Options used when normalizing unknown face detection boundary failures. |
 | `@beep/face-detection/index` | `FaceDetectionImageRequest` | class | `packages/drivers/face-detection/src/FaceDetection.models.ts:217` | Request to detect faces in one image with a loaded detector. |
 | `@beep/face-detection/index` | `FaceDetectionLandmarks` | class | `packages/drivers/face-detection/src/FaceDetection.models.ts:290` | Five landmark points emitted by YuNet-compatible face detection models. |
 | `@beep/face-detection/index` | `FaceDetectionModelConfig` | class | `packages/drivers/face-detection/src/FaceDetection.models.ts:194` | Request to load a YuNet-compatible ONNX face detector. |
@@ -5539,7 +5539,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/utils/Function` | `untupled` | const | `node_modules/effect/dist/Function.d.ts:709` | Converts a tupled function back to an uncurried function. |
 | `@beep/utils/Glob` | `Glob` | const | `packages/foundation/modeling/utils/src/Glob.ts:195` | Service tag for the {@link Glob} capability. |
 | `@beep/utils/Glob` | `Glob` | interface | `packages/foundation/modeling/utils/src/Glob.ts:177` | Service interface for performing glob-based file matching. |
-| `@beep/utils/Glob` | `GlobError` | class | `packages/foundation/modeling/utils/src/Glob.ts:131` | An error raised when glob pattern matching fails. |
+| `@beep/utils/Glob` | `GlobError` | class | `packages/foundation/modeling/utils/src/Glob.ts:133` | An error raised when glob pattern matching fails. |
 | `@beep/utils/Glob` | `GlobError` | namespace | `packages/foundation/modeling/utils/src/Glob.ts:97` | Namespace for the encoded form of {@link GlobError}. |
 | `@beep/utils/Glob` | `GlobOptions` | class | `packages/foundation/modeling/utils/src/Glob.ts:70` | Optional runtime flags for glob scans. |
 | `@beep/utils/Glob` | `layer` | const | `packages/foundation/modeling/utils/src/Glob.ts:531` | Live `Layer` providing the {@link Glob} service backed by `Bun.Glob` when |
@@ -7196,7 +7196,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/drizzle` | `Drizzle` | class | `packages/drivers/drizzle/src/Drizzle.service.ts:128` | Effect service for product-neutral Drizzle execution. |
 | `@beep/drizzle` | `DrizzleClient` | interface | `packages/drivers/drizzle/src/Drizzle.service.ts:75` | Narrow adapter accepted by {@link Drizzle.makeLayer}. |
-| `@beep/drizzle` | `DrizzleError` | class | `packages/drivers/drizzle/src/Drizzle.errors.ts:238` | Technical failure raised by the `@beep/drizzle` driver boundary. |
+| `@beep/drizzle` | `DrizzleError` | class | `packages/drivers/drizzle/src/Drizzle.errors.ts:257` | Technical failure raised by the `@beep/drizzle` driver boundary. |
 | `@beep/drizzle` | `DrizzleErrorContext` | class | `packages/drivers/drizzle/src/Drizzle.errors.ts:37` | Optional query context captured while normalizing Drizzle driver failures. |
 | `@beep/drizzle` | `DrizzleRows` | const | `packages/drivers/drizzle/src/Drizzle.service.ts:31` | Schema for rows returned by a product-neutral Drizzle adapter. |
 | `@beep/drizzle` | `DrizzleRows` | type | `packages/drivers/drizzle/src/Drizzle.service.ts:51` | Type for {@link DrizzleRows}. |
@@ -12457,8 +12457,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 |---|---|---|---|---|
 | `@beep/onepassword-cli` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:156` | Effect service for native `op` execution. |
 | `@beep/onepassword-cli` | `OnePasswordCliAccount` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:78` | 1Password account/session probe result. |
-| `@beep/onepassword-cli` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:55` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
-| `@beep/onepassword-cli` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:29` | Options captured while normalizing unknown 1Password CLI failures. |
+| `@beep/onepassword-cli` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:74` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
+| `@beep/onepassword-cli` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:48` | Options captured while normalizing unknown 1Password CLI failures. |
 | `@beep/onepassword-cli` | `OnePasswordCliProcessResult` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:54` | Process output captured by a 1Password CLI command. |
 | `@beep/onepassword-cli` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:43` | Product-neutral process runner used by the 1Password CLI driver. |
 | `@beep/onepassword-cli` | `OnePasswordReferenceProbe` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:101` | Secret-reference validation result that does not expose the secret. |
@@ -12466,15 +12466,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/onepassword-cli` | `OnePasswordReferenceProbeStatus` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:39` | Runtime type for {@link OnePasswordReferenceProbeStatus}. |
 | `@beep/onepassword-cli/index` | `OnePasswordCli` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:156` | Effect service for native `op` execution. |
 | `@beep/onepassword-cli/index` | `OnePasswordCliAccount` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:78` | 1Password account/session probe result. |
-| `@beep/onepassword-cli/index` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:55` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
-| `@beep/onepassword-cli/index` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:29` | Options captured while normalizing unknown 1Password CLI failures. |
+| `@beep/onepassword-cli/index` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:74` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
+| `@beep/onepassword-cli/index` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:48` | Options captured while normalizing unknown 1Password CLI failures. |
 | `@beep/onepassword-cli/index` | `OnePasswordCliProcessResult` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:54` | Process output captured by a 1Password CLI command. |
 | `@beep/onepassword-cli/index` | `OnePasswordCliRunner` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts:43` | Product-neutral process runner used by the 1Password CLI driver. |
 | `@beep/onepassword-cli/index` | `OnePasswordReferenceProbe` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:101` | Secret-reference validation result that does not expose the secret. |
 | `@beep/onepassword-cli/index` | `OnePasswordReferenceProbeStatus` | const | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:27` | 1Password reference probe status. |
 | `@beep/onepassword-cli/index` | `OnePasswordReferenceProbeStatus` | type | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:39` | Runtime type for {@link OnePasswordReferenceProbeStatus}. |
-| `@beep/onepassword-cli/OnePasswordCli.errors` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:55` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
-| `@beep/onepassword-cli/OnePasswordCli.errors` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:29` | Options captured while normalizing unknown 1Password CLI failures. |
+| `@beep/onepassword-cli/OnePasswordCli.errors` | `OnePasswordCliError` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:74` | Technical failure raised by the `@beep/onepassword-cli` driver boundary. |
+| `@beep/onepassword-cli/OnePasswordCli.errors` | `OnePasswordCliErrorOptions` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts:48` | Options captured while normalizing unknown 1Password CLI failures. |
 | `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordCliAccount` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:78` | 1Password account/session probe result. |
 | `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordCliProcessResult` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:54` | Process output captured by a 1Password CLI command. |
 | `@beep/onepassword-cli/OnePasswordCli.models` | `OnePasswordReferenceProbe` | class | `packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts:101` | Secret-reference validation result that does not expose the secret. |
@@ -12703,8 +12703,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/duckdb` | `DuckDb` | class | `packages/drivers/duckdb/src/DuckDb.service.ts:358` | Effect service for product-neutral DuckDB execution. |
 | `@beep/duckdb` | `DuckDbClient` | interface | `packages/drivers/duckdb/src/DuckDb.service.ts:60` | Narrow adapter accepted by {@link DuckDb.makeLayer}. |
 | `@beep/duckdb` | `DuckDbConnectionOptions` | class | `packages/drivers/duckdb/src/DuckDb.models.ts:31` | Connection options for a DuckDB database. |
-| `@beep/duckdb` | `DuckDbError` | class | `packages/drivers/duckdb/src/DuckDb.errors.ts:72` | Technical failure raised by the `@beep/duckdb` driver boundary. |
-| `@beep/duckdb` | `DuckDbErrorFromUnknownOptions` | class | `packages/drivers/duckdb/src/DuckDb.errors.ts:40` | Options used when normalizing unknown DuckDB boundary failures. |
+| `@beep/duckdb` | `DuckDbError` | class | `packages/drivers/duckdb/src/DuckDb.errors.ts:91` | Technical failure raised by the `@beep/duckdb` driver boundary. |
+| `@beep/duckdb` | `DuckDbErrorFromUnknownOptions` | class | `packages/drivers/duckdb/src/DuckDb.errors.ts:59` | Options used when normalizing unknown DuckDB boundary failures. |
 | `@beep/duckdb` | `DuckDbParquetExport` | class | `packages/drivers/duckdb/src/DuckDb.models.ts:59` | Parquet export request for a DuckDB table. |
 | `@beep/duckdb` | `DuckDbQueryParameters` | type | `packages/drivers/duckdb/src/DuckDb.service.ts:36` | Parameter values accepted by the DuckDB Node API. |
 | `@beep/duckdb` | `DuckDbRow` | const | `packages/drivers/duckdb/src/DuckDb.models.ts:88` | JSON-compatible row returned from DuckDB queries. |
@@ -12732,9 +12732,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ffmpeg` | `FFmpegCompletedEvent` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:577` | Event emitted after frames and manifest are committed. |
 | `@beep/ffmpeg` | `FFmpegConfig` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:235` | Resolved runtime configuration for the native FFmpeg driver. |
 | `@beep/ffmpeg` | `FFmpegConfigInput` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:206` | Runtime path overrides for the native FFmpeg binaries. |
-| `@beep/ffmpeg` | `FFmpegError` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:94` | Technical failure raised by the `@beep/ffmpeg` driver boundary. |
-| `@beep/ffmpeg` | `FFmpegErrorContext` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:30` | Additional process context captured for an FFmpeg failure. |
-| `@beep/ffmpeg` | `FFmpegErrorFromUnknownOptions` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:65` | Options used when normalizing unknown FFmpeg boundary failures. |
+| `@beep/ffmpeg` | `FFmpegError` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:114` | Technical failure raised by the `@beep/ffmpeg` driver boundary. |
+| `@beep/ffmpeg` | `FFmpegErrorContext` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:32` | Additional process context captured for an FFmpeg failure. |
+| `@beep/ffmpeg` | `FFmpegErrorFromUnknownOptions` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:85` | Options used when normalizing unknown FFmpeg boundary failures. |
 | `@beep/ffmpeg` | `FFmpegEvent` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:603` | Structured events emitted by extract-frames. |
 | `@beep/ffmpeg` | `FFmpegEvent` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:624` | Structured events emitted by extract-frames. |
 | `@beep/ffmpeg` | `FFmpegEventSink` | type | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:91` | Effectful sink for structured FFmpeg events. |
@@ -12752,9 +12752,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ffmpeg` | `SafeFramePrefix` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:148` | File-name prefix accepted for generated frame outputs. |
 | `@beep/ffmpeg` | `SafeFramePrefix` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:190` | Safe frame filename prefix. |
 | `@beep/ffmpeg` | `VideoProbe` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:283` | Video metadata extracted from ffprobe. |
-| `@beep/ffmpeg/FFmpeg.errors` | `FFmpegError` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:94` | Technical failure raised by the `@beep/ffmpeg` driver boundary. |
-| `@beep/ffmpeg/FFmpeg.errors` | `FFmpegErrorContext` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:30` | Additional process context captured for an FFmpeg failure. |
-| `@beep/ffmpeg/FFmpeg.errors` | `FFmpegErrorFromUnknownOptions` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:65` | Options used when normalizing unknown FFmpeg boundary failures. |
+| `@beep/ffmpeg/FFmpeg.errors` | `FFmpegError` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:114` | Technical failure raised by the `@beep/ffmpeg` driver boundary. |
+| `@beep/ffmpeg/FFmpeg.errors` | `FFmpegErrorContext` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:32` | Additional process context captured for an FFmpeg failure. |
+| `@beep/ffmpeg/FFmpeg.errors` | `FFmpegErrorFromUnknownOptions` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:85` | Options used when normalizing unknown FFmpeg boundary failures. |
 | `@beep/ffmpeg/FFmpeg.models` | `decodeExtractFramesRequest` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:640` | Decode an unknown value into an extract-frames request. |
 | `@beep/ffmpeg/FFmpeg.models` | `decodeProbeVideoRequest` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:656` | Decode an unknown value into a probe request. |
 | `@beep/ffmpeg/FFmpeg.models` | `encodeExtractFramesManifest` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:681` | Encode an extract-frames manifest into its JSON-safe shape. |
@@ -12802,9 +12802,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ffmpeg/index` | `FFmpegCompletedEvent` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:577` | Event emitted after frames and manifest are committed. |
 | `@beep/ffmpeg/index` | `FFmpegConfig` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:235` | Resolved runtime configuration for the native FFmpeg driver. |
 | `@beep/ffmpeg/index` | `FFmpegConfigInput` | class | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:206` | Runtime path overrides for the native FFmpeg binaries. |
-| `@beep/ffmpeg/index` | `FFmpegError` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:94` | Technical failure raised by the `@beep/ffmpeg` driver boundary. |
-| `@beep/ffmpeg/index` | `FFmpegErrorContext` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:30` | Additional process context captured for an FFmpeg failure. |
-| `@beep/ffmpeg/index` | `FFmpegErrorFromUnknownOptions` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:65` | Options used when normalizing unknown FFmpeg boundary failures. |
+| `@beep/ffmpeg/index` | `FFmpegError` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:114` | Technical failure raised by the `@beep/ffmpeg` driver boundary. |
+| `@beep/ffmpeg/index` | `FFmpegErrorContext` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:32` | Additional process context captured for an FFmpeg failure. |
+| `@beep/ffmpeg/index` | `FFmpegErrorFromUnknownOptions` | class | `packages/drivers/ffmpeg/src/FFmpeg.errors.ts:85` | Options used when normalizing unknown FFmpeg boundary failures. |
 | `@beep/ffmpeg/index` | `FFmpegEvent` | const | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:603` | Structured events emitted by extract-frames. |
 | `@beep/ffmpeg/index` | `FFmpegEvent` | type | `packages/drivers/ffmpeg/src/FFmpeg.models.ts:624` | Structured events emitted by extract-frames. |
 | `@beep/ffmpeg/index` | `FFmpegEventSink` | type | `packages/drivers/ffmpeg/src/FFmpeg.service.ts:91` | Effectful sink for structured FFmpeg events. |
@@ -14132,7 +14132,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/postgres` | `EffectDrizzlePgConfig` | type | `node_modules/drizzle-orm/effect-postgres/driver.d.ts:16` |  |
 | `@beep/postgres` | `EffectLogger` | class | `node_modules/drizzle-orm/effect-core/logger.d.ts:41` | Effect service for logging SQL queries in Drizzle ORM. |
 | `@beep/postgres` | `EffectPgDatabase` | class | `node_modules/drizzle-orm/effect-postgres/driver.d.ts:13` |  |
-| `@beep/postgres` | `extractPostgresDiagnostics` | const | `packages/drivers/postgres/src/Postgres.errors.ts:389` | Normalize unknown Postgres-adjacent failures into structured diagnostics. |
+| `@beep/postgres` | `extractPostgresDiagnostics` | const | `packages/drivers/postgres/src/Postgres.errors.ts:410` | Normalize unknown Postgres-adjacent failures into structured diagnostics. |
 | `@beep/postgres` | `formatPostgresError` | const | `packages/drivers/postgres/src/PostgresDiagnostics.service.ts:343` | Render a Postgres failure with diagnostics and formatted SQL. |
 | `@beep/postgres` | `formatSql` | const | `packages/drivers/postgres/src/PostgresDiagnostics.service.ts:312` | Format and highlight PostgreSQL SQL for terminal output. |
 | `@beep/postgres` | `getPgErrorAliases` | const | `packages/drivers/postgres/src/PostgresSqlState.models.ts:1536` | Resolve every SQLSTATE alias name for a code. |
@@ -14156,7 +14156,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/postgres` | `PostgresDrizzle` | class | `packages/drivers/postgres/src/PostgresDrizzle.service.ts:82` | Service key for a default-typed Postgres-backed Drizzle database. |
 | `@beep/postgres` | `PostgresDrizzleConfig` | type | `packages/drivers/postgres/src/PostgresDrizzle.service.ts:63` | Configuration accepted by {@link makeDrizzle}. |
 | `@beep/postgres` | `PostgresDrizzleDatabase` | type | `packages/drivers/postgres/src/PostgresDrizzle.service.ts:41` | Native Drizzle Effect Postgres database value. |
-| `@beep/postgres` | `PostgresError` | class | `packages/drivers/postgres/src/Postgres.errors.ts:295` | Technical failure raised by the `@beep/postgres` driver boundary. |
+| `@beep/postgres` | `PostgresError` | class | `packages/drivers/postgres/src/Postgres.errors.ts:316` | Technical failure raised by the `@beep/postgres` driver boundary. |
 | `@beep/postgres` | `PostgresErrorCodeByName` | const | `packages/drivers/postgres/src/PostgresSqlState.models.ts:31` | PostgreSQL SQLSTATE names mapped to five-character SQLSTATE codes. |
 | `@beep/postgres` | `PostgresErrorContext` | class | `packages/drivers/postgres/src/Postgres.errors.ts:37` | Optional diagnostic context captured while normalizing Postgres-adjacent failures. |
 | `@beep/postgres` | `PostgresPoolConfig` | type | `packages/drivers/postgres/src/PostgresClient.service.ts:34` | Native Effect Postgres pool configuration. |
@@ -14170,8 +14170,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/postgres/drizzle` | `PostgresDrizzle` | class | `packages/drivers/postgres/src/PostgresDrizzle.service.ts:82` | Service key for a default-typed Postgres-backed Drizzle database. |
 | `@beep/postgres/drizzle` | `PostgresDrizzleConfig` | type | `packages/drivers/postgres/src/PostgresDrizzle.service.ts:63` | Configuration accepted by {@link makeDrizzle}. |
 | `@beep/postgres/drizzle` | `PostgresDrizzleDatabase` | type | `packages/drivers/postgres/src/PostgresDrizzle.service.ts:41` | Native Drizzle Effect Postgres database value. |
-| `@beep/postgres/errors` | `extractPostgresDiagnostics` | const | `packages/drivers/postgres/src/Postgres.errors.ts:389` | Normalize unknown Postgres-adjacent failures into structured diagnostics. |
-| `@beep/postgres/errors` | `PostgresError` | class | `packages/drivers/postgres/src/Postgres.errors.ts:295` | Technical failure raised by the `@beep/postgres` driver boundary. |
+| `@beep/postgres/errors` | `extractPostgresDiagnostics` | const | `packages/drivers/postgres/src/Postgres.errors.ts:410` | Normalize unknown Postgres-adjacent failures into structured diagnostics. |
+| `@beep/postgres/errors` | `PostgresError` | class | `packages/drivers/postgres/src/Postgres.errors.ts:316` | Technical failure raised by the `@beep/postgres` driver boundary. |
 | `@beep/postgres/errors` | `PostgresErrorContext` | class | `packages/drivers/postgres/src/Postgres.errors.ts:37` | Optional diagnostic context captured while normalizing Postgres-adjacent failures. |
 | `@beep/postgres/format` | `formatPostgresError` | const | `packages/drivers/postgres/src/PostgresDiagnostics.service.ts:343` | Render a Postgres failure with diagnostics and formatted SQL. |
 | `@beep/postgres/format` | `formatSql` | const | `packages/drivers/postgres/src/PostgresDiagnostics.service.ts:312` | Format and highlight PostgreSQL SQL for terminal output. |
