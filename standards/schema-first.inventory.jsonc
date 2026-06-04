@@ -1,11 +1,7 @@
 {
   "version": 1,
   "generatedOn": "2026-06-04",
-  "scope": [
-    "apps/**/*.{ts,tsx}",
-    "packages/**/*.{ts,tsx}",
-    "infra/**/*.ts"
-  ],
+  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
     "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -2060,6 +2056,14 @@
       "status": "exception",
       "owner": "@beep/ui",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/ui-system/ui/src/components/orb-background.tsx",
+      "symbol": "OrbBackgroundProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
       "file": "packages/foundation/ui-system/ui/src/components/tour.tsx",

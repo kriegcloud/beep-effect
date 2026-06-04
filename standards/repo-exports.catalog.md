@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 82 |
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1074 |
-| publicExportEntries | 14979 |
-| uniquePackageSymbols | 6459 |
+| importSpecifiers | 1075 |
+| publicExportEntries | 14977 |
+| uniquePackageSymbols | 6461 |
 
 ## Seed Discovery Proof
 
@@ -49,7 +49,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 10 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 11 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 13 | 5 |
 | 12 | `@beep/repo-codegraph` | `packages/tooling/library/repo-codegraph` | has-public-exports | 6 | 108 | 31 |
-| 13 | `@beep/shared-domain` | `packages/shared/domain` | has-public-exports | 41 | 297 | 113 |
+| 13 | `@beep/shared-domain` | `packages/shared/domain` | has-public-exports | 41 | 291 | 111 |
 | 14 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 15 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 16 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
@@ -118,7 +118,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 79 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 80 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
 | 81 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 82 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 118 | 540 | 456 |
+| 82 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 119 | 544 | 460 |
 | 83 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 31 | 418 | 119 |
 | 84 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
 | 85 | `@beep/wink` | `packages/drivers/wink` | has-public-exports | 15 | 149 | 43 |
@@ -189,12 +189,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/ontology` | `getOntologyKeyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:370` | Reads ontology metadata from a schema property-key annotation display map. |
-| `@beep/ontology` | `getOntologyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:361` | Reads ontology metadata from an Effect Schema annotation display map. |
-| `@beep/ontology` | `isOntologyClassAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:294` |  |
-| `@beep/ontology` | `isOntologyPredicateAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:295` |  |
+| `@beep/ontology` | `getOntologyKeyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:352` | Reads ontology metadata from a schema property-key annotation display map. |
+| `@beep/ontology` | `getOntologyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:343` | Reads ontology metadata from an Effect Schema annotation display map. |
+| `@beep/ontology` | `isOntologyClassAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:276` |  |
+| `@beep/ontology` | `isOntologyPredicateAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:277` |  |
 | `@beep/ontology` | `Ontology` | const | `packages/foundation/modeling/ontology/src/create.ts:42` | Creates an ontology authoring scope with identity-aware annotation helpers, |
-| `@beep/ontology` | `OntologyAssemblyError` | class | `packages/foundation/modeling/ontology/src/model.ts:388` |  |
+| `@beep/ontology` | `OntologyAssemblyError` | class | `packages/foundation/modeling/ontology/src/model.ts:370` |  |
 | `@beep/ontology` | `parseJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:273` | Parses the POC JSON-LD graph representation back into an assembled ontology result. |
 | `@beep/ontology` | `projectJsonLdContext` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:59` | Projects an assembled ontology into a reusable JSON-LD context document. |
 | `@beep/ontology` | `projectJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:148` | Projects an assembled ontology into the POC JSON-LD graph representation. |
@@ -404,7 +404,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-domain` | `Entities` | SourceFile | `packages/shared/domain/src/entities/index.ts:14` |  |
 | `@beep/shared-domain` | `EntityId` | SourceFile | `packages/shared/domain/src/entity/EntityId.ts:8` |  |
 | `@beep/shared-domain` | `EntityRef` | SourceFile | `packages/shared/domain/src/entity/EntityRef.ts:8` |  |
-| `@beep/shared-domain` | `Identity` | SourceFile | `packages/shared/domain/src/identity/index.ts:8` |  |
+| `@beep/shared-domain` | `Identity` | SourceFile | `packages/shared/domain/src/identity/index.ts:21` |  |
 | `@beep/shared-domain` | `Principal` | SourceFile | `packages/shared/domain/src/entity/Principal.ts:8` |  |
 | `@beep/shared-domain` | `SourceKind` | SourceFile | `packages/shared/domain/src/entity/SourceKind.ts:8` |  |
 | `@beep/shared-domain` | `Values` | SourceFile | `packages/shared/domain/src/values/index.ts:21` |  |
@@ -513,10 +513,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-domain/entity/SourceKind` | `SourceKind` | const | `packages/shared/domain/src/entity/SourceKind.ts:26` | Denormalized source facet used by BaseEntity rows and audit filters. |
 | `@beep/shared-domain/entity/SourceKind` | `SourceKind` | type | `packages/shared/domain/src/entity/SourceKind.ts:46` | Runtime type for {@link SourceKind}. |
 | `@beep/shared-domain/identity` | `AgentCapability` | SourceFile | `packages/shared/domain/src/identity/AgentCapability.ts:8` |  |
-| `@beep/shared-domain/identity` | `AnyIdentityComposer` | const | `packages/shared/domain/src/identity/index.ts:115` | Effect Schema for validating any runtime {@link IdentityComposerType} value. |
-| `@beep/shared-domain/identity` | `AnyIdentityComposer` | type | `packages/shared/domain/src/identity/index.ts:135` | Runtime type for {@link AnyIdentityComposer}. |
 | `@beep/shared-domain/identity` | `Epistemic` | SourceFile | `packages/shared/domain/src/identity/Epistemic.ts:8` |  |
-| `@beep/shared-domain/identity` | `isIdentityComposer` | const | `packages/shared/domain/src/identity/index.ts:81` | Guard for runtime identity composer values. |
 | `@beep/shared-domain/identity` | `LawPractice` | SourceFile | `packages/shared/domain/src/identity/LawPractice.ts:8` |  |
 | `@beep/shared-domain/identity` | `Shared` | SourceFile | `packages/shared/domain/src/identity/Shared.ts:8` |  |
 | `@beep/shared-domain/identity` | `WealthManagement` | SourceFile | `packages/shared/domain/src/identity/WealthManagement.ts:8` |  |
@@ -534,10 +531,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-domain/identity/Epistemic` | `UsageRecordId` | const | `packages/shared/domain/src/identity/Epistemic.ts:141` | Usage record entity identifier. |
 | `@beep/shared-domain/identity/Epistemic` | `UsageRecordId` | type | `packages/shared/domain/src/identity/Epistemic.ts:164` | Runtime type for {@link UsageRecordId}. |
 | `@beep/shared-domain/identity/index` | `AgentCapability` | SourceFile | `packages/shared/domain/src/identity/AgentCapability.ts:8` |  |
-| `@beep/shared-domain/identity/index` | `AnyIdentityComposer` | const | `packages/shared/domain/src/identity/index.ts:115` | Effect Schema for validating any runtime {@link IdentityComposerType} value. |
-| `@beep/shared-domain/identity/index` | `AnyIdentityComposer` | type | `packages/shared/domain/src/identity/index.ts:135` | Runtime type for {@link AnyIdentityComposer}. |
 | `@beep/shared-domain/identity/index` | `Epistemic` | SourceFile | `packages/shared/domain/src/identity/Epistemic.ts:8` |  |
-| `@beep/shared-domain/identity/index` | `isIdentityComposer` | const | `packages/shared/domain/src/identity/index.ts:81` | Guard for runtime identity composer values. |
 | `@beep/shared-domain/identity/index` | `LawPractice` | SourceFile | `packages/shared/domain/src/identity/LawPractice.ts:8` |  |
 | `@beep/shared-domain/identity/index` | `Shared` | SourceFile | `packages/shared/domain/src/identity/Shared.ts:8` |  |
 | `@beep/shared-domain/identity/index` | `WealthManagement` | SourceFile | `packages/shared/domain/src/identity/WealthManagement.ts:8` |  |
@@ -597,7 +591,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-domain/index` | `Entities` | SourceFile | `packages/shared/domain/src/entities/index.ts:14` |  |
 | `@beep/shared-domain/index` | `EntityId` | SourceFile | `packages/shared/domain/src/entity/EntityId.ts:8` |  |
 | `@beep/shared-domain/index` | `EntityRef` | SourceFile | `packages/shared/domain/src/entity/EntityRef.ts:8` |  |
-| `@beep/shared-domain/index` | `Identity` | SourceFile | `packages/shared/domain/src/identity/index.ts:8` |  |
+| `@beep/shared-domain/index` | `Identity` | SourceFile | `packages/shared/domain/src/identity/index.ts:21` |  |
 | `@beep/shared-domain/index` | `Principal` | SourceFile | `packages/shared/domain/src/entity/Principal.ts:8` |  |
 | `@beep/shared-domain/index` | `SourceKind` | SourceFile | `packages/shared/domain/src/entity/SourceKind.ts:8` |  |
 | `@beep/shared-domain/index` | `Values` | SourceFile | `packages/shared/domain/src/values/index.ts:21` |  |
@@ -14422,6 +14416,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/notification-card` | `NotificationStatus` | type | `packages/foundation/ui-system/ui/src/components/notification-card.tsx:34` | Notification status type. |
 | `@beep/ui/components/orb` | `AgentState` | type | `packages/foundation/ui-system/ui/src/components/orb.tsx:27` | Agent state type. |
 | `@beep/ui/components/orb` | `Orb` | function | `packages/foundation/ui-system/ui/src/components/orb.tsx:64` | Orb component. |
+| `@beep/ui/components/orb-background` | `OrbBackground` | function | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:212` | `OrbBackground` is a purely decorative, theme-aware backdrop of soft, blurred, glowing orbs. |
+| `@beep/ui/components/orb-background` | `OrbBackgroundProps` | interface | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:152` | Props for {@link OrbBackground}. |
+| `@beep/ui/components/orb-background` | `OrbIntensity` | type | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:38` | Visual strength of the glow; controls per-orb alpha and lightness from a faint wash to a saturated bloom. |
+| `@beep/ui/components/orb-background` | `OrbTone` | type | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:22` | Hue family for the glow; each tone maps to a base HSL hue that drives every orb layer. |
 | `@beep/ui/components/pagination` | `Pagination` | function | `packages/foundation/ui-system/ui/src/components/pagination.tsx:19` | Pagination component. |
 | `@beep/ui/components/pagination` | `PaginationContent` | function | `packages/foundation/ui-system/ui/src/components/pagination.tsx:43` | Pagination content component. |
 | `@beep/ui/components/pagination` | `PaginationEllipsis` | function | `packages/foundation/ui-system/ui/src/components/pagination.tsx:155` | Pagination ellipsis component. |
