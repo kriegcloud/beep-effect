@@ -1,7 +1,7 @@
 import * as Organization from "@beep/shared-tables/entities/Organization";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
-import { getTableColumns } from "drizzle-orm";
+import { getColumns } from "drizzle-orm";
 import { getTableConfig } from "drizzle-orm/pg-core";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -14,7 +14,7 @@ const indexConfigNamed = (name: string) =>
 
 describe("OrganizationTable", () => {
   it("materializes shared Organization metadata without executing a live database", () => {
-    const columns = getTableColumns(Organization.Table);
+    const columns = getColumns(Organization.Table);
     const config = getTableConfig(Organization.Table);
 
     expect(Organization.Table.definition.tableName).toBe("shared_organization");
@@ -27,7 +27,7 @@ describe("OrganizationTable", () => {
   });
 
   it("maps Organization profile fields to the expected Postgres column metadata", () => {
-    const columns = getTableColumns(Organization.Table);
+    const columns = getColumns(Organization.Table);
 
     expect(columns.name.name).toBe("name");
     expect(columns.name.columnType).toBe("PgText");

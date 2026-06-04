@@ -1,6 +1,6 @@
 import { switchClasses } from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
-import { createElement } from "react";
+import { jsx } from "react/jsx-runtime";
 import {
   CONTROL_HEIGHTS,
   CONTROL_TOUCH_HEIGHTS,
@@ -94,7 +94,7 @@ const iconSize = 24; // 1.5rem icon size
 export const controlsTheme: ThemeComponents = {
   MuiCheckbox: {
     defaultProps: {
-      icon: createElement(Uncheckbox),
+      icon: jsx(Uncheckbox, {}),
     },
     styleOverrides: {
       root: {
@@ -139,7 +139,7 @@ export const controlsTheme: ThemeComponents = {
   },
   MuiRadio: {
     defaultProps: {
-      icon: createElement(Unradio),
+      icon: jsx(Unradio, {}),
     },
     styleOverrides: {
       root: {

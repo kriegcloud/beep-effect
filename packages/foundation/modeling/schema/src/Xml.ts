@@ -10,7 +10,8 @@ import { Effect, flow, SchemaIssue, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { XMLParser, XMLValidator } from "fast-xml-parser";
+import { XMLParser } from "fast-xml-parser";
+import { SyntaxValidator } from "fast-xml-validator";
 
 const $I = $SchemaId.create("Xml");
 
@@ -36,8 +37,17 @@ const invalidXmlInput = (content: string, message: string): SchemaIssue.InvalidV
     message,
   });
 
+const invalidXmlValidationFailure = (content: string, cause: unknown): SchemaIssue.InvalidValue =>
+  invalidXmlInput(content, P.isError(cause) ? `Invalid XML input (${cause.message}).` : "Invalid XML input.");
+
+const validateXmlSyntax = (content: string) =>
+  Effect.try({
+    try: () => SyntaxValidator.validate(content),
+    catch: (cause) => invalidXmlValidationFailure(content, cause),
+  });
+
 const decodeXmlUnknown = Effect.fn("Xml.decodeXmlUnknown")(function* (content: string) {
-  const validation = XMLValidator.validate(content);
+  const validation = yield* validateXmlSyntax(content);
 
   if (validation !== true) {
     const details = validation.err;

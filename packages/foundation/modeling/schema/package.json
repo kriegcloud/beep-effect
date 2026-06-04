@@ -31,6 +31,7 @@
     "@scure/base": "catalog:",
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
+    "fast-xml-validator": "catalog:",
     "jsonc-parser": "catalog:",
     "micromark": "catalog:",
     "micromark-extension-gfm": "catalog:",

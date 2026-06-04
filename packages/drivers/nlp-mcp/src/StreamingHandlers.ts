@@ -18,7 +18,9 @@
 import { AiToolError } from "@beep/nlp/Tools";
 import { Data, Effect, Result, Stream } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as DatasetLoader from "./Streaming/DatasetLoader.ts";
 import * as Jsonl from "./Streaming/Jsonl.ts";
 import * as Pipeline from "./Streaming/Pipeline.ts";
@@ -77,14 +79,14 @@ const compileRegex = (pattern: string, flags: string): Effect.Effect<RegExp, Inv
  *
  * Provide this layer (together with a node `FileSystem`/`Path` implementation)
  * when mounting {@link StreamingTools.StreamingToolkit} into an MCP server. Each
- * handler returns plain objects matching the tool's `S.Struct` success schema
+ * handler returns plain objects matching the tool's schema-backed success shape
  * and surfaces expected failures as {@link AiToolError}.
  *
  * @example
  * ```ts
  * import { StreamingToolkitHandlersLive } from "@beep/nlp-mcp/StreamingHandlers"
  *
- * void StreamingToolkitHandlersLive
+ * console.log(StreamingToolkitHandlersLive)
  * ```
  *
  * @since 0.0.0
@@ -145,14 +147,14 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
               Stream.runCollect
             );
             const truncated = collected.length > maxMatches;
-            const lines = truncated ? collected.slice(0, maxMatches) : collected;
+            const lines = truncated ? A.take(collected, maxMatches) : collected;
             yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
             return { count: lines.length, lines, truncated };
           }
           const regex = yield* compileRegex(pattern, `g${options?.caseInsensitive === true ? "i" : ""}`);
           const content = yield* TextStream.readTextFile(path);
           const allMatches = A.map(A.fromIterable(content.matchAll(regex)), (match) => match[0]);
-          const matches = allMatches.slice(0, maxMatches);
+          const matches = A.take(allMatches, maxMatches);
           yield* Effect.annotateCurrentSpan(countAttribute("count", matches.length));
           return { count: matches.length, lines: matches, truncated: allMatches.length > maxMatches };
         },
@@ -191,7 +193,7 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
             Stream.runCollect
           );
           const truncated = collected.length > maxLines;
-          const lines = truncated ? collected.slice(0, maxLines) : collected;
+          const lines = truncated ? A.take(collected, maxLines) : collected;
           yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
           return { count: lines.length, lines, truncated };
         },
@@ -232,7 +234,7 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
             skipInvalid: options?.skipInvalid,
             timeout: options?.timeout,
           });
-          const records = options?.maxRecords === undefined ? result.data : result.data.slice(0, options.maxRecords);
+          const records = options?.maxRecords === undefined ? result.data : A.take(result.data, options.maxRecords);
           yield* Effect.annotateCurrentSpan(countAttribute("count", records.length));
           return { data: records, meta: result.meta };
         },
@@ -247,7 +249,7 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
             timeout: options?.timeout,
             trim: options?.trim,
           });
-          const lines = options?.maxLines === undefined ? result.data : result.data.slice(0, options.maxLines);
+          const lines = options?.maxLines === undefined ? result.data : A.take(result.data, options.maxLines);
           yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
           return { data: lines, meta: result.meta };
         },
@@ -300,11 +302,11 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
               Stream.runCollect
             );
             const truncated = collected.length > maxRecords;
-            const results = truncated ? collected.slice(0, maxRecords) : collected;
-            const records = results.flatMap((result) =>
+            const results = truncated ? A.take(collected, maxRecords) : collected;
+            const records = A.flatMap(results, (result) =>
               Result.match(result, { onFailure: () => [], onSuccess: (value) => [value] })
             );
-            const errors = results.flatMap((result) =>
+            const errors = A.flatMap(results, (result) =>
               Result.match(result, { onFailure: (error) => [error], onSuccess: () => [] })
             );
             yield* Effect.annotateCurrentSpan(countAttribute("count", records.length));
@@ -320,7 +322,7 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
             Stream.runCollect
           );
           const truncated = collected.length > maxRecords;
-          const records = truncated ? collected.slice(0, maxRecords) : collected;
+          const records = truncated ? A.take(collected, maxRecords) : collected;
           yield* Effect.annotateCurrentSpan(countAttribute("count", records.length));
           return { count: records.length, records, truncated };
         },
@@ -333,8 +335,10 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
           const maxLines = options?.maxLines ?? 1000;
           const readOptions = {
             encoding: options?.encoding ?? "utf-8",
-            skipEmpty: options?.skipEmpty,
-            trim: options?.trim,
+            ...R.getSomes({
+              skipEmpty: O.fromUndefinedOr(options?.skipEmpty),
+              trim: O.fromUndefinedOr(options?.trim),
+            }),
           };
           if (options?.tail !== undefined) {
             // The tail window returns the last `tail` lines by design; the
@@ -349,7 +353,7 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
             skip: options?.skip ?? 0,
           });
           const truncated = collected.length > maxLines;
-          const lines = truncated ? collected.slice(0, maxLines) : collected;
+          const lines = truncated ? A.take(collected, maxLines) : collected;
           yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
           return { count: lines.length, lines, truncated };
         },
@@ -369,10 +373,14 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
       stream_sample_lines: Effect.fn("StreamingToolkit.stream_sample_lines")(
         function* ({ options, path, sampleSize }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(path));
-          const lines = yield* TextStream.sampleLines(path, sampleSize, {
-            skipEmpty: options?.skipEmpty,
-            trim: options?.trim,
-          });
+          const lines = yield* TextStream.sampleLines(
+            path,
+            sampleSize,
+            R.getSomes({
+              skipEmpty: O.fromUndefinedOr(options?.skipEmpty),
+              trim: O.fromUndefinedOr(options?.trim),
+            })
+          );
           yield* Effect.annotateCurrentSpan(countAttribute("count", lines.length));
           return { count: lines.length, lines, truncated: false };
         },
@@ -382,10 +390,13 @@ export const StreamingToolkitHandlersLive: Layer.Layer<
       stream_text_stats: Effect.fn("StreamingToolkit.stream_text_stats")(
         function* ({ options, path }) {
           yield* Effect.annotateCurrentSpan(pathAttribute(path));
-          const stats = yield* TextStream.computeStats(path, {
-            skipEmpty: options?.skipEmpty,
-            trim: options?.trim,
-          });
+          const stats = yield* TextStream.computeStats(
+            path,
+            R.getSomes({
+              skipEmpty: O.fromUndefinedOr(options?.skipEmpty),
+              trim: O.fromUndefinedOr(options?.trim),
+            })
+          );
           yield* Effect.annotateCurrentSpan(countAttribute("total_lines", stats.totalLines));
           return {
             avgLineLength: stats.avgLineLength,

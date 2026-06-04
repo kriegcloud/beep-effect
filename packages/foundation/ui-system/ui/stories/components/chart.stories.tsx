@@ -6,22 +6,25 @@ import {
   ChartTooltipContent,
 } from "@beep/ui/components/chart";
 import { A, Str } from "@beep/utils";
+import { pipe } from "effect";
+import * as O from "effect/Option";
 import {
   AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   LineChart,
   PieChart,
   Area as RechartsArea,
   Line as RechartsLine,
   Pie as RechartsPie,
+  Sector,
   XAxis,
 } from "recharts";
 import { expect, within } from "storybook/test";
 import type { ChartConfig } from "@beep/ui/components/chart";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { PieSectorShapeProps } from "recharts";
 
 /**
  * `ChartContainer` is the responsive root of the chart system, built on Recharts. It
@@ -56,6 +59,31 @@ const browserData = [
   { browser: "firefox", visitors: 187, fill: "#93c5fd" },
   { browser: "edge", visitors: 173, fill: "#1d4ed8" },
 ] as const;
+
+const fallbackPieFill = "var(--color-chrome)";
+const pieSectorFill = (index: number): string =>
+  pipe(
+    A.get(browserData, index),
+    O.map((entry) => entry.fill),
+    O.getOrElse(() => fallbackPieFill)
+  );
+
+const renderPieSector = (props: PieSectorShapeProps, index: number) => {
+  const cornerRadiusProps = props.cornerRadius === undefined ? {} : { cornerRadius: props.cornerRadius };
+
+  return (
+    <Sector
+      cx={props.cx}
+      cy={props.cy}
+      innerRadius={props.innerRadius}
+      outerRadius={props.outerRadius}
+      startAngle={props.startAngle}
+      endAngle={props.endAngle}
+      {...cornerRadiusProps}
+      fill={pieSectorFill(index)}
+    />
+  );
+};
 
 const pieConfig = {
   visitors: { label: "Visitors" },
@@ -257,11 +285,13 @@ export const Pie: Story = {
     <ChartContainer {...args}>
       <PieChart>
         <ChartTooltip content={<ChartTooltipContent nameKey="visitors" hideLabel />} />
-        <RechartsPie data={[...browserData]} dataKey="visitors" nameKey="browser" isAnimationActive={false}>
-          {A.map(browserData, (entry) => (
-            <Cell key={entry.browser} fill={entry.fill} />
-          ))}
-        </RechartsPie>
+        <RechartsPie
+          data={[...browserData]}
+          dataKey="visitors"
+          nameKey="browser"
+          shape={renderPieSector}
+          isAnimationActive={false}
+        />
         <ChartLegend content={<ChartLegendContent nameKey="browser" />} />
       </PieChart>
     </ChartContainer>

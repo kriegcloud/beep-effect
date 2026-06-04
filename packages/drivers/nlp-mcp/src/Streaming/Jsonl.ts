@@ -11,7 +11,8 @@
  * @packageDocumentation
  */
 
-import { Effect, Random, Result, Stream } from "effect";
+import { $NlpMcpId } from "@beep/identity";
+import { Effect, Order, pipe, Random, Result, Stream } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -20,40 +21,80 @@ import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
 import type { PlatformError } from "effect/PlatformError";
 
+const $I = $NlpMcpId.create("Streaming/Jsonl");
+
 /**
  * Structured parse failure for a single JSONL line.
+ *
+ * @example
+ * ```ts
+ * import { JsonlLineError } from "@beep/nlp-mcp/Streaming/Jsonl"
+ *
+ * const error = JsonlLineError.make({ error: "Unexpected token", lineNumber: 4 })
+ * console.log(error.lineNumber)
+ * ```
  *
  * @since 0.0.0
  * @category models
  */
-export interface JsonlLineError {
-  /** Parser error message (the original line text is never included). */
-  readonly error: string;
-  /** Zero-based index of the offending line within the file. */
-  readonly lineNumber: number;
-}
+export class JsonlLineError extends S.Class<JsonlLineError>($I`JsonlLineError`)(
+  {
+    /** Parser error message (the original line text is never included). */
+    error: S.String.annotateKey({
+      description: "Parser error message (the original line text is never included).",
+    }),
+    lineNumber: S.Number.annotateKey({
+      description: "Zero-based index of the offending line within the file.",
+    }),
+  },
+  $I.annote("JsonlLineError", {
+    description: "Structured parse failure for a single JSONL line.",
+  })
+) {}
 
 /**
  * Aggregate parse statistics for a JSONL file.
  *
+ * @example
+ * ```ts
+ * import { JsonlStats } from "@beep/nlp-mcp/Streaming/Jsonl"
+ *
+ * const stats = JsonlStats.make({ errorCount: 0, skippedCount: 0, successCount: 2, totalLines: 2 })
+ * console.log(stats.successCount)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
-export interface JsonlStats {
-  /** Number of lines that failed to parse. */
-  readonly errorCount: number;
-  /** Reserved skipped-line count; always `0` because blanks are pre-filtered. */
-  readonly skippedCount: number;
-  /** Number of lines that parsed successfully. */
-  readonly successCount: number;
-  /** Total number of non-empty lines examined. */
-  readonly totalLines: number;
-}
+export class JsonlStats extends S.Class<JsonlStats>($I`JsonlStats`)(
+  {
+    /** Number of lines that failed to parse. */
+    errorCount: S.Number.annotateKey({ description: "Number of lines that failed to parse." }),
+    /** Reserved skipped-line count, always `0` because blanks are pre-filtered. */
+    skippedCount: S.Number.annotateKey({
+      description: "Reserved skipped-line count, always `0` because blanks are pre-filtered.",
+    }),
+    /** Number of lines that parsed successfully. */
+    successCount: S.Number.annotateKey({ description: "Number of lines that parsed successfully." }),
+    /** Total number of non-empty lines examined. */
+    totalLines: S.Number.annotateKey({ description: "Total number of non-empty lines examined." }),
+  },
+  $I.annote("JsonlStats", {
+    description: "Aggregate parse statistics for a JSONL file.",
+  })
+) {}
 
 const decodeJsonLine = S.decodeResult(S.UnknownFromJsonString);
 
 const parseLine = (line: string, lineNumber: number): Result.Result<unknown, JsonlLineError> =>
-  Result.mapError(decodeJsonLine(line), (error): JsonlLineError => ({ error: String(error), lineNumber }));
+  Result.mapError(
+    decodeJsonLine(line),
+    (error): JsonlLineError =>
+      JsonlLineError.make({
+        error: error.message,
+        lineNumber,
+      })
+  );
 
 /**
  * Stream `[trimmedLine, physicalLineNumber]` pairs for non-blank lines.
@@ -67,7 +108,7 @@ const streamIndexedLines = (
 ): Stream.Stream<readonly [string, number], PlatformError, FileSystem.FileSystem | Path.Path> =>
   streamLines(filePath).pipe(
     Stream.zipWithIndex,
-    Stream.map(([line, index]) => [Str.trim(line), index] as const),
+    Stream.map(([line, index]): readonly [string, number] => [Str.trim(line), index]),
     Stream.filter(([line]) => Str.isNonEmpty(line))
   );
 
@@ -83,7 +124,7 @@ const streamIndexedLines = (
  * import * as Stream from "effect/Stream"
  * import { streamJsonl } from "@beep/nlp-mcp/Streaming/Jsonl"
  *
- * void Stream.runCollect(streamJsonl("/tmp/data.jsonl", { skipInvalid: true }))
+ * console.log(Stream.runCollect(streamJsonl("/tmp/data.jsonl", { skipInvalid: true })))
  * ```
  *
  * @since 0.0.0
@@ -112,7 +153,7 @@ export const streamJsonl = (
  * import * as Stream from "effect/Stream"
  * import { streamJsonlResults } from "@beep/nlp-mcp/Streaming/Jsonl"
  *
- * void Stream.runCollect(streamJsonlResults("/tmp/data.jsonl"))
+ * console.log(Stream.runCollect(streamJsonlResults("/tmp/data.jsonl")))
  * ```
  *
  * @since 0.0.0
@@ -130,7 +171,7 @@ export const streamJsonlResults = (
  * ```ts
  * import { readJsonl } from "@beep/nlp-mcp/Streaming/Jsonl"
  *
- * void readJsonl("/tmp/data.jsonl", { skipInvalid: true })
+ * console.log(readJsonl("/tmp/data.jsonl", { skipInvalid: true }))
  * ```
  *
  * @since 0.0.0
@@ -149,7 +190,7 @@ export const readJsonl = (
  * ```ts
  * import { computeJsonlStats } from "@beep/nlp-mcp/Streaming/Jsonl"
  *
- * void computeJsonlStats("/tmp/data.jsonl")
+ * console.log(computeJsonlStats("/tmp/data.jsonl"))
  * ```
  *
  * @since 0.0.0
@@ -160,13 +201,20 @@ export const computeJsonlStats = (
 ): Effect.Effect<JsonlStats, PlatformError, FileSystem.FileSystem | Path.Path> =>
   streamJsonlResults(filePath).pipe(
     Stream.runFold(
-      (): JsonlStats => ({ errorCount: 0, skippedCount: 0, successCount: 0, totalLines: 0 }),
-      (acc, result): JsonlStats => ({
-        errorCount: acc.errorCount + (Result.isFailure(result) ? 1 : 0),
-        skippedCount: acc.skippedCount,
-        successCount: acc.successCount + (Result.isSuccess(result) ? 1 : 0),
-        totalLines: acc.totalLines + 1,
-      })
+      (): JsonlStats =>
+        JsonlStats.make({
+          errorCount: 0,
+          skippedCount: 0,
+          successCount: 0,
+          totalLines: 0,
+        }),
+      (acc, result): JsonlStats =>
+        JsonlStats.make({
+          errorCount: acc.errorCount + (Result.isFailure(result) ? 1 : 0),
+          skippedCount: acc.skippedCount,
+          successCount: acc.successCount + (Result.isSuccess(result) ? 1 : 0),
+          totalLines: acc.totalLines + 1,
+        })
     )
   );
 
@@ -177,7 +225,7 @@ export const computeJsonlStats = (
  * ```ts
  * import { validateJsonl } from "@beep/nlp-mcp/Streaming/Jsonl"
  *
- * void validateJsonl("/tmp/data.jsonl")
+ * console.log(validateJsonl("/tmp/data.jsonl"))
  * ```
  *
  * @since 0.0.0
@@ -186,17 +234,29 @@ export const computeJsonlStats = (
 export const validateJsonl = (
   filePath: string
 ): Effect.Effect<
-  { readonly errors: ReadonlyArray<JsonlLineError>; readonly records: ReadonlyArray<unknown> },
+  {
+    readonly errors: ReadonlyArray<JsonlLineError>;
+    readonly records: ReadonlyArray<unknown>;
+  },
   PlatformError,
   FileSystem.FileSystem | Path.Path
 > =>
   streamJsonlResults(filePath).pipe(
     Stream.runFold(
-      (): { errors: Array<JsonlLineError>; records: Array<unknown> } => ({ errors: [], records: [] }),
+      (): {
+        errors: Array<JsonlLineError>;
+        records: Array<unknown>;
+      } => ({ errors: [], records: [] }),
       (acc, result) =>
         Result.match(result, {
-          onFailure: (error) => ({ errors: [...acc.errors, error], records: acc.records }),
-          onSuccess: (value) => ({ errors: acc.errors, records: [...acc.records, value] }),
+          onFailure: (error) => ({
+            errors: [...acc.errors, error],
+            records: acc.records,
+          }),
+          onSuccess: (value) => ({
+            errors: acc.errors,
+            records: [...acc.records, value],
+          }),
         })
     )
   );
@@ -212,8 +272,12 @@ export const validateJsonl = (
  * ```ts
  * import { sampleJsonl } from "@beep/nlp-mcp/Streaming/Jsonl"
  *
- * void sampleJsonl("/tmp/data.jsonl", 3, { skipInvalid: true })
+ * console.log(sampleJsonl("/tmp/data.jsonl", 3, { skipInvalid: true }))
  * ```
+ *
+ * @effects Reads parsed records through {@link readJsonl} and uses the Effect
+ * `Random` service to choose sample indices when the file contains more than
+ * `sampleSize` records.
  *
  * @since 0.0.0
  * @category utilities
@@ -224,12 +288,15 @@ export const sampleJsonl = Effect.fn("Jsonl.sampleJsonl")(function* (
   options: { readonly skipInvalid?: boolean | undefined } = {}
 ) {
   const records = yield* readJsonl(filePath, options);
-  if (records.length <= sampleSize) {
+  if (A.length(records) <= sampleSize) {
     return records;
   }
-  const indices = yield* Random.shuffle(A.makeBy(records.length, (index) => index));
-  return indices
-    .slice(0, sampleSize)
-    .sort((left, right) => left - right)
-    .map((index) => records[index]);
+  const indices = yield* Random.shuffle(A.makeBy(A.length(records), (index) => index));
+  return pipe(
+    indices,
+    A.take(sampleSize),
+    A.sort(Order.Number),
+    A.map((index) => A.get(records, index)),
+    A.getSomes
+  );
 });

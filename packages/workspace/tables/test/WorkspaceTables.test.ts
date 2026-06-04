@@ -4,11 +4,11 @@ import { DbSchema, Entities } from "@beep/workspace-tables";
 import * as CandidateDraft from "@beep/workspace-tables/entities/CandidateDraft";
 import * as CandidateProject from "@beep/workspace-tables/entities/CandidateProject";
 import { describe, expect, it } from "@effect/vitest";
-import { getTableColumns } from "drizzle-orm";
+import { getColumns } from "drizzle-orm";
 import { getTableConfig } from "drizzle-orm/pg-core";
 
 const expectBaseProjectionColumns = (table: typeof CandidateDraft.Table | typeof CandidateProject.Table) => {
-  const columns = getTableColumns(table);
+  const columns = getColumns(table);
 
   expect(columns.id.name).toBe("id");
   expect(columns.id.primary).toBe(true);

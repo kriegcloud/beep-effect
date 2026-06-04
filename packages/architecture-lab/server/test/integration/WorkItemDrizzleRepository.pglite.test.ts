@@ -68,7 +68,7 @@ const WorkItemDrizzleRepositoryLayer = Layer.mergeAll(ArchitectureLabConfigTest,
 if (!shouldRunPgliteIntegration) {
   describe.skip("ArchitectureLab Drizzle repository PgLite integration", () => {});
 } else {
-  describe.sequential("ArchitectureLab Drizzle repository PgLite integration", () => {
+  describe("ArchitectureLab Drizzle repository PgLite integration", { concurrent: false }, () => {
     layer(WorkItemDrizzleRepositoryLayer, { timeout: "5 minutes" })((it) => {
       it.effect(
         "persists WorkItem lifecycle changes through Drizzle",

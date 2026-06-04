@@ -16,15 +16,22 @@ import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 import * as NodeStdio from "@effect/platform-node/NodeStdio";
 import { Layer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
-import { makeServerLayer } from "./Server.ts";
+import { makeServerLayer, NlpMcpServerConfig } from "./Server.ts";
 
 /**
  * The server identity advertised to MCP clients by this entrypoint.
  *
+ * @example
+ * ```ts
+ * import { SERVER_CONFIG } from "@beep/nlp-mcp/bin"
+ *
+ * console.log(SERVER_CONFIG.name)
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
-export const SERVER_CONFIG = { name: "beep-nlp", version: "0.0.0" } as const;
+export const SERVER_CONFIG = NlpMcpServerConfig.make({ name: "beep-nlp", version: "0.0.0" });
 
 Layer.launch(
   makeServerLayer(SERVER_CONFIG).pipe(

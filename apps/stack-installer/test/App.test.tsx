@@ -16,7 +16,7 @@ const submitProofForm = () => {
   fireEvent.submit(form);
 };
 
-describe.sequential("Stack Installer app", () => {
+describe("Stack Installer app", { concurrent: false }, () => {
   beforeEach(() => {
     runProofMock.mockReset();
   });

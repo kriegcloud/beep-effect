@@ -18,9 +18,11 @@
  * @packageDocumentation
  */
 
+import { $NlpMcpId } from "@beep/identity";
 import { NlpToolkit } from "@beep/nlp/Tools/NlpToolkit";
 import { WinkNlpToolkitLive } from "@beep/wink";
 import { Layer } from "effect";
+import * as S from "effect/Schema";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import { StreamingToolkitHandlersLive } from "./StreamingHandlers.ts";
 import { StreamingToolkit } from "./StreamingTools.ts";
@@ -29,16 +31,35 @@ import type * as Path from "effect/Path";
 import type { Stdio } from "effect/Stdio";
 import type * as HttpClient from "effect/unstable/http/HttpClient";
 
+const $I = $NlpMcpId.create("Server");
+
 /**
  * Configuration for the MCP server identity advertised to clients.
+ *
+ * @example
+ * ```ts
+ * import { NlpMcpServerConfig } from "@beep/nlp-mcp/Server"
+ *
+ * const config = NlpMcpServerConfig.make({ name: "beep-nlp", version: "0.0.0" })
+ * console.log(config.name)
+ * ```
  *
  * @since 0.0.0
  * @category models
  */
-export interface NlpMcpServerConfig {
-  readonly name: string;
-  readonly version: string;
-}
+export class NlpMcpServerConfig extends S.Class<NlpMcpServerConfig>($I`NlpMcpServerConfig`)(
+  {
+    name: S.NonEmptyString.annotateKey({
+      description: "Human-readable MCP server name advertised during stdio initialization.",
+    }),
+    version: S.NonEmptyString.annotateKey({
+      description: "Semantic package or protocol-facing version advertised to MCP clients.",
+    }),
+  },
+  $I.annote("NlpMcpServerConfig", {
+    description: "Configuration for the MCP server identity advertised to clients.",
+  })
+) {}
 
 /**
  * Build the stdio-transport MCP server layer exposing the NLP and streaming

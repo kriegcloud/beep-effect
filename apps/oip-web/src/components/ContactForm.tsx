@@ -12,7 +12,7 @@ import { Atom } from "effect/unstable/reactivity";
 import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
 import { OipContactHttpApiClient } from "../contact/ContactSubmission.http";
 import { contactSubmissionPayloadFromFormData } from "../contact/ContactSubmission.model";
-import type { FormEvent } from "react";
+import type { SubmitEvent } from "react";
 import type { ContactSubmissionStatus } from "../contact/ContactSubmission.model";
 
 const inputClass =
@@ -74,7 +74,7 @@ export function ContactForm({
     }
   };
 
-  const submitForm = (event: FormEvent<HTMLFormElement>) => {
+  const submitForm = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const nextSubmittedAt = effectiveSubmittedAt > 0 ? effectiveSubmittedAt : currentTimestamp();

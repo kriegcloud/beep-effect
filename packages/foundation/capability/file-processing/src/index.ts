@@ -40,18 +40,3 @@ export * as Service from "./Service/index.ts";
  * @since 0.0.0
  */
 export * as Strategy from "./Strategy/index.ts";
-
-/**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/file-processing"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;

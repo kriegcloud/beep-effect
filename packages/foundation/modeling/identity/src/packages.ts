@@ -52,6 +52,8 @@ const composers = $I.compose(
   "messages",
   "nlp",
   "observability",
+  "ontology",
+  "rdf",
   "schema",
   "semantic-web",
   "types",
@@ -146,7 +148,8 @@ const composers = $I.compose(
   "file-processing",
   "tika",
   "libpff",
-  "box"
+  "box",
+  "firecrawl"
 );
 
 // --- foundation ---
@@ -210,6 +213,36 @@ export const $MessagesId = composers.$MessagesId;
  * @category configuration
  */
 export const $SchemaId = composers.$SchemaId;
+
+/**
+ * Identity composer for the `@beep/rdf` package.
+ *
+ * @example
+ * ```typescript
+ * import { $RdfId } from "@beep/identity"
+ *
+ * const id = $RdfId.make("Iri")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $RdfId: Identity.IdentityComposer<"@beep/rdf"> = composers.$RdfId;
+
+/**
+ * Identity composer for the `@beep/ontology` package.
+ *
+ * @example
+ * ```typescript
+ * import { $OntologyId } from "@beep/identity"
+ *
+ * const id = $OntologyId.make("Ontology")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $OntologyId: Identity.IdentityComposer<"@beep/ontology"> = composers.$OntologyId;
 
 /**
  * Identity composer for the `@beep/types` package.
@@ -1623,3 +1656,19 @@ export const $TikaId: Identity.IdentityComposer<"@beep/tika"> = composers.$TikaI
  * @category configuration
  */
 export const $LibpffId: Identity.IdentityComposer<"@beep/libpff"> = composers.$LibpffId;
+
+/**
+ * Identity composer for `@beep/firecrawl`.
+ *
+ * @example
+ * ```typescript
+ * import { $FirecrawlId } from "@beep/identity"
+ *
+ * const id = $FirecrawlId.make("Firecrawl")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = composers.$FirecrawlId;

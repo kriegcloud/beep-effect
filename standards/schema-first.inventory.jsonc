@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-02",
+  "generatedOn": "2026-06-04",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -218,84 +218,36 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+      "symbol": "FirecrawlSdkClient",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/firecrawl",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+      "symbol": "FirecrawlSdkWatcher",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/firecrawl",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/firecrawl/src/Firecrawl.service.ts",
+      "symbol": "FirecrawlShape",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/firecrawl",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/drivers/hubspot/src/HubSpot.service.ts",
       "symbol": "HubSpotShape",
       "kind": "exported-type-literal",
       "status": "exception",
       "owner": "@beep/hubspot",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/Server.ts",
-      "symbol": "NlpMcpServerConfig",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts",
-      "symbol": "DatasetResult",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts",
-      "symbol": "JsonlLineError",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts",
-      "symbol": "JsonlStats",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts",
-      "symbol": "PipelineError",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts",
-      "symbol": "PipelineResult",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-      "symbol": "TextReadOptions",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-      "symbol": "TextStreamOptions",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Derived interface with extends clauses is tracked as an exception."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-      "symbol": "TextStreamStats",
-      "kind": "exported-interface",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
@@ -315,38 +267,6 @@
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "CountOutput",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "CountWithErrorsOutput",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "DataOutput",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "DatasetMetaOutput",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "ExtractMatchesParameters",
       "kind": "object-struct-schema",
       "status": "candidate",
@@ -355,63 +275,7 @@
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "FileInfoOutput",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "FileInfoParameters",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "FilterLinesParameters",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "JsonlLineErrorOutput",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "JsonlOutput",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "JsonlStatsOutput",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "JsonlStatsParameters",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "LinesOutput",
       "kind": "object-struct-schema",
       "status": "candidate",
       "owner": "@beep/nlp-mcp",
@@ -444,22 +308,6 @@
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "LoadTextParameters",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "PipelineErrorOutput",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "PipelineOutput",
       "kind": "object-struct-schema",
       "status": "candidate",
       "owner": "@beep/nlp-mcp",
@@ -500,14 +348,6 @@
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "SampleLinesParameters",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
-      "symbol": "TextStatsOutput",
       "kind": "object-struct-schema",
       "status": "candidate",
       "owner": "@beep/nlp-mcp",
