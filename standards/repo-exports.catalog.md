@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 82 |
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1075 |
-| publicExportEntries | 14983 |
-| uniquePackageSymbols | 6463 |
+| importSpecifiers | 1078 |
+| publicExportEntries | 15058 |
+| uniquePackageSymbols | 6511 |
 
 ## Seed Discovery Proof
 
@@ -103,11 +103,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 64 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
 | 65 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 67 | 1751 | 512 |
 | 66 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
-| 67 | `@beep/rdf` | `packages/foundation/modeling/rdf` | has-public-exports | 13 | 280 | 89 |
+| 67 | `@beep/rdf` | `packages/foundation/modeling/rdf` | has-public-exports | 14 | 301 | 110 |
 | 68 | `@beep/codedank-web` | `apps/codedank-web` | no-public-exports | 0 | 0 | 0 |
 | 69 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
 | 70 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
-| 71 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
+| 71 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 10 | 98 | 65 |
 | 72 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
 | 73 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
 | 74 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
@@ -189,12 +189,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/ontology` | `getOntologyKeyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:377` | Reads ontology metadata from a schema property-key annotation display map. |
-| `@beep/ontology` | `getOntologyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:368` | Reads ontology metadata from an Effect Schema annotation display map. |
-| `@beep/ontology` | `isOntologyClassAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:301` |  |
-| `@beep/ontology` | `isOntologyPredicateAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:302` |  |
+| `@beep/ontology` | `getOntologyKeyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:596` | Reads ontology metadata from a schema property-key annotation display map. |
+| `@beep/ontology` | `getOntologyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:587` | Reads ontology metadata from an Effect Schema annotation display map. |
+| `@beep/ontology` | `isOntologyClassAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:525` |  |
+| `@beep/ontology` | `isOntologyPredicateAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:526` |  |
 | `@beep/ontology` | `Ontology` | const | `packages/foundation/modeling/ontology/src/create.ts:42` | Creates an ontology authoring scope with identity-aware annotation helpers, |
-| `@beep/ontology` | `OntologyAssemblyError` | class | `packages/foundation/modeling/ontology/src/model.ts:395` |  |
+| `@beep/ontology` | `OntologyAssemblyError` | class | `packages/foundation/modeling/ontology/src/model.ts:615` |  |
 | `@beep/ontology` | `parseJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:273` | Parses the POC JSON-LD graph representation back into an assembled ontology result. |
 | `@beep/ontology` | `projectJsonLdContext` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:59` | Projects an assembled ontology into a reusable JSON-LD context document. |
 | `@beep/ontology` | `projectJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:148` | Projects an assembled ontology into the POC JSON-LD graph representation. |
@@ -5178,12 +5178,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web/vocab/rdfs` | `RDFS_COMMENT` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:54` | `rdfs:comment` |
 | `@beep/semantic-web/vocab/rdfs` | `RDFS_LABEL` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:39` | `rdfs:label` |
 | `@beep/semantic-web/vocab/rdfs` | `RDFS_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:24` | RDFS namespace IRI. |
-| `@beep/semantic-web/vocab/xsd` | `XSD_ANY_URI` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:54` | `xsd:anyURI` |
-| `@beep/semantic-web/vocab/xsd` | `XSD_BOOLEAN` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:69` | `xsd:boolean` |
-| `@beep/semantic-web/vocab/xsd` | `XSD_DOUBLE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:99` | `xsd:double` |
-| `@beep/semantic-web/vocab/xsd` | `XSD_INTEGER` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:84` | `xsd:integer` |
-| `@beep/semantic-web/vocab/xsd` | `XSD_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:24` | XSD namespace IRI. |
-| `@beep/semantic-web/vocab/xsd` | `XSD_STRING` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:39` | `xsd:string` |
+| `@beep/semantic-web/vocab/xsd` | `XSD_ANY_URI` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:55` | `xsd:anyURI` |
+| `@beep/semantic-web/vocab/xsd` | `XSD_BOOLEAN` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:70` | `xsd:boolean` |
+| `@beep/semantic-web/vocab/xsd` | `XSD_DOUBLE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:100` | `xsd:double` |
+| `@beep/semantic-web/vocab/xsd` | `XSD_INTEGER` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:85` | `xsd:integer` |
+| `@beep/semantic-web/vocab/xsd` | `XSD_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:25` | XSD namespace IRI. |
+| `@beep/semantic-web/vocab/xsd` | `XSD_STRING` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:40` | `xsd:string` |
 
 ### @beep/utils
 
@@ -13572,12 +13572,33 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/rdf/Vocab/Rdfs` | `RDFS_COMMENT` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:54` | `rdfs:comment` |
 | `@beep/rdf/Vocab/Rdfs` | `RDFS_LABEL` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:39` | `rdfs:label` |
 | `@beep/rdf/Vocab/Rdfs` | `RDFS_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:24` | RDFS namespace IRI. |
-| `@beep/rdf/Vocab/Xsd` | `XSD_ANY_URI` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:54` | `xsd:anyURI` |
-| `@beep/rdf/Vocab/Xsd` | `XSD_BOOLEAN` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:69` | `xsd:boolean` |
-| `@beep/rdf/Vocab/Xsd` | `XSD_DOUBLE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:99` | `xsd:double` |
-| `@beep/rdf/Vocab/Xsd` | `XSD_INTEGER` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:84` | `xsd:integer` |
-| `@beep/rdf/Vocab/Xsd` | `XSD_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:24` | XSD namespace IRI. |
-| `@beep/rdf/Vocab/Xsd` | `XSD_STRING` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:39` | `xsd:string` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_ALT_LABEL` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:56` | `skos:altLabel` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_BROAD_MATCH` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:144` | `skos:broadMatch` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_BROADER` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:104` | `skos:broader` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_CLOSE_MATCH` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:136` | `skos:closeMatch` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_CONCEPT` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:32` | `skos:Concept` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_CONCEPT_SCHEME` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:40` | `skos:ConceptScheme` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_DEFINITION` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:72` | `skos:definition` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_EDITORIAL_NOTE` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:88` | `skos:editorialNote` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_EXACT_MATCH` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:128` | `skos:exactMatch` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_HAS_TOP_CONCEPT` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:176` | `skos:hasTopConcept` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_HIDDEN_LABEL` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:64` | `skos:hiddenLabel` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_HISTORY_NOTE` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:96` | `skos:historyNote` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_IN_SCHEME` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:168` | `skos:inScheme` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:24` | SKOS namespace IRI. |
+| `@beep/rdf/Vocab/Skos` | `SKOS_NARROW_MATCH` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:152` | `skos:narrowMatch` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_NARROWER` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:112` | `skos:narrower` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_PREF_LABEL` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:48` | `skos:prefLabel` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_RELATED` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:120` | `skos:related` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_RELATED_MATCH` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:160` | `skos:relatedMatch` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_SCOPE_NOTE` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:80` | `skos:scopeNote` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_TOP_CONCEPT_OF` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:184` | `skos:topConceptOf` |
+| `@beep/rdf/Vocab/Xsd` | `XSD_ANY_URI` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:55` | `xsd:anyURI` |
+| `@beep/rdf/Vocab/Xsd` | `XSD_BOOLEAN` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:70` | `xsd:boolean` |
+| `@beep/rdf/Vocab/Xsd` | `XSD_DOUBLE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:100` | `xsd:double` |
+| `@beep/rdf/Vocab/Xsd` | `XSD_INTEGER` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:85` | `xsd:integer` |
+| `@beep/rdf/Vocab/Xsd` | `XSD_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:25` | XSD namespace IRI. |
+| `@beep/rdf/Vocab/Xsd` | `XSD_STRING` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:40` | `xsd:string` |
 
 ### @beep/onepassword-cli
 
@@ -13652,6 +13673,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/data` | `Blockchain` | SourceFile | `packages/foundation/primitive/data/src/Blockchain.ts:25` |  |
 | `@beep/data` | `Calendar` | SourceFile | `packages/foundation/primitive/data/src/Calendar.ts:13` |  |
 | `@beep/data` | `CurrencyCodes` | SourceFile | `packages/foundation/primitive/data/src/CurrencyCodes.ts:12` |  |
+| `@beep/data` | `KeyboardShortcuts` | SourceFile | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:13` |  |
 | `@beep/data` | `MimeTypesData` | SourceFile | `packages/foundation/primitive/data/src/MimeTypes.ts:12` |  |
 | `@beep/data` | `Timezones` | SourceFile | `packages/foundation/primitive/data/src/Timezones.ts:11` |  |
 | `@beep/data/Blockchain` | `Networks` | const | `packages/foundation/primitive/data/src/Blockchain.ts:25` | Common blockchain network ticker metadata. |
@@ -13673,11 +13695,64 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/data/generated/iso4217` | `CurrencyCodeDataPublished` | const | `packages/foundation/primitive/data/src/generated/iso4217.ts:25` | Published date reported by the official ISO 4217 List One feed. |
 | `@beep/data/generated/iso4217` | `CurrencyCodeDataSourceUrl` | const | `packages/foundation/primitive/data/src/generated/iso4217.ts:40` | Official source URL for the ISO 4217 List One feed. |
 | `@beep/data/generated/iso4217` | `CurrencyCodeDataValues` | const | `packages/foundation/primitive/data/src/generated/iso4217.ts:55` | Normalized ISO 4217 currency entries emitted from the official feed. |
+| `@beep/data/HotKey` | `KeyboardShortcutCategory` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:81` | Shortcut category identifiers used for grouping command rows. |
+| `@beep/data/HotKey` | `KeyboardShortcutCategoryValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:295` | Shortcut category identifiers. |
+| `@beep/data/HotKey` | `KeyboardShortcutChordData` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:161` | A platform-specific shortcut chord for one command. |
+| `@beep/data/HotKey` | `KeyboardShortcutCommandLabel` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:145` | PascalCase command label derived from a shortcut command name. |
+| `@beep/data/HotKey` | `KeyboardShortcutCommandLabelValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:343` | PascalCase shortcut command labels. |
+| `@beep/data/HotKey` | `KeyboardShortcutCommandName` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:129` | Lower-camel command name used as the stable shortcut command id. |
+| `@beep/data/HotKey` | `KeyboardShortcutCommandNameValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:327` | Stable shortcut command names. |
+| `@beep/data/HotKey` | `KeyboardShortcutData` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:228` | A curated shortcut command row for a single platform and command name. |
+| `@beep/data/HotKey` | `KeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:440` | Combined shortcut command data across all supported platform datasets. |
+| `@beep/data/HotKey` | `KeyboardShortcutDisplay` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:193` | Platform display literal for rendering a shortcut hint. |
+| `@beep/data/HotKey` | `KeyboardShortcutPlatform` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:33` | Supported shortcut platform identifiers. |
+| `@beep/data/HotKey` | `KeyboardShortcutPlatformValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:247` | Supported shortcut platform identifiers. |
+| `@beep/data/HotKey` | `KeyboardShortcutRuntimeSupport` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:65` | Runtime registration support status for a shortcut chord. |
+| `@beep/data/HotKey` | `KeyboardShortcutRuntimeSupportValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:279` | Runtime registration support statuses. |
+| `@beep/data/HotKey` | `KeyboardShortcutScope` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:49` | Shortcut scope identifiers. |
+| `@beep/data/HotKey` | `KeyboardShortcutScopeValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:263` | Shortcut scope identifiers. |
+| `@beep/data/HotKey` | `KeyboardShortcutSource` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:97` | Source metadata entry for a curated shortcut reference. |
+| `@beep/data/HotKey` | `KeyboardShortcutSourceId` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:113` | Source identifier used by shortcut data rows. |
+| `@beep/data/HotKey` | `KeyboardShortcutSourceValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:311` | Source metadata for curated shortcut references. |
+| `@beep/data/HotKey` | `KeyboardShortcutTauriAccelerator` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:209` | Tauri/muda accelerator literal for chords that can be represented at runtime. |
+| `@beep/data/HotKey` | `KeyboardShortcutValue` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:177` | Canonical WAI-ARIA/UI Events shortcut literal. |
+| `@beep/data/HotKey` | `LinuxGnomeKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:407` | GNOME-specific app and shell shortcut defaults. |
+| `@beep/data/HotKey` | `LinuxKdePlasmaKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:423` | KDE Plasma and KStandardShortcut defaults. |
+| `@beep/data/HotKey` | `LinuxKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:391` | Portable Linux app shortcut defaults where GNOME and KDE broadly agree. |
+| `@beep/data/HotKey` | `MacOSKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:359` | macOS shortcut command data. |
+| `@beep/data/HotKey` | `WindowsKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:375` | Windows shortcut command data. |
 | `@beep/data/index` | `Blockchain` | SourceFile | `packages/foundation/primitive/data/src/Blockchain.ts:25` |  |
 | `@beep/data/index` | `Calendar` | SourceFile | `packages/foundation/primitive/data/src/Calendar.ts:13` |  |
 | `@beep/data/index` | `CurrencyCodes` | SourceFile | `packages/foundation/primitive/data/src/CurrencyCodes.ts:12` |  |
+| `@beep/data/index` | `KeyboardShortcuts` | SourceFile | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:13` |  |
 | `@beep/data/index` | `MimeTypesData` | SourceFile | `packages/foundation/primitive/data/src/MimeTypes.ts:12` |  |
 | `@beep/data/index` | `Timezones` | SourceFile | `packages/foundation/primitive/data/src/Timezones.ts:11` |  |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCategory` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:81` | Shortcut category identifiers used for grouping command rows. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCategoryValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:295` | Shortcut category identifiers. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutChordData` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:161` | A platform-specific shortcut chord for one command. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCommandLabel` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:145` | PascalCase command label derived from a shortcut command name. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCommandLabelValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:343` | PascalCase shortcut command labels. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCommandName` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:129` | Lower-camel command name used as the stable shortcut command id. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCommandNameValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:327` | Stable shortcut command names. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutData` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:228` | A curated shortcut command row for a single platform and command name. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:440` | Combined shortcut command data across all supported platform datasets. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutDisplay` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:193` | Platform display literal for rendering a shortcut hint. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutPlatform` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:33` | Supported shortcut platform identifiers. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutPlatformValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:247` | Supported shortcut platform identifiers. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutRuntimeSupport` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:65` | Runtime registration support status for a shortcut chord. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutRuntimeSupportValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:279` | Runtime registration support statuses. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutScope` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:49` | Shortcut scope identifiers. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutScopeValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:263` | Shortcut scope identifiers. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutSource` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:97` | Source metadata entry for a curated shortcut reference. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutSourceId` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:113` | Source identifier used by shortcut data rows. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutSourceValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:311` | Source metadata for curated shortcut references. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutTauriAccelerator` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:209` | Tauri/muda accelerator literal for chords that can be represented at runtime. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutValue` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:177` | Canonical WAI-ARIA/UI Events shortcut literal. |
+| `@beep/data/KeyboardShortcuts` | `LinuxGnomeKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:407` | GNOME-specific app and shell shortcut defaults. |
+| `@beep/data/KeyboardShortcuts` | `LinuxKdePlasmaKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:423` | KDE Plasma and KStandardShortcut defaults. |
+| `@beep/data/KeyboardShortcuts` | `LinuxKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:391` | Portable Linux app shortcut defaults where GNOME and KDE broadly agree. |
+| `@beep/data/KeyboardShortcuts` | `MacOSKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:359` | macOS shortcut command data. |
+| `@beep/data/KeyboardShortcuts` | `WindowsKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:375` | Windows shortcut command data. |
 | `@beep/data/MimeTypes` | `application` | const | `packages/foundation/primitive/data/src/MimeTypes.ts:71` | Record of `application/*` MIME type definitions sourced from IANA, Apache, |
 | `@beep/data/MimeTypes` | `audio` | const | `packages/foundation/primitive/data/src/MimeTypes.ts:87` | Record of `audio/*` MIME type definitions sourced from IANA, Apache, |
 | `@beep/data/MimeTypes` | `FileExtension` | type | `packages/foundation/primitive/data/src/MimeTypes.ts:51` | Union of all known file extension strings (without leading dot) derived |
