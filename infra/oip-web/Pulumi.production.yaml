@@ -1,7 +1,7 @@
 config:
   oipWeb:attachProductionDomains: "true"
   oipWeb:attachStagingDomain: "false"
-  oipWeb:assetsBucketName: assets.opip.law
+  oipWeb:assetsBucketName: assets.oip.law
   oipWeb:awsRegion: us-east-1
   oipWeb:cloudflareZoneId: 144f81bdbe12b3a7530cdcc8d56b13cc
   oipWeb:legacyCloudflareZoneId: 0d26e874202f4579081926dc38b3bf80
@@ -11,7 +11,7 @@ config:
   oipWeb:projectName: oip-web
   oipWeb:productionBranch: main
   oipWeb:productionDomain: oip.law
-  oipWeb:pulumiStateBucketName: opip-law-pulumi-state
+  oipWeb:pulumiStateBucketName: oip-law-pulumi-state
   oipWeb:repository: kriegcloud/beep-effect
   oipWeb:rootDirectory: apps/oip-web
   oipWeb:stagingBranch: staging

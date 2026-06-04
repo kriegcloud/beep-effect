@@ -19,14 +19,14 @@ import * as S from "effect/Schema";
 const $I = $InfraId.create("OipWeb");
 
 const defaultAwsRegion = "us-east-1";
-const defaultAssetsBucketName = "assets.opip.law";
+const defaultAssetsBucketName = "assets.oip.law";
 const defaultLegacyProductionDomain = "opip.law";
 const defaultLegacyStagingDomain = "staging.opip.law";
 const defaultLegacyWwwDomain = "www.opip.law";
 const defaultProjectName = "oip-web";
 const defaultProductionBranch = "main";
 const defaultProductionDomain = "oip.law";
-const defaultPulumiStateBucketName = "opip-law-pulumi-state";
+const defaultPulumiStateBucketName = "oip-law-pulumi-state";
 const defaultRepository = "kriegcloud/beep-effect";
 const defaultRootDirectory = "apps/oip-web";
 const defaultStagingBranch = "staging";

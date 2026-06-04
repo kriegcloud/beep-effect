@@ -1,5 +1,11 @@
 # OIP Web Production Hardening Completion Audit
 
+2026-06-02 update: the historical OPIP S3 backend and asset bucket evidence in
+this audit is superseded by
+`history/outputs/oip-state-bucket-rename-evidence.md`. The live temporary
+Pulumi backend is now `oip-law-pulumi-state`, and the managed asset buckets are
+`assets.oip.law` and `staging-assets.oip.law`.
+
 ## Objective
 
 Complete `goals/oip-web-production-hardening` end to end: create and
@@ -23,9 +29,9 @@ exposing secrets or cutting over production DNS.
 | Security headers and CSP | `apps/oip-web/next.config.ts`; local portless and public staging header proof recorded in `local-closure-evidence.md` | Complete with Observatory caveat |
 | PWA support | `apps/oip-web/src/app/manifest.ts`, app icons, `next-pwa` build path, and `bun run --cwd apps/oip-web build:pwa` proof | Complete |
 | SEO/AEO and `llms.txt` | `robots.ts`, `sitemap.ts`, JSON-LD in `page.tsx`, `llms.txt` route, and Markdown-link `llms.txt` content | Complete |
-| Temporary encrypted S3 Pulumi backend | AWS proof confirms `opip-law-pulumi-state` has SSE-S3 encryption, public access block, and versioning enabled | Complete |
-| Vercel/Cloudflare staging IaC | `infra/src/OpipWeb.ts`, `infra/opip-web/Pulumi.staging.yaml`, applied staging stack, `staging.opip.law` HTTPS proof | Complete |
-| Production IaC without DNS cutover | `infra/opip-web/Pulumi.production.yaml` and manifest record production preview only; production DNS cutover remains blocked without explicit approval | Complete |
+| Temporary encrypted S3 Pulumi backend | AWS proof confirms `oip-law-pulumi-state` has SSE-S3 encryption, public access block, and versioning enabled; the old backend bucket is deleted after archive proof | Complete |
+| Vercel/Cloudflare staging IaC | `infra/src/OipWeb.ts`, `infra/oip-web/Pulumi.staging.yaml`, applied staging stack, `staging.opip.law` HTTPS proof | Complete |
+| Production IaC without DNS cutover | `infra/oip-web/Pulumi.production.yaml` and manifest record production stack apply for state/backend and asset bucket naming only; production DNS cutover remains blocked without explicit approval | Complete |
 | Vercel Authentication disabled for previews | Manifest and Vercel API evidence record no active password, trusted-IP, or Vercel Authentication protection | Complete |
 | Quality gates | Root `check`, `lint`, `build`, `test`, app `check`/`test`/`lint`/`build:pwa`, infra and driver checks recorded in evidence | Complete |
 | Browser QA and Lighthouse proof | `local-closure-evidence.md` records clean browser QA and staging Lighthouse 100 across performance, accessibility, best practices, SEO, and agentic-browsing | Complete |

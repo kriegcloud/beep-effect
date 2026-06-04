@@ -23,8 +23,9 @@ environment, domain, DNS, and state-backend wiring.
 
 - AWS profile: `codedank-elpresidank`
 - Region: `us-east-1`
-- Bucket: `opip-law-pulumi-state` (historical name retained for state
-  continuity during the OIP rename)
+- Bucket: `oip-law-pulumi-state` (migrated from the historical
+  `opip-law-pulumi-state` bucket while retaining the Pulumi project namespace
+  for state continuity)
 - Public access: blocked
 - Versioning: enabled
 - Encryption: default SSE-S3
@@ -33,10 +34,12 @@ environment, domain, DNS, and state-backend wiring.
 
 ## Applied Staging Posture
 
-- S3 backend bucket `opip-law-pulumi-state` exists and is hardened.
+- S3 backend bucket `oip-law-pulumi-state` exists and is hardened after the
+  backend migration.
 - Staging stack `staging` applies the Vercel project/domain/env and staging
   asset bucket.
-- Production stack `production` is initialized and preview-only until explicit
+- Production stack `production` has been applied for the OIP state backend and
+  asset bucket rename. Production DNS cutover remains blocked until explicit
   launch approval.
 - Historical staging DNS for `staging.opip.law` is applied through Pulumi. OIP
   DNS records are modeled in IaC and remain pending provider apply until

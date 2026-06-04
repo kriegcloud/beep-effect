@@ -12,12 +12,12 @@ describe("@beep/infra OipWeb", () => {
   it("applies production-safe defaults for OIP web infrastructure", () => {
     const args = makeOipWebStackArgsFromConfigValues();
 
-    expect(args.state.bucketName).toBe("opip-law-pulumi-state");
+    expect(args.state.bucketName).toBe("oip-law-pulumi-state");
     expect(args.state.createDynamoDbLockTable).toBe(false);
     expect(args.state.protect).toBe(true);
     expect(args.dns.attachProductionDomains).toBe(false);
     expect(args.dns.attachStagingDomain).toBe(true);
-    expect(args.assets.bucketName).toBe("assets.opip.law");
+    expect(args.assets.bucketName).toBe("assets.oip.law");
     expect(args.assets.protect).toBe(true);
     expect(args.dns.productionDomain).toBe("oip.law");
     expect(args.dns.stagingDomain).toBe("staging.oip.law");

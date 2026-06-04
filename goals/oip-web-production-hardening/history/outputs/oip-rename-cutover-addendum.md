@@ -37,3 +37,23 @@ Provider preflight on 2026-05-20 found:
 Pulumi now models OIP canonical records and OPIP legacy redirects while
 retaining the historical Pulumi project/state names that would otherwise require
 a state migration.
+
+## 2026-06-02 Follow-Up
+
+The physical Pulumi state bucket migration has now been completed. The backend
+is `s3://oip-law-pulumi-state`; the historical `opip-law-pulumi-state` bucket
+was archived into the new bucket and deleted. The Pulumi project namespace and
+stack URN namespace remain `opip-web` for state continuity.
+
+The managed S3 asset buckets were also replaced through Pulumi:
+
+- `assets.opip.law` -> `assets.oip.law`
+- `staging-assets.opip.law` -> `staging-assets.oip.law`
+
+The legacy `apps/opip-web` path is no longer a package, workspace, or Vercel
+deployment root; the active app is `apps/oip-web`. Only stale generated PWA
+artifacts remained under `apps/opip-web/public`, so removing those files does
+not remove the current OIP service worker or OPIP redirect behavior.
+
+OIP DNS cutover and OPIP legacy redirects remain modeled but unapplied until the
+provider cutover gate is approved.

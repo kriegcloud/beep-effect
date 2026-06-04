@@ -14,6 +14,10 @@
 - [x] Run local quality, browser QA, Lighthouse, and closure evidence updates.
 - [x] Prove the `next.config.ts` CSP/security headers locally through portless
   HTTPS.
+- [x] Migrate the temporary Pulumi S3 backend from `opip-law-pulumi-state` to
+  `oip-law-pulumi-state`, then delete the legacy versioned bucket after proof.
+- [x] Rename empty OIP asset buckets to `assets.oip.law` and
+  `staging-assets.oip.law` through Pulumi.
 - [ ] Apply Cloudflare DNS for `staging.oip.law`, `www.oip.law`, and OPIP
   legacy redirect records through the OIP rename IaC.
 - [ ] Prove the current hardening on public `staging.oip.law` after a fresh
@@ -53,10 +57,15 @@ Browser and deployment proof:
 ```sh
 bun run --cwd apps/oip-web start
 aws-vault exec codedank-elpresidank --duration=12h -- aws sts get-caller-identity
-pulumi login s3://opip-law-pulumi-state
+bun run goals/oip-web-production-hardening/ops/migrate-oip-state-bucket.ts --dry-run
+bun run goals/oip-web-production-hardening/ops/migrate-oip-state-bucket.ts --yes
+pulumi login s3://oip-law-pulumi-state
 pulumi preview -s staging --non-interactive --diff
 pulumi up -s staging --yes --non-interactive
 pulumi preview -s production --non-interactive --diff
+pulumi up -s production --yes --non-interactive
+bun run goals/oip-web-production-hardening/ops/migrate-oip-state-bucket.ts --delete-source --yes
+bun run goals/oip-web-production-hardening/ops/migrate-oip-state-bucket.ts --dry-run
 curl --cacert "$HOME/.portless/ca.pem" -I https://localhost:1355 -H 'Host: oip-web.localhost:1355'
 ```
 

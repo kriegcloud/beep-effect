@@ -1,6 +1,6 @@
 {
   "id": "oip-web-production-hardening",
-  "status": "local_hardening_applied_provider_gates_remaining",
+  "status": "local_hardening_and_oip_s3_rename_applied_provider_dns_gates_remaining",
   "owner": "@beep-team",
   "app": "@beep/oip-web",
   "dependsOn": ["oip-web-launch"],
@@ -26,8 +26,8 @@
     "temporaryAccount": "<redacted-aws-profile>",
     "awsAccountId": "<redacted-aws-account-id>",
     "region": "us-east-1",
-    "bucket": "opip-law-pulumi-<redacted>",
-    "backendUrl": "s3://opip-law-pulumi-<redacted>",
+    "bucket": "oip-law-pulumi-<redacted>",
+    "backendUrl": "s3://oip-law-pulumi-<redacted>",
     "encryption": "SSE-S3",
     "dynamoDbLocking": false,
     "provisioned": true
@@ -38,8 +38,8 @@
     "vercelProjectName": "oip-web-staging",
     "domain": "staging.oip.law",
     "legacyDomain": "staging.opip.law",
-    "assetsBucket": "staging-assets.opip.law",
-    "applied": false,
+    "assetsBucket": "staging-assets.oip.law",
+    "applied": true,
     "dnsRecordApplied": false,
     "dnsTarget": "cname.vercel-dns.com",
     "vercelAuthentication": "disabled",
@@ -53,9 +53,12 @@
     "wwwDomain": "www.oip.law",
     "legacyDomain": "opip.law",
     "legacyWwwDomain": "www.opip.law",
-    "assetsBucket": "assets.opip.law",
-    "previewed": false,
-    "applied": false
+    "assetsBucket": "assets.oip.law",
+    "previewed": true,
+    "applied": true,
+    "dnsRecordApplied": false,
+    "launchCutoverApproved": false,
+    "applyScope": "state backend output and S3 asset bucket rename only; production DNS cutover remains blocked"
   },
   "providerGates": {
     "cloudflareZoneId": "144f...13cc",
