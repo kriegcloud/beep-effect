@@ -16,13 +16,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Metric | Count |
 |---|---:|
-| packages | 89 |
-| packagesWithPublicExports | 79 |
+| packages | 90 |
+| packagesWithPublicExports | 80 |
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1053 |
-| publicExportEntries | 13862 |
-| uniquePackageSymbols | 6145 |
+| importSpecifiers | 1059 |
+| publicExportEntries | 14652 |
+| uniquePackageSymbols | 6344 |
 
 ## Seed Discovery Proof
 
@@ -55,11 +55,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1668 | 601 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
-| 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 75 | 63 |
+| 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 90 | 65 |
 | 20 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
 | 21 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
 | 22 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 19 | 15 |
-| 23 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | has-public-exports | 13 | 168 | 68 |
+| 23 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | has-public-exports | 13 | 166 | 67 |
 | 24 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
 | 25 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | has-public-exports | 5 | 27 | 7 |
 | 26 | `@beep/colors` | `packages/foundation/capability/colors` | has-public-exports | 4 | 34 | 8 |
@@ -77,7 +77,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 38 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
 | 39 | `@beep/canvas` | `apps/canvas` | no-public-exports | 0 | 0 | 0 |
 | 40 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
-| 41 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
+| 41 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 270 | 218 |
 | 42 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 781 | 580 |
 | 43 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 702 | 214 |
 | 44 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
@@ -85,7 +85,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 46 | `@beep/libpff` | `packages/drivers/libpff` | has-public-exports | 4 | 26 | 8 |
 | 47 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 1 | 30 | 24 |
 | 48 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 12 | 97 | 63 |
-| 49 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 339 | 113 |
+| 49 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 342 | 114 |
 | 50 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
 | 51 | `@beep/box` | `packages/drivers/box` | has-public-exports | 5 | 9 | 8 |
 | 52 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
@@ -93,39 +93,40 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 54 | `@beep/professional-desktop` | `apps/professional-desktop` | no-public-exports | 0 | 0 | 0 |
 | 55 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
 | 56 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
-| 57 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 3 | 3 |
-| 58 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
-| 59 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 82 | 892 | 458 |
-| 60 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
-| 61 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
-| 62 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
-| 63 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 67 | 1751 | 512 |
-| 64 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
-| 65 | `@beep/codedank-web` | `apps/codedank-web` | no-public-exports | 0 | 0 | 0 |
-| 66 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
-| 67 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
-| 68 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
-| 69 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
-| 70 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
-| 71 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
-| 72 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
-| 73 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
-| 74 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 2 | 2 |
-| 75 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
-| 76 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
-| 77 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
-| 78 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 79 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 118 | 540 | 456 |
-| 80 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
-| 81 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
-| 82 | `@beep/wink` | `packages/drivers/wink` | has-public-exports | 15 | 149 | 43 |
-| 83 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
-| 84 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
-| 85 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
-| 86 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
-| 87 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
-| 88 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
-| 89 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
+| 57 | `@beep/firecrawl` | `packages/drivers/firecrawl` | has-public-exports | 6 | 776 | 198 |
+| 58 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 3 | 3 |
+| 59 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
+| 60 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 82 | 892 | 458 |
+| 61 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
+| 62 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
+| 63 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
+| 64 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 67 | 1751 | 512 |
+| 65 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
+| 66 | `@beep/codedank-web` | `apps/codedank-web` | no-public-exports | 0 | 0 | 0 |
+| 67 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
+| 68 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
+| 69 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
+| 70 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
+| 71 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
+| 72 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
+| 73 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
+| 74 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
+| 75 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 2 | 2 |
+| 76 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
+| 77 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
+| 78 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
+| 79 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
+| 80 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 118 | 540 | 456 |
+| 81 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
+| 82 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
+| 83 | `@beep/wink` | `packages/drivers/wink` | has-public-exports | 15 | 149 | 43 |
+| 84 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
+| 85 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
+| 86 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
+| 87 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
+| 88 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
+| 89 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
+| 90 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
 ## Public Exports
 
@@ -2661,81 +2662,96 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/nlp-mcp` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
-| `@beep/nlp-mcp` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
-| `@beep/nlp-mcp` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:743` | The complete streaming toolkit grouping all 17 streaming tools. |
-| `@beep/nlp-mcp` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:769` | Type of the {@link StreamingToolkit}. |
-| `@beep/nlp-mcp` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
-| `@beep/nlp-mcp/bin` | `SERVER_CONFIG` | const | `packages/drivers/nlp-mcp/src/bin.ts:27` | The server identity advertised to MCP clients by this entrypoint. |
-| `@beep/nlp-mcp/index` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
-| `@beep/nlp-mcp/index` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
-| `@beep/nlp-mcp/index` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:743` | The complete streaming toolkit grouping all 17 streaming tools. |
-| `@beep/nlp-mcp/index` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:769` | Type of the {@link StreamingToolkit}. |
-| `@beep/nlp-mcp/index` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
-| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
-| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetLoadError` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:84` | Structured failure raised when a remote fetch or JSON decode fails. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetMeta` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:37` | Provenance metadata returned alongside every loaded dataset. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:71` | A loaded dataset payload paired with its {@link DatasetMeta}. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `isUrl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:109` | Report whether a location should be treated as a remote `http(s)` URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJson` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:363` | Load and parse a single JSON document from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:312` | Load a JSONL dataset as an array of parsed records from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadLines` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:248` | Load a dataset as an array of lines from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadText` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:201` | Load raw text from a file or remote URL. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `computeJsonlStats` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:158` | Compute aggregate parse statistics for a JSONL file. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlLineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:29` | Structured parse failure for a single JSONL line. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:42` | Aggregate parse statistics for a JSONL file. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `readJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:139` | Collect parsed JSONL records into an array. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `sampleJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:221` | Sample up to `sampleSize` parsed JSONL records uniformly at random. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:92` | Stream parsed JSONL records, optionally dropping invalid lines. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonlResults` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:121` | Stream per-line parse results, never failing on malformed JSON. |
-| `@beep/nlp-mcp/Streaming/Jsonl` | `validateJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:186` | Validate a JSONL file, returning parsed records and collected line errors. |
-| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:33` | A single pipeline failure entry describing the item, message, and stage. |
-| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:48` | Outcome of running a line-transform pipeline over a file. |
-| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineStage` | type | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:25` | Identifier of a supported, pure line transform stage. |
-| `@beep/nlp-mcp/Streaming/Pipeline` | `processFile` | const | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:94` | Run an ordered list of line transforms over the lines of a file. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `computeStats` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:316` | Compute aggregate line-length and byte statistics for a text file. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `countLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:255` | Count the processed lines in a text file without buffering them. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `fileExists` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:274` | Report whether a path exists. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `getFileSize` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:293` | Report the size of a file in bytes. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `head` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:182` | Read the first `n` processed lines of a text file. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `readLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:141` | Collect a text file into an array of processed lines. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `readTextFile` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:160` | Read an entire text file into a single decoded string. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `sampleLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:226` | Sample up to `sampleSize` processed lines uniformly at random. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `streamLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:97` | Stream a text file as a sequence of processed lines. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `tail` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:202` | Read the last `n` processed lines of a text file. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `TextEncoding` | type | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:24` | Text decoding labels accepted by the streaming text helpers. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `TextReadOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:32` | Per-line processing options shared by the read-oriented helpers. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:47` | Streaming options that extend {@link TextReadOptions} with windowing controls. |
-| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:60` | Aggregate line-length and byte statistics computed for a text file. |
-| `@beep/nlp-mcp/StreamingHandlers` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
-| `@beep/nlp-mcp/StreamingTools` | `CountJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:721` | Tool: count valid JSONL records in a file. |
-| `@beep/nlp-mcp/StreamingTools` | `CountLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:707` | Tool: count total lines in a file. |
-| `@beep/nlp-mcp/StreamingTools` | `DataOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:254` | Output schema pairing loaded data with its {@link DatasetMetaOutput}. |
-| `@beep/nlp-mcp/StreamingTools` | `DatasetMetaOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:224` | Output schema for dataset provenance metadata. |
-| `@beep/nlp-mcp/StreamingTools` | `ExtractMatches` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:693` | Tool: extract regex matches from a file. |
-| `@beep/nlp-mcp/StreamingTools` | `FileInfo` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:511` | Tool: report whether a file exists plus its size and line count. |
-| `@beep/nlp-mcp/StreamingTools` | `FileInfoOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:102` | Output schema for file existence and size metadata. |
-| `@beep/nlp-mcp/StreamingTools` | `FilterLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:679` | Tool: filter file lines by a regex pattern. |
-| `@beep/nlp-mcp/StreamingTools` | `JsonlOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:162` | Output schema for JSONL record reads, with optional collected errors. |
-| `@beep/nlp-mcp/StreamingTools` | `JsonlStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:567` | Tool: compute JSONL parse statistics for a file. |
-| `@beep/nlp-mcp/StreamingTools` | `JsonlStatsOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:193` | Output schema for JSONL parse statistics. |
-| `@beep/nlp-mcp/StreamingTools` | `LinesOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:77` | Output schema for line-returning streaming tools. |
-| `@beep/nlp-mcp/StreamingTools` | `LoadJson` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:651` | Tool: load and parse JSON from a local file or remote URL. |
-| `@beep/nlp-mcp/StreamingTools` | `LoadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:637` | Tool: load JSONL records from a local file or remote URL. |
-| `@beep/nlp-mcp/StreamingTools` | `LoadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:623` | Tool: load lines from a local file or remote URL. |
-| `@beep/nlp-mcp/StreamingTools` | `LoadText` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:609` | Tool: load text from a local file or remote URL. |
-| `@beep/nlp-mcp/StreamingTools` | `PipelineOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:285` | Output schema for line-transform pipeline runs. |
-| `@beep/nlp-mcp/StreamingTools` | `ProcessFile` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:665` | Tool: run a line-transform pipeline over a file. |
-| `@beep/nlp-mcp/StreamingTools` | `ReadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:553` | Tool: read JSONL/NDJSON records from a file. |
-| `@beep/nlp-mcp/StreamingTools` | `ReadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:496` | Tool: read lines from a text file with optional head/tail windowing. |
-| `@beep/nlp-mcp/StreamingTools` | `SampleJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:595` | Tool: sample random JSONL records from a file. |
-| `@beep/nlp-mcp/StreamingTools` | `SampleLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:539` | Tool: sample random lines from a text file. |
-| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:743` | The complete streaming toolkit grouping all 17 streaming tools. |
-| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:769` | Type of the {@link StreamingToolkit}. |
-| `@beep/nlp-mcp/StreamingTools` | `TextStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:525` | Tool: compute aggregate line-length and byte statistics for a file. |
-| `@beep/nlp-mcp/StreamingTools` | `TextStatsOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:134` | Output schema for aggregate text statistics. |
-| `@beep/nlp-mcp/StreamingTools` | `ValidateJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:581` | Tool: validate a JSONL file and collect parse errors. |
+| `@beep/nlp-mcp` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:101` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
+| `@beep/nlp-mcp` | `NlpMcpServerConfig` | class | `packages/drivers/nlp-mcp/src/Server.ts:50` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:1073` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:1108` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:95` | Live handler layer for the streaming toolkit. |
+| `@beep/nlp-mcp/bin` | `SERVER_CONFIG` | const | `packages/drivers/nlp-mcp/src/bin.ts:34` | The server identity advertised to MCP clients by this entrypoint. |
+| `@beep/nlp-mcp/index` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:101` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
+| `@beep/nlp-mcp/index` | `NlpMcpServerConfig` | class | `packages/drivers/nlp-mcp/src/Server.ts:50` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp/index` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:1073` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp/index` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:1108` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp/index` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:95` | Live handler layer for the streaming toolkit. |
+| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:101` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
+| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | class | `packages/drivers/nlp-mcp/src/Server.ts:50` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetFormat` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:45` | Dataset formats supported by the file and URL loaders. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetFormat` | type | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:65` | Type for {@link DatasetFormat}. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetLoadError` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:220` | Structured failure raised when a remote fetch or JSON decode fails. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetMeta` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:122` | Provenance metadata returned alongside every loaded dataset. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetResult` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:169` | A loaded dataset payload paired with its {@link DatasetMeta}. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetResult` | type | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:204` | Type for {@link DatasetResult}. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetSourceType` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:81` | Provenance source channels supported by dataset loaders. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetSourceType` | type | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:101` | Type for {@link DatasetSourceType}. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `isUrl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:262` | Report whether a location should be treated as a remote `http(s)` URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJson` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:529` | Load and parse a single JSON document from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:478` | Load a JSONL dataset as an array of parsed records from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadLines` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:409` | Load a dataset as an array of lines from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadText` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:358` | Load raw text from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `computeJsonlStats` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:199` | Compute aggregate parse statistics for a JSONL file. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlLineError` | class | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:40` | Structured parse failure for a single JSONL line. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlStats` | class | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:69` | Aggregate parse statistics for a JSONL file. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `readJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:180` | Collect parsed JSONL records into an array. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `sampleJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:285` | Sample up to `sampleSize` parsed JSONL records uniformly at random. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:133` | Stream parsed JSONL records, optionally dropping invalid lines. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonlResults` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:162` | Stream per-line parse results, never failing on malformed JSON. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `validateJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:234` | Validate a JSONL file, returning parsed records and collected line errors. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineError` | class | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:80` | A single pipeline failure entry describing the item, message, and stage. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineResult` | class | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:118` | Outcome of running a line-transform pipeline over a file. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineStage` | const | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:38` | Identifier of a supported, pure line transform stage. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineStage` | type | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:64` | Type for {@link PipelineStage}. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `processFile` | const | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:179` | Run an ordered list of line transforms over the lines of a file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `computeStats` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:426` | Compute aggregate line-length and byte statistics for a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `countLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:359` | Count the processed lines in a text file without buffering them. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `fileExists` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:381` | Report whether a path exists. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `getFileSize` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:403` | Report the size of a file in bytes. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `head` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:279` | Read the first `n` processed lines of a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `readLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:235` | Collect a text file into an array of processed lines. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `readTextFile` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:257` | Read an entire text file into a single decoded string. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `sampleLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:327` | Sample up to `sampleSize` processed lines uniformly at random. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `streamLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:191` | Stream a text file as a sequence of processed lines. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `tail` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:299` | Read the last `n` processed lines of a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextEncoding` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:38` | Text decoding labels accepted by the streaming text helpers. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextEncoding` | type | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:58` | Type for {@link TextEncoding}. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextReadOptions` | class | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:76` | Per-line processing options shared by the read-oriented helpers. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamOptions` | class | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:107` | Streaming options that extend {@link TextReadOptions} with windowing controls. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamStats` | class | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:143` | Aggregate line-length and byte statistics computed for a text file. |
+| `@beep/nlp-mcp/StreamingHandlers` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:95` | Live handler layer for the streaming toolkit. |
+| `@beep/nlp-mcp/StreamingTools` | `CountJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:1051` | Tool: count valid JSONL records in a file. |
+| `@beep/nlp-mcp/StreamingTools` | `CountLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:1030` | Tool: count total lines in a file. |
+| `@beep/nlp-mcp/StreamingTools` | `DataOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:314` | Output schema pairing loaded data with its {@link DatasetMetaOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `DataOutput` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:343` | Type for {@link DataOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `DatasetMetaOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:282` | Output schema for dataset provenance metadata. |
+| `@beep/nlp-mcp/StreamingTools` | `DatasetMetaOutput` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:294` | Type for {@link DatasetMetaOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `ExtractMatches` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:1009` | Tool: extract regex matches from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `FileInfo` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:736` | Tool: report whether a file exists plus its size and line count. |
+| `@beep/nlp-mcp/StreamingTools` | `FileInfoOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:103` | Output schema for file existence and size metadata. |
+| `@beep/nlp-mcp/StreamingTools` | `FileInfoOutput` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:136` | Type for {@link FileInfoOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `FilterLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:988` | Tool: filter file lines by a regex pattern. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:189` | Output schema for JSONL record reads, with optional collected errors. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlOutput` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:226` | Type for {@link JsonlOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:820` | Tool: compute JSONL parse statistics for a file. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlStatsOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:248` | Output schema for JSONL parse statistics. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlStatsOutput` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:260` | Type for {@link JsonlStatsOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `LinesOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:53` | Output schema for line-returning streaming tools. |
+| `@beep/nlp-mcp/StreamingTools` | `LinesOutput` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:86` | Type for {@link LinesOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadJson` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:946` | Tool: load and parse JSON from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:925` | Tool: load JSONL records from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:904` | Tool: load lines from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadText` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:883` | Tool: load text from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `PipelineOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:367` | Output schema for line-transform pipeline runs. |
+| `@beep/nlp-mcp/StreamingTools` | `PipelineOutput` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:382` | Type for {@link PipelineOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `ProcessFile` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:967` | Tool: run a line-transform pipeline over a file. |
+| `@beep/nlp-mcp/StreamingTools` | `ReadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:799` | Tool: read JSONL/NDJSON records from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `ReadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:714` | Tool: read lines from a text file with optional head/tail windowing. |
+| `@beep/nlp-mcp/StreamingTools` | `SampleJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:862` | Tool: sample random JSONL records from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `SampleLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:778` | Tool: sample random lines from a text file. |
+| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:1073` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:1108` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp/StreamingTools` | `TextStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:757` | Tool: compute aggregate line-length and byte statistics for a file. |
+| `@beep/nlp-mcp/StreamingTools` | `TextStatsOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:160` | Output schema for aggregate text statistics. |
+| `@beep/nlp-mcp/StreamingTools` | `TextStatsOutput` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:172` | Type for {@link TextStatsOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `ValidateJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:841` | Tool: validate a JSONL file and collect parse errors. |
 
 ### @beep/law-practice-domain
 
@@ -2888,7 +2904,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/file-processing` | `Operation` | SourceFile | `packages/foundation/capability/file-processing/src/Operation/index.ts:8` |  |
 | `@beep/file-processing` | `Service` | SourceFile | `packages/foundation/capability/file-processing/src/Service/index.ts:8` |  |
 | `@beep/file-processing` | `Strategy` | SourceFile | `packages/foundation/capability/file-processing/src/Strategy/index.ts:8` |  |
-| `@beep/file-processing` | `VERSION` | const | `packages/foundation/capability/file-processing/src/index.ts:57` | Package version. |
 | `@beep/file-processing/Artifact` | `ArtifactId` | const | `packages/foundation/capability/file-processing/src/Artifact/index.ts:70` | Stable artifact identifier derived from a content digest. |
 | `@beep/file-processing/Artifact` | `ArtifactId` | type | `packages/foundation/capability/file-processing/src/Artifact/index.ts:83` | Type for {@link ArtifactId}. |
 | `@beep/file-processing/Artifact` | `ArtifactLocator` | class | `packages/foundation/capability/file-processing/src/Artifact/index.ts:217` | Runtime-neutral artifact locator. |
@@ -2978,7 +2993,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/file-processing/index` | `Operation` | SourceFile | `packages/foundation/capability/file-processing/src/Operation/index.ts:8` |  |
 | `@beep/file-processing/index` | `Service` | SourceFile | `packages/foundation/capability/file-processing/src/Service/index.ts:8` |  |
 | `@beep/file-processing/index` | `Strategy` | SourceFile | `packages/foundation/capability/file-processing/src/Strategy/index.ts:8` |  |
-| `@beep/file-processing/index` | `VERSION` | const | `packages/foundation/capability/file-processing/src/index.ts:57` | Package version. |
 | `@beep/file-processing/Operation` | `DetectFileOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:118` | Operation request for format detection. |
 | `@beep/file-processing/Operation` | `DetectionResult` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:143` | Result emitted by format detection. |
 | `@beep/file-processing/Operation` | `ExportArchiveOperation` | class | `packages/foundation/capability/file-processing/src/Operation/index.ts:197` | Operation request for archive child export. |
@@ -4860,18 +4874,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/semantic-web` | `AbsoluteIRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:935` | RFC 3987 `absolute-IRI` schema without a fragment component. |
-| `@beep/semantic-web` | `AbsoluteIRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:956` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
-| `@beep/semantic-web` | `IRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:973` | RFC 3987 `IRI` schema. |
-| `@beep/semantic-web` | `IRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:994` | RFC 3987 `IRI` syntax. |
-| `@beep/semantic-web` | `IRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:859` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
-| `@beep/semantic-web` | `IRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:880` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
-| `@beep/semantic-web` | `RelativeIRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:897` | RFC 3987 `irelative-ref` schema. |
-| `@beep/semantic-web` | `RelativeIRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:918` | RFC 3987 `irelative-ref` syntax. |
-| `@beep/semantic-web` | `VERSION` | const | `packages/foundation/capability/semantic-web/src/index.ts:23` | Package version constant. |
+| `@beep/semantic-web` | `AbsoluteIRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:937` | RFC 3987 `absolute-IRI` schema without a fragment component. |
+| `@beep/semantic-web` | `AbsoluteIRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:960` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
+| `@beep/semantic-web` | `IRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:978` | RFC 3987 `IRI` schema. |
+| `@beep/semantic-web` | `IRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:1001` | RFC 3987 `IRI` syntax. |
+| `@beep/semantic-web` | `IRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:855` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
+| `@beep/semantic-web` | `IRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:878` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
+| `@beep/semantic-web` | `RelativeIRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:896` | RFC 3987 `irelative-ref` schema. |
+| `@beep/semantic-web` | `RelativeIRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:919` | RFC 3987 `irelative-ref` syntax. |
 | `@beep/semantic-web/adapters/canonicalization` | `CanonicalizationServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/canonicalization.ts:250` | Canonicalization service live layer. |
 | `@beep/semantic-web/adapters/jsonld-context` | `JsonLdContextServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-context.ts:132` | JSON-LD context service live layer. |
-| `@beep/semantic-web/adapters/jsonld-document` | `JsonLdDocumentServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-document.ts:740` | JSON-LD document service live layer. |
+| `@beep/semantic-web/adapters/jsonld-document` | `JsonLdDocumentServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-document.ts:748` | JSON-LD document service live layer. |
 | `@beep/semantic-web/adapters/jsonld-stream-parse` | `JsonLdStreamParseServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-stream-parse.ts:100` | JSON-LD streaming parse service live layer. |
 | `@beep/semantic-web/adapters/jsonld-stream-serialize` | `JsonLdStreamSerializeServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-stream-serialize.ts:70` | JSON-LD streaming serialize service live layer. |
 | `@beep/semantic-web/adapters/shacl-engine` | `BoundedShaclValidationServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/shacl-engine.ts:49` | Bounded SHACL-inspired validation service live layer. |
@@ -4899,23 +4912,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web/evidence` | `FragmentSelector` | class | `packages/foundation/capability/semantic-web/src/evidence.ts:154` | Fragment selector for evidence anchors. |
 | `@beep/semantic-web/evidence` | `TextPositionSelector` | class | `packages/foundation/capability/semantic-web/src/evidence.ts:114` | Text-position selector for evidence anchors. |
 | `@beep/semantic-web/evidence` | `TextQuoteSelector` | class | `packages/foundation/capability/semantic-web/src/evidence.ts:72` | Text-quote selector for evidence anchors. |
-| `@beep/semantic-web/index` | `AbsoluteIRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:935` | RFC 3987 `absolute-IRI` schema without a fragment component. |
-| `@beep/semantic-web/index` | `AbsoluteIRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:956` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
-| `@beep/semantic-web/index` | `IRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:973` | RFC 3987 `IRI` schema. |
-| `@beep/semantic-web/index` | `IRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:994` | RFC 3987 `IRI` syntax. |
-| `@beep/semantic-web/index` | `IRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:859` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
-| `@beep/semantic-web/index` | `IRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:880` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
-| `@beep/semantic-web/index` | `RelativeIRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:897` | RFC 3987 `irelative-ref` schema. |
-| `@beep/semantic-web/index` | `RelativeIRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:918` | RFC 3987 `irelative-ref` syntax. |
-| `@beep/semantic-web/index` | `VERSION` | const | `packages/foundation/capability/semantic-web/src/index.ts:23` | Package version constant. |
-| `@beep/semantic-web/iri` | `AbsoluteIRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:935` | RFC 3987 `absolute-IRI` schema without a fragment component. |
-| `@beep/semantic-web/iri` | `AbsoluteIRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:956` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
-| `@beep/semantic-web/iri` | `IRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:973` | RFC 3987 `IRI` schema. |
-| `@beep/semantic-web/iri` | `IRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:994` | RFC 3987 `IRI` syntax. |
-| `@beep/semantic-web/iri` | `IRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:859` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
-| `@beep/semantic-web/iri` | `IRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:880` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
-| `@beep/semantic-web/iri` | `RelativeIRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:897` | RFC 3987 `irelative-ref` schema. |
-| `@beep/semantic-web/iri` | `RelativeIRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:918` | RFC 3987 `irelative-ref` syntax. |
+| `@beep/semantic-web/index` | `AbsoluteIRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:937` | RFC 3987 `absolute-IRI` schema without a fragment component. |
+| `@beep/semantic-web/index` | `AbsoluteIRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:960` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
+| `@beep/semantic-web/index` | `IRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:978` | RFC 3987 `IRI` schema. |
+| `@beep/semantic-web/index` | `IRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:1001` | RFC 3987 `IRI` syntax. |
+| `@beep/semantic-web/index` | `IRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:855` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
+| `@beep/semantic-web/index` | `IRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:878` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
+| `@beep/semantic-web/index` | `RelativeIRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:896` | RFC 3987 `irelative-ref` schema. |
+| `@beep/semantic-web/index` | `RelativeIRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:919` | RFC 3987 `irelative-ref` syntax. |
+| `@beep/semantic-web/iri` | `AbsoluteIRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:937` | RFC 3987 `absolute-IRI` schema without a fragment component. |
+| `@beep/semantic-web/iri` | `AbsoluteIRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:960` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
+| `@beep/semantic-web/iri` | `IRI` | const | `packages/foundation/capability/semantic-web/src/iri.ts:978` | RFC 3987 `IRI` schema. |
+| `@beep/semantic-web/iri` | `IRI` | type | `packages/foundation/capability/semantic-web/src/iri.ts:1001` | RFC 3987 `IRI` syntax. |
+| `@beep/semantic-web/iri` | `IRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:855` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
+| `@beep/semantic-web/iri` | `IRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:878` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
+| `@beep/semantic-web/iri` | `RelativeIRIReference` | const | `packages/foundation/capability/semantic-web/src/iri.ts:896` | RFC 3987 `irelative-ref` schema. |
+| `@beep/semantic-web/iri` | `RelativeIRIReference` | type | `packages/foundation/capability/semantic-web/src/iri.ts:919` | RFC 3987 `irelative-ref` syntax. |
 | `@beep/semantic-web/jsonld` | `JsonLdBlankNodeIdentifier` | const | `packages/foundation/capability/semantic-web/src/jsonld.ts:168` | JSON-LD blank-node identifier used by the bounded document model. |
 | `@beep/semantic-web/jsonld` | `JsonLdBlankNodeIdentifier` | type | `packages/foundation/capability/semantic-web/src/jsonld.ts:199` | Type for {@link JsonLdBlankNodeIdentifier}. |
 | `@beep/semantic-web/jsonld` | `JsonLdContext` | class | `packages/foundation/capability/semantic-web/src/jsonld.ts:134` | Normalized JSON-LD context model with bounded base, vocab, and term bindings. |
@@ -6850,98 +6862,99 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1024` | Identity composer for `@beep/acp`. |
-| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:595` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:611` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1320` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1513` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1157` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1106` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1072` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1191` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1123` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1140` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1174` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1089` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:838` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:855` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:872` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity` | `$BoxId` | const | `packages/foundation/modeling/identity/src/packages.ts:1545` | Identity composer for `@beep/box`. |
-| `@beep/identity` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1448` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1400` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1480` | Identity composer for `@beep/canvas`. |
-| `@beep/identity` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1432` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1464` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1416` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:503` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:723` | $codedank web id export. |
-| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:488` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:167` | Identity composer for the `@beep/data` package. |
-| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1304` | Identity composer for `@beep/discord`. |
-| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:755` | $drizzle id export. |
-| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:771` | $duckdb id export. |
-| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:580` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:787` | $face detection id export. |
-| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:803` | $ffmpeg id export. |
-| `@beep/identity` | `$FileProcessingId` | const | `packages/foundation/modeling/identity/src/packages.ts:1593` | Identity composer for `@beep/file-processing`. |
-| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1529` | Identity composer for `@beep/form`. |
-| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1352` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1025` | Identity composer for `@beep/acp`. |
+| `@beep/identity` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:596` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:612` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1321` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1514` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1158` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1107` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1073` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1192` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1124` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1141` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1175` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1090` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:839` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:856` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:873` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity` | `$BoxId` | const | `packages/foundation/modeling/identity/src/packages.ts:1546` | Identity composer for `@beep/box`. |
+| `@beep/identity` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1449` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1401` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1481` | Identity composer for `@beep/canvas`. |
+| `@beep/identity` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1433` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1465` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1417` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:504` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:724` | $codedank web id export. |
+| `@beep/identity` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:489` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:168` | Identity composer for the `@beep/data` package. |
+| `@beep/identity` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1305` | Identity composer for `@beep/discord`. |
+| `@beep/identity` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:756` | $drizzle id export. |
+| `@beep/identity` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:772` | $duckdb id export. |
+| `@beep/identity` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:581` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:788` | $face detection id export. |
+| `@beep/identity` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:804` | $ffmpeg id export. |
+| `@beep/identity` | `$FileProcessingId` | const | `packages/foundation/modeling/identity/src/packages.ts:1594` | Identity composer for `@beep/file-processing`. |
+| `@beep/identity` | `$FirecrawlId` | const | `packages/foundation/modeling/identity/src/packages.ts:1642` | Identity composer for `@beep/firecrawl`. |
+| `@beep/identity` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1530` | Identity composer for `@beep/form`. |
+| `@beep/identity` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1353` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:891` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:908` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:925` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:942` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:182` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:533` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1225` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1256` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1240` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1384` | Identity composer for `@beep/konva`. |
-| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:627` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity` | `$LibpffId` | const | `packages/foundation/modeling/identity/src/packages.ts:1625` | Identity composer for `@beep/libpff`. |
-| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:707` | $md id export. |
-| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:197` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:458` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1561` | Identity composer for `@beep/nlp-mcp`. |
-| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:473` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:739` | $oip web id export. |
-| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1288` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1040` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1368` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:819` | $postgres id export. |
-| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:659` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:675` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:276` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:291` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1497` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:306` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:518` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:321` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1272` | Identity composer for `@beep/runpod`. |
-| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:976` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1336` | Identity composer for `@beep/sanity`. |
-| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:212` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:959` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:443` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:383` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:428` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:353` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:398` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:368` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:413` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:548` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1210` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:336` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity` | `$TikaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1609` | Identity composer for `@beep/tika`. |
-| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:227` | Identity composer for the `@beep/types` package. |
-| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:259` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:242` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:992` | $venice ai id export. |
-| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:643` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1577` | Identity composer for `@beep/wink`. |
-| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:565` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1056` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1008` | $xai id export. |
+| `@beep/identity` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:892` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:909` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:926` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:943` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:183` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:534` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1226` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1257` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1241` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1385` | Identity composer for `@beep/konva`. |
+| `@beep/identity` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:628` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity` | `$LibpffId` | const | `packages/foundation/modeling/identity/src/packages.ts:1626` | Identity composer for `@beep/libpff`. |
+| `@beep/identity` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:708` | $md id export. |
+| `@beep/identity` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:198` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:459` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1562` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:474` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:740` | $oip web id export. |
+| `@beep/identity` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1289` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1041` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1369` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:820` | $postgres id export. |
+| `@beep/identity` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:660` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:676` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:277` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:292` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1498` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:307` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:519` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:322` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1273` | Identity composer for `@beep/runpod`. |
+| `@beep/identity` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:977` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1337` | Identity composer for `@beep/sanity`. |
+| `@beep/identity` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:213` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:960` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:444` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:384` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:429` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:354` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:399` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:369` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:414` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:549` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1211` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:337` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity` | `$TikaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1610` | Identity composer for `@beep/tika`. |
+| `@beep/identity` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:228` | Identity composer for the `@beep/types` package. |
+| `@beep/identity` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:260` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:243` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:993` | $venice ai id export. |
+| `@beep/identity` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:644` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1578` | Identity composer for `@beep/wink`. |
+| `@beep/identity` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:566` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1057` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1009` | $xai id export. |
 | `@beep/identity` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:478` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:451` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:522` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -6956,7 +6969,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1212` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:346` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:328` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:691` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:692` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:415` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:200` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:363` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
@@ -6983,98 +6996,99 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/Id` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:577` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/Id` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:288` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/Id` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:181` | Current version of the `@beep/identity` package. |
-| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1024` | Identity composer for `@beep/acp`. |
-| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:595` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:611` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1320` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/index` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1513` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1157` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1106` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1072` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1191` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1123` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1140` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1174` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1089` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:838` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:855` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:872` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/index` | `$BoxId` | const | `packages/foundation/modeling/identity/src/packages.ts:1545` | Identity composer for `@beep/box`. |
-| `@beep/identity/index` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1448` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity/index` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1400` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity/index` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1480` | Identity composer for `@beep/canvas`. |
-| `@beep/identity/index` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1432` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity/index` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1464` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity/index` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1416` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:503` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:723` | $codedank web id export. |
-| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:488` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:167` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1304` | Identity composer for `@beep/discord`. |
-| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:755` | $drizzle id export. |
-| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:771` | $duckdb id export. |
-| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:580` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:787` | $face detection id export. |
-| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:803` | $ffmpeg id export. |
-| `@beep/identity/index` | `$FileProcessingId` | const | `packages/foundation/modeling/identity/src/packages.ts:1593` | Identity composer for `@beep/file-processing`. |
-| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1529` | Identity composer for `@beep/form`. |
-| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1352` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/index` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1025` | Identity composer for `@beep/acp`. |
+| `@beep/identity/index` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:596` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/index` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:612` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/index` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1321` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity/index` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1514` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity/index` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1158` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/index` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1107` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/index` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1073` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/index` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1192` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/index` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1124` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/index` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1141` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/index` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1175` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/index` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1090` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/index` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:839` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/index` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:856` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/index` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:873` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/index` | `$BoxId` | const | `packages/foundation/modeling/identity/src/packages.ts:1546` | Identity composer for `@beep/box`. |
+| `@beep/identity/index` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1449` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity/index` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1401` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity/index` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1481` | Identity composer for `@beep/canvas`. |
+| `@beep/identity/index` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1433` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity/index` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1465` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity/index` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1417` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity/index` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:504` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/index` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:724` | $codedank web id export. |
+| `@beep/identity/index` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:489` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/index` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:168` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/index` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1305` | Identity composer for `@beep/discord`. |
+| `@beep/identity/index` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:756` | $drizzle id export. |
+| `@beep/identity/index` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:772` | $duckdb id export. |
+| `@beep/identity/index` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:581` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/index` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:788` | $face detection id export. |
+| `@beep/identity/index` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:804` | $ffmpeg id export. |
+| `@beep/identity/index` | `$FileProcessingId` | const | `packages/foundation/modeling/identity/src/packages.ts:1594` | Identity composer for `@beep/file-processing`. |
+| `@beep/identity/index` | `$FirecrawlId` | const | `packages/foundation/modeling/identity/src/packages.ts:1642` | Identity composer for `@beep/firecrawl`. |
+| `@beep/identity/index` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1530` | Identity composer for `@beep/form`. |
+| `@beep/identity/index` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1353` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/index` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:891` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:908` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:925` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:942` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:182` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:533` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/index` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1225` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity/index` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1256` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity/index` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1240` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity/index` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1384` | Identity composer for `@beep/konva`. |
-| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:627` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/index` | `$LibpffId` | const | `packages/foundation/modeling/identity/src/packages.ts:1625` | Identity composer for `@beep/libpff`. |
-| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:707` | $md id export. |
-| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:197` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:458` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/index` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1561` | Identity composer for `@beep/nlp-mcp`. |
-| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:473` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:739` | $oip web id export. |
-| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1288` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1040` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1368` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:819` | $postgres id export. |
-| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:659` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:675` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:276` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:291` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1497` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:306` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:518` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:321` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1272` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:976` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1336` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:212` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:959` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:443` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:383` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:428` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:353` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:398` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:368` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:413` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:548` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1210` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:336` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/index` | `$TikaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1609` | Identity composer for `@beep/tika`. |
-| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:227` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:259` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:242` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:992` | $venice ai id export. |
-| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:643` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/index` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1577` | Identity composer for `@beep/wink`. |
-| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:565` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1056` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1008` | $xai id export. |
+| `@beep/identity/index` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:892` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/index` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:909` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/index` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:926` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/index` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:943` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/index` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:183` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/index` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:534` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/index` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1226` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity/index` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1257` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity/index` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1241` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity/index` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1385` | Identity composer for `@beep/konva`. |
+| `@beep/identity/index` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:628` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/index` | `$LibpffId` | const | `packages/foundation/modeling/identity/src/packages.ts:1626` | Identity composer for `@beep/libpff`. |
+| `@beep/identity/index` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:708` | $md id export. |
+| `@beep/identity/index` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:198` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/index` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:459` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/index` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1562` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity/index` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:474` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/index` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:740` | $oip web id export. |
+| `@beep/identity/index` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1289` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity/index` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1041` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/index` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1369` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity/index` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:820` | $postgres id export. |
+| `@beep/identity/index` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:660` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/index` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:676` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/index` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:277` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/index` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:292` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/index` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1498` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/index` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:307` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/index` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:519` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/index` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:322` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/index` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1273` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/index` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:977` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/index` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1337` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/index` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:213` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/index` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:960` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/index` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:444` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/index` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:384` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/index` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:429` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/index` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:354` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/index` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:399` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/index` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:369` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/index` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:414` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/index` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:549` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/index` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1211` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity/index` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:337` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/index` | `$TikaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1610` | Identity composer for `@beep/tika`. |
+| `@beep/identity/index` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:228` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/index` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:260` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/index` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:243` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/index` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:993` | $venice ai id export. |
+| `@beep/identity/index` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:644` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/index` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1578` | Identity composer for `@beep/wink`. |
+| `@beep/identity/index` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:566` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/index` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1057` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/index` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1009` | $xai id export. |
 | `@beep/identity/index` | `HttpAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:478` | Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata. |
 | `@beep/identity/index` | `HttpApiEncoding` | type | `packages/foundation/modeling/identity/src/Id.ts:451` | Mirrors the raw HTTP encoding annotation shape used by Effect's HttpApiSchema. |
 | `@beep/identity/index` | `IdentityAnnotation` | type | `packages/foundation/modeling/identity/src/Id.ts:522` | Fully resolved identity annotation record applied to Effect schemas. |
@@ -7089,106 +7103,107 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/identity/index` | `make` | const | `packages/foundation/modeling/identity/src/Id.ts:1212` | Create a root identity composer for a `@beep` package namespace. |
 | `@beep/identity/index` | `ModuleAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:346` | Derive a PascalCase accessor name suffixed with `Id` from a module segment. |
 | `@beep/identity/index` | `ModuleSegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:328` | Type-level constraint for module-safe identity segments. |
-| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:691` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/index` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:692` | RepoPkgs - export object containing all package IdentityComposer's |
 | `@beep/identity/index` | `SchemaAnnotationExtras` | type | `packages/foundation/modeling/identity/src/Id.ts:415` | Additional schema annotation fields that identity annotation helpers accept. |
 | `@beep/identity/index` | `SegmentValue` | type | `packages/foundation/modeling/identity/src/Id.ts:200` | Type-level constraint ensuring an identity segment does not start or end with a slash. |
 | `@beep/identity/index` | `TaggedAccessor` | type | `packages/foundation/modeling/identity/src/Id.ts:363` | Derive a `$`-prefixed PascalCase accessor key from a module segment. |
 | `@beep/identity/index` | `TaggedModuleRecord` | type | `packages/foundation/modeling/identity/src/Id.ts:577` | Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances, |
 | `@beep/identity/index` | `TitleFromIdentifier` | type | `packages/foundation/modeling/identity/src/Id.ts:288` | Derive a human-readable title from a kebab-case or snake_case identifier. |
 | `@beep/identity/index` | `VERSION` | const | `packages/foundation/modeling/identity/src/Id.ts:181` | Current version of the `@beep/identity` package. |
-| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1024` | Identity composer for `@beep/acp`. |
-| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:595` | Identity composer for the `@beep/agent-capability-domain` package. |
-| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:611` | Identity composer for the `@beep/agent-capability-use-cases` package. |
-| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1320` | Identity composer for `@beep/ai-provider-cli`. |
-| `@beep/identity/packages` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1513` | Identity composer for `@beep/ai-sync`. |
-| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1157` | Identity composer for `@beep/architecture-lab-client`. |
-| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1106` | Identity composer for `@beep/architecture-lab-config`. |
-| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1072` | Identity composer for `@beep/architecture-lab-domain`. |
-| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1191` | Identity composer for `@beep/architecture-lab-proof`. |
-| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1123` | Identity composer for `@beep/architecture-lab-server`. |
-| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1140` | Identity composer for `@beep/architecture-lab-tables`. |
-| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1174` | Identity composer for `@beep/architecture-lab-ui`. |
-| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1089` | Identity composer for `@beep/architecture-lab-use-cases`. |
-| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:838` | Identity composer for the `@beep/billing-domain` package. |
-| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:855` | Identity composer for the `@beep/billing-server` package. |
-| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:872` | Identity composer for the `@beep/billing-use-cases` package. |
-| `@beep/identity/packages` | `$BoxId` | const | `packages/foundation/modeling/identity/src/packages.ts:1545` | Identity composer for `@beep/box`. |
-| `@beep/identity/packages` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1448` | Identity composer for `@beep/canvas-client`. |
-| `@beep/identity/packages` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1400` | Identity composer for `@beep/canvas-domain`. |
-| `@beep/identity/packages` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1480` | Identity composer for `@beep/canvas`. |
-| `@beep/identity/packages` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1432` | Identity composer for `@beep/canvas-server`. |
-| `@beep/identity/packages` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1464` | Identity composer for `@beep/canvas-ui`. |
-| `@beep/identity/packages` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1416` | Identity composer for `@beep/canvas-use-cases`. |
-| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:503` | Identity composer for the `@beep/chalk` package. |
-| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:723` | $codedank web id export. |
-| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:488` | Identity composer for the `@beep/colors` package. |
-| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:167` | Identity composer for the `@beep/data` package. |
-| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1304` | Identity composer for `@beep/discord`. |
-| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:755` | $drizzle id export. |
-| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:771` | $duckdb id export. |
-| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:580` | Identity composer for the `@beep/epistemic-domain` package. |
-| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:787` | $face detection id export. |
-| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:803` | $ffmpeg id export. |
-| `@beep/identity/packages` | `$FileProcessingId` | const | `packages/foundation/modeling/identity/src/packages.ts:1593` | Identity composer for `@beep/file-processing`. |
-| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1529` | Identity composer for `@beep/form`. |
-| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1352` | Identity composer for `@beep/hubspot`. |
+| `@beep/identity/packages` | `$AcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1025` | Identity composer for `@beep/acp`. |
+| `@beep/identity/packages` | `$AgentCapabilityDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:596` | Identity composer for the `@beep/agent-capability-domain` package. |
+| `@beep/identity/packages` | `$AgentCapabilityUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:612` | Identity composer for the `@beep/agent-capability-use-cases` package. |
+| `@beep/identity/packages` | `$AiProviderCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1321` | Identity composer for `@beep/ai-provider-cli`. |
+| `@beep/identity/packages` | `$AiSyncId` | const | `packages/foundation/modeling/identity/src/packages.ts:1514` | Identity composer for `@beep/ai-sync`. |
+| `@beep/identity/packages` | `$ArchitectureLabClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1158` | Identity composer for `@beep/architecture-lab-client`. |
+| `@beep/identity/packages` | `$ArchitectureLabConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:1107` | Identity composer for `@beep/architecture-lab-config`. |
+| `@beep/identity/packages` | `$ArchitectureLabDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1073` | Identity composer for `@beep/architecture-lab-domain`. |
+| `@beep/identity/packages` | `$ArchitectureLabProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:1192` | Identity composer for `@beep/architecture-lab-proof`. |
+| `@beep/identity/packages` | `$ArchitectureLabServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1124` | Identity composer for `@beep/architecture-lab-server`. |
+| `@beep/identity/packages` | `$ArchitectureLabTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1141` | Identity composer for `@beep/architecture-lab-tables`. |
+| `@beep/identity/packages` | `$ArchitectureLabUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1175` | Identity composer for `@beep/architecture-lab-ui`. |
+| `@beep/identity/packages` | `$ArchitectureLabUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1090` | Identity composer for `@beep/architecture-lab-use-cases`. |
+| `@beep/identity/packages` | `$BillingDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:839` | Identity composer for the `@beep/billing-domain` package. |
+| `@beep/identity/packages` | `$BillingServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:856` | Identity composer for the `@beep/billing-server` package. |
+| `@beep/identity/packages` | `$BillingUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:873` | Identity composer for the `@beep/billing-use-cases` package. |
+| `@beep/identity/packages` | `$BoxId` | const | `packages/foundation/modeling/identity/src/packages.ts:1546` | Identity composer for `@beep/box`. |
+| `@beep/identity/packages` | `$CanvasClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:1449` | Identity composer for `@beep/canvas-client`. |
+| `@beep/identity/packages` | `$CanvasDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1401` | Identity composer for `@beep/canvas-domain`. |
+| `@beep/identity/packages` | `$CanvasId` | const | `packages/foundation/modeling/identity/src/packages.ts:1481` | Identity composer for `@beep/canvas`. |
+| `@beep/identity/packages` | `$CanvasServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1433` | Identity composer for `@beep/canvas-server`. |
+| `@beep/identity/packages` | `$CanvasUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1465` | Identity composer for `@beep/canvas-ui`. |
+| `@beep/identity/packages` | `$CanvasUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1417` | Identity composer for `@beep/canvas-use-cases`. |
+| `@beep/identity/packages` | `$ChalkId` | const | `packages/foundation/modeling/identity/src/packages.ts:504` | Identity composer for the `@beep/chalk` package. |
+| `@beep/identity/packages` | `$CodedankWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:724` | $codedank web id export. |
+| `@beep/identity/packages` | `$ColorsId` | const | `packages/foundation/modeling/identity/src/packages.ts:489` | Identity composer for the `@beep/colors` package. |
+| `@beep/identity/packages` | `$DataId` | const | `packages/foundation/modeling/identity/src/packages.ts:168` | Identity composer for the `@beep/data` package. |
+| `@beep/identity/packages` | `$DiscordId` | const | `packages/foundation/modeling/identity/src/packages.ts:1305` | Identity composer for `@beep/discord`. |
+| `@beep/identity/packages` | `$DrizzleId` | const | `packages/foundation/modeling/identity/src/packages.ts:756` | $drizzle id export. |
+| `@beep/identity/packages` | `$DuckdbId` | const | `packages/foundation/modeling/identity/src/packages.ts:772` | $duckdb id export. |
+| `@beep/identity/packages` | `$EpistemicDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:581` | Identity composer for the `@beep/epistemic-domain` package. |
+| `@beep/identity/packages` | `$FaceDetectionId` | const | `packages/foundation/modeling/identity/src/packages.ts:788` | $face detection id export. |
+| `@beep/identity/packages` | `$FfmpegId` | const | `packages/foundation/modeling/identity/src/packages.ts:804` | $ffmpeg id export. |
+| `@beep/identity/packages` | `$FileProcessingId` | const | `packages/foundation/modeling/identity/src/packages.ts:1594` | Identity composer for `@beep/file-processing`. |
+| `@beep/identity/packages` | `$FirecrawlId` | const | `packages/foundation/modeling/identity/src/packages.ts:1642` | Identity composer for `@beep/firecrawl`. |
+| `@beep/identity/packages` | `$FormId` | const | `packages/foundation/modeling/identity/src/packages.ts:1530` | Identity composer for `@beep/form`. |
+| `@beep/identity/packages` | `$HubspotId` | const | `packages/foundation/modeling/identity/src/packages.ts:1353` | Identity composer for `@beep/hubspot`. |
 | `@beep/identity/packages` | `$I` | const | `packages/foundation/modeling/identity/src/packages.ts:40` | Root identity composer for the `@beep` namespace. |
-| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:891` | Identity composer for the `@beep/iam-domain` package. |
-| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:908` | Identity composer for the `@beep/iam-server` package. |
-| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:925` | Identity composer for the `@beep/iam-tables` package. |
-| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:942` | Identity composer for the `@beep/iam-use-cases` package. |
-| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:182` | Identity composer for the `@beep/identity` package. |
-| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:533` | Identity composer for the `@beep/infra` package. |
-| `@beep/identity/packages` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1225` | Identity composer for `@beep/installer-domain`. |
-| `@beep/identity/packages` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1256` | Identity composer for `@beep/installer-server`. |
-| `@beep/identity/packages` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1240` | Identity composer for `@beep/installer-use-cases`. |
-| `@beep/identity/packages` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1384` | Identity composer for `@beep/konva`. |
-| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:627` | Identity composer for the `@beep/law-practice-domain` package. |
-| `@beep/identity/packages` | `$LibpffId` | const | `packages/foundation/modeling/identity/src/packages.ts:1625` | Identity composer for `@beep/libpff`. |
-| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:707` | $md id export. |
-| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:197` | Identity composer for the `@beep/messages` package. |
-| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:458` | Identity composer for the `@beep/nlp` package. |
-| `@beep/identity/packages` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1561` | Identity composer for `@beep/nlp-mcp`. |
-| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:473` | Identity composer for the `@beep/observability` package. |
-| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:739` | $oip web id export. |
-| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1288` | Identity composer for `@beep/onepassword-cli`. |
-| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1040` | Identity composer for `@beep/openai-compat`. |
-| `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1368` | Identity composer for `@beep/phoenix`. |
-| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:819` | $postgres id export. |
-| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:659` | Identity composer for the `@beep/professional-desktop` package. |
-| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:675` | Identity composer for the `@beep/professional-runtime-proof` package. |
-| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:276` | Identity composer for the `@beep/repo-ai-metrics` package. |
-| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:291` | Identity composer for the `@beep/repo-cli` package. |
-| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1497` | Identity composer for `@beep/repo-codegraph`. |
-| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:306` | Identity composer for the `@beep/repo-configs` package. |
-| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:518` | Identity composer for the `@beep/repo-docgen` package. |
-| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:321` | Identity composer for the `@beep/repo-utils` package. |
-| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1272` | Identity composer for `@beep/runpod`. |
-| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:976` | Identity composer for the `@beep/sandbox` package. |
-| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1336` | Identity composer for `@beep/sanity`. |
-| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:212` | Identity composer for the `@beep/schema` package. |
-| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:959` | Identity composer for the `@beep/scratchpad` package. |
-| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:443` | Identity composer for the `@beep/semantic-web` package. |
-| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:383` | Identity composer for the `@beep/shared-client` package. |
-| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:428` | Identity composer for the `@beep/shared-config` package. |
-| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:353` | Identity composer for the `@beep/shared-domain` package. |
-| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:398` | Identity composer for the `@beep/shared-server` package. |
-| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:368` | Identity composer for the `@beep/shared-tables` package. |
-| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:413` | Identity composer for the `@beep/shared-ui` package. |
-| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:548` | Identity composer for the `@beep/shared-use-cases` package. |
-| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1210` | Identity composer for `@beep/stack-installer`. |
-| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:336` | Identity composer for the `@beep/test-utils` package. |
-| `@beep/identity/packages` | `$TikaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1609` | Identity composer for `@beep/tika`. |
-| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:227` | Identity composer for the `@beep/types` package. |
-| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:259` | Identity composer for the `@beep/ui` package. |
-| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:242` | Identity composer for the `@beep/utils` package. |
-| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:992` | $venice ai id export. |
-| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:643` | Identity composer for the `@beep/wealth-management-domain` package. |
-| `@beep/identity/packages` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1577` | Identity composer for `@beep/wink`. |
-| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:565` | Identity composer for the `@beep/workspace-domain` package. |
-| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1056` | Identity composer for `@beep/workspace-tables`. |
-| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1008` | $xai id export. |
-| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:691` | RepoPkgs - export object containing all package IdentityComposer's |
+| `@beep/identity/packages` | `$IamDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:892` | Identity composer for the `@beep/iam-domain` package. |
+| `@beep/identity/packages` | `$IamServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:909` | Identity composer for the `@beep/iam-server` package. |
+| `@beep/identity/packages` | `$IamTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:926` | Identity composer for the `@beep/iam-tables` package. |
+| `@beep/identity/packages` | `$IamUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:943` | Identity composer for the `@beep/iam-use-cases` package. |
+| `@beep/identity/packages` | `$IdentityId` | const | `packages/foundation/modeling/identity/src/packages.ts:183` | Identity composer for the `@beep/identity` package. |
+| `@beep/identity/packages` | `$InfraId` | const | `packages/foundation/modeling/identity/src/packages.ts:534` | Identity composer for the `@beep/infra` package. |
+| `@beep/identity/packages` | `$InstallerDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:1226` | Identity composer for `@beep/installer-domain`. |
+| `@beep/identity/packages` | `$InstallerServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1257` | Identity composer for `@beep/installer-server`. |
+| `@beep/identity/packages` | `$InstallerUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1241` | Identity composer for `@beep/installer-use-cases`. |
+| `@beep/identity/packages` | `$KonvaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1385` | Identity composer for `@beep/konva`. |
+| `@beep/identity/packages` | `$LawPracticeDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:628` | Identity composer for the `@beep/law-practice-domain` package. |
+| `@beep/identity/packages` | `$LibpffId` | const | `packages/foundation/modeling/identity/src/packages.ts:1626` | Identity composer for `@beep/libpff`. |
+| `@beep/identity/packages` | `$MdId` | const | `packages/foundation/modeling/identity/src/packages.ts:708` | $md id export. |
+| `@beep/identity/packages` | `$MessagesId` | const | `packages/foundation/modeling/identity/src/packages.ts:198` | Identity composer for the `@beep/messages` package. |
+| `@beep/identity/packages` | `$NlpId` | const | `packages/foundation/modeling/identity/src/packages.ts:459` | Identity composer for the `@beep/nlp` package. |
+| `@beep/identity/packages` | `$NlpMcpId` | const | `packages/foundation/modeling/identity/src/packages.ts:1562` | Identity composer for `@beep/nlp-mcp`. |
+| `@beep/identity/packages` | `$ObservabilityId` | const | `packages/foundation/modeling/identity/src/packages.ts:474` | Identity composer for the `@beep/observability` package. |
+| `@beep/identity/packages` | `$OipWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:740` | $oip web id export. |
+| `@beep/identity/packages` | `$OnepasswordCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:1289` | Identity composer for `@beep/onepassword-cli`. |
+| `@beep/identity/packages` | `$OpenaiCompatId` | const | `packages/foundation/modeling/identity/src/packages.ts:1041` | Identity composer for `@beep/openai-compat`. |
+| `@beep/identity/packages` | `$PhoenixId` | const | `packages/foundation/modeling/identity/src/packages.ts:1369` | Identity composer for `@beep/phoenix`. |
+| `@beep/identity/packages` | `$PostgresId` | const | `packages/foundation/modeling/identity/src/packages.ts:820` | $postgres id export. |
+| `@beep/identity/packages` | `$ProfessionalDesktopId` | const | `packages/foundation/modeling/identity/src/packages.ts:660` | Identity composer for the `@beep/professional-desktop` package. |
+| `@beep/identity/packages` | `$ProfessionalRuntimeProofId` | const | `packages/foundation/modeling/identity/src/packages.ts:676` | Identity composer for the `@beep/professional-runtime-proof` package. |
+| `@beep/identity/packages` | `$RepoAiMetricsId` | const | `packages/foundation/modeling/identity/src/packages.ts:277` | Identity composer for the `@beep/repo-ai-metrics` package. |
+| `@beep/identity/packages` | `$RepoCliId` | const | `packages/foundation/modeling/identity/src/packages.ts:292` | Identity composer for the `@beep/repo-cli` package. |
+| `@beep/identity/packages` | `$RepoCodegraphId` | const | `packages/foundation/modeling/identity/src/packages.ts:1498` | Identity composer for `@beep/repo-codegraph`. |
+| `@beep/identity/packages` | `$RepoConfigsId` | const | `packages/foundation/modeling/identity/src/packages.ts:307` | Identity composer for the `@beep/repo-configs` package. |
+| `@beep/identity/packages` | `$RepoDocgenId` | const | `packages/foundation/modeling/identity/src/packages.ts:519` | Identity composer for the `@beep/repo-docgen` package. |
+| `@beep/identity/packages` | `$RepoUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:322` | Identity composer for the `@beep/repo-utils` package. |
+| `@beep/identity/packages` | `$RunpodId` | const | `packages/foundation/modeling/identity/src/packages.ts:1273` | Identity composer for `@beep/runpod`. |
+| `@beep/identity/packages` | `$SandboxId` | const | `packages/foundation/modeling/identity/src/packages.ts:977` | Identity composer for the `@beep/sandbox` package. |
+| `@beep/identity/packages` | `$SanityId` | const | `packages/foundation/modeling/identity/src/packages.ts:1337` | Identity composer for `@beep/sanity`. |
+| `@beep/identity/packages` | `$SchemaId` | const | `packages/foundation/modeling/identity/src/packages.ts:213` | Identity composer for the `@beep/schema` package. |
+| `@beep/identity/packages` | `$ScratchpadId` | const | `packages/foundation/modeling/identity/src/packages.ts:960` | Identity composer for the `@beep/scratchpad` package. |
+| `@beep/identity/packages` | `$SemanticWebId` | const | `packages/foundation/modeling/identity/src/packages.ts:444` | Identity composer for the `@beep/semantic-web` package. |
+| `@beep/identity/packages` | `$SharedClientId` | const | `packages/foundation/modeling/identity/src/packages.ts:384` | Identity composer for the `@beep/shared-client` package. |
+| `@beep/identity/packages` | `$SharedConfigId` | const | `packages/foundation/modeling/identity/src/packages.ts:429` | Identity composer for the `@beep/shared-config` package. |
+| `@beep/identity/packages` | `$SharedDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:354` | Identity composer for the `@beep/shared-domain` package. |
+| `@beep/identity/packages` | `$SharedServerId` | const | `packages/foundation/modeling/identity/src/packages.ts:399` | Identity composer for the `@beep/shared-server` package. |
+| `@beep/identity/packages` | `$SharedTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:369` | Identity composer for the `@beep/shared-tables` package. |
+| `@beep/identity/packages` | `$SharedUiId` | const | `packages/foundation/modeling/identity/src/packages.ts:414` | Identity composer for the `@beep/shared-ui` package. |
+| `@beep/identity/packages` | `$SharedUseCasesId` | const | `packages/foundation/modeling/identity/src/packages.ts:549` | Identity composer for the `@beep/shared-use-cases` package. |
+| `@beep/identity/packages` | `$StackInstallerId` | const | `packages/foundation/modeling/identity/src/packages.ts:1211` | Identity composer for `@beep/stack-installer`. |
+| `@beep/identity/packages` | `$TestUtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:337` | Identity composer for the `@beep/test-utils` package. |
+| `@beep/identity/packages` | `$TikaId` | const | `packages/foundation/modeling/identity/src/packages.ts:1610` | Identity composer for `@beep/tika`. |
+| `@beep/identity/packages` | `$TypesId` | const | `packages/foundation/modeling/identity/src/packages.ts:228` | Identity composer for the `@beep/types` package. |
+| `@beep/identity/packages` | `$UiId` | const | `packages/foundation/modeling/identity/src/packages.ts:260` | Identity composer for the `@beep/ui` package. |
+| `@beep/identity/packages` | `$UtilsId` | const | `packages/foundation/modeling/identity/src/packages.ts:243` | Identity composer for the `@beep/utils` package. |
+| `@beep/identity/packages` | `$VeniceAiId` | const | `packages/foundation/modeling/identity/src/packages.ts:993` | $venice ai id export. |
+| `@beep/identity/packages` | `$WealthManagementDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:644` | Identity composer for the `@beep/wealth-management-domain` package. |
+| `@beep/identity/packages` | `$WinkId` | const | `packages/foundation/modeling/identity/src/packages.ts:1578` | Identity composer for `@beep/wink`. |
+| `@beep/identity/packages` | `$WorkspaceDomainId` | const | `packages/foundation/modeling/identity/src/packages.ts:566` | Identity composer for the `@beep/workspace-domain` package. |
+| `@beep/identity/packages` | `$WorkspaceTablesId` | const | `packages/foundation/modeling/identity/src/packages.ts:1057` | Identity composer for `@beep/workspace-tables`. |
+| `@beep/identity/packages` | `$XaiId` | const | `packages/foundation/modeling/identity/src/packages.ts:1009` | $xai id export. |
+| `@beep/identity/packages` | `RepoPkgs` | const | `packages/foundation/modeling/identity/src/packages.ts:692` | RepoPkgs - export object containing all package IdentityComposer's |
 
 ### @beep/drizzle
 
@@ -7373,6 +7388,787 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/architecture-lab-use-cases/public` | `WorkItem` | SourceFile | `packages/architecture-lab/use-cases/src/aggregates/WorkItem/index.ts:7` |  |
 | `@beep/architecture-lab-use-cases/server` | `Worker` | SourceFile | `packages/architecture-lab/use-cases/src/entities/Worker/server.ts:7` |  |
 | `@beep/architecture-lab-use-cases/server` | `WorkItem` | SourceFile | `packages/architecture-lab/use-cases/src/aggregates/WorkItem/server.ts:7` |  |
+
+### @beep/firecrawl
+
+| Import | Symbol | Kind | Source | Summary |
+|---|---|---|---|---|
+| `@beep/firecrawl` | `Firecrawl` | class | `packages/drivers/firecrawl/src/Firecrawl.service.ts:738` | Effect service for the Firecrawl v2 SDK. |
+| `@beep/firecrawl` | `FIRECRAWL_API_URL` | const | `packages/drivers/firecrawl/src/Firecrawl.config.ts:26` | Default Firecrawl API base URL used by the live driver layer. |
+| `@beep/firecrawl` | `FirecrawlActiveCrawlsData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1312` | Firecrawl Active Crawls Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlActiveCrawlsData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1330` | Type for {@link FirecrawlActiveCrawlsData}. |
+| `@beep/firecrawl` | `FirecrawlAgentFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3768` | Firecrawl Agent Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlAgentPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3734` | Firecrawl Agent Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlAgentRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:891` | Firecrawl Agent Request opaque SDK request schema. |
+| `@beep/firecrawl` | `FirecrawlAgentRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:909` | Type for {@link FirecrawlAgentRequest}. |
+| `@beep/firecrawl` | `FirecrawlAgentResponseData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1568` | Firecrawl Agent Response Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlAgentResponseData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1586` | Type for {@link FirecrawlAgentResponseData}. |
+| `@beep/firecrawl` | `FirecrawlAgentStatus` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:279` | Firecrawl agent status values. |
+| `@beep/firecrawl` | `FirecrawlAgentStatus` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:299` | Type for {@link FirecrawlAgentStatus}. |
+| `@beep/firecrawl` | `FirecrawlAgentStatusData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1600` | Firecrawl Agent Status Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlAgentStatusData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1618` | Type for {@link FirecrawlAgentStatusData}. |
+| `@beep/firecrawl` | `FirecrawlAgentSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3751` | Firecrawl Agent Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlAgentWaitRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:924` | Firecrawl Agent Wait Request opaque SDK request schema. |
+| `@beep/firecrawl` | `FirecrawlAgentWaitRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:942` | Type for {@link FirecrawlAgentWaitRequest}. |
+| `@beep/firecrawl` | `FirecrawlApiFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:163` | Decoded Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3600` | Firecrawl Batch Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapeJobData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1536` | Firecrawl Batch Scrape Job Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapeJobData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1554` | Type for {@link FirecrawlBatchScrapeJobData}. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapeOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:826` | Firecrawl Batch Scrape Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapeOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:844` | Type for {@link FirecrawlBatchScrapeOptions}. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3559` | Firecrawl Batch Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapeResponseData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1504` | Firecrawl Batch Scrape Response Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapeResponseData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1522` | Type for {@link FirecrawlBatchScrapeResponseData}. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3583` | Firecrawl Batch Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapeWaitOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:859` | Firecrawl Batch Scrape Wait Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlBatchScrapeWaitOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:876` | Type for {@link FirecrawlBatchScrapeWaitOptions}. |
+| `@beep/firecrawl` | `FirecrawlBrowserCreateData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1632` | Firecrawl Browser Create Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlBrowserCreateData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1650` | Type for {@link FirecrawlBrowserCreateData}. |
+| `@beep/firecrawl` | `FirecrawlBrowserDeleteData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1696` | Firecrawl Browser Delete Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlBrowserDeleteData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1714` | Type for {@link FirecrawlBrowserDeleteData}. |
+| `@beep/firecrawl` | `FirecrawlBrowserExecuteData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1664` | Firecrawl Browser Execute Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlBrowserExecuteData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1682` | Type for {@link FirecrawlBrowserExecuteData}. |
+| `@beep/firecrawl` | `FirecrawlBrowserExecuteFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3936` | Firecrawl Browser Execute Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlBrowserExecutePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3894` | Firecrawl Browser Execute Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlBrowserExecuteRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1023` | Firecrawl Browser Execute Request opaque SDK request schema. |
+| `@beep/firecrawl` | `FirecrawlBrowserExecuteRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1040` | Type for {@link FirecrawlBrowserExecuteRequest}. |
+| `@beep/firecrawl` | `FirecrawlBrowserExecuteSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3915` | Firecrawl Browser Execute Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlBrowserFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3876` | Firecrawl Browser Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlBrowserLanguage` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:314` | Firecrawl browser execution languages. |
+| `@beep/firecrawl` | `FirecrawlBrowserLanguage` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:334` | Type for {@link FirecrawlBrowserLanguage}. |
+| `@beep/firecrawl` | `FirecrawlBrowserListData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1728` | Firecrawl Browser List Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlBrowserListData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1746` | Type for {@link FirecrawlBrowserListData}. |
+| `@beep/firecrawl` | `FirecrawlBrowserOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:957` | Firecrawl Browser Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlBrowserOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:975` | Type for {@link FirecrawlBrowserOptions}. |
+| `@beep/firecrawl` | `FirecrawlBrowserPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3838` | Firecrawl Browser Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlBrowserSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3859` | Firecrawl Browser Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlCancelAgentFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3820` | Firecrawl Cancel Agent Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlCancelAgentPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3786` | Firecrawl Cancel Agent Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlCancelAgentSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3803` | Firecrawl Cancel Agent Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlCancelBatchScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3537` | Firecrawl Cancel Batch Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlCancelBatchScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3495` | Firecrawl Cancel Batch Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlCancelBatchScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3516` | Firecrawl Cancel Batch Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlCancelCrawlFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2529` | Firecrawl Cancel Crawl Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlCancelCrawlPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2495` | Firecrawl Cancel Crawl Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlCancelCrawlSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2512` | Firecrawl Cancel Crawl Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlConcurrencyData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1760` | Firecrawl Concurrency Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlConcurrencyData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1778` | Type for {@link FirecrawlConcurrencyData}. |
+| `@beep/firecrawl` | `FirecrawlConfigInput` | class | `packages/drivers/firecrawl/src/Firecrawl.config.ts:46` | Runtime configuration accepted by {@link Firecrawl.makeLayer}. |
+| `@beep/firecrawl` | `FirecrawlCrawlErrorsData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1280` | Firecrawl Crawl Errors Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlCrawlErrorsData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1298` | Type for {@link FirecrawlCrawlErrorsData}. |
+| `@beep/firecrawl` | `FirecrawlCrawlFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2588` | Firecrawl Crawl Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlCrawlJobData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1248` | Firecrawl Crawl Job Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlCrawlJobData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1266` | Type for {@link FirecrawlCrawlJobData}. |
+| `@beep/firecrawl` | `FirecrawlCrawlOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:563` | Firecrawl Crawl Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlCrawlOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:581` | Type for {@link FirecrawlCrawlOptions}. |
+| `@beep/firecrawl` | `FirecrawlCrawlParamsPreviewFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2776` | Firecrawl Crawl Params Preview Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlCrawlParamsPreviewPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2734` | Firecrawl Crawl Params Preview Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlCrawlParamsPreviewSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2755` | Firecrawl Crawl Params Preview Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlCrawlPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2547` | Firecrawl Crawl Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlCrawlResponseData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1216` | Firecrawl Crawl Response Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlCrawlResponseData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1234` | Type for {@link FirecrawlCrawlResponseData}. |
+| `@beep/firecrawl` | `FirecrawlCrawlSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2571` | Firecrawl Crawl Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlCrawlWaitOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:596` | Firecrawl Crawl Wait Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlCrawlWaitOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:613` | Type for {@link FirecrawlCrawlWaitOptions}. |
+| `@beep/firecrawl` | `FirecrawlCreateMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2838` | Firecrawl Create Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlCreateMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2798` | Firecrawl Create Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlCreateMonitorRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:661` | Firecrawl Create Monitor Request opaque SDK request schema. |
+| `@beep/firecrawl` | `FirecrawlCreateMonitorRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:679` | Type for {@link FirecrawlCreateMonitorRequest}. |
+| `@beep/firecrawl` | `FirecrawlCreateMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2817` | Firecrawl Create Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlCreditUsageData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1792` | Firecrawl Credit Usage Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlCreditUsageData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1810` | Type for {@link FirecrawlCreditUsageData}. |
+| `@beep/firecrawl` | `FirecrawlCreditUsageHistoricalData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1856` | Firecrawl Credit Usage Historical Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlCreditUsageHistoricalData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1874` | Type for {@link FirecrawlCreditUsageHistoricalData}. |
+| `@beep/firecrawl` | `FirecrawlDeleteBrowserFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3998` | Firecrawl Delete Browser Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlDeleteBrowserPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3958` | Firecrawl Delete Browser Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlDeleteBrowserSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3977` | Firecrawl Delete Browser Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlDeleteMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3080` | Firecrawl Delete Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlDeleteMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3040` | Firecrawl Delete Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlDeleteMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3059` | Firecrawl Delete Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlDocument` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1120` | Firecrawl Document schema. |
+| `@beep/firecrawl` | `FirecrawlDocument` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1138` | Type for {@link FirecrawlDocument}. |
+| `@beep/firecrawl` | `FirecrawlError` | class | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:239` | Technical failure raised by the Firecrawl driver boundary. |
+| `@beep/firecrawl` | `FirecrawlErrorOptions` | class | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:200` | Options used when constructing Firecrawl driver errors. |
+| `@beep/firecrawl` | `FirecrawlErrorReason` | const | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:108` | Technical error reasons emitted by the Firecrawl driver. |
+| `@beep/firecrawl` | `FirecrawlErrorReason` | type | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:139` | Type for {@link FirecrawlErrorReason}. |
+| `@beep/firecrawl` | `FirecrawlFormatType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:114` | Output formats accepted by Firecrawl scrape endpoints. |
+| `@beep/firecrawl` | `FirecrawlFormatType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:149` | Type for {@link FirecrawlFormatType}. |
+| `@beep/firecrawl` | `FirecrawlGetActiveCrawlsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2712` | Firecrawl Get Active Crawls Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetActiveCrawlsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2670` | Firecrawl Get Active Crawls Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetActiveCrawlsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2691` | Firecrawl Get Active Crawls Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetAgentStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3712` | Firecrawl Get Agent Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetAgentStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3670` | Firecrawl Get Agent Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetAgentStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3691` | Firecrawl Get Agent Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetBatchScrapeErrorsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3473` | Firecrawl Get Batch Scrape Errors Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetBatchScrapeErrorsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3431` | Firecrawl Get Batch Scrape Errors Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetBatchScrapeErrorsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3452` | Firecrawl Get Batch Scrape Errors Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetBatchScrapeStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3409` | Firecrawl Get Batch Scrape Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetBatchScrapeStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3362` | Firecrawl Get Batch Scrape Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetBatchScrapeStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3388` | Firecrawl Get Batch Scrape Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetConcurrencyFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4128` | Firecrawl Get Concurrency Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetConcurrencyPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4086` | Firecrawl Get Concurrency Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetConcurrencySuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4107` | Firecrawl Get Concurrency Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetCrawlErrorsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2648` | Firecrawl Get Crawl Errors Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetCrawlErrorsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2606` | Firecrawl Get Crawl Errors Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetCrawlErrorsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2627` | Firecrawl Get Crawl Errors Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetCrawlStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2473` | Firecrawl Get Crawl Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetCrawlStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2426` | Firecrawl Get Crawl Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetCrawlStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2452` | Firecrawl Get Crawl Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetCreditUsageFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4192` | Firecrawl Get Credit Usage Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetCreditUsageHistoricalFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4318` | Firecrawl Get Credit Usage Historical Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetCreditUsageHistoricalPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4276` | Firecrawl Get Credit Usage Historical Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetCreditUsageHistoricalSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4297` | Firecrawl Get Credit Usage Historical Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetCreditUsagePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4150` | Firecrawl Get Credit Usage Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetCreditUsageSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4171` | Firecrawl Get Credit Usage Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetMonitorCheckFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3271` | Firecrawl Get Monitor Check Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetMonitorCheckOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:793` | Firecrawl Get Monitor Check Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlGetMonitorCheckOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:811` | Type for {@link FirecrawlGetMonitorCheckOptions}. |
+| `@beep/firecrawl` | `FirecrawlGetMonitorCheckPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3223` | Firecrawl Get Monitor Check Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetMonitorCheckSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3250` | Firecrawl Get Monitor Check Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2960` | Firecrawl Get Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2926` | Firecrawl Get Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2943` | Firecrawl Get Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetQueueStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4446` | Firecrawl Get Queue Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetQueueStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4404` | Firecrawl Get Queue Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetQueueStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4425` | Firecrawl Get Queue Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetTokenUsageFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4254` | Firecrawl Get Token Usage Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetTokenUsageHistoricalFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4382` | Firecrawl Get Token Usage Historical Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlGetTokenUsageHistoricalPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4340` | Firecrawl Get Token Usage Historical Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetTokenUsageHistoricalSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4361` | Firecrawl Get Token Usage Historical Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlGetTokenUsagePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4214` | Firecrawl Get Token Usage Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlGetTokenUsageSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4233` | Firecrawl Get Token Usage Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlInteractData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1952` | Firecrawl Interact Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlInteractData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1970` | Type for {@link FirecrawlInteractData}. |
+| `@beep/firecrawl` | `FirecrawlInteractFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2116` | Firecrawl Interact Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlInteractPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2082` | Firecrawl Interact Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlInteractRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:990` | Firecrawl Interact Request opaque SDK request schema. |
+| `@beep/firecrawl` | `FirecrawlInteractRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1008` | Type for {@link FirecrawlInteractRequest}. |
+| `@beep/firecrawl` | `FirecrawlInteractSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2099` | Firecrawl Interact Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlJobStatus` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:244` | Firecrawl crawl and batch status values. |
+| `@beep/firecrawl` | `FirecrawlJobStatus` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:264` | Type for {@link FirecrawlJobStatus}. |
+| `@beep/firecrawl` | `FirecrawlListBrowsersFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4064` | Firecrawl List Browsers Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlListBrowsersOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1055` | Firecrawl List Browsers Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlListBrowsersOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1072` | Type for {@link FirecrawlListBrowsersOptions}. |
+| `@beep/firecrawl` | `FirecrawlListBrowsersPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4020` | Firecrawl List Browsers Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlListBrowsersSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4043` | Firecrawl List Browsers Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlListMonitorChecksFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3201` | Firecrawl List Monitor Checks Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlListMonitorChecksOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:760` | Firecrawl List Monitor Checks Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlListMonitorChecksOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:778` | Type for {@link FirecrawlListMonitorChecksOptions}. |
+| `@beep/firecrawl` | `FirecrawlListMonitorChecksPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3154` | Firecrawl List Monitor Checks Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlListMonitorChecksSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3180` | Firecrawl List Monitor Checks Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlListMonitorsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2904` | Firecrawl List Monitors Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlListMonitorsOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:727` | Firecrawl List Monitors Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlListMonitorsOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:745` | Type for {@link FirecrawlListMonitorsOptions}. |
+| `@beep/firecrawl` | `FirecrawlListMonitorsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2860` | Firecrawl List Monitors Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlListMonitorsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2883` | Firecrawl List Monitors Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlMapData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1184` | Firecrawl Map Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlMapData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1202` | Type for {@link FirecrawlMapData}. |
+| `@beep/firecrawl` | `FirecrawlMapFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2351` | Firecrawl Map Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlMapOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:530` | Firecrawl Map Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlMapOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:548` | Type for {@link FirecrawlMapOptions}. |
+| `@beep/firecrawl` | `FirecrawlMapPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2312` | Firecrawl Map Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlMapSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2334` | Firecrawl Map Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlMethodName` | const | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:31` | Firecrawl SDK methods wrapped by this driver. |
+| `@beep/firecrawl` | `FirecrawlMethodName` | type | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:93` | Type for {@link FirecrawlMethodName}. |
+| `@beep/firecrawl` | `FirecrawlMonitorCheckData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1408` | Firecrawl Monitor Check Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlMonitorCheckData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1426` | Type for {@link FirecrawlMonitorCheckData}. |
+| `@beep/firecrawl` | `FirecrawlMonitorCheckDetailData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1472` | Firecrawl Monitor Check Detail Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlMonitorCheckDetailData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1490` | Type for {@link FirecrawlMonitorCheckDetailData}. |
+| `@beep/firecrawl` | `FirecrawlMonitorCheckListData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1440` | Firecrawl Monitor Check List Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlMonitorCheckListData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1458` | Type for {@link FirecrawlMonitorCheckListData}. |
+| `@beep/firecrawl` | `FirecrawlMonitorData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1344` | Firecrawl Monitor Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlMonitorData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1362` | Type for {@link FirecrawlMonitorData}. |
+| `@beep/firecrawl` | `FirecrawlMonitorListData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1376` | Firecrawl Monitor List Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlMonitorListData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1394` | Type for {@link FirecrawlMonitorListData}. |
+| `@beep/firecrawl` | `FirecrawlPaginationConfig` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:628` | Firecrawl Pagination Config schema. |
+| `@beep/firecrawl` | `FirecrawlPaginationConfig` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:646` | Type for {@link FirecrawlPaginationConfig}. |
+| `@beep/firecrawl` | `FirecrawlParseFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2237` | Firecrawl Parse Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlParseFile` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:438` | Opaque Firecrawl parse file accepted by the SDK. |
+| `@beep/firecrawl` | `FirecrawlParseFile` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:456` | Type for {@link FirecrawlParseFile}. |
+| `@beep/firecrawl` | `FirecrawlParseOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:464` | Opaque Firecrawl parse options accepted by the SDK. |
+| `@beep/firecrawl` | `FirecrawlParseOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:482` | Type for {@link FirecrawlParseOptions}. |
+| `@beep/firecrawl` | `FirecrawlParsePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2198` | Firecrawl Parse Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlParseSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2220` | Firecrawl Parse Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlQueueStatusData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1920` | Firecrawl Queue Status Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlQueueStatusData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1938` | Type for {@link FirecrawlQueueStatusData}. |
+| `@beep/firecrawl` | `FirecrawlRunMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3136` | Firecrawl Run Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlRunMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3102` | Firecrawl Run Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlRunMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3119` | Firecrawl Run Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlScrapeActionType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:164` | Firecrawl scrape-browser action types. |
+| `@beep/firecrawl` | `FirecrawlScrapeActionType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:194` | Type for {@link FirecrawlScrapeActionType}. |
+| `@beep/firecrawl` | `FirecrawlScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2064` | Firecrawl Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlScrapeOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:412` | Opaque Firecrawl scrape options accepted by the SDK. |
+| `@beep/firecrawl` | `FirecrawlScrapeOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:430` | Type for {@link FirecrawlScrapeOptions}. |
+| `@beep/firecrawl` | `FirecrawlScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2025` | Firecrawl Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2047` | Firecrawl Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlSdkClient` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:71` | Minimal Firecrawl SDK client contract used by the driver service. |
+| `@beep/firecrawl` | `FirecrawlSdkWatcher` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:48` | Minimal watcher contract consumed by {@link Firecrawl.makeLayerFromClient}. |
+| `@beep/firecrawl` | `FirecrawlSearchData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1152` | Firecrawl Search Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlSearchData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1170` | Type for {@link FirecrawlSearchData}. |
+| `@beep/firecrawl` | `FirecrawlSearchFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2294` | Firecrawl Search Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlSearchOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:497` | Firecrawl Search Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlSearchOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:515` | Type for {@link FirecrawlSearchOptions}. |
+| `@beep/firecrawl` | `FirecrawlSearchPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2255` | Firecrawl Search Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlSearchSourceType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:209` | Firecrawl search source types. |
+| `@beep/firecrawl` | `FirecrawlSearchSourceType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:229` | Type for {@link FirecrawlSearchSourceType}. |
+| `@beep/firecrawl` | `FirecrawlSearchSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2277` | Firecrawl Search Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlShape` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:156` | Public Firecrawl service shape. |
+| `@beep/firecrawl` | `FirecrawlStartAgentFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3652` | Firecrawl Start Agent Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlStartAgentPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3618` | Firecrawl Start Agent Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlStartAgentSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3635` | Firecrawl Start Agent Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlStartBatchScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3340` | Firecrawl Start Batch Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlStartBatchScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3293` | Firecrawl Start Batch Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlStartBatchScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3319` | Firecrawl Start Batch Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlStartCrawlFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2408` | Firecrawl Start Crawl Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlStartCrawlPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2369` | Firecrawl Start Crawl Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlStartCrawlSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2391` | Firecrawl Start Crawl Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlStopInteractionData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1984` | Firecrawl Stop Interaction Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlStopInteractionData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2002` | Type for {@link FirecrawlStopInteractionData}. |
+| `@beep/firecrawl` | `FirecrawlStopInteractionFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2176` | Firecrawl Stop Interaction Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlStopInteractionPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2134` | Firecrawl Stop Interaction Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlStopInteractionSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2155` | Firecrawl Stop Interaction Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlTokenUsageData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1824` | Firecrawl Token Usage Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlTokenUsageData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1842` | Type for {@link FirecrawlTokenUsageData}. |
+| `@beep/firecrawl` | `FirecrawlTokenUsageHistoricalData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1888` | Firecrawl Token Usage Historical Data opaque SDK response schema. |
+| `@beep/firecrawl` | `FirecrawlTokenUsageHistoricalData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1906` | Type for {@link FirecrawlTokenUsageHistoricalData}. |
+| `@beep/firecrawl` | `FirecrawlUpdateMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3018` | Firecrawl Update Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlUpdateMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2978` | Firecrawl Update Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlUpdateMonitorRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:694` | Firecrawl Update Monitor Request opaque SDK request schema. |
+| `@beep/firecrawl` | `FirecrawlUpdateMonitorRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:712` | Type for {@link FirecrawlUpdateMonitorRequest}. |
+| `@beep/firecrawl` | `FirecrawlUpdateMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2997` | Firecrawl Update Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `FirecrawlWatcherDocumentEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4529` | Firecrawl Watcher Document Event watcher event schema. |
+| `@beep/firecrawl` | `FirecrawlWatcherDoneEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4576` | Firecrawl Watcher Done Event watcher event schema. |
+| `@beep/firecrawl` | `FirecrawlWatcherErrorEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4604` | Firecrawl Watcher Error Event watcher event schema. |
+| `@beep/firecrawl` | `FirecrawlWatcherEvent` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4632` | Tagged Firecrawl watcher event union. |
+| `@beep/firecrawl` | `FirecrawlWatcherEvent` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4658` | Type for {@link FirecrawlWatcherEvent}. |
+| `@beep/firecrawl` | `FirecrawlWatcherEventType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:384` | Firecrawl watcher event types. |
+| `@beep/firecrawl` | `FirecrawlWatcherEventType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:404` | Type for {@link FirecrawlWatcherEventType}. |
+| `@beep/firecrawl` | `FirecrawlWatcherFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4509` | Firecrawl Watcher Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl` | `FirecrawlWatcherKind` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:349` | Firecrawl watcher job kinds. |
+| `@beep/firecrawl` | `FirecrawlWatcherKind` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:369` | Type for {@link FirecrawlWatcherKind}. |
+| `@beep/firecrawl` | `FirecrawlWatcherOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1087` | Firecrawl Watcher Options opaque SDK options schema. |
+| `@beep/firecrawl` | `FirecrawlWatcherOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1105` | Type for {@link FirecrawlWatcherOptions}. |
+| `@beep/firecrawl` | `FirecrawlWatcherPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4468` | Firecrawl Watcher Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl` | `FirecrawlWatcherSnapshotEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4553` | Firecrawl Watcher Snapshot Event watcher event schema. |
+| `@beep/firecrawl` | `FirecrawlWatcherSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4492` | Firecrawl Watcher Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl` | `VERSION` | const | `packages/drivers/firecrawl/src/index.ts:78` | Package version for `@beep/firecrawl`. |
+| `@beep/firecrawl/Firecrawl.config` | `FIRECRAWL_API_URL` | const | `packages/drivers/firecrawl/src/Firecrawl.config.ts:26` | Default Firecrawl API base URL used by the live driver layer. |
+| `@beep/firecrawl/Firecrawl.config` | `FirecrawlConfigInput` | class | `packages/drivers/firecrawl/src/Firecrawl.config.ts:46` | Runtime configuration accepted by {@link Firecrawl.makeLayer}. |
+| `@beep/firecrawl/Firecrawl.errors` | `FirecrawlApiFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:163` | Decoded Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.errors` | `FirecrawlError` | class | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:239` | Technical failure raised by the Firecrawl driver boundary. |
+| `@beep/firecrawl/Firecrawl.errors` | `FirecrawlErrorOptions` | class | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:200` | Options used when constructing Firecrawl driver errors. |
+| `@beep/firecrawl/Firecrawl.errors` | `FirecrawlErrorReason` | const | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:108` | Technical error reasons emitted by the Firecrawl driver. |
+| `@beep/firecrawl/Firecrawl.errors` | `FirecrawlErrorReason` | type | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:139` | Type for {@link FirecrawlErrorReason}. |
+| `@beep/firecrawl/Firecrawl.errors` | `FirecrawlMethodName` | const | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:31` | Firecrawl SDK methods wrapped by this driver. |
+| `@beep/firecrawl/Firecrawl.errors` | `FirecrawlMethodName` | type | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:93` | Type for {@link FirecrawlMethodName}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlActiveCrawlsData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1312` | Firecrawl Active Crawls Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlActiveCrawlsData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1330` | Type for {@link FirecrawlActiveCrawlsData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3768` | Firecrawl Agent Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3734` | Firecrawl Agent Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:891` | Firecrawl Agent Request opaque SDK request schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:909` | Type for {@link FirecrawlAgentRequest}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentResponseData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1568` | Firecrawl Agent Response Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentResponseData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1586` | Type for {@link FirecrawlAgentResponseData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentStatus` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:279` | Firecrawl agent status values. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentStatus` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:299` | Type for {@link FirecrawlAgentStatus}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentStatusData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1600` | Firecrawl Agent Status Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentStatusData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1618` | Type for {@link FirecrawlAgentStatusData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3751` | Firecrawl Agent Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentWaitRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:924` | Firecrawl Agent Wait Request opaque SDK request schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlAgentWaitRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:942` | Type for {@link FirecrawlAgentWaitRequest}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3600` | Firecrawl Batch Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapeJobData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1536` | Firecrawl Batch Scrape Job Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapeJobData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1554` | Type for {@link FirecrawlBatchScrapeJobData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapeOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:826` | Firecrawl Batch Scrape Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapeOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:844` | Type for {@link FirecrawlBatchScrapeOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3559` | Firecrawl Batch Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapeResponseData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1504` | Firecrawl Batch Scrape Response Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapeResponseData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1522` | Type for {@link FirecrawlBatchScrapeResponseData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3583` | Firecrawl Batch Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapeWaitOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:859` | Firecrawl Batch Scrape Wait Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBatchScrapeWaitOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:876` | Type for {@link FirecrawlBatchScrapeWaitOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserCreateData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1632` | Firecrawl Browser Create Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserCreateData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1650` | Type for {@link FirecrawlBrowserCreateData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserDeleteData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1696` | Firecrawl Browser Delete Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserDeleteData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1714` | Type for {@link FirecrawlBrowserDeleteData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserExecuteData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1664` | Firecrawl Browser Execute Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserExecuteData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1682` | Type for {@link FirecrawlBrowserExecuteData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserExecuteFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3936` | Firecrawl Browser Execute Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserExecutePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3894` | Firecrawl Browser Execute Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserExecuteRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1023` | Firecrawl Browser Execute Request opaque SDK request schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserExecuteRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1040` | Type for {@link FirecrawlBrowserExecuteRequest}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserExecuteSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3915` | Firecrawl Browser Execute Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3876` | Firecrawl Browser Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserLanguage` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:314` | Firecrawl browser execution languages. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserLanguage` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:334` | Type for {@link FirecrawlBrowserLanguage}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserListData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1728` | Firecrawl Browser List Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserListData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1746` | Type for {@link FirecrawlBrowserListData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:957` | Firecrawl Browser Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:975` | Type for {@link FirecrawlBrowserOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3838` | Firecrawl Browser Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlBrowserSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3859` | Firecrawl Browser Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCancelAgentFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3820` | Firecrawl Cancel Agent Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCancelAgentPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3786` | Firecrawl Cancel Agent Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCancelAgentSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3803` | Firecrawl Cancel Agent Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCancelBatchScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3537` | Firecrawl Cancel Batch Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCancelBatchScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3495` | Firecrawl Cancel Batch Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCancelBatchScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3516` | Firecrawl Cancel Batch Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCancelCrawlFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2529` | Firecrawl Cancel Crawl Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCancelCrawlPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2495` | Firecrawl Cancel Crawl Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCancelCrawlSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2512` | Firecrawl Cancel Crawl Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlConcurrencyData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1760` | Firecrawl Concurrency Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlConcurrencyData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1778` | Type for {@link FirecrawlConcurrencyData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlErrorsData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1280` | Firecrawl Crawl Errors Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlErrorsData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1298` | Type for {@link FirecrawlCrawlErrorsData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2588` | Firecrawl Crawl Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlJobData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1248` | Firecrawl Crawl Job Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlJobData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1266` | Type for {@link FirecrawlCrawlJobData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:563` | Firecrawl Crawl Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:581` | Type for {@link FirecrawlCrawlOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlParamsPreviewFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2776` | Firecrawl Crawl Params Preview Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlParamsPreviewPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2734` | Firecrawl Crawl Params Preview Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlParamsPreviewSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2755` | Firecrawl Crawl Params Preview Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2547` | Firecrawl Crawl Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlResponseData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1216` | Firecrawl Crawl Response Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlResponseData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1234` | Type for {@link FirecrawlCrawlResponseData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2571` | Firecrawl Crawl Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlWaitOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:596` | Firecrawl Crawl Wait Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCrawlWaitOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:613` | Type for {@link FirecrawlCrawlWaitOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCreateMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2838` | Firecrawl Create Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCreateMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2798` | Firecrawl Create Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCreateMonitorRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:661` | Firecrawl Create Monitor Request opaque SDK request schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCreateMonitorRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:679` | Type for {@link FirecrawlCreateMonitorRequest}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCreateMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2817` | Firecrawl Create Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCreditUsageData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1792` | Firecrawl Credit Usage Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCreditUsageData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1810` | Type for {@link FirecrawlCreditUsageData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCreditUsageHistoricalData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1856` | Firecrawl Credit Usage Historical Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlCreditUsageHistoricalData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1874` | Type for {@link FirecrawlCreditUsageHistoricalData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlDeleteBrowserFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3998` | Firecrawl Delete Browser Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlDeleteBrowserPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3958` | Firecrawl Delete Browser Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlDeleteBrowserSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3977` | Firecrawl Delete Browser Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlDeleteMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3080` | Firecrawl Delete Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlDeleteMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3040` | Firecrawl Delete Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlDeleteMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3059` | Firecrawl Delete Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlDocument` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1120` | Firecrawl Document schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlDocument` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1138` | Type for {@link FirecrawlDocument}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlFormatType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:114` | Output formats accepted by Firecrawl scrape endpoints. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlFormatType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:149` | Type for {@link FirecrawlFormatType}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetActiveCrawlsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2712` | Firecrawl Get Active Crawls Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetActiveCrawlsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2670` | Firecrawl Get Active Crawls Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetActiveCrawlsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2691` | Firecrawl Get Active Crawls Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetAgentStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3712` | Firecrawl Get Agent Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetAgentStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3670` | Firecrawl Get Agent Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetAgentStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3691` | Firecrawl Get Agent Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetBatchScrapeErrorsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3473` | Firecrawl Get Batch Scrape Errors Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetBatchScrapeErrorsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3431` | Firecrawl Get Batch Scrape Errors Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetBatchScrapeErrorsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3452` | Firecrawl Get Batch Scrape Errors Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetBatchScrapeStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3409` | Firecrawl Get Batch Scrape Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetBatchScrapeStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3362` | Firecrawl Get Batch Scrape Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetBatchScrapeStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3388` | Firecrawl Get Batch Scrape Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetConcurrencyFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4128` | Firecrawl Get Concurrency Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetConcurrencyPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4086` | Firecrawl Get Concurrency Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetConcurrencySuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4107` | Firecrawl Get Concurrency Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCrawlErrorsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2648` | Firecrawl Get Crawl Errors Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCrawlErrorsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2606` | Firecrawl Get Crawl Errors Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCrawlErrorsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2627` | Firecrawl Get Crawl Errors Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCrawlStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2473` | Firecrawl Get Crawl Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCrawlStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2426` | Firecrawl Get Crawl Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCrawlStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2452` | Firecrawl Get Crawl Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCreditUsageFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4192` | Firecrawl Get Credit Usage Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCreditUsageHistoricalFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4318` | Firecrawl Get Credit Usage Historical Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCreditUsageHistoricalPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4276` | Firecrawl Get Credit Usage Historical Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCreditUsageHistoricalSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4297` | Firecrawl Get Credit Usage Historical Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCreditUsagePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4150` | Firecrawl Get Credit Usage Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetCreditUsageSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4171` | Firecrawl Get Credit Usage Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetMonitorCheckFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3271` | Firecrawl Get Monitor Check Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetMonitorCheckOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:793` | Firecrawl Get Monitor Check Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetMonitorCheckOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:811` | Type for {@link FirecrawlGetMonitorCheckOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetMonitorCheckPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3223` | Firecrawl Get Monitor Check Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetMonitorCheckSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3250` | Firecrawl Get Monitor Check Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2960` | Firecrawl Get Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2926` | Firecrawl Get Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2943` | Firecrawl Get Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetQueueStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4446` | Firecrawl Get Queue Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetQueueStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4404` | Firecrawl Get Queue Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetQueueStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4425` | Firecrawl Get Queue Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetTokenUsageFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4254` | Firecrawl Get Token Usage Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetTokenUsageHistoricalFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4382` | Firecrawl Get Token Usage Historical Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetTokenUsageHistoricalPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4340` | Firecrawl Get Token Usage Historical Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetTokenUsageHistoricalSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4361` | Firecrawl Get Token Usage Historical Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetTokenUsagePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4214` | Firecrawl Get Token Usage Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlGetTokenUsageSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4233` | Firecrawl Get Token Usage Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlInteractData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1952` | Firecrawl Interact Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlInteractData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1970` | Type for {@link FirecrawlInteractData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlInteractFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2116` | Firecrawl Interact Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlInteractPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2082` | Firecrawl Interact Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlInteractRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:990` | Firecrawl Interact Request opaque SDK request schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlInteractRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1008` | Type for {@link FirecrawlInteractRequest}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlInteractSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2099` | Firecrawl Interact Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlJobStatus` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:244` | Firecrawl crawl and batch status values. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlJobStatus` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:264` | Type for {@link FirecrawlJobStatus}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListBrowsersFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4064` | Firecrawl List Browsers Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListBrowsersOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1055` | Firecrawl List Browsers Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListBrowsersOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1072` | Type for {@link FirecrawlListBrowsersOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListBrowsersPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4020` | Firecrawl List Browsers Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListBrowsersSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4043` | Firecrawl List Browsers Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListMonitorChecksFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3201` | Firecrawl List Monitor Checks Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListMonitorChecksOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:760` | Firecrawl List Monitor Checks Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListMonitorChecksOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:778` | Type for {@link FirecrawlListMonitorChecksOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListMonitorChecksPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3154` | Firecrawl List Monitor Checks Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListMonitorChecksSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3180` | Firecrawl List Monitor Checks Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListMonitorsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2904` | Firecrawl List Monitors Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListMonitorsOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:727` | Firecrawl List Monitors Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListMonitorsOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:745` | Type for {@link FirecrawlListMonitorsOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListMonitorsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2860` | Firecrawl List Monitors Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlListMonitorsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2883` | Firecrawl List Monitors Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMapData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1184` | Firecrawl Map Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMapData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1202` | Type for {@link FirecrawlMapData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMapFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2351` | Firecrawl Map Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMapOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:530` | Firecrawl Map Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMapOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:548` | Type for {@link FirecrawlMapOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMapPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2312` | Firecrawl Map Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMapSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2334` | Firecrawl Map Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMonitorCheckData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1408` | Firecrawl Monitor Check Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMonitorCheckData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1426` | Type for {@link FirecrawlMonitorCheckData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMonitorCheckDetailData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1472` | Firecrawl Monitor Check Detail Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMonitorCheckDetailData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1490` | Type for {@link FirecrawlMonitorCheckDetailData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMonitorCheckListData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1440` | Firecrawl Monitor Check List Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMonitorCheckListData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1458` | Type for {@link FirecrawlMonitorCheckListData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMonitorData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1344` | Firecrawl Monitor Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMonitorData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1362` | Type for {@link FirecrawlMonitorData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMonitorListData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1376` | Firecrawl Monitor List Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlMonitorListData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1394` | Type for {@link FirecrawlMonitorListData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlPaginationConfig` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:628` | Firecrawl Pagination Config schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlPaginationConfig` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:646` | Type for {@link FirecrawlPaginationConfig}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlParseFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2237` | Firecrawl Parse Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlParseFile` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:438` | Opaque Firecrawl parse file accepted by the SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlParseFile` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:456` | Type for {@link FirecrawlParseFile}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlParseOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:464` | Opaque Firecrawl parse options accepted by the SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlParseOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:482` | Type for {@link FirecrawlParseOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlParsePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2198` | Firecrawl Parse Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlParseSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2220` | Firecrawl Parse Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlQueueStatusData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1920` | Firecrawl Queue Status Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlQueueStatusData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1938` | Type for {@link FirecrawlQueueStatusData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlRunMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3136` | Firecrawl Run Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlRunMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3102` | Firecrawl Run Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlRunMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3119` | Firecrawl Run Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlScrapeActionType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:164` | Firecrawl scrape-browser action types. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlScrapeActionType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:194` | Type for {@link FirecrawlScrapeActionType}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2064` | Firecrawl Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlScrapeOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:412` | Opaque Firecrawl scrape options accepted by the SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlScrapeOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:430` | Type for {@link FirecrawlScrapeOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2025` | Firecrawl Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2047` | Firecrawl Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlSearchData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1152` | Firecrawl Search Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlSearchData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1170` | Type for {@link FirecrawlSearchData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlSearchFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2294` | Firecrawl Search Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlSearchOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:497` | Firecrawl Search Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlSearchOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:515` | Type for {@link FirecrawlSearchOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlSearchPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2255` | Firecrawl Search Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlSearchSourceType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:209` | Firecrawl search source types. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlSearchSourceType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:229` | Type for {@link FirecrawlSearchSourceType}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlSearchSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2277` | Firecrawl Search Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStartAgentFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3652` | Firecrawl Start Agent Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStartAgentPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3618` | Firecrawl Start Agent Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStartAgentSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3635` | Firecrawl Start Agent Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStartBatchScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3340` | Firecrawl Start Batch Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStartBatchScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3293` | Firecrawl Start Batch Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStartBatchScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3319` | Firecrawl Start Batch Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStartCrawlFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2408` | Firecrawl Start Crawl Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStartCrawlPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2369` | Firecrawl Start Crawl Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStartCrawlSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2391` | Firecrawl Start Crawl Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStopInteractionData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1984` | Firecrawl Stop Interaction Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStopInteractionData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2002` | Type for {@link FirecrawlStopInteractionData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStopInteractionFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2176` | Firecrawl Stop Interaction Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStopInteractionPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2134` | Firecrawl Stop Interaction Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlStopInteractionSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2155` | Firecrawl Stop Interaction Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlTokenUsageData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1824` | Firecrawl Token Usage Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlTokenUsageData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1842` | Type for {@link FirecrawlTokenUsageData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlTokenUsageHistoricalData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1888` | Firecrawl Token Usage Historical Data opaque SDK response schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlTokenUsageHistoricalData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1906` | Type for {@link FirecrawlTokenUsageHistoricalData}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlUpdateMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3018` | Firecrawl Update Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlUpdateMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2978` | Firecrawl Update Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlUpdateMonitorRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:694` | Firecrawl Update Monitor Request opaque SDK request schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlUpdateMonitorRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:712` | Type for {@link FirecrawlUpdateMonitorRequest}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlUpdateMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2997` | Firecrawl Update Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherDocumentEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4529` | Firecrawl Watcher Document Event watcher event schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherDoneEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4576` | Firecrawl Watcher Done Event watcher event schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherErrorEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4604` | Firecrawl Watcher Error Event watcher event schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherEvent` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4632` | Tagged Firecrawl watcher event union. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherEvent` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4658` | Type for {@link FirecrawlWatcherEvent}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherEventType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:384` | Firecrawl watcher event types. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherEventType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:404` | Type for {@link FirecrawlWatcherEventType}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4509` | Firecrawl Watcher Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherKind` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:349` | Firecrawl watcher job kinds. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherKind` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:369` | Type for {@link FirecrawlWatcherKind}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1087` | Firecrawl Watcher Options opaque SDK options schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1105` | Type for {@link FirecrawlWatcherOptions}. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4468` | Firecrawl Watcher Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherSnapshotEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4553` | Firecrawl Watcher Snapshot Event watcher event schema. |
+| `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4492` | Firecrawl Watcher Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/Firecrawl.service` | `Firecrawl` | class | `packages/drivers/firecrawl/src/Firecrawl.service.ts:738` | Effect service for the Firecrawl v2 SDK. |
+| `@beep/firecrawl/Firecrawl.service` | `FirecrawlSdkClient` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:71` | Minimal Firecrawl SDK client contract used by the driver service. |
+| `@beep/firecrawl/Firecrawl.service` | `FirecrawlSdkWatcher` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:48` | Minimal watcher contract consumed by {@link Firecrawl.makeLayerFromClient}. |
+| `@beep/firecrawl/Firecrawl.service` | `FirecrawlShape` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:156` | Public Firecrawl service shape. |
+| `@beep/firecrawl/index` | `Firecrawl` | class | `packages/drivers/firecrawl/src/Firecrawl.service.ts:738` | Effect service for the Firecrawl v2 SDK. |
+| `@beep/firecrawl/index` | `FIRECRAWL_API_URL` | const | `packages/drivers/firecrawl/src/Firecrawl.config.ts:26` | Default Firecrawl API base URL used by the live driver layer. |
+| `@beep/firecrawl/index` | `FirecrawlActiveCrawlsData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1312` | Firecrawl Active Crawls Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlActiveCrawlsData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1330` | Type for {@link FirecrawlActiveCrawlsData}. |
+| `@beep/firecrawl/index` | `FirecrawlAgentFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3768` | Firecrawl Agent Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlAgentPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3734` | Firecrawl Agent Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlAgentRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:891` | Firecrawl Agent Request opaque SDK request schema. |
+| `@beep/firecrawl/index` | `FirecrawlAgentRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:909` | Type for {@link FirecrawlAgentRequest}. |
+| `@beep/firecrawl/index` | `FirecrawlAgentResponseData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1568` | Firecrawl Agent Response Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlAgentResponseData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1586` | Type for {@link FirecrawlAgentResponseData}. |
+| `@beep/firecrawl/index` | `FirecrawlAgentStatus` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:279` | Firecrawl agent status values. |
+| `@beep/firecrawl/index` | `FirecrawlAgentStatus` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:299` | Type for {@link FirecrawlAgentStatus}. |
+| `@beep/firecrawl/index` | `FirecrawlAgentStatusData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1600` | Firecrawl Agent Status Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlAgentStatusData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1618` | Type for {@link FirecrawlAgentStatusData}. |
+| `@beep/firecrawl/index` | `FirecrawlAgentSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3751` | Firecrawl Agent Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlAgentWaitRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:924` | Firecrawl Agent Wait Request opaque SDK request schema. |
+| `@beep/firecrawl/index` | `FirecrawlAgentWaitRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:942` | Type for {@link FirecrawlAgentWaitRequest}. |
+| `@beep/firecrawl/index` | `FirecrawlApiFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:163` | Decoded Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3600` | Firecrawl Batch Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapeJobData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1536` | Firecrawl Batch Scrape Job Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapeJobData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1554` | Type for {@link FirecrawlBatchScrapeJobData}. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapeOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:826` | Firecrawl Batch Scrape Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapeOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:844` | Type for {@link FirecrawlBatchScrapeOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3559` | Firecrawl Batch Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapeResponseData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1504` | Firecrawl Batch Scrape Response Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapeResponseData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1522` | Type for {@link FirecrawlBatchScrapeResponseData}. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3583` | Firecrawl Batch Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapeWaitOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:859` | Firecrawl Batch Scrape Wait Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlBatchScrapeWaitOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:876` | Type for {@link FirecrawlBatchScrapeWaitOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserCreateData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1632` | Firecrawl Browser Create Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserCreateData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1650` | Type for {@link FirecrawlBrowserCreateData}. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserDeleteData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1696` | Firecrawl Browser Delete Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserDeleteData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1714` | Type for {@link FirecrawlBrowserDeleteData}. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserExecuteData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1664` | Firecrawl Browser Execute Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserExecuteData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1682` | Type for {@link FirecrawlBrowserExecuteData}. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserExecuteFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3936` | Firecrawl Browser Execute Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserExecutePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3894` | Firecrawl Browser Execute Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserExecuteRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1023` | Firecrawl Browser Execute Request opaque SDK request schema. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserExecuteRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1040` | Type for {@link FirecrawlBrowserExecuteRequest}. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserExecuteSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3915` | Firecrawl Browser Execute Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3876` | Firecrawl Browser Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserLanguage` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:314` | Firecrawl browser execution languages. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserLanguage` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:334` | Type for {@link FirecrawlBrowserLanguage}. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserListData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1728` | Firecrawl Browser List Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserListData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1746` | Type for {@link FirecrawlBrowserListData}. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:957` | Firecrawl Browser Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:975` | Type for {@link FirecrawlBrowserOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3838` | Firecrawl Browser Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlBrowserSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3859` | Firecrawl Browser Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlCancelAgentFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3820` | Firecrawl Cancel Agent Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlCancelAgentPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3786` | Firecrawl Cancel Agent Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlCancelAgentSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3803` | Firecrawl Cancel Agent Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlCancelBatchScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3537` | Firecrawl Cancel Batch Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlCancelBatchScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3495` | Firecrawl Cancel Batch Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlCancelBatchScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3516` | Firecrawl Cancel Batch Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlCancelCrawlFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2529` | Firecrawl Cancel Crawl Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlCancelCrawlPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2495` | Firecrawl Cancel Crawl Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlCancelCrawlSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2512` | Firecrawl Cancel Crawl Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlConcurrencyData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1760` | Firecrawl Concurrency Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlConcurrencyData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1778` | Type for {@link FirecrawlConcurrencyData}. |
+| `@beep/firecrawl/index` | `FirecrawlConfigInput` | class | `packages/drivers/firecrawl/src/Firecrawl.config.ts:46` | Runtime configuration accepted by {@link Firecrawl.makeLayer}. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlErrorsData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1280` | Firecrawl Crawl Errors Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlErrorsData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1298` | Type for {@link FirecrawlCrawlErrorsData}. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2588` | Firecrawl Crawl Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlJobData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1248` | Firecrawl Crawl Job Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlJobData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1266` | Type for {@link FirecrawlCrawlJobData}. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:563` | Firecrawl Crawl Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:581` | Type for {@link FirecrawlCrawlOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlParamsPreviewFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2776` | Firecrawl Crawl Params Preview Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlParamsPreviewPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2734` | Firecrawl Crawl Params Preview Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlParamsPreviewSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2755` | Firecrawl Crawl Params Preview Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2547` | Firecrawl Crawl Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlResponseData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1216` | Firecrawl Crawl Response Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlResponseData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1234` | Type for {@link FirecrawlCrawlResponseData}. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2571` | Firecrawl Crawl Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlWaitOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:596` | Firecrawl Crawl Wait Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlCrawlWaitOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:613` | Type for {@link FirecrawlCrawlWaitOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlCreateMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2838` | Firecrawl Create Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlCreateMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2798` | Firecrawl Create Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlCreateMonitorRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:661` | Firecrawl Create Monitor Request opaque SDK request schema. |
+| `@beep/firecrawl/index` | `FirecrawlCreateMonitorRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:679` | Type for {@link FirecrawlCreateMonitorRequest}. |
+| `@beep/firecrawl/index` | `FirecrawlCreateMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2817` | Firecrawl Create Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlCreditUsageData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1792` | Firecrawl Credit Usage Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlCreditUsageData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1810` | Type for {@link FirecrawlCreditUsageData}. |
+| `@beep/firecrawl/index` | `FirecrawlCreditUsageHistoricalData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1856` | Firecrawl Credit Usage Historical Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlCreditUsageHistoricalData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1874` | Type for {@link FirecrawlCreditUsageHistoricalData}. |
+| `@beep/firecrawl/index` | `FirecrawlDeleteBrowserFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3998` | Firecrawl Delete Browser Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlDeleteBrowserPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3958` | Firecrawl Delete Browser Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlDeleteBrowserSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3977` | Firecrawl Delete Browser Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlDeleteMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3080` | Firecrawl Delete Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlDeleteMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3040` | Firecrawl Delete Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlDeleteMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3059` | Firecrawl Delete Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlDocument` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1120` | Firecrawl Document schema. |
+| `@beep/firecrawl/index` | `FirecrawlDocument` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1138` | Type for {@link FirecrawlDocument}. |
+| `@beep/firecrawl/index` | `FirecrawlError` | class | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:239` | Technical failure raised by the Firecrawl driver boundary. |
+| `@beep/firecrawl/index` | `FirecrawlErrorOptions` | class | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:200` | Options used when constructing Firecrawl driver errors. |
+| `@beep/firecrawl/index` | `FirecrawlErrorReason` | const | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:108` | Technical error reasons emitted by the Firecrawl driver. |
+| `@beep/firecrawl/index` | `FirecrawlErrorReason` | type | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:139` | Type for {@link FirecrawlErrorReason}. |
+| `@beep/firecrawl/index` | `FirecrawlFormatType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:114` | Output formats accepted by Firecrawl scrape endpoints. |
+| `@beep/firecrawl/index` | `FirecrawlFormatType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:149` | Type for {@link FirecrawlFormatType}. |
+| `@beep/firecrawl/index` | `FirecrawlGetActiveCrawlsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2712` | Firecrawl Get Active Crawls Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetActiveCrawlsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2670` | Firecrawl Get Active Crawls Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetActiveCrawlsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2691` | Firecrawl Get Active Crawls Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetAgentStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3712` | Firecrawl Get Agent Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetAgentStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3670` | Firecrawl Get Agent Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetAgentStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3691` | Firecrawl Get Agent Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetBatchScrapeErrorsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3473` | Firecrawl Get Batch Scrape Errors Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetBatchScrapeErrorsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3431` | Firecrawl Get Batch Scrape Errors Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetBatchScrapeErrorsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3452` | Firecrawl Get Batch Scrape Errors Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetBatchScrapeStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3409` | Firecrawl Get Batch Scrape Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetBatchScrapeStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3362` | Firecrawl Get Batch Scrape Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetBatchScrapeStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3388` | Firecrawl Get Batch Scrape Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetConcurrencyFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4128` | Firecrawl Get Concurrency Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetConcurrencyPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4086` | Firecrawl Get Concurrency Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetConcurrencySuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4107` | Firecrawl Get Concurrency Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetCrawlErrorsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2648` | Firecrawl Get Crawl Errors Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetCrawlErrorsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2606` | Firecrawl Get Crawl Errors Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetCrawlErrorsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2627` | Firecrawl Get Crawl Errors Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetCrawlStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2473` | Firecrawl Get Crawl Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetCrawlStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2426` | Firecrawl Get Crawl Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetCrawlStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2452` | Firecrawl Get Crawl Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetCreditUsageFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4192` | Firecrawl Get Credit Usage Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetCreditUsageHistoricalFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4318` | Firecrawl Get Credit Usage Historical Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetCreditUsageHistoricalPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4276` | Firecrawl Get Credit Usage Historical Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetCreditUsageHistoricalSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4297` | Firecrawl Get Credit Usage Historical Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetCreditUsagePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4150` | Firecrawl Get Credit Usage Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetCreditUsageSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4171` | Firecrawl Get Credit Usage Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetMonitorCheckFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3271` | Firecrawl Get Monitor Check Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetMonitorCheckOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:793` | Firecrawl Get Monitor Check Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlGetMonitorCheckOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:811` | Type for {@link FirecrawlGetMonitorCheckOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlGetMonitorCheckPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3223` | Firecrawl Get Monitor Check Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetMonitorCheckSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3250` | Firecrawl Get Monitor Check Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2960` | Firecrawl Get Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2926` | Firecrawl Get Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2943` | Firecrawl Get Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetQueueStatusFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4446` | Firecrawl Get Queue Status Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetQueueStatusPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4404` | Firecrawl Get Queue Status Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetQueueStatusSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4425` | Firecrawl Get Queue Status Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetTokenUsageFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4254` | Firecrawl Get Token Usage Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetTokenUsageHistoricalFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4382` | Firecrawl Get Token Usage Historical Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlGetTokenUsageHistoricalPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4340` | Firecrawl Get Token Usage Historical Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetTokenUsageHistoricalSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4361` | Firecrawl Get Token Usage Historical Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlGetTokenUsagePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4214` | Firecrawl Get Token Usage Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlGetTokenUsageSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4233` | Firecrawl Get Token Usage Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlInteractData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1952` | Firecrawl Interact Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlInteractData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1970` | Type for {@link FirecrawlInteractData}. |
+| `@beep/firecrawl/index` | `FirecrawlInteractFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2116` | Firecrawl Interact Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlInteractPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2082` | Firecrawl Interact Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlInteractRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:990` | Firecrawl Interact Request opaque SDK request schema. |
+| `@beep/firecrawl/index` | `FirecrawlInteractRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1008` | Type for {@link FirecrawlInteractRequest}. |
+| `@beep/firecrawl/index` | `FirecrawlInteractSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2099` | Firecrawl Interact Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlJobStatus` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:244` | Firecrawl crawl and batch status values. |
+| `@beep/firecrawl/index` | `FirecrawlJobStatus` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:264` | Type for {@link FirecrawlJobStatus}. |
+| `@beep/firecrawl/index` | `FirecrawlListBrowsersFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4064` | Firecrawl List Browsers Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlListBrowsersOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1055` | Firecrawl List Browsers Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlListBrowsersOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1072` | Type for {@link FirecrawlListBrowsersOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlListBrowsersPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4020` | Firecrawl List Browsers Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlListBrowsersSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4043` | Firecrawl List Browsers Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlListMonitorChecksFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3201` | Firecrawl List Monitor Checks Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlListMonitorChecksOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:760` | Firecrawl List Monitor Checks Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlListMonitorChecksOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:778` | Type for {@link FirecrawlListMonitorChecksOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlListMonitorChecksPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3154` | Firecrawl List Monitor Checks Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlListMonitorChecksSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3180` | Firecrawl List Monitor Checks Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlListMonitorsFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2904` | Firecrawl List Monitors Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlListMonitorsOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:727` | Firecrawl List Monitors Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlListMonitorsOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:745` | Type for {@link FirecrawlListMonitorsOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlListMonitorsPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2860` | Firecrawl List Monitors Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlListMonitorsSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2883` | Firecrawl List Monitors Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlMapData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1184` | Firecrawl Map Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlMapData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1202` | Type for {@link FirecrawlMapData}. |
+| `@beep/firecrawl/index` | `FirecrawlMapFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2351` | Firecrawl Map Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlMapOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:530` | Firecrawl Map Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlMapOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:548` | Type for {@link FirecrawlMapOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlMapPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2312` | Firecrawl Map Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlMapSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2334` | Firecrawl Map Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlMethodName` | const | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:31` | Firecrawl SDK methods wrapped by this driver. |
+| `@beep/firecrawl/index` | `FirecrawlMethodName` | type | `packages/drivers/firecrawl/src/Firecrawl.errors.ts:93` | Type for {@link FirecrawlMethodName}. |
+| `@beep/firecrawl/index` | `FirecrawlMonitorCheckData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1408` | Firecrawl Monitor Check Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlMonitorCheckData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1426` | Type for {@link FirecrawlMonitorCheckData}. |
+| `@beep/firecrawl/index` | `FirecrawlMonitorCheckDetailData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1472` | Firecrawl Monitor Check Detail Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlMonitorCheckDetailData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1490` | Type for {@link FirecrawlMonitorCheckDetailData}. |
+| `@beep/firecrawl/index` | `FirecrawlMonitorCheckListData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1440` | Firecrawl Monitor Check List Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlMonitorCheckListData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1458` | Type for {@link FirecrawlMonitorCheckListData}. |
+| `@beep/firecrawl/index` | `FirecrawlMonitorData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1344` | Firecrawl Monitor Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlMonitorData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1362` | Type for {@link FirecrawlMonitorData}. |
+| `@beep/firecrawl/index` | `FirecrawlMonitorListData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1376` | Firecrawl Monitor List Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlMonitorListData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1394` | Type for {@link FirecrawlMonitorListData}. |
+| `@beep/firecrawl/index` | `FirecrawlPaginationConfig` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:628` | Firecrawl Pagination Config schema. |
+| `@beep/firecrawl/index` | `FirecrawlPaginationConfig` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:646` | Type for {@link FirecrawlPaginationConfig}. |
+| `@beep/firecrawl/index` | `FirecrawlParseFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2237` | Firecrawl Parse Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlParseFile` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:438` | Opaque Firecrawl parse file accepted by the SDK. |
+| `@beep/firecrawl/index` | `FirecrawlParseFile` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:456` | Type for {@link FirecrawlParseFile}. |
+| `@beep/firecrawl/index` | `FirecrawlParseOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:464` | Opaque Firecrawl parse options accepted by the SDK. |
+| `@beep/firecrawl/index` | `FirecrawlParseOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:482` | Type for {@link FirecrawlParseOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlParsePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2198` | Firecrawl Parse Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlParseSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2220` | Firecrawl Parse Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlQueueStatusData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1920` | Firecrawl Queue Status Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlQueueStatusData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1938` | Type for {@link FirecrawlQueueStatusData}. |
+| `@beep/firecrawl/index` | `FirecrawlRunMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3136` | Firecrawl Run Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlRunMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3102` | Firecrawl Run Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlRunMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3119` | Firecrawl Run Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlScrapeActionType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:164` | Firecrawl scrape-browser action types. |
+| `@beep/firecrawl/index` | `FirecrawlScrapeActionType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:194` | Type for {@link FirecrawlScrapeActionType}. |
+| `@beep/firecrawl/index` | `FirecrawlScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2064` | Firecrawl Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlScrapeOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:412` | Opaque Firecrawl scrape options accepted by the SDK. |
+| `@beep/firecrawl/index` | `FirecrawlScrapeOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:430` | Type for {@link FirecrawlScrapeOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2025` | Firecrawl Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2047` | Firecrawl Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlSdkClient` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:71` | Minimal Firecrawl SDK client contract used by the driver service. |
+| `@beep/firecrawl/index` | `FirecrawlSdkWatcher` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:48` | Minimal watcher contract consumed by {@link Firecrawl.makeLayerFromClient}. |
+| `@beep/firecrawl/index` | `FirecrawlSearchData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1152` | Firecrawl Search Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlSearchData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1170` | Type for {@link FirecrawlSearchData}. |
+| `@beep/firecrawl/index` | `FirecrawlSearchFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2294` | Firecrawl Search Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlSearchOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:497` | Firecrawl Search Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlSearchOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:515` | Type for {@link FirecrawlSearchOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlSearchPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2255` | Firecrawl Search Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlSearchSourceType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:209` | Firecrawl search source types. |
+| `@beep/firecrawl/index` | `FirecrawlSearchSourceType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:229` | Type for {@link FirecrawlSearchSourceType}. |
+| `@beep/firecrawl/index` | `FirecrawlSearchSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2277` | Firecrawl Search Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlShape` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:156` | Public Firecrawl service shape. |
+| `@beep/firecrawl/index` | `FirecrawlStartAgentFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3652` | Firecrawl Start Agent Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlStartAgentPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3618` | Firecrawl Start Agent Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlStartAgentSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3635` | Firecrawl Start Agent Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlStartBatchScrapeFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3340` | Firecrawl Start Batch Scrape Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlStartBatchScrapePayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3293` | Firecrawl Start Batch Scrape Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlStartBatchScrapeSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3319` | Firecrawl Start Batch Scrape Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlStartCrawlFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2408` | Firecrawl Start Crawl Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlStartCrawlPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2369` | Firecrawl Start Crawl Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlStartCrawlSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2391` | Firecrawl Start Crawl Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlStopInteractionData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1984` | Firecrawl Stop Interaction Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlStopInteractionData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2002` | Type for {@link FirecrawlStopInteractionData}. |
+| `@beep/firecrawl/index` | `FirecrawlStopInteractionFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2176` | Firecrawl Stop Interaction Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlStopInteractionPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2134` | Firecrawl Stop Interaction Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlStopInteractionSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2155` | Firecrawl Stop Interaction Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlTokenUsageData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1824` | Firecrawl Token Usage Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlTokenUsageData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1842` | Type for {@link FirecrawlTokenUsageData}. |
+| `@beep/firecrawl/index` | `FirecrawlTokenUsageHistoricalData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1888` | Firecrawl Token Usage Historical Data opaque SDK response schema. |
+| `@beep/firecrawl/index` | `FirecrawlTokenUsageHistoricalData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1906` | Type for {@link FirecrawlTokenUsageHistoricalData}. |
+| `@beep/firecrawl/index` | `FirecrawlUpdateMonitorFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:3018` | Firecrawl Update Monitor Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlUpdateMonitorPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2978` | Firecrawl Update Monitor Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlUpdateMonitorRequest` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:694` | Firecrawl Update Monitor Request opaque SDK request schema. |
+| `@beep/firecrawl/index` | `FirecrawlUpdateMonitorRequest` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:712` | Type for {@link FirecrawlUpdateMonitorRequest}. |
+| `@beep/firecrawl/index` | `FirecrawlUpdateMonitorSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:2997` | Firecrawl Update Monitor Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherDocumentEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4529` | Firecrawl Watcher Document Event watcher event schema. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherDoneEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4576` | Firecrawl Watcher Done Event watcher event schema. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherErrorEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4604` | Firecrawl Watcher Error Event watcher event schema. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherEvent` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4632` | Tagged Firecrawl watcher event union. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherEvent` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4658` | Type for {@link FirecrawlWatcherEvent}. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherEventType` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:384` | Firecrawl watcher event types. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherEventType` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:404` | Type for {@link FirecrawlWatcherEventType}. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherFailure` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4509` | Firecrawl Watcher Failure decoded from a Firecrawl API failure body. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherKind` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:349` | Firecrawl watcher job kinds. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherKind` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:369` | Type for {@link FirecrawlWatcherKind}. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherOptions` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1087` | Firecrawl Watcher Options opaque SDK options schema. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherOptions` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1105` | Type for {@link FirecrawlWatcherOptions}. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4468` | Firecrawl Watcher Payload decoded before calling the Firecrawl SDK. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherSnapshotEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4553` | Firecrawl Watcher Snapshot Event watcher event schema. |
+| `@beep/firecrawl/index` | `FirecrawlWatcherSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4492` | Firecrawl Watcher Success decoded after a successful Firecrawl SDK call. |
+| `@beep/firecrawl/index` | `VERSION` | const | `packages/drivers/firecrawl/src/index.ts:78` | Package version for `@beep/firecrawl`. |
 
 ### @beep/professional-runtime-proof
 

@@ -146,7 +146,8 @@ const composers = $I.compose(
   "file-processing",
   "tika",
   "libpff",
-  "box"
+  "box",
+  "firecrawl", "rdf", "ontology"
 );
 
 // --- foundation ---
@@ -1623,3 +1624,51 @@ export const $TikaId: Identity.IdentityComposer<"@beep/tika"> = composers.$TikaI
  * @category configuration
  */
 export const $LibpffId: Identity.IdentityComposer<"@beep/libpff"> = composers.$LibpffId;
+
+/**
+ * Identity composer for `@beep/firecrawl`.
+ *
+ * @example
+ * ```typescript
+ * import { $FirecrawlId } from "@beep/identity"
+ *
+ * const id = $FirecrawlId.make("Firecrawl")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = composers.$FirecrawlId;
+
+/**
+ * Identity composer for `@beep/rdf`.
+ *
+ * @example
+ * ```typescript
+ * import { $RdfId } from "@beep/identity"
+ *
+ * const id = $RdfId.make("Rdf")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $RdfId: Identity.IdentityComposer<"@beep/rdf"> = composers.$RdfId;
+
+/**
+ * Identity composer for `@beep/ontology`.
+ *
+ * @example
+ * ```typescript
+ * import { $OntologyId } from "@beep/identity"
+ *
+ * const id = $OntologyId.make("Ontology")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $OntologyId: Identity.IdentityComposer<"@beep/ontology"> = composers.$OntologyId;

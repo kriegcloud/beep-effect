@@ -97,6 +97,9 @@
       "path": "packages/drivers/ffmpeg"
     },
     {
+      "path": "packages/drivers/firecrawl"
+    },
+    {
       "path": "packages/drivers/hubspot"
     },
     {
@@ -170,6 +173,12 @@
     },
     {
       "path": "packages/foundation/modeling/messages"
+    },
+    {
+      "path": "packages/foundation/modeling/ontology"
+    },
+    {
+      "path": "packages/foundation/modeling/rdf"
     },
     {
       "path": "packages/foundation/modeling/schema"

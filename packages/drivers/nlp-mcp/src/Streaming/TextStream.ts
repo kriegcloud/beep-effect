@@ -11,66 +11,160 @@
  * @packageDocumentation
  */
 
-import { Effect, FileSystem, Path, Random, Stream } from "effect";
+import { $NlpMcpId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
+import { Effect, FileSystem, Number as Num, Order, Path, pipe, Random, Stream } from "effect";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { PlatformError } from "effect/PlatformError";
+
+const $I = $NlpMcpId.create("Streaming/TextStream");
 
 /**
  * Text decoding labels accepted by the streaming text helpers.
  *
+ * @example
+ * ```ts
+ * import type { TextEncoding } from "@beep/nlp-mcp/Streaming/TextStream"
+ *
+ * const encoding: TextEncoding = "utf-8"
+ * console.log(encoding)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
-export type TextEncoding = "ascii" | "latin1" | "utf-8";
+export const TextEncoding = LiteralKit(["ascii", "latin1", "utf-8"]).annotate(
+  $I.annote("TextEncoding", {
+    description: "Text decoding labels accepted by the streaming text helpers.",
+  })
+);
+
+/**
+ * Type for {@link TextEncoding}.
+ *
+ * @example
+ * ```ts
+ * import type { TextEncoding } from "@beep/nlp-mcp/Streaming/TextStream"
+ *
+ * const encoding: TextEncoding = "latin1"
+ * console.log(encoding)
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type TextEncoding = typeof TextEncoding.Type;
+
+const DEFAULT_ENCODING: TextEncoding = "utf-8";
 
 /**
  * Per-line processing options shared by the read-oriented helpers.
  *
+ * @example
+ * ```ts
+ * import { TextReadOptions } from "@beep/nlp-mcp/Streaming/TextStream"
+ *
+ * const options = TextReadOptions.make({ skipEmpty: true, trim: true })
+ * console.log(options.skipEmpty)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
-export interface TextReadOptions {
-  /** Text decoding label applied to file bytes (default: `"utf-8"`). */
-  readonly encoding?: TextEncoding | undefined;
-  /** Drop lines that are empty after optional trimming (default: `false`). */
-  readonly skipEmpty?: boolean | undefined;
-  /** Trim surrounding whitespace from each line (default: `false`). */
-  readonly trim?: boolean | undefined;
-}
+export class TextReadOptions extends S.Class<TextReadOptions>($I`TextReadOptions`)(
+  {
+    encoding: S.optionalKey(TextEncoding).annotateKey({
+      description: 'Text decoding label applied to file bytes (default: "utf-8").',
+    }),
+    skipEmpty: S.optionalKey(S.Boolean).annotateKey({
+      description: "Drop lines that are empty after optional trimming (default: false).",
+    }),
+    trim: S.optionalKey(S.Boolean).annotateKey({
+      description: "Trim surrounding whitespace from each line (default: false).",
+    }),
+  },
+  $I.annote("TextReadOptions", {
+    description: "Per-line processing options shared by the read-oriented helpers.",
+  })
+) {}
 
 /**
  * Streaming options that extend {@link TextReadOptions} with windowing controls.
  *
- * @since 0.0.0
- * @category models
- */
-export interface TextStreamOptions extends TextReadOptions {
-  /** Maximum number of lines to emit after skipping (default: unbounded). */
-  readonly maxLines?: number | undefined;
-  /** Number of leading lines to skip before emitting (default: `0`). */
-  readonly skip?: number | undefined;
-}
-
-/**
- * Aggregate line-length and byte statistics computed for a text file.
+ * @example
+ * ```ts
+ * import { TextStreamOptions } from "@beep/nlp-mcp/Streaming/TextStream"
+ *
+ * const options = TextStreamOptions.make({ maxLines: 10, skip: 2 })
+ * console.log(options.maxLines)
+ * ```
  *
  * @since 0.0.0
  * @category models
  */
-export interface TextStreamStats {
-  /** Mean processed line length across all counted lines. */
-  readonly avgLineLength: number;
-  /** Longest processed line length seen. */
-  readonly maxLineLength: number;
-  /** Shortest processed line length seen (`0` for an empty file). */
-  readonly minLineLength: number;
-  /** Number of lines that were non-empty after processing. */
-  readonly nonEmptyLines: number;
-  /** Total bytes attributed to processed lines, including newline separators. */
-  readonly totalBytes: number;
-  /** Total number of processed lines. */
-  readonly totalLines: number;
-}
+export class TextStreamOptions extends S.Class<TextStreamOptions>($I`TextStreamOptions`)(
+  {
+    ...TextReadOptions.fields,
+    maxLines: S.optionalKey(S.Number).annotateKey({
+      description: "Maximum number of lines to emit after skipping (default: unbounded).",
+    }),
+    skip: S.optionalKey(S.Number).annotateKey({
+      description: "Number of leading lines to skip before emitting (default: 0).",
+    }),
+  },
+  $I.annote("TextStreamOptions", {
+    description: "Streaming options that extend TextReadOptions with windowing controls.",
+  })
+) {}
+
+/**
+ * Aggregate line-length and byte statistics computed for a text file.
+ *
+ * @example
+ * ```ts
+ * import { TextStreamStats } from "@beep/nlp-mcp/Streaming/TextStream"
+ *
+ * const stats = TextStreamStats.make({
+ *   avgLineLength: 4,
+ *   maxLineLength: 7,
+ *   minLineLength: 1,
+ *   nonEmptyLines: 2,
+ *   totalBytes: 12,
+ *   totalLines: 3
+ * })
+ * console.log(stats.totalLines)
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class TextStreamStats extends S.Class<TextStreamStats>($I`TextStreamStats`)(
+  {
+    avgLineLength: S.Number.annotateKey({
+      description: "Mean processed line length across all counted lines.",
+    }),
+    maxLineLength: S.Number.annotateKey({
+      description: "Longest processed line length seen.",
+    }),
+    minLineLength: S.Number.annotateKey({
+      description: "Shortest processed line length seen, or 0 for an empty file.",
+    }),
+    nonEmptyLines: S.Number.annotateKey({
+      description: "Number of lines that were non-empty after processing.",
+    }),
+    totalBytes: S.Number.annotateKey({
+      description: "Total bytes attributed to processed lines, including newline separators.",
+    }),
+    totalLines: S.Number.annotateKey({
+      description: "Total number of processed lines.",
+    }),
+  },
+  $I.annote("TextStreamStats", {
+    description: "Aggregate line-length and byte statistics computed for a text file.",
+  })
+) {}
 
 const byteLength = (value: string): number => new TextEncoder().encode(value).length;
 
@@ -88,7 +182,7 @@ const byteLength = (value: string): number => new TextEncoder().encode(value).le
  * import { streamLines } from "@beep/nlp-mcp/Streaming/TextStream"
  *
  * const lines = streamLines("/tmp/data.txt", { maxLines: 10, trim: true })
- * void Stream.runCollect(lines)
+ * console.log(Stream.runCollect(lines))
  * ```
  *
  * @since 0.0.0
@@ -98,7 +192,7 @@ export const streamLines = (
   filePath: string,
   options: TextStreamOptions = {}
 ): Stream.Stream<string, PlatformError, FileSystem.FileSystem | Path.Path> => {
-  const encoding = options.encoding ?? "utf-8";
+  const encoding = options.encoding ?? DEFAULT_ENCODING;
   const skip = options.skip ?? 0;
   const maxLines = options.maxLines ?? Number.MAX_SAFE_INTEGER;
   const skipEmpty = options.skipEmpty ?? false;
@@ -114,8 +208,8 @@ export const streamLines = (
         Stream.decodeText({ encoding }),
         Stream.splitLines,
         Stream.drop(skip),
-        Stream.map((line) => (trim ? line.trim() : line)),
-        Stream.filter((line) => !skipEmpty || line.length > 0),
+        Stream.map((line) => (trim ? Str.trim(line) : line)),
+        Stream.filter((line) => !skipEmpty || Str.isNonEmpty(line)),
         Stream.take(maxLines)
       );
     })
@@ -132,7 +226,7 @@ export const streamLines = (
  * ```ts
  * import { readLines } from "@beep/nlp-mcp/Streaming/TextStream"
  *
- * void readLines("/tmp/data.txt", { skipEmpty: true })
+ * console.log(readLines("/tmp/data.txt", { skipEmpty: true }))
  * ```
  *
  * @since 0.0.0
@@ -151,15 +245,18 @@ export const readLines = (
  * ```ts
  * import { readTextFile } from "@beep/nlp-mcp/Streaming/TextStream"
  *
- * void readTextFile("/tmp/data.txt")
+ * console.log(readTextFile("/tmp/data.txt"))
  * ```
+ *
+ * @effects Requires `FileSystem` and `Path`, resolves the supplied file path,
+ * and fails with `PlatformError` when the file cannot be read or decoded.
  *
  * @since 0.0.0
  * @category utilities
  */
 export const readTextFile = Effect.fn("TextStream.readTextFile")(function* (
   filePath: string,
-  encoding: TextEncoding = "utf-8"
+  encoding: TextEncoding = DEFAULT_ENCODING
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -173,7 +270,7 @@ export const readTextFile = Effect.fn("TextStream.readTextFile")(function* (
  * ```ts
  * import { head } from "@beep/nlp-mcp/Streaming/TextStream"
  *
- * void head("/tmp/data.txt", 5)
+ * console.log(head("/tmp/data.txt", 5))
  * ```
  *
  * @since 0.0.0
@@ -193,7 +290,7 @@ export const head = (
  * ```ts
  * import { tail } from "@beep/nlp-mcp/Streaming/TextStream"
  *
- * void tail("/tmp/data.txt", 5)
+ * console.log(tail("/tmp/data.txt", 5))
  * ```
  *
  * @since 0.0.0
@@ -204,7 +301,7 @@ export const tail = (
   n: number,
   options: TextReadOptions = {}
 ): Effect.Effect<ReadonlyArray<string>, PlatformError, FileSystem.FileSystem | Path.Path> =>
-  Effect.map(readLines(filePath, options), (lines) => lines.slice(Math.max(0, lines.length - n)));
+  Effect.map(readLines(filePath, options), A.takeRight(n));
 
 /**
  * Sample up to `sampleSize` processed lines uniformly at random.
@@ -217,8 +314,12 @@ export const tail = (
  * ```ts
  * import { sampleLines } from "@beep/nlp-mcp/Streaming/TextStream"
  *
- * void sampleLines("/tmp/data.txt", 3)
+ * console.log(sampleLines("/tmp/data.txt", 3))
  * ```
+ *
+ * @effects Reads processed lines through {@link readLines} and uses the Effect
+ * `Random` service to choose sample indices when the file contains more than
+ * `sampleSize` lines.
  *
  * @since 0.0.0
  * @category utilities
@@ -229,14 +330,17 @@ export const sampleLines = Effect.fn("TextStream.sampleLines")(function* (
   options: TextReadOptions = {}
 ) {
   const lines = yield* readLines(filePath, options);
-  if (lines.length <= sampleSize) {
+  if (A.length(lines) <= sampleSize) {
     return lines;
   }
-  const indices = yield* Random.shuffle(A.makeBy(lines.length, (index) => index));
-  return indices
-    .slice(0, sampleSize)
-    .sort((left, right) => left - right)
-    .map((index) => lines[index] as string);
+  const indices = yield* Random.shuffle(A.makeBy(A.length(lines), (index) => index));
+  return pipe(
+    indices,
+    A.take(sampleSize),
+    A.sort(Order.Number),
+    A.map((index) => A.get(lines, index)),
+    A.getSomes
+  );
 });
 
 /**
@@ -246,7 +350,7 @@ export const sampleLines = Effect.fn("TextStream.sampleLines")(function* (
  * ```ts
  * import { countLines } from "@beep/nlp-mcp/Streaming/TextStream"
  *
- * void countLines("/tmp/data.txt")
+ * console.log(countLines("/tmp/data.txt"))
  * ```
  *
  * @since 0.0.0
@@ -265,8 +369,11 @@ export const countLines = (
  * ```ts
  * import { fileExists } from "@beep/nlp-mcp/Streaming/TextStream"
  *
- * void fileExists("/tmp/data.txt")
+ * console.log(fileExists("/tmp/data.txt"))
  * ```
+ *
+ * @effects Requires `FileSystem` and `Path`, resolves the supplied file path,
+ * and queries the platform file system for path existence.
  *
  * @since 0.0.0
  * @category diagnostics
@@ -284,8 +391,11 @@ export const fileExists = Effect.fn("TextStream.fileExists")(function* (filePath
  * ```ts
  * import { getFileSize } from "@beep/nlp-mcp/Streaming/TextStream"
  *
- * void getFileSize("/tmp/data.txt")
+ * console.log(getFileSize("/tmp/data.txt"))
  * ```
+ *
+ * @effects Requires `FileSystem` and `Path`, resolves the supplied file path,
+ * and fails with `PlatformError` when the file cannot be statted.
  *
  * @since 0.0.0
  * @category diagnostics
@@ -294,7 +404,7 @@ export const getFileSize = Effect.fn("TextStream.getFileSize")(function* (filePa
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const info = yield* fs.stat(path.resolve(filePath));
-  return Number(info.size);
+  return Num.Number(info.size);
 });
 
 /**
@@ -307,7 +417,7 @@ export const getFileSize = Effect.fn("TextStream.getFileSize")(function* (filePa
  * ```ts
  * import { computeStats } from "@beep/nlp-mcp/Streaming/TextStream"
  *
- * void computeStats("/tmp/data.txt", { trim: true })
+ * console.log(computeStats("/tmp/data.txt", { trim: true }))
  * ```
  *
  * @since 0.0.0
@@ -335,22 +445,23 @@ export const computeStats = (
         totalLines: 0,
       }),
       (acc, line) => ({
-        maxLineLength: Math.max(acc.maxLineLength, line.length),
-        minLineLength: Math.min(acc.minLineLength, line.length),
-        nonEmptyLines: acc.nonEmptyLines + (line.length > 0 ? 1 : 0),
+        maxLineLength: Num.max(acc.maxLineLength, Str.length(line)),
+        minLineLength: Num.min(acc.minLineLength, Str.length(line)),
+        nonEmptyLines: acc.nonEmptyLines + (Str.isNonEmpty(line) ? 1 : 0),
         totalBytes: acc.totalBytes + byteLength(line) + 1,
-        totalLength: acc.totalLength + line.length,
+        totalLength: acc.totalLength + Str.length(line),
         totalLines: acc.totalLines + 1,
       })
     ),
     Effect.map(
-      (acc): TextStreamStats => ({
-        avgLineLength: acc.totalLines > 0 ? acc.totalLength / acc.totalLines : 0,
-        maxLineLength: acc.maxLineLength,
-        minLineLength: acc.totalLines > 0 ? acc.minLineLength : 0,
-        nonEmptyLines: acc.nonEmptyLines,
-        totalBytes: acc.totalBytes,
-        totalLines: acc.totalLines,
-      })
+      (acc): TextStreamStats =>
+        TextStreamStats.make({
+          avgLineLength: acc.totalLines > 0 ? acc.totalLength / acc.totalLines : 0,
+          maxLineLength: acc.maxLineLength,
+          minLineLength: acc.totalLines > 0 ? acc.minLineLength : 0,
+          nonEmptyLines: acc.nonEmptyLines,
+          totalBytes: acc.totalBytes,
+          totalLines: acc.totalLines,
+        })
     )
   );

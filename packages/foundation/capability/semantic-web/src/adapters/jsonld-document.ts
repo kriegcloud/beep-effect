@@ -6,6 +6,7 @@
  * @packageDocumentation
  */
 
+import { $SemanticWebId } from "@beep/identity";
 import { A, Str } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import { Effect, flow, Layer, Match, Order, pipe } from "effect";
@@ -20,6 +21,7 @@ import {
   JsonLdLiteralValue,
   JsonLdNodeIdentifier,
   JsonLdNodeObject,
+  JsonLdPropertyValue,
   JsonLdReferenceValue,
 } from "../jsonld.ts";
 import { BlankNode, DefaultGraph, Literal, makeDataset, NamedNode, Quad } from "../rdf.ts";
@@ -31,7 +33,6 @@ import {
 } from "../services/jsonld-document.ts";
 import { RDF_TYPE } from "../vocab/rdf.ts";
 import { XSD_BOOLEAN, XSD_DOUBLE, XSD_INTEGER, XSD_STRING } from "../vocab/xsd.ts";
-import type { JsonLdPropertyValue } from "../jsonld.ts";
 import type { ObjectTerm, Subject } from "../rdf.ts";
 import type {
   JsonLdDocumentLoaderPolicy,
@@ -39,15 +40,22 @@ import type {
   NormalizeJsonLdDocumentRequest,
 } from "../services/jsonld-document.ts";
 
+const $I = $SemanticWebId.create("adapters/jsonld-document");
+
 const schemePrefix = /^[A-Za-z][A-Za-z0-9+.-]*:/;
 
 const isReferenceValue = S.is(JsonLdReferenceValue);
 
-type MutableNode = {
-  readonly id: JsonLdNodeIdentifier;
-  readonly types: ReadonlyArray<IRIReference>;
-  readonly properties: Record<string, ReadonlyArray<JsonLdPropertyValue>>;
-};
+class MutableNode extends S.Class<MutableNode>($I`MutableNode`)(
+  {
+    id: JsonLdNodeIdentifier,
+    types: S.Array(IRIReference),
+    properties: S.Record(S.String, S.Array(JsonLdPropertyValue)),
+  },
+  $I.annote("MutableNode", {
+    description: "A mutable representation of a JSON-LD node, used during processing and transformation.",
+  })
+) {}
 
 const byNodeIdentifierAscending: Order.Order<JsonLdNodeObject> = Order.mapInput(Order.String, (node) =>
   O.isSome(node["@id"]) ? node["@id"].value : ""

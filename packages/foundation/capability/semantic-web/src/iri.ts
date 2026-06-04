@@ -1,6 +1,7 @@
 /**
  * RFC 3987 IRI schemas and validation helpers.
  *
+ * @see https://datatracker.ietf.org/doc/html/rfc3987
  * @packageDocumentation
  * @since 0.0.0
  */
@@ -21,13 +22,7 @@ const $I = $SemanticWebId.create("iri");
  * - RFC 3987 section 4.1's bidi-formatting prohibition is also enforced because
  *
  * - Section 3 IRI-to-URI mapping is intentionally not performed here because it
- *
- *
  * - The remaining guidance in sections 4, 5, 6, and 8 covers bidi presentation,
- *
- *
- *
- *
  */
 
 type ParseEnd = number | undefined;
@@ -844,6 +839,7 @@ const iriChecks = makeNonEmptyReferenceChecks("IRI", "IRI", "An RFC 3987 IRI.", 
 /**
  * RFC 3987 `IRI-reference` schema, including absolute and relative forms.
  *
+ * @see https://datatracker.ietf.org/doc/html/rfc3987
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
@@ -860,12 +856,14 @@ export const IRIReference = S.String.check(iriReferenceChecks).pipe(
   S.brand("IRIReference"),
   $I.annoteSchema("IRIReference", {
     description: "RFC 3987 IRI reference syntax, including both absolute and relative forms.",
+    documentation: "https://datatracker.ietf.org/doc/html/rfc3987",
   })
 );
 
 /**
  * RFC 3987 `IRI-reference` syntax, including absolute and relative forms.
  *
+ * @see https://datatracker.ietf.org/doc/html/rfc3987
  * @example
  * ```ts
  * import type { IRIReference } from "@beep/semantic-web/iri"
@@ -882,6 +880,7 @@ export type IRIReference = typeof IRIReference.Type;
 /**
  * RFC 3987 `irelative-ref` schema.
  *
+ * @see https://datatracker.ietf.org/doc/html/rfc3987
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
@@ -898,12 +897,14 @@ export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).p
   S.brand("RelativeIRIReference"),
   $I.annoteSchema("RelativeIRIReference", {
     description: "RFC 3987 relative IRI reference syntax (`irelative-ref`).",
+    documentation: "https://datatracker.ietf.org/doc/html/rfc3987",
   })
 );
 
 /**
  * RFC 3987 `irelative-ref` syntax.
  *
+ * @see https://datatracker.ietf.org/doc/html/rfc3987
  * @example
  * ```ts
  * import type { RelativeIRIReference } from "@beep/semantic-web/iri"
@@ -920,6 +921,7 @@ export type RelativeIRIReference = typeof RelativeIRIReference.Type;
 /**
  * RFC 3987 `absolute-IRI` schema without a fragment component.
  *
+ * @see https://datatracker.ietf.org/doc/html/rfc3987
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
@@ -936,12 +938,14 @@ export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
   S.brand("AbsoluteIRI"),
   $I.annoteSchema("AbsoluteIRI", {
     description: "RFC 3987 absolute IRI syntax without a fragment component.",
+    documentation: "https://datatracker.ietf.org/doc/html/rfc3987",
   })
 );
 
 /**
  * RFC 3987 `absolute-IRI` syntax without a fragment component.
  *
+ * @see https://datatracker.ietf.org/doc/html/rfc3987
  * @example
  * ```ts
  * import type { AbsoluteIRI } from "@beep/semantic-web/iri"
@@ -958,6 +962,7 @@ export type AbsoluteIRI = typeof AbsoluteIRI.Type;
 /**
  * RFC 3987 `IRI` schema.
  *
+ * @see https://datatracker.ietf.org/doc/html/rfc3987
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
@@ -974,11 +979,13 @@ export const IRI = S.String.check(iriChecks).pipe(
   S.brand("IRI"),
   $I.annoteSchema("IRI", {
     description: "RFC 3987 IRI syntax.",
+    documentation: "https://datatracker.ietf.org/doc/html/rfc3987",
   })
 );
 
 /**
  * RFC 3987 `IRI` syntax.
+ * @see https://datatracker.ietf.org/doc/html/rfc3987
  *
  * @example
  * ```ts
