@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1074 |
-| publicExportEntries | 14973 |
-| uniquePackageSymbols | 6457 |
+| publicExportEntries | 14980 |
+| uniquePackageSymbols | 6464 |
 
 ## Seed Discovery Proof
 
@@ -98,7 +98,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 59 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 3 | 3 |
 | 60 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
 | 61 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 82 | 892 | 458 |
-| 62 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
+| 62 | `@beep/infra` | `infra` | has-public-exports | 1 | 26 | 26 |
 | 63 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
 | 64 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
 | 65 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 67 | 1751 | 512 |
@@ -9538,8 +9538,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `loadAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:427` | Load AI metrics args from Pulumi config. |
 | `@beep/infra` | `loadOipWebRuntimeSecrets` | const | `infra/src/OipWeb.ts:509` | Load OIP web runtime secrets from Pulumi secret config. |
 | `@beep/infra` | `loadOipWebStackArgs` | const | `infra/src/OipWeb.ts:455` | Load OIP web stack args from Pulumi config. |
+| `@beep/infra` | `loadStorybookStackArgs` | const | `infra/src/Storybook.ts:258` | Load Storybook stack args from Pulumi config. |
 | `@beep/infra` | `makeAIMetricsStackArgsFromConfigValues` | const | `infra/src/AIMetrics.ts:366` | Build AI metrics stack args from decoded Pulumi config values. |
 | `@beep/infra` | `makeOipWebStackArgsFromConfigValues` | const | `infra/src/OipWeb.ts:354` | Build OIP web stack args from decoded Pulumi config values. |
+| `@beep/infra` | `makeStorybookStackArgsFromConfigValues` | const | `infra/src/Storybook.ts:202` | Build Storybook stack args from decoded Pulumi config values. |
 | `@beep/infra` | `OipAssetsBucketConfig` | class | `infra/src/OipWeb.ts:204` | S3 asset bucket resources for OIP-controlled media. |
 | `@beep/infra` | `OipDnsConfig` | class | `infra/src/OipWeb.ts:228` | DNS configuration for Cloudflare-managed OIP records. |
 | `@beep/infra` | `OipPulumiStateBackendConfig` | class | `infra/src/OipWeb.ts:153` | Pulumi DIY state backend settings for OIP. |
@@ -9548,6 +9550,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `OipWebRuntimeSecrets` | type | `infra/src/OipWeb.ts:304` | Secret runtime values for OIP deploy targets. |
 | `@beep/infra` | `OipWebStack` | class | `infra/src/OipWeb.ts:681` | Import-safe Pulumi component for OIP production web infrastructure. |
 | `@beep/infra` | `OipWebStackArgs` | class | `infra/src/OipWeb.ts:322` | Pulumi-facing args for the OIP web stack. |
+| `@beep/infra` | `StorybookDnsConfig` | class | `infra/src/Storybook.ts:147` | DNS configuration for the Cloudflare-managed Storybook record. |
+| `@beep/infra` | `StorybookPulumiConfigValues` | const | `infra/src/Storybook.ts:78` | Optional Pulumi config values before Storybook deploy defaults are applied. |
+| `@beep/infra` | `StorybookStack` | class | `infra/src/Storybook.ts:329` | Import-safe Pulumi component for the `@beep/ui` Storybook deployment. |
+| `@beep/infra` | `StorybookStackArgs` | class | `infra/src/Storybook.ts:173` | Pulumi-facing args for the Storybook deployment stack. |
+| `@beep/infra` | `StorybookVercelProjectConfig` | class | `infra/src/Storybook.ts:113` | Vercel project configuration for the `@beep/ui` Storybook build. |
 
 ### @beep/installer-use-cases
 
@@ -14183,7 +14190,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/button-group` | `ButtonGroupText` | function | `packages/foundation/ui-system/ui/src/components/button-group.tsx:81` | Button group text component. |
 | `@beep/ui/components/button-group` | `buttonGroupVariants` | const | `packages/foundation/ui-system/ui/src/components/button-group.tsx:22` | Button group variants component. |
 | `@beep/ui/components/calendar` | `Calendar` | function | `packages/foundation/ui-system/ui/src/components/calendar.tsx:23` | Calendar component. |
-| `@beep/ui/components/calendar` | `CalendarDayButton` | function | `packages/foundation/ui-system/ui/src/components/calendar.tsx:161` | Calendar day button component. |
+| `@beep/ui/components/calendar` | `CalendarDayButton` | function | `packages/foundation/ui-system/ui/src/components/calendar.tsx:165` | Calendar day button component. |
 | `@beep/ui/components/calendar-event-card` | `CalendarEventCard` | function | `packages/foundation/ui-system/ui/src/components/calendar-event-card.tsx:66` | Calendar event card component. |
 | `@beep/ui/components/calendar-event-card` | `EventLocation` | function | `packages/foundation/ui-system/ui/src/components/calendar-event-card.tsx:228` | Event location component. |
 | `@beep/ui/components/calendar-event-card` | `EventStatus` | type | `packages/foundation/ui-system/ui/src/components/calendar-event-card.tsx:22` | Event status type. |
@@ -14216,21 +14223,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/collapsible` | `CollapsibleContent` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:53` | Collapsible content component. |
 | `@beep/ui/components/collapsible` | `CollapsibleTrigger` | function | `packages/foundation/ui-system/ui/src/components/collapsible.tsx:36` | Collapsible trigger component. |
 | `@beep/ui/components/combobox` | `Combobox` | const | `packages/foundation/ui-system/ui/src/components/combobox.tsx:23` | Combobox component. |
-| `@beep/ui/components/combobox` | `ComboboxChip` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:382` | Combobox chip component. |
-| `@beep/ui/components/combobox` | `ComboboxChips` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:353` | Combobox chips component. |
-| `@beep/ui/components/combobox` | `ComboboxChipsInput` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:426` | Combobox chips input component. |
-| `@beep/ui/components/combobox` | `ComboboxCollection` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:287` | Combobox collection component. |
-| `@beep/ui/components/combobox` | `ComboboxContent` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:139` | Combobox content component. |
-| `@beep/ui/components/combobox` | `ComboboxEmpty` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:304` | Combobox empty component. |
-| `@beep/ui/components/combobox` | `ComboboxGroup` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:247` | Combobox group component. |
-| `@beep/ui/components/combobox` | `ComboboxInput` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:94` | Combobox input component. |
-| `@beep/ui/components/combobox` | `ComboboxItem` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:214` | Combobox item component. |
-| `@beep/ui/components/combobox` | `ComboboxLabel` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:264` | Combobox label component. |
-| `@beep/ui/components/combobox` | `ComboboxList` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:188` | Combobox list component. |
-| `@beep/ui/components/combobox` | `ComboboxSeparator` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:330` | Combobox separator component. |
+| `@beep/ui/components/combobox` | `ComboboxChip` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:387` | Combobox chip component. |
+| `@beep/ui/components/combobox` | `ComboboxChips` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:358` | Combobox chips component. |
+| `@beep/ui/components/combobox` | `ComboboxChipsInput` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:434` | Combobox chips input component. |
+| `@beep/ui/components/combobox` | `ComboboxCollection` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:292` | Combobox collection component. |
+| `@beep/ui/components/combobox` | `ComboboxContent` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:143` | Combobox content component. |
+| `@beep/ui/components/combobox` | `ComboboxEmpty` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:309` | Combobox empty component. |
+| `@beep/ui/components/combobox` | `ComboboxGroup` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:252` | Combobox group component. |
+| `@beep/ui/components/combobox` | `ComboboxInput` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:95` | Combobox input component. |
+| `@beep/ui/components/combobox` | `ComboboxItem` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:219` | Combobox item component. |
+| `@beep/ui/components/combobox` | `ComboboxLabel` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:269` | Combobox label component. |
+| `@beep/ui/components/combobox` | `ComboboxList` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:192` | Combobox list component. |
+| `@beep/ui/components/combobox` | `ComboboxSeparator` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:335` | Combobox separator component. |
 | `@beep/ui/components/combobox` | `ComboboxTrigger` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:55` | Combobox trigger component. |
 | `@beep/ui/components/combobox` | `ComboboxValue` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:38` | Combobox value component. |
-| `@beep/ui/components/combobox` | `useComboboxAnchor` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:449` | Use combobox anchor hook. |
+| `@beep/ui/components/combobox` | `useComboboxAnchor` | function | `packages/foundation/ui-system/ui/src/components/combobox.tsx:457` | Use combobox anchor hook. |
 | `@beep/ui/components/command` | `Command` | function | `packages/foundation/ui-system/ui/src/components/command.tsx:23` | Command component. |
 | `@beep/ui/components/command` | `CommandDialog` | function | `packages/foundation/ui-system/ui/src/components/command.tsx:49` | Command dialog component. |
 | `@beep/ui/components/command` | `CommandEmpty` | function | `packages/foundation/ui-system/ui/src/components/command.tsx:142` | Command empty component. |
@@ -14258,11 +14265,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/conversation` | `Conversation` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:40` | Conversation component. |
 | `@beep/ui/components/conversation` | `ConversationContent` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:79` | Conversation content component. |
 | `@beep/ui/components/conversation` | `ConversationContentProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:64` | Conversation content props type. |
-| `@beep/ui/components/conversation` | `ConversationEmptyState` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:116` | Conversation empty state component. |
-| `@beep/ui/components/conversation` | `ConversationEmptyStateProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:97` | Conversation empty state props type. |
+| `@beep/ui/components/conversation` | `ConversationEmptyState` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:126` | Conversation empty state component. |
+| `@beep/ui/components/conversation` | `ConversationEmptyStateProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:107` | Conversation empty state props type. |
 | `@beep/ui/components/conversation` | `ConversationProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:25` | Conversation props type. |
-| `@beep/ui/components/conversation` | `ConversationScrollButton` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:169` | Conversation scroll button component. |
-| `@beep/ui/components/conversation` | `ConversationScrollButtonProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:154` | Conversation scroll button props type. |
+| `@beep/ui/components/conversation` | `ConversationScrollButton` | const | `packages/foundation/ui-system/ui/src/components/conversation.tsx:179` | Conversation scroll button component. |
+| `@beep/ui/components/conversation` | `ConversationScrollButtonProps` | type | `packages/foundation/ui-system/ui/src/components/conversation.tsx:164` | Conversation scroll button props type. |
 | `@beep/ui/components/date-picker` | `DatePicker` | function | `packages/foundation/ui-system/ui/src/components/date-picker.tsx:39` | A single-date picker composed from {@link Popover} and {@link Calendar}. Supports |
 | `@beep/ui/components/dialog` | `Dialog` | function | `packages/foundation/ui-system/ui/src/components/dialog.tsx:22` | Dialog component. |
 | `@beep/ui/components/dialog` | `Dialog` | Identifier | `packages/foundation/ui-system/ui/src/components/dialog.tsx:253` |  |
@@ -14398,14 +14405,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/native-select` | `NativeSelectOptGroup` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:76` | An `<optgroup>` for use within {@link NativeSelect}, themed to match the system color scheme. |
 | `@beep/ui/components/native-select` | `NativeSelectOption` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:57` | An `<option>` for use within {@link NativeSelect}, themed to match the system color scheme. |
 | `@beep/ui/components/navigation-menu` | `NavigationMenu` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:20` | Navigation menu component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuContent` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:137` | Navigation menu content component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuIndicator` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:231` | Navigation menu indicator component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuItem` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:72` | Navigation menu item component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuLink` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:205` | Navigation menu link component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuList` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:49` | Navigation menu list component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuPositioner` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:163` | Navigation menu positioner component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuTrigger` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:108` | Navigation menu trigger component. |
-| `@beep/ui/components/navigation-menu` | `navigationMenuTriggerStyle` | const | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:91` | Navigation menu trigger style theme value. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuContent` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:140` | Navigation menu content component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuIndicator` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:239` | Navigation menu indicator component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuItem` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:75` | Navigation menu item component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuLink` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:213` | Navigation menu link component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuList` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:52` | Navigation menu list component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuPositioner` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:166` | Navigation menu positioner component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuTrigger` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:111` | Navigation menu trigger component. |
+| `@beep/ui/components/navigation-menu` | `navigationMenuTriggerStyle` | const | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:94` | Navigation menu trigger style theme value. |
 | `@beep/ui/components/notification-card` | `ActionStyle` | const | `packages/foundation/ui-system/ui/src/components/notification-card.tsx:84` | Action style theme value. |
 | `@beep/ui/components/notification-card` | `ActionStyle` | type | `packages/foundation/ui-system/ui/src/components/notification-card.tsx:103` | Action style type. |
 | `@beep/ui/components/notification-card` | `ActionType` | const | `packages/foundation/ui-system/ui/src/components/notification-card.tsx:49` | Action type component. |
