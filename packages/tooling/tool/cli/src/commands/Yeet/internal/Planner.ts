@@ -11,6 +11,7 @@ import { Order } from "effect";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import {
   byRepoPlanStepAscending,
   enforceConservativeResume,
@@ -39,6 +40,8 @@ export const DEFAULT_YEET_PACKET_DIR = ".beep/yeet" as const;
  */
 export const YEET_FEEDBACK_TASKS = ["build", "check", "lint", "test"] as const;
 
+type YeetFeedbackTask = (typeof YEET_FEEDBACK_TASKS)[number];
+
 /**
  * Yeet execution modes.
  *
@@ -64,6 +67,27 @@ export const YeetRunMode = LiteralKit(["repair", "verify", "publish"]).pipe(
  * @since 0.0.0
  */
 export type YeetRunMode = typeof YeetRunMode.Type;
+
+/**
+ * Options for building a Yeet run plan in a specific mode.
+ *
+ * @example
+ * ```ts
+ * import { YeetRunPlanModeOptions } from "@beep/repo-cli/test/Yeet"
+ *
+ * console.log(YeetRunPlanModeOptions.make({ mode: "verify" }).mode)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`YeetRunPlanModeOptions`)(
+  {
+    mode: YeetRunMode,
+  },
+  $I.annote("YeetRunPlanModeOptions", {
+    description: "Options for building a Yeet run plan in a specific mode.",
+  })
+) {}
 
 const sharedFeedbackTurboArgs = ["--continue=dependencies-successful", "--summarize", "--ui=stream"] as const;
 
@@ -185,7 +209,7 @@ const packageNameForFeedbackTask =
       O.filter((packageName) => task.task === feedbackTask && packageName !== "//")
     );
 
-const feedbackFilterArgs = (context: RepoRunContext, feedbackTask: string): ReadonlyArray<string> =>
+const feedbackFilterArgs = (context: RepoRunContext, feedbackTask: YeetFeedbackTask): ReadonlyArray<string> =>
   pipe(
     context.turbo.tasks,
     A.map(packageNameForFeedbackTask(feedbackTask)),
@@ -195,12 +219,17 @@ const feedbackFilterArgs = (context: RepoRunContext, feedbackTask: string): Read
     A.map((packageName) => `--filter=${packageName}`)
   );
 
+const feedbackRunArgs = (feedbackTask: YeetFeedbackTask, filters: ReadonlyArray<string>): ReadonlyArray<string> =>
+  feedbackTask === "test"
+    ? ["--unit", "--types", ...filters, ...sharedFeedbackTurboArgs]
+    : [...filters, ...sharedFeedbackTurboArgs];
+
 const feedbackStep = (
   context: RepoRunContext,
   id: string,
   label: string,
   script: string,
-  task: string
+  task: YeetFeedbackTask
 ): O.Option<RepoPlanStep> => {
   const filters = feedbackFilterArgs(context, task);
   if (A.isReadonlyArrayEmpty(filters)) {
@@ -214,7 +243,7 @@ const feedbackStep = (
       label,
       "feedback",
       script,
-      ["--", ...filters, ...sharedFeedbackTurboArgs],
+      ["--", ...feedbackRunArgs(task, filters)],
       "readonly",
       "repo",
       O.some(task)
@@ -261,11 +290,16 @@ const stepsForMode = (
  *
  * @param context - Hydrated run context.
  * @param message - Optional conventional commit message; required by publish execution.
- * @param mode - Yeet execution mode.
+ * @param options - Mode selector used to choose repair, verify, or publish steps.
  * @returns Ordered repository run plan.
  * @example
  * ```ts
- * import { buildYeetRunPlanWithMode, RepoRunContext, TurboPlanSnapshot } from "@beep/repo-cli/test/Yeet"
+ * import {
+ *   buildYeetRunPlanWithMode,
+ *   RepoRunContext,
+ *   TurboPlanSnapshot,
+ *   YeetRunPlanModeOptions
+ * } from "@beep/repo-cli/test/Yeet"
  * import * as O from "effect/Option"
  *
  * const context = RepoRunContext.make({
@@ -278,20 +312,22 @@ const stepsForMode = (
  *   repoRoot: "/repo",
  *   turbo: TurboPlanSnapshot.make({ graphHealthStatus: "ok", graphHealthWarnings: [], tasks: [] })
  * })
- * console.log(buildYeetRunPlanWithMode(context, O.none(), "verify").steps)
+ * console.log(buildYeetRunPlanWithMode(context, O.none(), YeetRunPlanModeOptions.make({ mode: "verify" })).steps)
  * ```
  * @category workflows
  * @since 0.0.0
  */
-export const buildYeetRunPlanWithMode = (
-  context: RepoRunContext,
-  message: O.Option<string>,
-  mode: YeetRunMode
-): RepoRunPlan =>
-  RepoRunPlan.make({
-    context,
-    steps: pipe(stepsForMode(context, message, mode), A.sort(byRepoPlanStepAscending)),
-  });
+export const buildYeetRunPlanWithMode: {
+  (context: RepoRunContext, message: O.Option<string>, options: YeetRunPlanModeOptions): RepoRunPlan;
+  (message: O.Option<string>, options: YeetRunPlanModeOptions): (context: RepoRunContext) => RepoRunPlan;
+} = dual(
+  3,
+  (context: RepoRunContext, message: O.Option<string>, options: YeetRunPlanModeOptions): RepoRunPlan =>
+    RepoRunPlan.make({
+      context,
+      steps: pipe(stepsForMode(context, message, options.mode), A.sort(byRepoPlanStepAscending)),
+    })
+);
 
 /**
  * Build the publish-mode yeet run plan.
@@ -325,7 +361,7 @@ export const buildYeetRunPlan: {
 } = dual(
   2,
   (context: RepoRunContext, message: O.Option<string>): RepoRunPlan =>
-    buildYeetRunPlanWithMode(context, message, "publish")
+    buildYeetRunPlanWithMode(context, message, YeetRunPlanModeOptions.make({ mode: "publish" }))
 );
 
 /**

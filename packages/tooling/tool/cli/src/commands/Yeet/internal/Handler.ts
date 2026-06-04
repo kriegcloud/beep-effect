@@ -31,6 +31,7 @@ import {
   emptyTurboPlanSnapshot,
   YEET_FEEDBACK_TASKS,
   YeetRunMode,
+  YeetRunPlanModeOptions,
 } from "./Planner.js";
 import { buildQualityIssueIndex, qualityIssuesFromStepResult } from "./QualityIssueIndex.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
@@ -959,7 +960,7 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
 > {
   const message = yield* validateRequiredMessage(options);
   const context = yield* hydrateYeetRunContext(options);
-  const plan = buildYeetRunPlanWithMode(context, message, options.mode);
+  const plan = buildYeetRunPlanWithMode(context, message, YeetRunPlanModeOptions.make({ mode: options.mode }));
   if (options.plan) {
     yield* renderPlan(plan, options.json);
     return yield* emptyPlanResult(context);
@@ -971,18 +972,21 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
 /**
  * Build a plan for tests without reading repository state.
  *
- * @param context - Hydrated test context.
- * @param message - Optional publish commit message.
- * @param mode - Yeet mode to plan.
+ * @param options - Hydrated test context, optional message, and optional mode.
  * @returns Ordered Yeet run plan.
  * @category testing
  * @since 0.0.0
  */
-export const buildYeetRunPlanForTesting = (
-  context: RepoRunContext,
-  message: O.Option<string>,
-  mode: YeetRunMode = "publish"
-): RepoRunPlan => buildYeetRunPlanWithMode(context, message, mode);
+export const buildYeetRunPlanForTesting = (options: {
+  readonly context: RepoRunContext;
+  readonly message: O.Option<string>;
+  readonly mode?: YeetRunMode;
+}): RepoRunPlan =>
+  buildYeetRunPlanWithMode(
+    options.context,
+    options.message,
+    YeetRunPlanModeOptions.make({ mode: options.mode ?? "publish" })
+  );
 
 /**
  * Construct baseline yeet options for focused tests.

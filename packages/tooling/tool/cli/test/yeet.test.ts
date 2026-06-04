@@ -122,7 +122,7 @@ const findStep = (steps: ReadonlyArray<RepoPlanStep>, label: string): RepoPlanSt
 
 describe("yeet planner", () => {
   it("builds publish as feedback, commit, pre-push proof, then push", () => {
-    const plan = buildYeetRunPlanForTesting(context, O.some("feat(repo-cli): add yeet"));
+    const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
 
     expect(
       pipe(
@@ -163,7 +163,7 @@ describe("yeet planner", () => {
   });
 
   it("builds verify as read-only feedback plus the canonical pre-push proof", () => {
-    const plan = buildYeetRunPlanForTesting(context, O.none(), "verify");
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "verify" });
 
     expect(
       pipe(
@@ -181,7 +181,7 @@ describe("yeet planner", () => {
   });
 
   it("builds repair as deterministic generators plus affected feedback", () => {
-    const plan = buildYeetRunPlanForTesting(context, O.none(), "repair");
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "repair" });
 
     expect(
       pipe(
@@ -215,7 +215,10 @@ describe("yeet planner", () => {
       turboTask("lint"),
       turboTask("test"),
     ]);
-    const plan = buildYeetRunPlanForTesting(scopedContext, O.some("feat(repo-cli): add yeet"));
+    const plan = buildYeetRunPlanForTesting({
+      context: scopedContext,
+      message: O.some("feat(repo-cli): add yeet"),
+    });
 
     expect(findStep(plan.steps, "feedback:check").args).toEqual([
       "run",
@@ -229,10 +232,21 @@ describe("yeet planner", () => {
     ]);
     expect(findStep(plan.steps, "feedback:check").args).not.toContain("--affected");
     expect(findStep(plan.steps, "feedback:check").scope).toBe("repo");
+    expect(findStep(plan.steps, "feedback:test").args).toEqual([
+      "run",
+      "test",
+      "--",
+      "--unit",
+      "--types",
+      "--filter=@beep/repo-cli",
+      "--continue=dependencies-successful",
+      "--summarize",
+      "--ui=stream",
+    ]);
   });
 
   it("uses Turbo SCM environment for write-mode affected prepare steps", () => {
-    const plan = buildYeetRunPlanForTesting(context, O.none(), "repair");
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "repair" });
     const step = findStep(plan.steps, "prepare:lint:fix");
 
     expect(step.args).toEqual([
@@ -251,10 +265,10 @@ describe("yeet planner", () => {
   });
 
   it("omits feedback steps whose task has no affected packages", () => {
-    const plan = buildYeetRunPlanForTesting(
-      contextWithTasks([turboTask("build"), turboTask("lint")]),
-      O.some("feat(repo-cli): add yeet")
-    );
+    const plan = buildYeetRunPlanForTesting({
+      context: contextWithTasks([turboTask("build"), turboTask("lint")]),
+      message: O.some("feat(repo-cli): add yeet"),
+    });
 
     expect(
       pipe(
@@ -266,7 +280,10 @@ describe("yeet planner", () => {
   });
 
   it("keeps feedback as a no-op instead of falling back to all packages", () => {
-    const plan = buildYeetRunPlanForTesting(contextWithTasks([]), O.some("feat(repo-cli): add yeet"));
+    const plan = buildYeetRunPlanForTesting({
+      context: contextWithTasks([]),
+      message: O.some("feat(repo-cli): add yeet"),
+    });
 
     expect(
       pipe(
@@ -352,7 +369,7 @@ describe("yeet planner", () => {
   });
 
   it("does not enable fingerprint resume until runtime skip execution exists", () => {
-    const plan = buildYeetRunPlanForTesting(context, O.some("feat(repo-cli): add yeet"));
+    const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
 
     expect(findStep(plan.steps, "feedback:check").resume).toBe("never");
     expect(findStep(plan.steps, "full:pre-push").resume).toBe("never");
@@ -360,7 +377,7 @@ describe("yeet planner", () => {
   });
 
   it("quotes command text without changing argv", () => {
-    const plan = buildYeetRunPlanForTesting(context, O.some("feat(repo-cli): add yeet"));
+    const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
     const commit = findStep(plan.steps, "commit:git:commit");
 
     expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
