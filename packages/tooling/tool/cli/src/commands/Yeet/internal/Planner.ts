@@ -15,6 +15,7 @@ import * as S from "effect/Schema";
 import {
   byRepoPlanStepAscending,
   enforceConservativeResume,
+  RepoPlanPhase,
   RepoPlanStep,
   RepoRunPlan,
   repoProofStepDefinition,
@@ -220,6 +221,7 @@ const feedbackFilterArgs = (context: RepoRunContext, feedbackTask: YeetFeedbackT
   );
 
 const feedbackRunArgs = (feedbackTask: YeetFeedbackTask, filters: ReadonlyArray<string>): ReadonlyArray<string> =>
+  // Feedback tests stay on unit/type lanes; repair is generator-only, and verify/publish run integration in full proof.
   feedbackTask === "test"
     ? ["--unit", "--types", ...filters, ...sharedFeedbackTurboArgs]
     : [...filters, ...sharedFeedbackTurboArgs];
@@ -378,20 +380,14 @@ export const yeetPlanPhases = (plan: RepoRunPlan): ReadonlyArray<RepoPlanStep["p
     A.map((step) => step.phase),
     A.dedupe,
     A.sort(
-      Order.mapInput(Order.Number, (phase) => {
-        if (phase === "prepare") {
-          return 0;
-        }
-        if (phase === "feedback") {
-          return 1;
-        }
-        if (phase === "commit") {
-          return 2;
-        }
-        if (phase === "full") {
-          return 3;
-        }
-        return 4;
-      })
+      Order.mapInput(Order.Number, (phase: RepoPlanStep["phase"]) =>
+        RepoPlanPhase.$match(phase, {
+          prepare: () => 0,
+          feedback: () => 1,
+          commit: () => 2,
+          full: () => 3,
+          publish: () => 4,
+        })
+      )
     )
   );

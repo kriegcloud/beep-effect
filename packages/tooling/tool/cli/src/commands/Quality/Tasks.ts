@@ -17,7 +17,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
-import { GITHUB_CHECK_MODE_VALUES } from "../../internal/repo-run/index.js";
+import { GithubCheckMode } from "../../internal/repo-run/index.js";
 import { configStringEqualsSync, configStringOption } from "./internal/Config.js";
 import { QualityTaskConfigurationError, QualityTaskFailed, QualityTaskGroupFailed } from "./Quality.errors.js";
 import type { DomainError, NoSuchFileError } from "@beep/repo-utils";
@@ -247,8 +247,7 @@ const isLintPolicySubcommand = (value: string | undefined): boolean =>
 const isRootAuditMode = (value: string): value is RootAuditMode =>
   A.contains(AUDIT_MODE_NAMES as ReadonlyArray<string>, value);
 
-const isGithubCheckMode = (value: string): boolean =>
-  A.contains(GITHUB_CHECK_MODE_VALUES as ReadonlyArray<string>, value);
+const isGithubCheckMode = S.is(GithubCheckMode);
 
 const stripPassthroughDelimiter = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
   pipe(

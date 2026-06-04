@@ -416,6 +416,24 @@ const stageReviewedPublishIntent = Effect.fn("Yeet.stageReviewedPublishIntent")(
   }
 });
 
+const validatePostCommitProofDidNotChangeWorktree = Effect.fn("Yeet.validatePostCommitProofDidNotChangeWorktree")(
+  function* (
+    context: RepoRunContext
+  ): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+    const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);
+    const unstagedPaths = yield* collectUnstagedTrackedPaths(context.repoRoot);
+    const untrackedPaths = yield* collectUntrackedPaths(context.repoRoot);
+    const changedPaths = sortedUniquePaths([...stagedPaths, ...unstagedPaths, ...untrackedPaths]);
+
+    if (!A.isReadonlyArrayEmpty(changedPaths)) {
+      return yield* publishScopeError(
+        "yeet publish stopped because the full proof changed files after the local commit. Regenerate them, then amend or reset the commit that has not yet been pushed before retrying.",
+        changedPaths
+      );
+    }
+  }
+);
+
 const isEscapedQuote = (output: string, index: number): boolean => {
   let backslashCount = 0;
   for (let cursor = index - 1; cursor >= 0 && output[cursor] === "\\"; cursor -= 1) {
@@ -859,6 +877,61 @@ const failWithIssueArtifacts = Effect.fn("Yeet.failWithIssueArtifacts")(function
   );
 });
 
+const runVerifyMode = Effect.fn("Yeet.runVerifyMode")(function* (
+  context: RepoRunContext,
+  fullSteps: ReadonlyArray<RepoPlanStep>
+): Effect.fn.Return<
+  YeetRunResult,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const verifyResults = yield* runPhase(context, fullSteps);
+  if (A.some(verifyResults, (result) => result.exitCode !== 0)) {
+    return yield* failWithIssueArtifacts(context, fullSteps, verifyResults, "yeet verification proof failed.");
+  }
+  return yield* emptyPlanResult(context);
+});
+
+const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
+  plan: RepoRunPlan,
+  message: O.Option<string>,
+  commitSteps: ReadonlyArray<RepoPlanStep>,
+  fullSteps: ReadonlyArray<RepoPlanStep>,
+  publishSteps: ReadonlyArray<RepoPlanStep>
+): Effect.fn.Return<
+  YeetRunResult,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const publishIntent = yield* collectPublishIntent(plan.context);
+  const commitMessage = O.getOrElse(message, () => "");
+  yield* validateCommitMessage(plan.context, commitMessage);
+  yield* stageReviewedPublishIntent(plan.context, publishIntent);
+
+  const commitResults = yield* runPhase(plan.context, commitSteps);
+  if (A.some(commitResults, (result) => result.exitCode !== 0)) {
+    return yield* failWithIssueArtifacts(plan.context, commitSteps, commitResults, "yeet commit phase failed.");
+  }
+
+  const fullResults = yield* runPhase(plan.context, fullSteps);
+  if (A.some(fullResults, (result) => result.exitCode !== 0)) {
+    return yield* failWithIssueArtifacts(
+      plan.context,
+      fullSteps,
+      fullResults,
+      "yeet publish proof failed after creating the local commit. Fix the issue, then amend or reset the commit that has not yet been pushed before retrying."
+    );
+  }
+  yield* validatePostCommitProofDidNotChangeWorktree(plan.context);
+
+  const publishResults = yield* runPhase(plan.context, publishSteps);
+  if (A.some(publishResults, (result) => result.exitCode !== 0)) {
+    return yield* failWithIssueArtifacts(plan.context, publishSteps, publishResults, "yeet publish phase failed.");
+  }
+
+  return yield* publishResult(plan.context);
+});
+
 const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   plan: RepoRunPlan,
   mode: YeetRunMode,
@@ -884,39 +957,11 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
     return yield* failWithIssueArtifacts(plan.context, feedbackSteps, feedbackResults, "yeet feedback phase failed.");
   }
 
-  if (mode === "repair") {
-    return yield* emptyPlanResult(plan.context);
-  }
-
-  if (mode === "verify") {
-    const verifyResults = yield* runPhase(plan.context, fullSteps);
-    if (A.some(verifyResults, (result) => result.exitCode !== 0)) {
-      return yield* failWithIssueArtifacts(plan.context, fullSteps, verifyResults, "yeet verification proof failed.");
-    }
-    return yield* emptyPlanResult(plan.context);
-  }
-
-  const publishIntent = yield* collectPublishIntent(plan.context);
-  const commitMessage = O.getOrElse(message, () => "");
-  yield* validateCommitMessage(plan.context, commitMessage);
-  yield* stageReviewedPublishIntent(plan.context, publishIntent);
-
-  const commitResults = yield* runPhase(plan.context, commitSteps);
-  if (A.some(commitResults, (result) => result.exitCode !== 0)) {
-    return yield* failWithIssueArtifacts(plan.context, commitSteps, commitResults, "yeet commit phase failed.");
-  }
-
-  const fullResults = yield* runPhase(plan.context, fullSteps);
-  if (A.some(fullResults, (result) => result.exitCode !== 0)) {
-    return yield* failWithIssueArtifacts(plan.context, fullSteps, fullResults, "yeet publish proof failed.");
-  }
-
-  const publishResults = yield* runPhase(plan.context, publishSteps);
-  if (A.some(publishResults, (result) => result.exitCode !== 0)) {
-    return yield* failWithIssueArtifacts(plan.context, publishSteps, publishResults, "yeet publish phase failed.");
-  }
-
-  return yield* publishResult(plan.context);
+  return yield* YeetRunMode.$match(mode, {
+    repair: () => emptyPlanResult(plan.context),
+    verify: () => runVerifyMode(plan.context, fullSteps),
+    publish: () => runPublishMode(plan, message, commitSteps, fullSteps, publishSteps),
+  });
 });
 
 const renderPlan = Effect.fn("Yeet.renderPlan")(function* (
