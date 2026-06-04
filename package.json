@@ -232,7 +232,7 @@
     "@1password/connect": "^1.4.2",
     "d3": "^7.9.0",
     "cytoscape": "^3.34.0",
-    "sql-formatter": "^15.8.0",
+    "sql-formatter": "^15.8.1",
     "box-node-sdk": "^10.11.1",
     "markdownlint-cli2": "^0.22.1",
     "micromark": "^4.0.2",
