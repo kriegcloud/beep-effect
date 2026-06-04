@@ -1,0 +1,35 @@
+name: Storybook Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  storybook-vitest:
+    name: Storybook Vitest
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "true"
+          cache-write: "false"
+
+      - name: Install Playwright Chromium (with OS deps)
+        run: bunx playwright install --with-deps chromium
+
+      - name: Run Storybook Vitest project
+        run: bun run test:storybook
