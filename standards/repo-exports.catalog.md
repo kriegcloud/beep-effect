@@ -198,7 +198,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ontology` | `parseJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:273` | Parses the POC JSON-LD graph representation back into an assembled ontology result. |
 | `@beep/ontology` | `projectJsonLdContext` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:59` | Projects an assembled ontology into a reusable JSON-LD context document. |
 | `@beep/ontology` | `projectJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:148` | Projects an assembled ontology into the POC JSON-LD graph representation. |
-| `@beep/ontology` | `projectTurtle` | const | `packages/foundation/modeling/ontology/src/projections/turtle.ts:124` | Projects an assembled ontology into a compact Turtle document. |
+| `@beep/ontology` | `projectTurtle` | const | `packages/foundation/modeling/ontology/src/projections/turtle.ts:125` | Projects an assembled ontology into a compact Turtle document. |
 | `@beep/ontology` | `VERSION` | const | `packages/foundation/modeling/ontology/src/index.ts:14` | Package version. |
 
 ### @beep/architecture-lab-ui
@@ -14679,9 +14679,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-configs` | `DocsESLintConfig` | const | `packages/tooling/policy-pack/repo-configs/src/index.ts:65` | Shared docs-only repository ESLint flat config. |
 | `@beep/repo-configs` | `DocsESLintConfigShape` | type | `packages/tooling/policy-pack/repo-configs/src/index.ts:38` | Flat docs-only ESLint config array shape exported by this package. |
 | `@beep/repo-configs` | `VERSION` | const | `packages/tooling/policy-pack/repo-configs/src/index.ts:24` | Package version for `@beep/repo-configs`. |
-| `@beep/repo-configs/eslint/DeprecatedApisESLintConfig` | `default` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/DeprecatedApisESLintConfig.ts:63` | Shared deprecated API ESLint flat config. |
-| `@beep/repo-configs/eslint/DeprecatedApisESLintConfig` | `DeprecatedApisESLintConfig` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/DeprecatedApisESLintConfig.ts:63` | Shared deprecated API ESLint flat config. |
-| `@beep/repo-configs/eslint/DeprecatedApisESLintConfig` | `DeprecatedApisESLintConfigShape` | type | `packages/tooling/policy-pack/repo-configs/src/eslint/DeprecatedApisESLintConfig.ts:50` | Flat ESLint config array shape exported for deprecated API checks. |
+| `@beep/repo-configs/eslint/DeprecatedApisESLintConfig` | `default` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/DeprecatedApisESLintConfig.ts:64` | Shared deprecated API ESLint flat config. |
+| `@beep/repo-configs/eslint/DeprecatedApisESLintConfig` | `DeprecatedApisESLintConfig` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/DeprecatedApisESLintConfig.ts:64` | Shared deprecated API ESLint flat config. |
+| `@beep/repo-configs/eslint/DeprecatedApisESLintConfig` | `DeprecatedApisESLintConfigShape` | type | `packages/tooling/policy-pack/repo-configs/src/eslint/DeprecatedApisESLintConfig.ts:51` | Flat ESLint config array shape exported for deprecated API checks. |
 | `@beep/repo-configs/eslint/DocsESLintConfig` | `default` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts:48` | Docs-only ESLint configuration used by the repository root `lint:jsdoc` lane. |
 | `@beep/repo-configs/eslint/DocsESLintConfig` | `DocsESLintConfig` | const | `packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts:48` | Docs-only ESLint configuration used by the repository root `lint:jsdoc` lane. |
 | `@beep/repo-configs/eslint/DocsESLintConfig` | `DocsESLintConfigShape` | type | `packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts:35` | Flat ESLint config array shape exported for repository documentation checks. |

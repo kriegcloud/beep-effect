@@ -41,14 +41,20 @@ class FakeFirecrawlWatcher implements F.FirecrawlSdkWatcher {
     return this;
   }
 
-  start(): Promise<void> {
-    this.started = true;
+  private emitAll(): void {
     for (const emission of this.emissions) {
+      if (this.closed) {
+        return;
+      }
       for (const listener of this.listeners[emission.eventName]) {
         listener(emission.payload);
       }
     }
-    return Promise.resolve();
+  }
+
+  start(): Promise<void> {
+    this.started = true;
+    return Promise.resolve().then(() => this.emitAll());
   }
 }
 

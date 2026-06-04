@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+// cspell:word tsmorph
 import { fileURLToPath } from "node:url";
 import tseslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";

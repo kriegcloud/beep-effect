@@ -1,3 +1,4 @@
+// cspell:words SKOS DCTERMS skos dcterms
 import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -55,7 +56,7 @@ const turtleReferenceStatements = (
   );
 
 const turtleBooleanStatement = (predicate: string, value: boolean): ReadonlyArray<string> =>
-  value ? [`${predicate} "true"^^xsd:boolean`] : A.empty<string>();
+  value ? [`${predicate} true`] : A.empty<string>();
 
 const renderSourceStatements = (ontologyClass: AssembledOntologyClass): ReadonlyArray<string> =>
   pipe(

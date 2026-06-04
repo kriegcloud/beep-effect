@@ -83,6 +83,19 @@ class MultilineComment extends S.Class<MultilineComment>($I`MultilineComment`)(
   )
 ) {}
 
+class DeprecatedClass extends S.Class<DeprecatedClass>($I`DeprecatedClass`)(
+  {},
+  $I.annote(
+    "DeprecatedClass",
+    Ont.class({
+      deprecated: true,
+      description: "Deprecated ontology class.",
+    })
+  )
+) {}
+
+const isOntologyAssemblyError = S.is(OntologyAssemblyError);
+
 describe("@beep/ontology", () => {
   it("stores class and key ontology annotations on Effect schemas", () => {
     const classMetadata = getOntologyMetadata(Parent);
@@ -133,6 +146,14 @@ describe("@beep/ontology", () => {
     expect(turtle).toContain('rdfs:comment "Line one\\nLine two\\tTabbed\\rCarriage"');
   });
 
+  it("emits canonical Turtle boolean literals", () => {
+    const ontology = Effect.runSync(Ont.build([DeprecatedClass]));
+    const turtle = projectTurtle(ontology);
+
+    expect(turtle).toContain("owl:deprecated true");
+    expect(turtle).not.toContain('"true"^^xsd:boolean');
+  });
+
   it("round-trips projected JSON-LD", () => {
     const ontology = Effect.runSync(Ont.build([Parent, Child]));
     const roundTrip = Ont.fromJsonLD(Ont.toJsonLD(ontology));
@@ -150,8 +171,13 @@ describe("@beep/ontology", () => {
 
     expect(Result.isFailure(result)).toBe(true);
     if (Result.isFailure(result)) {
-      expect(result.failure).toBeInstanceOf(OntologyAssemblyError);
-      expect(result.failure.reason).toBe("missingClassMetadata");
+      const failure = result.failure;
+      expect(isOntologyAssemblyError(failure)).toBe(true);
+      if (!isOntologyAssemblyError(failure)) {
+        throw failure;
+      }
+
+      expect(failure.reason).toBe("missingClassMetadata");
     }
   });
 });
