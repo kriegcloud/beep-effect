@@ -30,16 +30,15 @@ class ChunkBySentencesParameters extends S.Class<ChunkBySentencesParameters>($I`
   })
 ) {}
 
-class ChunkBySentencesSuccess extends S.Class<ChunkBySentencesSuccess>($I`ChunkBySentencesSuccess`)(
-  {
-    chunkCount: S.Number,
-    chunks: S.Array(AiSentenceChunk),
-    originalSentenceCount: S.Number,
-  },
-  $I.annote("ChunkBySentencesSuccess", {
+const ChunkBySentencesSuccess = S.Struct({
+  chunkCount: S.Number,
+  chunks: S.Array(AiSentenceChunk),
+  originalSentenceCount: S.Number,
+}).pipe(
+  $I.annoteSchema("ChunkBySentencesSuccess", {
     description: "Sentence-aligned text chunks and their source sentence counts.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for splitting text into chunks that

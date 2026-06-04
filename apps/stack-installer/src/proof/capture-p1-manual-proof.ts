@@ -10,9 +10,12 @@
 
 import { AiProviderCli } from "@beep/ai-provider-cli";
 import { Discord } from "@beep/discord";
+import { $StackInstallerId } from "@beep/identity/packages";
 import { P1ManualProofRequest, P1ManualProofResult } from "@beep/installer-use-cases";
 import { OnePasswordCli } from "@beep/onepassword-cli";
+import { TaggedErrorClass } from "@beep/schema";
 import { Sha256HexFromBytes } from "@beep/schema/Sha256";
+import { dual } from "@beep/utils";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Duration, Effect, Exit, FileSystem, Layer, Order, Path, pipe, RegExp as Rx, Stream } from "effect";
 import * as A from "effect/Array";
@@ -35,7 +38,10 @@ import {
   p1ProofMissingRequiredArtifactFiles,
 } from "./P1ProofArtifacts.js";
 import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "./P1ProofCommands.js";
+import type { PlatformError } from "effect";
 import type { P1RequiredPlatform } from "./P1ProofArtifacts.js";
+
+const $I = $StackInstallerId.create("proof/capture-p1-manual-proof");
 
 const DISCORD_TOKEN_PATTERNS = [
   Rx.RegExp("mfa\\.[A-Za-z0-9_-]{80,}"),
@@ -60,47 +66,95 @@ const provideScopedLayer =
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
-type ProcessOutputLimits = {
-  readonly maxStderrChars?: number;
-  readonly maxStdoutChars?: number;
-};
-
-type ProcessOutputLimitExceeded = {
-  readonly _tag: "ProcessOutputLimitExceeded";
-  readonly label: string;
-  readonly maxChars: number;
-  readonly message: string;
-};
-
-const collectText = <E>(
-  stream: Stream.Stream<Uint8Array, E>,
-  label: string,
-  maxChars: number | undefined
-): Effect.Effect<string, E | ProcessOutputLimitExceeded> =>
-  stream.pipe(
-    Stream.decodeText(),
-    Stream.runFoldEffect(
-      () => "",
-      (acc, chunk) => {
-        const nextLength = acc.length + chunk.length;
-        return maxChars !== undefined && nextLength > maxChars
-          ? Effect.fail({
-              _tag: "ProcessOutputLimitExceeded" as const,
-              label,
-              maxChars,
-              message: `${label} exceeded ${maxChars} characters`,
-            })
-          : Effect.succeed(`${acc}${chunk}`);
-      }
-    )
-  );
-
-const runNativeProcess = Effect.fn("StackInstaller.runNativeProcess")(function* (
-  process: {
-    readonly args: ReadonlyArray<string>;
-    readonly command: string;
+class ProcessOutputLimits extends S.Class<ProcessOutputLimits>($I`ProcessOutputLimits`)(
+  {
+    maxStderrChars: S.optionalKey(S.Number),
+    maxStdoutChars: S.optionalKey(S.Number),
   },
-  limits: ProcessOutputLimits = {}
+  $I.annote("ProcessOutputLimits", {
+    description: "Configuration for limiting the amount of output captured from a process",
+  })
+) {}
+
+export class ProcessOutputLimitExceeded extends TaggedErrorClass<ProcessOutputLimitExceeded>(
+  $I`ProcessOutputLimitExceeded`
+)(
+  "ProcessOutputLimitExceeded",
+  {
+    label: S.String,
+    maxChars: S.Number,
+    message: S.String,
+  },
+  $I.annote("ProcessOutputLimitExceeded", {
+    description: "Error thrown when process output exceeds configured limits",
+  })
+) {}
+
+const collectText: {
+  <E>(
+    stream: Stream.Stream<Uint8Array, E>,
+    label: string,
+    maxChars: number | undefined
+  ): Effect.Effect<string, E | ProcessOutputLimitExceeded>;
+  <E>(
+    label: string,
+    maxChars: number | undefined
+  ): (stream: Stream.Stream<Uint8Array, E>) => Effect.Effect<string, E | ProcessOutputLimitExceeded>;
+} = dual(
+  3,
+  <E>(
+    stream: Stream.Stream<Uint8Array, E>,
+    label: string,
+    maxChars: number | undefined
+  ): Effect.Effect<string, E | ProcessOutputLimitExceeded> =>
+    stream.pipe(
+      Stream.decodeText(),
+      Stream.runFoldEffect(
+        () => "",
+        (acc, chunk) => {
+          const nextLength = acc.length + chunk.length;
+          return maxChars !== undefined && nextLength > maxChars
+            ? ProcessOutputLimitExceeded.make({
+                label,
+                maxChars,
+                message: `${label} exceeded ${maxChars} characters`,
+              })
+            : Effect.succeed(`${acc}${chunk}`);
+        }
+      )
+    )
+);
+
+export class RunNativeProcessOptions extends S.Class<RunNativeProcessOptions>($I`RunNativeProcessOptions`)(
+  {
+    args: S.Array(S.String),
+    command: S.String,
+  },
+  $I.annote("RunNativeProcessOptions", {
+    description: "Options for running a native process",
+  })
+) {}
+
+const runNativeProcess: {
+  (
+    process: RunNativeProcessOptions,
+    limits?: O.Option<ProcessOutputLimits>
+  ): Effect.Effect<
+    [string, string, ChildProcessSpawner.ExitCode],
+    PlatformError.PlatformError | ProcessOutputLimitExceeded,
+    ChildProcessSpawner.ChildProcessSpawner
+  >;
+  (
+    process: RunNativeProcessOptions,
+    limits?: O.Option<ProcessOutputLimits>
+  ): Effect.Effect<
+    [string, string, ChildProcessSpawner.ExitCode],
+    PlatformError.PlatformError | ProcessOutputLimitExceeded,
+    ChildProcessSpawner.ChildProcessSpawner
+  >;
+} = Effect.fn("StackInstaller.runNativeProcess")(function* (
+  process: RunNativeProcessOptions,
+  limits: O.Option<ProcessOutputLimits> = O.some({})
 ) {
   return yield* Effect.scoped(
     Effect.gen(function* () {
@@ -113,10 +167,14 @@ const runNativeProcess = Effect.fn("StackInstaller.runNativeProcess")(function* 
         })
       );
 
+      const { maxStdoutChars, maxStderrChars } = O.getOrElse(limits, () => ({
+        maxStdoutChars: 100000,
+        maxStderrChars: 100000,
+      }));
       return yield* Effect.all(
         [
-          collectText(handle.stdout, "stdout", limits.maxStdoutChars),
-          collectText(handle.stderr, "stderr", limits.maxStderrChars),
+          collectText(handle.stdout, "stdout", maxStdoutChars),
+          collectText(handle.stderr, "stderr", maxStderrChars),
           handle.exitCode,
         ],
         {
@@ -312,7 +370,10 @@ const normalizeBundleEntry = (entry: string): string => {
   return Str.endsWith("/")(trimmed) ? Str.slice(0, -1)(trimmed) : trimmed;
 };
 
-const isSafeBundleEntry = (platform: P1RequiredPlatform, entry: string): boolean => {
+const isSafeBundleEntry: {
+  (platform: P1RequiredPlatform, entry: string): boolean;
+  (entry: string): (platform: P1RequiredPlatform) => boolean;
+} = dual(2, (platform: P1RequiredPlatform, entry: string): boolean => {
   const normalized = normalizeBundleEntry(entry);
   const segments = Str.split("/")(normalized);
   const firstSegment = A.head(segments);
@@ -325,17 +386,20 @@ const isSafeBundleEntry = (platform: P1RequiredPlatform, entry: string): boolean
     firstSegment.value === platform &&
     A.every(segments, (segment) => Str.isNonEmpty(segment) && segment !== "." && segment !== "..")
   );
-};
+});
 
 const validateBundleEntries = Effect.fn("StackInstaller.validateBundleEntries")(function* (
   platform: P1RequiredPlatform,
   bundlePath: string
 ) {
   const process = p1ProofBundleListingProcess(platform, { bundlePath, outputRoot: "" });
-  const [stdout, stderr, exitCode] = yield* runNativeProcess(process, {
-    maxStderrChars: 64_000,
-    maxStdoutChars: 1_000_000,
-  });
+  const [stdout, stderr, exitCode] = yield* runNativeProcess(
+    process,
+    O.some({
+      maxStderrChars: 64_000,
+      maxStdoutChars: 1_000_000,
+    })
+  );
 
   yield* requireAudit(
     exitCode === 0,

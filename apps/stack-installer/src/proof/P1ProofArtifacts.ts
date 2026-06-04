@@ -6,10 +6,15 @@
  * @since 0.0.0
  */
 
+import { $StackInstallerId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
+
+const $I = $StackInstallerId.create("proof/P1ProofArtifacts");
 
 /**
  * Proof JSON artifact file name.
@@ -41,7 +46,11 @@ export const CHECKSUMS_FILE_NAME = "sha256sums.txt";
  * @category constants
  * @since 0.0.0
  */
-export const P1_REQUIRED_PLATFORMS = ["macos", "windows"] as const;
+export const P1RequiredPlatform = LiteralKit(["macos", "windows"]).pipe(
+  $I.annoteSchema("P1RequiredPlatform", {
+    description: "Required P1 fresh-machine proof platform.",
+  })
+);
 
 /**
  * Required P1 fresh-machine proof platform.
@@ -49,7 +58,15 @@ export const P1_REQUIRED_PLATFORMS = ["macos", "windows"] as const;
  * @category type-level
  * @since 0.0.0
  */
-export type P1RequiredPlatform = (typeof P1_REQUIRED_PLATFORMS)[number];
+export type P1RequiredPlatform = typeof P1RequiredPlatform.Type;
+
+/**
+ * Required P1 fresh-machine proof platforms.
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const P1_REQUIRED_PLATFORMS = P1RequiredPlatform.Options;
 
 const MACOS_BUNDLE_FILE_NAME = "stack-installer-p1-macos.tgz";
 const WINDOWS_BUNDLE_FILE_NAME = "stack-installer-p1-windows.zip";
@@ -60,10 +77,17 @@ const WINDOWS_BUNDLE_FILE_NAME = "stack-installer-p1-windows.zip";
  * @category models
  * @since 0.0.0
  */
-type P1ProofBundleExtractionProcess = {
-  readonly command: string;
-  readonly args: ReadonlyArray<string>;
-};
+class P1ProofBundleExtractionProcess extends S.Class<P1ProofBundleExtractionProcess>(
+  $I`P1ProofBundleExtractionProcess`
+)(
+  {
+    args: S.Array(S.String),
+    command: S.String,
+  },
+  $I.annote("P1ProofBundleExtractionProcess", {
+    description: "Native extraction process for a returned proof bundle.",
+  })
+) {}
 
 /**
  * Paths used to extract a returned proof bundle.
@@ -71,10 +95,17 @@ type P1ProofBundleExtractionProcess = {
  * @category models
  * @since 0.0.0
  */
-type P1ProofBundleExtractionOptions = {
-  readonly bundlePath: string;
-  readonly outputRoot: string;
-};
+class P1ProofBundleExtractionOptions extends S.Class<P1ProofBundleExtractionOptions>(
+  $I`P1ProofBundleExtractionOptions`
+)(
+  {
+    bundlePath: S.String,
+    outputRoot: S.String,
+  },
+  $I.annote("P1ProofBundleExtractionOptions", {
+    description: "Paths used to extract a returned proof bundle.",
+  })
+) {}
 
 const shellQuote = (value: string): string => `'${Str.replaceAll("'", "'\"'\"'")(value)}'`;
 

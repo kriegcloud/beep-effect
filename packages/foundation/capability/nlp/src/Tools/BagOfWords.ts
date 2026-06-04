@@ -1,0 +1,65 @@
+/**
+ * BagOfWords tool definition.
+ *
+ * @since 0.0.0
+ * @packageDocumentation
+ */
+
+import { $NlpId } from "@beep/identity";
+import * as S from "effect/Schema";
+import { Tool } from "effect/unstable/ai";
+import { AiNGram, AiToolError } from "./_schemas.ts";
+
+const $I = $NlpId.create("Tools/BagOfWords");
+
+class BagOfWordsParameters extends S.Class<BagOfWordsParameters>($I`BagOfWordsParameters`)(
+  {
+    text: S.String.annotateKey({
+      description: "The text to compute a bag-of-words term-frequency table from",
+      examples: ["the cat sat on the mat"],
+    }),
+  },
+  $I.annote("BagOfWordsParameters", {
+    description: "Text input used to compute a bag-of-words term-frequency table.",
+  })
+) {}
+
+const BagOfWordsSuccess = S.Struct({
+  terms: S.Array(AiNGram),
+  totalTerms: S.Number,
+  uniqueTerms: S.Number,
+}).pipe(
+  $I.annoteSchema("BagOfWordsSuccess", {
+    description: "Bag-of-words term-frequency table with total and unique term counts.",
+  })
+);
+
+/**
+ * Defines the agent-facing tool contract for computing a bag-of-words
+ * term-frequency table from text.
+ *
+ * Use this tool when a caller needs normalized term counts for matching,
+ * feature generation, or lightweight relevance scoring.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { BagOfWords } from "@beep/nlp/Tools/BagOfWords"
+ *
+ * const parameters = S.decodeUnknownSync(BagOfWords.parametersSchema)({
+ *   text: "the cat sat on the mat"
+ * })
+ *
+ * parameters.text
+ * ```
+ *
+ * @category tools
+ * @since 0.0.0
+ */
+export const BagOfWords = Tool.make("BagOfWords", {
+  description: "Compute a bag-of-words term-frequency table from text.",
+  failure: AiToolError,
+  failureMode: "return",
+  parameters: BagOfWordsParameters,
+  success: BagOfWordsSuccess,
+});

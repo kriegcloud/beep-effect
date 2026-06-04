@@ -6,28 +6,79 @@
  * @since 0.0.0
  */
 
+import { $ProfessionalDesktopId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
 import { Badge } from "@beep/ui/components/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/ui/components/card";
 import { Separator } from "@beep/ui/components/separator";
 import { A } from "@beep/utils";
-import { AppWindow, Brain, Buildings, CheckCircle, FolderOpen, Scales, ShieldCheck } from "@phosphor-icons/react";
+import {
+  AppWindowIcon,
+  BrainIcon,
+  BuildingsIcon,
+  CheckCircleIcon,
+  FolderOpenIcon,
+  ScalesIcon,
+  ShieldCheckIcon,
+} from "@phosphor-icons/react";
 import { invoke } from "@tauri-apps/api/core";
 import { Match } from "effect";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { useEffect, useState } from "react";
 
-type DesktopHealth = {
-  readonly app: string;
-  readonly desktopShell: "minimal";
-  readonly runtimeConnection: "pending";
-  readonly slices: readonly string[];
-  readonly status: "preview" | "ready";
-};
+const $I = $ProfessionalDesktopId.create("App");
 
-type LoadState =
-  | { readonly _tag: "loading" }
-  | { readonly _tag: "loaded"; readonly health: DesktopHealth }
-  | { readonly _tag: "failed"; readonly message: string };
+class DesktopHealth extends S.Class<DesktopHealth>($I`DesktopHealth`)(
+  {
+    app: S.String,
+    desktopShell: S.Literal("minimal"),
+    runtimeConnection: S.Literal("pending"),
+    slices: S.Array(S.String),
+    status: LiteralKit(["preview", "ready"]),
+  },
+  $I.annote("DesktopHealth", {
+    description:
+      "Health status of the professional desktop application, including app identity, desktop shell, runtime connection, loaded slices, and overall status.",
+  })
+) {}
+
+export class LoadingState extends S.TaggedClass<LoadingState>($I`LoadingState`)(
+  "loading",
+  {},
+  $I.annote("LoadingState", {
+    description: "Loading state of the professional desktop application.",
+  })
+) {}
+
+export class LoadedState extends S.TaggedClass<LoadedState>($I`LoadedState`)(
+  "loaded",
+  {
+    health: DesktopHealth,
+  },
+  $I.annote("LoadedState", {
+    description: "Loaded state of the professional desktop application.",
+  })
+) {}
+
+export class FailedState extends S.TaggedClass<FailedState>($I`FailedState`)(
+  "failed",
+  {
+    message: S.String,
+  },
+  $I.annote("FailedState", {
+    description: "Failed state of the professional desktop application.",
+  })
+) {}
+
+export const LoadState = S.Union([FailedState, LoadedState, LoadingState]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("LoadState", {
+    description: "Union of loading states for the professional desktop application.",
+  })
+);
+
+type LoadState = typeof LoadState.Type;
 
 type LoadDesktopHealth = () => Promise<DesktopHealth>;
 
@@ -66,27 +117,27 @@ const defaultLoadDesktopHealth: LoadDesktopHealth = () => {
 const sliceMeta = [
   {
     description: "Workspaces, threads, tasks, approvals, and collaboration state.",
-    icon: FolderOpen,
+    icon: FolderOpenIcon,
     name: "workspace",
   },
   {
     description: "Agents, skills, tools, commands, and capability promotion.",
-    icon: Brain,
+    icon: BrainIcon,
     name: "agent-capability",
   },
   {
     description: "Evidence, claims, provenance, audit trails, and knowledge graph outputs.",
-    icon: ShieldCheck,
+    icon: ShieldCheckIcon,
     name: "epistemic",
   },
   {
     description: "Legal clients, matters, filings, drafts, and legal overlays.",
-    icon: Scales,
+    icon: ScalesIcon,
     name: "law-practice",
   },
   {
     description: "Households, accounts, goals, meetings, and advisor overlays.",
-    icon: Buildings,
+    icon: BuildingsIcon,
     name: "wealth-management",
   },
 ] as const;
@@ -215,7 +266,7 @@ export function App({
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3 rounded-md border p-3">
-                <AppWindow className="size-4 text-muted-foreground" weight="bold" />
+                <AppWindowIcon className="size-4 text-muted-foreground" weight="bold" />
                 <div>
                   <p className="text-sm font-medium">professional_desktop_health</p>
                   <p className="text-xs text-muted-foreground">Returns minimal shell metadata for the workbench.</p>
@@ -223,7 +274,7 @@ export function App({
               </div>
               <Separator />
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle className="size-4" weight="fill" />
+                <CheckCircleIcon className="size-4" weight="fill" />
                 {health?.status === "ready"
                   ? "Desktop shell is ready for runtime wiring."
                   : "Preview mode is active in the web shell."}
@@ -236,7 +287,17 @@ export function App({
   );
 }
 
-function MetricCard({ label, value }: { readonly label: string; readonly value: string }) {
+class MetricCardProps extends S.Class<MetricCardProps>($I`MetricCardProps`)(
+  {
+    label: S.String,
+    value: S.String,
+  },
+  $I.annote("MetricCardProps", {
+    description: "Properties for the MetricCard component.",
+  })
+) {}
+
+function MetricCard({ label, value }: MetricCardProps) {
   return (
     <div className="rounded-lg border bg-background p-4">
       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
@@ -245,7 +306,16 @@ function MetricCard({ label, value }: { readonly label: string; readonly value: 
   );
 }
 
-function Step({ line }: { readonly line: string }) {
+class StepProps extends S.Class<StepProps>($I`StepProps`)(
+  {
+    line: S.String,
+  },
+  $I.annote("StepProps", {
+    description: "Properties for the Step component.",
+  })
+) {}
+
+function Step({ line }: StepProps) {
   return (
     <div className="flex items-start gap-3">
       <div className="mt-1 size-2 rounded-full bg-primary" />

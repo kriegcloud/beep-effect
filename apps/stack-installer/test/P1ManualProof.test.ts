@@ -23,7 +23,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
-import { previewP1ManualProof, runP1ManualProof } from "../src/proof/P1ManualProof.js";
+import { previewP1ManualProof, runP1ManualProof } from "@/proof/P1ManualProof";
 import {
   isP1ProofArtifactStatusFileName,
   isP1ProofEvidenceFileName,
@@ -32,8 +32,8 @@ import {
   p1ProofBundleFileNameForPlatform,
   p1ProofBundleListingProcess,
   p1ProofMissingRequiredArtifactFiles,
-} from "../src/proof/P1ProofArtifacts.js";
-import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "../src/proof/P1ProofCommands.js";
+} from "@/proof/P1ProofArtifacts";
+import { buildP1ProofCommandsText, p1ProofCommandsTextMatchesPlatform } from "@/proof/P1ProofCommands";
 import type { AiProviderCliProvider } from "@beep/ai-provider-cli";
 import type { TUnsafe } from "@beep/types";
 

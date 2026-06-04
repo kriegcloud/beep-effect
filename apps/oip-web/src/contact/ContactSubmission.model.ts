@@ -7,7 +7,11 @@
 
 import { $OipWebId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
-import { SchemaTransformation } from "effect";
+import { Str } from "@beep/utils";
+import { Effect, pipe, Result, SchemaTransformation } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $OipWebId.create("contact/ContactSubmission.model");
@@ -98,6 +102,7 @@ export type ContactSubmissionStatus = typeof ContactSubmissionStatus.Type;
  *
  * @example
  * ```ts
+ * import { NonNegativeInt } from "@beep/schema"
  * import { Effect } from "effect"
  * import { decodeContactSubmission } from "@beep/oip-web/contact"
  *
@@ -105,7 +110,7 @@ export type ContactSubmissionStatus = typeof ContactSubmissionStatus.Type;
  *   email: "builder@example.com",
  *   message: "I would like to discuss a patent matter.",
  *   name: "Builder",
- *   submittedAt: 0
+ *   submittedAt: NonNegativeInt.make(0)
  * })
  *
  * Effect.runPromise(program).then((submission) => {
@@ -132,6 +137,152 @@ export class ContactSubmission extends S.Class<ContactSubmission>($I`ContactSubm
     description: "Browser-submitted OIP contact form payload.",
   })
 ) {}
+
+const ContactSubmissionFormSubmittedAtFromString = S.NumberFromString.pipe(
+  S.decodeTo(NonNegativeInt),
+  $I.annoteSchema("ContactSubmissionFormSubmittedAtFromString", {
+    description: "Form-submitted contact timestamp decoded from a numeric string.",
+  })
+);
+
+const ContactSubmissionFormSubmittedAt = S.Union([NonNegativeInt, ContactSubmissionFormSubmittedAtFromString]).pipe(
+  S.withDecodingDefault(Effect.succeed(0)),
+  $I.annoteSchema("ContactSubmissionFormSubmittedAt", {
+    description: "Form-submitted contact timestamp decoded from a number or numeric string.",
+  })
+);
+
+/**
+ * Normalized browser form payload before the contact domain schema decodes it.
+ *
+ * @example
+ * ```ts
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { ContactSubmissionFormPayload } from "@beep/oip-web/contact"
+ *
+ * const payload = ContactSubmissionFormPayload.make({
+ *   email: "builder@example.com",
+ *   message: "I would like to discuss a patent matter.",
+ *   name: "Builder",
+ *   submittedAt: NonNegativeInt.make(0)
+ * })
+ *
+ * console.log(payload.submittedAt)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class ContactSubmissionFormPayload extends S.Class<ContactSubmissionFormPayload>(
+  $I`ContactSubmissionFormPayload`
+)(
+  {
+    company: S.optionalKey(TrimmedContactText),
+    email: S.String,
+    message: S.String,
+    name: S.String,
+    phone: S.optionalKey(TrimmedContactText),
+    posture: S.optionalKey(TrimmedContactText),
+    submittedAt: ContactSubmissionFormSubmittedAt,
+    technology: S.optionalKey(TrimmedContactText),
+    website: S.optionalKey(TrimmedContactText),
+  },
+  $I.annote("ContactSubmissionFormPayload", {
+    description: "Normalized browser form payload before contact submission decoding.",
+  })
+) {}
+
+const decodeContactSubmissionFormPayloadResult = S.decodeUnknownResult(ContactSubmissionFormPayload);
+const decodeContactSubmissionFormPayloadEffect = S.decodeUnknownEffect(ContactSubmissionFormPayload);
+
+const formTextOption = (value: FormDataEntryValue | null): O.Option<string> =>
+  pipe(O.fromNullishOr(value), O.filter(P.isString), O.map(Str.trim), O.filter(Str.isNonEmpty));
+
+const requiredFormTextValue = (value: FormDataEntryValue | null): string =>
+  pipe(
+    formTextOption(value),
+    O.getOrElse(() => "")
+  );
+
+const contactSubmissionPayloadInputFromFormData = (formData: FormData) => ({
+  email: requiredFormTextValue(formData.get("email")),
+  message: requiredFormTextValue(formData.get("message")),
+  name: requiredFormTextValue(formData.get("name")),
+  ...R.getSomes({
+    company: formTextOption(formData.get("company")),
+    phone: formTextOption(formData.get("phone")),
+    posture: formTextOption(formData.get("posture")),
+    submittedAt: formTextOption(formData.get("submittedAt")),
+    technology: formTextOption(formData.get("technology")),
+    website: formTextOption(formData.get("website")),
+  }),
+});
+
+const contactSubmissionPayloadFallback = (formData: FormData): ContactSubmissionFormPayload =>
+  ContactSubmissionFormPayload.make({
+    email: requiredFormTextValue(formData.get("email")),
+    message: requiredFormTextValue(formData.get("message")),
+    name: requiredFormTextValue(formData.get("name")),
+    submittedAt: NonNegativeInt.make(0),
+    ...R.getSomes({
+      company: formTextOption(formData.get("company")),
+      phone: formTextOption(formData.get("phone")),
+      posture: formTextOption(formData.get("posture")),
+      technology: formTextOption(formData.get("technology")),
+      website: formTextOption(formData.get("website")),
+    }),
+  });
+
+/**
+ * Effectfully converts browser form data into the contact submission wire payload.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { contactSubmissionPayloadFromFormDataEffect } from "@beep/oip-web/contact"
+ *
+ * const formData = new FormData()
+ * formData.set("email", "builder@example.com")
+ * formData.set("message", "I would like to discuss a patent matter.")
+ * formData.set("name", "Builder")
+ * formData.set("submittedAt", "0")
+ *
+ * Effect.runPromise(contactSubmissionPayloadFromFormDataEffect(formData))
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const contactSubmissionPayloadFromFormDataEffect = (formData: FormData) =>
+  decodeContactSubmissionFormPayloadEffect(contactSubmissionPayloadInputFromFormData(formData));
+
+/**
+ * Converts browser form data into the contact submission wire payload.
+ *
+ * @example
+ * ```ts
+ * import { contactSubmissionPayloadFromFormData } from "@beep/oip-web/contact"
+ *
+ * const formData = new FormData()
+ * formData.set("email", "builder@example.com")
+ * formData.set("message", "I would like to discuss a patent matter.")
+ * formData.set("name", "Builder")
+ * formData.set("submittedAt", "0")
+ *
+ * const payload = contactSubmissionPayloadFromFormData(formData)
+ * console.log(payload.email)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const contactSubmissionPayloadFromFormData = (formData: FormData): ContactSubmissionFormPayload =>
+  pipe(contactSubmissionPayloadInputFromFormData(formData), (input) =>
+    pipe(
+      decodeContactSubmissionFormPayloadResult(input),
+      Result.getOrElse(() => contactSubmissionPayloadFallback(formData))
+    )
+  );
 
 /**
  * Public contact submission response.
@@ -166,6 +317,7 @@ export class ContactSubmissionResponse extends S.Class<ContactSubmissionResponse
  *
  * @example
  * ```ts
+ * import { NonNegativeInt } from "@beep/schema"
  * import { Effect } from "effect"
  * import { decodeContactSubmission } from "@beep/oip-web/contact"
  *
@@ -173,7 +325,7 @@ export class ContactSubmissionResponse extends S.Class<ContactSubmissionResponse
  *   email: "builder@example.com",
  *   message: "I would like to discuss a patent matter.",
  *   name: "Builder",
- *   submittedAt: 0
+ *   submittedAt: NonNegativeInt.make(0)
  * })
  *
  * Effect.runPromise(program)

@@ -1,13 +1,27 @@
 # @beep/nlp-mcp Agent Guide
 
 ## Purpose & Fit
-- Model Context Protocol server exposing `@beep/nlp` operations and the generic IR handoff contract as MCP tools.
-- Default runtime wiring uses the `@beep/wink` driver for `NLPBackend`.
+- Model Context Protocol server exposing ~42 tools over stdio by mounting two
+  toolkits into one server:
+  - the product-neutral `@beep/nlp/Tools/NlpToolkit` (25 tools) bound to its
+    wink-backed handler layer (`WinkNlpToolkitLive` from `@beep/wink`); the driver
+    does not redeclare these tools, schemas, or handlers; and
+  - a driver-local `StreamingToolkit` (17 file/JSONL/dataset/pipeline tools) backed
+    by `StreamingToolkitHandlersLive`, which uses `effect/FileSystem` + `effect/Path`
+    (+ `HttpClient` for URL loads), provided at the entrypoint.
+- Streaming handlers annotate spans with counts, `path_length`, and `size_bytes`
+  only — never raw file content or line/record text. Integration tests use synthetic
+  temp fixtures only.
 
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION | package entry point |
+| entry module | `VERSION` | package entry point |
+| server | `makeServerLayer`, `NlpMcpServerConfig` | stdio MCP server layer mounting both toolkits; requires `FileSystem \| HttpClient \| Path \| Stdio` |
+| streaming tools | `StreamingToolkit`, `LinesOutput`/`FileInfoOutput`/`TextStatsOutput`/`JsonlOutput`/`JsonlStatsOutput`/`DatasetMetaOutput`/`DataOutput`/`PipelineOutput` | 17 `Tool.make` defs + `S.Struct` output schemas; `failureMode: "return"` with `AiToolError` |
+| streaming handlers | `StreamingToolkitHandlersLive` | `Tool.HandlersFor<StreamingToolkit.tools>`; requires `FileSystem \| HttpClient \| Path` |
+| streaming helpers | `Streaming/{TextStream,Jsonl,DatasetLoader,Pipeline}` | line/JSONL/dataset/pipeline helpers over `effect/Stream` + `effect/FileSystem` |
+| bin | `bin.ts` | stdio entrypoint; provides `NodeStdio` + `NodeFileSystem` + `NodePath` + `FetchHttpClient` and launches the server |
 
 ## Laws
 - Follow repository laws through command discovery.

@@ -9,7 +9,7 @@ import { createRequire } from "node:module";
 import { $WinkId } from "@beep/identity";
 import { Document, DocumentId } from "@beep/nlp/Core/Document";
 import { BM25Config, BM25Norm, DefaultBM25Config, DocumentVector } from "@beep/nlp/Core/Vectorization";
-import { TaggedErrorClass } from "@beep/schema";
+import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import { A, thunk0, thunkEffectVoid } from "@beep/utils";
 import { Chunk, Clock, Context, Effect, HashMap, HashSet, Layer, pipe, Ref } from "effect";
 import * as Bool from "effect/Boolean";
@@ -117,11 +117,11 @@ class CorpusSummary extends S.Class<CorpusSummary>($I`CorpusSummary`)(
 class LearnCorpusResult extends S.Class<LearnCorpusResult>($I`LearnCorpusResult`)(
   {
     corpusId: S.String,
-    learnedCount: S.Number,
+    learnedCount: NonNegativeInt,
     reindexRequired: S.Boolean,
-    skippedCount: S.Number,
-    totalDocuments: S.Number,
-    vocabularySize: S.Number,
+    skippedCount: NonNegativeInt,
+    totalDocuments: NonNegativeInt,
+    vocabularySize: NonNegativeInt,
   },
   $I.annote("LearnCorpusResult", {
     description: "Result metadata returned after learning documents into a managed corpus.",
@@ -697,11 +697,11 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
       return {
         corpusId: request.corpusId,
-        learnedCount: learnedDocuments.length,
+        learnedCount: NonNegativeInt.make(learnedDocuments.length),
         reindexRequired: true,
-        skippedCount,
-        totalDocuments: updatedState.documents.length,
-        vocabularySize: HashSet.size(updatedState.vocabulary),
+        skippedCount: NonNegativeInt.make(skippedCount),
+        totalDocuments: NonNegativeInt.make(updatedState.documents.length),
+        vocabularySize: NonNegativeInt.make(HashSet.size(updatedState.vocabulary)),
       };
     }, observeCorpus("learn_documents")),
 

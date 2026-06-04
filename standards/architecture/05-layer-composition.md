@@ -170,6 +170,12 @@ public slice/package Layers, runtime providers required by the app boundary,
 and config/driver boundaries through approved public subpaths. It exports only
 app-specific live Layers and app-specific test Layers or fixtures.
 
+Framework apps remain app-local even when they contain reusable-looking helper
+modules. Next.js and Tauri app tests import those helpers through `@/*`, not
+through a public `@beep/<app>` package alias. Only runtime proof apps should
+keep a package-like app API, because their purpose is to prove a runtime
+contract at the workspace boundary.
+
 **Private** = anything not exported through a canonical subpath (`/public`,
 `/server`, `/secrets`, `/layer`, `/test`) of a package's public root. App-level
 composition may import only from canonical subpaths; reaching past them into a

@@ -17,12 +17,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | Metric | Count |
 |---|---:|
 | packages | 89 |
-| packagesWithPublicExports | 84 |
-| packagesWithoutPublicExports | 1 |
+| packagesWithPublicExports | 79 |
+| packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1059 |
+| importSpecifiers | 1053 |
 | publicExportEntries | 13862 |
-| uniquePackageSymbols | 6163 |
+| uniquePackageSymbols | 6145 |
 
 ## Seed Discovery Proof
 
@@ -52,10 +52,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 13 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 14 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 15 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1664 | 597 |
+| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1668 | 601 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
-| 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 6 | 23 | 22 |
+| 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 75 | 63 |
 | 20 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
 | 21 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
 | 22 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 19 | 15 |
@@ -71,11 +71,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 32 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | has-public-exports | 5 | 46 | 25 |
 | 33 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | has-public-exports | 4 | 60 | 20 |
 | 34 | `@beep/types` | `packages/foundation/primitive/types` | has-public-exports | 6 | 14 | 10 |
-| 35 | `@beep/oip-web` | `apps/oip-web` | has-public-exports | 12 | 46 | 41 |
+| 35 | `@beep/oip-web` | `apps/oip-web` | no-public-exports | 0 | 0 | 0 |
 | 36 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
 | 37 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
 | 38 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
-| 39 | `@beep/canvas` | `apps/canvas` | has-public-exports | 1 | 23 | 20 |
+| 39 | `@beep/canvas` | `apps/canvas` | no-public-exports | 0 | 0 | 0 |
 | 40 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
 | 41 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 272 | 219 |
 | 42 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 781 | 580 |
@@ -89,19 +89,19 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 50 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
 | 51 | `@beep/box` | `packages/drivers/box` | has-public-exports | 5 | 9 | 8 |
 | 52 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
-| 53 | `@beep/stack-installer` | `apps/stack-installer` | has-public-exports | 1 | 4 | 4 |
-| 54 | `@beep/professional-desktop` | `apps/professional-desktop` | has-public-exports | 1 | 1 | 1 |
+| 53 | `@beep/stack-installer` | `apps/stack-installer` | no-public-exports | 0 | 0 | 0 |
+| 54 | `@beep/professional-desktop` | `apps/professional-desktop` | no-public-exports | 0 | 0 | 0 |
 | 55 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
 | 56 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
-| 57 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 4 | 4 |
+| 57 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 3 | 3 |
 | 58 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
-| 59 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 76 | 871 | 452 |
+| 59 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 82 | 892 | 458 |
 | 60 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
 | 61 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
 | 62 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
 | 63 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 67 | 1751 | 512 |
 | 64 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
-| 65 | `@beep/codedank-web` | `apps/codedank-web` | has-public-exports | 1 | 1 | 1 |
+| 65 | `@beep/codedank-web` | `apps/codedank-web` | no-public-exports | 0 | 0 | 0 |
 | 66 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
 | 67 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
 | 68 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
@@ -110,7 +110,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 71 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
 | 72 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
 | 73 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
-| 74 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 3 | 3 |
+| 74 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 2 | 2 |
 | 75 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
 | 76 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 77 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
@@ -814,7 +814,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:46` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
-| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:54` | CLI command for synchronizing version pins across the monorepo. |
 | `@beep/repo-cli` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:24` | Command that runs fast quality feedback, canonical full proof, then commits and pushes reviewed staged changes. |
 | `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
@@ -999,9 +999,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `GenerationActionKind` | type | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:163` | Planned generation action. |
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedFile` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:87` | A file write operation. |
 | `@beep/repo-cli/commands/CreatePackage/FileGenerationPlanService` | `PlannedSymlink` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts:108` | A symlink operation. |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:599` | CLI command that scaffolds a new package with templates, a Schema-validated |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:810` | CLI command that scaffolds a new package with templates, a Schema-validated |
 | `@beep/repo-cli/commands/CreatePackage/Handler` | `resolveCreatePackageTemplateDir` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:83` | Resolve create-package template directory for both src and dist runtimes. |
-| `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:289` | Variables passed into every template during package scaffolding. |
+| `@beep/repo-cli/commands/CreatePackage/Handler` | `TemplateContext` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts:495` | Variables passed into every template during package scaffolding. |
 | `@beep/repo-cli/commands/CreatePackage/index` | `createPackageCommand` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/CreatePackage.command.ts:22` | Package creation command. |
 | `@beep/repo-cli/commands/CreatePackage/TemplateService` | `createTemplateService` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:155` | Construct the default template service implementation. |
 | `@beep/repo-cli/commands/CreatePackage/TemplateService` | `RenderedTemplate` | class | `packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts:50` | Rendered template output. |
@@ -1962,10 +1962,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1686` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1706` | Synchronize tsconfig references and root aliases under a specific repository root. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
@@ -1976,17 +1976,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
 | `@beep/repo-cli/commands/TsconfigSync` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:704` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:684` | Minimal tsconfig shape containing optional `references`. |
 | `@beep/repo-cli/commands/TsconfigSync` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1686` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1706` | Synchronize tsconfig references and root aliases under a specific repository root. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncFilterError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:114` | Filter error raised when `--filter` does not match any workspace package. |
@@ -1997,17 +1997,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:704` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/index` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:684` | Minimal tsconfig shape containing optional `references`. |
 | `@beep/repo-cli/commands/TsconfigSync/index` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `buildCanonicalAliasTargets` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:154` | Build root and wildcard alias targets for a package export target. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:521` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `PlannedFileChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:544` | A planned file change with transformed file content. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `resolveRootExportTarget` | const | `packages/tooling/library/repo-utils/src/schemas/TsconfigAliasTargets.ts:89` | Resolve the canonical root export target from a package `exports` field. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1686` | Synchronize tsconfig references and root aliases under a specific repository root. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `syncTsconfigAtRoot` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1706` | Synchronize tsconfig references and root aliases under a specific repository root. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:392` | A single planned file change. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncChange` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:415` | A single planned file change. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1826` | CLI command for synchronizing root and workspace tsconfig state. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncMode` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:191` | Command execution mode. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:591` | Result emitted after a sync run. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncResult` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:606` | Result emitted after a sync run. |
@@ -2015,8 +2015,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncRunOptions` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:268` | Runtime options for executing tsconfig sync at a repo root. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:281` | Sync change section categories. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigSyncSection` | type | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:301` | Sync change section categories. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:703` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
-| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:683` | Minimal tsconfig shape containing optional `references`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithPaths` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:704` | Minimal tsconfig shape containing optional `compilerOptions.paths`. |
+| `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `TsconfigWithReferences` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:684` | Minimal tsconfig shape containing optional `references`. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.command` | `WorkspaceDescriptor` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:627` | Workspace package descriptor with metadata for tsconfig synchronization. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncCycleError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:70` | Cycle error raised when workspace dependency cycles are detected. |
 | `@beep/repo-cli/commands/TsconfigSync/TsconfigSync.errors` | `TsconfigSyncDriftError` | class | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts:26` | Drift error raised in check mode when changes are required. |
@@ -2289,8 +2289,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:31` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:61` | Summary of terse Effect style migration results. |
-| `@beep/repo-cli/test/Quality` | `buildJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:912` | Build the deterministic JSDoc documentation inventory for a repository. |
-| `@beep/repo-cli/test/Quality` | `buildRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:617` | Build the deterministic repo export catalog for a repository. |
+| `@beep/repo-cli/test/Quality` | `buildJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:947` | Build the deterministic JSDoc documentation inventory for a repository. |
+| `@beep/repo-cli/test/Quality` | `buildRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:634` | Build the deterministic repo export catalog for a repository. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:72` | A package name referenced by a changeset file. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:102` | Summary emitted by the changeset package graph guard. |
@@ -2300,6 +2300,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:402` | Find changeset package references that are not in the workspace graph. |
 | `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:141` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:158` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:140` | Options for building or writing the JSDoc documentation inventory. |
+| `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:160` | Result returned after writing JSDoc inventory artifacts. |
 | `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
 | `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:103` | Package-local script profile used by the quality task adapter. |
 | `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1097` | Parse a raw argv vector into a quality task invocation when the first token is |
@@ -2312,6 +2314,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:69` | Canonical quality task name. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:86` | Canonical quality task name. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:130` | Planned subprocess invocation. |
+| `@beep/repo-cli/test/Quality` | `RepoExportsCatalogOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:119` | Options for building, writing, or checking the repo export catalog. |
+| `@beep/repo-cli/test/Quality` | `RepoExportsCatalogWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:137` | Result returned after writing or checking repo export catalog artifacts. |
 | `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:994` | Build root quality task subprocess steps. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:361` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
 | `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
@@ -2331,8 +2335,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:818` | Resolve the SQL integration database connection URI from environment variables. |
 | `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:785` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/test/Quality` | `writeJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:960` | Write JSDoc inventory JSONC and Markdown artifacts. |
-| `@beep/repo-cli/test/Quality` | `writeOrCheckRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:681` | Write or freshness-check repo export catalog JSONC and Markdown artifacts. |
+| `@beep/repo-cli/test/Quality` | `writeJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:995` | Write JSDoc inventory JSONC and Markdown artifacts. |
+| `@beep/repo-cli/test/Quality` | `writeOrCheckRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:698` | Write or freshness-check repo export catalog JSONC and Markdown artifacts. |
 | `@beep/repo-cli/test/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/test/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
 | `@beep/repo-cli/test/Reuse` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
@@ -2657,29 +2661,81 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/nlp-mcp` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:12` |  |
-| `@beep/nlp-mcp/bin` | `SERVER_CONFIG` | const | `packages/drivers/nlp-mcp/src/bin.ts:24` | The server identity advertised to MCP clients by this entrypoint. |
-| `@beep/nlp-mcp/index` | `VERSION` | const | `packages/drivers/nlp-mcp/src/index.ts:12` |  |
-| `@beep/nlp-mcp/Schemas` | `EntityEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:100` | A single extracted named entity. |
-| `@beep/nlp-mcp/Schemas` | `EntityOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:167` | Output of the named-entity extraction tool. |
-| `@beep/nlp-mcp/Schemas` | `LemmaEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:85` | A single lemmatized token. |
-| `@beep/nlp-mcp/Schemas` | `LemmaOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:153` | Output of the lemmatization tool. |
-| `@beep/nlp-mcp/Schemas` | `NlpToolError` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:56` | The failure a tool returns when the underlying NLP backend operation fails. |
-| `@beep/nlp-mcp/Schemas` | `POSEntry` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:70` | A single part-of-speech tagged token. |
-| `@beep/nlp-mcp/Schemas` | `POSOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:139` | Output of the part-of-speech tagging tool. |
-| `@beep/nlp-mcp/Schemas` | `TextArrayOutput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:125` | Output of a tool that returns an array of strings (tokens or sentences). |
-| `@beep/nlp-mcp/Schemas` | `TextInput` | class | `packages/drivers/nlp-mcp/src/Schemas.ts:36` | Parameters for a text-only NLP tool call. |
-| `@beep/nlp-mcp/Server` | `BackendLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:128` | The live wink-nlp backend layer (the default {@link @beep/nlp/Backend#NLPBackend} |
-| `@beep/nlp-mcp/Server` | `makeNlpHandlers` | const | `packages/drivers/nlp-mcp/src/Server.ts:50` | Build the {@link NlpToolkit} handler record from an |
-| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:164` | Build the stdio-transport MCP server layer exposing the NLP toolkit. |
-| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:139` | Configuration for the MCP server identity advertised to clients. |
-| `@beep/nlp-mcp/Server` | `NlpToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/Server.ts:111` | The handler layer binding each {@link NlpToolkit} tool to an |
-| `@beep/nlp-mcp/Tools` | `ExtractEntities` | const | `packages/drivers/nlp-mcp/src/Tools.ts:113` | Extract named entities from text. |
-| `@beep/nlp-mcp/Tools` | `Lemmatize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:93` | Reduce each token to its canonical lemma. |
-| `@beep/nlp-mcp/Tools` | `NlpToolkit` | const | `packages/drivers/nlp-mcp/src/Tools.ts:133` | The toolkit bundling every NLP tool exposed by this MCP server. |
-| `@beep/nlp-mcp/Tools` | `PosTag` | const | `packages/drivers/nlp-mcp/src/Tools.ts:73` | Tag each token with its part-of-speech label. |
-| `@beep/nlp-mcp/Tools` | `Sentencize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:33` | Split text into sentences. |
-| `@beep/nlp-mcp/Tools` | `Tokenize` | const | `packages/drivers/nlp-mcp/src/Tools.ts:53` | Split text into tokens (words). |
+| `@beep/nlp-mcp` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
+| `@beep/nlp-mcp` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:743` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:769` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
+| `@beep/nlp-mcp/bin` | `SERVER_CONFIG` | const | `packages/drivers/nlp-mcp/src/bin.ts:27` | The server identity advertised to MCP clients by this entrypoint. |
+| `@beep/nlp-mcp/index` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
+| `@beep/nlp-mcp/index` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp/index` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:743` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp/index` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:769` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp/index` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
+| `@beep/nlp-mcp/Server` | `makeServerLayer` | const | `packages/drivers/nlp-mcp/src/Server.ts:80` | Build the stdio-transport MCP server layer exposing the NLP and streaming |
+| `@beep/nlp-mcp/Server` | `NlpMcpServerConfig` | interface | `packages/drivers/nlp-mcp/src/Server.ts:38` | Configuration for the MCP server identity advertised to clients. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetLoadError` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:84` | Structured failure raised when a remote fetch or JSON decode fails. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetMeta` | class | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:37` | Provenance metadata returned alongside every loaded dataset. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `DatasetResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:71` | A loaded dataset payload paired with its {@link DatasetMeta}. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `isUrl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:109` | Report whether a location should be treated as a remote `http(s)` URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJson` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:363` | Load and parse a single JSON document from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:312` | Load a JSONL dataset as an array of parsed records from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadLines` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:248` | Load a dataset as an array of lines from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/DatasetLoader` | `loadText` | const | `packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts:201` | Load raw text from a file or remote URL. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `computeJsonlStats` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:158` | Compute aggregate parse statistics for a JSONL file. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlLineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:29` | Structured parse failure for a single JSONL line. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `JsonlStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:42` | Aggregate parse statistics for a JSONL file. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `readJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:139` | Collect parsed JSONL records into an array. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `sampleJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:221` | Sample up to `sampleSize` parsed JSONL records uniformly at random. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:92` | Stream parsed JSONL records, optionally dropping invalid lines. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `streamJsonlResults` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:121` | Stream per-line parse results, never failing on malformed JSON. |
+| `@beep/nlp-mcp/Streaming/Jsonl` | `validateJsonl` | const | `packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts:186` | Validate a JSONL file, returning parsed records and collected line errors. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineError` | interface | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:33` | A single pipeline failure entry describing the item, message, and stage. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineResult` | interface | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:48` | Outcome of running a line-transform pipeline over a file. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `PipelineStage` | type | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:25` | Identifier of a supported, pure line transform stage. |
+| `@beep/nlp-mcp/Streaming/Pipeline` | `processFile` | const | `packages/drivers/nlp-mcp/src/Streaming/Pipeline.ts:94` | Run an ordered list of line transforms over the lines of a file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `computeStats` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:316` | Compute aggregate line-length and byte statistics for a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `countLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:255` | Count the processed lines in a text file without buffering them. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `fileExists` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:274` | Report whether a path exists. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `getFileSize` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:293` | Report the size of a file in bytes. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `head` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:182` | Read the first `n` processed lines of a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `readLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:141` | Collect a text file into an array of processed lines. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `readTextFile` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:160` | Read an entire text file into a single decoded string. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `sampleLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:226` | Sample up to `sampleSize` processed lines uniformly at random. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `streamLines` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:97` | Stream a text file as a sequence of processed lines. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `tail` | const | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:202` | Read the last `n` processed lines of a text file. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextEncoding` | type | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:24` | Text decoding labels accepted by the streaming text helpers. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextReadOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:32` | Per-line processing options shared by the read-oriented helpers. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamOptions` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:47` | Streaming options that extend {@link TextReadOptions} with windowing controls. |
+| `@beep/nlp-mcp/Streaming/TextStream` | `TextStreamStats` | interface | `packages/drivers/nlp-mcp/src/Streaming/TextStream.ts:60` | Aggregate line-length and byte statistics computed for a text file. |
+| `@beep/nlp-mcp/StreamingHandlers` | `StreamingToolkitHandlersLive` | const | `packages/drivers/nlp-mcp/src/StreamingHandlers.ts:93` | Live handler layer for the streaming toolkit. |
+| `@beep/nlp-mcp/StreamingTools` | `CountJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:721` | Tool: count valid JSONL records in a file. |
+| `@beep/nlp-mcp/StreamingTools` | `CountLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:707` | Tool: count total lines in a file. |
+| `@beep/nlp-mcp/StreamingTools` | `DataOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:254` | Output schema pairing loaded data with its {@link DatasetMetaOutput}. |
+| `@beep/nlp-mcp/StreamingTools` | `DatasetMetaOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:224` | Output schema for dataset provenance metadata. |
+| `@beep/nlp-mcp/StreamingTools` | `ExtractMatches` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:693` | Tool: extract regex matches from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `FileInfo` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:511` | Tool: report whether a file exists plus its size and line count. |
+| `@beep/nlp-mcp/StreamingTools` | `FileInfoOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:102` | Output schema for file existence and size metadata. |
+| `@beep/nlp-mcp/StreamingTools` | `FilterLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:679` | Tool: filter file lines by a regex pattern. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:162` | Output schema for JSONL record reads, with optional collected errors. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:567` | Tool: compute JSONL parse statistics for a file. |
+| `@beep/nlp-mcp/StreamingTools` | `JsonlStatsOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:193` | Output schema for JSONL parse statistics. |
+| `@beep/nlp-mcp/StreamingTools` | `LinesOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:77` | Output schema for line-returning streaming tools. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadJson` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:651` | Tool: load and parse JSON from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:637` | Tool: load JSONL records from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:623` | Tool: load lines from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `LoadText` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:609` | Tool: load text from a local file or remote URL. |
+| `@beep/nlp-mcp/StreamingTools` | `PipelineOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:285` | Output schema for line-transform pipeline runs. |
+| `@beep/nlp-mcp/StreamingTools` | `ProcessFile` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:665` | Tool: run a line-transform pipeline over a file. |
+| `@beep/nlp-mcp/StreamingTools` | `ReadJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:553` | Tool: read JSONL/NDJSON records from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `ReadLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:496` | Tool: read lines from a text file with optional head/tail windowing. |
+| `@beep/nlp-mcp/StreamingTools` | `SampleJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:595` | Tool: sample random JSONL records from a file. |
+| `@beep/nlp-mcp/StreamingTools` | `SampleLines` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:539` | Tool: sample random lines from a text file. |
+| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:743` | The complete streaming toolkit grouping all 17 streaming tools. |
+| `@beep/nlp-mcp/StreamingTools` | `StreamingToolkit` | type | `packages/drivers/nlp-mcp/src/StreamingTools.ts:769` | Type of the {@link StreamingToolkit}. |
+| `@beep/nlp-mcp/StreamingTools` | `TextStats` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:525` | Tool: compute aggregate line-length and byte statistics for a file. |
+| `@beep/nlp-mcp/StreamingTools` | `TextStatsOutput` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:134` | Output schema for aggregate text statistics. |
+| `@beep/nlp-mcp/StreamingTools` | `ValidateJsonl` | const | `packages/drivers/nlp-mcp/src/StreamingTools.ts:581` | Tool: validate a JSONL file and collect parse errors. |
 
 ### @beep/law-practice-domain
 
@@ -4460,57 +4516,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/types/TUtils.types` | `Simplify` | type | `packages/foundation/primitive/types/src/TUtils.types.ts:52` | Expands an object type into a readable readonly property map. |
 | `@beep/types/TUtils.types` | `UnionToIntersection` | type | `packages/foundation/primitive/types/src/TUtils.types.ts:27` | Converts a union type into an intersection type. |
 
-### @beep/oip-web
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/oip-web` | `VERSION` | const | `apps/oip-web/src/index.ts:21` | Package version for the oip web app. |
-| `@beep/oip-web/app/api/contact/ContactRouteResponse` | `contactRequestResponse` | const | `apps/oip-web/src/app/api/contact/ContactRouteResponse.ts:141` | Builds an OIP contact route response inside an Effect runtime. |
-| `@beep/oip-web/app/api/contact/ContactRouteResponse` | `contactRequestResponseWithSubmit` | const | `apps/oip-web/src/app/api/contact/ContactRouteResponse.ts:83` | Builds an OIP contact route response using an injected contact workflow. |
-| `@beep/oip-web/app/api/contact/route` | `POST` | function | `apps/oip-web/src/app/api/contact/route.ts:26` | Handles OIP contact submissions at the Next.js route boundary. |
-| `@beep/oip-web/app/llms.txt/route` | `GET` | function | `apps/oip-web/src/app/llms.txt/route.ts:24` | Returns `llms.txt` for oip.law. |
-| `@beep/oip-web/app/manifest` | `default` | function | `apps/oip-web/src/app/manifest.ts:23` | Returns the static web manifest for oip web. |
-| `@beep/oip-web/app/robots` | `default` | function | `apps/oip-web/src/app/robots.ts:24` | Returns the robots policy for OIP. |
-| `@beep/oip-web/app/sitemap` | `default` | function | `apps/oip-web/src/app/sitemap.ts:24` | Returns the OIP sitemap. |
-| `@beep/oip-web/config/OipRedirects` | `oipRedirects` | const | `apps/oip-web/src/config/OipRedirects.ts:24` | Returns the canonical OIP redirect table for legacy OPIP compatibility. |
-| `@beep/oip-web/contact` | `contactResponseBody` | const | `apps/oip-web/src/contact/ContactSubmission.service.ts:333` | Builds a JSON-safe contact response object. |
-| `@beep/oip-web/contact` | `ContactSubmission` | class | `apps/oip-web/src/contact/ContactSubmission.model.ts:119` | Browser-submitted OIP contact form payload. |
-| `@beep/oip-web/contact` | `ContactSubmissionResponse` | class | `apps/oip-web/src/contact/ContactSubmission.model.ts:154` | Public contact submission response. |
-| `@beep/oip-web/contact` | `ContactSubmissionStatus` | const | `apps/oip-web/src/contact/ContactSubmission.model.ts:74` | Public contact submission status. |
-| `@beep/oip-web/contact` | `ContactSubmissionStatus` | type | `apps/oip-web/src/contact/ContactSubmission.model.ts:94` | Type for {@link ContactSubmissionStatus}. |
-| `@beep/oip-web/contact` | `decodeContactSubmission` | const | `apps/oip-web/src/contact/ContactSubmission.model.ts:185` | Decodes unknown input into a contact submission. |
-| `@beep/oip-web/contact` | `submitContact` | const | `apps/oip-web/src/contact/ContactSubmission.service.ts:281` | Submits an OIP contact payload to HubSpot when runtime config is present. |
-| `@beep/oip-web/content` | `AboutPanel` | class | `apps/oip-web/src/content/OipContent.model.ts:341` | Biographical bridge panel. |
-| `@beep/oip-web/content` | `ClientLogo` | class | `apps/oip-web/src/content/OipContent.model.ts:446` | Client logo reference. |
-| `@beep/oip-web/content` | `ContactContent` | class | `apps/oip-web/src/content/OipContent.model.ts:516` | Public contact and legal notice content. |
-| `@beep/oip-web/content` | `decodeOipSiteContent` | const | `apps/oip-web/src/content/OipContent.model.ts:596` | Decodes unknown input into {@link OipSiteContent} in an Effect workflow. |
-| `@beep/oip-web/content` | `decodeOipSiteContentResult` | const | `apps/oip-web/src/content/OipContent.model.ts:579` | Decodes unknown input into {@link OipSiteContent}. |
-| `@beep/oip-web/content` | `ExternalLink` | class | `apps/oip-web/src/content/OipContent.model.ts:97` | External link displayed by the public site. |
-| `@beep/oip-web/content` | `getOipSiteContent` | const | `apps/oip-web/src/content/OipContent.runtime.ts:190` | Promise boundary for Next.js server components. |
-| `@beep/oip-web/content` | `HeroContent` | class | `apps/oip-web/src/content/OipContent.model.ts:304` | Hero citation and opening claim. |
-| `@beep/oip-web/content` | `launchReviewGates` | const | `apps/oip-web/src/content/OipContent.data.ts:397` | Review gate statuses that must be closed before public launch. |
-| `@beep/oip-web/content` | `loadOipSiteContent` | const | `apps/oip-web/src/content/OipContent.runtime.ts:165` | Loads OIP site content from Sanity when configured, falling back to the |
-| `@beep/oip-web/content` | `makeJsonLdGraph` | const | `apps/oip-web/src/content/OipSeo.ts:36` | Builds conservative JSON-LD graph data for the OIP website. |
-| `@beep/oip-web/content` | `makeLlmsText` | const | `apps/oip-web/src/content/OipSeo.ts:115` | Builds `llms.txt` content from reviewed OIP site content. |
-| `@beep/oip-web/content` | `MatterItem` | class | `apps/oip-web/src/content/OipContent.model.ts:408` | Selected matter summary. |
-| `@beep/oip-web/content` | `NavItem` | class | `apps/oip-web/src/content/OipContent.model.ts:268` | Anchor navigation item. |
-| `@beep/oip-web/content` | `oipSiteContent` | const | `apps/oip-web/src/content/OipContent.data.ts:382` | Decoded OIP launch content. |
-| `@beep/oip-web/content` | `OipSiteContent` | class | `apps/oip-web/src/content/OipContent.model.ts:543` | Complete content contract for the OIP public site. |
-| `@beep/oip-web/content` | `oipTwitterHandle` | const | `apps/oip-web/src/content/OipSeo.ts:92` | Derives the firm's X/Twitter handle (e.g. `@opiplaw`) from the social links, |
-| `@beep/oip-web/content` | `PracticeArea` | class | `apps/oip-web/src/content/OipContent.model.ts:373` | Practice-area summary. |
-| `@beep/oip-web/content` | `PressItem` | class | `apps/oip-web/src/content/OipContent.model.ts:481` | Press item summary. |
-| `@beep/oip-web/content` | `ReviewGate` | class | `apps/oip-web/src/content/OipContent.model.ts:69` | Review note attached to a public website claim. |
-| `@beep/oip-web/content` | `ReviewStatus` | const | `apps/oip-web/src/content/OipContent.model.ts:29` | Review state for public claims that need launch approval. |
-| `@beep/oip-web/content` | `ReviewStatus` | type | `apps/oip-web/src/content/OipContent.model.ts:49` | Runtime type for {@link ReviewStatus}. |
-| `@beep/oip-web/content` | `SiteAsset` | class | `apps/oip-web/src/content/OipContent.model.ts:205` | Runtime asset reference served from the OIP app public folder. |
-| `@beep/oip-web/content` | `SiteMetadataContent` | class | `apps/oip-web/src/content/OipContent.model.ts:240` | Top-level metadata used by Next.js and JSON-LD generation. |
-| `@beep/oip-web/content` | `SocialLink` | class | `apps/oip-web/src/content/OipContent.model.ts:172` | Public social media profile link for the OIP firm. |
-| `@beep/oip-web/content` | `SocialPlatform` | const | `apps/oip-web/src/content/OipContent.model.ts:121` | Social platform the OIP firm maintains a public profile on. |
-| `@beep/oip-web/content` | `SocialPlatform` | type | `apps/oip-web/src/content/OipContent.model.ts:151` | Runtime type for {@link SocialPlatform}. |
-| `@beep/oip-web/mdx-components` | `useMDXComponents` | function | `apps/oip-web/src/mdx-components.tsx:26` | Returns the MDX component overrides used by oip web. |
-| `@beep/oip-web/proxy` | `config` | const | `apps/oip-web/src/proxy.ts:106` | Route matcher for the OIP CSP proxy. |
-| `@beep/oip-web/proxy` | `proxy` | function | `apps/oip-web/src/proxy.ts:75` | Adds a per-request CSP nonce to OIP document responses. |
-
 ### @beep/agent-capability-domain
 
 | Import | Symbol | Kind | Source | Summary |
@@ -4810,34 +4815,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/md/Md.utils` | `renderInlineCode` | const | `packages/foundation/capability/md/src/Md.utils.ts:342` | Builds a Markdown inline code span with an adaptive backtick fence. |
 | `@beep/md/Md.utils` | `sanitizeCodeFenceLanguage` | const | `packages/foundation/capability/md/src/Md.utils.ts:287` | Sanitizes Markdown fenced-code info strings to a single language token. |
 | `@beep/md/Md.utils` | `sanitizeUrlDestination` | const | `packages/foundation/capability/md/src/Md.utils.ts:224` | Normalizes URL-like destinations before rendering Markdown or HTML output. |
-
-### @beep/canvas
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/canvas` | `App` | function | `apps/canvas/src/App.tsx:85` | Canvas desktop shell root component. |
-| `@beep/canvas` | `CanvasCommandBridgeEffect` | type | `apps/canvas/src/commandBridge.ts:500` | Effect that builds or runs against the app-local canvas command bridge. |
-| `@beep/canvas` | `CanvasCommandError` | class | `apps/canvas/src/commandBridge.ts:355` | App command bridge failure. |
-| `@beep/canvas` | `CanvasCommandName` | const | `apps/canvas/src/commandBridge.ts:92` | Native command name schema for the canvas app shell. |
-| `@beep/canvas` | `CanvasCommandName` | type | `apps/canvas/src/commandBridge.ts:111` | Type for {@link CanvasCommandName}. |
-| `@beep/canvas` | `CanvasCommandRuntime` | type | `apps/canvas/src/commandBridge.ts:51` | Runtime returned by {@link makeCanvasCommandRuntime}. |
-| `@beep/canvas` | `CanvasHealth` | class | `apps/canvas/src/commandBridge.ts:137` | Canvas shell health payload. |
-| `@beep/canvas` | `CanvasScene` | const | `apps/canvas/src/commandBridge.ts:165` | Serializable scene shape crossing the app command bridge. |
-| `@beep/canvas` | `CanvasScene` | type | `apps/canvas/src/commandBridge.ts:190` | Type for {@link CanvasScene}. |
-| `@beep/canvas` | `CanvasSceneNode` | const | `apps/canvas/src/commandBridge.ts:206` | Serializable node shape crossing the app command bridge. |
-| `@beep/canvas` | `CanvasSceneNode` | type | `apps/canvas/src/commandBridge.ts:230` | Type for {@link CanvasSceneNode}. |
-| `@beep/canvas` | `commandSurface` | const | `apps/canvas/src/commandBridge.ts:66` | Native command names exposed by the canvas app shell. |
-| `@beep/canvas` | `decodeCanvasNodeId` | const | `apps/canvas/src/commandBridge.ts:539` | Decode a user-provided string into a canvas node identifier. |
-| `@beep/canvas` | `decodeCanvasNodeKind` | const | `apps/canvas/src/commandBridge.ts:557` | Decode a user-provided value into a canvas node kind. |
-| `@beep/canvas` | `decodeCanvasProjectId` | const | `apps/canvas/src/commandBridge.ts:519` | Decode a user-provided string into a canvas project identifier. |
-| `@beep/canvas` | `makeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:695` | Build the default app command bridge. |
-| `@beep/canvas` | `makeCanvasCommandRuntime` | const | `apps/canvas/src/commandBridge.ts:34` | Managed runtime for app-local canvas command effects. |
-| `@beep/canvas` | `makeNativeCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:671` | Build the desktop bridge: Tauri owns only app-local OS/file IO while scene |
-| `@beep/canvas` | `makePreviewCanvasCommandBridge` | const | `apps/canvas/src/commandBridge.ts:577` | Build a browser-safe preview bridge backed by the public CanvasProject use-case contract. |
-| `@beep/canvas` | `previewHealth` | const | `apps/canvas/src/commandBridge.ts:335` | Browser preview health payload. |
-| `@beep/canvas` | `SceneLoadRequest` | class | `apps/canvas/src/commandBridge.ts:280` | Scene load request. |
-| `@beep/canvas` | `SceneSaveRequest` | class | `apps/canvas/src/commandBridge.ts:256` | Scene save request. |
-| `@beep/canvas` | `VERSION` | const | `apps/canvas/src/index.ts:22` | Package version for `@beep/canvas`. |
 
 ### @beep/workspace-domain
 
@@ -7292,21 +7269,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/openai-compat` | `OpenAiCompatUserChatMessage` | class | `packages/drivers/openai-compat/src/OpenAiCompat.models.ts:343` | User chat message accepted by OpenAI-compatible chat completion endpoints. |
 | `@beep/openai-compat` | `VERSION` | const | `packages/drivers/openai-compat/src/index.ts:23` | OpenAI-compatible driver package version. |
 
-### @beep/stack-installer
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/stack-installer` | `P1ManualProofSliceLayer` | const | `packages/installer/server/src/Layer.ts:870` | Complete installer server layer. |
-| `@beep/stack-installer` | `previewP1ManualProof` | const | `packages/installer/server/src/Layer.ts:905` | Preview the P1 Manual Mode proof without sending a Discord message. |
-| `@beep/stack-installer` | `runP1ManualProof` | const | `packages/installer/server/src/Layer.ts:885` | Run the live P1 Manual Mode proof and return sanitized evidence. |
-| `@beep/stack-installer` | `VERSION` | const | `apps/stack-installer/src/index.ts:22` | App version marker. |
-
-### @beep/professional-desktop
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/professional-desktop` | `VERSION` | const | `apps/professional-desktop/src/index.ts:21` | Package version. |
-
 ### @beep/epistemic-domain
 
 | Import | Symbol | Kind | Source | Summary |
@@ -7416,10 +7378,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/professional-runtime-proof` | `runProfessionalRuntimeScenario` | const | `apps/professional-runtime-proof/src/index.ts:532` | Run one deterministic professional-runtime proof scenario end to end. |
-| `@beep/professional-runtime-proof` | `ScenarioId` | type | `apps/professional-runtime-proof/src/index.ts:167` | Deterministic proof scenario identifiers. |
-| `@beep/professional-runtime-proof` | `toPlain` | const | `apps/professional-runtime-proof/src/index.ts:200` | Convert decoded Schema class instances into JSON-comparable plain data. |
-| `@beep/professional-runtime-proof` | `VERSION` | const | `apps/professional-runtime-proof/src/index.ts:55` | Package version. |
+| `@beep/professional-runtime-proof` | `runProfessionalRuntimeScenario` | const | `apps/professional-runtime-proof/src/index.ts:517` | Run one deterministic professional-runtime proof scenario end to end. |
+| `@beep/professional-runtime-proof` | `ScenarioId` | type | `apps/professional-runtime-proof/src/index.ts:152` | Deterministic proof scenario identifiers. |
+| `@beep/professional-runtime-proof` | `toPlain` | const | `apps/professional-runtime-proof/src/index.ts:185` | Convert decoded Schema class instances into JSON-comparable plain data. |
 
 ### @beep/acp
 
@@ -8588,122 +8549,143 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/nlp/QueryText` | `extractBacktickValue` | const | `packages/foundation/capability/nlp/src/QueryText.ts:77` | Extract the first value enclosed in backticks from a user question. |
 | `@beep/nlp/QueryText` | `normalizePhrase` | const | `packages/foundation/capability/nlp/src/QueryText.ts:54` | Normalize a short extracted phrase after it has been pulled from prose. |
 | `@beep/nlp/QueryText` | `normalizeQuestion` | const | `packages/foundation/capability/nlp/src/QueryText.ts:33` | Canonicalize a free-form user question for deterministic matching. |
-| `@beep/nlp/Tools` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:61` | Ai corpus config tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:75` | Ai corpus idf tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:89` | Ai corpus matrix shape tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:103` | Ai corpus ranked document tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:117` | Ai corpus stats tool schema. |
-| `@beep/nlp/Tools` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:131` | Ai corpus summary tool schema. |
-| `@beep/nlp/Tools` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:145` | Ai document stats tool schema. |
-| `@beep/nlp/Tools` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:159` | Ai entity tool schema. |
-| `@beep/nlp/Tools` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:173` | Ai keyword tool schema. |
-| `@beep/nlp/Tools` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:187` | Ai n gram tool schema. |
-| `@beep/nlp/Tools` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:201` | Ai phonetic match tool schema. |
-| `@beep/nlp/Tools` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:215` | Ai ranked text tool schema. |
-| `@beep/nlp/Tools` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:229` | Ai sentence tool schema. |
-| `@beep/nlp/Tools` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:243` | Ai sentence chunk tool schema. |
-| `@beep/nlp/Tools` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:278` | Ai token tool schema. |
-| `@beep/nlp/Tools` | `AiToolError` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:264` | Ai tool error schema. |
-| `@beep/nlp/Tools` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:292` | Bow cosine similarity tool. |
-| `@beep/nlp/Tools` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:306` | Chunk by sentences tool. |
-| `@beep/nlp/Tools` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:320` | Corpus stats layer. |
-| `@beep/nlp/Tools` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:334` | Create corpus export. |
-| `@beep/nlp/Tools` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:348` | Delete corpus tool. |
-| `@beep/nlp/Tools` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:362` | Document stats tool. |
-| `@beep/nlp/Tools` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:589` | Export tools tool. |
-| `@beep/nlp/Tools` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:376` | Extract entities tool. |
-| `@beep/nlp/Tools` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:390` | Extract keywords tool. |
-| `@beep/nlp/Tools` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:404` | Learn corpus tool. |
-| `@beep/nlp/Tools` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:418` | Learn custom entities tool. |
-| `@beep/nlp/Tools` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:432` | N grams tool. |
-| `@beep/nlp/Tools` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:559` | Nlp toolkit tool. |
-| `@beep/nlp/Tools` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:574` | Nlp tools tool. |
-| `@beep/nlp/Tools` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:446` | Phonetic match tool. |
-| `@beep/nlp/Tools` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:460` | Query corpus tool. |
-| `@beep/nlp/Tools` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:474` | Rank by relevance tool. |
-| `@beep/nlp/Tools` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:488` | Sentences tool. |
-| `@beep/nlp/Tools` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:502` | Text similarity tool. |
-| `@beep/nlp/Tools` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:516` | Tokenize tool. |
-| `@beep/nlp/Tools` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:530` | Transform text tool. |
-| `@beep/nlp/Tools` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:544` | Tversky similarity tool. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusConfig` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:451` | Output schema for the resolved BM25 configuration of a managed corpus. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusIdf` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:558` | Output schema for an inverse document frequency value in a corpus. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusMatrixShape` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:590` | Output schema for the dimensions of an optional document-term matrix. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusRankedDocument` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:525` | Output schema for one ranked document returned from a corpus query. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:628` | Output schema for detailed corpus diagnostics and retrieval statistics. |
-| `@beep/nlp/Tools/_schemas` | `AiCorpusSummary` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:488` | Output schema for a managed corpus session summary. |
-| `@beep/nlp/Tools/_schemas` | `AiDocumentStats` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:194` | Output schema for high-level document statistics. |
-| `@beep/nlp/Tools/_schemas` | `AiEntity` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:303` | Output schema for an extracted named entity. |
-| `@beep/nlp/Tools/_schemas` | `AiKeyword` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:160` | Output schema for a keyword candidate and its importance score. |
-| `@beep/nlp/Tools/_schemas` | `AiNGram` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:340` | Output schema for an extracted n-gram and its frequency count. |
-| `@beep/nlp/Tools/_schemas` | `AiPhoneticMatch` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:375` | Output schema for phonetic overlap between two text inputs. |
-| `@beep/nlp/Tools/_schemas` | `AiRankedText` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:266` | Output schema for one ranked text candidate. |
-| `@beep/nlp/Tools/_schemas` | `AiSentence` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:125` | Output schema for a detected sentence with source offsets and token count. |
-| `@beep/nlp/Tools/_schemas` | `AiSentenceChunk` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:231` | Output schema for a sentence-aligned text chunk. |
-| `@beep/nlp/Tools/_schemas` | `AiToken` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:82` | Output schema for one token emitted by tokenization-oriented tools. |
-| `@beep/nlp/Tools/_schemas` | `AiToolError` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:414` | Structured failure schema returned by AI-facing NLP tools. |
-| `@beep/nlp/Tools/BowCosineSimilarity` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts:69` | Defines the agent-facing tool contract for comparing two texts by |
-| `@beep/nlp/Tools/ChunkBySentences` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts:67` | Defines the agent-facing tool contract for splitting text into chunks that |
+| `@beep/nlp/Tools` | `AiAnalysis` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:68` | Ai analysis tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:82` | Ai corpus config tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:96` | Ai corpus idf tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:110` | Ai corpus matrix shape tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:124` | Ai corpus ranked document tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:138` | Ai corpus stats tool schema. |
+| `@beep/nlp/Tools` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:152` | Ai corpus summary tool schema. |
+| `@beep/nlp/Tools` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:166` | Ai document stats tool schema. |
+| `@beep/nlp/Tools` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:180` | Ai entity tool schema. |
+| `@beep/nlp/Tools` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:194` | Ai keyword tool schema. |
+| `@beep/nlp/Tools` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:208` | Ai n gram tool schema. |
+| `@beep/nlp/Tools` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:222` | Ai phonetic match tool schema. |
+| `@beep/nlp/Tools` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:236` | Ai ranked text tool schema. |
+| `@beep/nlp/Tools` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:250` | Ai sentence tool schema. |
+| `@beep/nlp/Tools` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:264` | Ai sentence chunk tool schema. |
+| `@beep/nlp/Tools` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:299` | Ai token tool schema. |
+| `@beep/nlp/Tools` | `AiToolError` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:285` | Ai tool error schema. |
+| `@beep/nlp/Tools` | `Analyze` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:313` | Analyze tool. |
+| `@beep/nlp/Tools` | `BagOfWords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:327` | Bag of words tool. |
+| `@beep/nlp/Tools` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:341` | Bow cosine similarity tool. |
+| `@beep/nlp/Tools` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:355` | Chunk by sentences tool. |
+| `@beep/nlp/Tools` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:369` | Corpus stats layer. |
+| `@beep/nlp/Tools` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:383` | Create corpus export. |
+| `@beep/nlp/Tools` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:397` | Delete corpus tool. |
+| `@beep/nlp/Tools` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:411` | Document stats tool. |
+| `@beep/nlp/Tools` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:694` | Export tools tool. |
+| `@beep/nlp/Tools` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:425` | Extract entities tool. |
+| `@beep/nlp/Tools` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:439` | Extract keywords tool. |
+| `@beep/nlp/Tools` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:453` | Learn corpus tool. |
+| `@beep/nlp/Tools` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:467` | Learn custom entities tool. |
+| `@beep/nlp/Tools` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:481` | N grams tool. |
+| `@beep/nlp/Tools` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:664` | Nlp toolkit tool. |
+| `@beep/nlp/Tools` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:679` | Nlp tools tool. |
+| `@beep/nlp/Tools` | `Paragraphize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:495` | Paragraphize tool. |
+| `@beep/nlp/Tools` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:509` | Phonetic match tool. |
+| `@beep/nlp/Tools` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:523` | Query corpus tool. |
+| `@beep/nlp/Tools` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:537` | Rank by relevance tool. |
+| `@beep/nlp/Tools` | `RemoveStopWords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:551` | Remove stop words tool. |
+| `@beep/nlp/Tools` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:565` | Sentences tool. |
+| `@beep/nlp/Tools` | `Stem` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:579` | Stem tool. |
+| `@beep/nlp/Tools` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:593` | Text similarity tool. |
+| `@beep/nlp/Tools` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:607` | Tokenize tool. |
+| `@beep/nlp/Tools` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:621` | Transform text tool. |
+| `@beep/nlp/Tools` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:635` | Tversky similarity tool. |
+| `@beep/nlp/Tools` | `WordCount` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:649` | Word count tool. |
+| `@beep/nlp/Tools/_schemas` | `AiAnalysis` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:137` | Output schema for a composite linguistic analysis of a text. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:493` | Output schema for the resolved BM25 configuration of a managed corpus. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:597` | Output schema for an inverse document frequency value in a corpus. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:628` | Output schema for the dimensions of an optional document-term matrix. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:565` | Output schema for one ranked document returned from a corpus query. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:665` | Output schema for detailed corpus diagnostics and retrieval statistics. |
+| `@beep/nlp/Tools/_schemas` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:529` | Output schema for a managed corpus session summary. |
+| `@beep/nlp/Tools/_schemas` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:242` | Output schema for high-level document statistics. |
+| `@beep/nlp/Tools/_schemas` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:348` | Output schema for an extracted named entity. |
+| `@beep/nlp/Tools/_schemas` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:209` | Output schema for a keyword candidate and its importance score. |
+| `@beep/nlp/Tools/_schemas` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:384` | Output schema for an extracted n-gram and its frequency count. |
+| `@beep/nlp/Tools/_schemas` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:418` | Output schema for phonetic overlap between two text inputs. |
+| `@beep/nlp/Tools/_schemas` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:312` | Output schema for one ranked text candidate. |
+| `@beep/nlp/Tools/_schemas` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:175` | Output schema for a detected sentence with source offsets and token count. |
+| `@beep/nlp/Tools/_schemas` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:278` | Output schema for a sentence-aligned text chunk. |
+| `@beep/nlp/Tools/_schemas` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:82` | Output schema for one token emitted by tokenization-oriented tools. |
+| `@beep/nlp/Tools/_schemas` | `AiToolError` | class | `packages/foundation/capability/nlp/src/Tools/_schemas.ts:456` | Structured failure schema returned by AI-facing NLP tools. |
+| `@beep/nlp/Tools/Analyze` | `Analyze` | const | `packages/foundation/capability/nlp/src/Tools/Analyze.ts:50` | Defines the agent-facing tool contract for running a composite linguistic |
+| `@beep/nlp/Tools/BagOfWords` | `BagOfWords` | const | `packages/foundation/capability/nlp/src/Tools/BagOfWords.ts:59` | Defines the agent-facing tool contract for computing a bag-of-words |
+| `@beep/nlp/Tools/BowCosineSimilarity` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts:68` | Defines the agent-facing tool contract for comparing two texts by |
+| `@beep/nlp/Tools/ChunkBySentences` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts:66` | Defines the agent-facing tool contract for splitting text into chunks that |
 | `@beep/nlp/Tools/CorpusStats` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/CorpusStats.ts:61` | Defines the agent-facing tool contract for inspecting a learned corpus' |
 | `@beep/nlp/Tools/CreateCorpus` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/CreateCorpus.ts:75` | Defines the agent-facing tool contract for creating a stateful BM25-style |
-| `@beep/nlp/Tools/DeleteCorpus` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/DeleteCorpus.ts:58` | Defines the agent-facing tool contract for deleting a managed corpus session |
+| `@beep/nlp/Tools/DeleteCorpus` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/DeleteCorpus.ts:57` | Defines the agent-facing tool contract for deleting a managed corpus session |
 | `@beep/nlp/Tools/DocumentStats` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/DocumentStats.ts:50` | Defines the agent-facing tool contract for computing document-level text |
 | `@beep/nlp/Tools/ExtractEntities` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/ExtractEntities.ts:76` | Defines the agent-facing tool contract for extracting built-in and custom |
-| `@beep/nlp/Tools/ExtractKeywords` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/ExtractKeywords.ts:65` | Defines the agent-facing tool contract for extracting ranked keyword terms |
-| `@beep/nlp/Tools/index` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:61` | Ai corpus config tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:75` | Ai corpus idf tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:89` | Ai corpus matrix shape tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:103` | Ai corpus ranked document tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:117` | Ai corpus stats tool schema. |
-| `@beep/nlp/Tools/index` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:131` | Ai corpus summary tool schema. |
-| `@beep/nlp/Tools/index` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:145` | Ai document stats tool schema. |
-| `@beep/nlp/Tools/index` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:159` | Ai entity tool schema. |
-| `@beep/nlp/Tools/index` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:173` | Ai keyword tool schema. |
-| `@beep/nlp/Tools/index` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:187` | Ai n gram tool schema. |
-| `@beep/nlp/Tools/index` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:201` | Ai phonetic match tool schema. |
-| `@beep/nlp/Tools/index` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:215` | Ai ranked text tool schema. |
-| `@beep/nlp/Tools/index` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:229` | Ai sentence tool schema. |
-| `@beep/nlp/Tools/index` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:243` | Ai sentence chunk tool schema. |
-| `@beep/nlp/Tools/index` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:278` | Ai token tool schema. |
-| `@beep/nlp/Tools/index` | `AiToolError` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:264` | Ai tool error schema. |
-| `@beep/nlp/Tools/index` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:292` | Bow cosine similarity tool. |
-| `@beep/nlp/Tools/index` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:306` | Chunk by sentences tool. |
-| `@beep/nlp/Tools/index` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:320` | Corpus stats layer. |
-| `@beep/nlp/Tools/index` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:334` | Create corpus export. |
-| `@beep/nlp/Tools/index` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:348` | Delete corpus tool. |
-| `@beep/nlp/Tools/index` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:362` | Document stats tool. |
-| `@beep/nlp/Tools/index` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:589` | Export tools tool. |
-| `@beep/nlp/Tools/index` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:376` | Extract entities tool. |
-| `@beep/nlp/Tools/index` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:390` | Extract keywords tool. |
-| `@beep/nlp/Tools/index` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:404` | Learn corpus tool. |
-| `@beep/nlp/Tools/index` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:418` | Learn custom entities tool. |
-| `@beep/nlp/Tools/index` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:432` | N grams tool. |
-| `@beep/nlp/Tools/index` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:559` | Nlp toolkit tool. |
-| `@beep/nlp/Tools/index` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:574` | Nlp tools tool. |
-| `@beep/nlp/Tools/index` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:446` | Phonetic match tool. |
-| `@beep/nlp/Tools/index` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:460` | Query corpus tool. |
-| `@beep/nlp/Tools/index` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:474` | Rank by relevance tool. |
-| `@beep/nlp/Tools/index` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:488` | Sentences tool. |
-| `@beep/nlp/Tools/index` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:502` | Text similarity tool. |
-| `@beep/nlp/Tools/index` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:516` | Tokenize tool. |
-| `@beep/nlp/Tools/index` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:530` | Transform text tool. |
-| `@beep/nlp/Tools/index` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:544` | Tversky similarity tool. |
+| `@beep/nlp/Tools/ExtractKeywords` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/ExtractKeywords.ts:64` | Defines the agent-facing tool contract for extracting ranked keyword terms |
+| `@beep/nlp/Tools/index` | `AiAnalysis` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:68` | Ai analysis tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusConfig` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:82` | Ai corpus config tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusIdf` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:96` | Ai corpus idf tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusMatrixShape` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:110` | Ai corpus matrix shape tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusRankedDocument` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:124` | Ai corpus ranked document tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:138` | Ai corpus stats tool schema. |
+| `@beep/nlp/Tools/index` | `AiCorpusSummary` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:152` | Ai corpus summary tool schema. |
+| `@beep/nlp/Tools/index` | `AiDocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:166` | Ai document stats tool schema. |
+| `@beep/nlp/Tools/index` | `AiEntity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:180` | Ai entity tool schema. |
+| `@beep/nlp/Tools/index` | `AiKeyword` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:194` | Ai keyword tool schema. |
+| `@beep/nlp/Tools/index` | `AiNGram` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:208` | Ai n gram tool schema. |
+| `@beep/nlp/Tools/index` | `AiPhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:222` | Ai phonetic match tool schema. |
+| `@beep/nlp/Tools/index` | `AiRankedText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:236` | Ai ranked text tool schema. |
+| `@beep/nlp/Tools/index` | `AiSentence` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:250` | Ai sentence tool schema. |
+| `@beep/nlp/Tools/index` | `AiSentenceChunk` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:264` | Ai sentence chunk tool schema. |
+| `@beep/nlp/Tools/index` | `AiToken` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:299` | Ai token tool schema. |
+| `@beep/nlp/Tools/index` | `AiToolError` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:285` | Ai tool error schema. |
+| `@beep/nlp/Tools/index` | `Analyze` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:313` | Analyze tool. |
+| `@beep/nlp/Tools/index` | `BagOfWords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:327` | Bag of words tool. |
+| `@beep/nlp/Tools/index` | `BowCosineSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:341` | Bow cosine similarity tool. |
+| `@beep/nlp/Tools/index` | `ChunkBySentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:355` | Chunk by sentences tool. |
+| `@beep/nlp/Tools/index` | `CorpusStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:369` | Corpus stats layer. |
+| `@beep/nlp/Tools/index` | `CreateCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:383` | Create corpus export. |
+| `@beep/nlp/Tools/index` | `DeleteCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:397` | Delete corpus tool. |
+| `@beep/nlp/Tools/index` | `DocumentStats` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:411` | Document stats tool. |
+| `@beep/nlp/Tools/index` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:694` | Export tools tool. |
+| `@beep/nlp/Tools/index` | `ExtractEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:425` | Extract entities tool. |
+| `@beep/nlp/Tools/index` | `ExtractKeywords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:439` | Extract keywords tool. |
+| `@beep/nlp/Tools/index` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:453` | Learn corpus tool. |
+| `@beep/nlp/Tools/index` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:467` | Learn custom entities tool. |
+| `@beep/nlp/Tools/index` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:481` | N grams tool. |
+| `@beep/nlp/Tools/index` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:664` | Nlp toolkit tool. |
+| `@beep/nlp/Tools/index` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:679` | Nlp tools tool. |
+| `@beep/nlp/Tools/index` | `Paragraphize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:495` | Paragraphize tool. |
+| `@beep/nlp/Tools/index` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:509` | Phonetic match tool. |
+| `@beep/nlp/Tools/index` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:523` | Query corpus tool. |
+| `@beep/nlp/Tools/index` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:537` | Rank by relevance tool. |
+| `@beep/nlp/Tools/index` | `RemoveStopWords` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:551` | Remove stop words tool. |
+| `@beep/nlp/Tools/index` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:565` | Sentences tool. |
+| `@beep/nlp/Tools/index` | `Stem` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:579` | Stem tool. |
+| `@beep/nlp/Tools/index` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:593` | Text similarity tool. |
+| `@beep/nlp/Tools/index` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:607` | Tokenize tool. |
+| `@beep/nlp/Tools/index` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:621` | Transform text tool. |
+| `@beep/nlp/Tools/index` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:635` | Tversky similarity tool. |
+| `@beep/nlp/Tools/index` | `WordCount` | const | `packages/foundation/capability/nlp/src/Tools/index.ts:649` | Word count tool. |
 | `@beep/nlp/Tools/LearnCorpus` | `LearnCorpus` | const | `packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts:80` | Defines the agent-facing tool contract for incrementally learning documents |
-| `@beep/nlp/Tools/LearnCustomEntities` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts:99` | Defines the agent-facing tool contract for learning custom entity patterns |
-| `@beep/nlp/Tools/NGrams` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/NGrams.ts:87` | Defines the agent-facing tool contract for extracting fixed-size character |
-| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:122` | Effect AI toolkit definition containing the full NLP tool surface. |
-| `@beep/nlp/Tools/NlpToolkit` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:77` | Canonical ordered NLP tool list used to build the toolkit and export |
+| `@beep/nlp/Tools/LearnCustomEntities` | `LearnCustomEntities` | const | `packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts:98` | Defines the agent-facing tool contract for learning custom entity patterns |
+| `@beep/nlp/Tools/NGrams` | `NGrams` | const | `packages/foundation/capability/nlp/src/Tools/NGrams.ts:86` | Defines the agent-facing tool contract for extracting fixed-size character |
+| `@beep/nlp/Tools/NlpToolkit` | `NlpToolkit` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:140` | Effect AI toolkit definition containing the full NLP tool surface. |
+| `@beep/nlp/Tools/NlpToolkit` | `NlpTools` | const | `packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts:89` | Canonical ordered NLP tool list used to build the toolkit and export |
+| `@beep/nlp/Tools/Paragraphize` | `Paragraphize` | const | `packages/foundation/capability/nlp/src/Tools/Paragraphize.ts:58` | Defines the agent-facing tool contract for splitting text into paragraphs on |
 | `@beep/nlp/Tools/PhoneticMatch` | `PhoneticMatch` | const | `packages/foundation/capability/nlp/src/Tools/PhoneticMatch.ts:74` | Defines the agent-facing tool contract for comparing two texts by phonetic |
-| `@beep/nlp/Tools/QueryCorpus` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts:87` | Defines the agent-facing tool contract for querying a learned corpus session |
-| `@beep/nlp/Tools/RankByRelevance` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts:76` | Defines the agent-facing tool contract for ranking candidate texts by |
-| `@beep/nlp/Tools/Sentences` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/Sentences.ts:59` | Defines the agent-facing tool contract for splitting text into sentence |
-| `@beep/nlp/Tools/TextSimilarity` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts:69` | Defines the agent-facing tool contract for comparing two texts with BM25 |
-| `@beep/nlp/Tools/Tokenize` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/Tokenize.ts:60` | Defines the agent-facing tool contract for tokenizing text into annotated |
+| `@beep/nlp/Tools/QueryCorpus` | `QueryCorpus` | const | `packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts:86` | Defines the agent-facing tool contract for querying a learned corpus session |
+| `@beep/nlp/Tools/RankByRelevance` | `RankByRelevance` | const | `packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts:75` | Defines the agent-facing tool contract for ranking candidate texts by |
+| `@beep/nlp/Tools/RemoveStopWords` | `RemoveStopWords` | const | `packages/foundation/capability/nlp/src/Tools/RemoveStopWords.ts:59` | Defines the agent-facing tool contract for removing stop words from text and |
+| `@beep/nlp/Tools/Sentences` | `Sentences` | const | `packages/foundation/capability/nlp/src/Tools/Sentences.ts:58` | Defines the agent-facing tool contract for splitting text into sentence |
+| `@beep/nlp/Tools/Stem` | `Stem` | const | `packages/foundation/capability/nlp/src/Tools/Stem.ts:58` | Defines the agent-facing tool contract for reducing word tokens to their |
+| `@beep/nlp/Tools/TextSimilarity` | `TextSimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts:68` | Defines the agent-facing tool contract for comparing two texts with BM25 |
+| `@beep/nlp/Tools/Tokenize` | `Tokenize` | const | `packages/foundation/capability/nlp/src/Tools/Tokenize.ts:59` | Defines the agent-facing tool contract for tokenizing text into annotated |
 | `@beep/nlp/Tools/ToolExport` | `ExportedTool` | interface | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:174` | Runtime descriptor for a tool exported as a positional function contract. |
 | `@beep/nlp/Tools/ToolExport` | `ExportedToolError` | class | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:112` | Typed failure for the positional tool export adapter. |
 | `@beep/nlp/Tools/ToolExport` | `exportTools` | const | `packages/foundation/capability/nlp/src/Tools/ToolExport.ts:395` | Effect that exports every NLP toolkit tool as a positional descriptor. |
-| `@beep/nlp/Tools/TransformText` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/TransformText.ts:95` | Defines the agent-facing tool contract for applying ordered text |
-| `@beep/nlp/Tools/TverskySimilarity` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts:84` | Defines the agent-facing tool contract for asymmetric Tversky similarity |
+| `@beep/nlp/Tools/TransformText` | `TransformText` | const | `packages/foundation/capability/nlp/src/Tools/TransformText.ts:94` | Defines the agent-facing tool contract for applying ordered text |
+| `@beep/nlp/Tools/TverskySimilarity` | `TverskySimilarity` | const | `packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts:83` | Defines the agent-facing tool contract for asymmetric Tversky similarity |
+| `@beep/nlp/Tools/WordCount` | `WordCount` | const | `packages/foundation/capability/nlp/src/Tools/WordCount.ts:58` | Defines the agent-facing tool contract for counting word-like tokens and |
 | `@beep/nlp/VariantText` | `orderedDedupe` | const | `packages/foundation/capability/nlp/src/VariantText.ts:35` | Remove blank variants and keep the first spelling of each unique string. |
 
 ### @beep/infra
@@ -12469,12 +12451,6 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/schema/Yaml` | `parseYaml` | const | `packages/foundation/modeling/schema/src/Yaml.ts:73` | Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available |
 | `@beep/schema/Yaml` | `YamlTextToUnknown` | const | `packages/foundation/modeling/schema/src/Yaml.ts:92` | Schema transformation that decodes YAML text into an unknown parsed value. |
 
-### @beep/codedank-web
-
-| Import | Symbol | Kind | Source | Summary |
-|---|---|---|---|---|
-| `@beep/codedank-web` | `VERSION` | const | `apps/codedank-web/src/index.ts:21` | Package version for the codedank web app. |
-
 ### @beep/onepassword-cli
 
 | Import | Symbol | Kind | Source | Summary |
@@ -12851,9 +12827,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/architecture-lab-proof` | `ArchitectureLabProofResult` | class | `apps/architecture-lab-proof/src/index.ts:49` | App-level WorkItem proof result. |
-| `@beep/architecture-lab-proof` | `runArchitectureLabProof` | const | `apps/architecture-lab-proof/src/index.ts:75` | Execute the architecture lab proof harness against the composed server layer. |
-| `@beep/architecture-lab-proof` | `VERSION` | const | `apps/architecture-lab-proof/src/index.ts:34` | Package version for the architecture lab proof harness. |
+| `@beep/architecture-lab-proof` | `ArchitectureLabProofResult` | class | `apps/architecture-lab-proof/src/index.ts:34` | App-level WorkItem proof result. |
+| `@beep/architecture-lab-proof` | `runArchitectureLabProof` | const | `apps/architecture-lab-proof/src/index.ts:60` | Execute the architecture lab proof harness against the composed server layer. |
 
 ### @beep/installer-server
 
@@ -14031,7 +14006,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/wink` | `WinkError` | type | `packages/drivers/wink/src/Wink.errors.ts:215` | Type-level companion for the {@link WinkError} schema union. |
 | `@beep/wink` | `WinkLayerAllLive` | const | `packages/drivers/wink/src/Wink.layer.ts:72` | Full live wink layer bundle including corpus management and shared utilities. |
 | `@beep/wink` | `WinkLayerLive` | const | `packages/drivers/wink/src/Wink.layer.ts:40` | Live layer bundle for the engine-backed tokenization surface. |
-| `@beep/wink` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:337` | Live toolkit handler layer backed by the wink NLP runtime. |
+| `@beep/wink` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:345` | Live toolkit handler layer backed by the wink NLP runtime. |
 | `@beep/wink` | `WinkSimilarity` | class | `packages/drivers/wink/src/WinkSimilarity.service.ts:256` | Service for computing cosine and Tversky scores using wink similarity helpers. |
 | `@beep/wink` | `WinkSimilarityLive` | const | `packages/drivers/wink/src/WinkSimilarity.service.ts:285` | Live layer for wink similarity utilities. |
 | `@beep/wink` | `WinkTokenization` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:374` | Engine-dependent layer implementing the core tokenization service with wink. |
@@ -14077,7 +14052,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/wink/index` | `WinkError` | type | `packages/drivers/wink/src/Wink.errors.ts:215` | Type-level companion for the {@link WinkError} schema union. |
 | `@beep/wink/index` | `WinkLayerAllLive` | const | `packages/drivers/wink/src/Wink.layer.ts:72` | Full live wink layer bundle including corpus management and shared utilities. |
 | `@beep/wink/index` | `WinkLayerLive` | const | `packages/drivers/wink/src/Wink.layer.ts:40` | Live layer bundle for the engine-backed tokenization surface. |
-| `@beep/wink/index` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:337` | Live toolkit handler layer backed by the wink NLP runtime. |
+| `@beep/wink/index` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:345` | Live toolkit handler layer backed by the wink NLP runtime. |
 | `@beep/wink/index` | `WinkSimilarity` | class | `packages/drivers/wink/src/WinkSimilarity.service.ts:256` | Service for computing cosine and Tversky scores using wink similarity helpers. |
 | `@beep/wink/index` | `WinkSimilarityLive` | const | `packages/drivers/wink/src/WinkSimilarity.service.ts:285` | Live layer for wink similarity utilities. |
 | `@beep/wink/index` | `WinkTokenization` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:374` | Engine-dependent layer implementing the core tokenization service with wink. |
@@ -14140,7 +14115,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/wink/WinkTokenization.service` | `SentenceSpanFailure` | class | `packages/drivers/wink/src/WinkTokenization.service.ts:57` | Typed failure used when wink sentence spans cannot be aligned to token indexes. |
 | `@beep/wink/WinkTokenization.service` | `WinkTokenization` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:374` | Engine-dependent layer implementing the core tokenization service with wink. |
 | `@beep/wink/WinkTokenization.service` | `WinkTokenizationLive` | const | `packages/drivers/wink/src/WinkTokenization.service.ts:396` | Live tokenization layer with the wink engine already provided. |
-| `@beep/wink/WinkTools.service` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:337` | Live toolkit handler layer backed by the wink NLP runtime. |
+| `@beep/wink/WinkTools.service` | `WinkNlpToolkitLive` | const | `packages/drivers/wink/src/WinkTools.service.ts:345` | Live toolkit handler layer backed by the wink NLP runtime. |
 | `@beep/wink/WinkUtils.service` | `WinkUtils` | class | `packages/drivers/wink/src/WinkUtils.service.ts:314` | Service wrapping `wink-nlp-utils` string cleanup, phonetic, and n-gram helpers. |
 | `@beep/wink/WinkUtils.service` | `WinkUtilsError` | class | `packages/drivers/wink/src/WinkUtils.service.ts:150` | Typed failure for `wink-nlp-utils` string, token, and n-gram helpers. |
 | `@beep/wink/WinkUtils.service` | `WinkUtilsLive` | const | `packages/drivers/wink/src/WinkUtils.service.ts:337` | Live layer for the `wink-nlp-utils` wrappers. |

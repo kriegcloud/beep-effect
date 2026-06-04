@@ -6,6 +6,13 @@
  */
 
 /**
+ * Contact form HttpApi contract and Atom client.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./ContactSubmission.http.ts";
+/**
  * Contact form models.
  *
  * @category models

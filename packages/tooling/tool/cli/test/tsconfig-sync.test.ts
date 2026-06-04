@@ -154,8 +154,10 @@ const bootstrapWorkspace = Effect.fn(function* (
     readonly references?: ReadonlyArray<string>;
     readonly docgenConfig?: unknown;
     readonly exports?: unknown;
+    readonly hasDtslintDirectory?: boolean;
   }
 ) {
+  const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const workspaceDir = path.join(rootDir, options.relativeDir);
 
@@ -183,6 +185,9 @@ const bootstrapWorkspace = Effect.fn(function* (
     path.join(workspaceDir, "src", "index.ts"),
     `export const workspaceName = "${options.packageName}";\n`
   );
+  if (options.hasDtslintDirectory !== false) {
+    yield* fs.makeDirectory(path.join(workspaceDir, "dtslint"), { recursive: true });
+  }
 
   if (options.docgenConfig !== undefined) {
     yield* writeJsonFile(path.join(workspaceDir, "docgen.json"), options.docgenConfig);

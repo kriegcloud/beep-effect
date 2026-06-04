@@ -1,9 +1,9 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { App } from "../src/App.js";
+import { App } from "@/App";
 
-describe.sequential("Professional Desktop app", () => {
+describe.concurrent("Professional Desktop app", () => {
   afterEach(cleanup);
 
   it("renders the minimal bootstrap shell", () => {
@@ -11,9 +11,9 @@ describe.sequential("Professional Desktop app", () => {
 
     expect(screen.getByRole("heading", { name: "Professional Desktop" })).toBeInTheDocument();
     return waitFor(() => expect(screen.getByText("@beep/professional-desktop")).toBeInTheDocument()).then(() => {
-      expect(screen.getByText("Preview mode is active in the web shell.")).toBeInTheDocument();
-      expect(screen.getByText("agent-capability")).toBeInTheDocument();
-      expect(screen.getByText("workspace")).toBeInTheDocument();
+      expect(screen.getAllByText("Preview mode is active in the web shell.").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("agent-capability").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("workspace").length).toBeGreaterThan(0);
     });
   });
 

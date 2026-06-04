@@ -33,31 +33,30 @@ class QueryCorpusParameters extends S.Class<QueryCorpusParameters>($I`QueryCorpu
   })
 ) {}
 
-class QueryCorpusSuccess extends S.Class<QueryCorpusSuccess>($I`QueryCorpusSuccess`)(
-  {
-    corpusId: S.String.annotateKey({
-      description: "Corpus identifier used for the query.",
-    }),
-    method: S.Literal("vector.cosine").annotateKey({
-      description: "Similarity method used to rank corpus documents.",
-    }),
-    query: S.String.annotateKey({
-      description: "Original query text used for ranking.",
-    }),
-    ranked: S.Array(AiCorpusRankedDocument).annotateKey({
-      description: "Ranked documents returned from the corpus query.",
-    }),
-    returned: S.Number.annotateKey({
-      description: "Number of ranked documents returned in this response.",
-    }),
-    totalDocuments: S.Number.annotateKey({
-      description: "Total number of learned documents available in the corpus.",
-    }),
-  },
-  $I.annote("QueryCorpusSuccess", {
+const QueryCorpusSuccess = S.Struct({
+  corpusId: S.String.annotateKey({
+    description: "Corpus identifier used for the query.",
+  }),
+  method: S.Literal("vector.cosine").annotateKey({
+    description: "Similarity method used to rank corpus documents.",
+  }),
+  query: S.String.annotateKey({
+    description: "Original query text used for ranking.",
+  }),
+  ranked: S.Array(AiCorpusRankedDocument).annotateKey({
+    description: "Ranked documents returned from the corpus query.",
+  }),
+  returned: S.Number.annotateKey({
+    description: "Number of ranked documents returned in this response.",
+  }),
+  totalDocuments: S.Number.annotateKey({
+    description: "Total number of learned documents available in the corpus.",
+  }),
+}).pipe(
+  $I.annoteSchema("QueryCorpusSuccess", {
     description: "Ranked corpus query results and result-count metadata.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for querying a learned corpus session

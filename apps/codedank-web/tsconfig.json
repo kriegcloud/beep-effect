@@ -5,7 +5,6 @@
     "next-env.d.ts",
     "src",
     "test",
-    "dtslint",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "next.config.ts"
