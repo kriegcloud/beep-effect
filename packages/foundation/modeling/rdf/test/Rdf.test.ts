@@ -1,10 +1,10 @@
+import { IRI } from "@beep/rdf/Iri";
+import { JsonLdDocument } from "@beep/rdf/JsonLd";
+import { makeNamedNode, NamedNode } from "@beep/rdf/Rdf";
+import { XSD_STRING } from "@beep/rdf/Vocab/Xsd";
 import { describe, expect, it } from "@effect/vitest";
 import { Result } from "effect";
 import * as S from "effect/Schema";
-import { IRI } from "../src/Iri.js";
-import { JsonLdDocument } from "../src/JsonLd.js";
-import { makeNamedNode, NamedNode } from "../src/Rdf.js";
-import { XSD_STRING } from "../src/Vocab/Xsd.js";
 
 describe("@beep/rdf", () => {
   it("decodes IRIs and builds named nodes", () => {

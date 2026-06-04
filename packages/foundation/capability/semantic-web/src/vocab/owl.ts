@@ -2,6 +2,7 @@
  * Compatibility re-export for OWL vocabulary helpers.
  *
  * @packageDocumentation
+ * @category compatibility
  * @since 0.0.0
  */
 

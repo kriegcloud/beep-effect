@@ -49,6 +49,12 @@ const jsonLdPredicateBinding = (value: AssembledOntologyPredicate): typeof JsonL
         "@type": "@id",
       };
 
+/**
+ * Projects an assembled ontology into a reusable JSON-LD context document.
+ *
+ * @category projections
+ * @since 0.0.0
+ */
 export const projectJsonLdContext = (ontology: AssembledOntology): typeof JsonLdContextDocument.Encoded => {
   const initialTerms: Readonly<Record<string, IRI | typeof JsonLdTermBinding.Encoded>> = {
     "@vocab": ontology.metadata.baseIri,
@@ -132,6 +138,12 @@ const predicateToJsonLdNode = (predicate: AssembledOntologyPredicate): typeof Js
   }),
 });
 
+/**
+ * Projects an assembled ontology into the POC JSON-LD graph representation.
+ *
+ * @category projections
+ * @since 0.0.0
+ */
 export const projectJsonLdOntology = (ontology: AssembledOntology): typeof JsonLdOntologyDocument.Encoded => ({
   "@context": ontologyJsonLdContext(ontology),
   "@id": ontology.metadata.baseIri,
@@ -250,5 +262,11 @@ const jsonLdDocumentToOntology = (document: JsonLdOntologyDocument): AssembledOn
     }
   );
 
+/**
+ * Parses the POC JSON-LD graph representation back into an assembled ontology.
+ *
+ * @category projections
+ * @since 0.0.0
+ */
 export const parseJsonLdOntology = (input: unknown): AssembledOntology =>
   pipe(decodeJsonLdOntologyDocumentResult(input), Result.getOrThrowWith(schemaIssueToError), jsonLdDocumentToOntology);

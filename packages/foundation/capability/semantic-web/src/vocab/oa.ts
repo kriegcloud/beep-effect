@@ -2,6 +2,7 @@
  * Compatibility re-export for Web Annotation vocabulary helpers.
  *
  * @packageDocumentation
+ * @category compatibility
  * @since 0.0.0
  */
 

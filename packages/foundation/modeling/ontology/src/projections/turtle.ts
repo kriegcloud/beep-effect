@@ -32,7 +32,7 @@ const turtleOptionalLiteralStatements = (predicate: string, value: O.Option<stri
   pipe(
     value,
     O.map((current) => [turtleLiteralStatement(predicate, current)]),
-    O.getOrElse(() => A.empty<string>())
+    O.getOrElse(A.empty<string>)
   );
 
 const turtleReferenceStatement = (predicate: string, reference: OntologyReference): string =>
@@ -54,7 +54,7 @@ const renderSourceStatements = (ontologyClass: AssembledOntologyClass): Readonly
   pipe(
     ontologyClass.source,
     O.map((source) => [`dcterms:source ${turtleIri(source)}`]),
-    O.getOrElse(() => A.empty<string>())
+    O.getOrElse(A.empty<string>)
   );
 
 const renderStatements = (subject: string, statements: ReadonlyArray<string>): string =>
@@ -108,6 +108,12 @@ const renderPredicate = (predicate: AssembledOntologyPredicate): string =>
     ]
   );
 
+/**
+ * Projects an assembled ontology into a compact Turtle document.
+ *
+ * @category projections
+ * @since 0.0.0
+ */
 export const projectTurtle = (ontology: AssembledOntology): string => {
   const prefixes = [
     `@prefix ${ontology.metadata.preferredPrefix}: ${turtleIri(ontology.metadata.baseIri)} .`,

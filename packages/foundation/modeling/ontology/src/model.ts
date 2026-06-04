@@ -7,8 +7,11 @@ import { XSD_ANY_URI, XSD_BOOLEAN, XSD_DOUBLE, XSD_INTEGER, XSD_NAMESPACE, XSD_S
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { pipe, Result } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+
+// cspell:words SKOS DCTERMS skos dcterms
 
 export { IRI } from "@beep/rdf/Iri";
 
@@ -285,10 +288,13 @@ export const makeIri = (value: string): IRI => pipe(decodeIriResult(value), Resu
 export const makeOntologyTermName = (value: string): OntologyTermName =>
   pipe(decodeOntologyTermNameResult(value), Result.getOrThrowWith(schemaIssueToError));
 
-export const makeTermIri = (baseIri: IRI, termName: OntologyTermName): IRI => {
+export const makeTermIri: {
+  (termName: OntologyTermName): (baseIri: IRI) => IRI;
+  (baseIri: IRI, termName: OntologyTermName): IRI;
+} = dual(2, (baseIri: IRI, termName: OntologyTermName): IRI => {
   const separator = pipe(baseIri, Str.endsWith("#")) ? "" : "#";
   return makeIri(`${baseIri}${separator}${termName}`);
-};
+});
 
 export const makeOntologyReference = (iri: IRI): OntologyReference => OntologyReference.make({ iri });
 
@@ -328,9 +334,21 @@ export const makeOntologyObjectPredicateMetadata = (
 ): OntologyObjectPredicateMetadata =>
   pipe(decodeOntologyObjectPredicateMetadataResult(metadata), Result.getOrThrowWith(schemaIssueToError));
 
+/**
+ * Reads ontology metadata from an Effect Schema annotation display map.
+ *
+ * @category annotations
+ * @since 0.0.0
+ */
 export const getOntologyMetadata = (schema: S.Top): OntologyMetadataAnnotationPayload | undefined =>
   S.resolveAnnotations(schema)?.ontologyMetadata;
 
+/**
+ * Reads ontology metadata from a schema property-key annotation display map.
+ *
+ * @category annotations
+ * @since 0.0.0
+ */
 export const getOntologyKeyMetadata = (schema: S.Top): OntologyMetadataAnnotationPayload | undefined =>
   S.resolveAnnotationsKey(schema)?.ontologyMetadata;
 

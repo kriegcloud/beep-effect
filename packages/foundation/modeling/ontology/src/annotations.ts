@@ -1,5 +1,6 @@
 import { pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
@@ -22,7 +23,7 @@ import type * as S from "effect/Schema";
 import type { OntologyMetadataAnnotationPayload, OntologyPredicateAnnotationDraft, OntologyTermName } from "./model.js";
 import type { OntologyIriInput, OntologyReferenceTargetInput, OntologyTermNameInput } from "./references.js";
 
-export type OntologyClassAnnotationInput = {
+type OntologyClassAnnotationInputFields = {
   readonly termName?: OntologyTermNameInput | undefined;
   readonly iri?: OntologyIriInput | undefined;
   readonly label?: string | undefined;
@@ -41,14 +42,16 @@ export type OntologyClassAnnotationInput = {
   readonly closeMatches?: ReadonlyArray<OntologyReferenceTargetInput> | undefined;
   readonly sameAs?: ReadonlyArray<OntologyReferenceTargetInput> | undefined;
 };
+export type OntologyClassAnnotationInput = OntologyClassAnnotationInputFields & {};
 
-export type OntologyPredicateAnnotationInput = {
+type OntologyPredicateAnnotationInputFields = {
   readonly termName?: OntologyTermNameInput | undefined;
   readonly iri?: OntologyIriInput | undefined;
   readonly label?: string | undefined;
   readonly description?: string | undefined;
   readonly comment?: string | undefined;
 };
+export type OntologyPredicateAnnotationInput = OntologyPredicateAnnotationInputFields & {};
 
 export type OntologyDatatypePredicateAnnotationInput = OntologyPredicateAnnotationInput & {
   readonly range: OntologyIriInput;
@@ -58,21 +61,19 @@ export type OntologyObjectPredicateAnnotationInput = OntologyPredicateAnnotation
   readonly range: OntologyReferenceTargetInput;
 };
 
-export type OntologyCreateInput = {
+type OntologyCreateInputFields = {
   readonly identity: IdentityComposer<string>;
   readonly baseIri: OntologyIriInput;
   readonly preferredPrefix: string;
   readonly label: string;
   readonly comment?: string | undefined;
 };
+export type OntologyCreateInput = OntologyCreateInputFields & {};
 
 export const optionalString = (value: string | undefined): O.Option<string> => O.fromUndefinedOr(value);
 
 export const optionalArray = <Value>(value: ReadonlyArray<Value> | undefined): ReadonlyArray<Value> =>
-  pipe(
-    O.fromUndefinedOr(value),
-    O.getOrElse(() => A.empty<Value>())
-  );
+  pipe(O.fromUndefinedOr(value), O.getOrElse(A.empty<Value>));
 
 export const optionalTermName = (value: OntologyTermNameInput | undefined): O.Option<OntologyTermName> =>
   pipe(O.fromUndefinedOr(value), O.map(normalizeTermNameInput));
@@ -107,8 +108,14 @@ export const keyLeafTermName = (identifier: string): OntologyTermName =>
     normalizeTermNameInput
   );
 
-export const draftMetadataComment = (description: O.Option<string>, comment: O.Option<string>): O.Option<string> =>
-  firstStringOption(comment, description);
+export const draftMetadataComment: {
+  (comment: O.Option<string>): (description: O.Option<string>) => O.Option<string>;
+  (description: O.Option<string>, comment: O.Option<string>): O.Option<string>;
+} = dual(
+  2,
+  (description: O.Option<string>, comment: O.Option<string>): O.Option<string> =>
+    firstStringOption(comment, description)
+);
 
 const draftAnnotationExtras = (
   description: O.Option<string>,

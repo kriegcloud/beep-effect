@@ -37,10 +37,11 @@ export type OntologyReferenceTargetInput =
   | OntologyReferenceTarget
   | S.Top;
 
-export type ReferenceResolutionContext = {
+type ReferenceResolutionContextFields = {
   readonly baseIri: IRI;
   readonly classesBySchemaIdentity: Readonly<Record<string, { readonly iri: IRI }>>;
 };
+export type ReferenceResolutionContext = ReferenceResolutionContextFields & {};
 
 export const schemaIdentifier = (schema: S.Top): O.Option<string> =>
   pipe(S.resolveAnnotations(schema)?.identifier, O.fromUndefinedOr, O.filter(P.isString));
@@ -67,13 +68,6 @@ export const schemaKeyIdentity = (schema: S.Top): O.Option<string> =>
 export const normalizeIriInput = (value: OntologyIriInput): IRI => (isNamedNode(value) ? value.value : makeIri(value));
 
 export const normalizeTermNameInput = (value: OntologyTermNameInput): OntologyTermName => makeOntologyTermName(value);
-
-export const normalizeObjectRange = (baseIri: IRI, value: OntologyIriInput | OntologyTermNameInput): IRI =>
-  isNamedNode(value)
-    ? value.value
-    : pipe(value, Str.includes(":"))
-      ? makeIri(value)
-      : makeTermIri(baseIri, makeOntologyTermName(value));
 
 export const makeReferenceTarget = (target: OntologyReferenceTargetInput): OntologyReferenceTarget => {
   if (isOntologyReferenceTarget(target)) {
@@ -104,29 +98,30 @@ export const makeReferenceTarget = (target: OntologyReferenceTargetInput): Ontol
 export const optionalReferenceTargets = (
   value: ReadonlyArray<OntologyReferenceTargetInput> | undefined
 ): ReadonlyArray<OntologyReferenceTarget> =>
-  pipe(
-    O.fromUndefinedOr(value),
-    O.getOrElse(() => A.empty<OntologyReferenceTargetInput>()),
-    A.map(makeReferenceTarget)
-  );
+  pipe(O.fromUndefinedOr(value), O.getOrElse(A.empty<OntologyReferenceTargetInput>), A.map(makeReferenceTarget));
 
 export const optionalReferenceTargetsOption = (
   value: ReadonlyArray<OntologyReferenceTargetInput> | undefined
 ): O.Option<ReadonlyArray<OntologyReferenceTarget>> =>
   pipe(O.fromUndefinedOr(value), O.map(A.map(makeReferenceTarget)));
 
-export const failAssembly = (
-  reason: OntologyAssemblyErrorReason,
-  message: string,
-  schemaId: O.Option<string>,
-  fieldName: O.Option<string> = O.none()
-): Effect.Effect<never, OntologyAssemblyError> =>
+type FailAssemblyInput = {
+  readonly reason: OntologyAssemblyErrorReason;
+  readonly message: string;
+  readonly schemaIdentifier: O.Option<string>;
+  readonly fieldName?: O.Option<string> | undefined;
+};
+
+export const failAssembly = (input: FailAssemblyInput): Effect.Effect<never, OntologyAssemblyError> =>
   Effect.fail(
     OntologyAssemblyError.make({
-      reason,
-      message,
-      schemaIdentifier: schemaId,
-      fieldName,
+      reason: input.reason,
+      message: input.message,
+      schemaIdentifier: input.schemaIdentifier,
+      fieldName: pipe(
+        O.fromUndefinedOr(input.fieldName),
+        O.getOrElse(() => O.none<string>())
+      ),
     })
   );
 
@@ -147,11 +142,11 @@ export const resolveReferenceTarget = Effect.fn("Ontology.resolveReferenceTarget
     target.schemaIdentity,
     O.match({
       onNone: () =>
-        failAssembly(
-          "unresolvedReferenceTarget",
-          "Relationship target schema is missing identity metadata.",
-          ownerSchemaId
-        ),
+        failAssembly({
+          reason: "unresolvedReferenceTarget",
+          message: "Relationship target schema is missing identity metadata.",
+          schemaIdentifier: ownerSchemaId,
+        }),
       onSome: Effect.succeed,
     })
   );
@@ -161,19 +156,25 @@ export const resolveReferenceTarget = Effect.fn("Ontology.resolveReferenceTarget
     O.map((metadata) => makeOntologyReference(metadata.iri)),
     O.match({
       onNone: () =>
-        failAssembly(
-          "unresolvedReferenceTarget",
-          `Relationship target schema was not included in this ontology build: ${targetSchemaIdentity}`,
-          ownerSchemaId
-        ),
+        failAssembly({
+          reason: "unresolvedReferenceTarget",
+          message: `Relationship target schema was not included in this ontology build: ${targetSchemaIdentity}`,
+          schemaIdentifier: ownerSchemaId,
+        }),
       onSome: Effect.succeed,
     })
   );
 });
 
+type ResolveReferenceTargetsInput = {
+  readonly context: ReferenceResolutionContext;
+  readonly ownerSchemaId: O.Option<string>;
+  readonly targets: ReadonlyArray<OntologyReferenceTarget>;
+};
+
 export const resolveReferenceTargets = (
-  context: ReferenceResolutionContext,
-  ownerSchemaId: O.Option<string>,
-  targets: ReadonlyArray<OntologyReferenceTarget>
+  input: ResolveReferenceTargetsInput
 ): Effect.Effect<ReadonlyArray<OntologyReference>, OntologyAssemblyError> =>
-  Effect.forEach(targets, (target) => resolveReferenceTarget(context, ownerSchemaId, target), { concurrency: 1 });
+  Effect.forEach(input.targets, (target) => resolveReferenceTarget(input.context, input.ownerSchemaId, target), {
+    concurrency: 1,
+  });

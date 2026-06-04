@@ -34,9 +34,13 @@ import {
 import type {
   AssembledOntologyPredicate,
   IRI,
+  OntologyAssemblyError,
+  OntologyAssemblyErrorReason,
   OntologyClassAnnotationDraft,
   OntologyDefinitionMetadata,
   OntologyPredicateAnnotationDraft,
+  OntologyReference,
+  OntologyReferenceTarget,
 } from "./model.js";
 import type { ReferenceResolutionContext } from "./references.js";
 
@@ -49,11 +53,25 @@ type ClassAssemblySeed = {
   readonly draft: OntologyClassAnnotationDraft;
 };
 
+const fail = (
+  reason: OntologyAssemblyErrorReason,
+  message: string,
+  schemaIdentifierValue: O.Option<string>,
+  fieldName: O.Option<string> = O.none()
+) => failAssembly({ reason, message, schemaIdentifier: schemaIdentifierValue, fieldName });
+
+const resolveTargets = (
+  context: ReferenceResolutionContext,
+  ownerSchemaId: O.Option<string>,
+  targets: ReadonlyArray<OntologyReferenceTarget>
+): Effect.Effect<ReadonlyArray<OntologyReference>, OntologyAssemblyError> =>
+  resolveReferenceTargets({ context, ownerSchemaId, targets });
+
 const requireSchemaIdentifier = Effect.fn("Ontology.requireSchemaIdentifier")(function* (schema: S.Top) {
   return yield* pipe(
     schemaIdentifier(schema),
     O.match({
-      onNone: () => failAssembly("invalidClassMetadata", "Schema is missing identity annotation identifier.", O.none()),
+      onNone: () => fail("invalidClassMetadata", "Schema is missing identity annotation identifier.", O.none()),
       onSome: Effect.succeed,
     })
   );
@@ -64,11 +82,7 @@ const requireSchemaIdentity = Effect.fn("Ontology.requireSchemaIdentity")(functi
     schemaIdentity(schema),
     O.match({
       onNone: () =>
-        failAssembly(
-          "invalidClassMetadata",
-          "Schema is missing identity annotation schemaId.",
-          schemaIdentifier(schema)
-        ),
+        fail("invalidClassMetadata", "Schema is missing identity annotation schemaId.", schemaIdentifier(schema)),
       onSome: Effect.succeed,
     })
   );
@@ -77,18 +91,14 @@ const requireSchemaIdentity = Effect.fn("Ontology.requireSchemaIdentity")(functi
 const requireClassDraft = Effect.fn("Ontology.requireClassDraft")(function* (schema: S.Top) {
   const metadata = getOntologyMetadata(schema);
   if (metadata === undefined) {
-    return yield* failAssembly(
-      "missingClassMetadata",
-      "Schema is missing ontology class metadata.",
-      schemaIdentifier(schema)
-    );
+    return yield* fail("missingClassMetadata", "Schema is missing ontology class metadata.", schemaIdentifier(schema));
   }
 
   if (isOntologyClassAnnotationDraft(metadata)) {
     return metadata;
   }
 
-  return yield* failAssembly(
+  return yield* fail(
     "invalidClassMetadata",
     "Schema ontology metadata is not class authoring metadata.",
     schemaIdentifier(schema)
@@ -137,10 +147,10 @@ const finalizeClassMetadata = Effect.fn("Ontology.finalizeClassMetadata")(functi
   const comment = draftMetadataComment(draft.description, draft.comment);
   const defaultIsDefinedBy = [OntologyIriReferenceTarget.make({ kind: "iri", iri: seed.iri })];
 
-  const parents = yield* resolveReferenceTargets(context, ownerSchemaId, draft.parents);
-  const children = yield* resolveReferenceTargets(context, ownerSchemaId, draft.children);
-  const seeAlso = yield* resolveReferenceTargets(context, ownerSchemaId, draft.seeAlso);
-  const isDefinedBy = yield* resolveReferenceTargets(
+  const parents = yield* resolveTargets(context, ownerSchemaId, draft.parents);
+  const children = yield* resolveTargets(context, ownerSchemaId, draft.children);
+  const seeAlso = yield* resolveTargets(context, ownerSchemaId, draft.seeAlso);
+  const isDefinedBy = yield* resolveTargets(
     context,
     ownerSchemaId,
     pipe(
@@ -148,10 +158,10 @@ const finalizeClassMetadata = Effect.fn("Ontology.finalizeClassMetadata")(functi
       O.getOrElse(() => defaultIsDefinedBy)
     )
   );
-  const equivalentClasses = yield* resolveReferenceTargets(context, ownerSchemaId, draft.equivalentClasses);
-  const exactMatches = yield* resolveReferenceTargets(context, ownerSchemaId, draft.exactMatches);
-  const closeMatches = yield* resolveReferenceTargets(context, ownerSchemaId, draft.closeMatches);
-  const sameAs = yield* resolveReferenceTargets(context, ownerSchemaId, draft.sameAs);
+  const equivalentClasses = yield* resolveTargets(context, ownerSchemaId, draft.equivalentClasses);
+  const exactMatches = yield* resolveTargets(context, ownerSchemaId, draft.exactMatches);
+  const closeMatches = yield* resolveTargets(context, ownerSchemaId, draft.closeMatches);
+  const sameAs = yield* resolveTargets(context, ownerSchemaId, draft.sameAs);
 
   return makeOntologyClassMetadata({
     kind: "class",
@@ -195,11 +205,7 @@ const requireObjectAst = Effect.fn("Ontology.requireObjectAst")(function* (schem
     objectAstFromSchema(schema),
     O.match({
       onNone: () =>
-        failAssembly(
-          "unsupportedClassAst",
-          "Schema does not expose object property signatures.",
-          schemaIdentity(schema)
-        ),
+        fail("unsupportedClassAst", "Schema does not expose object property signatures.", schemaIdentity(schema)),
       onSome: Effect.succeed,
     })
   );
@@ -213,7 +219,7 @@ const requireStringFieldName = Effect.fn("Ontology.requireStringFieldName")(func
     return property.name;
   }
 
-  return yield* failAssembly("unsupportedFieldName", "Only string field names are supported.", schemaIdentity(schema));
+  return yield* fail("unsupportedFieldName", "Only string field names are supported.", schemaIdentity(schema));
 });
 
 const requirePredicateDraft = Effect.fn("Ontology.requirePredicateDraft")(function* (
@@ -224,7 +230,7 @@ const requirePredicateDraft = Effect.fn("Ontology.requirePredicateDraft")(functi
   const propertySchema = S.make<S.Top>(property.type);
   const metadata = getOntologyKeyMetadata(propertySchema);
   if (metadata === undefined) {
-    return yield* failAssembly(
+    return yield* fail(
       "missingPredicateMetadata",
       "Field is missing ontology predicate metadata.",
       schemaIdentity(schema),
@@ -239,7 +245,7 @@ const requirePredicateDraft = Effect.fn("Ontology.requirePredicateDraft")(functi
         schemaKeyIdentity(propertySchema),
         O.match({
           onNone: () =>
-            failAssembly(
+            fail(
               "invalidPredicateMetadata",
               "Field ontology metadata is missing schema identity.",
               schemaIdentity(schema),
@@ -252,7 +258,7 @@ const requirePredicateDraft = Effect.fn("Ontology.requirePredicateDraft")(functi
         schemaKeyIdentifier(propertySchema),
         O.match({
           onNone: () =>
-            failAssembly(
+            fail(
               "invalidPredicateMetadata",
               "Field ontology metadata is missing key identifier.",
               schemaIdentity(schema),
@@ -264,7 +270,7 @@ const requirePredicateDraft = Effect.fn("Ontology.requirePredicateDraft")(functi
     };
   }
 
-  return yield* failAssembly(
+  return yield* fail(
     "invalidPredicateMetadata",
     "Field ontology metadata is not predicate authoring metadata.",
     schemaIdentity(schema),

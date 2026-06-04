@@ -32,6 +32,13 @@ import type {
 } from "./model.js";
 import type { OntologyIriInput, OntologyReferenceTargetInput, OntologyTermNameInput } from "./references.js";
 
+/**
+ * Creates an ontology authoring scope with identity-aware annotation helpers,
+ * reference combinators, schema assembly, and JSON-LD/Turtle projections.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const Ontology = {
   create: (input: OntologyCreateInput) => {
     const baseIri = normalizeIriInput(input.baseIri);

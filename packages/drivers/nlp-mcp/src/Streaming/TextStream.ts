@@ -3,7 +3,7 @@
  *
  * Provides memory-efficient, line-by-line access to text files using the
  * platform {@link FileSystem.FileSystem} and {@link Path.Path} services
- * (`FileSystem.stream` -> `Stream.decodeText` -> `Stream.splitLines`). All
+ * (`FileSystem.stream` -\> `Stream.decodeText` -\> `Stream.splitLines`). All
  * operations stay platform-agnostic: a node `FileSystem`/`Path` implementation
  * is provided at the entrypoint, not here.
  *

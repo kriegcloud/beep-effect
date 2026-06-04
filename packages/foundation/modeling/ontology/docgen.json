@@ -384,5 +384,13 @@
       ]
     }
   },
-  "exclude": ["src/internal/**/*.ts"]
+  "exclude": [
+    "src/internal/**/*.ts",
+    "src/annotations.ts",
+    "src/assembly.ts",
+    "src/create.ts",
+    "src/model.ts",
+    "src/projections/**/*.ts",
+    "src/references.ts"
+  ]
 }
