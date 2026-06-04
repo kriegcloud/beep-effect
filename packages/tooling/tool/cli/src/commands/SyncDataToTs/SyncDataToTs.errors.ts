@@ -43,7 +43,7 @@ export class SyncDataToTsError extends TaggedErrorClass<SyncDataToTsError>($I`Sy
     message: S.String,
     targetId: S.optionalKey(S.String),
     file: S.optionalKey(S.String),
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("SyncDataToTsError", {
     title: "Sync Data To TypeScript Error",

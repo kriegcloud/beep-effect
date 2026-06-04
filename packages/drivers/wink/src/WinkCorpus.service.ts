@@ -340,7 +340,7 @@ const removeCorpusSession = (
 export class CorpusManagerError extends TaggedErrorClass<CorpusManagerError>($I`CorpusManagerError`)(
   "CorpusManagerError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     corpusId: S.OptionFromOptionalKey(S.String),
     message: S.String,
   },

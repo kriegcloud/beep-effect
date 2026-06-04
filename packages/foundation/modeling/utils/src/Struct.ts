@@ -42,7 +42,7 @@ export class EmptyStructError extends S.TaggedErrorClass<EmptyStructError>($I`Em
   "EmptyStructError",
   {
     input: S.Unknown,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("EmptyStructError", {
     description: "Invariant violation thrown when a struct expected to have at least one string key is empty.",

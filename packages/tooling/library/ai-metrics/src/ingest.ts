@@ -43,7 +43,7 @@ const encodeTranscriptIngestSummaryJson = S.encodeUnknownEffect(S.fromJsonString
 export class AiMetricsIngestError extends TaggedErrorClass<AiMetricsIngestError>($I`AiMetricsIngestError`)(
   "AiMetricsIngestError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
   },
   $I.annote("AiMetricsIngestError", {

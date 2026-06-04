@@ -421,7 +421,7 @@ export class AiSyncError extends TaggedErrorClass<AiSyncError>($I`AiSyncError`)(
     sourceId: S.optionalKey(S.String),
     relativePath: S.optionalKey(S.String),
     schemaId: S.optionalKey(S.String),
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("AiSyncError", {
     description: "Typed operational error for AI sync generation, drift checks, transforms, and validation.",

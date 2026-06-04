@@ -325,7 +325,7 @@ export class TestDatabaseInfo extends Context.Service<TestDatabaseInfo, TestData
 export class SqlTestHarnessError extends TaggedErrorClass<SqlTestHarnessError>($I`SqlTestHarnessError`)(
   "SqlTestHarnessError",
   {
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
     driver: TestDatabaseDriver,
     message: S.String,
     phase: SqlTestHarnessPhase,
@@ -541,14 +541,14 @@ export const makeSqlTestLayer = <
   readonly driver: SqlTestDriver<Config, Services, SqlService>;
   readonly hooks?: SqlTestHooks<MigrateError, SeedError>;
 }): Layer.Layer<Services, SqlTestHarnessError> =>
-  Layer.unwrap(
+  Layer.effectContext(
     Effect.gen(function* () {
       const context = yield* Layer.build(Layer.fresh(options.driver.makeLayer(options.config)));
 
       yield* runHook(options.driver.name, "migrate", options.driver.sqlClient, options.hooks?.migrate, context);
       yield* runHook(options.driver.name, "seed", options.driver.sqlClient, options.hooks?.seed, context);
 
-      return Layer.succeedContext(context);
+      return context;
     }).pipe(
       Effect.withSpan("SqlTest.makeLayer"),
       Effect.annotateLogs({

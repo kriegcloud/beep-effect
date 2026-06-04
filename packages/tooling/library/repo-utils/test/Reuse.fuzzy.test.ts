@@ -140,7 +140,7 @@ describe("ReuseCloneService.detectNearMissClones", () => {
     Effect.fnUntraced(function* () {
       const cloneService = yield* ReuseCloneService;
       const candidates = yield* cloneService.detectNearMissClones(
-        O.some("packages/drivers/duckdb,packages/drivers/ffmpeg")
+        O.some("packages/drivers/face-detection,packages/drivers/ffmpeg")
       );
 
       expect(candidates.length).toBeGreaterThan(0);

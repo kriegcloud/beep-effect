@@ -31,7 +31,7 @@
  * - Type guard: {@link is}
  * - Assertion: {@link asserts}
  * - Add constraints: `.check(...)` with filters like {@link isMinLength},
- *   {@link isGreaterThan}, {@link isPattern}, {@link isUUID}
+ *   {@link isGreaterThan}, {@link isPattern}, {@link isUUID}, {@link isGUID}
  * - Transform between schemas: {@link decodeTo}, {@link encodeTo}
  * - Add a default for missing keys: {@link withDecodingDefault}, {@link withDecodingDefaultKey}
  * - Create branded types: {@link brand}
@@ -6235,7 +6235,7 @@ export const isStringBigInt: (annotations?: Annotations.Filter) => SchemaAST.Fil
 export const isStringSymbol: (annotations?: Annotations.Filter) => SchemaAST.Filter<string> = SchemaAST.isStringSymbol
 
 /**
- * Returns a RegExp for validating an RFC 4122 UUID.
+ * Returns a RegExp for validating an RFC 9562 / RFC 4122 UUID.
  *
  * Optionally specify a version 1-8. If no version is specified (`undefined`), all versions are supported.
  */
@@ -6245,15 +6245,24 @@ const getUUIDRegExp = (version?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): globalThis.RegE
       `^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`
     )
   }
-  return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$/
+  return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|[fF]{8}-[fF]{4}-[fF]{4}-[fF]{4}-[fF]{12})$/
 }
 
 /**
- * Validates that a string is a valid Universally Unique Identifier (UUID).
- * Optionally specify a version (1-8) to validate against a specific UUID version.
- * If no version is specified (`undefined`), all versions are supported.
+ * Validates that a string is a strict Universally Unique Identifier (UUID).
+ *
+ * **When to use**
+ *
+ * Use when you need UUID semantics, including version and RFC variant bits,
+ * rather than only the dashed hexadecimal shape.
  *
  * **Details**
+ *
+ * Without a version argument, this accepts UUID versions 1 through 8, the nil
+ * UUID (`00000000-0000-0000-0000-000000000000`), and the max UUID
+ * (`ffffffff-ffff-ffff-ffff-ffffffffffff`). With a version argument, this
+ * accepts only UUIDs with that version and RFC variant bits; nil and max UUIDs
+ * are not versioned UUIDs and do not match version-specific checks.
  *
  * JSON Schema:
  *
@@ -6265,6 +6274,7 @@ const getUUIDRegExp = (version?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): globalThis.RegE
  * When generating test data with fast-check, this applies a `patterns`
  * constraint to ensure generated strings match the UUID pattern.
  *
+ * @see {@link isGUID} for shape-only GUID validation.
  * @category String checks
  * @since 4.0.0
  */
@@ -6278,6 +6288,46 @@ export function isUUID(version?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, annotations?: An
         _tag: "isUUID",
         regExp,
         version
+      },
+      ...annotations
+    }
+  )
+}
+
+const GUID_REGEXP = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/
+
+/**
+ * Validates that a string has the GUID / UUID textual shape.
+ *
+ * **When to use**
+ *
+ * Use when you need to accept dashed hexadecimal identifiers without enforcing
+ * UUID version or variant bits.
+ *
+ * **Details**
+ *
+ * This check accepts strings in the `8-4-4-4-12` hexadecimal form. JSON Schema
+ * output includes the corresponding `pattern` constraint and intentionally does
+ * not include `format: "uuid"` because GUID validation is looser than UUID
+ * validation.
+ *
+ * Arbitrary:
+ *
+ * When generating test data with fast-check, this applies a `patterns`
+ * constraint to ensure generated strings match the GUID pattern.
+ *
+ * @see {@link isUUID} for strict UUID validation.
+ * @category String checks
+ * @since 4.0.0
+ */
+export function isGUID(annotations?: Annotations.Filter) {
+  return isPattern(
+    GUID_REGEXP,
+    {
+      expected: "a GUID",
+      meta: {
+        _tag: "isGUID",
+        regExp: GUID_REGEXP
       },
       ...annotations
     }
@@ -8979,11 +9029,48 @@ export interface Error extends instanceOf<globalThis.Error> {
   readonly "Rebuild": Error
 }
 
-const ErrorJsonEncoded = Struct({
-  message: String,
-  name: optionalKey(String),
-  stack: optionalKey(String)
-})
+/**
+ * Options for {@link Error} and {@link Defect}.
+ *
+ * @category options
+ * @since 4.0.0
+ */
+export interface ErrorOptions {
+  /**
+   * Includes string stack traces in encoded `Error` values when set to `true`.
+   *
+   * @default false
+   */
+  readonly includeStack?: boolean | undefined
+  /**
+   * Excludes `Error.cause` values from encoded `Error` values when set to
+   * `true`.
+   *
+   * @default false
+   */
+  readonly excludeCause?: boolean | undefined
+}
+
+type ErrorOptionsKey = 0 | 1 | 2 | 3
+
+const getErrorOptionsKey = (options?: ErrorOptions): ErrorOptionsKey =>
+  ((options?.includeStack === true ? 1 : 0) |
+    (options?.excludeCause === true ? 2 : 0)) as ErrorOptionsKey
+
+const getErrorOptions = (key: ErrorOptionsKey): ErrorOptions | undefined => {
+  switch (key) {
+    case 0:
+      return undefined
+    case 1:
+      return { includeStack: true }
+    case 2:
+      return { excludeCause: true }
+    case 3:
+      return { includeStack: true, excludeCause: true }
+  }
+}
+
+const errorSchemaCache: Array<Error | undefined> = []
 
 /**
  * Schema for JavaScript `Error` objects.
@@ -8991,57 +9078,38 @@ const ErrorJsonEncoded = Struct({
  * **Details**
  *
  * Default JSON serializer:
- * Encodes an `Error` as an object with `message` and optional `name` properties,
- * and decodes that object back into an `Error`. The stack trace is omitted from
- * the encoded form for security.
  *
- * @category schemas
- * @since 4.0.0
- */
-export const Error: Error = instanceOf(globalThis.Error, {
-  typeConstructor: {
-    _tag: "Error"
-  },
-  generation: {
-    runtime: `Schema.Error`,
-    Type: `globalThis.Error`
-  },
-  expected: "Error",
-  toCodecJson: () => link<globalThis.Error>()(ErrorJsonEncoded, SchemaTransformation.errorFromErrorJsonEncoded()),
-  toArbitrary: () => (fc) => fc.string().map((message) => new globalThis.Error(message))
-})
-
-/**
- * Schema for JavaScript `Error` objects that preserves stack traces in the JSON
- * encoded form.
- *
- * **Details**
- *
- * Default JSON serializer:
  * Encodes an `Error` as an object with `message`, optional `name`, and optional
- * `stack` properties, and decodes that object back into an `Error`.
+ * `cause` properties, and decodes that object back into an `Error`. Stack
+ * traces are omitted by default for security. Pass `{ includeStack: true }` to
+ * include stack traces, or `{ excludeCause: true }` to omit causes.
  *
- * @category schemas
+ * @category constructors
  * @since 4.0.0
  */
-export const ErrorWithStack: Error = instanceOf(globalThis.Error, {
-  typeConstructor: {
-    _tag: "ErrorWithStack"
-  },
-  generation: {
-    runtime: `Schema.ErrorWithStack`,
-    Type: `globalThis.Error`
-  },
-  expected: "Error",
-  toCodecJson: () =>
-    link<globalThis.Error>()(
-      ErrorJsonEncoded,
-      SchemaTransformation.errorFromErrorJsonEncoded({
-        includeStack: true
-      })
-    ),
-  toArbitrary: () => (fc) => fc.string().map((message) => new globalThis.Error(message))
-})
+export function Error(options?: ErrorOptions): Error {
+  const key = getErrorOptionsKey(options)
+  const cached = errorSchemaCache[key]
+  if (cached !== undefined) {
+    return cached
+  }
+  const normalizedOptions = getErrorOptions(key)
+  const schema = instanceOf(globalThis.Error, {
+    typeConstructor: {
+      _tag: "Error",
+      ...(normalizedOptions === undefined ? {} : { options: normalizedOptions })
+    },
+    generation: {
+      runtime: normalizedOptions !== undefined ? `Schema.Error(${format(normalizedOptions)})` : `Schema.Error()`,
+      Type: `globalThis.Error`
+    },
+    expected: "Error",
+    toCodecJson: () => link<globalThis.Error>()(JsonError, SchemaTransformation.errorFromJsonError(normalizedOptions)),
+    toArbitrary: () => (fc) => fc.string().map((message) => new globalThis.Error(message))
+  })
+  errorSchemaCache[key] = schema
+  return schema
+}
 
 /**
  * Type-level representation of {@link Defect}.
@@ -9049,80 +9117,63 @@ export const ErrorWithStack: Error = instanceOf(globalThis.Error, {
  * @category Defect
  * @since 3.10.0
  */
-export interface Defect extends
-  Union<
-    readonly [
-      decodeTo<
-        Error,
-        Struct<{
-          readonly message: String
-          readonly name: optionalKey<String>
-          readonly stack: optionalKey<String>
-        }>
-      >,
-      decodeTo<Unknown, Any>
-    ]
-  >
-{
+export interface Defect extends decodeTo<Unknown, typeof Json> {
   readonly "Rebuild": Defect
 }
 
-const defectTransformation = new SchemaTransformation.Transformation(
-  SchemaGetter.passthrough(),
-  SchemaGetter.transform((u) => {
-    try {
-      return JSON.parse(JSON.stringify(u))
-    } catch {
-      return format(u)
-    }
-  })
-)
+const defectSchemaCache: Array<Defect | undefined> = []
 
 /**
- * Schema for defect values, accepting either JavaScript `Error` values encoded
- * with `message` and optional `name`, or arbitrary unknown defect values.
+ * Schema for unexpected defect values represented as `unknown` with a JSON
+ * encoded form.
+ *
+ * **When to use**
+ *
+ * Use when you need a schema for `Cause` defects or other unexpected failures
+ * whose runtime value may be any value.
  *
  * **Details**
  *
- * Default JSON serializer:
- * Unknown defects are serialized with `JSON.stringify` when possible and fall
- * back to Effect's formatted representation when JSON serialization fails.
+ * The encoded side is {@link Json}. During decoding, JSON objects with a string
+ * `message` property are decoded into JavaScript `Error` values, preserving a
+ * non-default `name` and any string `stack`. Other JSON values decode
+ * unchanged.
  *
+ * During encoding, JavaScript `Error` values encode to JSON objects with
+ * `name`, `message`, and optional `cause` properties. Pass
+ * `{ includeStack: true }` to include string stack traces in encoded `Error`
+ * defects, or `{ excludeCause: true }` to omit causes. Other values are
+ * serialized through Effect's JSON formatter and then parsed back into JSON
+ * when possible.
+ *
+ * **Gotchas**
+ *
+ * This schema is for carrying defects across JSON boundaries, not for
+ * preserving every JavaScript value exactly. Some values cannot round-trip
+ * unchanged:
+ *
+ * - A non-`Error` object such as `{ message: "boom" }` encodes as an
+ *   error-shaped JSON object and decodes back as an `Error`.
+ * - JSON serialization normalizes unsupported values. For example,
+ *   `undefined` array elements encode as `null`, unsupported object properties
+ *   are omitted, and circular references are dropped.
+ * - Values that cannot be represented as JSON fall back to Effect's formatted
+ *   string representation.
+ *
+ * @see {@link Error} for a schema that only accepts JavaScript `Error` values.
  * @category constructors
- * @since 3.10.0
- */
-export const Defect: Defect = Union([
-  ErrorJsonEncoded.pipe(decodeTo(Error, SchemaTransformation.errorFromErrorJsonEncoded())),
-  Any.pipe(decodeTo(
-    Unknown.annotate({
-      toCodecJson: () => link<unknown>()(Any, defectTransformation),
-      toArbitrary: () => (fc) => fc.json()
-    }),
-    defectTransformation
-  ))
-])
-
-/**
- * Schema for defects that also includes stack traces in the encoded form.
- *
- * @category Defect
  * @since 4.0.0
  */
-export const DefectWithStack: Defect = Union([
-  ErrorJsonEncoded.pipe(decodeTo(
-    ErrorWithStack,
-    SchemaTransformation.errorFromErrorJsonEncoded({
-      includeStack: true
-    })
-  )),
-  Any.pipe(decodeTo(
-    Unknown.annotate({
-      toCodecJson: () => link<unknown>()(Any, defectTransformation),
-      toArbitrary: () => (fc) => fc.json()
-    }),
-    defectTransformation
-  ))
-])
+export function Defect(options?: ErrorOptions): Defect {
+  const key = getErrorOptionsKey(options)
+  const cached = defectSchemaCache[key]
+  if (cached !== undefined) {
+    return cached
+  }
+  const schema = Json.pipe(decodeTo(Unknown, SchemaTransformation.defectFromJson(getErrorOptions(key))))
+  defectSchemaCache[key] = schema
+  return schema
+}
 
 /**
  * Type-level representation returned by {@link Exit}.
@@ -13322,6 +13373,13 @@ export interface JsonObject {
  */
 export const Json: Codec<Json> = make(SchemaAST.Json)
 
+const JsonError = Struct({
+  message: String,
+  name: optionalKey(String),
+  stack: optionalKey(String),
+  cause: optionalKey(Json)
+})
+
 /**
  * Recursive TypeScript type for mutable JSON values: `null`, `number`,
  * `boolean`, `string`, mutable arrays, or mutable string-keyed records.
@@ -13903,6 +13961,10 @@ export declare namespace Annotations {
       readonly _tag: "isUUID"
       readonly regExp: globalThis.RegExp
       readonly version: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | undefined
+    }
+    readonly isGUID: {
+      readonly _tag: "isGUID"
+      readonly regExp: globalThis.RegExp
     }
     readonly isULID: {
       readonly _tag: "isULID"

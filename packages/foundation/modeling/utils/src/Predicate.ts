@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { Result } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -134,6 +135,38 @@ const makeChainRefinement =
  * @since 0.0.0
  */
 export * from "effect/Predicate";
+
+/**
+ * Returns whether an unknown value can be inspected with reflection without
+ * triggering a throwing Proxy trap.
+ *
+ * @example
+ * ```ts
+ * import { P } from "@beep/utils"
+ *
+ * const value = new Proxy({}, { ownKeys: () => { throw new Error("blocked") } })
+ * console.log(P.hasInspectableObjectShape(value))
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const hasInspectableObjectShape = (value: unknown): boolean => {
+  if (!P.isObject(value)) {
+    return true;
+  }
+
+  return Result.getOrElse(
+    Result.try(() => {
+      Reflect.getPrototypeOf(value);
+      for (const key of Reflect.ownKeys(value)) {
+        Reflect.getOwnPropertyDescriptor(value, key);
+      }
+      return true;
+    }),
+    () => false
+  );
+};
 
 /**
  * Chains refinements so each step receives the type narrowed by the previous

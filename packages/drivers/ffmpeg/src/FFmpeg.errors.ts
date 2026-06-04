@@ -7,6 +7,7 @@
 
 import { $FfmpegId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { P } from "@beep/utils";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -39,7 +40,8 @@ export class FFmpegErrorContext extends S.Class<FFmpegErrorContext>($I`FFmpegErr
   })
 ) {}
 
-const causeFromUnknown = (cause: unknown): unknown | undefined => (S.is(S.DefectWithStack)(cause) ? cause : undefined);
+const causeFromUnknown = (cause: unknown): unknown | undefined =>
+  P.hasInspectableObjectShape(cause) && S.is(S.Defect({ includeStack: true }))(cause) ? cause : undefined;
 
 const existingFfmpegError = (cause: unknown): O.Option<FFmpegError> =>
   S.is(FFmpegError)(cause) ? O.some(cause) : O.none();
@@ -66,7 +68,7 @@ export class FFmpegErrorFromUnknownOptions extends S.Class<FFmpegErrorFromUnknow
   $I`FFmpegErrorFromUnknownOptions`
 )(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     command: S.optionalKey(S.String),
     exitCode: S.optionalKey(S.Number),
     stderr: S.optionalKey(S.String),
@@ -95,7 +97,7 @@ export class FFmpegError extends TaggedErrorClass<FFmpegError>($I`FFmpegError`)(
   "FFmpegError",
   {
     command: S.optionalKey(S.String),
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     exitCode: S.optionalKey(S.Number),
     message: S.String,
     operation: S.String,

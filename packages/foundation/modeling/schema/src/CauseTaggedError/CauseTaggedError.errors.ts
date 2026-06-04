@@ -35,7 +35,7 @@ type CauseTaggedErrorLike = (new (
 
 type CauseTaggedErrorStandardFields = {
   readonly message: typeof S.String;
-  readonly cause: typeof S.DefectWithStack;
+  readonly cause: S.Defect;
 };
 
 type CauseTaggedErrorCombinedFields<Fields extends CauseTaggedErrorFields> = Struct.Simplify<
@@ -259,7 +259,7 @@ type UnsafeTaggedErrorFactory = (
 
 const CauseTaggedErrorStandardFields = {
   message: S.String,
-  cause: S.DefectWithStack,
+  cause: S.Defect({ includeStack: true }),
 } satisfies CauseTaggedErrorStandardFields;
 
 const hasExtraFields = (fields: CauseTaggedErrorFields): boolean => !R.isEmptyReadonlyRecord(fields);
@@ -451,7 +451,7 @@ const attachCauseTaggedErrorStatics = <
  * Create a tagged error class that always carries a `message` and required defect `cause`.
  *
  * `CauseTaggedError` is a pipe-friendly offshoot of {@link TaggedErrorClass}.
- * It prepends `message: S.String` and `cause: S.DefectWithStack` to every
+ * It prepends `message: S.String` and `cause: S.Defect({ includeStack: true })` to every
  * generated class and attaches dual static `new` and `mapError` helpers.
  *
  * @example

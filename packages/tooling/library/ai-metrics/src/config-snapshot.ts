@@ -153,7 +153,7 @@ export class AiMetricsConfigSnapshotError extends TaggedErrorClass<AiMetricsConf
 )(
   "AiMetricsConfigSnapshotError",
   {
-    cause: S.DefectWithStack,
+    cause: S.Defect({ includeStack: true }),
     message: S.String,
   },
   $I.annote("AiMetricsConfigSnapshotError", {

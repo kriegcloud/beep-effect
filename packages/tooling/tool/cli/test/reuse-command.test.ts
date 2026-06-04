@@ -404,7 +404,7 @@ describe("reuse command", () => {
             "--fuzzy",
             "--json",
             "--scope",
-            "packages/drivers/duckdb,packages/drivers/ffmpeg",
+            "packages/drivers/face-detection,packages/drivers/ffmpeg",
           ]);
 
           const candidates = yield* parseLoggedJson(decodeReuseCandidatesJson);

@@ -42,7 +42,7 @@ export class VersionSyncError extends TaggedErrorClass<VersionSyncError>($I`Vers
   {
     message: S.String,
     file: S.String,
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("VersionSyncError", {
     title: "Version Sync Error",

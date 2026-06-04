@@ -1322,7 +1322,7 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError
   "DrizzleError",
   {
     operation: S.String,
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("DrizzleError", {
     description: "Technical Drizzle driver failure scoped to a driver operation.",

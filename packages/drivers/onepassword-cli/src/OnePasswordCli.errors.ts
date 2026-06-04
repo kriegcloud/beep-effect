@@ -7,6 +7,7 @@
 
 import { $OnepasswordCliId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
+import { P } from "@beep/utils";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -28,7 +29,7 @@ const $I = $OnepasswordCliId.create("OnePasswordCli.errors");
  */
 export class OnePasswordCliErrorOptions extends S.Class<OnePasswordCliErrorOptions>($I`OnePasswordCliErrorOptions`)(
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     command: S.optionalKey(S.String),
     exitCode: S.optionalKey(S.Number),
     stderr: S.optionalKey(S.String),
@@ -55,7 +56,7 @@ export class OnePasswordCliErrorOptions extends S.Class<OnePasswordCliErrorOptio
 export class OnePasswordCliError extends TaggedErrorClass<OnePasswordCliError>($I`OnePasswordCliError`)(
   "OnePasswordCliError",
   {
-    cause: S.optionalKey(S.DefectWithStack),
+    cause: S.optionalKey(S.Defect({ includeStack: true })),
     command: S.optionalKey(S.String),
     exitCode: S.optionalKey(S.Number),
     message: S.String,
@@ -78,7 +79,8 @@ export class OnePasswordCliError extends TaggedErrorClass<OnePasswordCliError>($
     (message: string, options: OnePasswordCliErrorOptions): (operation: string) => OnePasswordCliError;
   } = dual(3, (operation: string, message: string, options: OnePasswordCliErrorOptions): OnePasswordCliError => {
     const { cause, ...context } = options;
-    const normalizedCause = S.is(S.DefectWithStack)(cause) ? O.some(cause) : O.none();
+    const normalizedCause =
+      P.hasInspectableObjectShape(cause) && S.is(S.Defect({ includeStack: true }))(cause) ? O.some(cause) : O.none();
 
     return OnePasswordCliError.make({
       ...context,

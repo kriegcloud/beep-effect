@@ -1,5 +1,51 @@
 # effect
 
+## 4.0.0-beta.78
+
+### Patch Changes
+
+- [#2333](https://github.com/Effect-TS/effect-smol/pull/2333) [`7836b8e`](https://github.com/Effect-TS/effect-smol/commit/7836b8eb8bb0f3e04cdf554ee070caccf74f00c1) Thanks @tim-smart! - Fix Schema.Defect JSON encoding for Error values whose message property is not a string.
+
+- [#2329](https://github.com/Effect-TS/effect-smol/pull/2329) [`35d49a3`](https://github.com/Effect-TS/effect-smol/commit/35d49a3a09bdba6b513de87ddcead9e61a1042ba) Thanks @alvarosevilla95! - Retry Redis scripts after `NOSCRIPT` and declare the token bucket refill key
+
+- [#2334](https://github.com/Effect-TS/effect-smol/pull/2334) [`4093258`](https://github.com/Effect-TS/effect-smol/commit/40932580e65bafab5f23c5f14b520cb411d0b2cd) Thanks @tim-smart! - clean up otlp config
+
+## 4.0.0-beta.77
+
+### Patch Changes
+
+- [#2326](https://github.com/Effect-TS/effect-smol/pull/2326) [`6e9a5ca`](https://github.com/Effect-TS/effect-smol/commit/6e9a5ca62a61156fd67b2518ad3ab14ac0d25f23) Thanks @fubhy! - Prefer OTEL resource environment variables over explicit `OtlpResource.fromConfig` options.
+
+- [#2325](https://github.com/Effect-TS/effect-smol/pull/2325) [`302f398`](https://github.com/Effect-TS/effect-smol/commit/302f3984ce206e35d86ddd99d3b72be144850a51) Thanks @fubhy! - Add OTEL environment variable configuration for unstable OTLP observability.
+
+## 4.0.0-beta.76
+
+### Patch Changes
+
+- [#2320](https://github.com/Effect-TS/effect-smol/pull/2320) [`016108a`](https://github.com/Effect-TS/effect-smol/commit/016108a472af7048ddbbfd05f233e67529fafe12) Thanks @gcanti! - Add `Schema.isGUID` and update `Schema.isUUID` to accept the RFC 9562 max UUID.
+
+- [#2319](https://github.com/Effect-TS/effect-smol/pull/2319) [`95c03d2`](https://github.com/Effect-TS/effect-smol/commit/95c03d2c55930668c215b5a41c23cf7742fead84) Thanks @fubhy! - Add support for configuring Scalar API reference pages with a custom fetch implementation.
+
+- [#2318](https://github.com/Effect-TS/effect-smol/pull/2318) [`07299a3`](https://github.com/Effect-TS/effect-smol/commit/07299a33c09fd52faa9810d30835a2622c752386) Thanks @gcanti! - Replace the `Schema.Error` and `Schema.Defect` schema constants with constructor
+  functions, `Schema.Error()` and `Schema.Defect()`.
+
+  Unify `Schema.ErrorWithStack` into `Schema.Error({ includeStack: true })` and
+  `Schema.DefectWithStack` into `Schema.Defect({ includeStack: true })`.
+
+  Error causes are encoded by default using the same JSON defect encoding
+  semantics used by `Schema.Defect`; pass `{ excludeCause: true }` to omit nested
+  cause data.
+
+  Equivalent `Schema.Error` and `Schema.Defect` options are canonicalized, so
+  repeated constructor calls with the same option values reuse the same schema.
+
+  `Schema.Defect()` now models defects as `unknown` values with a JSON encoded
+  form. Error-shaped JSON objects with a string `message` decode to JavaScript
+  `Error` values, so non-`Error` objects such as `{ message: "boom" }` do not
+  round-trip unchanged. Other non-`Error` values are normalized through JSON
+  serialization, with non-JSON values falling back to Effect's formatted string
+  representation.
+
 ## 4.0.0-beta.75
 
 ### Patch Changes
