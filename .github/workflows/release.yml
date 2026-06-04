@@ -52,8 +52,23 @@ jobs:
         if: steps.pending-changesets.outputs.has_changesets == 'true'
         run: bun run beep quality changeset-graph
 
-      - name: Create or update release pull request
+      - name: Detect release diff
+        id: release-diff
         if: steps.pending-changesets.outputs.has_changesets == 'true'
+        shell: bash
+        run: |
+          bun run changeset:version
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "has_release_diff=true" >> "$GITHUB_OUTPUT"
+            git status --short
+          else
+            echo "No release diff produced by changeset version; skipping release PR creation."
+            echo "has_release_diff=false" >> "$GITHUB_OUTPUT"
+          fi
+          git reset --hard HEAD
+
+      - name: Create or update release pull request
+        if: steps.release-diff.outputs.has_release_diff == 'true'
         uses: changesets/action@v1
         with:
           version: bun run changeset:version
