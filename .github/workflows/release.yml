@@ -37,10 +37,23 @@ jobs:
         with:
           cache-turbo: false
 
+      - name: Detect pending changesets
+        id: pending-changesets
+        shell: bash
+        run: |
+          if find .changeset -maxdepth 1 -type f -name "*.md" ! -name "README.md" | grep -q .; then
+            echo "has_changesets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No pending changesets; skipping release PR creation."
+            echo "has_changesets=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Validate changeset package graph
+        if: steps.pending-changesets.outputs.has_changesets == 'true'
         run: bun run beep quality changeset-graph
 
       - name: Create or update release pull request
+        if: steps.pending-changesets.outputs.has_changesets == 'true'
         uses: changesets/action@v1
         with:
           version: bun run changeset:version
