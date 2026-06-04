@@ -129,7 +129,7 @@ describe("lint command file discovery", () => {
   );
 });
 
-describe.sequential("schema-first lint command", () => {
+describe("schema-first lint command", { concurrent: false }, () => {
   it(
     "reports redundant LiteralKit const assertions",
     () =>
@@ -205,7 +205,7 @@ describe.sequential("schema-first lint command", () => {
   );
 });
 
-describe.sequential("package test import lint command", () => {
+describe("package test import lint command", { concurrent: false }, () => {
   it(
     "reports same-package relative imports into src",
     () =>

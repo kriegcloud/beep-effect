@@ -47,6 +47,7 @@ const GROUPED_STEP_OUTPUT_MAX_CHARS = 256 * 1024;
 const groupedStepOutputTruncatedNotice = `\n[beep-cli] output truncated after ${GROUPED_STEP_OUTPUT_MAX_CHARS} characters`;
 const LINT_POLICY_SUBCOMMANDS = [
   "circular",
+  "deprecated-apis",
   "package-test-imports",
   "schema-first",
   "schema-topology",
@@ -883,6 +884,7 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   repoCliStep(repoRoot, "lint:tsgo-rules", ["quality", "tsgo-rules"]),
   repoCliStep(repoRoot, "lint:package-test-imports", ["lint", "package-test-imports"]),
   repoCliStep(repoRoot, "lint:schema-first", ["lint", "schema-first"]),
+  repoCliStep(repoRoot, "lint:deprecated-apis", ["lint", "deprecated-apis"]),
   bunxStep(repoRoot, "lint:jsdoc", ["eslint", "."]),
   repoCliStep(repoRoot, "lint:jsdoc-module-tags", ["quality", "jsdoc-module-tags"]),
   repoCliStep(repoRoot, "lint:docgen", ["docgen", "check"]),

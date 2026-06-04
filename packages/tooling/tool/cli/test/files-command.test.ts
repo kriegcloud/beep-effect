@@ -414,7 +414,7 @@ const fileSize = Effect.fn("FilesTest.fileSize")(function* (filePath: string) {
   return stat.size;
 });
 
-describe.sequential("files command", () => {
+describe("files command", { concurrent: false }, () => {
   it("renders a plain ascii files progress bar when colors are disabled", () => {
     const rendered = renderFilesProgressBar({
       chalk: new Chalk({ level: 0 }),

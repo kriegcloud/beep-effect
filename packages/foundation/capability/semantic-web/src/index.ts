@@ -8,21 +8,6 @@
  */
 
 /**
- * Package version constant.
- *
- * @example
- * ```typescript
- * import { VERSION } from "@beep/semantic-web"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * @since 0.0.0
  * @category validation
  */

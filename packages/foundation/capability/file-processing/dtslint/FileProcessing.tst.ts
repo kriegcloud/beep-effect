@@ -1,4 +1,3 @@
-import { VERSION } from "@beep/file-processing";
 import { ArtifactLocator, SourceArtifact } from "@beep/file-processing/Artifact";
 import { ExtractFileOperation, ProcessFileOperation } from "@beep/file-processing/Operation";
 import { extractFile, makeFileProcessingServiceLayer, processFile } from "@beep/file-processing/Service";
@@ -47,8 +46,6 @@ describe("@beep/file-processing", () => {
       preference: StrategyPreference.make({ engine: "test" }),
       source,
     });
-
-    expect(VERSION).type.toBe<"0.0.0">();
     expect<"markdown">().type.toBeAssignableTo<FileFormatFamily>();
     expect(SelectedStrategy).type.toBeAssignableTo<object>();
     expect(TestFileProcessingEngine).type.toBe<FileProcessingEngineShape>();

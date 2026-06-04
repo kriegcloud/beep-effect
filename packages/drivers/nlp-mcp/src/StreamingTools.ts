@@ -14,46 +14,22 @@
 
 import { $NlpMcpId } from "@beep/identity";
 import { AiToolError } from "@beep/nlp/Tools";
-import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool, Toolkit } from "effect/unstable/ai";
+import { DatasetMeta } from "./Streaming/DatasetLoader.ts";
+import { JsonlLineError, JsonlStats as JsonlStatsModel } from "./Streaming/Jsonl.ts";
+import { PipelineError, PipelineResult, PipelineStage } from "./Streaming/Pipeline.ts";
+import { TextEncoding, TextStreamStats } from "./Streaming/TextStream.ts";
 
 const $I = $NlpMcpId.create("StreamingTools");
 
-const EncodingKit = LiteralKit(["ascii", "latin1", "utf-8"]).annotate(
-  $I.annote("EncodingKit", {
-    description: "LiteralKit backing schema for supported text decoding labels.",
-  })
-);
-const Encoding = EncodingKit.pipe(
-  $I.annoteSchema("Encoding", { description: "Text decoding label applied to file bytes." }),
-  SchemaUtils.withLiteralKitStatics(EncodingKit)
-);
-
-const StageKit = LiteralKit(["lowercase", "normalizeWhitespace", "removePunctuation", "trim", "uppercase"]).annotate(
-  $I.annote("StageKit", {
-    description: "LiteralKit backing schema for supported pipeline transform stages.",
-  })
-);
-const Stage = StageKit.pipe(
-  $I.annoteSchema("Stage", { description: "A pure per-line transform applied by the processing pipeline." }),
-  SchemaUtils.withLiteralKitStatics(StageKit)
-);
-
-const JsonlLineErrorOutput = S.Struct({
-  error: S.String,
-  lineNumber: S.Number,
-}).pipe(
+const JsonlLineErrorOutput = JsonlLineError.mapFields((fields) => fields).pipe(
   $I.annoteSchema("JsonlLineErrorOutput", {
     description: "A JSONL line parse failure with its zero-based line number.",
   })
 );
 
-const PipelineErrorOutput = S.Struct({
-  error: S.String,
-  item: S.Unknown,
-  stage: S.String,
-}).pipe(
+const PipelineErrorOutput = PipelineError.mapFields((fields) => fields).pipe(
   $I.annoteSchema("PipelineErrorOutput", {
     description: "A pipeline failure describing the failing item, message, and stage.",
   })
@@ -67,22 +43,47 @@ const PipelineErrorOutput = S.Struct({
  * import * as S from "effect/Schema"
  * import { LinesOutput } from "@beep/nlp-mcp/StreamingTools"
  *
- * const output = S.decodeUnknownSync(LinesOutput)({ count: 1, lines: ["hi"], truncated: false })
- * output.count
+ * const output = S.decodeUnknownResult(LinesOutput)({ count: 1, lines: ["hi"], truncated: false })
+ * console.log(output)
  * ```
  *
  * @since 0.0.0
  * @category schemas
  */
-export const LinesOutput = S.Struct({
-  count: S.Number,
-  lines: S.Array(S.String),
-  truncated: S.Boolean,
-}).pipe(
-  $I.annoteSchema("LinesOutput", {
+export const LinesOutput = S.Class<{
+  readonly count: number;
+  readonly lines: ReadonlyArray<string>;
+  readonly truncated: boolean;
+}>($I`LinesOutput`)(
+  {
+    count: S.Number.annotateKey({
+      description: "Number of lines returned.",
+    }),
+    lines: S.Array(S.String).annotateKey({
+      description: "Returned text lines in document order.",
+    }),
+    truncated: S.Boolean.annotateKey({
+      description: "Whether the result was capped by the requested or default limit.",
+    }),
+  },
+  $I.annote("LinesOutput", {
     description: "Lines returned from a streaming file operation with a truncation flag.",
   })
-);
+)
+  .mapFields((fields) => fields)
+  .pipe(
+    $I.annoteSchema("LinesOutput", {
+      description: "Lines returned from a streaming file operation with a truncation flag.",
+    })
+  );
+
+/**
+ * Type for {@link LinesOutput}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type LinesOutput = typeof LinesOutput.Type;
 
 /**
  * Output schema for file existence and size metadata.
@@ -92,22 +93,47 @@ export const LinesOutput = S.Struct({
  * import * as S from "effect/Schema"
  * import { FileInfoOutput } from "@beep/nlp-mcp/StreamingTools"
  *
- * const output = S.decodeUnknownSync(FileInfoOutput)({ exists: true, lineCount: 3, sizeBytes: 12 })
- * output.exists
+ * const output = S.decodeUnknownResult(FileInfoOutput)({ exists: true, lineCount: 3, sizeBytes: 12 })
+ * console.log(output)
  * ```
  *
  * @since 0.0.0
  * @category schemas
  */
-export const FileInfoOutput = S.Struct({
-  exists: S.Boolean,
-  lineCount: S.optionalKey(S.Number),
-  sizeBytes: S.optionalKey(S.Number),
-}).pipe(
-  $I.annoteSchema("FileInfoOutput", {
+export const FileInfoOutput = S.Class<{
+  readonly exists: boolean;
+  readonly lineCount?: number | undefined;
+  readonly sizeBytes?: number | undefined;
+}>($I`FileInfoOutput`)(
+  {
+    exists: S.Boolean.annotateKey({
+      description: "Whether the target file exists.",
+    }),
+    lineCount: S.optionalKey(S.Number).annotateKey({
+      description: "Total line count when the file exists.",
+    }),
+    sizeBytes: S.optionalKey(S.Number).annotateKey({
+      description: "File size in bytes when the file exists.",
+    }),
+  },
+  $I.annote("FileInfoOutput", {
     description: "File existence with optional line count and byte size.",
   })
-);
+)
+  .mapFields((fields) => fields)
+  .pipe(
+    $I.annoteSchema("FileInfoOutput", {
+      description: "File existence with optional line count and byte size.",
+    })
+  );
+
+/**
+ * Type for {@link FileInfoOutput}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type FileInfoOutput = typeof FileInfoOutput.Type;
 
 /**
  * Output schema for aggregate text statistics.
@@ -117,7 +143,7 @@ export const FileInfoOutput = S.Struct({
  * import * as S from "effect/Schema"
  * import { TextStatsOutput } from "@beep/nlp-mcp/StreamingTools"
  *
- * const output = S.decodeUnknownSync(TextStatsOutput)({
+ * const output = S.decodeUnknownResult(TextStatsOutput)({
  *   avgLineLength: 4,
  *   maxLineLength: 8,
  *   minLineLength: 1,
@@ -125,24 +151,25 @@ export const FileInfoOutput = S.Struct({
  *   totalBytes: 12,
  *   totalLines: 3
  * })
- * output.totalLines
+ * console.log(output)
  * ```
  *
  * @since 0.0.0
  * @category schemas
  */
-export const TextStatsOutput = S.Struct({
-  avgLineLength: S.Number,
-  maxLineLength: S.Number,
-  minLineLength: S.Number,
-  nonEmptyLines: S.Number,
-  totalBytes: S.Number,
-  totalLines: S.Number,
-}).pipe(
+export const TextStatsOutput = TextStreamStats.mapFields((fields) => fields).pipe(
   $I.annoteSchema("TextStatsOutput", {
     description: "Aggregate line-length and byte statistics for a text file.",
   })
 );
+
+/**
+ * Type for {@link TextStatsOutput}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type TextStatsOutput = typeof TextStatsOutput.Type;
 
 /**
  * Output schema for JSONL record reads, with optional collected errors.
@@ -152,23 +179,51 @@ export const TextStatsOutput = S.Struct({
  * import * as S from "effect/Schema"
  * import { JsonlOutput } from "@beep/nlp-mcp/StreamingTools"
  *
- * const output = S.decodeUnknownSync(JsonlOutput)({ count: 1, records: [{ id: 1 }], truncated: false })
- * output.count
+ * const output = S.decodeUnknownResult(JsonlOutput)({ count: 1, records: [{ id: 1 }], truncated: false })
+ * console.log(output)
  * ```
  *
  * @since 0.0.0
  * @category schemas
  */
-export const JsonlOutput = S.Struct({
-  count: S.Number,
-  errors: JsonlLineErrorOutput.pipe(S.Array, S.optionalKey),
-  records: S.Array(S.Unknown),
-  truncated: S.Boolean,
-}).pipe(
-  $I.annoteSchema("JsonlOutput", {
+export const JsonlOutput = S.Class<{
+  readonly count: number;
+  readonly errors?: ReadonlyArray<typeof JsonlLineErrorOutput.Type> | undefined;
+  readonly records: ReadonlyArray<unknown>;
+  readonly truncated: boolean;
+}>($I`JsonlOutput`)(
+  {
+    count: S.Number.annotateKey({
+      description: "Number of parsed records returned.",
+    }),
+    errors: JsonlLineErrorOutput.pipe(S.Array, S.optionalKey).annotateKey({
+      description: "Collected JSONL parse errors when requested by the caller.",
+    }),
+    records: S.Array(S.Unknown).annotateKey({
+      description: "Parsed JSONL records in file order.",
+    }),
+    truncated: S.Boolean.annotateKey({
+      description: "Whether records or errors were capped by the requested or default limit.",
+    }),
+  },
+  $I.annote("JsonlOutput", {
     description: "JSONL records returned from a streaming operation with optional parse errors.",
   })
-);
+)
+  .mapFields((fields) => fields)
+  .pipe(
+    $I.annoteSchema("JsonlOutput", {
+      description: "JSONL records returned from a streaming operation with optional parse errors.",
+    })
+  );
+
+/**
+ * Type for {@link JsonlOutput}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type JsonlOutput = typeof JsonlOutput.Type;
 
 /**
  * Output schema for JSONL parse statistics.
@@ -178,28 +233,31 @@ export const JsonlOutput = S.Struct({
  * import * as S from "effect/Schema"
  * import { JsonlStatsOutput } from "@beep/nlp-mcp/StreamingTools"
  *
- * const output = S.decodeUnknownSync(JsonlStatsOutput)({
+ * const output = S.decodeUnknownResult(JsonlStatsOutput)({
  *   errorCount: 0,
  *   skippedCount: 0,
  *   successCount: 3,
  *   totalLines: 3
  * })
- * output.successCount
+ * console.log(output)
  * ```
  *
  * @since 0.0.0
  * @category schemas
  */
-export const JsonlStatsOutput = S.Struct({
-  errorCount: S.Number,
-  skippedCount: S.Number,
-  successCount: S.Number,
-  totalLines: S.Number,
-}).pipe(
+export const JsonlStatsOutput = JsonlStatsModel.mapFields((fields) => fields).pipe(
   $I.annoteSchema("JsonlStatsOutput", {
     description: "Aggregate parse statistics for a JSONL file.",
   })
 );
+
+/**
+ * Type for {@link JsonlStatsOutput}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type JsonlStatsOutput = typeof JsonlStatsOutput.Type;
 
 /**
  * Output schema for dataset provenance metadata.
@@ -209,29 +267,31 @@ export const JsonlStatsOutput = S.Struct({
  * import * as S from "effect/Schema"
  * import { DatasetMetaOutput } from "@beep/nlp-mcp/StreamingTools"
  *
- * const output = S.decodeUnknownSync(DatasetMetaOutput)({
+ * const output = S.decodeUnknownResult(DatasetMetaOutput)({
  *   format: "text",
  *   loadedAt: 0,
  *   location: "/tmp/data.txt",
  *   sourceType: "file"
  * })
- * output.format
+ * console.log(output)
  * ```
  *
  * @since 0.0.0
  * @category schemas
  */
-export const DatasetMetaOutput = S.Struct({
-  format: S.String,
-  loadedAt: S.Number,
-  location: S.String,
-  sizeBytes: S.optionalKey(S.Number),
-  sourceType: S.String,
-}).pipe(
+export const DatasetMetaOutput = DatasetMeta.mapFields((fields) => fields).pipe(
   $I.annoteSchema("DatasetMetaOutput", {
     description: "Provenance metadata describing a loaded dataset.",
   })
 );
+
+/**
+ * Type for {@link DatasetMetaOutput}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type DatasetMetaOutput = typeof DatasetMetaOutput.Type;
 
 /**
  * Output schema pairing loaded data with its {@link DatasetMetaOutput}.
@@ -241,24 +301,46 @@ export const DatasetMetaOutput = S.Struct({
  * import * as S from "effect/Schema"
  * import { DataOutput } from "@beep/nlp-mcp/StreamingTools"
  *
- * const output = S.decodeUnknownSync(DataOutput)({
+ * const output = S.decodeUnknownResult(DataOutput)({
  *   data: "hello",
  *   meta: { format: "text", loadedAt: 0, location: "/tmp/data.txt", sourceType: "file" }
  * })
- * output.meta.format
+ * console.log(output)
  * ```
  *
  * @since 0.0.0
  * @category schemas
  */
-export const DataOutput = S.Struct({
-  data: S.Unknown,
-  meta: DatasetMetaOutput,
-}).pipe(
-  $I.annoteSchema("DataOutput", {
+export const DataOutput = S.Class<{
+  readonly data: unknown;
+  readonly meta: DatasetMetaOutput;
+}>($I`DataOutput`)(
+  {
+    data: S.Unknown.annotateKey({
+      description: "Loaded dataset payload.",
+    }),
+    meta: DatasetMetaOutput.annotateKey({
+      description: "Provenance metadata for the loaded payload.",
+    }),
+  },
+  $I.annote("DataOutput", {
     description: "A loaded dataset payload paired with its provenance metadata.",
   })
-);
+)
+  .mapFields((fields) => fields)
+  .pipe(
+    $I.annoteSchema("DataOutput", {
+      description: "A loaded dataset payload paired with its provenance metadata.",
+    })
+  );
+
+/**
+ * Type for {@link DataOutput}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type DataOutput = typeof DataOutput.Type;
 
 /**
  * Output schema for line-transform pipeline runs.
@@ -268,7 +350,7 @@ export const DataOutput = S.Struct({
  * import * as S from "effect/Schema"
  * import { PipelineOutput } from "@beep/nlp-mcp/StreamingTools"
  *
- * const output = S.decodeUnknownSync(PipelineOutput)({
+ * const output = S.decodeUnknownResult(PipelineOutput)({
  *   durationMs: 1,
  *   errors: [],
  *   failed: 0,
@@ -276,219 +358,355 @@ export const DataOutput = S.Struct({
  *   results: ["a", "b"],
  *   skipped: 0
  * })
- * output.processed
+ * console.log(output)
  * ```
  *
  * @since 0.0.0
  * @category schemas
  */
-export const PipelineOutput = S.Struct({
-  durationMs: S.Number,
+export const PipelineOutput = PipelineResult.mapFields((fields) => ({
+  ...fields,
   errors: S.Array(PipelineErrorOutput),
-  failed: S.Number,
-  processed: S.Number,
-  results: S.Array(S.Unknown),
-  skipped: S.Number,
-}).pipe(
+})).pipe(
   $I.annoteSchema("PipelineOutput", {
     description: "Result of running a line-transform pipeline over a file.",
   })
 );
 
-const CountOutput = S.Struct({
-  count: S.Number,
-}).pipe(
-  $I.annoteSchema("CountOutput", {
+/**
+ * Type for {@link PipelineOutput}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type PipelineOutput = typeof PipelineOutput.Type;
+
+const CountOutput = S.Class<{ readonly count: number }>($I`CountOutput`)(
+  {
+    count: S.Number.annotateKey({
+      description: "Computed count.",
+    }),
+  },
+  $I.annote("CountOutput", {
     description: "A single non-negative count.",
   })
-);
+)
+  .mapFields((fields) => fields)
+  .pipe(
+    $I.annoteSchema("CountOutput", {
+      description: "A single non-negative count.",
+    })
+  );
 
-const CountWithErrorsOutput = S.Struct({
-  count: S.Number,
-  errors: S.optionalKey(S.Number),
-}).pipe(
-  $I.annoteSchema("CountWithErrorsOutput", {
+const CountWithErrorsOutput = S.Class<{ readonly count: number; readonly errors?: number | undefined }>(
+  $I`CountWithErrorsOutput`
+)(
+  {
+    count: S.Number.annotateKey({
+      description: "Computed count.",
+    }),
+    errors: S.optionalKey(S.Number).annotateKey({
+      description: "Optional companion error count.",
+    }),
+  },
+  $I.annote("CountWithErrorsOutput", {
     description: "A count with an optional companion error count.",
   })
-);
-
-const ReadLinesParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      encoding: S.optionalKey(Encoding),
-      maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-      skip: S.optionalKey(S.Number.check(S.isGreaterThanOrEqualTo(0))),
-      skipEmpty: S.optionalKey(S.Boolean),
-      tail: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-      trim: S.optionalKey(S.Boolean),
+)
+  .mapFields((fields) => fields)
+  .pipe(
+    $I.annoteSchema("CountWithErrorsOutput", {
+      description: "A count with an optional companion error count.",
     })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-}).pipe($I.annoteSchema("ReadLinesParameters", { description: "Inputs for reading lines from a text file." }));
+  );
 
-const FileInfoParameters = S.Struct({
-  path: S.String.check(S.isMinLength(1)),
-}).pipe($I.annoteSchema("FileInfoParameters", { description: "Inputs for inspecting a text file." }));
+const ReadLinesParameters = S.Class<{ readonly options?: unknown; readonly path: string }>($I`ReadLinesParameters`)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        encoding: S.optionalKey(TextEncoding),
+        maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        skip: S.optionalKey(S.Number.check(S.isGreaterThanOrEqualTo(0))),
+        skipEmpty: S.optionalKey(S.Boolean),
+        tail: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        trim: S.optionalKey(S.Boolean),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+  },
+  $I.annote("ReadLinesParameters", { description: "Inputs for reading lines from a text file." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("ReadLinesParameters", { description: "Inputs for reading lines from a text file." }));
 
-const TextStatsParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      skipEmpty: S.optionalKey(S.Boolean),
-      trim: S.optionalKey(S.Boolean),
-    })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-}).pipe($I.annoteSchema("TextStatsParameters", { description: "Inputs for computing text statistics." }));
+const FileInfoParameters = S.Class<{ readonly path: string }>($I`FileInfoParameters`)(
+  {
+    path: S.String.check(S.isMinLength(1)),
+  },
+  $I.annote("FileInfoParameters", { description: "Inputs for inspecting a text file." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("FileInfoParameters", { description: "Inputs for inspecting a text file." }));
 
-const SampleLinesParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      skipEmpty: S.optionalKey(S.Boolean),
-      trim: S.optionalKey(S.Boolean),
-    })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-  sampleSize: S.Number.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(10_000)),
-}).pipe($I.annoteSchema("SampleLinesParameters", { description: "Inputs for randomly sampling text lines." }));
+const TextStatsParameters = S.Class<{ readonly options?: unknown; readonly path: string }>($I`TextStatsParameters`)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        skipEmpty: S.optionalKey(S.Boolean),
+        trim: S.optionalKey(S.Boolean),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+  },
+  $I.annote("TextStatsParameters", { description: "Inputs for computing text statistics." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("TextStatsParameters", { description: "Inputs for computing text statistics." }));
 
-const ReadJsonlParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      collectErrors: S.optionalKey(S.Boolean),
-      maxRecords: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-      skipInvalid: S.optionalKey(S.Boolean),
-    })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-}).pipe($I.annoteSchema("ReadJsonlParameters", { description: "Inputs for reading JSONL records." }));
+const SampleLinesParameters = S.Class<{
+  readonly options?: unknown;
+  readonly path: string;
+  readonly sampleSize: number;
+}>($I`SampleLinesParameters`)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        skipEmpty: S.optionalKey(S.Boolean),
+        trim: S.optionalKey(S.Boolean),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+    sampleSize: S.Number.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(10_000)),
+  },
+  $I.annote("SampleLinesParameters", { description: "Inputs for randomly sampling text lines." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("SampleLinesParameters", { description: "Inputs for randomly sampling text lines." }));
 
-const JsonlStatsParameters = S.Struct({
-  path: S.String.check(S.isMinLength(1)),
-}).pipe($I.annoteSchema("JsonlStatsParameters", { description: "Inputs for computing JSONL statistics." }));
+const ReadJsonlParameters = S.Class<{ readonly options?: unknown; readonly path: string }>($I`ReadJsonlParameters`)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        collectErrors: S.optionalKey(S.Boolean),
+        maxRecords: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        skipInvalid: S.optionalKey(S.Boolean),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+  },
+  $I.annote("ReadJsonlParameters", { description: "Inputs for reading JSONL records." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("ReadJsonlParameters", { description: "Inputs for reading JSONL records." }));
 
-const ValidateJsonlParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      maxErrors: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-      maxRecords: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-    })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-}).pipe($I.annoteSchema("ValidateJsonlParameters", { description: "Inputs for validating a JSONL file." }));
+const JsonlStatsParameters = S.Class<{ readonly path: string }>($I`JsonlStatsParameters`)(
+  {
+    path: S.String.check(S.isMinLength(1)),
+  },
+  $I.annote("JsonlStatsParameters", { description: "Inputs for computing JSONL statistics." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("JsonlStatsParameters", { description: "Inputs for computing JSONL statistics." }));
 
-const SampleJsonlParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      skipInvalid: S.optionalKey(S.Boolean),
-    })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-  sampleSize: S.Number.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(10_000)),
-}).pipe($I.annoteSchema("SampleJsonlParameters", { description: "Inputs for randomly sampling JSONL records." }));
+const ValidateJsonlParameters = S.Class<{ readonly options?: unknown; readonly path: string }>(
+  $I`ValidateJsonlParameters`
+)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        maxErrors: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        maxRecords: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+  },
+  $I.annote("ValidateJsonlParameters", { description: "Inputs for validating a JSONL file." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("ValidateJsonlParameters", { description: "Inputs for validating a JSONL file." }));
 
-const LoadTextParameters = S.Struct({
-  location: S.String.check(S.isMinLength(1)),
-  options: S.optionalKey(
-    S.Struct({
-      encoding: S.optionalKey(Encoding),
-      timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-    })
-  ),
-}).pipe($I.annoteSchema("LoadTextParameters", { description: "Inputs for loading text from a file or URL." }));
+const SampleJsonlParameters = S.Class<{
+  readonly options?: unknown;
+  readonly path: string;
+  readonly sampleSize: number;
+}>($I`SampleJsonlParameters`)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        skipInvalid: S.optionalKey(S.Boolean),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+    sampleSize: S.Number.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(10_000)),
+  },
+  $I.annote("SampleJsonlParameters", { description: "Inputs for randomly sampling JSONL records." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("SampleJsonlParameters", { description: "Inputs for randomly sampling JSONL records." }));
 
-const LoadLinesParameters = S.Struct({
-  location: S.String.check(S.isMinLength(1)),
-  options: S.optionalKey(
-    S.Struct({
-      maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-      skipEmpty: S.optionalKey(S.Boolean),
-      timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-      trim: S.optionalKey(S.Boolean),
-    })
-  ),
-}).pipe($I.annoteSchema("LoadLinesParameters", { description: "Inputs for loading lines from a file or URL." }));
+const LoadTextParameters = S.Class<{ readonly location: string; readonly options?: unknown }>($I`LoadTextParameters`)(
+  {
+    location: S.String.check(S.isMinLength(1)),
+    options: S.optionalKey(
+      S.Struct({
+        encoding: S.optionalKey(TextEncoding),
+        timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+      })
+    ),
+  },
+  $I.annote("LoadTextParameters", { description: "Inputs for loading text from a file or URL." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("LoadTextParameters", { description: "Inputs for loading text from a file or URL." }));
 
-const LoadJsonlParameters = S.Struct({
-  location: S.String.check(S.isMinLength(1)),
-  options: S.optionalKey(
-    S.Struct({
-      maxRecords: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-      skipInvalid: S.optionalKey(S.Boolean),
-      timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-    })
-  ),
-}).pipe($I.annoteSchema("LoadJsonlParameters", { description: "Inputs for loading JSONL from a file or URL." }));
+const LoadLinesParameters = S.Class<{ readonly location: string; readonly options?: unknown }>($I`LoadLinesParameters`)(
+  {
+    location: S.String.check(S.isMinLength(1)),
+    options: S.optionalKey(
+      S.Struct({
+        maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        skipEmpty: S.optionalKey(S.Boolean),
+        timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        trim: S.optionalKey(S.Boolean),
+      })
+    ),
+  },
+  $I.annote("LoadLinesParameters", { description: "Inputs for loading lines from a file or URL." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("LoadLinesParameters", { description: "Inputs for loading lines from a file or URL." }));
 
-const LoadJsonParameters = S.Struct({
-  location: S.String.check(S.isMinLength(1)),
-  options: S.optionalKey(
-    S.Struct({
-      timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-    })
-  ),
-}).pipe($I.annoteSchema("LoadJsonParameters", { description: "Inputs for loading JSON from a file or URL." }));
+const LoadJsonlParameters = S.Class<{ readonly location: string; readonly options?: unknown }>($I`LoadJsonlParameters`)(
+  {
+    location: S.String.check(S.isMinLength(1)),
+    options: S.optionalKey(
+      S.Struct({
+        maxRecords: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        skipInvalid: S.optionalKey(S.Boolean),
+        timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+      })
+    ),
+  },
+  $I.annote("LoadJsonlParameters", { description: "Inputs for loading JSONL from a file or URL." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("LoadJsonlParameters", { description: "Inputs for loading JSONL from a file or URL." }));
 
-const ProcessFileParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-      skipEmpty: S.optionalKey(S.Boolean),
-      stopOnError: S.optionalKey(S.Boolean).annotateKey({
-        description:
-          "Reserved for future custom stages. The built-in transform stages are total and never fail, so this option currently has no effect.",
-      }),
-    })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-  stages: S.NonEmptyArray(Stage),
-}).pipe($I.annoteSchema("ProcessFileParameters", { description: "Inputs for running a line-transform pipeline." }));
+const LoadJsonParameters = S.Class<{ readonly location: string; readonly options?: unknown }>($I`LoadJsonParameters`)(
+  {
+    location: S.String.check(S.isMinLength(1)),
+    options: S.optionalKey(
+      S.Struct({
+        timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+      })
+    ),
+  },
+  $I.annote("LoadJsonParameters", { description: "Inputs for loading JSON from a file or URL." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("LoadJsonParameters", { description: "Inputs for loading JSON from a file or URL." }));
 
-const FilterLinesParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      caseInsensitive: S.optionalKey(S.Boolean),
-      invert: S.optionalKey(S.Boolean),
-      maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-    })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-  pattern: S.String.check(S.isMinLength(1)),
-}).pipe($I.annoteSchema("FilterLinesParameters", { description: "Inputs for filtering lines by a regex pattern." }));
+const ProcessFileParameters = S.Class<{ readonly options?: unknown; readonly path: string; readonly stages: unknown }>(
+  $I`ProcessFileParameters`
+)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        skipEmpty: S.optionalKey(S.Boolean),
+        stopOnError: S.optionalKey(S.Boolean).annotateKey({
+          description:
+            "Reserved for future custom stages. The built-in transform stages are total and never fail, so this option currently has no effect.",
+        }),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+    stages: S.NonEmptyArray(PipelineStage),
+  },
+  $I.annote("ProcessFileParameters", { description: "Inputs for running a line-transform pipeline." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("ProcessFileParameters", { description: "Inputs for running a line-transform pipeline." }));
 
-const ExtractMatchesParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      caseInsensitive: S.optionalKey(S.Boolean),
-      fullLines: S.optionalKey(S.Boolean),
-      maxMatches: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-    })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-  pattern: S.String.check(S.isMinLength(1)),
-}).pipe(
-  $I.annoteSchema("ExtractMatchesParameters", { description: "Inputs for extracting regex matches from a file." })
-);
+const FilterLinesParameters = S.Class<{ readonly options?: unknown; readonly path: string; readonly pattern: string }>(
+  $I`FilterLinesParameters`
+)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        caseInsensitive: S.optionalKey(S.Boolean),
+        invert: S.optionalKey(S.Boolean),
+        maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+    pattern: S.String.check(S.isMinLength(1)),
+  },
+  $I.annote("FilterLinesParameters", { description: "Inputs for filtering lines by a regex pattern." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("FilterLinesParameters", { description: "Inputs for filtering lines by a regex pattern." }));
 
-const CountLinesParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      skipEmpty: S.optionalKey(S.Boolean),
-    })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-}).pipe($I.annoteSchema("CountLinesParameters", { description: "Inputs for counting lines in a file." }));
+const ExtractMatchesParameters = S.Class<{
+  readonly options?: unknown;
+  readonly path: string;
+  readonly pattern: string;
+}>($I`ExtractMatchesParameters`)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        caseInsensitive: S.optionalKey(S.Boolean),
+        fullLines: S.optionalKey(S.Boolean),
+        maxMatches: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+    pattern: S.String.check(S.isMinLength(1)),
+  },
+  $I.annote("ExtractMatchesParameters", { description: "Inputs for extracting regex matches from a file." })
+)
+  .mapFields((fields) => fields)
+  .pipe(
+    $I.annoteSchema("ExtractMatchesParameters", { description: "Inputs for extracting regex matches from a file." })
+  );
 
-const CountJsonlParameters = S.Struct({
-  options: S.optionalKey(
-    S.Struct({
-      skipInvalid: S.optionalKey(S.Boolean),
-    })
-  ),
-  path: S.String.check(S.isMinLength(1)),
-}).pipe($I.annoteSchema("CountJsonlParameters", { description: "Inputs for counting JSONL records in a file." }));
+const CountLinesParameters = S.Class<{ readonly options?: unknown; readonly path: string }>($I`CountLinesParameters`)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        skipEmpty: S.optionalKey(S.Boolean),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+  },
+  $I.annote("CountLinesParameters", { description: "Inputs for counting lines in a file." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("CountLinesParameters", { description: "Inputs for counting lines in a file." }));
+
+const CountJsonlParameters = S.Class<{ readonly options?: unknown; readonly path: string }>($I`CountJsonlParameters`)(
+  {
+    options: S.optionalKey(
+      S.Struct({
+        skipInvalid: S.optionalKey(S.Boolean),
+      })
+    ),
+    path: S.String.check(S.isMinLength(1)),
+  },
+  $I.annote("CountJsonlParameters", { description: "Inputs for counting JSONL records in a file." })
+)
+  .mapFields((fields) => fields)
+  .pipe($I.annoteSchema("CountJsonlParameters", { description: "Inputs for counting JSONL records." }));
 
 /**
  * Tool: read lines from a text file with optional head/tail windowing.
+ *
+ * @example
+ * ```ts
+ * import { ReadLines } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(ReadLines.name)
+ * ```
  *
  * @since 0.0.0
  * @category tools
@@ -505,6 +723,13 @@ export const ReadLines = Tool.make("stream_read_lines", {
 /**
  * Tool: report whether a file exists plus its size and line count.
  *
+ * @example
+ * ```ts
+ * import { FileInfo } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(FileInfo.name)
+ * ```
+ *
  * @since 0.0.0
  * @category tools
  */
@@ -518,6 +743,13 @@ export const FileInfo = Tool.make("stream_file_info", {
 
 /**
  * Tool: compute aggregate line-length and byte statistics for a file.
+ *
+ * @example
+ * ```ts
+ * import { TextStats } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(TextStats.name)
+ * ```
  *
  * @since 0.0.0
  * @category tools
@@ -533,6 +765,13 @@ export const TextStats = Tool.make("stream_text_stats", {
 /**
  * Tool: sample random lines from a text file.
  *
+ * @example
+ * ```ts
+ * import { SampleLines } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(SampleLines.name)
+ * ```
+ *
  * @since 0.0.0
  * @category tools
  */
@@ -546,6 +785,13 @@ export const SampleLines = Tool.make("stream_sample_lines", {
 
 /**
  * Tool: read JSONL/NDJSON records from a file.
+ *
+ * @example
+ * ```ts
+ * import { ReadJsonl } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(ReadJsonl.name)
+ * ```
  *
  * @since 0.0.0
  * @category tools
@@ -561,6 +807,13 @@ export const ReadJsonl = Tool.make("stream_read_jsonl", {
 /**
  * Tool: compute JSONL parse statistics for a file.
  *
+ * @example
+ * ```ts
+ * import { JsonlStats } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(JsonlStats.name)
+ * ```
+ *
  * @since 0.0.0
  * @category tools
  */
@@ -574,6 +827,13 @@ export const JsonlStats = Tool.make("stream_jsonl_stats", {
 
 /**
  * Tool: validate a JSONL file and collect parse errors.
+ *
+ * @example
+ * ```ts
+ * import { ValidateJsonl } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(ValidateJsonl.name)
+ * ```
  *
  * @since 0.0.0
  * @category tools
@@ -589,6 +849,13 @@ export const ValidateJsonl = Tool.make("stream_validate_jsonl", {
 /**
  * Tool: sample random JSONL records from a file.
  *
+ * @example
+ * ```ts
+ * import { SampleJsonl } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(SampleJsonl.name)
+ * ```
+ *
  * @since 0.0.0
  * @category tools
  */
@@ -602,6 +869,13 @@ export const SampleJsonl = Tool.make("stream_sample_jsonl", {
 
 /**
  * Tool: load text from a local file or remote URL.
+ *
+ * @example
+ * ```ts
+ * import { LoadText } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(LoadText.name)
+ * ```
  *
  * @since 0.0.0
  * @category tools
@@ -617,6 +891,13 @@ export const LoadText = Tool.make("stream_load_text", {
 /**
  * Tool: load lines from a local file or remote URL.
  *
+ * @example
+ * ```ts
+ * import { LoadLines } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(LoadLines.name)
+ * ```
+ *
  * @since 0.0.0
  * @category tools
  */
@@ -630,6 +911,13 @@ export const LoadLines = Tool.make("stream_load_lines", {
 
 /**
  * Tool: load JSONL records from a local file or remote URL.
+ *
+ * @example
+ * ```ts
+ * import { LoadJsonl } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(LoadJsonl.name)
+ * ```
  *
  * @since 0.0.0
  * @category tools
@@ -645,6 +933,13 @@ export const LoadJsonl = Tool.make("stream_load_jsonl", {
 /**
  * Tool: load and parse JSON from a local file or remote URL.
  *
+ * @example
+ * ```ts
+ * import { LoadJson } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(LoadJson.name)
+ * ```
+ *
  * @since 0.0.0
  * @category tools
  */
@@ -658,6 +953,13 @@ export const LoadJson = Tool.make("stream_load_json", {
 
 /**
  * Tool: run a line-transform pipeline over a file.
+ *
+ * @example
+ * ```ts
+ * import { ProcessFile } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(ProcessFile.name)
+ * ```
  *
  * @since 0.0.0
  * @category tools
@@ -673,6 +975,13 @@ export const ProcessFile = Tool.make("stream_process_file", {
 /**
  * Tool: filter file lines by a regex pattern.
  *
+ * @example
+ * ```ts
+ * import { FilterLines } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(FilterLines.name)
+ * ```
+ *
  * @since 0.0.0
  * @category tools
  */
@@ -686,6 +995,13 @@ export const FilterLines = Tool.make("stream_filter_lines", {
 
 /**
  * Tool: extract regex matches from a file.
+ *
+ * @example
+ * ```ts
+ * import { ExtractMatches } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(ExtractMatches.name)
+ * ```
  *
  * @since 0.0.0
  * @category tools
@@ -701,6 +1017,13 @@ export const ExtractMatches = Tool.make("stream_extract_matches", {
 /**
  * Tool: count total lines in a file.
  *
+ * @example
+ * ```ts
+ * import { CountLines } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(CountLines.name)
+ * ```
+ *
  * @since 0.0.0
  * @category tools
  */
@@ -714,6 +1037,13 @@ export const CountLines = Tool.make("stream_count_lines", {
 
 /**
  * Tool: count valid JSONL records in a file.
+ *
+ * @example
+ * ```ts
+ * import { CountJsonl } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * console.log(CountJsonl.name)
+ * ```
  *
  * @since 0.0.0
  * @category tools
@@ -734,7 +1064,7 @@ export const CountJsonl = Tool.make("stream_count_jsonl", {
  * import { StreamingToolkit } from "@beep/nlp-mcp/StreamingTools"
  *
  * const names = Object.keys(StreamingToolkit.tools)
- * names.length
+ * console.log(names.length)
  * ```
  *
  * @since 0.0.0
@@ -762,6 +1092,15 @@ export const StreamingToolkit = Toolkit.make(
 
 /**
  * Type of the {@link StreamingToolkit}.
+ *
+ * @example
+ * ```ts
+ * import { StreamingToolkit } from "@beep/nlp-mcp/StreamingTools"
+ * import type { StreamingToolkit as StreamingToolkitType } from "@beep/nlp-mcp/StreamingTools"
+ *
+ * const toolkit: StreamingToolkitType = StreamingToolkit
+ * console.log(toolkit.tools)
+ * ```
  *
  * @since 0.0.0
  * @category tools

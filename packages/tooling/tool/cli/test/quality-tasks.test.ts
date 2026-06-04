@@ -495,6 +495,7 @@ describe("quality task adapter", () => {
 
   it("leaves lint policy subcommands on the existing command tree", () => {
     expect(O.isNone(parseQualityTaskInvocation(["lint", "circular"]))).toBe(true);
+    expect(O.isNone(parseQualityTaskInvocation(["lint", "deprecated-apis"]))).toBe(true);
     expect(O.isNone(parseQualityTaskInvocation(["lint", "package-test-imports"]))).toBe(true);
     expect(O.isNone(parseQualityTaskInvocation(["lint", "schema-first"]))).toBe(true);
   });
@@ -502,7 +503,7 @@ describe("quality task adapter", () => {
   it("delegates affected root lint to the aggregate repo lint lane and repo-wide policy checks", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]));
 
-    expect(steps).toHaveLength(19);
+    expect(steps).toHaveLength(20);
     expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--affected", "--summarize"]));
     expect(steps[3]).toMatchObject({
       label: "lint:effect-fn",
@@ -520,6 +521,7 @@ describe("quality task adapter", () => {
       "lint:tsgo-rules",
       "lint:package-test-imports",
       "lint:schema-first",
+      "lint:deprecated-apis",
       "lint:jsdoc",
       "lint:jsdoc-module-tags",
       "lint:docgen",
@@ -530,6 +532,12 @@ describe("quality task adapter", () => {
       "lint:clones",
       "lint:typos",
     ]);
+    expect(steps[10]).toMatchObject({
+      label: "lint:deprecated-apis",
+      command: "bun",
+      args: ["run", "beep", "lint", "deprecated-apis"],
+      cwd: "/repo",
+    });
   });
 
   it("skips repo-wide lint policy checks only for explicit package filters", () => {

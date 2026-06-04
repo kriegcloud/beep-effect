@@ -47,13 +47,12 @@ const runSparql = <A, E>(effect: Effect.Effect<A, E, SparqlQueryService>) =>
   Effect.runPromise(effect.pipe(provideScopedLayer(UnsupportedSparqlQueryServiceLive), Effect.orDie));
 
 describe("Services and Surface", () => {
-  it("keeps the package root surface curated to VERSION plus the IRI family", () => {
+  it("keeps the package root surface curated to the IRI family", () => {
     expect(pipe(Object.keys(SemanticWeb), A.sort(Order.String))).toEqual([
       "AbsoluteIRI",
       "IRI",
       "IRIReference",
       "RelativeIRIReference",
-      "VERSION",
     ]);
   });
 

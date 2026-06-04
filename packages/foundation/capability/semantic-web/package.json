@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/rdf": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "effect": "catalog:",
