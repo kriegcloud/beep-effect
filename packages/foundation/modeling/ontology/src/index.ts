@@ -23,7 +23,7 @@ export { Ontology } from "./create.ts";
 /**
  * Annotation display-map readers and draft guards.
  *
- * @category annotations
+ * @category utilities
  * @since 0.0.0
  */
 export {

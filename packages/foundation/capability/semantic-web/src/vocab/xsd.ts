@@ -2,7 +2,7 @@
  * Compatibility re-export for XSD vocabulary helpers.
  *
  * @packageDocumentation
- * @category compatibility
+ * @category interop
  * @since 0.0.0
  */
 

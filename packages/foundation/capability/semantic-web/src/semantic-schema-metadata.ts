@@ -2,7 +2,7 @@
  * Compatibility re-export for semantic schema metadata models.
  *
  * @packageDocumentation
- * @category compatibility
+ * @category interop
  * @since 0.0.0
  */
 

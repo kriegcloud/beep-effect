@@ -215,8 +215,75 @@ export const createOntologyIdentity = (identity: IdentityComposer<string>) => {
 
   const tag = (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>) => identity(strings, ...values);
 
-  return Object.assign(tag, identity, {
-    annote,
-    annoteKey,
-  });
+  return Object.defineProperties(tag, {
+    value: {
+      value: identity.value,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+    identifier: {
+      value: identity.identifier,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+    compose: {
+      value: identity.compose,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+    create: {
+      value: identity.create,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+    make: {
+      value: identity.make,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+    string: {
+      value: identity.string,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+    symbol: {
+      value: identity.symbol,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+    annote: {
+      value: annote,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+    annoteSchema: {
+      value: identity.annoteSchema,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+    annoteKey: {
+      value: annoteKey,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+    annoteHttp: {
+      value: identity.annoteHttp,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    },
+  }) as typeof identity & {
+    readonly annote: typeof annote;
+    readonly annoteKey: typeof annoteKey;
+  };
 };

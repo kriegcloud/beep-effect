@@ -1,3 +1,4 @@
+// cspell:words SKOS DCTERMS skos dcterms
 import { pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";

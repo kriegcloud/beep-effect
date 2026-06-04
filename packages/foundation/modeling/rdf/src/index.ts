@@ -23,21 +23,21 @@ export * from "./Iri.ts";
 /**
  * JSON-LD schema models.
  *
- * @category json-ld
+ * @category models
  * @since 0.0.0
  */
 export * from "./JsonLd.ts";
 /**
  * RDF/JS schema models.
  *
- * @category rdf
+ * @category models
  * @since 0.0.0
  */
 export * from "./Rdf.ts";
 /**
  * Effect Schema annotation helpers for RDF metadata.
  *
- * @category annotations
+ * @category utilities
  * @since 0.0.0
  */
 export * from "./SemanticSchemaMetadata.ts";

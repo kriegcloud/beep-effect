@@ -2,7 +2,7 @@
  * Compatibility re-export for JSON-LD value models.
  *
  * @packageDocumentation
- * @category compatibility
+ * @category interop
  * @since 0.0.0
  */
 

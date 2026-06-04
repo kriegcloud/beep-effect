@@ -118,10 +118,7 @@ export const failAssembly = (input: FailAssemblyInput): Effect.Effect<never, Ont
       reason: input.reason,
       message: input.message,
       schemaIdentifier: input.schemaIdentifier,
-      fieldName: pipe(
-        O.fromUndefinedOr(input.fieldName),
-        O.getOrElse(() => O.none<string>())
-      ),
+      fieldName: pipe(O.fromUndefinedOr(input.fieldName), O.getOrElse(O.none<string>)),
     })
   );
 

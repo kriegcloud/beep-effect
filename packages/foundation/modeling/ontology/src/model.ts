@@ -337,7 +337,7 @@ export const makeOntologyObjectPredicateMetadata = (
 /**
  * Reads ontology metadata from an Effect Schema annotation display map.
  *
- * @category annotations
+ * @category utilities
  * @since 0.0.0
  */
 export const getOntologyMetadata = (schema: S.Top): OntologyMetadataAnnotationPayload | undefined =>
@@ -346,7 +346,7 @@ export const getOntologyMetadata = (schema: S.Top): OntologyMetadataAnnotationPa
 /**
  * Reads ontology metadata from a schema property-key annotation display map.
  *
- * @category annotations
+ * @category utilities
  * @since 0.0.0
  */
 export const getOntologyKeyMetadata = (schema: S.Top): OntologyMetadataAnnotationPayload | undefined =>
