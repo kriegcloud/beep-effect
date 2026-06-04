@@ -15,7 +15,7 @@
 
 ## Purpose
 
-This goal promotes the scratch ontology-builder experiment into foundation
+This goal promotes the ontology-builder experiment into foundation
 modeling packages:
 
 - `@beep/rdf` owns pure RDF, IRI, JSON-LD value models, and common vocabularies.
@@ -58,4 +58,5 @@ JSON-LD and Turtle without maintaining a parallel registry.
 - `bunx tsgo -p packages/foundation/modeling/ontology/tsconfig.json`
 - `bunx tsgo -p scratchpad/tsconfig.json`
 - `bunx tsc -p scratchpad/tsconfig.json --noEmit --pretty false`
-- package tests for `@beep/rdf`, `@beep/ontology`, and scratchpad examples
+- package tests for `@beep/rdf` and `@beep/ontology`
+- empty scratchpad Vitest wiring check

@@ -17,6 +17,6 @@ export * from "./annotations.ts";
 export * from "./assembly.ts";
 export * from "./create.ts";
 export * from "./model.ts";
-export * from "./references.ts";
 export * from "./projections/jsonld.ts";
 export * from "./projections/turtle.ts";
+export * from "./references.ts";

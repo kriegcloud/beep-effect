@@ -1,4 +1,4 @@
-import { $ScratchpadId } from "@beep/identity/packages";
+import { $OntologyId } from "@beep/identity/packages";
 import {
   getOntologyKeyMetadata,
   getOntologyMetadata,
@@ -15,7 +15,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const { Ont, $I } = Ontology.create({
-  identity: $ScratchpadId.create("ontology-package-test"),
+  identity: $OntologyId.create("ontology-package-test"),
   baseIri: "https://example.org/test#",
   preferredPrefix: "test",
   label: "Ontology Package Test",

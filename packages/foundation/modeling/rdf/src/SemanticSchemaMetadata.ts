@@ -7,7 +7,7 @@
  */
 
 import { $RdfId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import { A } from "@beep/utils";
 import { pipe, Result } from "effect";
 import { dual } from "effect/Function";

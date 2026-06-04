@@ -5,15 +5,14 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { classLabel, draftMetadataComment, keyLeafTermName, predicateLabel } from "./annotations.js";
 import {
   AssembledDatatypePredicate,
   AssembledObjectPredicate,
   AssembledOntology,
   AssembledOntologyClass,
-  type AssembledOntologyPredicate,
   getOntologyKeyMetadata,
   getOntologyMetadata,
-  type IRI,
   isOntologyClassAnnotationDraft,
   isOntologyPredicateAnnotationDraft,
   makeOntologyClassMetadata,
@@ -21,12 +20,8 @@ import {
   makeOntologyObjectPredicateMetadata,
   makeOntologyTermName,
   makeTermIri,
-  OntologyClassAnnotationDraft,
-  type OntologyDefinitionMetadata,
   OntologyIriReferenceTarget,
-  type OntologyPredicateAnnotationDraft,
 } from "./model.js";
-import { classLabel, draftMetadataComment, keyLeafTermName, predicateLabel } from "./annotations.js";
 import {
   failAssembly,
   resolveReferenceTarget,
@@ -35,8 +30,15 @@ import {
   schemaIdentity,
   schemaKeyIdentifier,
   schemaKeyIdentity,
-  type ReferenceResolutionContext,
 } from "./references.js";
+import type {
+  AssembledOntologyPredicate,
+  IRI,
+  OntologyClassAnnotationDraft,
+  OntologyDefinitionMetadata,
+  OntologyPredicateAnnotationDraft,
+} from "./model.js";
+import type { ReferenceResolutionContext } from "./references.js";
 
 type ClassAssemblySeed = {
   readonly schema: S.Top;
@@ -62,7 +64,11 @@ const requireSchemaIdentity = Effect.fn("Ontology.requireSchemaIdentity")(functi
     schemaIdentity(schema),
     O.match({
       onNone: () =>
-        failAssembly("invalidClassMetadata", "Schema is missing identity annotation schemaId.", schemaIdentifier(schema)),
+        failAssembly(
+          "invalidClassMetadata",
+          "Schema is missing identity annotation schemaId.",
+          schemaIdentifier(schema)
+        ),
       onSome: Effect.succeed,
     })
   );
@@ -71,7 +77,11 @@ const requireSchemaIdentity = Effect.fn("Ontology.requireSchemaIdentity")(functi
 const requireClassDraft = Effect.fn("Ontology.requireClassDraft")(function* (schema: S.Top) {
   const metadata = getOntologyMetadata(schema);
   if (metadata === undefined) {
-    return yield* failAssembly("missingClassMetadata", "Schema is missing ontology class metadata.", schemaIdentifier(schema));
+    return yield* failAssembly(
+      "missingClassMetadata",
+      "Schema is missing ontology class metadata.",
+      schemaIdentifier(schema)
+    );
   }
 
   if (isOntologyClassAnnotationDraft(metadata)) {
@@ -108,7 +118,9 @@ const classAssemblySeed = Effect.fn("Ontology.classAssemblySeed")(function* (bas
   } satisfies ClassAssemblySeed;
 });
 
-const classReferenceIndex = (seeds: ReadonlyArray<ClassAssemblySeed>): ReferenceResolutionContext["classesBySchemaIdentity"] =>
+const classReferenceIndex = (
+  seeds: ReadonlyArray<ClassAssemblySeed>
+): ReferenceResolutionContext["classesBySchemaIdentity"] =>
   pipe(
     seeds,
     A.reduce(R.empty<string, { readonly iri: IRI }>(), (current, seed) =>
@@ -183,7 +195,11 @@ const requireObjectAst = Effect.fn("Ontology.requireObjectAst")(function* (schem
     objectAstFromSchema(schema),
     O.match({
       onNone: () =>
-        failAssembly("unsupportedClassAst", "Schema does not expose object property signatures.", schemaIdentity(schema)),
+        failAssembly(
+          "unsupportedClassAst",
+          "Schema does not expose object property signatures.",
+          schemaIdentity(schema)
+        ),
       onSome: Effect.succeed,
     })
   );
@@ -311,11 +327,11 @@ const collectPredicates = Effect.fn("Ontology.collectPredicates")(function* (
     objectAst.propertySignatures,
     Effect.fn("Ontology.collectPredicate")(function* (property) {
       const fieldName = yield* requireStringFieldName(schema, property);
-      const { draft, schemaIdentity: predicateSchemaIdentity, identifier } = yield* requirePredicateDraft(
-        schema,
-        fieldName,
-        property
-      );
+      const {
+        draft,
+        schemaIdentity: predicateSchemaIdentity,
+        identifier,
+      } = yield* requirePredicateDraft(schema, fieldName, property);
       const metadata = yield* finalizePredicateMetadata(context, predicateSchemaIdentity, identifier, draft);
       return metadata.kind === "datatypePredicate"
         ? AssembledDatatypePredicate.make({
@@ -345,7 +361,10 @@ const collectPredicates = Effect.fn("Ontology.collectPredicates")(function* (
   );
 });
 
-const assembleClass = Effect.fn("Ontology.assembleClass")(function* (context: ReferenceResolutionContext, seed: ClassAssemblySeed) {
+const assembleClass = Effect.fn("Ontology.assembleClass")(function* (
+  context: ReferenceResolutionContext,
+  seed: ClassAssemblySeed
+) {
   const classMetadata = yield* finalizeClassMetadata(context, seed);
   const predicates: ReadonlyArray<AssembledOntologyPredicate> = yield* collectPredicates(
     context,
@@ -378,7 +397,9 @@ export const assembleOntology = Effect.fn("Ontology.assembleOntology")(function*
   metadata: OntologyDefinitionMetadata,
   schemas: A.NonEmptyReadonlyArray<S.Top>
 ) {
-  const seeds = yield* Effect.forEach(schemas, (schema) => classAssemblySeed(metadata.baseIri, schema), { concurrency: 1 });
+  const seeds = yield* Effect.forEach(schemas, (schema) => classAssemblySeed(metadata.baseIri, schema), {
+    concurrency: 1,
+  });
   const context = {
     baseIri: metadata.baseIri,
     classesBySchemaIdentity: classReferenceIndex(seeds),

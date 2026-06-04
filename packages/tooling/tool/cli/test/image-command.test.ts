@@ -158,7 +158,7 @@ const runCliCommand = (
     })
   );
 
-describe.sequential("image command", () => {
+describe("image command", { concurrent: false }, () => {
   it("extracts frames, writes the default manifest, and prints a non-TTY summary", () =>
     Effect.runPromise(
       withTempDirectory((tmpDir) =>

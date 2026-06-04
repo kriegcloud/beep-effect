@@ -149,7 +149,7 @@ const composers = $I.compose(
   "tika",
   "libpff",
   "box",
-  "firecrawl", "rdf", "ontology"
+  "firecrawl"
 );
 
 // --- foundation ---
@@ -1672,35 +1672,3 @@ export const $LibpffId: Identity.IdentityComposer<"@beep/libpff"> = composers.$L
  * @category configuration
  */
 export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = composers.$FirecrawlId;
-
-/**
- * Identity composer for `@beep/rdf`.
- *
- * @example
- * ```typescript
- * import { $RdfId } from "@beep/identity"
- *
- * const id = $RdfId.make("Rdf")
- * void id
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $RdfId: Identity.IdentityComposer<"@beep/rdf"> = composers.$RdfId;
-
-/**
- * Identity composer for `@beep/ontology`.
- *
- * @example
- * ```typescript
- * import { $OntologyId } from "@beep/identity"
- *
- * const id = $OntologyId.make("Ontology")
- * void id
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $OntologyId: Identity.IdentityComposer<"@beep/ontology"> = composers.$OntologyId;

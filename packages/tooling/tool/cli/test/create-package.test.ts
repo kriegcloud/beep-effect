@@ -327,7 +327,7 @@ const bootstrapRootConfig = Effect.fn(function* (
   yield* writeSyncpackConfig(path.join(rootDir, "syncpack.config.ts"), options.syncpackSources);
 });
 
-describe.sequential("create-package", () => {
+describe("create-package", { concurrent: false }, () => {
   it(
     "refreshes bun.lock with bun install --lockfile-only by default",
     () =>

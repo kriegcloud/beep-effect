@@ -1,41 +1,36 @@
-import { Effect } from "effect";
-import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import * as S from "effect/Schema";
 import {
   createOntologyIdentity,
   makeClassDraft,
   makeDatatypePredicateDraft,
   makeObjectPredicateDraft,
   optionalString,
-  type OntologyClassAnnotationInput,
-  type OntologyCreateInput,
-  type OntologyDatatypePredicateAnnotationInput,
-  type OntologyObjectPredicateAnnotationInput,
 } from "./annotations.js";
 import { assembleOntology } from "./assembly.js";
-import {
-  type AssembledOntology,
-  type IRI,
-  makeOntologyDefinitionMetadata,
-  makeTermIri,
-  type OntologyAssemblyError,
+import { makeOntologyDefinitionMetadata, makeTermIri } from "./model.js";
+import { parseJsonLdOntology, projectJsonLdOntology } from "./projections/jsonld.js";
+import { projectTurtle } from "./projections/turtle.js";
+import { makeReferenceTarget, normalizeIriInput, normalizeTermNameInput } from "./references.js";
+import type { Effect } from "effect";
+import type * as A from "effect/Array";
+import type * as S from "effect/Schema";
+import type {
+  OntologyClassAnnotationInput,
+  OntologyCreateInput,
+  OntologyDatatypePredicateAnnotationInput,
+  OntologyObjectPredicateAnnotationInput,
+} from "./annotations.js";
+import type {
+  AssembledOntology,
+  IRI,
+  OntologyAssemblyError,
   OntologyClassAnnotationDraft,
   OntologyDatatypePredicateAnnotationDraft,
   OntologyObjectPredicateAnnotationDraft,
-  type OntologyReferenceTarget,
+  OntologyReferenceTarget,
 } from "./model.js";
-import {
-  makeReferenceTarget,
-  normalizeIriInput,
-  normalizeTermNameInput,
-  type OntologyIriInput,
-  type OntologyReferenceTargetInput,
-  type OntologyTermNameInput,
-} from "./references.js";
-import { parseJsonLdOntology, projectJsonLdOntology } from "./projections/jsonld.js";
-import { projectTurtle } from "./projections/turtle.js";
+import type { OntologyIriInput, OntologyReferenceTargetInput, OntologyTermNameInput } from "./references.js";
 
 export const Ontology = {
   create: (input: OntologyCreateInput) => {
@@ -51,7 +46,9 @@ export const Ontology = {
     const Ont = {
       termName: normalizeTermNameInput,
       iri: (value: OntologyIriInput, termName?: OntologyTermNameInput): IRI =>
-        P.isUndefined(termName) ? normalizeIriInput(value) : makeTermIri(normalizeIriInput(value), normalizeTermNameInput(termName)),
+        P.isUndefined(termName)
+          ? normalizeIriInput(value)
+          : makeTermIri(normalizeIriInput(value), normalizeTermNameInput(termName)),
       ref: (target: OntologyReferenceTargetInput): OntologyReferenceTarget => makeReferenceTarget(target),
       parent: (target: OntologyReferenceTargetInput): OntologyReferenceTarget => makeReferenceTarget(target),
       child: (target: OntologyReferenceTargetInput): OntologyReferenceTarget => makeReferenceTarget(target),

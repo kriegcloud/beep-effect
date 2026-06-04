@@ -8,7 +8,7 @@
     "updated": "2026-06-04",
     "packetAnchorDocument": "SPEC.md"
   },
-  "mission": "Promote the scratch ontology builder into foundation modeling packages built around @beep/rdf and @beep/ontology while preserving @beep/semantic-web compatibility.",
+  "mission": "Promote the ontology builder into foundation modeling packages built around @beep/rdf and @beep/ontology while preserving @beep/semantic-web compatibility.",
   "currentSourceOfTruth": "SPEC.md",
   "currentTargetPhase": "P3",
   "packages": [

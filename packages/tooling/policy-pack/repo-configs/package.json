@@ -30,6 +30,7 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/platform-node": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
     "effect": "catalog:",
     "eslint": "catalog:",

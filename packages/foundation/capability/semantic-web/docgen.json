@@ -44,6 +44,10 @@
       "@beep/identity/packages": [
         "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
+      "@beep/rdf": [
+        "../../../../packages/foundation/modeling/rdf/src/index.ts"
+      ],
+      "@beep/rdf/*": ["../../../../packages/foundation/modeling/rdf/src/*.ts"],
       "@beep/schema": [
         "../../../../packages/foundation/modeling/schema/src/index.ts"
       ],

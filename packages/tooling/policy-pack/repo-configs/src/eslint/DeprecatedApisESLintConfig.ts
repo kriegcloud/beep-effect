@@ -1,0 +1,104 @@
+/**
+ * Deprecated API ESLint configuration used by repository quality gates.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { fileURLToPath } from "node:url";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
+import type { Linter } from "eslint";
+
+const repoRootDirectory = fileURLToPath(new URL("../../../../../../", import.meta.url));
+type FlatConfigPlugins = NonNullable<Linter.Config["plugins"]>;
+const tseslintPlugin = tseslint as unknown as FlatConfigPlugins[string];
+
+const sourceFileGlobs = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
+
+const generatedAndBuildOutputIgnores = [
+  ".next/**",
+  "**/.next/**",
+  ".repos/**",
+  ".sst/**",
+  "coverage/**",
+  "**/coverage/**",
+  "dist/**",
+  "**/dist/**",
+  "node_modules/**",
+  "**/node_modules/**",
+  "**/.turbo/**",
+  "**/.cache/**",
+  "**/generated/**",
+  "**/vendor/**",
+  "**/*.gen.*",
+  "**/*.d.ts",
+] as const;
+
+/**
+ * Flat ESLint config array shape exported for deprecated API checks.
+ *
+ * @example
+ * ```ts
+ * import type { DeprecatedApisESLintConfigShape } from "@beep/repo-configs/eslint/DeprecatedApisESLintConfig"
+ * const config = [] satisfies DeprecatedApisESLintConfigShape
+ * console.log(config)
+ * ```
+ * @category configuration
+ * @since 0.0.0
+ */
+export type DeprecatedApisESLintConfigShape = ReadonlyArray<Linter.Config>;
+
+/**
+ * Shared deprecated API ESLint flat config.
+ *
+ * @example
+ * ```ts
+ * import { DeprecatedApisESLintConfig } from "@beep/repo-configs/eslint/DeprecatedApisESLintConfig"
+ * console.log(DeprecatedApisESLintConfig)
+ * ```
+ * @category configuration
+ * @since 0.0.0
+ */
+export const DeprecatedApisESLintConfig: DeprecatedApisESLintConfigShape = [
+  {
+    ignores: [...generatedAndBuildOutputIgnores],
+  },
+  {
+    files: [...sourceFileGlobs],
+    ignores: [...generatedAndBuildOutputIgnores],
+    plugins: {
+      "@typescript-eslint": tseslintPlugin,
+    },
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        projectService: {
+          allowDefaultProject: [
+            "apps/*/dtslint/*.ts",
+            "apps/*/dtslint/*.tsx",
+            "packages/_internal/*/drizzle.config.ts",
+            "packages/drivers/*/scripts/*.ts",
+            "packages/drivers/*/test/fixtures/*.ts",
+            "packages/foundation/*/*/test/fixtures/*.ts",
+            "packages/foundation/ui-system/ui/.storybook/*.ts",
+            "packages/foundation/ui-system/ui/.storybook/*.tsx",
+            "packages/foundation/ui-system/ui/stories/components/*.stories.tsx",
+            "packages/tooling/*/*/scripts/*.ts",
+            "packages/tooling/library/repo-utils/test/fixtures/tsmorph-late-file/src/extra.ts",
+            "packages/tooling/library/repo-utils/test/fixtures/tsmorph-outline-order/source.ts",
+          ],
+          defaultProject: "tsconfig.eslint-deprecated.json",
+          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 160,
+        },
+        tsconfigRootDir: repoRootDirectory,
+        warnOnUnsupportedTypeScriptVersion: false,
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-deprecated": "error",
+    },
+  },
+];
+
+export default DeprecatedApisESLintConfig;

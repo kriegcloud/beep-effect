@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { App } from "@/App";
 import { CanvasCommandError, makePreviewCanvasCommandBridge } from "@/commandBridge";
 
-describe.sequential("Canvas app", () => {
+describe("Canvas app", { concurrent: false }, () => {
   afterEach(cleanup);
 
   it("renders the functional shell and loads bridge health", () => {

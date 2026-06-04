@@ -41,12 +41,7 @@ const noopVoid = (): void => {};
 
 function canUseDOM(): boolean {
   const runtimeWindow = globalThis.window;
-  return (
-    P.isNotUndefined(runtimeWindow) &&
-    runtimeWindow.document !== undefined &&
-    P.isNotNull(runtimeWindow.document) &&
-    P.isFunction(runtimeWindow.document.createElement)
-  );
+  return P.isNotUndefined(runtimeWindow) && runtimeWindow.document !== undefined && P.isNotNull(runtimeWindow.document);
 }
 
 const isBrowser = canUseDOM();

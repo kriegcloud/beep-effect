@@ -142,6 +142,7 @@
         "noAccumulatingSpread": "off"
       },
       "suspicious": {
+        "noDeprecatedImports": "error",
         "noControlCharactersInRegex": "off",
         "noSelfCompare": "off",
         "noUnsafeDeclarationMerging": "off",

@@ -1,7 +1,7 @@
 import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker";
 import { fromWorkerRow, toWorkerInsert, workerTable } from "@beep/architecture-lab-tables/entities/Worker";
 import { describe, expect, it } from "@effect/vitest";
-import { getTableColumns, getTableName } from "drizzle-orm";
+import { getColumns, getTableName } from "drizzle-orm";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
 
@@ -22,7 +22,7 @@ describe("Worker table", () => {
         })
       );
       const row = toWorkerInsert(worker);
-      const columns = getTableColumns(workerTable);
+      const columns = getColumns(workerTable);
 
       expect(getTableName(workerTable)).toBe("architecture_lab_worker");
       expect(workerTable.definition).toBe(DomainWorker.Worker.definition);

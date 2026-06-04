@@ -4,7 +4,8 @@ import { OWL_NAMESPACE } from "@beep/rdf/Vocab/Owl";
 import { RDF_NAMESPACE } from "@beep/rdf/Vocab/Rdf";
 import { RDFS_NAMESPACE } from "@beep/rdf/Vocab/Rdfs";
 import { XSD_ANY_URI, XSD_BOOLEAN, XSD_DOUBLE, XSD_INTEGER, XSD_NAMESPACE, XSD_STRING } from "@beep/rdf/Vocab/Xsd";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit } from "@beep/schema/LiteralKit";
+import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { pipe, Result } from "effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -35,12 +36,7 @@ export type OntologyTermName = typeof OntologyTermName.Type;
 
 const decodeOntologyTermNameResult = S.decodeUnknownResult(OntologyTermName);
 
-export const OntologyMetadataKind = LiteralKit([
-  "ontology",
-  "class",
-  "datatypePredicate",
-  "objectPredicate",
-]).pipe(
+export const OntologyMetadataKind = LiteralKit(["ontology", "class", "datatypePredicate", "objectPredicate"]).pipe(
   $I.annoteSchema("OntologyMetadataKind", {
     description: "Closed metadata kind domain for schema-backed ontology metadata.",
   })
@@ -70,9 +66,7 @@ export class OntologyReference extends S.Class<OntologyReference>($I`OntologyRef
   })
 ) {}
 
-export class OntologyIriReferenceTarget extends S.Class<OntologyIriReferenceTarget>(
-  $I`OntologyIriReferenceTarget`
-)(
+export class OntologyIriReferenceTarget extends S.Class<OntologyIriReferenceTarget>($I`OntologyIriReferenceTarget`)(
   {
     kind: S.tag("iri"),
     iri: IRI,
@@ -82,9 +76,7 @@ export class OntologyIriReferenceTarget extends S.Class<OntologyIriReferenceTarg
   })
 ) {}
 
-export class OntologyTermReferenceTarget extends S.Class<OntologyTermReferenceTarget>(
-  $I`OntologyTermReferenceTarget`
-)(
+export class OntologyTermReferenceTarget extends S.Class<OntologyTermReferenceTarget>($I`OntologyTermReferenceTarget`)(
   {
     kind: S.tag("term"),
     termName: OntologyTermName,

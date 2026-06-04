@@ -15,6 +15,7 @@ import { Console, Effect, FileSystem, HashSet, Inspectable, MutableHashSet, Orde
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
+import { ChildProcess } from "effect/unstable/process";
 import madge from "madge";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { printLines } from "../../internal/cli/Printer.js";
@@ -38,6 +39,33 @@ const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
   "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
 ]);
 const ALLOWED_NON_PASCAL_FILENAMES = HashSet.fromIterable(["index", "bin"]);
+const DEPRECATED_API_LINT_NODE_OPTIONS = "--max-old-space-size=4096";
+const DEPRECATED_API_LINT_SHARDS = [
+  "apps/architecture-lab-proof",
+  "apps/canvas",
+  "apps/codedank-web",
+  "apps/oip-web",
+  "apps/professional-desktop",
+  "apps/professional-runtime-proof",
+  "apps/stack-installer",
+  "infra",
+  "packages/_internal",
+  "packages/agent-capability",
+  "packages/architecture-lab",
+  "packages/canvas",
+  "packages/drivers",
+  "packages/epistemic",
+  "packages/foundation/capability",
+  "packages/foundation/modeling",
+  "packages/foundation/primitive",
+  "packages/foundation/ui-system",
+  "packages/installer",
+  "packages/law-practice",
+  "packages/shared",
+  "packages/tooling",
+  "packages/wealth-management",
+  "packages/workspace",
+] as const;
 const REQUIRED_TAGGED_UNIONS = [
   "GenerationAction",
   "TsMorphMutation",
@@ -501,6 +529,47 @@ const runLintCircular = Effect.fn("runLintCircular")(function* () {
   yield* Console.log("No circular dependencies found.");
 });
 
+const runDeprecatedApiLintShard = Effect.fn("runDeprecatedApiLintShard")(function* (shard: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const exists = yield* fs.exists(shard).pipe(Effect.orElseSucceed(() => false));
+
+  if (!exists) {
+    yield* Console.log(`[lint:deprecated-apis] skipping missing shard: ${shard}`);
+    return;
+  }
+
+  const args = ["eslint", "--config", "eslint.deprecated.config.mjs", shard] as const;
+  yield* Console.log(`[lint:deprecated-apis] ${shard}: bunx ${A.join(args, " ")}`);
+
+  const exitCode = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make("bunx", [...args], {
+        cwd: process.cwd(),
+        env: {
+          NODE_OPTIONS: DEPRECATED_API_LINT_NODE_OPTIONS,
+        },
+        extendEnv: true,
+        stdin: "inherit",
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      return yield* handle.exitCode;
+    })
+  );
+
+  if (exitCode !== 0) {
+    return yield* failWithReportedExit(`lint deprecated-apis: ${shard} failed with exit code ${exitCode}.`, exitCode);
+  }
+});
+
+const runDeprecatedApiLint = Effect.fn("runDeprecatedApiLint")(function* () {
+  for (const shard of DEPRECATED_API_LINT_SHARDS) {
+    yield* runDeprecatedApiLintShard(shard);
+  }
+
+  yield* Console.log("[lint:deprecated-apis] OK: no deprecated vendor API usage found.");
+});
+
 /**
  * Lint command for circular dependency checks.
  *
@@ -513,6 +582,20 @@ const runLintCircular = Effect.fn("runLintCircular")(function* () {
  */
 const lintCircularCommand = Command.make("circular", {}, runLintCircular).pipe(
   Command.withDescription("Detect circular dependencies in tooling source directories")
+);
+
+/**
+ * Lint command for deprecated vendor API usage.
+ *
+ * @example
+ * ```ts
+ * console.log("bun run beep lint deprecated-apis")
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+const lintDeprecatedApisCommand = Command.make("deprecated-apis", {}, runDeprecatedApiLint).pipe(
+  Command.withDescription("Check TypeScript sources for deprecated third-party API usage")
 );
 
 /**
@@ -557,6 +640,7 @@ export const lintCommand = Command.make("lint", {}, () =>
   printLines([
     "Lint commands:",
     "- bun run beep lint circular",
+    "- bun run beep lint deprecated-apis",
     "- bun run beep lint package-test-imports",
     "- bun run beep lint schema-first",
     "- bun run beep lint schema-topology",
@@ -567,6 +651,7 @@ export const lintCommand = Command.make("lint", {}, () =>
   Command.withDescription("Repository lint policy checks"),
   Command.withSubcommands([
     lintCircularCommand,
+    lintDeprecatedApisCommand,
     lintPackageTestImportsCommand,
     lintSchemaFirstCommand,
     lintSchemaTopologyCommand,

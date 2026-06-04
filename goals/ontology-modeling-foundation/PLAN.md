@@ -31,12 +31,14 @@ implementation that can later be hardened into a full package initiative.
 - [x] Add assembly from annotated Effect schemas.
 - [x] Add JSON-LD and Turtle projections.
 
-## Phase 3 - Scratchpad POC
+## Phase 3 - Package POC And Scratchpad Wiring
 
-- [ ] Replace scratchpad implementation code with a thin package consumer.
-- [ ] Add tests proving annotation storage, relationship resolution, JSON-LD
-  round-trip, and Turtle projection.
-- [ ] Run scratchpad `tsgo`, `tsc`, and tests.
+- [x] Remove scratchpad implementation and example code from the committed POC.
+- [x] Keep scratchpad TypeScript and Vitest wiring available for local
+  experiments.
+- [x] Add package tests proving annotation storage, relationship resolution,
+  JSON-LD round-trip, and Turtle projection.
+- [x] Run scratchpad `tsgo`, `tsc`, and empty Vitest wiring checks.
 
 ## Phase 4 - Repo Wiring And Quality
 

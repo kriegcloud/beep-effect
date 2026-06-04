@@ -52,10 +52,10 @@ The public POC syntax is:
 
 ```ts
 import { Ontology } from "@beep/ontology"
-import { $ScratchpadId } from "@beep/identity/packages"
+import { $OntologyId } from "@beep/identity/packages"
 
 const { Ont, $I } = Ontology.create({
-  identity: $ScratchpadId.create("example-ontology"),
+  identity: $OntologyId.create("example-ontology"),
   baseIri: "https://example.org/ontology#",
   preferredPrefix: "ex",
   label: "Example Ontology"
@@ -107,8 +107,8 @@ relationships for the POC surface.
 
 - `@beep/rdf` and `@beep/ontology` are valid foundation/modeling workspaces.
 - `@beep/semantic-web` compatibility imports keep compiling.
-- Scratchpad examples import public package entrypoints only.
+- Package examples import public package entrypoints only.
 - Tests prove root and key schema annotations store ontology metadata.
 - Tests prove schema references resolve for class relationships.
 - Tests prove JSON-LD projection and import round-trip.
-- Scratchpad TypeScript verification passes.
+- Scratchpad TypeScript and empty Vitest wiring verification pass.

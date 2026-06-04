@@ -1120,12 +1120,6 @@
       "@beep/tika/*": ["./packages/drivers/tika/src/*"],
       "@beep/libpff": ["./packages/drivers/libpff/src/index.ts"],
       "@beep/libpff/*": ["./packages/drivers/libpff/src/*"],
-      "@beep/rdf": ["./packages/foundation/modeling/rdf/src/index.ts"],
-      "@beep/rdf/*": ["./packages/foundation/modeling/rdf/src/*"],
-      "@beep/ontology": ["./packages/foundation/modeling/ontology/src/index.ts"],
-      "@beep/ontology/*": [
-        "./packages/foundation/modeling/ontology/src/*"
-      ],
       "@beep/repo-cli/commands/Yeet": [
         "./packages/tooling/tool/cli/src/commands/Yeet/index.ts"
       ],
