@@ -140,7 +140,7 @@ export const WithContent: Story = {
         <FieldTitle>Marketing emails</FieldTitle>
         <FieldDescription>Receive product updates and announcements.</FieldDescription>
       </FieldContent>
-      <Input id="field-content-toggle" type="checkbox" className="size-4" />
+      <Input id="field-content-toggle" type="checkbox" aria-label="Marketing emails" className="size-4" />
     </Field>
   ),
 };

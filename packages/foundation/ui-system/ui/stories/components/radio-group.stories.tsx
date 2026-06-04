@@ -172,6 +172,11 @@ export const DisabledItem: Story = {
 /** Read-only groups stay focusable but ignore selection changes. */
 export const ReadOnly: Story = {
   args: { defaultValue: "card", readOnly: true },
+  parameters: {
+    // aria-allowed-attr: Base UI radio internal — RadioRoot emits `aria-readonly` on the
+    // `role="radio"` element when `readOnly` is set; not controllable via our props.
+    a11y: { config: { rules: [{ id: "aria-allowed-attr", enabled: false }] } },
+  },
   render: (args) => (
     <RadioGroup {...args}>
       <label className="flex items-center gap-3 text-sm" htmlFor="pay-card">

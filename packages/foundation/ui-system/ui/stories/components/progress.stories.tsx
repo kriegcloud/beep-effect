@@ -60,6 +60,7 @@ type Story = StoryObj<typeof meta>;
 
 /** The default determinate bar. Its accessible value reflects the `value` prop. */
 export const Default: Story = {
+  args: { "aria-label": "Upload progress" },
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const bar = canvas.getByRole("progressbar");
@@ -71,12 +72,12 @@ export const Default: Story = {
 
 /** Just started: a near-empty bar showing low completion. */
 export const LowProgress: Story = {
-  args: { value: 15 },
+  args: { value: 15, "aria-label": "Upload progress" },
 };
 
 /** Fully complete: the indicator fills the entire track. */
 export const Complete: Story = {
-  args: { value: 100 },
+  args: { value: 100, "aria-label": "Upload progress" },
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const bar = canvas.getByRole("progressbar");
@@ -87,7 +88,7 @@ export const Complete: Story = {
 
 /** Indeterminate state for unknown-duration work; `value` is `null` and no value is announced. */
 export const Indeterminate: Story = {
-  args: { value: null },
+  args: { value: null, "aria-label": "Upload progress" },
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const bar = canvas.getByRole("progressbar");
@@ -99,7 +100,7 @@ export const Indeterminate: Story = {
 
 /** A custom scale: `value` is interpreted against non-default `min` and `max` bounds. */
 export const CustomRange: Story = {
-  args: { value: 3, min: 0, max: 5 },
+  args: { value: 3, min: 0, max: 5, "aria-label": "Upload progress" },
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const bar = canvas.getByRole("progressbar");

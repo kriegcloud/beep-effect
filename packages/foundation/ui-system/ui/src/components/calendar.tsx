@@ -91,7 +91,9 @@ function Calendar({
         ),
         week: cn("flex w-full mt-2", defaultClassNames.week),
         week_number_header: cn("select-none w-(--cell-size)", defaultClassNames.week_number_header),
-        week_number: cn("text-[0.8rem] select-none text-muted-foreground", defaultClassNames.week_number),
+        // `font-normal` keeps the week-number cell visually unchanged now that it renders as a `<th>`
+        // (which defaults to bold) for `scope-attr-valid`.
+        week_number: cn("text-[0.8rem] font-normal select-none text-muted-foreground", defaultClassNames.week_number),
         day: cn(
           "relative w-full rounded-(--cell-radius) h-full p-0 text-center [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius) group/day aspect-square select-none",
           props.showWeekNumber === true
@@ -134,9 +136,11 @@ function Calendar({
         },
         DayButton: CalendarDayButton,
         WeekNumber: ({ children, ...props }) => (
-          <td {...props}>
+          // `react-day-picker` passes `scope="row"` and `role="rowheader"` for the week-number cell;
+          // `scope` is only valid on `<th>`, so render a `<th>` to satisfy axe `scope-attr-valid`.
+          <th {...props}>
             <div className="flex size-(--cell-size) items-center justify-center text-center">{children}</div>
-          </td>
+          </th>
         ),
         ...components,
       }}

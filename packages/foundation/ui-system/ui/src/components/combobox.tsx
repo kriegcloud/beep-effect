@@ -71,6 +71,7 @@ function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
       data-slot="combobox-clear"
       render={<InputGroupButton variant="ghost" size="icon-xs" />}
       className={cn(className)}
+      aria-label="Clear selection"
       {...props}
     >
       <XIcon className="pointer-events-none" />
@@ -102,6 +103,8 @@ function ComboboxInput({
   readonly showTrigger?: undefined | boolean;
   readonly showClear?: undefined | boolean;
 }) {
+  const fieldName = props["aria-label"] ?? props.placeholder;
+  const triggerLabel = fieldName === undefined ? "Open" : `Open ${fieldName}`;
   return (
     <InputGroup className={cn("w-auto", className)}>
       <ComboboxPrimitive.Input render={<InputGroupInput disabled={disabled} />} {...props} />
@@ -112,6 +115,7 @@ function ComboboxInput({
             variant="ghost"
             render={<ComboboxTrigger />}
             data-slot="input-group-button"
+            aria-label={triggerLabel}
             className="group-has-data-[slot=combobox-clear]/input-group:hidden data-[pressed]:bg-transparent"
             disabled={disabled}
           />
@@ -189,6 +193,7 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
   return (
     <ComboboxPrimitive.List
       data-slot="combobox-list"
+      aria-label="Options"
       className={cn(
         "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto p-1 data-empty:p-0 overflow-y-auto overscroll-contain",
         className
@@ -387,6 +392,8 @@ function ComboboxChip({
 }: ComboboxPrimitive.Chip.Props & {
   readonly showRemove?: undefined | boolean;
 }) {
+  const chipLabel = props["aria-label"] ?? (typeof children === "string" ? children : undefined);
+  const removeLabel = chipLabel === undefined ? "Remove" : `Remove ${chipLabel}`;
   return (
     <ComboboxPrimitive.Chip
       data-slot="combobox-chip"
@@ -402,6 +409,7 @@ function ComboboxChip({
           render={<Button variant="ghost" size="icon-xs" />}
           className="-ml-1 opacity-50 hover:opacity-100"
           data-slot="combobox-chip-remove"
+          aria-label={removeLabel}
         >
           <XIcon className="pointer-events-none" />
         </ComboboxPrimitive.ChipRemove>

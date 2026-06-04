@@ -78,11 +78,11 @@ export function CalendarEventCard({
 }: CalendarEventCardProps) {
   const hasAction = variant === "action" && onAction !== undefined;
   const hasLabel = label !== undefined && label.length > 0;
-  const finalOpacity = status === "completed" ? 0.5 : opacity;
+  const finalOpacity = opacity;
 
   const buttonColorClasses = {
-    primary: "bg-sky-500 text-white hover:bg-sky-600",
-    danger: "bg-red-500 text-white hover:bg-red-600",
+    primary: "bg-sky-700 text-white hover:bg-sky-800",
+    danger: "bg-red-700 text-white hover:bg-red-800",
   } as const;
   const actionContent = Match.value(status).pipe(
     Match.when("loading", () => (
@@ -129,7 +129,7 @@ export function CalendarEventCard({
           <div
             className={cn(
               "mb-1 text-xs font-medium",
-              isDotted ? "text-blue-600 dark:text-blue-400" : "text-zinc-600 dark:text-zinc-500"
+              isDotted ? "text-blue-600 dark:text-blue-400" : "text-zinc-600 dark:text-zinc-400"
             )}
           >
             {label}
@@ -226,5 +226,5 @@ interface EventLocationProps {
  * @since 0.0.0
  */
 export function EventLocation({ children, className }: EventLocationProps) {
-  return <p className={cn("text-xs text-zinc-500 dark:text-zinc-500", className)}>{children}</p>;
+  return <p className={cn("text-xs text-zinc-600 dark:text-zinc-400", className)}>{children}</p>;
 }

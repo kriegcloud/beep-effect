@@ -494,7 +494,10 @@ export const ButtonVariants: Story = {
                     <span>Outline button</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarSeparator />
+                {/* Wrap the divider in a list item so the `<ul>` menu only has `<li>` children (axe `list`). */}
+                <SidebarMenuItem>
+                  <SidebarSeparator />
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton size="sm">
                     <TrayIcon />

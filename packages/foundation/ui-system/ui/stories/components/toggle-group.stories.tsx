@@ -56,6 +56,11 @@ const meta = {
     size: "default",
     onValueChange: fn(),
   },
+  parameters: {
+    // aria-allowed-attr: Base UI toggle internal — its CompositeRoot emits `aria-orientation`
+    // on the `role="group"` element for every story; not controllable via our props.
+    a11y: { config: { rules: [{ id: "aria-allowed-attr", enabled: false }] } },
+  },
 } satisfies Meta<typeof ToggleGroup>;
 
 export default meta;

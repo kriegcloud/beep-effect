@@ -39,6 +39,8 @@ const meta = {
   title: "Components/Forms/Combobox",
   component: Combobox,
   tags: ["autodocs"],
+  // aria-hidden-focus: Base UI FocusGuard internal — fires on any story whose popup opens
+  parameters: { a11y: { config: { rules: [{ id: "aria-hidden-focus", enabled: false }] } } },
   argTypes: {
     items: {
       control: false,

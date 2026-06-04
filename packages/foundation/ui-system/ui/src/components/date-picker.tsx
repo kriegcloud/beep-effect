@@ -71,7 +71,7 @@ function DatePicker(props: DatePickerProps) {
           </Button>
         }
       />
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="w-auto p-0" aria-label="Choose date">
         <Calendar mode="single" selected={selected} onSelect={handleSelect} />
       </PopoverContent>
     </Popover>

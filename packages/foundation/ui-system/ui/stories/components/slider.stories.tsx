@@ -65,6 +65,7 @@ const meta = {
     },
   },
   args: {
+    "aria-label": "Volume",
     defaultValue: 50,
     min: 0,
     max: 100,

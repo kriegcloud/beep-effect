@@ -250,7 +250,7 @@ export function NotificationCard({
               <h3
                 className={cn(
                   "text-[15px] font-semibold leading-tight",
-                  isUnread ? "text-zinc-900 dark:text-white" : "text-zinc-500 dark:text-zinc-500"
+                  isUnread ? "text-zinc-900 dark:text-white" : "text-zinc-500 dark:text-zinc-400"
                 )}
               >
                 {title}
@@ -261,7 +261,7 @@ export function NotificationCard({
             <p
               className={cn(
                 "mb-0 text-[13px]",
-                isUnread ? "text-zinc-600 dark:text-zinc-400" : "text-zinc-400 dark:text-zinc-600"
+                isUnread ? "text-zinc-600 dark:text-zinc-400" : "text-zinc-500 dark:text-zinc-400"
               )}
             >
               {body}
@@ -286,7 +286,7 @@ export function NotificationCard({
 
         <div className="mt-3 flex items-end justify-between">
           {actions.length > 0 && (
-            <div className={cn("flex flex-wrap items-center gap-2", !isUnread && "opacity-60")}>
+            <div className="flex flex-wrap items-center gap-2">
               {A.map(actions, (action) => {
                 const isLoading = loadingActionId === action.id;
                 const isExecuted = pipe(
@@ -326,7 +326,7 @@ export function NotificationCard({
           )}
 
           {createdAt && (
-            <span className="inline-block text-[11px] text-zinc-400 dark:text-zinc-600">{formatDate(createdAt)}</span>
+            <span className="inline-block text-[11px] text-zinc-600 dark:text-zinc-400">{formatDate(createdAt)}</span>
           )}
         </div>
       </div>

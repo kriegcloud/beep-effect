@@ -189,7 +189,7 @@ export const Disabled: Story = {
 export const Invalid: Story = {
   render: (args) => (
     <InputGroup {...args}>
-      <InputGroupInput aria-invalid defaultValue="not-an-email" type="email" />
+      <InputGroupInput aria-invalid aria-label="Email" defaultValue="not-an-email" type="email" />
       <InputGroupAddon align="inline-end">!</InputGroupAddon>
     </InputGroup>
   ),

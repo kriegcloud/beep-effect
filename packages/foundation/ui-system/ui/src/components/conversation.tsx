@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowDownIcon } from "@phosphor-icons/react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { cn } from "../lib/index.ts";
 import { Button } from "./button";
@@ -76,9 +76,19 @@ export type ConversationContentProps = ComponentProps<typeof StickToBottom.Conte
  * @category components
  * @since 0.0.0
  */
-export const ConversationContent = ({ className, ...props }: ConversationContentProps) => (
-  <StickToBottom.Content className={cn("p-4", className)} {...props} />
-);
+export const ConversationContent = ({ className, ...props }: ConversationContentProps) => {
+  // `use-stick-to-bottom` owns the overflow:auto viewport via `scrollRef`; it accepts no props for
+  // that node, so make it keyboard-focusable here to satisfy axe `scrollable-region-focusable`.
+  const { scrollRef } = useStickToBottomContext();
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (node !== null && !node.hasAttribute("tabindex")) {
+      node.tabIndex = 0;
+    }
+  }, [scrollRef]);
+
+  return <StickToBottom.Content className={cn("p-4", className)} {...props} />;
+};
 
 /**
  * Conversation empty state props type.

@@ -154,7 +154,6 @@ export function TodoItem({
       className={cn(
         "group pointer-events-auto mb-0 w-full cursor-pointer rounded-lg p-4 pl-5 text-left transition-all",
         isSelected ? "bg-sky-500/5 ring-2 ring-blue-500" : "hover:bg-zinc-100 dark:hover:bg-zinc-800/70",
-        completed && "opacity-50",
         className
       )}
       onClick={() => onClick?.(id)}
@@ -182,12 +181,12 @@ export function TodoItem({
             <h4
               className={cn(
                 "text-base font-medium text-zinc-900 dark:text-zinc-100",
-                completed && "line-through text-zinc-500 dark:text-zinc-500"
+                completed && "line-through text-zinc-500 dark:text-zinc-400"
               )}
             >
               {title}
             </h4>
-            {hasDescription && <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">{description}</p>}
+            {hasDescription && <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{description}</p>}
           </div>
 
           {hasMetadata && (

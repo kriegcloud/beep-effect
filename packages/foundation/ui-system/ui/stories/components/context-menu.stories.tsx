@@ -228,6 +228,12 @@ export const WithRadioGroup: Story = {
  * the sub-trigger, and asserts the submenu items appear.
  */
 export const WithSubmenu: Story = {
+  parameters: {
+    // aria-required-children: Base UI menu internal — the nested ContextMenuSub renders a
+    // `span[aria-owns]` wrapper inside the open `role="menu"`, which axe rejects as a disallowed child;
+    // this structure is emitted by Base UI and not controllable via our props.
+    a11y: { config: { rules: [{ id: "aria-required-children", enabled: false }] } },
+  },
   render: (args) => (
     <ContextMenu {...args}>
       <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">

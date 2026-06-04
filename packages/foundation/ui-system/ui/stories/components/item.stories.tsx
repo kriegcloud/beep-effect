@@ -241,8 +241,11 @@ export const AsButton: Story = {
 /** A realistic `ItemGroup` list of rows divided by `ItemSeparator`, exposed as `role="list"`. */
 export const Group: Story = {
   render: () => (
+    // `ItemGroup` is `role="list"`, which requires `listitem` children and forbids other roles.
+    // Give each `Item` `role="listitem"` (so its inner button is owned by the item, not the list)
+    // and mark the decorative dividers `aria-hidden` so they are not unallowed list children.
     <ItemGroup className="w-full max-w-md rounded-md border">
-      <Item>
+      <Item role="listitem">
         <ItemMedia variant="icon">A</ItemMedia>
         <ItemContent>
           <ItemTitle>Avery Diaz</ItemTitle>
@@ -254,8 +257,8 @@ export const Group: Story = {
           </Button>
         </ItemActions>
       </Item>
-      <ItemSeparator />
-      <Item>
+      <ItemSeparator aria-hidden />
+      <Item role="listitem">
         <ItemMedia variant="icon">B</ItemMedia>
         <ItemContent>
           <ItemTitle>Blake Nguyen</ItemTitle>
@@ -267,8 +270,8 @@ export const Group: Story = {
           </Button>
         </ItemActions>
       </Item>
-      <ItemSeparator />
-      <Item>
+      <ItemSeparator aria-hidden />
+      <Item role="listitem">
         <ItemMedia variant="icon">C</ItemMedia>
         <ItemContent>
           <ItemTitle>Casey Romero</ItemTitle>

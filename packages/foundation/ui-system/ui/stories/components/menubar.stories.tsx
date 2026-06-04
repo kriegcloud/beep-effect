@@ -56,6 +56,12 @@ const meta = {
     },
   },
   args: {},
+  parameters: {
+    // aria-required-children: Base UI menu internal — each MenubarMenu renders a `span[aria-owns]`
+    // wrapper as a direct child of the `role="menubar"` (and nested `role="menu"`), which axe rejects
+    // as a disallowed child; this structure is emitted by Base UI and not controllable via our props.
+    a11y: { config: { rules: [{ id: "aria-required-children", enabled: false }] } },
+  },
 } satisfies Meta<typeof Menubar>;
 
 export default meta;

@@ -107,6 +107,8 @@ export const Disabled: Story = {
  * Seeded with `defaultValue` so the displayed month (January 2025) is deterministic.
  */
 export const SelectsADate: Story = {
+  // aria-hidden-focus: Base UI internal — not fixable via props
+  parameters: { a11y: { config: { rules: [{ id: "aria-hidden-focus", enabled: false }] } } },
   args: { defaultValue: SAMPLE_DATE },
   play: ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

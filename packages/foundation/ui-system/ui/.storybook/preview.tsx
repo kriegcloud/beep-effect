@@ -97,6 +97,11 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
+    a11y: {
+      // Fail the Storybook test run (and the addon-vitest "Accessibility" widget)
+      // on axe violations so accessibility regressions are caught in CI.
+      test: "error",
+    },
   },
 };
 

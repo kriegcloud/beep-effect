@@ -21,6 +21,9 @@ function NavigationMenu({ className, children, ...props }: NavigationMenuPrimiti
   return (
     <NavigationMenuPrimitive.Root
       data-slot="navigation-menu"
+      // Base UI renders the root and the floating popup both as `<nav>` landmarks; give each a
+      // distinct accessible name so they satisfy axe `landmark-unique`. Callers can override.
+      aria-label="Main"
       className={cn(
         "max-w-max group/navigation-menu relative flex max-w-max flex-1 items-center justify-center",
         className
@@ -181,7 +184,12 @@ function NavigationMenuPositioner({
         )}
         {...props}
       >
-        <NavigationMenuPrimitive.Popup className="bg-popover text-popover-foreground ring-foreground/10 rounded-lg shadow ring-1 transition-all ease-[cubic-bezier(0.22,1,0.36,1)] outline-none data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 xs:w-(--popup-width) relative h-(--popup-height) w-(--popup-width) origin-(--transform-origin)">
+        <NavigationMenuPrimitive.Popup
+          // The popup also renders as a `<nav>` landmark; a distinct label keeps it unique from the
+          // root nav for axe `landmark-unique`.
+          aria-label="Submenu"
+          className="bg-popover text-popover-foreground ring-foreground/10 rounded-lg shadow ring-1 transition-all ease-[cubic-bezier(0.22,1,0.36,1)] outline-none data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 xs:w-(--popup-width) relative h-(--popup-height) w-(--popup-width) origin-(--transform-origin)"
+        >
           <NavigationMenuPrimitive.Viewport className="relative size-full overflow-hidden" />
         </NavigationMenuPrimitive.Popup>
       </NavigationMenuPrimitive.Positioner>

@@ -93,7 +93,7 @@ type Story = StoryObj<typeof meta>;
 /** A six-digit code split into two groups of three with a separator. Typing fills the slots and fires `onComplete`. */
 export const Default: Story = {
   render: (args) => (
-    <InputOTP {...otpProps(args)}>
+    <InputOTP {...otpProps(args)} aria-label="Verification code">
       <InputOTPGroup>
         <InputOTPSlot index={0} />
         <InputOTPSlot index={1} />
@@ -121,7 +121,7 @@ export const Default: Story = {
 /** A single continuous group of six slots with no separator. */
 export const SingleGroup: Story = {
   render: (args) => (
-    <InputOTP {...otpProps(args)}>
+    <InputOTP {...otpProps(args)} aria-label="Verification code">
       <InputOTPGroup>
         <InputOTPSlot index={0} />
         <InputOTPSlot index={1} />
@@ -138,7 +138,7 @@ export const SingleGroup: Story = {
 export const FourDigits: Story = {
   args: { maxLength: 4 },
   render: (args) => (
-    <InputOTP {...otpProps(args)}>
+    <InputOTP {...otpProps(args)} aria-label="Verification code">
       <InputOTPGroup>
         <InputOTPSlot index={0} />
         <InputOTPSlot index={1} />
@@ -153,7 +153,7 @@ export const FourDigits: Story = {
 export const DigitsOnly: Story = {
   args: { maxLength: 6, pattern: "^\\d+$" },
   render: (args) => (
-    <InputOTP {...otpProps(args)}>
+    <InputOTP {...otpProps(args)} aria-label="Verification code">
       <InputOTPGroup>
         <InputOTPSlot index={0} />
         <InputOTPSlot index={1} />
@@ -180,7 +180,7 @@ export const DigitsOnly: Story = {
 export const Disabled: Story = {
   args: { disabled: true },
   render: (args) => (
-    <InputOTP {...otpProps(args)}>
+    <InputOTP {...otpProps(args)} aria-label="Verification code">
       <InputOTPGroup>
         <InputOTPSlot index={0} />
         <InputOTPSlot index={1} />

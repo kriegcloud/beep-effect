@@ -81,6 +81,8 @@ type Story = StoryObj<typeof meta>;
  * clicks the trigger and asserts the popup reveals its links.
  */
 export const Default: Story = {
+  // aria-hidden-focus: Base UI internal — not fixable via props
+  parameters: { a11y: { config: { rules: [{ id: "aria-hidden-focus", enabled: false }] } } },
   render: (args) => (
     <NavigationMenu {...args}>
       <NavigationMenuList>
@@ -143,6 +145,8 @@ export const TopLevelLink: Story = {
  * asserts the first nested link renders.
  */
 export const SimpleListContent: Story = {
+  // aria-hidden-focus: Base UI internal — not fixable via props
+  parameters: { a11y: { config: { rules: [{ id: "aria-hidden-focus", enabled: false }] } } },
   render: (args) => (
     <NavigationMenu {...args}>
       <NavigationMenuList>
@@ -180,6 +184,8 @@ export const SimpleListContent: Story = {
  * The play test hovers the trigger and asserts the panel content appears.
  */
 export const OpensOnHover: Story = {
+  // aria-hidden-focus: Base UI internal — not fixable via props
+  parameters: { a11y: { config: { rules: [{ id: "aria-hidden-focus", enabled: false }] } } },
   render: (args) => (
     <NavigationMenu {...args}>
       <NavigationMenuList>
@@ -215,6 +221,8 @@ export const OpensOnHover: Story = {
  * and asserts the panel content renders.
  */
 export const Vertical: Story = {
+  // aria-hidden-focus: Base UI internal — not fixable via props
+  parameters: { a11y: { config: { rules: [{ id: "aria-hidden-focus", enabled: false }] } } },
   args: { orientation: "vertical" },
   render: (args) => (
     <NavigationMenu {...args}>
@@ -255,6 +263,8 @@ export const Vertical: Story = {
  * link renders.
  */
 export const FullComposition: Story = {
+  // aria-hidden-focus: Base UI internal — not fixable via props
+  parameters: { a11y: { config: { rules: [{ id: "aria-hidden-focus", enabled: false }] } } },
   render: (args) => (
     <NavigationMenu {...args}>
       <NavigationMenuList>

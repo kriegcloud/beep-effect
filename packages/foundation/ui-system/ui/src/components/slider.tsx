@@ -42,8 +42,24 @@ const sliderValues = (
  * @category components
  * @since 0.0.0
  */
-function Slider({ className, defaultValue, value, min = 0, max = 100, ref, ...props }: SliderPrimitive.Root.Props) {
+function Slider({
+  className,
+  defaultValue,
+  value,
+  min = 0,
+  max = 100,
+  ref,
+  "aria-label": ariaLabel,
+  ...props
+}: SliderPrimitive.Root.Props) {
   const _values = React.useMemo(thunk(sliderValues(value, defaultValue, min)), [value, defaultValue, min]);
+  const getThumbAriaLabel = React.useMemo(() => {
+    if (ariaLabel === undefined) {
+      return undefined;
+    }
+    const single = _values.length <= 1;
+    return (index: number) => (single ? ariaLabel : `${ariaLabel} (thumb ${index + 1})`);
+  }, [ariaLabel, _values.length]);
 
   return (
     <SliderPrimitive.Root
@@ -76,6 +92,7 @@ function Slider({ className, defaultValue, value, min = 0, max = 100, ref, ...pr
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}
+            {...(getThumbAriaLabel !== undefined ? { getAriaLabel: getThumbAriaLabel } : {})}
             className="border-ring ring-ring/50 relative size-3 rounded-full border bg-white transition-[color,box-shadow] after:absolute after:-inset-2 hover:ring-[3px] focus-visible:ring-[3px] focus-visible:outline-hidden active:ring-[3px] block shrink-0 select-none disabled:pointer-events-none disabled:opacity-50"
           />
         ))}

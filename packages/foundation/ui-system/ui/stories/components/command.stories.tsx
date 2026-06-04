@@ -65,6 +65,12 @@ const onSelectSpy = fn();
  * test asserts the input renders and that the first group's items are visible.
  */
 export const Default: Story = {
+  parameters: {
+    // aria-required-children: cmdk internal — CommandList hardcodes `role="listbox"` and
+    // CommandSeparator hardcodes `role="separator"`, which axe rejects as a disallowed listbox child;
+    // neither role is controllable via our props.
+    a11y: { config: { rules: [{ id: "aria-required-children", enabled: false }] } },
+  },
   render: (args) => (
     <Command {...args} className="rounded-lg border shadow-md md:min-w-[450px]">
       <CommandInput placeholder="Type a command or search..." aria-label="Command" />
@@ -158,6 +164,11 @@ export const Filtering: Story = {
  * an unmatched query and asserts the empty fallback appears.
  */
 export const EmptyState: Story = {
+  parameters: {
+    // aria-required-children: cmdk internal — CommandList hardcodes `role="listbox"`, and once the
+    // query filters out every item the list has no `option`/`group` children to satisfy the role.
+    a11y: { config: { rules: [{ id: "aria-required-children", enabled: false }] } },
+  },
   render: (args) => (
     <Command {...args} className="rounded-lg border shadow-md md:min-w-[450px]">
       <CommandInput placeholder="Type a command or search..." aria-label="Command" />
@@ -285,6 +296,12 @@ export const WithLoop: Story = {
  * asserts the input and items become visible in the portal.
  */
 export const InDialog: Story = {
+  parameters: {
+    // aria-required-children: cmdk internal — CommandList hardcodes `role="listbox"` and
+    // CommandSeparator hardcodes `role="separator"`, which axe rejects as a disallowed listbox child;
+    // neither role is controllable via our props.
+    a11y: { config: { rules: [{ id: "aria-required-children", enabled: false }] } },
+  },
   render: () => (
     <CommandDialog open>
       <Command>
