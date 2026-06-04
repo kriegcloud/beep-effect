@@ -4,6 +4,11 @@ This plan executes [SPEC.md](./SPEC.md). The goal is to drive the `@beep/ui`
 Storybook Guide (`/settings/guide`) to 100% completion through real repo work,
 verified in the live guide UI via Claude-in-Chrome.
 
+Status: `active`. Current phase: **P0**. Current blockers: the P4 Vercel publish
+is blocked on interactive auth (`op` signin, an MFA-authenticated AWS session for
+the Pulumi `s3://oip-law-pulumi-state` backend, and the Cloudflare token); the P3
+Chromatic visual tests need `CHROMATIC_PROJECT_TOKEN`.
+
 Conventions for every phase:
 
 - Start Storybook with `bun run storybook` (portless assigns the port; observed
@@ -137,3 +142,12 @@ Exit Criteria:
 
 - [ ] Live guide reports 100% with no remaining skipped/open items.
 - [ ] All supporting repo work is committed and affected gates pass.
+
+## Verification Commands
+
+```sh
+test "$(wc -m < goals/storybook-guide-completion/GOAL.md)" -le 4000
+jq . goals/storybook-guide-completion/ops/manifest.json
+rg -n "storybook-guide-completion|GOAL.md|agentLaunchers|packetAnchorDocument" goals/storybook-guide-completion
+git diff --check -- goals/storybook-guide-completion
+```

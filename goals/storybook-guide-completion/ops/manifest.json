@@ -3,18 +3,33 @@
   "initiative": {
     "id": "storybook-guide-completion",
     "title": "Storybook Guide Completion",
-    "status": "pending-implementation",
+    "status": "active",
     "created": "2026-06-04",
     "updated": "2026-06-04",
     "packetAnchorDocument": "SPEC.md"
   },
+  "packetPath": "goals/storybook-guide-completion",
+  "lifecycle": "active",
+  "executionCapable": true,
   "mission": "Drive the @beep/ui Storybook Guide checklist from 0% (all skipped) to 100% completion through real repo work, verified in the live guide UI via Claude-in-Chrome.",
   "currentSourceOfTruth": [
+    "AGENTS.md",
     "CLAUDE.md",
     "standards/ARCHITECTURE.md",
     "standards/architecture/*",
     "goals/storybook-guide-completion/SPEC.md",
+    "goals/storybook-guide-completion/PLAN.md",
+    "goals/storybook-guide-completion/GOAL.md",
     "live:/settings/guide"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/storybook-guide-completion/GOAL.md"
+    }
   ],
   "currentTargetPhase": "P0",
   "target": {
@@ -343,9 +358,16 @@
     }
   ],
   "commandGates": [
-    "bun -e 'JSON.parse(require(\"fs\").readFileSync(\"goals/storybook-guide-completion/ops/manifest.json\",\"utf8\"))'",
-    "rg -n \"renderComponent|publishStorybook|storybook.yeebois.com|Source-Of-Truth|100%\" goals/storybook-guide-completion",
-    "git diff --check"
+    "test \"$(wc -m < goals/storybook-guide-completion/GOAL.md)\" -le 4000",
+    "jq . goals/storybook-guide-completion/ops/manifest.json",
+    "rg -n \"storybook-guide-completion|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/storybook-guide-completion",
+    "git diff --check -- goals/storybook-guide-completion"
+  ],
+  "stopConditions": [
+    "The live /settings/guide item set materially contradicts the SPEC inventory and cannot be reconciled.",
+    "Completing an item would exceed the named scope or require unrelated refactors.",
+    "An externally-gated action lacks its credential or approval: the Vercel publish (op signin + MFA-authenticated AWS session + Vercel/Cloudflare tokens + per-action approval) or a Chromatic baseline (CHROMATIC_PROJECT_TOKEN + per-action approval).",
+    "The same blocker repeats after reasonable investigation."
   ],
   "nextAction": "Execute P0: start Storybook, re-read /settings/guide via Chrome, reconcile the inventory, and un-skip all items."
 }

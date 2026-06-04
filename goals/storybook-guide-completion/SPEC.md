@@ -2,9 +2,9 @@
 
 ## Status
 
-**PENDING IMPLEMENTATION**
+Lifecycle: **`active`** (execution-capable).
 
-Live inventory captured 2026-06-04. No guide items have been completed yet.
+Live inventory captured 2026-06-04. No guide items have been completed yet (0%).
 
 ## Owner
 
@@ -169,14 +169,17 @@ state alone:
 
 ## Source-Of-Truth Order
 
-When sources disagree, use this order:
+When sources disagree, use this order (per the `goals/README.md` Source
+Hierarchy):
 
-1. `CLAUDE.md`
-2. `standards/ARCHITECTURE.md` and `standards/architecture/*`
-3. this `SPEC.md`
-4. `PLAN.md`
-5. `ops/manifest.json`
-6. the live `/settings/guide` rendering (for the current item set and statuses)
+1. The user objective that created this packet.
+2. `AGENTS.md`, `CLAUDE.md`, and required skills.
+3. `standards/ARCHITECTURE.md` and `standards/architecture/*`.
+4. this `SPEC.md`.
+5. `PLAN.md`.
+6. `GOAL.md` (the compact `/goal` launcher).
+7. `ops/manifest.json` and the live `/settings/guide` rendering (for the current
+   item set and statuses).
 
 ## Acceptance Criteria
 
@@ -202,3 +205,15 @@ When sources disagree, use this order:
 - Affected `lint`/`check` gates pass for the changed packages (`@beep/ui`,
   `@beep/infra`); new stories, `vercel.json`, the `infra/storybook` stack, and the
   workflow are committed.
+
+## Stop Conditions
+
+- The live `/settings/guide` item set materially contradicts this inventory and
+  cannot be reconciled.
+- Completing an item would exceed the named scope or require unrelated refactors.
+- An externally-gated action lacks its credential or approval: the Vercel publish
+  (`op` signin + MFA-authenticated AWS session + Vercel/Cloudflare tokens +
+  per-action approval) or a Chromatic baseline (`CHROMATIC_PROJECT_TOKEN` +
+  per-action approval). The affected item stays open and is reported blocked —
+  never silently marked complete.
+- The same blocker repeats after reasonable investigation.
