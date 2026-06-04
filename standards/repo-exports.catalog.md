@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 79 |
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1053 |
-| publicExportEntries | 13878 |
-| uniquePackageSymbols | 6153 |
+| importSpecifiers | 1054 |
+| publicExportEntries | 13882 |
+| uniquePackageSymbols | 6157 |
 
 ## Seed Discovery Proof
 
@@ -115,7 +115,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 76 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
 | 77 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
 | 78 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 79 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 118 | 540 | 456 |
+| 79 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 119 | 544 | 460 |
 | 80 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 30 | 411 | 117 |
 | 81 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
 | 82 | `@beep/wink` | `packages/drivers/wink` | has-public-exports | 15 | 149 | 43 |
@@ -13310,6 +13310,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/notification-card` | `NotificationStatus` | type | `packages/foundation/ui-system/ui/src/components/notification-card.tsx:34` | Notification status type. |
 | `@beep/ui/components/orb` | `AgentState` | type | `packages/foundation/ui-system/ui/src/components/orb.tsx:27` | Agent state type. |
 | `@beep/ui/components/orb` | `Orb` | function | `packages/foundation/ui-system/ui/src/components/orb.tsx:64` | Orb component. |
+| `@beep/ui/components/orb-background` | `OrbBackground` | function | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:187` | `OrbBackground` is a purely decorative, theme-aware backdrop of soft, blurred, |
+| `@beep/ui/components/orb-background` | `OrbBackgroundProps` | interface | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:128` | Props for {@link OrbBackground}. |
+| `@beep/ui/components/orb-background` | `OrbIntensity` | type | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:22` | Visual strength of the glow. Controls per-orb alpha and lightness so the same |
+| `@beep/ui/components/orb-background` | `OrbTone` | type | `packages/foundation/ui-system/ui/src/components/orb-background.tsx:13` | Hue family for the glow. Each tone maps to a base HSL hue that drives every |
 | `@beep/ui/components/pagination` | `Pagination` | function | `packages/foundation/ui-system/ui/src/components/pagination.tsx:19` | Pagination component. |
 | `@beep/ui/components/pagination` | `PaginationContent` | function | `packages/foundation/ui-system/ui/src/components/pagination.tsx:43` | Pagination content component. |
 | `@beep/ui/components/pagination` | `PaginationEllipsis` | function | `packages/foundation/ui-system/ui/src/components/pagination.tsx:155` | Pagination ellipsis component. |
