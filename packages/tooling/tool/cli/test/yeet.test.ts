@@ -11,6 +11,7 @@ import {
   RepoRunContext,
   RepoStepRunResult,
   renderPackageQualityPacketMarkdown,
+  repoProofStepDefinition,
   TurboPlanSnapshot,
   TurboPlanTask,
   TurboWorkspacePackage,
@@ -120,8 +121,67 @@ const findStep = (steps: ReadonlyArray<RepoPlanStep>, label: string): RepoPlanSt
   );
 
 describe("yeet planner", () => {
-  it("builds the feedback-then-full v1 flow in publish-safe order", () => {
-    const plan = buildYeetRunPlanForTesting(context, O.some("feat(repo-cli): add yeet"));
+  it("builds publish as feedback, commit, pre-push proof, then push", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual([
+      "feedback:build",
+      "feedback:check",
+      "feedback:lint",
+      "feedback:test",
+      "commit:git:commit",
+      "full:pre-push",
+      "publish:git:push",
+    ]);
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.phase),
+        A.dedupe
+      )
+    ).toEqual(["feedback", "commit", "full", "publish"]);
+
+    const commit = findStep(plan.steps, "commit:git:commit");
+    const proof = findStep(plan.steps, "full:pre-push");
+    const push = findStep(plan.steps, "publish:git:push");
+
+    expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
+    expect(proof.args).toEqual(["run", "beep", "quality", "github-checks", "pre-push"]);
+    expect(proof.mutability).toBe("readonly");
+    expect(push.args).toEqual(["push"]);
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.args)
+      )
+    ).not.toContainEqual(["add", "-A"]);
+  });
+
+  it("builds verify as read-only feedback plus the canonical pre-push proof", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "verify" });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["feedback:build", "feedback:check", "feedback:lint", "feedback:test", "full:pre-push"]);
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.mutability),
+        A.dedupe
+      )
+    ).toEqual(["readonly"]);
+  });
+
+  it("builds repair as deterministic generators plus affected feedback", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "repair" });
 
     expect(
       pipe(
@@ -131,37 +191,20 @@ describe("yeet planner", () => {
     ).toEqual([
       "prepare:lint:fix",
       "prepare:docgen:local",
+      "prepare:repo-exports:catalog",
       "feedback:build",
       "feedback:check",
       "feedback:lint",
       "feedback:test",
-      "full:quality",
-      "publish:git:commit",
-      "publish:secrets",
-      "publish:git:push",
     ]);
-    expect(
-      pipe(
-        plan.steps,
-        A.map((step) => step.phase),
-        A.dedupe
-      )
-    ).toEqual(["prepare", "feedback", "full", "publish"]);
+    expect(findStep(plan.steps, "prepare:repo-exports:catalog").args).toEqual(["run", "repo-exports:catalog"]);
+  });
 
-    const commit = findStep(plan.steps, "publish:git:commit");
-    const secrets = findStep(plan.steps, "publish:secrets");
-    const push = findStep(plan.steps, "publish:git:push");
+  it("uses the shared pre-push proof definition for Yeet parity", () => {
+    const proof = repoProofStepDefinition("pre-push");
 
-    expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
-    expect(secrets.args).toEqual(["run", "beep", "quality", "github-checks", "secrets"]);
-    expect(secrets.mutability).toBe("readonly");
-    expect(push.args).toEqual(["push"]);
-    expect(
-      pipe(
-        plan.steps,
-        A.map((step) => step.args)
-      )
-    ).not.toContainEqual(["add", "-A"]);
+    expect(proof.args).toEqual(["quality", "github-checks", "pre-push"]);
+    expect(proof.label).toBe("full:pre-push");
   });
 
   it("threads task-aware affected filters into feedback runs", () => {
@@ -172,7 +215,10 @@ describe("yeet planner", () => {
       turboTask("lint"),
       turboTask("test"),
     ]);
-    const plan = buildYeetRunPlanForTesting(scopedContext, O.some("feat(repo-cli): add yeet"));
+    const plan = buildYeetRunPlanForTesting({
+      context: scopedContext,
+      message: O.some("feat(repo-cli): add yeet"),
+    });
 
     expect(findStep(plan.steps, "feedback:check").args).toEqual([
       "run",
@@ -186,10 +232,21 @@ describe("yeet planner", () => {
     ]);
     expect(findStep(plan.steps, "feedback:check").args).not.toContain("--affected");
     expect(findStep(plan.steps, "feedback:check").scope).toBe("repo");
+    expect(findStep(plan.steps, "feedback:test").args).toEqual([
+      "run",
+      "test",
+      "--",
+      "--unit",
+      "--types",
+      "--filter=@beep/repo-cli",
+      "--continue=dependencies-successful",
+      "--summarize",
+      "--ui=stream",
+    ]);
   });
 
   it("uses Turbo SCM environment for write-mode affected prepare steps", () => {
-    const plan = buildYeetRunPlanForTesting(context, O.some("feat(repo-cli): add yeet"));
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "repair" });
     const step = findStep(plan.steps, "prepare:lint:fix");
 
     expect(step.args).toEqual([
@@ -208,10 +265,10 @@ describe("yeet planner", () => {
   });
 
   it("omits feedback steps whose task has no affected packages", () => {
-    const plan = buildYeetRunPlanForTesting(
-      contextWithTasks([turboTask("build"), turboTask("lint")]),
-      O.some("feat(repo-cli): add yeet")
-    );
+    const plan = buildYeetRunPlanForTesting({
+      context: contextWithTasks([turboTask("build"), turboTask("lint")]),
+      message: O.some("feat(repo-cli): add yeet"),
+    });
 
     expect(
       pipe(
@@ -223,7 +280,10 @@ describe("yeet planner", () => {
   });
 
   it("keeps feedback as a no-op instead of falling back to all packages", () => {
-    const plan = buildYeetRunPlanForTesting(contextWithTasks([]), O.some("feat(repo-cli): add yeet"));
+    const plan = buildYeetRunPlanForTesting({
+      context: contextWithTasks([]),
+      message: O.some("feat(repo-cli): add yeet"),
+    });
 
     expect(
       pipe(
@@ -236,14 +296,7 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual([
-      "prepare:lint:fix",
-      "prepare:docgen:local",
-      "full:quality",
-      "publish:git:commit",
-      "publish:secrets",
-      "publish:git:push",
-    ]);
+    ).toEqual(["commit:git:commit", "full:pre-push", "publish:git:push"]);
   });
 
   it("filters publish paths against the reviewed staged intent", () => {
@@ -316,18 +369,16 @@ describe("yeet planner", () => {
   });
 
   it("does not enable fingerprint resume until runtime skip execution exists", () => {
-    const plan = buildYeetRunPlanForTesting(context, O.some("feat(repo-cli): add yeet"));
+    const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
 
-    expect(findStep(plan.steps, "prepare:lint:fix").resume).toBe("never");
-    expect(findStep(plan.steps, "prepare:docgen:local").resume).toBe("never");
     expect(findStep(plan.steps, "feedback:check").resume).toBe("never");
-    expect(findStep(plan.steps, "full:quality").resume).toBe("never");
-    expect(findStep(plan.steps, "publish:git:commit").resume).toBe("never");
+    expect(findStep(plan.steps, "full:pre-push").resume).toBe("never");
+    expect(findStep(plan.steps, "commit:git:commit").resume).toBe("never");
   });
 
   it("quotes command text without changing argv", () => {
-    const plan = buildYeetRunPlanForTesting(context, O.some("feat(repo-cli): add yeet"));
-    const commit = findStep(plan.steps, "publish:git:commit");
+    const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
+    const commit = findStep(plan.steps, "commit:git:commit");
 
     expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
     expect(commandTextForStep(commit)).toBe("git commit -m 'feat(repo-cli): add yeet'");
@@ -488,11 +539,11 @@ describe("yeet quality issue index", () => {
       ]
     );
     const step = RepoPlanStep.make({
-      id: "full:quality",
-      label: "full:quality",
+      id: "full:pre-push",
+      label: "full:pre-push",
       phase: "full",
       command: "bun",
-      args: ["run", "beep", "quality", "github-checks", "quality"],
+      args: ["run", "beep", "quality", "github-checks", "pre-push"],
       cwd: "/repo",
       scope: "repo",
       mutability: "readonly",
@@ -503,7 +554,7 @@ describe("yeet quality issue index", () => {
       step,
       RepoStepRunResult.make({
         stepId: step.id,
-        commandText: "bun run beep quality github-checks quality",
+        commandText: "bun run beep quality github-checks pre-push",
         exitCode: 1,
         output: "packages/foundation/modeling/schema/src/example.ts:3:1 - error TS2322: nope",
       })

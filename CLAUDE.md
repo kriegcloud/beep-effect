@@ -19,6 +19,11 @@ Ship reliable code with effect first and schema first patterns.
   `standards/repo-exports.catalog.jsonc`; refresh with
   `bun run repo-exports:catalog` and verify with
   `bun run repo-exports:catalog:check`.
+- Yeet workflow hardening is in proof mode: use `bun run beep yeet repair`,
+  `bun run beep yeet verify`, and `bun run beep yeet publish --message "..."`
+  for proving the path, but do not treat Yeet as the canonical replacement for
+  manual quality lanes until its dedicated proof PR is green in GitHub Actions
+  and the Yeet agent skill is added.
 
 ## Prompt-cache discipline
 Claude Code auto-caches the stable conversation prefix (system prompt, tool

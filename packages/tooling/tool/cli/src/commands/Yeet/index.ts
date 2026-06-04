@@ -13,6 +13,13 @@
  */
 export { YeetRunOptions, YeetRunResult } from "./internal/Handler.js";
 /**
+ * Public yeet execution mode model.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export { YeetRunMode } from "./internal/Planner.js";
+/**
  * Yeet quality issue index models and parsers.
  *
  * @category models
