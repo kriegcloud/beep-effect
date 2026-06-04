@@ -89,9 +89,10 @@ import * as BigDecimal from "./BigDecimal.ts"
 import * as DateTime from "./DateTime.ts"
 import * as Duration from "./Duration.ts"
 import * as Effect from "./Effect.ts"
-import { formatDate } from "./Formatter.ts"
+import { format, formatDate, formatJson } from "./Formatter.ts"
 import * as Option from "./Option.ts"
 import * as Predicate from "./Predicate.ts"
+import type { ErrorOptions, Json } from "./Schema.ts"
 import type * as SchemaAST from "./SchemaAST.ts"
 import * as SchemaGetter from "./SchemaGetter.ts"
 import * as SchemaIssue from "./SchemaIssue.ts"
@@ -1075,35 +1076,84 @@ export const durationFromMillis: Transformation<Duration.Duration, number> = tra
   encode: (a) => Duration.toMillis(a)
 })
 
-/** @internal */
-export const errorFromErrorJsonEncoded = (options?: {
-  readonly includeStack?: boolean | undefined
-}): Transformation<Error, {
+type JsonError = {
   message: string
   name?: string
   stack?: string
-}> =>
-  transform({
-    decode: (i) => {
-      const err = new Error(i.message)
-      if (typeof i.name === "string" && i.name !== "Error") err.name = i.name
-      if (typeof i.stack === "string") err.stack = i.stack
-      return err
-    },
-    encode: (a) => {
-      const e: {
-        message: string
-        name?: string
-        stack?: string
-      } = {
-        name: a.name,
-        message: a.message
+  cause?: Json
+}
+
+const isJsonError = (input: unknown): input is JsonError =>
+  Predicate.isObject(input) && typeof input["message"] === "string"
+
+const decodeJsonError = (input: JsonError): Error => {
+  const hasCause = Object.hasOwn(input, "cause")
+  const err = hasCause
+    ? new Error(input.message, { cause: decodeDefect(input.cause as Json) })
+    : new Error(input.message)
+  if (typeof input.name === "string" && input.name !== "Error") err.name = input.name
+  if (typeof input.stack === "string") err.stack = input.stack
+  return err
+}
+
+const encodeUnknownAsJson = (input: unknown): Json => {
+  try {
+    const json = formatJson(input)
+    return json === undefined ? format(input) : JSON.parse(json)
+  } catch {
+    return format(input)
+  }
+}
+
+const encodeJsonError = (
+  input: Error,
+  options: ErrorOptions | undefined,
+  encodeDefect: (input: unknown) => Json
+): JsonError => {
+  const encoded: JsonError = {
+    name: input.name,
+    message: typeof input.message === "string" ? input.message : ""
+  }
+  if (options?.includeStack && typeof input.stack === "string") {
+    encoded.stack = input.stack
+  }
+  if (!options?.excludeCause && input.cause !== undefined) {
+    encoded.cause = encodeDefect(input.cause)
+  }
+  return encoded
+}
+
+const makeEncodeDefect = (options?: ErrorOptions): (input: unknown) => Json => {
+  const seen = new WeakSet<object>()
+  const encode = (input: unknown): Json => {
+    if (Predicate.isError(input)) {
+      if (seen.has(input)) {
+        return "[Circular]"
       }
-      if (options?.includeStack && typeof a.stack === "string") {
-        e.stack = a.stack
-      }
-      return e
+      seen.add(input)
+      const encoded = encodeJsonError(input, options, encode)
+      seen.delete(input)
+      return encoded
     }
+    return encodeUnknownAsJson(input)
+  }
+  return encode
+}
+
+const decodeDefect = (input: Json): unknown => isJsonError(input) ? decodeJsonError(input) : input
+
+/** @internal */
+export const errorFromJsonError = (options?: ErrorOptions): Transformation<Error, JsonError> =>
+  transform({
+    decode: decodeJsonError,
+    encode: (input) => makeEncodeDefect(options)(input) as JsonError
+  })
+
+/** @internal */
+export const defectFromJson = (options?: ErrorOptions) =>
+  transform({
+    decode: decodeDefect,
+    encode: makeEncodeDefect(options)
   })
 
 /**

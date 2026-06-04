@@ -2859,7 +2859,7 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
   })
 
   it("Defect", async () => {
-    const schema = Schema.Defect
+    const schema = Schema.Defect()
     const asserts = new TestSchema.Asserts(schema)
 
     const noPrototypeObject = Object.create(null)
@@ -2903,6 +2903,30 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
     await encoding.succeed("a")
     await encoding.succeed({ a: 1 })
     await encoding.succeed(noPrototypeObject, { message: "a" })
+  })
+
+  it("Error and Defect memoize equivalent options", () => {
+    const assertMemoized = <S>(schema: (options?: Schema.ErrorOptions) => S) => {
+      strictEqual(schema(), schema({}))
+      strictEqual(schema(), schema({ includeStack: false }))
+      strictEqual(schema(), schema({ excludeCause: false }))
+      strictEqual(schema(), schema({ includeStack: false, excludeCause: false }))
+      strictEqual(schema({ includeStack: true }), schema({ includeStack: true }))
+      strictEqual(schema({ includeStack: true }), schema({ includeStack: true, excludeCause: false }))
+      strictEqual(schema({ excludeCause: true }), schema({ excludeCause: true }))
+      strictEqual(schema({ excludeCause: true }), schema({ includeStack: false, excludeCause: true }))
+      strictEqual(
+        schema({ includeStack: true, excludeCause: true }),
+        schema({ includeStack: true, excludeCause: true })
+      )
+      assertFalse(schema() === schema({ includeStack: true }))
+      assertFalse(schema() === schema({ excludeCause: true }))
+      assertFalse(schema({ includeStack: true }) === schema({ includeStack: true, excludeCause: true }))
+      assertFalse(schema({ excludeCause: true }) === schema({ includeStack: true, excludeCause: true }))
+    }
+
+    assertMemoized(Schema.Error)
+    assertMemoized(Schema.Defect)
   })
 
   describe("CauseReason", () => {
@@ -2976,12 +3000,41 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
   })
 
   it("Error", async () => {
-    const schema = Schema.Error
+    const schema = Schema.Error()
     const asserts = new TestSchema.Asserts(schema)
 
     if (verifyGeneration) {
       asserts.arbitrary().verifyGeneration()
     }
+
+    const error = new Error("a")
+    const customError = new Error("b")
+    customError.name = "CustomError"
+    customError.stack = "stack"
+
+    const decoding = asserts.decoding()
+    await decoding.succeed(error)
+    await decoding.succeed(customError)
+    await decoding.fail(
+      { message: "a" },
+      `Expected Error, got {"message":"a"}`
+    )
+    await decoding.fail(
+      "a",
+      `Expected Error, got "a"`
+    )
+
+    const encoding = asserts.encoding()
+    await encoding.succeed(error)
+    await encoding.succeed(customError)
+    await encoding.fail(
+      { message: "a" },
+      `Expected Error, got {"message":"a"}`
+    )
+    await encoding.fail(
+      "a",
+      `Expected Error, got "a"`
+    )
   })
 
   describe("Exit", () => {
@@ -3023,7 +3076,7 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
     })
 
     it("Exit(FiniteFromString, String, Defect)", async () => {
-      const schema = Schema.Exit(Schema.FiniteFromString, Schema.String, Schema.Defect)
+      const schema = Schema.Exit(Schema.FiniteFromString, Schema.String, Schema.Defect())
       const asserts = new TestSchema.Asserts(schema)
 
       const decoding = asserts.decoding()
@@ -8291,6 +8344,70 @@ describe("Check", () => {
       _tag: "isStringSymbol",
       regExp: /^Symbol\((.*)\)$/
     })
+  })
+
+  it("isUUID", async () => {
+    const schema = Schema.String.check(Schema.isUUID())
+    const asserts = new TestSchema.Asserts(schema)
+
+    if (verifyGeneration) {
+      asserts.arbitrary().verifyGeneration()
+    }
+
+    deepStrictEqual(Schema.resolveAnnotations(schema)?.["meta"], {
+      _tag: "isUUID",
+      regExp:
+        /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|[fF]{8}-[fF]{4}-[fF]{4}-[fF]{4}-[fF]{12})$/,
+      version: undefined
+    })
+
+    const decoding = asserts.decoding()
+    await decoding.succeed("00000000-0000-0000-0000-000000000000")
+    await decoding.succeed("ffffffff-ffff-ffff-ffff-ffffffffffff")
+    await decoding.succeed("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
+    await decoding.succeed("00000000-0000-4000-8000-000000000001")
+    await decoding.fail(
+      "00000000-0000-0000-0000-000000000001",
+      `Expected a UUID, got "00000000-0000-0000-0000-000000000001"`
+    )
+  })
+
+  it("isUUID version-specific checks reject nil and max UUIDs", async () => {
+    const schema = Schema.String.check(Schema.isUUID(4))
+    const asserts = new TestSchema.Asserts(schema)
+    const decoding = asserts.decoding()
+
+    await decoding.succeed("00000000-0000-4000-8000-000000000001")
+    await decoding.fail(
+      "00000000-0000-0000-0000-000000000000",
+      `Expected a UUID v4, got "00000000-0000-0000-0000-000000000000"`
+    )
+    await decoding.fail(
+      "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      `Expected a UUID v4, got "ffffffff-ffff-ffff-ffff-ffffffffffff"`
+    )
+  })
+
+  it("isGUID", async () => {
+    const schema = Schema.String.check(Schema.isGUID())
+    const asserts = new TestSchema.Asserts(schema)
+
+    if (verifyGeneration) {
+      asserts.arbitrary().verifyGeneration()
+    }
+
+    deepStrictEqual(Schema.resolveAnnotations(schema)?.["meta"], {
+      _tag: "isGUID",
+      regExp: /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/
+    })
+
+    const decoding = asserts.decoding()
+    await decoding.succeed("00000000-0000-0000-0000-000000000001")
+    await decoding.succeed("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
+    await decoding.fail(
+      "not-a-guid",
+      `Expected a GUID, got "not-a-guid"`
+    )
   })
 
   it("isULID", async () => {
