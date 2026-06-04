@@ -7,6 +7,14 @@ import type * as React from "react";
  * Hue family for the glow. Each tone maps to a base HSL hue that drives every
  * orb layer; adjacent layers are derived by small hue offsets for depth.
  *
+ * @example
+ * ```ts
+ * import type { OrbTone } from "@beep/ui/components/orb-background"
+ *
+ * const tone: OrbTone = "green"
+ * console.log(tone)
+ * ```
+ *
  * @category components
  * @since 0.0.0
  */
@@ -15,6 +23,14 @@ type OrbTone = "green" | "emerald" | "teal" | "sky" | "violet" | "amber" | "rose
 /**
  * Visual strength of the glow. Controls per-orb alpha and lightness so the same
  * layout reads as a faint wash or a saturated bloom.
+ *
+ * @example
+ * ```ts
+ * import type { OrbIntensity } from "@beep/ui/components/orb-background"
+ *
+ * const intensity: OrbIntensity = "medium"
+ * console.log(intensity)
+ * ```
  *
  * @category components
  * @since 0.0.0
@@ -121,6 +137,14 @@ const LAYERS: ReadonlyArray<OrbLayer> = [
 
 /**
  * Props for {@link OrbBackground}.
+ *
+ * @example
+ * ```ts
+ * import type { OrbBackgroundProps } from "@beep/ui/components/orb-background"
+ *
+ * const props = { tone: "green", intensity: "vivid" } satisfies OrbBackgroundProps
+ * console.log(props)
+ * ```
  *
  * @category components
  * @since 0.0.0

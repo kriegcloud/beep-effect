@@ -196,7 +196,13 @@
 
 /* Honor reduced-motion globally: orbs settle into their final resting pose. */
 @media (prefers-reduced-motion: reduce) {
-  [data-slot="orb-background-orb"] {
+  /*
+   * Both selectors are listed so this override out-specifies the
+   * `[data-animated="false"]` rule above (specificity 0,2,0); otherwise a
+   * reduced-motion user passed `animated={false}` would still see the intro play.
+   */
+  [data-slot="orb-background-orb"],
+  [data-slot="orb-background-orb"][data-animated="false"] {
     animation: none;
     opacity: 1;
     scale: 1;
