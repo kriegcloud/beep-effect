@@ -7,34 +7,15 @@
 
 import { make } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { O } from "@beep/utils";
-import { Result } from "effect";
+import { O, P } from "@beep/utils";
 import { dual } from "effect/Function";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const { $DuckdbId } = make("duckdb");
 const $I = $DuckdbId.create("DuckDb.errors");
 
-const hasInspectableObjectShape = (value: unknown): boolean => {
-  if (!P.isObject(value)) {
-    return true;
-  }
-
-  return Result.getOrElse(
-    Result.try(() => {
-      Reflect.getPrototypeOf(value);
-      for (const key of Reflect.ownKeys(value)) {
-        Reflect.getOwnPropertyDescriptor(value, key);
-      }
-      return true;
-    }),
-    () => false
-  );
-};
-
 const causeFromUnknown = (cause: unknown): unknown | undefined =>
-  hasInspectableObjectShape(cause) && S.is(S.Defect({ includeStack: true }))(cause) ? cause : undefined;
+  P.hasInspectableObjectShape(cause) && S.is(S.Defect({ includeStack: true }))(cause) ? cause : undefined;
 
 const existingDuckDbError = (cause: unknown): O.Option<DuckDbError> =>
   S.is(DuckDbError)(cause) ? O.some(cause) : O.none();

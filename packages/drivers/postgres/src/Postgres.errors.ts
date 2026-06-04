@@ -7,9 +7,8 @@
 
 import { $PostgresId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { A, O, Str, thunkFalse } from "@beep/utils";
+import { A, O, P, Str, thunkFalse } from "@beep/utils";
 import { Cause, pipe, Result } from "effect";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { getPgErrorName, PgErrorName } from "./PostgresSqlState.models.ts";
 
@@ -275,26 +274,9 @@ const extractPostgresError = (value: unknown, seen: ReadonlyArray<object> = []):
 
 const optionFrom = <A>(value: A | undefined): O.Option<A> => O.fromUndefinedOr(value);
 
-const hasInspectableObjectShape = (value: unknown): boolean => {
-  if (!isObject(value)) {
-    return true;
-  }
-
-  return pipe(
-    Result.try(() => {
-      Reflect.getPrototypeOf(value);
-      for (const key of Reflect.ownKeys(value)) {
-        Reflect.getOwnPropertyDescriptor(value, key);
-      }
-      return true;
-    }),
-    Result.getOrElse(thunkFalse)
-  );
-};
-
 const optionFromSafeDefect = (value: unknown): O.Option<unknown> =>
   !isCause(value) &&
-  hasInspectableObjectShape(value) &&
+  P.hasInspectableObjectShape(value) &&
   safeBoolean(() => S.is(S.Defect({ includeStack: true }))(value))
     ? optionFrom(value)
     : O.none();

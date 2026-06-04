@@ -7,10 +7,9 @@
 
 import { $DrizzleId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { A, O, Str } from "@beep/utils";
+import { A, O, P, Str } from "@beep/utils";
 import { Cause, flow, pipe, Result } from "effect";
 import { dual } from "effect/Function";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $DrizzleId.create("Drizzle.errors");
@@ -87,25 +86,8 @@ const readCauseReasons = (cause: Cause.Cause<unknown>): ReadonlyArray<Cause.Reas
     A.empty<Cause.Reason<unknown>>
   );
 
-const hasInspectableObjectShape = (value: unknown): boolean => {
-  if (!P.isObject(value)) {
-    return true;
-  }
-
-  return Result.getOrElse(
-    Result.try(() => {
-      Reflect.getPrototypeOf(value);
-      for (const key of Reflect.ownKeys(value)) {
-        Reflect.getOwnPropertyDescriptor(value, key);
-      }
-      return true;
-    }),
-    () => false
-  );
-};
-
 const optionFromSafeDefect = (value: unknown): O.Option<unknown> =>
-  hasInspectableObjectShape(value) && safeBoolean(() => S.is(S.Defect({ includeStack: true }))(value))
+  P.hasInspectableObjectShape(value) && safeBoolean(() => S.is(S.Defect({ includeStack: true }))(value))
     ? O.some(value)
     : O.none();
 

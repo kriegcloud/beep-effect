@@ -7,33 +7,16 @@
 
 import { $FaceDetectionId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { pipe, Result } from "effect";
+import { P } from "@beep/utils";
+import { pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $FaceDetectionId.create("FaceDetection.errors");
 
-const hasInspectableObjectShape = (value: unknown): boolean => {
-  if (!P.isObject(value)) {
-    return true;
-  }
-
-  return Result.getOrElse(
-    Result.try(() => {
-      Reflect.getPrototypeOf(value);
-      for (const key of Reflect.ownKeys(value)) {
-        Reflect.getOwnPropertyDescriptor(value, key);
-      }
-      return true;
-    }),
-    () => false
-  );
-};
-
 const causeFromUnknown = (cause: unknown): unknown | undefined =>
-  hasInspectableObjectShape(cause) && S.is(S.Defect({ includeStack: true }))(cause) ? cause : undefined;
+  P.hasInspectableObjectShape(cause) && S.is(S.Defect({ includeStack: true }))(cause) ? cause : undefined;
 
 const causeMessage = (cause: unknown): O.Option<string> =>
   cause instanceof Error && cause.message.length > 0 ? O.some(cause.message) : O.none();
