@@ -1,0 +1,5 @@
+name: beep-storybook
+runtime:
+  name: nodejs
+description: Vercel deployment for the @beep/ui Storybook on storybook.yeebois.com.
+main: ../src/internal/storybook-entry.ts

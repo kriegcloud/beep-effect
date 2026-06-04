@@ -1,0 +1,15 @@
+config:
+  storybook:projectName: beep-storybook
+  storybook:repository: kriegcloud/beep-effect
+  storybook:rootDirectory: packages/foundation/ui-system/ui
+  storybook:productionBranch: main
+  storybook:domain: storybook.yeebois.com
+  storybook:attachDomain: "true"
+  storybook:vercelCnameTarget: cname.vercel-dns.com
+  storybook:vercelAuthenticationDeploymentType: none
+  # Set the Cloudflare zone id for yeebois.com before `pulumi up` to let Pulumi
+  # manage the storybook.yeebois.com CNAME. Until set, the Vercel project and
+  # domain are created but the DNS record is skipped (add it manually or rerun):
+  #   pulumi config set storybook:cloudflareZoneId <yeebois-zone-id>
+  # The Vercel API token is read from the VERCEL_API_TOKEN env var (or
+  # `pulumi config set vercel:apiToken --secret <token>`).

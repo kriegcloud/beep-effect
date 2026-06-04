@@ -1,0 +1,351 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "storybook-guide-completion",
+    "title": "Storybook Guide Completion",
+    "status": "pending-implementation",
+    "created": "2026-06-04",
+    "updated": "2026-06-04",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "mission": "Drive the @beep/ui Storybook Guide checklist from 0% (all skipped) to 100% completion through real repo work, verified in the live guide UI via Claude-in-Chrome.",
+  "currentSourceOfTruth": [
+    "CLAUDE.md",
+    "standards/ARCHITECTURE.md",
+    "standards/architecture/*",
+    "goals/storybook-guide-completion/SPEC.md",
+    "live:/settings/guide"
+  ],
+  "currentTargetPhase": "P0",
+  "target": {
+    "package": "@beep/ui",
+    "packagePath": "packages/foundation/ui-system/ui",
+    "storiesGlob": "packages/foundation/ui-system/ui/stories/**/*.stories.@(ts|tsx)",
+    "storybookVersion": "10.4.2",
+    "framework": "@storybook/react-vite",
+    "launch": "bun run storybook (portless storybook.beep; dynamic port, observed 4884)",
+    "guideUrlPath": "/settings/guide",
+    "installedAddons": [
+      "@storybook/addon-docs",
+      "@storybook/addon-a11y",
+      "@storybook/addon-themes",
+      "@storybook/addon-vitest"
+    ],
+    "missingAddons": ["@chromatic-com/storybook"],
+    "existingStoryCount": 0
+  },
+  "inventoryCapturedAt": "2026-06-04",
+  "inventorySource": "live Claude-in-Chrome read of /settings/guide",
+  "phaseStatusMeaning": {
+    "completed": "Every item in the phase reads Done in the live guide and supporting repo work is committed.",
+    "pending": "The phase is ready for an implementation agent to execute.",
+    "blocked": "The phase cannot proceed without a named dependency (e.g. CHROMATIC_PROJECT_TOKEN) or approval."
+  },
+  "keyDecisions": [
+    {
+      "id": "scope-literal-100",
+      "decision": "Target literal 100% of the rendered guide items, including the externally-gated ones (Vercel publish and Chromatic visual tests).",
+      "rationale": "The user wants the guide fully completed, not a subset."
+    },
+    {
+      "id": "real-work-not-ui-flip",
+      "decision": "Each item is satisfied by the genuine work it represents and verified in the live guide UI.",
+      "rationale": "The guide is a forcing function for a real Storybook buildout, not a checklist to fake."
+    },
+    {
+      "id": "vercel-publish-provider",
+      "decision": "publishStorybook is satisfied by a Vercel deployment on storybook.yeebois.com provisioned by the infra/storybook Pulumi stack, with A+ Mozilla Observatory headers from packages/foundation/ui-system/ui/vercel.json. Not Chromatic.",
+      "rationale": "The user chose a durable hosted Storybook on their own domain with the same security posture as @beep/oip-web."
+    },
+    {
+      "id": "chromatic-visual-tests-provider",
+      "decision": "installVisualTests and visualTests use Chromatic via @chromatic-com/storybook.",
+      "rationale": "The two visual-test items have no non-Chromatic path."
+    },
+    {
+      "id": "external-action-gating",
+      "decision": "The Vercel publish (pulumi up) and any Chromatic visual-baseline run require explicit per-action approval; all credentials resolve from 1Password at execution time and are never committed.",
+      "rationale": "These actions deploy to / upload the built Storybook to external services."
+    },
+    {
+      "id": "live-inventory-source-of-truth",
+      "decision": "The live /settings/guide rendering is the authoritative item set, re-read at execution start.",
+      "rationale": "Storybook may render a different item set than the source enumerates; act on what the running guide shows."
+    }
+  ],
+  "knownGaps": [
+    "Storybook source defines installVitest, installA11y, installDocs, guidedTour, and onboardingSurvey, which are not rendered as discrete items in this install and are out of the active inventory.",
+    "No stories exist yet; renderComponent/moreComponents/moreStories all start from zero.",
+    "The exact completion threshold heuristics (e.g. what counts as 'changed a control') are Storybook-internal; confirm completion by re-reading the live guide.",
+    "P4 publish is blocked on interactive auth: 1Password is not signed in (op whoami fails), and the Pulumi DIY backend s3://oip-law-pulumi-state returns 403 AccessDenied behind a ForceMFA policy (needs an MFA-authenticated AWS session).",
+    "The Cloudflare API token oip-web uses is not discoverable in .env or infra/; it must be exported as CLOUDFLARE_API_TOKEN at deploy time, else the storybook.yeebois.com CNAME is skipped.",
+    "CHROMATIC_PROJECT_TOKEN is not yet provided; P3 visual-test runs are blocked until it is.",
+    "The static vercel.json CSP targets A+ but is unverified against the live Storybook; it may need script hashes if Storybook fails to boot under script-src 'self'."
+  ],
+  "externalServiceContract": {
+    "publishDeployment": {
+      "provider": "vercel",
+      "via": "infra/storybook Pulumi stack",
+      "domain": "storybook.yeebois.com",
+      "dns": "cloudflare CNAME -> cname.vercel-dns.com",
+      "securityHeaders": "packages/foundation/ui-system/ui/vercel.json (A+ Mozilla Observatory target)",
+      "gatedItems": ["publishStorybook"],
+      "credentials": {
+        "VERCEL_API_TOKEN": "op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_VERCEL_API_TOKEN",
+        "STORYBOOK_CLOUDFLARE_ZONE_ID": "op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_CLOUDFLARE_ZONE_ID_YEEBOIS_COM",
+        "CLOUDFLARE_API_TOKEN": "same credential @beep/oip-web uses (reference not yet located)"
+      },
+      "prerequisites": [
+        "op signin (1Password session)",
+        "MFA-authenticated AWS session for the Pulumi s3://oip-law-pulumi-state backend"
+      ],
+      "deployCommand": "cd infra/storybook && ./deploy.sh up",
+      "approval": "explicit-per-action-before-pulumi-up",
+      "credentialPolicy": "resolved-from-1password-at-execution-never-committed",
+      "noCredentialBehavior": "create-project-and-domain-skip-dns-or-report-blocked"
+    },
+    "visualTests": {
+      "provider": "chromatic",
+      "addon": "@chromatic-com/storybook",
+      "credential": "CHROMATIC_PROJECT_TOKEN",
+      "credentialPolicy": "user-supplied-at-execution-never-committed",
+      "gatedItems": ["installVisualTests", "visualTests"],
+      "approval": "explicit-per-action-before-any-baseline-upload",
+      "noTokenBehavior": "leave-item-open-and-report-blocked"
+    }
+  },
+  "items": [
+    {
+      "id": "aiSetup",
+      "title": "Set up Storybook with AI",
+      "section": "AI",
+      "currentStatus": "skipped",
+      "completionMechanism": "view-run-prompt",
+      "externalGated": false,
+      "phase": "P5"
+    },
+    {
+      "id": "renderComponent",
+      "title": "Render your first component",
+      "section": "Storybook basics",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P1"
+    },
+    {
+      "id": "moreComponents",
+      "title": "Add 5 components",
+      "section": "Storybook basics",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P1"
+    },
+    {
+      "id": "moreStories",
+      "title": "Add 20 stories",
+      "section": "Storybook basics",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P1"
+    },
+    {
+      "id": "whatsNewStorybook10",
+      "title": "See what's new",
+      "section": "Storybook basics",
+      "currentStatus": "skipped",
+      "completionMechanism": "view",
+      "externalGated": false,
+      "phase": "P5"
+    },
+    {
+      "id": "controls",
+      "title": "Change a story with Controls",
+      "section": "Development",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P1"
+    },
+    {
+      "id": "viewports",
+      "title": "Check responsiveness with Viewports",
+      "section": "Development",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P1"
+    },
+    {
+      "id": "organizeStories",
+      "title": "Group your components",
+      "section": "Development",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P1"
+    },
+    {
+      "id": "publishStorybook",
+      "title": "Publish your Storybook for feedback",
+      "section": "Share",
+      "currentStatus": "skipped",
+      "completionMechanism": "vercel-deploy-via-pulumi-then-mark-complete",
+      "externalGated": true,
+      "phase": "P4"
+    },
+    {
+      "id": "runTests",
+      "title": "Test your components",
+      "section": "Testing",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P2"
+    },
+    {
+      "id": "interactionTests",
+      "title": "Test functionality with interactions",
+      "section": "Testing",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P2"
+    },
+    {
+      "id": "accessibilityTests",
+      "title": "Run accessibility tests",
+      "section": "Testing",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P2"
+    },
+    {
+      "id": "installVisualTests",
+      "title": "Install Visual Tests addon",
+      "section": "Testing",
+      "currentStatus": "skipped",
+      "completionMechanism": "install-addon",
+      "externalGated": true,
+      "phase": "P3"
+    },
+    {
+      "id": "visualTests",
+      "title": "Run visual tests",
+      "section": "Testing",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": true,
+      "phase": "P3"
+    },
+    {
+      "id": "coverage",
+      "title": "Generate a coverage report",
+      "section": "Testing",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P2"
+    },
+    {
+      "id": "ciTests",
+      "title": "Automate tests in CI",
+      "section": "Testing",
+      "currentStatus": "skipped",
+      "completionMechanism": "mark-as-complete-after-workflow",
+      "externalGated": false,
+      "phase": "P4"
+    },
+    {
+      "id": "autodocs",
+      "title": "Automatically document your components",
+      "section": "Document",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P1"
+    },
+    {
+      "id": "mdxDocs",
+      "title": "Custom content with MDX",
+      "section": "Document",
+      "currentStatus": "skipped",
+      "completionMechanism": "auto-detected",
+      "externalGated": false,
+      "phase": "P1"
+    }
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Bootstrap & Inventory Refresh",
+      "status": "pending",
+      "exitCriteriaSummary": "Storybook running, live statuses reconciled with the SPEC inventory, and no item left in the skipped state."
+    },
+    {
+      "id": "P1",
+      "name": "Story Authoring",
+      "status": "pending",
+      "exitCriteriaSummary": "renderComponent, moreComponents, moreStories, controls, viewports, organizeStories, autodocs, and mdxDocs read Done; stories/MDX committed and package lint/check passes."
+    },
+    {
+      "id": "P2",
+      "name": "In-UI Testing",
+      "status": "pending",
+      "exitCriteriaSummary": "runTests, interactionTests, accessibilityTests, and coverage read Done via the test widget."
+    },
+    {
+      "id": "P3",
+      "name": "Visual Testing (Chromatic-gated)",
+      "status": "pending",
+      "exitCriteriaSummary": "@chromatic-com/storybook installed and committed; visualTests run against Chromatic or reported blocked when no token is supplied."
+    },
+    {
+      "id": "P4",
+      "name": "Publish & CI",
+      "status": "pending",
+      "exitCriteriaSummary": "Storybook deployed to Vercel on storybook.yeebois.com (A+ Observatory) via the infra/storybook Pulumi stack, or reported blocked; a CI workflow runs the Storybook Vitest project; publishStorybook and ciTests read Done."
+    },
+    {
+      "id": "P5",
+      "name": "AI Setup, What's-New & Final Verification",
+      "status": "pending",
+      "exitCriteriaSummary": "aiSetup and whatsNewStorybook10 read Done; the live guide reports 100% with no remaining skipped/open items and all repo work committed."
+    }
+  ],
+  "verification": [
+    {
+      "id": "live-guide-100",
+      "description": "Claude-in-Chrome read of /settings/guide shows every inventoried item Done and the guide at 100%."
+    },
+    {
+      "id": "story-coverage",
+      "description": "packages/foundation/ui-system/ui/stories/ contains >=5 distinct components and >=20 stories, including args/controls, viewports, grouped titles, autodocs tag, a play() interaction, and an introduction.mdx."
+    },
+    {
+      "id": "publish-deployment",
+      "description": "storybook.yeebois.com serves the deployed Storybook via the infra/storybook Pulumi stack and grades A+ on Mozilla Observatory, or the item is explicitly reported blocked on missing creds/approval."
+    },
+    {
+      "id": "chromatic-evidence",
+      "description": "@chromatic-com/storybook is a committed dependency; visual tests exist via Chromatic, or the blocked state is explicitly reported."
+    },
+    {
+      "id": "ci-workflow",
+      "description": "A GitHub Actions workflow runs the Storybook Vitest project."
+    },
+    {
+      "id": "package-gates",
+      "description": "Affected lint/check gates pass for @beep/ui and @beep/infra; new stories, vercel.json, the infra/storybook stack, and the workflow are committed."
+    }
+  ],
+  "commandGates": [
+    "bun -e 'JSON.parse(require(\"fs\").readFileSync(\"goals/storybook-guide-completion/ops/manifest.json\",\"utf8\"))'",
+    "rg -n \"renderComponent|publishStorybook|storybook.yeebois.com|Source-Of-Truth|100%\" goals/storybook-guide-completion",
+    "git diff --check"
+  ],
+  "nextAction": "Execute P0: start Storybook, re-read /settings/guide via Chrome, reconcile the inventory, and un-skip all items."
+}
