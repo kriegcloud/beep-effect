@@ -5,6 +5,135 @@
  * @since 0.0.0
  */
 
+import { $SharedDomainId } from "@beep/identity";
+import { pipe } from "effect";
+import * as A from "effect/Array";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import type { IdentityComposer as IdentityComposerType } from "@beep/identity";
+
+const $I = $SharedDomainId.create("identity/index");
+
+const identityComposerProbeSegment = "IdentityComposerProbe";
+
+const identityComposerMethodKeys = [
+  "annote",
+  "annoteHttp",
+  "annoteKey",
+  "annoteSchema",
+  "compose",
+  "create",
+  "make",
+  "string",
+  "symbol",
+] as const;
+
+type IdentityComposerMethod = (typeof identityComposerMethodKeys)[number];
+
+type IdentityComposerCandidate = ((...args: ReadonlyArray<unknown>) => unknown) & {
+  readonly identifier?: unknown;
+  readonly value?: unknown;
+} & {
+  readonly [K in IdentityComposerMethod]?: unknown;
+};
+
+const hasFunctionMember = (value: IdentityComposerCandidate, key: IdentityComposerMethod): boolean =>
+  typeof value[key] === "function";
+
+const hasIdentityMembers = (value: IdentityComposerCandidate, identifier: string): boolean =>
+  value.value === identifier && A.every(identityComposerMethodKeys, (key) => hasFunctionMember(value, key));
+
+const passesIdentityComposerSmokeTest = (value: IdentityComposerCandidate, identifier: string): boolean => {
+  const composer = value as IdentityComposerType<string>;
+  const expectedProbeIdentity = `${identifier}/${identityComposerProbeSegment}`;
+
+  try {
+    return (
+      composer.string() === identifier &&
+      composer.symbol() === Symbol.for(identifier) &&
+      composer.make(identityComposerProbeSegment) === expectedProbeIdentity &&
+      composer([identityComposerProbeSegment] as unknown as TemplateStringsArray) === expectedProbeIdentity
+    );
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Guard for runtime identity composer values.
+ *
+ * @remarks
+ * Identity composers are callable functions decorated with composer methods,
+ * so validation uses a runtime declaration rather than an object struct.
+ *
+ * @example
+ * ```ts
+ * import { $SharedDomainId } from "@beep/identity"
+ * import { isIdentityComposer } from "@beep/shared-domain/identity"
+ *
+ * console.log(isIdentityComposer($SharedDomainId)) // true
+ * console.log(isIdentityComposer({ identifier: "@beep/shared-domain" })) // false
+ * ```
+ *
+ * @category guards
+ * @since 0.0.0
+ */
+export const isIdentityComposer = (value: unknown): value is IdentityComposerType<string> => {
+  if (typeof value !== "function") {
+    return false;
+  }
+
+  const candidate = value as IdentityComposerCandidate;
+  const identifier = candidate.identifier;
+
+  return (
+    typeof identifier === "string" &&
+    Str.isNonEmpty(identifier) &&
+    pipe(identifier, Str.startsWith("@beep")) &&
+    hasIdentityMembers(candidate, identifier) &&
+    passesIdentityComposerSmokeTest(candidate, identifier)
+  );
+};
+
+/**
+ * Effect Schema for validating any runtime {@link IdentityComposerType} value.
+ *
+ * @example
+ * ```ts
+ * import { $SharedDomainId } from "@beep/identity"
+ * import { AnyIdentityComposer } from "@beep/shared-domain/identity"
+ * import * as S from "effect/Schema"
+ *
+ * const isComposer = S.is(AnyIdentityComposer)
+ *
+ * console.log(isComposer($SharedDomainId)) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const AnyIdentityComposer = S.declare<IdentityComposerType<string>>(isIdentityComposer).pipe(
+  $I.annoteSchema("AnyIdentityComposer", {
+    description: "Runtime schema for callable identity composer values.",
+  })
+);
+
+/**
+ * Runtime type for {@link AnyIdentityComposer}.
+ *
+ * @example
+ * ```ts
+ * import type { AnyIdentityComposer } from "@beep/shared-domain/identity"
+ *
+ * const readIdentifier = (composer: AnyIdentityComposer) => composer.identifier
+ * console.log(readIdentifier)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type AnyIdentityComposer = typeof AnyIdentityComposer.Type;
+
 /**
  * Agent-capability entity-id registry namespace.
  *

@@ -107,6 +107,7 @@ export const OntologyReferenceTarget = S.Union([
   OntologyTermReferenceTarget,
   OntologySchemaReferenceTarget,
 ]).pipe(
+  S.toTaggedUnion("kind"),
   $I.annoteSchema("OntologyReferenceTarget", {
     description: "Deferred ontology relationship reference target.",
   })
@@ -177,6 +178,7 @@ export const OntologyPredicateMetadata = S.Union([
   OntologyDatatypePredicateMetadata,
   OntologyObjectPredicateMetadata,
 ]).pipe(
+  S.toTaggedUnion("kind"),
   $I.annoteSchema("OntologyPredicateMetadata", {
     description: "Final predicate metadata attached to Effect Schema field keys.",
   })
@@ -249,13 +251,14 @@ export const OntologyPredicateAnnotationDraft = S.Union([
   OntologyDatatypePredicateAnnotationDraft,
   OntologyObjectPredicateAnnotationDraft,
 ]).pipe(
+  S.toTaggedUnion("kind"),
   $I.annoteSchema("OntologyPredicateAnnotationDraft", {
     description: "Predicate authoring metadata draft stored in key annotations.",
   })
 );
 export type OntologyPredicateAnnotationDraft = typeof OntologyPredicateAnnotationDraft.Type;
 
-export type OntologyMetadataAnnotationPayload =
+type OntologyMetadataAnnotationValue =
   | OntologyClassAnnotationDraft
   | OntologyDatatypePredicateAnnotationDraft
   | OntologyObjectPredicateAnnotationDraft
@@ -263,10 +266,25 @@ export type OntologyMetadataAnnotationPayload =
   | OntologyDatatypePredicateMetadata
   | OntologyObjectPredicateMetadata;
 
+export const OntologyMetadataAnnotationPayload = S.Union([
+  OntologyClassAnnotationDraft,
+  OntologyDatatypePredicateAnnotationDraft,
+  OntologyObjectPredicateAnnotationDraft,
+  OntologyClassMetadata,
+  OntologyDatatypePredicateMetadata,
+  OntologyObjectPredicateMetadata,
+]).pipe(
+  S.toTaggedUnion("kind"),
+  $I.annoteSchema("OntologyMetadataAnnotationPayload", {
+    description: "Tagged ontology metadata payload stored in Effect Schema annotations.",
+  })
+);
+export type OntologyMetadataAnnotationPayload = typeof OntologyMetadataAnnotationPayload.Type;
+
 declare module "effect/Schema" {
   namespace Annotations {
     interface Annotations {
-      readonly ontologyMetadata?: OntologyMetadataAnnotationPayload | undefined;
+      readonly ontologyMetadata?: OntologyMetadataAnnotationValue | undefined;
     }
   }
 }
@@ -415,6 +433,7 @@ export class AssembledObjectPredicate extends S.Class<AssembledObjectPredicate>(
 ) {}
 
 export const AssembledOntologyPredicate = S.Union([AssembledDatatypePredicate, AssembledObjectPredicate]).pipe(
+  S.toTaggedUnion("kind"),
   $I.annoteSchema("AssembledOntologyPredicate", {
     description: "Assembled ontology predicate union.",
   })

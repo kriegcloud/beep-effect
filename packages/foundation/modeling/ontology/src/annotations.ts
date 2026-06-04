@@ -1,9 +1,8 @@
-import { pipe } from "effect";
-import * as A from "effect/Array";
-import { dual } from "effect/Function";
-import * as O from "effect/Option";
+import { $OntologyId } from "@beep/identity";
+import { A, dual, O, Str } from "@beep/utils";
+import { flow, pipe } from "effect";
 import * as R from "effect/Record";
-import * as Str from "effect/String";
+import * as S from "effect/Schema";
 import {
   isOntologyClassAnnotationDraft,
   isOntologyPredicateAnnotationDraft,
@@ -15,59 +14,125 @@ import {
   makeReferenceTarget,
   normalizeIriInput,
   normalizeTermNameInput,
+  OntologyIriInput,
+  OntologyReferenceTargetInput,
+  OntologyTermNameInput,
   optionalReferenceTargets,
   optionalReferenceTargetsOption,
 } from "./references.js";
 import type { IdentityAnyAnnotationExtras, IdentityComposer, KeyAnnotationExtras } from "@beep/identity";
-import type * as S from "effect/Schema";
 import type { OntologyMetadataAnnotationPayload, OntologyPredicateAnnotationDraft, OntologyTermName } from "./model.js";
-import type { OntologyIriInput, OntologyReferenceTargetInput, OntologyTermNameInput } from "./references.js";
 
-type OntologyClassAnnotationInputFields = {
-  readonly termName?: OntologyTermNameInput | undefined;
-  readonly iri?: OntologyIriInput | undefined;
-  readonly label?: string | undefined;
-  readonly description?: string | undefined;
-  readonly comment?: string | undefined;
-  readonly altLabels?: ReadonlyArray<string> | undefined;
-  readonly definition?: string | undefined;
-  readonly deprecated?: boolean | undefined;
-  readonly source?: OntologyIriInput | undefined;
-  readonly parents?: ReadonlyArray<OntologyReferenceTargetInput> | undefined;
-  readonly children?: ReadonlyArray<OntologyReferenceTargetInput> | undefined;
-  readonly seeAlso?: ReadonlyArray<OntologyReferenceTargetInput> | undefined;
-  readonly isDefinedBy?: ReadonlyArray<OntologyReferenceTargetInput> | undefined;
-  readonly equivalentClasses?: ReadonlyArray<OntologyReferenceTargetInput> | undefined;
-  readonly exactMatches?: ReadonlyArray<OntologyReferenceTargetInput> | undefined;
-  readonly closeMatches?: ReadonlyArray<OntologyReferenceTargetInput> | undefined;
-  readonly sameAs?: ReadonlyArray<OntologyReferenceTargetInput> | undefined;
-};
-export type OntologyClassAnnotationInput = OntologyClassAnnotationInputFields & {};
+const $I = $OntologyId.create("annotations");
 
-type OntologyPredicateAnnotationInputFields = {
-  readonly termName?: OntologyTermNameInput | undefined;
-  readonly iri?: OntologyIriInput | undefined;
-  readonly label?: string | undefined;
-  readonly description?: string | undefined;
-  readonly comment?: string | undefined;
-};
-export type OntologyPredicateAnnotationInput = OntologyPredicateAnnotationInputFields & {};
+class OntologyClassAnnotationInputFields extends S.Class<OntologyClassAnnotationInputFields>(
+  $I`OntologyClassAnnotationInputFields`
+)(
+  {
+    termName: S.optionalKey(OntologyTermNameInput),
+    iri: S.optionalKey(OntologyIriInput),
+    label: S.optionalKey(S.String),
+    description: S.optionalKey(S.String),
+    comment: S.optionalKey(S.String),
+    altLabels: S.String.pipe(S.Array, S.optionalKey),
+    definition: S.optionalKey(S.String),
+    deprecated: S.optionalKey(S.Boolean),
+    source: S.optionalKey(OntologyIriInput),
+    parents: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    children: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    seeAlso: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    isDefinedBy: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    equivalentClasses: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    exactMatches: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    sameAs: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+  },
+  $I.annote("OntologyClassAnnotationInputFields", {
+    description:
+      "Input fields for ontology class annotations, including term name, IRI, label, description, comment, alternative labels, definition, deprecation status, and source IRI.",
+  })
+) {}
 
-export type OntologyDatatypePredicateAnnotationInput = OntologyPredicateAnnotationInput & {
-  readonly range: OntologyIriInput;
-};
+export const OntologyClassAnnotationInput = S.StructWithRest(S.Struct(OntologyClassAnnotationInputFields.fields), [
+  S.Record(S.PropertyKey, S.Any),
+]).pipe(
+  $I.annoteSchema("OntologyClassAnnotationInput", {
+    description:
+      "Input type for ontology class annotations, including term name, IRI, label, description, comment, alternative labels, definition, deprecation status, and source IRI.",
+  })
+);
 
-export type OntologyObjectPredicateAnnotationInput = OntologyPredicateAnnotationInput & {
-  readonly range: OntologyReferenceTargetInput;
-};
+export type OntologyClassAnnotationInput = typeof OntologyClassAnnotationInput.Type;
 
-type OntologyCreateInputFields = {
-  readonly identity: IdentityComposer<string>;
-  readonly baseIri: OntologyIriInput;
-  readonly preferredPrefix: string;
-  readonly label: string;
-  readonly comment?: string | undefined;
-};
+export class OntologyPredicateAnnotationInputFields extends S.Class<OntologyPredicateAnnotationInputFields>(
+  $I`OntologyPredicateAnnotationInputFields`
+)(
+  {
+    termName: S.optionalKey(OntologyTermNameInput),
+    iri: S.optionalKey(OntologyIriInput),
+    label: S.optionalKey(S.String),
+    description: S.optionalKey(S.String),
+    comment: S.optionalKey(S.String),
+  },
+  $I.annote("OntologyPredicateAnnotationInputFields", {
+    description:
+      "Fields for ontology predicate annotations, including term name, IRI, label, description, comment, alternative labels, definition, deprecation status, and source IRI.",
+  })
+) {}
+
+export const OntologyPredicateAnnotationInput = S.StructWithRest(
+  S.Struct(OntologyPredicateAnnotationInputFields.fields),
+  [S.Record(S.PropertyKey, S.Any)]
+).pipe(
+  $I.annoteSchema("OntologyPredicateAnnotationInput", {
+    description:
+      "Input type for ontology predicate annotations, including term name, IRI, label, description, comment, alternative labels, definition, deprecation status, and source IRI.",
+  })
+);
+export type OntologyPredicateAnnotationInput = typeof OntologyPredicateAnnotationInput.Type;
+
+export const OntologyDatatypePredicateAnnotationInput = S.StructWithRest(
+  S.Struct({
+    ...OntologyPredicateAnnotationInputFields.fields,
+    range: OntologyIriInput,
+  }),
+  [S.Record(S.PropertyKey, S.Any)]
+).pipe(
+  $I.annoteSchema("OntologyDatatypePredicateAnnotationInput", {
+    description:
+      "Input type for ontology datatype predicate annotations, including term name, IRI, label, description, comment, alternative labels, definition, deprecation status, source IRI, and range (datatype IRI).",
+  })
+);
+
+export type OntologyDatatypePredicateAnnotationInput = typeof OntologyDatatypePredicateAnnotationInput.Type;
+
+export const OntologyObjectPredicateAnnotationInput = S.StructWithRest(
+  S.Struct({
+    ...OntologyPredicateAnnotationInputFields.fields,
+    range: OntologyReferenceTargetInput,
+  }),
+  [S.Record(S.PropertyKey, S.Any)]
+).pipe(
+  $I.annoteSchema("OntologyObjectPredicateAnnotationInput", {
+    description:
+      "Input type for ontology object predicate annotations, including term name, IRI, label, description, comment, alternative labels, definition, deprecation status, source IRI, and range (reference target IRI).",
+  })
+);
+export type OntologyObjectPredicateAnnotationInput = typeof OntologyObjectPredicateAnnotationInput.Type;
+
+export class OntologyCreateInputFields extends S.Class<OntologyCreateInputFields>($I`OntologyCreateInputFields`)(
+  {
+    identity: S.declare((u: unknown): u is IdentityComposer<string> => S.is(S.String)(u)),
+    baseIri: OntologyIriInput,
+    preferredPrefix: S.String,
+    label: S.String,
+    comment: S.optionalKey(S.String),
+  },
+  $I.annote("OntologyCreateInputFields", {
+    description:
+      "Fields for creating an ontology, including identity, base IRI, preferred prefix, label, and optional comment.",
+  })
+) {}
+
 export type OntologyCreateInput = OntologyCreateInputFields & {};
 
 export const optionalString = (value: string | undefined): O.Option<string> => O.fromUndefinedOr(value);
@@ -96,8 +161,7 @@ export const humanizedTermName = (termName: OntologyTermName): string =>
 export const classLabel = (termName: OntologyTermName): string =>
   pipe(humanizedTermName(termName), (label) => `${Str.toUpperCase(Str.slice(0, 1)(label))}${Str.slice(1)(label)}`);
 
-export const predicateLabel = (termName: OntologyTermName): string =>
-  pipe(termName, humanizedTermName, Str.toLowerCase);
+export const predicateLabel = flow(humanizedTermName, Str.toLowerCase);
 
 export const keyLeafTermName = (identifier: string): OntologyTermName =>
   pipe(
