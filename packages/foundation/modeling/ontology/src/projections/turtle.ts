@@ -22,7 +22,14 @@ import type {
 const turtleIri = (iri: IRI): string => `<${iri}>`;
 
 const escapeTurtleLiteral = (value: string): string =>
-  pipe(value, Str.replaceAll("\\", "\\\\"), Str.replaceAll('"', '\\"'));
+  pipe(
+    value,
+    Str.replaceAll("\\", "\\\\"),
+    Str.replaceAll('"', '\\"'),
+    Str.replaceAll("\n", "\\n"),
+    Str.replaceAll("\r", "\\r"),
+    Str.replaceAll("\t", "\\t")
+  );
 
 const turtleLiteral = (value: string): string => `"${escapeTurtleLiteral(value)}"`;
 

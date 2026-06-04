@@ -4,12 +4,13 @@ import {
   getOntologyMetadata,
   isOntologyClassAnnotationDraft,
   Ontology,
+  OntologyAssemblyError,
   projectJsonLdContext,
   projectTurtle,
 } from "@beep/ontology";
 import { XSD_STRING } from "@beep/rdf/Vocab/Xsd";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, pipe } from "effect";
+import { Effect, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -72,6 +73,16 @@ class Child extends S.Class<Child>($I`Child`)(
   )
 ) {}
 
+class MultilineComment extends S.Class<MultilineComment>($I`MultilineComment`)(
+  {},
+  $I.annote(
+    "MultilineComment",
+    Ont.class({
+      description: "Line one\nLine two\tTabbed\rCarriage",
+    })
+  )
+) {}
+
 describe("@beep/ontology", () => {
   it("stores class and key ontology annotations on Effect schemas", () => {
     const classMetadata = getOntologyMetadata(Parent);
@@ -115,11 +126,32 @@ describe("@beep/ontology", () => {
     expect(turtle).toContain("<https://example.org/test#parent> a owl:ObjectProperty");
   });
 
+  it("escapes Turtle string literal control characters", () => {
+    const ontology = Effect.runSync(Ont.build([MultilineComment]));
+    const turtle = projectTurtle(ontology);
+
+    expect(turtle).toContain('rdfs:comment "Line one\\nLine two\\tTabbed\\rCarriage"');
+  });
+
   it("round-trips projected JSON-LD", () => {
     const ontology = Effect.runSync(Ont.build([Parent, Child]));
     const roundTrip = Ont.fromJsonLD(Ont.toJsonLD(ontology));
 
-    expect(A.length(roundTrip.classes)).toBe(A.length(ontology.classes));
-    expect(roundTrip.metadata.baseIri).toBe("https://example.org/test#");
+    expect(Result.isSuccess(roundTrip)).toBe(true);
+    if (Result.isSuccess(roundTrip)) {
+      expect(A.length(roundTrip.success.classes)).toBe(A.length(ontology.classes));
+      expect(roundTrip.success.metadata.baseIri).toBe("https://example.org/test#");
+    }
+  });
+
+  it("returns a typed JSON-LD parse failure for documents with no class nodes", () => {
+    const ontology = Effect.runSync(Ont.build([Parent, Child]));
+    const result = Ont.fromJsonLD({ ...Ont.toJsonLD(ontology), "@graph": [] });
+
+    expect(Result.isFailure(result)).toBe(true);
+    if (Result.isFailure(result)) {
+      expect(result.failure).toBeInstanceOf(OntologyAssemblyError);
+      expect(result.failure.reason).toBe("missingClassMetadata");
+    }
   });
 });

@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1074 |
-| publicExportEntries | 14972 |
-| uniquePackageSymbols | 6456 |
+| publicExportEntries | 14973 |
+| uniquePackageSymbols | 6457 |
 
 ## Seed Discovery Proof
 
@@ -42,7 +42,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 3 | `dependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
 | 4 | `optionalDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
 | 5 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 48 | 15 |
-| 6 | `@beep/ontology` | `packages/foundation/modeling/ontology` | has-public-exports | 1 | 10 | 10 |
+| 6 | `@beep/ontology` | `packages/foundation/modeling/ontology` | has-public-exports | 1 | 11 | 11 |
 | 7 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
 | 8 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
 | 9 | `@beep/canvas-domain` | `packages/canvas/domain` | has-public-exports | 5 | 35 | 24 |
@@ -194,10 +194,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ontology` | `isOntologyClassAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:276` |  |
 | `@beep/ontology` | `isOntologyPredicateAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:277` |  |
 | `@beep/ontology` | `Ontology` | const | `packages/foundation/modeling/ontology/src/create.ts:42` | Creates an ontology authoring scope with identity-aware annotation helpers, |
-| `@beep/ontology` | `parseJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:272` | Parses the POC JSON-LD graph representation back into an assembled ontology. |
+| `@beep/ontology` | `OntologyAssemblyError` | class | `packages/foundation/modeling/ontology/src/model.ts:370` |  |
+| `@beep/ontology` | `parseJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:273` | Parses the POC JSON-LD graph representation back into an assembled ontology result. |
 | `@beep/ontology` | `projectJsonLdContext` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:59` | Projects an assembled ontology into a reusable JSON-LD context document. |
 | `@beep/ontology` | `projectJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:148` | Projects an assembled ontology into the POC JSON-LD graph representation. |
-| `@beep/ontology` | `projectTurtle` | const | `packages/foundation/modeling/ontology/src/projections/turtle.ts:117` | Projects an assembled ontology into a compact Turtle document. |
+| `@beep/ontology` | `projectTurtle` | const | `packages/foundation/modeling/ontology/src/projections/turtle.ts:124` | Projects an assembled ontology into a compact Turtle document. |
 | `@beep/ontology` | `VERSION` | const | `packages/foundation/modeling/ontology/src/index.ts:14` | Package version. |
 
 ### @beep/architecture-lab-ui
@@ -7433,7 +7434,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/firecrawl` | `Firecrawl` | class | `packages/drivers/firecrawl/src/Firecrawl.service.ts:738` | Effect service for the Firecrawl v2 SDK. |
+| `@beep/firecrawl` | `Firecrawl` | class | `packages/drivers/firecrawl/src/Firecrawl.service.ts:743` | Effect service for the Firecrawl v2 SDK. |
 | `@beep/firecrawl` | `FIRECRAWL_API_URL` | const | `packages/drivers/firecrawl/src/Firecrawl.config.ts:26` | Default Firecrawl API base URL used by the live driver layer. |
 | `@beep/firecrawl` | `FirecrawlActiveCrawlsData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1312` | Firecrawl Active Crawls Data opaque SDK response schema. |
 | `@beep/firecrawl` | `FirecrawlActiveCrawlsData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1330` | Type for {@link FirecrawlActiveCrawlsData}. |
@@ -7946,11 +7947,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherPayload` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4468` | Firecrawl Watcher Payload decoded before calling the Firecrawl SDK. |
 | `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherSnapshotEvent` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4553` | Firecrawl Watcher Snapshot Event watcher event schema. |
 | `@beep/firecrawl/Firecrawl.models` | `FirecrawlWatcherSuccess` | class | `packages/drivers/firecrawl/src/Firecrawl.models.ts:4492` | Firecrawl Watcher Success decoded after a successful Firecrawl SDK call. |
-| `@beep/firecrawl/Firecrawl.service` | `Firecrawl` | class | `packages/drivers/firecrawl/src/Firecrawl.service.ts:738` | Effect service for the Firecrawl v2 SDK. |
+| `@beep/firecrawl/Firecrawl.service` | `Firecrawl` | class | `packages/drivers/firecrawl/src/Firecrawl.service.ts:743` | Effect service for the Firecrawl v2 SDK. |
 | `@beep/firecrawl/Firecrawl.service` | `FirecrawlSdkClient` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:71` | Minimal Firecrawl SDK client contract used by the driver service. |
 | `@beep/firecrawl/Firecrawl.service` | `FirecrawlSdkWatcher` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:48` | Minimal watcher contract consumed by {@link Firecrawl.makeLayerFromClient}. |
 | `@beep/firecrawl/Firecrawl.service` | `FirecrawlShape` | type | `packages/drivers/firecrawl/src/Firecrawl.service.ts:156` | Public Firecrawl service shape. |
-| `@beep/firecrawl/index` | `Firecrawl` | class | `packages/drivers/firecrawl/src/Firecrawl.service.ts:738` | Effect service for the Firecrawl v2 SDK. |
+| `@beep/firecrawl/index` | `Firecrawl` | class | `packages/drivers/firecrawl/src/Firecrawl.service.ts:743` | Effect service for the Firecrawl v2 SDK. |
 | `@beep/firecrawl/index` | `FIRECRAWL_API_URL` | const | `packages/drivers/firecrawl/src/Firecrawl.config.ts:26` | Default Firecrawl API base URL used by the live driver layer. |
 | `@beep/firecrawl/index` | `FirecrawlActiveCrawlsData` | const | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1312` | Firecrawl Active Crawls Data opaque SDK response schema. |
 | `@beep/firecrawl/index` | `FirecrawlActiveCrawlsData` | type | `packages/drivers/firecrawl/src/Firecrawl.models.ts:1330` | Type for {@link FirecrawlActiveCrawlsData}. |

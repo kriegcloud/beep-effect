@@ -226,7 +226,17 @@ const classNodeToAssembledClass = (
     ),
   });
 
-const jsonLdDocumentToOntology = (document: JsonLdOntologyDocument): AssembledOntology =>
+const missingJsonLdClassError = (document: JsonLdOntologyDocument): OntologyAssemblyError =>
+  OntologyAssemblyError.make({
+    reason: "missingClassMetadata",
+    message: "JSON-LD ontology document must contain at least one class node.",
+    schemaIdentifier: O.some(document.schemaIdentity),
+    fieldName: O.none(),
+  });
+
+const jsonLdDocumentToOntologyResult = (
+  document: JsonLdOntologyDocument
+): Result.Result<AssembledOntology, OntologyAssemblyError> =>
   A.match(
     pipe(
       document["@graph"],
@@ -236,38 +246,35 @@ const jsonLdDocumentToOntology = (document: JsonLdOntologyDocument): AssembledOn
       )
     ),
     {
-      onEmpty: () =>
-        Result.getOrThrowWith(
-          Result.fail(
-            OntologyAssemblyError.make({
-              reason: "missingClassMetadata",
-              message: "JSON-LD ontology document must contain at least one class node.",
-              schemaIdentifier: O.some(document.schemaIdentity),
-              fieldName: O.none(),
-            })
-          ),
-          (error) => error
-        ),
+      onEmpty: () => Result.fail(missingJsonLdClassError(document)),
       onNonEmpty: (classes) =>
-        AssembledOntology.make({
-          metadata: makeOntologyDefinitionMetadata({
-            kind: "ontology",
-            schemaIdentity: document.schemaIdentity,
-            baseIri: document["@id"],
-            preferredPrefix: document.preferredPrefix,
-            label: document.label,
-            ...R.getSomes({ comment: document.comment }),
-          }),
-          classes,
-        }),
+        Result.succeed(
+          AssembledOntology.make({
+            metadata: makeOntologyDefinitionMetadata({
+              kind: "ontology",
+              schemaIdentity: document.schemaIdentity,
+              baseIri: document["@id"],
+              preferredPrefix: document.preferredPrefix,
+              label: document.label,
+              ...R.getSomes({ comment: document.comment }),
+            }),
+            classes,
+          })
+        ),
     }
   );
 
 /**
- * Parses the POC JSON-LD graph representation back into an assembled ontology.
+ * Parses the POC JSON-LD graph representation back into an assembled ontology result.
  *
  * @category projections
  * @since 0.0.0
  */
-export const parseJsonLdOntology = (input: unknown): AssembledOntology =>
-  pipe(decodeJsonLdOntologyDocumentResult(input), Result.getOrThrowWith(schemaIssueToError), jsonLdDocumentToOntology);
+export const parseJsonLdOntology = (
+  input: unknown
+): Result.Result<AssembledOntology, S.SchemaError | OntologyAssemblyError> =>
+  pipe(
+    decodeJsonLdOntologyDocumentResult(input),
+    Result.mapError(schemaIssueToError),
+    Result.flatMap(jsonLdDocumentToOntologyResult)
+  );

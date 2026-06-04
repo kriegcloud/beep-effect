@@ -335,7 +335,8 @@ const readString = (value: unknown, key: PropertyKey): O.Option<string> =>
 const readNumber = (value: unknown, key: PropertyKey): O.Option<number> =>
   pipe(readProperty(value, key), O.filter(P.isNumber));
 
-const statusFromUnknown = (cause: unknown): O.Option<number> => readNumber(cause, "status");
+const statusFromUnknown = (cause: unknown): O.Option<number> =>
+  O.firstSomeOf([readNumber(cause, "status"), readNumber(cause, "statusCode")]);
 
 const causeLabel = (cause: unknown): string =>
   pipe(

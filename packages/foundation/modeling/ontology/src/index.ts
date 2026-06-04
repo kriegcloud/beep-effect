@@ -31,6 +31,7 @@ export {
   getOntologyMetadata,
   isOntologyClassAnnotationDraft,
   isOntologyPredicateAnnotationDraft,
+  OntologyAssemblyError,
 } from "./model.ts";
 /**
  * JSON-LD projection helpers.

@@ -193,7 +193,7 @@ describe("@beep/firecrawl", () => {
   layer(
     F.Firecrawl.makeLayerFromClient(
       makeFakeClient({
-        scrape: () => Promise.reject({ name: "SdkError", status: 429 }),
+        scrape: () => Promise.reject({ name: "SdkError", statusCode: 429 }),
       })
     )
   )((it) => {
@@ -246,6 +246,31 @@ describe("@beep/firecrawl", () => {
         expect(watcher.started).toBe(true);
         expect(watcher.closed).toBe(true);
         expect(A.map(values, (event) => event.type)).toEqual(["document", "done"]);
+      })
+    );
+  });
+
+  const invalidDoneWatcher = new FakeFirecrawlWatcher([{ eventName: "done", payload: { data: { markdown: "bad" } } }]);
+
+  layer(F.Firecrawl.makeLayerFromClient(makeFakeClient({ watcher: () => invalidDoneWatcher })))((it) => {
+    it.effect(
+      "fails watcher streams when terminal event payloads cannot decode",
+      Effect.fnUntraced(function* () {
+        const firecrawl = yield* F.Firecrawl;
+        const exit = yield* Effect.exit(
+          firecrawl.watcher(F.FirecrawlWatcherPayload.make({ jobId: "crawl-id" })).pipe(Stream.runCollect)
+        );
+
+        expect(Exit.isFailure(exit)).toBe(true);
+        expect(invalidDoneWatcher.closed).toBe(true);
+        if (Exit.isFailure(exit)) {
+          const error = Cause.findErrorOption(exit.cause);
+          expect(O.isSome(error)).toBe(true);
+          if (O.isSome(error)) {
+            expect(error.value).toBeInstanceOf(F.FirecrawlError);
+            expect(error.value.reason).toBe("response decoding");
+          }
+        }
       })
     );
   });

@@ -352,12 +352,12 @@ const emitWatcherEvent = <Event extends M.FirecrawlWatcherEvent>(
   method: FirecrawlMethodName,
   schema: S.Decoder<Event>,
   value: unknown
-): void => {
+): boolean => {
   const result = S.decodeUnknownResult(schema)(value);
 
   if (Result.isSuccess(result)) {
     Queue.offerUnsafe(queue, result.success);
-    return;
+    return true;
   }
 
   Queue.failCauseUnsafe(
@@ -369,6 +369,7 @@ const emitWatcherEvent = <Event extends M.FirecrawlWatcherEvent>(
       })
     )
   );
+  return false;
 };
 
 const makeWatcherStream = (
@@ -389,7 +390,7 @@ const makeWatcherStream = (
             type: "snapshot",
           });
         const onDone = (payload: unknown) => {
-          emitWatcherEvent(queue, method, M.FirecrawlWatcherDoneEvent, {
+          const emitted = emitWatcherEvent(queue, method, M.FirecrawlWatcherDoneEvent, {
             ...OptionUtils.getSomesStruct({
               completed: pipe(readProperty(payload, "completed"), O.filter(P.isNumber)),
               creditsUsed: pipe(readProperty(payload, "creditsUsed"), O.filter(P.isNumber)),
@@ -400,10 +401,12 @@ const makeWatcherStream = (
             }),
             type: "done",
           });
-          Queue.endUnsafe(queue);
+          if (emitted) {
+            Queue.endUnsafe(queue);
+          }
         };
         const onError = (payload: unknown) => {
-          emitWatcherEvent(queue, method, M.FirecrawlWatcherErrorEvent, {
+          const emitted = emitWatcherEvent(queue, method, M.FirecrawlWatcherErrorEvent, {
             ...OptionUtils.getSomesStruct({
               id: readString(payload, "id"),
               status: readString(payload, "status"),
@@ -411,7 +414,9 @@ const makeWatcherStream = (
             error: watcherErrorText(payload),
             type: "error",
           });
-          Queue.endUnsafe(queue);
+          if (emitted) {
+            Queue.endUnsafe(queue);
+          }
         };
 
         watcher.on("document", onDocument);
