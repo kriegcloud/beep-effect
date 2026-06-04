@@ -6,8 +6,9 @@
  */
 
 import { FaceDetection, FaceDetectionConfidence, FaceDetectionPercentage } from "@beep/face-detection";
+import { FileProcessingEngineFamily } from "@beep/file-processing/Strategy";
 import { $RepoCliId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { Str } from "@beep/utils";
 import { Effect } from "effect";
 import * as O from "effect/Option";
@@ -2226,6 +2227,81 @@ export class StripMetadataPlan extends S.Class<StripMetadataPlan>($I`StripMetada
   },
   $I.annote("StripMetadataPlan", {
     description: "Planned metadata stripping entries plus direct media files skipped before processing.",
+  })
+) {}
+
+/**
+ * Failure policy for `files process`.
+ *
+ * @example
+ * ```ts
+ * import { ProcessFilesFailurePolicy } from "@beep/repo-cli/commands/Files"
+ * console.log(ProcessFilesFailurePolicy)
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ProcessFilesFailurePolicy = LiteralKit(["continue", "fail-on-error"]).pipe(
+  $I.annoteSchema("ProcessFilesFailurePolicy", {
+    description: "Controls whether files process returns a failing exit code when source processing records fail.",
+  })
+);
+
+/**
+ * Failure policy for `files process`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ProcessFilesFailurePolicy = typeof ProcessFilesFailurePolicy.Type;
+
+/**
+ * Validated options used by `files process`.
+ *
+ * @example
+ * ```ts
+ * import { ProcessFilesOptions } from "@beep/repo-cli/commands/Files"
+ * console.log(ProcessFilesOptions)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class ProcessFilesOptions extends S.Class<ProcessFilesOptions>($I`ProcessFilesOptions`)(
+  {
+    engine: FileProcessingEngineFamily,
+    exportChildren: S.Boolean,
+    failurePolicy: ProcessFilesFailurePolicy,
+    input: S.String,
+    maxMaterializedBytes: S.optionalKey(S.Number),
+    outDir: S.String,
+    overwrite: S.Boolean,
+  },
+  $I.annote("ProcessFilesOptions", {
+    description: "Validated options used by files process.",
+  })
+) {}
+
+/**
+ * Summary counts returned by `files process`.
+ *
+ * @example
+ * ```ts
+ * import { ProcessFilesSummary } from "@beep/repo-cli/commands/Files"
+ * console.log(ProcessFilesSummary)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class ProcessFilesSummary extends S.Class<ProcessFilesSummary>($I`ProcessFilesSummary`)(
+  {
+    failedCount: NonNegativeInt,
+    skippedCount: NonNegativeInt,
+    sourceCount: NonNegativeInt,
+    succeededCount: NonNegativeInt,
+    textArtifactCount: NonNegativeInt,
+  },
+  $I.annote("ProcessFilesSummary", {
+    description: "Summary counts returned by files process.",
   })
 ) {}
 

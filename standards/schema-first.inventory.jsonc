@@ -618,6 +618,22 @@
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
+      "file": "packages/foundation/capability/file-processing/src/Service/index.ts",
+      "symbol": "FileProcessingEngineShape",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/file-processing",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/file-processing/src/Service/index.ts",
+      "symbol": "FileProcessingServiceShape",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/file-processing",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "A",
       "kind": "exported-type-literal",

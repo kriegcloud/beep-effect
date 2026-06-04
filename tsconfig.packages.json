@@ -106,6 +106,9 @@
       "path": "packages/drivers/konva"
     },
     {
+      "path": "packages/drivers/libpff"
+    },
+    {
       "path": "packages/drivers/nlp-mcp"
     },
     {
@@ -127,6 +130,9 @@
       "path": "packages/drivers/sanity"
     },
     {
+      "path": "packages/drivers/tika"
+    },
+    {
       "path": "packages/drivers/venice-ai"
     },
     {
@@ -143,6 +149,9 @@
     },
     {
       "path": "packages/foundation/capability/colors"
+    },
+    {
+      "path": "packages/foundation/capability/file-processing"
     },
     {
       "path": "packages/foundation/capability/md"

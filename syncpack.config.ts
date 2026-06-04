@@ -65,6 +65,8 @@ const config = {
     "packages/drivers/konva/package.json",
     "packages/drivers/nlp-mcp/package.json",
     "packages/drivers/wink/package.json",
+    "packages/drivers/tika/package.json",
+    "packages/drivers/libpff/package.json",
     "apps/canvas/package.json",
     "packages/drivers/box/package.json",
   ],
