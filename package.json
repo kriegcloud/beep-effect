@@ -66,6 +66,8 @@
     "packages/drivers/konva",
     "packages/drivers/nlp-mcp",
     "packages/drivers/wink",
+    "packages/drivers/tika",
+    "packages/drivers/libpff",
     "apps/canvas",
     "packages/drivers/box"
   ],

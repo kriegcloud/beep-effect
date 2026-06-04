@@ -42,6 +42,8 @@ intentionally preserved until a dedicated manifest migration is planned.
 - `agent-governance-control-plane`
 - `canvas`
 - `codex-security-findings` — local Codex Security finding catalog, current-HEAD triage, and remediation queue.
+- `file-processing-capability` — schema-first file processing contracts,
+  Tika/libpff driver split, and `beep files process` proof packet.
 - `ip-law-knowledge-graph`
 - `oip-web-production-hardening`
 - `oip-web-launch` — implementation complete; launch review pending.

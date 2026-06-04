@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-06-02T07:27:45.757Z
+Generated: 2026-06-02T16:57:05.284Z
 
 ## Scope
 
@@ -10,21 +10,21 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 86 |
+| packages | 89 |
 | cleanPackages | 27 |
 | packagesWithoutPublicSrcSurface | 1 |
-| packagesNeedingRemediation | 54 |
-| publicModules | 1167 |
-| publicExports | 7527 |
+| packagesNeedingRemediation | 57 |
+| publicModules | 1181 |
+| publicExports | 7641 |
 | openModules | 112 |
-| openExports | 1489 |
-| missingExportExamples | 1144 |
+| openExports | 1519 |
+| missingExportExamples | 1172 |
 | missingExportCategories | 63 |
 | missingExportSince | 63 |
 | forbiddenTagFindings | 7 |
 | malformedConditionalTagFindings | 0 |
 | exampleImportFindings | 25 |
-| unsafeExampleFindings | 183 |
+| unsafeExampleFindings | 185 |
 | schemaAnnotationFindings | 157 |
 | rootPolicyOpen | 0 |
 
@@ -56,77 +56,80 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 13 | `@beep/discord` | `packages/drivers/discord` | needs-remediation | 4 | 12 | 0 | 4 |
 | 14 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 9 |
 | 15 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 4 |
-| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 80 | 435 | 0 | 109 |
+| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 80 | 440 | 0 | 110 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 70 | 0 | 0 |
 | 18 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
 | 19 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 5 | 22 | 0 | 9 |
 | 20 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
 | 21 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
 | 22 | `@beep/canvas-server` | `packages/canvas/server` | needs-remediation | 9 | 23 | 0 | 10 |
-| 23 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | needs-remediation | 12 | 41 | 0 | 9 |
-| 24 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 6 |
-| 25 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
-| 26 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
-| 27 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
-| 28 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 75 |
-| 29 | `@beep/phoenix` | `packages/drivers/phoenix` | needs-remediation | 5 | 50 | 0 | 10 |
-| 30 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
-| 31 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | needs-remediation | 10 | 35 | 0 | 15 |
-| 32 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 3 | 22 | 0 | 7 |
-| 33 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
-| 34 | `@beep/oip-web` | `apps/oip-web` | needs-remediation | 28 | 66 | 0 | 7 |
-| 35 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | clean | 7 | 11 | 0 | 0 |
-| 36 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 10 |
-| 37 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
-| 38 | `@beep/canvas` | `apps/canvas` | needs-remediation | 3 | 25 | 0 | 2 |
-| 39 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 21 | 40 | 0 | 0 |
-| 40 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
-| 41 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 23 | 177 | 0 | 17 |
-| 42 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 17 | 250 | 0 | 4 |
-| 43 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 11 |
-| 44 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
-| 45 | `@beep/form` | `packages/foundation/ui-system/form` | needs-remediation | 15 | 84 | 0 | 14 |
-| 46 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 112 | 0 | 4 |
-| 47 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
-| 48 | `@beep/box` | `packages/drivers/box` | needs-remediation | 3 | 7 | 0 | 7 |
-| 49 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
-| 50 | `@beep/stack-installer` | `apps/stack-installer` | needs-remediation | 2 | 3 | 0 | 2 |
-| 51 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 2 | 2 | 0 | 1 |
-| 52 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 18 | 0 | 0 |
-| 53 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
-| 54 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | clean | 1 | 4 | 0 | 0 |
-| 55 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
-| 56 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 67 | 598 | 0 | 38 |
-| 57 | `@beep/infra` | `infra` | clean | 3 | 21 | 0 | 0 |
-| 58 | `@beep/installer-use-cases` | `packages/installer/use-cases` | needs-remediation | 3 | 30 | 0 | 1 |
-| 59 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
-| 60 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 65 | 661 | 2 | 82 |
-| 61 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 223 | 1469 | 0 | 704 |
-| 62 | `@beep/codedank-web` | `apps/codedank-web` | clean | 1 | 1 | 0 | 0 |
-| 63 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
-| 64 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 8 |
-| 65 | `@beep/data` | `packages/foundation/primitive/data` | clean | 7 | 39 | 0 | 0 |
-| 66 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
-| 67 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | clean | 14 | 25 | 0 | 0 |
-| 68 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
-| 69 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
-| 70 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
-| 71 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 3 | 0 | 0 |
-| 72 | `@beep/installer-server` | `packages/installer/server` | needs-remediation | 3 | 19 | 0 | 3 |
-| 73 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 24 |
-| 74 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
-| 75 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
-| 76 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 118 | 502 | 107 | 64 |
-| 77 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 24 | 130 | 0 | 5 |
-| 78 | `@beep/canvas-client` | `packages/canvas/client` | clean | 1 | 1 | 0 | 0 |
-| 79 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 71 | 0 | 13 |
-| 80 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 36 | 0 | 6 |
-| 81 | `@beep/installer-domain` | `packages/installer/domain` | needs-remediation | 12 | 52 | 0 | 27 |
-| 82 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 27 |
-| 83 | `@beep/canvas-ui` | `packages/canvas/ui` | clean | 1 | 1 | 0 | 0 |
-| 84 | `@beep/messages` | `packages/foundation/modeling/messages` | clean | 2 | 6 | 0 | 0 |
-| 85 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
-| 86 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
+| 23 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 7 | 84 | 0 | 24 |
+| 24 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | needs-remediation | 12 | 41 | 0 | 9 |
+| 25 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 6 |
+| 26 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
+| 27 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
+| 28 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
+| 29 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 75 |
+| 30 | `@beep/phoenix` | `packages/drivers/phoenix` | needs-remediation | 5 | 50 | 0 | 10 |
+| 31 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
+| 32 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | needs-remediation | 10 | 35 | 0 | 15 |
+| 33 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 3 | 22 | 0 | 7 |
+| 34 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
+| 35 | `@beep/oip-web` | `apps/oip-web` | needs-remediation | 28 | 66 | 0 | 7 |
+| 36 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | clean | 7 | 11 | 0 | 0 |
+| 37 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 10 |
+| 38 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
+| 39 | `@beep/canvas` | `apps/canvas` | needs-remediation | 3 | 25 | 0 | 2 |
+| 40 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 21 | 40 | 0 | 0 |
+| 41 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
+| 42 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 23 | 177 | 0 | 17 |
+| 43 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 17 | 250 | 0 | 4 |
+| 44 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 11 |
+| 45 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 3 | 10 | 0 | 2 |
+| 46 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 3 | 11 | 0 | 2 |
+| 47 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
+| 48 | `@beep/form` | `packages/foundation/ui-system/form` | needs-remediation | 15 | 84 | 0 | 14 |
+| 49 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 115 | 0 | 4 |
+| 50 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
+| 51 | `@beep/box` | `packages/drivers/box` | needs-remediation | 4 | 8 | 0 | 8 |
+| 52 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
+| 53 | `@beep/stack-installer` | `apps/stack-installer` | needs-remediation | 2 | 3 | 0 | 2 |
+| 54 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 2 | 2 | 0 | 1 |
+| 55 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 18 | 0 | 0 |
+| 56 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
+| 57 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | clean | 1 | 4 | 0 | 0 |
+| 58 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
+| 59 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 67 | 598 | 0 | 38 |
+| 60 | `@beep/infra` | `infra` | clean | 3 | 21 | 0 | 0 |
+| 61 | `@beep/installer-use-cases` | `packages/installer/use-cases` | needs-remediation | 3 | 30 | 0 | 1 |
+| 62 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
+| 63 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 65 | 661 | 2 | 82 |
+| 64 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 223 | 1469 | 0 | 704 |
+| 65 | `@beep/codedank-web` | `apps/codedank-web` | clean | 1 | 1 | 0 | 0 |
+| 66 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
+| 67 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 8 |
+| 68 | `@beep/data` | `packages/foundation/primitive/data` | clean | 7 | 39 | 0 | 0 |
+| 69 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
+| 70 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | clean | 14 | 25 | 0 | 0 |
+| 71 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
+| 72 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
+| 73 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
+| 74 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 3 | 0 | 0 |
+| 75 | `@beep/installer-server` | `packages/installer/server` | needs-remediation | 3 | 19 | 0 | 3 |
+| 76 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 24 |
+| 77 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
+| 78 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
+| 79 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 118 | 502 | 107 | 64 |
+| 80 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 24 | 130 | 0 | 5 |
+| 81 | `@beep/canvas-client` | `packages/canvas/client` | clean | 1 | 1 | 0 | 0 |
+| 82 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 71 | 0 | 13 |
+| 83 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 36 | 0 | 6 |
+| 84 | `@beep/installer-domain` | `packages/installer/domain` | needs-remediation | 12 | 52 | 0 | 27 |
+| 85 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 27 |
+| 86 | `@beep/canvas-ui` | `packages/canvas/ui` | clean | 1 | 1 | 0 | 0 |
+| 87 | `@beep/messages` | `packages/foundation/modeling/messages` | clean | 2 | 6 | 0 | 0 |
+| 88 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
+| 89 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
 
 ## Open Findings
 
@@ -265,32 +268,33 @@ Export findings:
 - `src/commands/CreatePackage/index.ts:14` `export * from "./CreatePackage.command.js";` (re-export) - missing @example
 - `src/commands/Docgen/index.ts:14` `export * from "./Docgen.command.js";` (re-export) - missing @example
 - `src/commands/Docs/index.ts:14` `export * from "./Docs.command.js";` (re-export) - missing @example
-- `src/commands/Files/Files.schemas.ts:58` `PositiveMediaDimension` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:90` `FileSha256Hash` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:131` `NonNegativePixelOffset` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:156` `MediaKind` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:181` `SupportedMetadataImageExtension` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:206` `NormalizeImageFormatInput` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:231` `NormalizeImageFormat` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:264` `NormalizeSkippedReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:298` `CreateCaptionFilesSkippedReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:323` `BorderSide` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:348` `BorderDetectionKind` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:381` `DetectBordersSkippedReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:415` `DetectFacesSkippedReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:446` `DetectFacesFlag` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:471` `CandidateAssessmentProfile` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:496` `CandidateAssessmentDecision` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:525` `CandidateAssessmentReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:558` `ArchivePoorCandidatesSkippedReason` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:590` `CandidateRatioThreshold` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:637` `BorderDetectionPercentage` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:684` `BorderDetectionMaxScanPercentage` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:731` `BorderDetectionTolerance` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:778` `RgbChannel` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:922` `SafeFilePrefix` (type) - missing @example
-- `src/commands/Files/Files.schemas.ts:2269` `decodeRotationNumber` (const) - 2 schema annotation/type-alias gap(s)
-- `src/commands/Files/Files.service.ts:259` `FilesCommandServiceShape` (interface) - 1 unsafe example violation(s)
+- `src/commands/Files/Files.schemas.ts:59` `PositiveMediaDimension` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:91` `FileSha256Hash` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:132` `NonNegativePixelOffset` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:157` `MediaKind` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:182` `SupportedMetadataImageExtension` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:207` `NormalizeImageFormatInput` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:232` `NormalizeImageFormat` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:265` `NormalizeSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:299` `CreateCaptionFilesSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:324` `BorderSide` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:349` `BorderDetectionKind` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:382` `DetectBordersSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:416` `DetectFacesSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:447` `DetectFacesFlag` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:472` `CandidateAssessmentProfile` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:497` `CandidateAssessmentDecision` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:526` `CandidateAssessmentReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:559` `ArchivePoorCandidatesSkippedReason` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:591` `CandidateRatioThreshold` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:638` `BorderDetectionPercentage` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:685` `BorderDetectionMaxScanPercentage` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:732` `BorderDetectionTolerance` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:779` `RgbChannel` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:923` `SafeFilePrefix` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:2256` `ProcessFilesFailurePolicy` (type) - missing @example
+- `src/commands/Files/Files.schemas.ts:2345` `decodeRotationNumber` (const) - 2 schema annotation/type-alias gap(s)
+- `src/commands/Files/Files.service.ts:335` `FilesCommandServiceShape` (interface) - 1 unsafe example violation(s)
 - `src/commands/Files/index.ts:15` `export * from "./Files.command.js";` (re-export) - missing @example
 - `src/commands/Files/index.ts:22` `export * from "./Files.errors.js";` (re-export) - missing @example
 - `src/commands/Files/index.ts:29` `export * from "./Files.media.js";` (re-export) - missing @example
@@ -576,6 +580,36 @@ Export findings:
 - `src/index.ts:15` `export * as CanvasProject from "./aggregates/CanvasProject/index.js";` (re-export) - missing @example
 - `src/index.ts:22` `export * from "./Layer.js";` (re-export) - missing @example
 
+### @beep/file-processing
+
+Path: `packages/foundation/capability/file-processing`
+
+Export findings:
+- `src/Artifact/index.ts:81` `ArtifactId` (type) - missing @example
+- `src/Artifact/index.ts:109` `OperationId` (type) - missing @example
+- `src/Artifact/index.ts:137` `ContentDigest` (type) - missing @example
+- `src/Artifact/index.ts:164` `ArtifactLocatorKind` (type) - missing @example
+- `src/Extraction/index.ts:42` `SourceProcessingStatus` (type) - missing @example
+- `src/Extraction/index.ts:351` `ProcessFileResult` (type) - missing @example
+- `src/Extraction/index.ts:558` `SourceProcessingRecord` (type) - missing @example
+- `src/Extraction/index.ts:589` `FileProcessingFailureReason` (type) - missing @example
+- `src/Extraction/index.ts:700` `FileProcessingFailureRecord` (type) - missing @example
+- `src/Operation/index.ts:51` `FileProcessingOperationErrorReason` (type) - missing @example
+- `src/Service/index.ts:51` `FileProcessingEngineShape` (type) - 1 unsafe example violation(s)
+- `src/Service/index.ts:74` `FileProcessingServiceShape` (type) - 1 unsafe example violation(s)
+- `src/Strategy/index.ts:39` `FileProcessingOperationKind` (type) - missing @example
+- `src/Strategy/index.ts:66` `FileProcessingEngineFamily` (type) - missing @example
+- `src/Strategy/index.ts:108` `FileFormatFamily` (type) - missing @example
+- `src/Strategy/index.ts:140` `FileProcessingCapability` (type) - missing @example
+- `src/Strategy/index.ts:167` `FileProcessingSupportDisposition` (type) - missing @example
+- `src/Strategy/index.ts:203` `FileProcessingSkipReason` (type) - missing @example
+- `src/Strategy/index.ts:358` `SelectedStrategy` (type) - missing @example
+- `src/index.ts:14` `export * as Artifact from "./Artifact/index.ts";` (re-export) - missing @example
+- `src/index.ts:21` `export * as Extraction from "./Extraction/index.ts";` (re-export) - missing @example
+- `src/index.ts:28` `export * as Operation from "./Operation/index.ts";` (re-export) - missing @example
+- `src/index.ts:35` `export * as Service from "./Service/index.ts";` (re-export) - missing @example
+- `src/index.ts:42` `export * as Strategy from "./Strategy/index.ts";` (re-export) - missing @example
+
 ### @beep/agent-capability-use-cases
 
 Path: `packages/agent-capability/use-cases`
@@ -836,6 +870,22 @@ Export findings:
 - `src/index.ts:44` `export * from "./tables.js";` (re-export) - missing @example
 - `src/tables.ts:49` `DbSchema` (type) - 1 unsafe example violation(s)
 
+### @beep/tika
+
+Path: `packages/drivers/tika`
+
+Export findings:
+- `src/index.ts:14` `export * from "./Tika.errors.ts";` (re-export) - missing @example
+- `src/index.ts:21` `export * from "./Tika.service.ts";` (re-export) - missing @example
+
+### @beep/libpff
+
+Path: `packages/drivers/libpff`
+
+Export findings:
+- `src/index.ts:14` `export * from "./Libpff.errors.ts";` (re-export) - missing @example
+- `src/index.ts:21` `export * from "./Libpff.service.ts";` (re-export) - missing @example
+
 ### @beep/form
 
 Path: `packages/foundation/ui-system/form`
@@ -886,6 +936,7 @@ Export findings:
 - `src/Box.config.ts:62` `layerConfig` (const) - missing @example
 - `src/Box.errors.ts:20` `BoxErrorContextInfo` (class) - missing @example
 - `src/Box.errors.ts:35` `BoxError` (class) - missing @example
+- `src/Box.service.ts:18` `BOX_SERVICE_IMPLEMENTATION_STATUS` (const) - missing @example
 - `src/index.ts:14` `VERSION` (const) - missing @example
 
 ### @beep/stack-installer

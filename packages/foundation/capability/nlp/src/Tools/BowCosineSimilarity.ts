@@ -29,19 +29,18 @@ class BowCosineSimilarityParameters extends S.Class<BowCosineSimilarityParameter
   })
 ) {}
 
-class BowCosineSimilaritySuccess extends S.Class<BowCosineSimilaritySuccess>($I`BowCosineSimilaritySuccess`)(
-  {
-    method: S.Literal("bow.cosine").annotateKey({
-      description: "The similarity method used",
-    }),
-    score: UnitInterval.annotateKey({
-      description: "Similarity score from 0 (unrelated) to 1 (identical)",
-    }),
-  },
-  $I.annote("BowCosineSimilaritySuccess", {
+const BowCosineSimilaritySuccess = S.Struct({
+  method: S.Literal("bow.cosine").annotateKey({
+    description: "The similarity method used",
+  }),
+  score: UnitInterval.annotateKey({
+    description: "Similarity score from 0 (unrelated) to 1 (identical)",
+  }),
+}).pipe(
+  $I.annoteSchema("BowCosineSimilaritySuccess", {
     description: "Bag-of-words cosine similarity score for two text inputs.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for comparing two texts by

@@ -143,6 +143,9 @@ const composers = $I.compose(
   "form",
   "nlp-mcp",
   "wink",
+  "file-processing",
+  "tika",
+  "libpff",
   "box"
 );
 
@@ -1572,3 +1575,51 @@ export const $NlpMcpId: Identity.IdentityComposer<"@beep/nlp-mcp"> = composers.$
  * @category configuration
  */
 export const $WinkId: Identity.IdentityComposer<"@beep/wink"> = composers.$WinkId;
+
+/**
+ * Identity composer for `@beep/file-processing`.
+ *
+ * @example
+ * ```typescript
+ * import { $FileProcessingId } from "@beep/identity"
+ *
+ * const id = $FileProcessingId.make("FileProcessing")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $FileProcessingId: Identity.IdentityComposer<"@beep/file-processing"> = composers.$FileProcessingId;
+
+/**
+ * Identity composer for `@beep/tika`.
+ *
+ * @example
+ * ```typescript
+ * import { $TikaId } from "@beep/identity"
+ *
+ * const id = $TikaId.make("Tika")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $TikaId: Identity.IdentityComposer<"@beep/tika"> = composers.$TikaId;
+
+/**
+ * Identity composer for `@beep/libpff`.
+ *
+ * @example
+ * ```typescript
+ * import { $LibpffId } from "@beep/identity"
+ *
+ * const id = $LibpffId.make("Libpff")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $LibpffId: Identity.IdentityComposer<"@beep/libpff"> = composers.$LibpffId;

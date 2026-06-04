@@ -41,10 +41,13 @@ const unwrapOptionString = O.match<string, string>({
   onSome: identity,
 });
 
+const alphaNumericShape = /[Xxd]/;
+const hasAlphaNumericShape = (shape: string): boolean => alphaNumericShape.test(shape);
+
 const isPunctuationToken = (token: Token): boolean =>
   O.match(token.shape, {
     onNone: thunkFalse,
-    onSome: P.not(/[Xxd]/.test),
+    onSome: P.not(hasAlphaNumericShape),
   });
 
 const isWordLikeToken = (token: Token): boolean => !isPunctuationToken(token) && /[\p{L}\p{N}]/u.test(token.text);
@@ -101,13 +104,18 @@ const buildCreateCorpusParameters = (params: {
   ]);
 
 const tokenBagOfWords = (tokens: ReadonlyArray<Token>): Record<string, number> =>
-  A.reduce(tokens, emptyTermBag, (bag, token) =>
-    Str.isEmpty(normalizeTerm(token))
-      ? bag
-      : {
-          ...bag,
-          [normalizeTerm(token)]: (bag[normalizeTerm(token)] ?? 0) + 1,
-        }
+  pipe(
+    tokens,
+    A.filter(isWordLikeToken),
+    A.reduce(emptyTermBag, (bag, token) => {
+      const term = normalizeTerm(token);
+      return Str.isEmpty(term)
+        ? bag
+        : {
+            ...bag,
+            [term]: (bag[term] ?? 0) + 1,
+          };
+    })
   );
 
 const tokenToAi = (token: Token) => ({
@@ -347,6 +355,51 @@ export const WinkNlpToolkitLive: Layer.Layer<
     const vectorizer = yield* WinkVectorizer;
 
     return {
+      Analyze: Effect.fn("WinkNlpToolkit.Analyze")(
+        function* ({ text }) {
+          yield* Effect.annotateCurrentSpan(textLengthAttribute("text", text));
+          const document = yield* tokenization.document(text, "analyze");
+          const tokens = Chunk.toReadonlyArray(document.tokens);
+          const sentences = Chunk.toReadonlyArray(document.sentences);
+          return {
+            characterCount: Str.length(text),
+            sentenceCount: document.sentenceCount,
+            sentences: pipe(
+              sentences,
+              A.map((sentence) => sentence.text)
+            ),
+            tokenCount: A.length(tokens),
+            tokens: pipe(tokens, A.map(tokenToAi)),
+            wordCount: pipe(tokens, A.filter(isWordLikeToken), A.length),
+          };
+        },
+        observeTool("Analyze", "analyze")
+      ),
+
+      BagOfWords: Effect.fn("WinkNlpToolkit.BagOfWords")(
+        function* ({ text }) {
+          yield* Effect.annotateCurrentSpan(textLengthAttribute("text", text));
+          const document = yield* tokenization.document(text, "bag-of-words");
+          const terms = pipe(
+            R.toEntries(tokenBagOfWords(Chunk.toReadonlyArray(document.tokens))),
+            A.map(([value, count]) => ({ count, value })),
+            A.sortBy(
+              descendingNumber((entry) => entry.count),
+              ascendingString((entry) => entry.value)
+            )
+          );
+          return {
+            terms,
+            totalTerms: pipe(
+              terms,
+              A.reduce(0, (total, entry) => total + entry.count)
+            ),
+            uniqueTerms: A.length(terms),
+          };
+        },
+        observeTool("BagOfWords", "bag_of_words")
+      ),
+
       BowCosineSimilarity: Effect.fn("WinkNlpToolkit.BowCosineSimilarity")(
         function* ({ text1, text2 }) {
           yield* Effect.annotateCurrentSpan(textPairLengthAttributes(text1, text2));
@@ -730,6 +783,18 @@ export const WinkNlpToolkitLive: Layer.Layer<
         observeTool("NGrams", "ngrams.extract")
       ),
 
+      Paragraphize: Effect.fn("WinkNlpToolkit.Paragraphize")(
+        function* ({ text }) {
+          yield* Effect.annotateCurrentSpan(textLengthAttribute("text", text));
+          const paragraphs = pipe(text.split(/\n\s*\n/), A.map(Str.trim), A.filter(Str.isNonEmpty));
+          return {
+            count: A.length(paragraphs),
+            paragraphs,
+          };
+        },
+        observeTool("Paragraphize", "paragraphize")
+      ),
+
       PhoneticMatch: Effect.fn("WinkNlpToolkit.PhoneticMatch")(
         function* ({ algorithm, minTokenLength, text1, text2 }) {
           const resolvedAlgorithm = algorithm ?? "soundex";
@@ -845,6 +910,25 @@ export const WinkNlpToolkitLive: Layer.Layer<
         observeTool("RankByRelevance", "relevance.rank")
       ),
 
+      RemoveStopWords: Effect.fn("WinkNlpToolkit.RemoveStopWords")(
+        function* ({ text }) {
+          yield* Effect.annotateCurrentSpan(textLengthAttribute("text", text));
+          const document = yield* tokenization.document(text, "remove-stop-words");
+          const wordLike = pipe(Chunk.toReadonlyArray(document.tokens), A.filter(isWordLikeToken));
+          const tokens = pipe(
+            wordLike,
+            A.filter((token) => !O.getOrElse(token.stopWordFlag, thunkFalse)),
+            A.map((token) => token.text)
+          );
+          return {
+            count: A.length(tokens),
+            removedCount: A.length(wordLike) - A.length(tokens),
+            tokens,
+          };
+        },
+        observeTool("RemoveStopWords", "remove_stop_words")
+      ),
+
       Sentences: Effect.fn("WinkNlpToolkit.Sentences")(
         function* ({ text }) {
           yield* Effect.annotateCurrentSpan(textLengthAttribute("text", text));
@@ -879,6 +963,25 @@ export const WinkNlpToolkitLive: Layer.Layer<
         },
         observeTool("Sentences", "sentences.extract")
       ),
+
+      Stem: Effect.fn("WinkNlpToolkit.Stem")(
+        function* ({ text }) {
+          yield* Effect.annotateCurrentSpan(textLengthAttribute("text", text));
+          const document = yield* tokenization.document(text, "stem");
+          const stems = pipe(
+            Chunk.toReadonlyArray(document.tokens),
+            A.filter(isWordLikeToken),
+            A.map((token) => unwrapOptionString(token.stem)),
+            A.filter(Str.isNonEmpty)
+          );
+          return {
+            count: A.length(stems),
+            stems,
+          };
+        },
+        observeTool("Stem", "stem")
+      ),
+
       TextSimilarity: Effect.fn("WinkNlpToolkit.TextSimilarity")(
         function* ({ text1, text2 }) {
           yield* Effect.annotateCurrentSpan(textPairLengthAttributes(text1, text2));
@@ -975,6 +1078,19 @@ export const WinkNlpToolkitLive: Layer.Layer<
           };
         },
         observeTool("TverskySimilarity", "similarity.tversky")
+      ),
+
+      WordCount: Effect.fn("WinkNlpToolkit.WordCount")(
+        function* ({ text }) {
+          yield* Effect.annotateCurrentSpan(textLengthAttribute("text", text));
+          const document = yield* tokenization.document(text, "word-count");
+          const tokens = Chunk.toReadonlyArray(document.tokens);
+          return {
+            characterCount: Str.length(text),
+            wordCount: pipe(tokens, A.filter(isWordLikeToken), A.length),
+          };
+        },
+        observeTool("WordCount", "word_count")
       ),
     };
   })

@@ -39,21 +39,6 @@ import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
 import type { RuntimeFixtureInput } from "@beep/agent-capability-use-cases/proof";
 
-/**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/professional-runtime-proof"
- *
- * console.log(VERSION)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
 class MissingRuntimeAgentPrincipalError extends S.TaggedErrorClass<MissingRuntimeAgentPrincipalError>(
   "MissingRuntimeAgentPrincipalError"
 )("MissingRuntimeAgentPrincipalError", {

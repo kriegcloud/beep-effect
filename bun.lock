@@ -68,6 +68,7 @@
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/ui": "workspace:^",
+        "@effect/atom-react": "catalog:",
         "@phosphor-icons/react": "catalog:",
         "@tauri-apps/api": "catalog:",
         "effect": "catalog:",
@@ -131,11 +132,13 @@
         "@beep/schema": "workspace:^",
         "@beep/ui": "workspace:^",
         "@beep/utils": "workspace:^",
+        "@effect/atom-react": "catalog:",
         "@mdx-js/react": "catalog:",
         "@next/bundle-analyzer": "catalog:",
         "@next/mdx": "catalog:",
         "@vercel/analytics": "catalog:",
         "@vercel/speed-insights": "catalog:",
+        "effect": "catalog:",
         "next": "catalog:",
         "next-pwa": "catalog:",
         "react": "catalog:",
@@ -209,6 +212,7 @@
       "dependencies": {
         "@beep/ai-provider-cli": "workspace:^",
         "@beep/discord": "workspace:^",
+        "@beep/identity": "workspace:^",
         "@beep/installer-server": "workspace:^",
         "@beep/installer-use-cases": "workspace:^",
         "@beep/onepassword-cli": "workspace:^",
@@ -628,11 +632,28 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/drivers/libpff": {
+      "name": "@beep/libpff",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/file-processing": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/nlp-mcp": {
       "name": "@beep/nlp-mcp",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/identity": "workspace:^",
         "@beep/nlp": "workspace:^",
+        "@beep/schema": "workspace:^",
         "@beep/wink": "workspace:^",
         "@effect/platform-node": "catalog:",
         "effect": "catalog:",
@@ -730,6 +751,21 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/drivers/tika": {
+      "name": "@beep/tika",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/file-processing": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/venice-ai": {
       "name": "@beep/venice-ai",
       "version": "0.0.3",
@@ -814,6 +850,20 @@
     "packages/foundation/capability/colors": {
       "name": "@beep/colors",
       "version": "0.0.2",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/file-processing": {
+      "name": "@beep/file-processing",
+      "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1374,7 +1424,9 @@
         "@beep/duckdb": "workspace:^",
         "@beep/face-detection": "workspace:^",
         "@beep/ffmpeg": "workspace:^",
+        "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",
+        "@beep/libpff": "workspace:^",
         "@beep/md": "workspace:^",
         "@beep/observability": "workspace:^",
         "@beep/phoenix": "workspace:^",
@@ -1386,6 +1438,7 @@
         "@beep/runpod": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/test-utils": "workspace:^",
+        "@beep/tika": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/platform-bun": "catalog:",
         "@effect/platform-node": "catalog:",
@@ -1999,6 +2052,8 @@
 
     "@beep/ffmpeg": ["@beep/ffmpeg@workspace:packages/drivers/ffmpeg"],
 
+    "@beep/file-processing": ["@beep/file-processing@workspace:packages/foundation/capability/file-processing"],
+
     "@beep/form": ["@beep/form@workspace:packages/foundation/ui-system/form"],
 
     "@beep/hubspot": ["@beep/hubspot@workspace:packages/drivers/hubspot"],
@@ -2016,6 +2071,8 @@
     "@beep/konva": ["@beep/konva@workspace:packages/drivers/konva"],
 
     "@beep/law-practice-domain": ["@beep/law-practice-domain@workspace:packages/law-practice/domain"],
+
+    "@beep/libpff": ["@beep/libpff@workspace:packages/drivers/libpff"],
 
     "@beep/md": ["@beep/md@workspace:packages/foundation/capability/md"],
 
@@ -2080,6 +2137,8 @@
     "@beep/stack-installer": ["@beep/stack-installer@workspace:apps/stack-installer"],
 
     "@beep/test-utils": ["@beep/test-utils@workspace:packages/tooling/test-kit/test-utils"],
+
+    "@beep/tika": ["@beep/tika@workspace:packages/drivers/tika"],
 
     "@beep/types": ["@beep/types@workspace:packages/foundation/primitive/types"],
 

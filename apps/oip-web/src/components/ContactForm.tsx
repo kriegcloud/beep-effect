@@ -7,14 +7,24 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
-import type { ContactSubmissionStatus } from "../contact";
+import { useAtom, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { Atom } from "effect/unstable/reactivity";
+import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
+import { OipContactHttpApiClient } from "../contact/ContactSubmission.http";
+import { contactSubmissionPayloadFromFormData } from "../contact/ContactSubmission.model";
+import type { FormEvent } from "react";
+import type { ContactSubmissionStatus } from "../contact/ContactSubmission.model";
 
 const inputClass =
   "min-h-11 rounded-md border border-[color-mix(in_oklab,var(--oip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--oip-soil)_18%,transparent)] px-3 py-2 text-sm text-[var(--oip-on-soil)] outline-none transition-colors placeholder:text-[color-mix(in_oklab,var(--oip-on-soil)_52%,transparent)] focus:border-[var(--oip-gold)] focus:ring-3 focus:ring-[color-mix(in_oklab,var(--oip-gold)_35%,transparent)]";
 const labelClass = "grid gap-2 text-xs font-medium uppercase tracking-[0.12em] text-[var(--oip-on-burgundy-accent)]";
 const submitButtonClass =
   "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-lg border border-transparent bg-primary bg-clip-padding px-2.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
+const submittedAtAtom = Atom.make(0);
+const submitContactAtom = OipContactHttpApiClient.mutation("contact", "submit");
+const contactReactivityKeys = ["oip-contact"] as const;
+
+const currentTimestamp = (): number => Math.trunc(globalThis.performance.timeOrigin + globalThis.performance.now());
 
 /**
  * Renders the OIP contact form.
@@ -23,7 +33,7 @@ const submitButtonClass =
  * ```tsx
  * import { ContactForm } from "@beep/oip-web/components/ContactForm"
  *
- * const form = <ContactForm email="tom@example.com" status={undefined} />
+ * const form = <ContactForm email="tom@example.com" initialSubmittedAt={0} status={undefined} />
  * console.log(form.type)
  * ```
  *
@@ -32,25 +42,65 @@ const submitButtonClass =
  */
 export function ContactForm({
   email,
+  initialSubmittedAt,
   status,
 }: {
   readonly email: string;
+  readonly initialSubmittedAt: number;
   readonly status: ContactSubmissionStatus | undefined;
 }) {
-  const [submittedAt, setSubmittedAt] = useState(0);
+  const [submittedAt, setSubmittedAt] = useAtom(submittedAtAtom);
+  const submitContact = useAtomSet(submitContactAtom);
+  const submitResult = useAtomValue(submitContactAtom);
+  const isSubmitting = AsyncResult.isWaiting(submitResult);
+  const submittedStatus = AsyncResult.matchWithWaiting(submitResult, {
+    onDefect: () => "rejected" as const,
+    onError: () => "rejected" as const,
+    onSuccess: (result) => result.value.status,
+    onWaiting: () => undefined,
+  });
+  const contactStatus = submittedStatus ?? status;
+  const effectiveSubmittedAt = submittedAt > 0 ? submittedAt : initialSubmittedAt;
+  const statusMessage = isSubmitting
+    ? "Sending note..."
+    : contactStatus === "accepted"
+      ? "Your note was received."
+      : null;
+  const isRejected = !isSubmitting && contactStatus === "rejected";
 
-  useEffect(() => {
-    setSubmittedAt(Math.trunc(performance.timeOrigin + performance.now()));
-  }, []);
+  const markStarted = () => {
+    if (effectiveSubmittedAt <= 0) {
+      setSubmittedAt(currentTimestamp());
+    }
+  };
+
+  const submitForm = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const nextSubmittedAt = effectiveSubmittedAt > 0 ? effectiveSubmittedAt : currentTimestamp();
+    if (submittedAt <= 0) {
+      setSubmittedAt(nextSubmittedAt);
+    }
+
+    const formData = new FormData(event.currentTarget);
+    formData.set("submittedAt", `${nextSubmittedAt}`);
+
+    submitContact({
+      payload: contactSubmissionPayloadFromFormData(formData),
+      reactivityKeys: contactReactivityKeys,
+    });
+  };
 
   return (
     <form
       action="/api/contact"
       className="grid gap-4 rounded-lg border border-[color-mix(in_oklab,var(--oip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--oip-soil)_30%,transparent)] p-6"
       method="post"
+      onFocus={markStarted}
+      onSubmit={submitForm}
     >
       <input aria-hidden="true" className="hidden" name="website" tabIndex={-1} autoComplete="off" />
-      <input name="submittedAt" type="hidden" value={submittedAt} />
+      <input name="submittedAt" type="hidden" value={effectiveSubmittedAt} />
       <div className="grid gap-4 sm:grid-cols-2">
         <label className={labelClass}>
           Name
@@ -84,8 +134,8 @@ export function ContactForm({
         <textarea className={`${inputClass} min-h-32 resize-y`} name="message" required minLength={12} />
       </label>
       <div className="flex flex-wrap items-center gap-3">
-        <button className={submitButtonClass} type="submit">
-          Send note
+        <button className={submitButtonClass} type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Sending..." : "Send note"}
         </button>
         <a
           className="font-[family-name:var(--font-oip-mono)] text-xs uppercase tracking-[0.12em] text-[var(--oip-on-burgundy-accent)]"
@@ -97,11 +147,11 @@ export function ContactForm({
       <p
         className="text-sm text-[var(--oip-gold-bright)] empty:hidden"
         id="contact-form-status"
-        role={status === undefined ? undefined : "status"}
+        role={statusMessage === null ? undefined : "status"}
       >
-        {status === "accepted" ? "Your note was received." : null}
+        {statusMessage}
       </p>
-      {status === "rejected" && (
+      {isRejected && (
         <p className="text-sm text-[color-mix(in_oklab,var(--oip-on-soil)_88%,transparent)]" role="status">
           Your note could not be sent here. Email directly instead.
         </p>

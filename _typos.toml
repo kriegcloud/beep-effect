@@ -12,6 +12,9 @@ bimap = "bimap"
 retriev = "retriev"
 Uncommited = "Uncommited"
 Overrideable = "Overrideable"
+libpff = "libpff"
+tika = "tika"
+Tika = "Tika"
 
 # Biome rule names
 Inferrable = "Inferrable"

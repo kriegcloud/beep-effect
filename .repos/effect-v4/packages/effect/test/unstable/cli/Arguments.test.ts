@@ -140,7 +140,7 @@ describe("Command arguments", () => {
           test [flags] <count> <env>
 
         ARGUMENTS
-          count integer    
+          count integer
           env choice       "
       `)
 

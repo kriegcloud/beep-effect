@@ -10,9 +10,12 @@
  * @packageDocumentation
  */
 
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 import * as NodeStdio from "@effect/platform-node/NodeStdio";
 import { Layer } from "effect";
+import { FetchHttpClient } from "effect/unstable/http";
 import { makeServerLayer } from "./Server.ts";
 
 /**
@@ -23,4 +26,11 @@ import { makeServerLayer } from "./Server.ts";
  */
 export const SERVER_CONFIG = { name: "beep-nlp", version: "0.0.0" } as const;
 
-Layer.launch(makeServerLayer(SERVER_CONFIG).pipe(Layer.provide(NodeStdio.layer))).pipe(NodeRuntime.runMain);
+Layer.launch(
+  makeServerLayer(SERVER_CONFIG).pipe(
+    Layer.provide(NodeStdio.layer),
+    Layer.provide(NodeFileSystem.layer),
+    Layer.provide(NodePath.layer),
+    Layer.provide(FetchHttpClient.layer)
+  )
+).pipe(NodeRuntime.runMain);

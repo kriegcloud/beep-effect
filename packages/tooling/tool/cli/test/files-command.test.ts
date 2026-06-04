@@ -1,11 +1,21 @@
 import { Chalk } from "@beep/chalk";
 import { createColors } from "@beep/colors";
+import {
+  ChildArtifactRecord,
+  FileProcessingCoverageSummary,
+  FileProcessingFailureRecord,
+  ProcessRunManifest,
+  SourceProcessingRecord,
+} from "@beep/file-processing/Extraction";
 import { filesCommand } from "@beep/repo-cli";
 import {
   ArchivePoorCandidatesManifest,
   DetectBordersReport,
   DetectFacesReport,
+  FilesCommandServiceLive,
   NormalizeManifest,
+  ProcessFilesOptions,
+  processFiles,
   renderFilesProgressBar,
 } from "@beep/repo-cli/commands/Files";
 import { A, O, Str } from "@beep/utils";
@@ -32,7 +42,15 @@ const runFilesCommand = Command.runWith(filesCommand, { version: "0.0.0" });
 const decodeArchivePoorCandidatesManifest = S.decodeUnknownSync(S.fromJsonString(ArchivePoorCandidatesManifest));
 const decodeDetectBordersReport = S.decodeUnknownSync(S.fromJsonString(DetectBordersReport));
 const decodeDetectFacesReport = S.decodeUnknownEffect(S.fromJsonString(DetectFacesReport));
+const decodeChildArtifactRecord = S.decodeUnknownEffect(S.fromJsonString(ChildArtifactRecord));
+const decodeFileProcessingCoverageSummary = S.decodeUnknownEffect(S.fromJsonString(FileProcessingCoverageSummary));
+const decodeFileProcessingFailureRecord = S.decodeUnknownEffect(S.fromJsonString(FileProcessingFailureRecord));
 const decodeNormalizeManifest = S.decodeUnknownSync(S.fromJsonString(NormalizeManifest));
+const decodeProcessRunManifest = S.decodeUnknownEffect(S.fromJsonString(ProcessRunManifest));
+const decodeSourceProcessingRecord = S.decodeUnknownEffect(S.fromJsonString(SourceProcessingRecord));
+const decodeChildArtifactRecordLine = (line: string) => decodeChildArtifactRecord(line);
+const decodeFileProcessingFailureRecordLine = (line: string) => decodeFileProcessingFailureRecord(line);
+const decodeSourceProcessingRecordLine = (line: string) => decodeSourceProcessingRecord(line);
 const isString = (value: unknown): value is string => typeof value === "string";
 
 class FilesTestError extends Data.TaggedError("FilesTestError")<{ readonly cause: unknown }> {}
@@ -409,6 +427,267 @@ describe.sequential("files command", () => {
 
     expect(rendered).toBe("files normalize write <#####-----> 3/6 50.0%");
   });
+
+  it("writes the V1 file-processing proof manifest tree", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const outDir = path.join(tmpDir, "proof");
+
+          yield* fs.writeFileString(path.join(datasetDir, "note.txt"), "hello proof");
+          yield* fs.writeFileString(path.join(datasetDir, "table.xls"), "not extracted");
+          yield* fs.writeFileString(path.join(datasetDir, "mailbox.pst"), "pst");
+
+          yield* runFilesCommand([
+            "process",
+            "--input",
+            datasetDir,
+            "--out-dir",
+            outDir,
+            "--engine",
+            "test",
+            "--export-children",
+            "--failure-policy",
+            "continue",
+          ]);
+
+          const runManifest = yield* decodeProcessRunManifest(yield* fs.readFileString(path.join(outDir, "run.json")));
+          const coverage = yield* decodeFileProcessingCoverageSummary(
+            yield* fs.readFileString(path.join(outDir, "coverage.json"))
+          );
+          const sourceLines = pipe(
+            yield* fs.readFileString(path.join(outDir, "sources.jsonl")),
+            Str.split("\n"),
+            A.filter((line) => line.length > 0)
+          );
+          const sourceRecords = yield* Effect.forEach(sourceLines, decodeSourceProcessingRecordLine);
+          const failureLines = pipe(
+            yield* fs.readFileString(path.join(outDir, "failures.jsonl")),
+            Str.split("\n"),
+            A.filter((line) => line.length > 0)
+          );
+          const failureRecords = yield* Effect.forEach(failureLines, decodeFileProcessingFailureRecordLine);
+          const textRecord = O.getOrThrow(A.findFirst(sourceRecords, (record) => record.relativePath === "note.txt"));
+          const pstRecord = O.getOrThrow(A.findFirst(sourceRecords, (record) => record.relativePath === "mailbox.pst"));
+          const xlsRecord = O.getOrThrow(A.findFirst(sourceRecords, (record) => record.relativePath === "table.xls"));
+          const xlsFailure = O.getOrThrow(A.findFirst(failureRecords, (record) => record.relativePath === "table.xls"));
+          const childPath = path.join(outDir, "children", `${pstRecord.artifactId}`, "artifacts.jsonl");
+          const childRecords = yield* Effect.forEach(
+            pipe(
+              yield* fs.readFileString(childPath),
+              Str.split("\n"),
+              A.filter((line) => line.length > 0)
+            ),
+            decodeChildArtifactRecordLine
+          );
+
+          expect(runManifest.manifestVersion).toBe("beep.file-processing.run.v1");
+          expect(runManifest.outputRoot).toBe(".");
+          expect(runManifest.sourceRootLabel).toBe("input");
+          expect(runManifest).not.toHaveProperty("outDir");
+          expect(runManifest).not.toHaveProperty("sourceRoot");
+          expect(coverage.sourceCount).toBe(3);
+          expect(coverage.succeededCount).toBe(2);
+          expect(coverage.skippedCount).toBe(1);
+          expect(A.map(sourceRecords, (record) => record.relativePath)).toEqual([
+            "mailbox.pst",
+            "note.txt",
+            "table.xls",
+          ]);
+          expect(textRecord.status).toBe("succeeded");
+          if (textRecord.status !== "succeeded") {
+            throw new Error("Expected note.txt to succeed in the file-processing proof manifest.");
+          }
+          expect(textRecord.textPath).toBe(`text/${textRecord.operationId}.txt`);
+          expect(xlsRecord.status).toBe("skipped");
+          if (xlsRecord.status !== "skipped") {
+            throw new Error("Expected table.xls to be skipped in the file-processing proof manifest.");
+          }
+          expect(xlsRecord.skipReason).toBe("format-out-of-scope");
+          expect(xlsFailure.status).toBe("skipped");
+          expect(xlsFailure.reason).toBe("format-out-of-scope");
+          expect(childRecords).toHaveLength(1);
+          expect(childRecords[0]?.sourceArtifactId).toBe(pstRecord.artifactId);
+          expect(childRecords[0]?.child.id).not.toBe(pstRecord.artifactId);
+          expect(childRecords[0]?.child.relativePath).toBe("children/synthetic-libpff-message.txt");
+          expect(yield* fs.readFileString(path.join(outDir, textRecord.textPath ?? ""))).toBe("hello proof");
+          expect(yield* fs.exists(path.join(outDir, "failures.jsonl"))).toBe(true);
+          expect(yield* fs.exists(childPath)).toBe(true);
+        })
+      )
+    ));
+
+  it("skips PST child export when the selected engine lacks archive-export capability", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const outDir = path.join(tmpDir, "proof");
+
+          yield* fs.writeFileString(path.join(datasetDir, "mailbox.pst"), "pst");
+
+          yield* runFilesCommand([
+            "process",
+            "--input",
+            datasetDir,
+            "--out-dir",
+            outDir,
+            "--engine",
+            "tika",
+            "--export-children",
+            "--failure-policy",
+            "continue",
+          ]);
+
+          const sourceRecords = yield* Effect.forEach(
+            pipe(
+              yield* fs.readFileString(path.join(outDir, "sources.jsonl")),
+              Str.split("\n"),
+              A.filter((line) => line.length > 0)
+            ),
+            decodeSourceProcessingRecordLine
+          );
+          const failureRecords = yield* Effect.forEach(
+            pipe(
+              yield* fs.readFileString(path.join(outDir, "failures.jsonl")),
+              Str.split("\n"),
+              A.filter((line) => line.length > 0)
+            ),
+            decodeFileProcessingFailureRecordLine
+          );
+          const pstRecord = O.getOrThrow(A.findFirst(sourceRecords, (record) => record.relativePath === "mailbox.pst"));
+          const pstFailure = O.getOrThrow(
+            A.findFirst(failureRecords, (record) => record.relativePath === "mailbox.pst")
+          );
+
+          expect(pstRecord.status).toBe("skipped");
+          if (pstRecord.status !== "skipped") {
+            throw new Error("Expected mailbox.pst to be skipped for Tika archive export.");
+          }
+          expect(pstRecord.skipReason).toBe("engine-unavailable");
+          expect(pstFailure.status).toBe("skipped");
+          expect(pstFailure.reason).toBe("engine-unavailable");
+          expect(yield* fs.exists(path.join(outDir, "children", `${pstRecord.artifactId}`, "artifacts.jsonl"))).toBe(
+            false
+          );
+        })
+      )
+    ));
+
+  it("refuses to overwrite a non-directory process output path", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const outPath = path.join(tmpDir, "proof-file");
+
+          yield* fs.writeFileString(path.join(datasetDir, "note.txt"), "hello proof");
+          yield* fs.writeFileString(outPath, "keep me");
+
+          const exit = yield* Effect.exit(
+            processFiles(
+              ProcessFilesOptions.make({
+                engine: "test",
+                exportChildren: false,
+                failurePolicy: "continue",
+                input: datasetDir,
+                outDir: outPath,
+                overwrite: true,
+              })
+            ).pipe(provideScopedLayer(FilesCommandServiceLive))
+          );
+          const output = Exit.isFailure(exit) ? Cause.pretty(exit.cause) : "";
+
+          expect(output).toContain("Refusing to write files process output to a non-directory path");
+          expect(yield* fs.readFileString(outPath)).toBe("keep me");
+        })
+      )
+    ));
+
+  it("skips recursive symlink loops while collecting process sources", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const outDir = path.join(tmpDir, "proof");
+
+          yield* fs.writeFileString(path.join(datasetDir, "note.txt"), "hello proof");
+          yield* fs.symlink(datasetDir, path.join(datasetDir, "loop"));
+          yield* fs.symlink(path.join(datasetDir, "missing.txt"), path.join(datasetDir, "dangling.txt"));
+
+          yield* runFilesCommand([
+            "process",
+            "--input",
+            datasetDir,
+            "--out-dir",
+            outDir,
+            "--engine",
+            "test",
+            "--failure-policy",
+            "continue",
+          ]);
+
+          const coverage = yield* decodeFileProcessingCoverageSummary(
+            yield* fs.readFileString(path.join(outDir, "coverage.json"))
+          );
+          const sourceRecords = yield* Effect.forEach(
+            pipe(
+              yield* fs.readFileString(path.join(outDir, "sources.jsonl")),
+              Str.split("\n"),
+              A.filter((line) => line.length > 0)
+            ),
+            decodeSourceProcessingRecordLine
+          );
+
+          expect(coverage.sourceCount).toBe(1);
+          expect(A.map(sourceRecords, (record) => record.relativePath)).toEqual(["note.txt"]);
+        })
+      )
+    ));
+
+  it("rejects process output inside the resolved source root for symlinked file input", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const realDir = path.join(tmpDir, "real");
+          const aliasDir = path.join(tmpDir, "alias");
+          const realFile = path.join(realDir, "note.txt");
+          const aliasFile = path.join(aliasDir, "note.txt");
+          const outDir = path.join(realDir, "proof");
+
+          yield* fs.makeDirectory(realDir, { recursive: true });
+          yield* fs.makeDirectory(aliasDir, { recursive: true });
+          yield* fs.writeFileString(realFile, "hello proof");
+          yield* fs.symlink(realFile, aliasFile);
+
+          const output = yield* expectFilesCommandFailure([
+            "process",
+            "--input",
+            aliasFile,
+            "--out-dir",
+            outDir,
+            "--engine",
+            "test",
+            "--failure-policy",
+            "continue",
+          ]);
+
+          expect(output).toContain("Refusing to write files process output in an overlapping source/output tree");
+          expect(yield* fs.exists(outDir)).toBe(false);
+        })
+      )
+    ));
 
   it("detects black pillarbox borders", () =>
     Effect.runPromise(

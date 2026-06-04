@@ -1,0 +1,984 @@
+/**
+ * Extraction result and manifest schemas for file processing.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { ArtifactId, ArtifactReference, ContentDigest, OperationId } from "@beep/file-processing/Artifact";
+import { FileProcessingOperationErrorReason } from "@beep/file-processing/Operation";
+import { FileFormatFamily, FileProcessingSkipReason, SelectedStrategy } from "@beep/file-processing/Strategy";
+import { $FileProcessingId } from "@beep/identity";
+import { LiteralKit, NonNegativeInt } from "@beep/schema";
+import { PosixPath } from "@beep/schema/PosixPath";
+import * as S from "effect/Schema";
+
+const $I = $FileProcessingId.create("Extraction");
+
+/**
+ * Processing status emitted for each source row.
+ *
+ * @example
+ * ```ts
+ * import { SourceProcessingStatus } from "@beep/file-processing/Extraction"
+ *
+ * console.log(SourceProcessingStatus)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SourceProcessingStatus = LiteralKit(["succeeded", "skipped", "failed"]).pipe(
+  $I.annoteSchema("SourceProcessingStatus", {
+    description: "Per-source processing status used in sources.jsonl.",
+  })
+);
+
+/**
+ * Type for {@link SourceProcessingStatus}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SourceProcessingStatus = typeof SourceProcessingStatus.Type;
+
+/**
+ * Materialized text artifact reference.
+ *
+ * @example
+ * ```ts
+ * import { TextArtifactReference } from "@beep/file-processing/Extraction"
+ *
+ * console.log(TextArtifactReference)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TextArtifactReference extends S.Class<TextArtifactReference>($I`TextArtifactReference`)(
+  {
+    artifact: ArtifactReference,
+    operationId: OperationId,
+  },
+  $I.annote("TextArtifactReference", {
+    description: "Reference to a text artifact emitted for one extraction operation.",
+  })
+) {}
+
+/**
+ * Text span emitted by a text extraction operation.
+ *
+ * @example
+ * ```ts
+ * import { TextSpan } from "@beep/file-processing/Extraction"
+ *
+ * console.log(TextSpan)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TextSpan extends S.Class<TextSpan>($I`TextSpan`)(
+  {
+    endOffset: S.Number,
+    startOffset: S.Number,
+    text: S.String,
+  },
+  $I.annote("TextSpan", {
+    description: "Extracted text span with byte or character offsets supplied by the engine.",
+  })
+) {}
+
+/**
+ * Text and metadata extraction result.
+ *
+ * @example
+ * ```ts
+ * import { ExtractionResult } from "@beep/file-processing/Extraction"
+ *
+ * console.log(ExtractionResult)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ExtractionResult extends S.Class<ExtractionResult>($I`ExtractionResult`)(
+  {
+    engine: S.String,
+    format: FileFormatFamily,
+    metadata: S.Record(S.String, S.String),
+    operationId: OperationId,
+    sourceArtifactId: ArtifactId,
+    text: S.optionalKey(S.String),
+    textArtifact: S.optionalKey(TextArtifactReference),
+    warnings: S.Array(S.String),
+  },
+  $I.annote("ExtractionResult", {
+    description: "Runtime-neutral text and metadata extraction result.",
+  })
+) {}
+
+/**
+ * Archive export result.
+ *
+ * @example
+ * ```ts
+ * import { ArchiveExportResult } from "@beep/file-processing/Extraction"
+ *
+ * console.log(ArchiveExportResult)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchiveExportResult extends S.Class<ArchiveExportResult>($I`ArchiveExportResult`)(
+  {
+    children: S.Array(ArtifactReference),
+    engine: S.String,
+    operationId: OperationId,
+    sourceArtifactId: ArtifactId,
+    warnings: S.Array(S.String),
+  },
+  $I.annote("ArchiveExportResult", {
+    description: "Runtime-neutral child artifact export result for archive-like source files.",
+  })
+) {}
+
+/**
+ * Successful extraction result of a full source processing operation.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, OperationId } from "@beep/file-processing/Artifact"
+ * import { ExtractedProcessFileResult, ExtractionResult } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const extraction = ExtractionResult.make({
+ *     engine: "beep-test",
+ *     format: "markdown",
+ *     metadata: {},
+ *     operationId,
+ *     sourceArtifactId: artifactId,
+ *     text: "hello",
+ *     warnings: []
+ *   })
+ *
+ *   return ExtractedProcessFileResult.make({
+ *     engine: "beep-test",
+ *     extraction,
+ *     format: "markdown",
+ *     operationId,
+ *     resultKind: "extracted",
+ *     sourceArtifactId: artifactId,
+ *     warnings: []
+ *   }).resultKind
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // "extracted"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ExtractedProcessFileResult extends S.Class<ExtractedProcessFileResult>($I`ExtractedProcessFileResult`)(
+  {
+    engine: S.String,
+    extraction: ExtractionResult,
+    format: FileFormatFamily,
+    operationId: OperationId,
+    resultKind: S.Literal("extracted"),
+    sourceArtifactId: ArtifactId,
+    warnings: S.Array(S.String),
+  },
+  $I.annote("ExtractedProcessFileResult", {
+    description: "Full source processing result for text or metadata extraction.",
+  })
+) {}
+
+/**
+ * Successful archive export result of a full source processing operation.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, OperationId } from "@beep/file-processing/Artifact"
+ * import { ArchiveExportProcessFileResult, ArchiveExportResult } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const archiveExport = ArchiveExportResult.make({
+ *     children: [],
+ *     engine: "libpff",
+ *     operationId,
+ *     sourceArtifactId: artifactId,
+ *     warnings: []
+ *   })
+ *
+ *   return ArchiveExportProcessFileResult.make({
+ *     archiveExport,
+ *     engine: "libpff",
+ *     format: "pst",
+ *     operationId,
+ *     resultKind: "archive-exported",
+ *     sourceArtifactId: artifactId,
+ *     warnings: []
+ *   }).resultKind
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // "archive-exported"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchiveExportProcessFileResult extends S.Class<ArchiveExportProcessFileResult>(
+  $I`ArchiveExportProcessFileResult`
+)(
+  {
+    archiveExport: ArchiveExportResult,
+    engine: S.String,
+    format: FileFormatFamily,
+    operationId: OperationId,
+    resultKind: S.Literal("archive-exported"),
+    sourceArtifactId: ArtifactId,
+    warnings: S.Array(S.String),
+  },
+  $I.annote("ArchiveExportProcessFileResult", {
+    description: "Full source processing result for archive child export.",
+  })
+) {}
+
+/**
+ * Intentional skip result of a full source processing operation.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, OperationId } from "@beep/file-processing/Artifact"
+ * import { SkippedProcessFileResult } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const result = SkippedProcessFileResult.make({
+ *     engine: "beep-test",
+ *     format: "xls",
+ *     operationId,
+ *     resultKind: "skipped",
+ *     skipReason: "format-out-of-scope",
+ *     sourceArtifactId: artifactId,
+ *     warnings: []
+ *   })
+ *
+ *   return result.skipReason
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // "format-out-of-scope"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SkippedProcessFileResult extends S.Class<SkippedProcessFileResult>($I`SkippedProcessFileResult`)(
+  {
+    engine: S.String,
+    format: FileFormatFamily,
+    operationId: OperationId,
+    resultKind: S.Literal("skipped"),
+    skipReason: FileProcessingSkipReason,
+    sourceArtifactId: ArtifactId,
+    warnings: S.Array(S.String),
+  },
+  $I.annote("SkippedProcessFileResult", {
+    description: "Full source processing result for intentional skips.",
+  })
+) {}
+
+/**
+ * Result of a full source processing operation.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, OperationId } from "@beep/file-processing/Artifact"
+ * import { ProcessFileResult } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *
+ *   return yield* S.decodeUnknownEffect(ProcessFileResult)({
+ *     engine: "beep-test",
+ *     format: "xls",
+ *     operationId,
+ *     resultKind: "skipped",
+ *     skipReason: "format-out-of-scope",
+ *     sourceArtifactId: artifactId,
+ *     warnings: []
+ *   })
+ * })
+ *
+ * Effect.runPromise(program).then((result) => console.log(result.resultKind)) // "skipped"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ProcessFileResult = S.Union([
+  ExtractedProcessFileResult,
+  ArchiveExportProcessFileResult,
+  SkippedProcessFileResult,
+]).pipe(
+  S.toTaggedUnion("resultKind"),
+  $I.annoteSchema("ProcessFileResult", {
+    description: "Runtime-neutral result for a full source processing operation.",
+  })
+);
+
+/**
+ * Type for {@link ProcessFileResult}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ProcessFileResult = typeof ProcessFileResult.Type;
+
+/**
+ * Succeeded source row written to sources.jsonl.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, ContentDigest, OperationId } from "@beep/file-processing/Artifact"
+ * import { SucceededSourceProcessingRecord } from "@beep/file-processing/Extraction"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const digest = yield* S.decodeUnknownEffect(ContentDigest)("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("README.md")
+ *   const textPath = yield* S.decodeUnknownEffect(PosixPath)("text/example.txt")
+ *
+ *   return SucceededSourceProcessingRecord.make({
+ *     artifactId,
+ *     digest,
+ *     engine: "beep-test",
+ *     format: "markdown",
+ *     operationId,
+ *     relativePath,
+ *     sizeBytes: NonNegativeInt.make(11),
+ *     status: "succeeded",
+ *     textPath
+ *   }).status
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // "succeeded"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SucceededSourceProcessingRecord extends S.Class<SucceededSourceProcessingRecord>(
+  $I`SucceededSourceProcessingRecord`
+)(
+  {
+    artifactId: ArtifactId,
+    digest: ContentDigest,
+    engine: S.optionalKey(S.String),
+    format: FileFormatFamily,
+    operationId: OperationId,
+    relativePath: PosixPath,
+    sizeBytes: NonNegativeInt,
+    status: S.Literal("succeeded"),
+    textPath: S.optionalKey(PosixPath),
+  },
+  $I.annote("SucceededSourceProcessingRecord", {
+    description: "JSONL-safe succeeded source processing record emitted by the CLI proof.",
+  })
+) {}
+
+/**
+ * Skipped source row written to sources.jsonl.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, ContentDigest, OperationId } from "@beep/file-processing/Artifact"
+ * import { SkippedSourceProcessingRecord } from "@beep/file-processing/Extraction"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const digest = yield* S.decodeUnknownEffect(ContentDigest)("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("table.xls")
+ *
+ *   return SkippedSourceProcessingRecord.make({
+ *     artifactId,
+ *     digest,
+ *     engine: "beep-test",
+ *     format: "xls",
+ *     operationId,
+ *     relativePath,
+ *     sizeBytes: NonNegativeInt.make(64),
+ *     skipReason: "format-out-of-scope",
+ *     status: "skipped"
+ *   }).skipReason
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // "format-out-of-scope"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SkippedSourceProcessingRecord extends S.Class<SkippedSourceProcessingRecord>(
+  $I`SkippedSourceProcessingRecord`
+)(
+  {
+    artifactId: ArtifactId,
+    digest: ContentDigest,
+    engine: S.optionalKey(S.String),
+    format: FileFormatFamily,
+    operationId: OperationId,
+    relativePath: PosixPath,
+    sizeBytes: NonNegativeInt,
+    skipReason: FileProcessingSkipReason,
+    status: S.Literal("skipped"),
+  },
+  $I.annote("SkippedSourceProcessingRecord", {
+    description: "JSONL-safe skipped source processing record emitted by the CLI proof.",
+  })
+) {}
+
+/**
+ * Failed source row written to sources.jsonl.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, ContentDigest, OperationId } from "@beep/file-processing/Artifact"
+ * import { FailedSourceProcessingRecord } from "@beep/file-processing/Extraction"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const digest = yield* S.decodeUnknownEffect(ContentDigest)("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("broken.bin")
+ *
+ *   return FailedSourceProcessingRecord.make({
+ *     artifactId,
+ *     digest,
+ *     format: "unknown",
+ *     operationId,
+ *     relativePath,
+ *     sizeBytes: NonNegativeInt.make(0),
+ *     status: "failed"
+ *   }).status
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // "failed"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FailedSourceProcessingRecord extends S.Class<FailedSourceProcessingRecord>(
+  $I`FailedSourceProcessingRecord`
+)(
+  {
+    artifactId: ArtifactId,
+    digest: ContentDigest,
+    engine: S.optionalKey(S.String),
+    format: FileFormatFamily,
+    operationId: OperationId,
+    relativePath: PosixPath,
+    sizeBytes: NonNegativeInt,
+    status: S.Literal("failed"),
+  },
+  $I.annote("FailedSourceProcessingRecord", {
+    description: "JSONL-safe failed source processing record emitted by the CLI proof.",
+  })
+) {}
+
+/**
+ * Source row written to sources.jsonl.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, ContentDigest, OperationId } from "@beep/file-processing/Artifact"
+ * import { SourceProcessingRecord } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const digest = yield* S.decodeUnknownEffect(ContentDigest)("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *
+ *   return yield* S.decodeUnknownEffect(SourceProcessingRecord)({
+ *     artifactId,
+ *     digest,
+ *     format: "markdown",
+ *     operationId,
+ *     relativePath: "README.md",
+ *     sizeBytes: 11,
+ *     status: "succeeded"
+ *   })
+ * })
+ *
+ * Effect.runPromise(program).then((record) => console.log(record.status)) // "succeeded"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const SourceProcessingRecord = S.Union([
+  SucceededSourceProcessingRecord,
+  SkippedSourceProcessingRecord,
+  FailedSourceProcessingRecord,
+]).pipe(
+  S.toTaggedUnion("status"),
+  $I.annoteSchema("SourceProcessingRecord", {
+    description: "JSONL-safe source processing record emitted by the CLI proof.",
+  })
+);
+
+/**
+ * Type for {@link SourceProcessingRecord}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SourceProcessingRecord = typeof SourceProcessingRecord.Type;
+
+/**
+ * Machine-readable failure row reason.
+ *
+ * @example
+ * ```ts
+ * import { FileProcessingFailureReason } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = S.decodeUnknownEffect(FileProcessingFailureReason)("format-out-of-scope")
+ *
+ * Effect.runPromise(program).then(console.log) // "format-out-of-scope"
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const FileProcessingFailureReason = S.Union([FileProcessingOperationErrorReason, FileProcessingSkipReason]).pipe(
+  $I.annoteSchema("FileProcessingFailureReason", {
+    description: "Machine-readable skipped or failed source reason emitted in failures.jsonl.",
+  })
+);
+
+/**
+ * Type for {@link FileProcessingFailureReason}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type FileProcessingFailureReason = typeof FileProcessingFailureReason.Type;
+
+/**
+ * Skipped row written to failures.jsonl.
+ *
+ * @example
+ * ```ts
+ * import { SkippedFileProcessingFailureRecord } from "@beep/file-processing/Extraction"
+ *
+ * console.log(SkippedFileProcessingFailureRecord)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SkippedFileProcessingFailureRecord extends S.Class<SkippedFileProcessingFailureRecord>(
+  $I`SkippedFileProcessingFailureRecord`
+)(
+  {
+    artifactId: ArtifactId,
+    engine: S.optionalKey(S.String),
+    format: S.optionalKey(FileFormatFamily),
+    message: S.String,
+    operationId: OperationId,
+    reason: FileProcessingSkipReason,
+    relativePath: PosixPath,
+    status: S.Literal("skipped"),
+  },
+  $I.annote("SkippedFileProcessingFailureRecord", {
+    description: "JSONL-safe sanitized skipped or failed source record.",
+  })
+) {}
+
+/**
+ * Hard failure row written to failures.jsonl.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, OperationId } from "@beep/file-processing/Artifact"
+ * import { FailedFileProcessingFailureRecord } from "@beep/file-processing/Extraction"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("mystery.bin")
+ *
+ *   return FailedFileProcessingFailureRecord.make({
+ *     artifactId,
+ *     format: "unknown",
+ *     message: "No engine could classify the source.",
+ *     operationId,
+ *     reason: "unsupported-file-format",
+ *     relativePath,
+ *     status: "failed"
+ *   }).reason
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // "unsupported-file-format"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FailedFileProcessingFailureRecord extends S.Class<FailedFileProcessingFailureRecord>(
+  $I`FailedFileProcessingFailureRecord`
+)(
+  {
+    artifactId: ArtifactId,
+    engine: S.optionalKey(S.String),
+    format: S.optionalKey(FileFormatFamily),
+    message: S.String,
+    operationId: OperationId,
+    reason: FileProcessingOperationErrorReason,
+    relativePath: PosixPath,
+    status: S.Literal("failed"),
+  },
+  $I.annote("FailedFileProcessingFailureRecord", {
+    description: "JSONL-safe sanitized hard failure source record.",
+  })
+) {}
+
+/**
+ * Failure row written to failures.jsonl.
+ *
+ * @example
+ * ```ts
+ * import { FileProcessingFailureRecord } from "@beep/file-processing/Extraction"
+ *
+ * console.log(FileProcessingFailureRecord)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const FileProcessingFailureRecord = S.Union([
+  SkippedFileProcessingFailureRecord,
+  FailedFileProcessingFailureRecord,
+]).pipe(
+  S.toTaggedUnion("status"),
+  $I.annoteSchema("FileProcessingFailureRecord", {
+    description: "JSONL-safe sanitized skipped or failed source record.",
+  })
+);
+
+/**
+ * Type for {@link FileProcessingFailureRecord}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type FileProcessingFailureRecord = typeof FileProcessingFailureRecord.Type;
+
+/**
+ * Child artifact row written to children/<source-artifact-id>/artifacts.jsonl.
+ *
+ * @example
+ * ```ts
+ * import { ChildArtifactRecord } from "@beep/file-processing/Extraction"
+ *
+ * console.log(ChildArtifactRecord)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ChildArtifactRecord extends S.Class<ChildArtifactRecord>($I`ChildArtifactRecord`)(
+  {
+    child: ArtifactReference,
+    sourceArtifactId: ArtifactId,
+  },
+  $I.annote("ChildArtifactRecord", {
+    description: "JSONL-safe child artifact record emitted for archive exports.",
+  })
+) {}
+
+/**
+ * Coverage summary written to coverage.json.
+ *
+ * @example
+ * ```ts
+ * import { FileProcessingCoverageSummary } from "@beep/file-processing/Extraction"
+ *
+ * console.log(FileProcessingCoverageSummary)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FileProcessingCoverageSummary extends S.Class<FileProcessingCoverageSummary>(
+  $I`FileProcessingCoverageSummary`
+)(
+  {
+    byFormat: S.Record(FileFormatFamily, S.Record(SourceProcessingStatus, NonNegativeInt)),
+    failedCount: NonNegativeInt,
+    skippedCount: NonNegativeInt,
+    sourceCount: NonNegativeInt,
+    succeededCount: NonNegativeInt,
+    textArtifactCount: NonNegativeInt,
+  },
+  $I.annote("FileProcessingCoverageSummary", {
+    description: "Aggregate processing coverage counts for the proof manifest.",
+  })
+) {}
+
+/**
+ * Top-level run manifest written to run.json.
+ *
+ * @example
+ * ```ts
+ * import { ProcessRunManifest } from "@beep/file-processing/Extraction"
+ *
+ * console.log(ProcessRunManifest)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ProcessRunManifest extends S.Class<ProcessRunManifest>($I`ProcessRunManifest`)(
+  {
+    coverage: FileProcessingCoverageSummary,
+    engine: S.String,
+    manifestVersion: S.Literal("beep.file-processing.run.v1"),
+    outputRoot: S.Literal("."),
+    runId: OperationId,
+    sourceRootLabel: S.String,
+    strategies: S.Array(SelectedStrategy),
+  },
+  $I.annote("ProcessRunManifest", {
+    description: "JSON-safe root manifest for a file-processing proof run.",
+  })
+) {}
+
+/**
+ * JSON encoder for {@link ProcessRunManifest}.
+ *
+ * @example
+ * ```ts
+ * import { OperationId } from "@beep/file-processing/Artifact"
+ * import { encodeProcessRunManifestJson, ProcessRunManifest } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const formats = [
+ *   "doc", "docx", "docm", "rtf", "html", "xhtml", "pdf-text-layer",
+ *   "pst", "plain-text", "markdown", "image-metadata", "xls", "xlsx", "unknown"
+ * ]
+ * const statusCounts = { succeeded: 0, skipped: 0, failed: 0 }
+ *
+ * const program = Effect.gen(function* () {
+ *   const runId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const manifest = yield* S.decodeUnknownEffect(ProcessRunManifest)({
+ *     coverage: {
+ *       byFormat: Object.fromEntries(formats.map((format) => [format, statusCounts])),
+ *       failedCount: 0,
+ *       skippedCount: 0,
+ *       sourceCount: 0,
+ *       succeededCount: 0,
+ *       textArtifactCount: 0
+ *     },
+ *     engine: "test",
+ *     manifestVersion: "beep.file-processing.run.v1",
+ *     outputRoot: ".",
+ *     runId,
+ *     sourceRootLabel: "input",
+ *     strategies: []
+ *   })
+ *
+ *   return yield* encodeProcessRunManifestJson(manifest)
+ * })
+ *
+ * Effect.runPromise(program).then((json) => console.log(json.includes("\"outputRoot\":\".\""))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const encodeProcessRunManifestJson = S.encodeUnknownEffect(S.fromJsonString(ProcessRunManifest));
+
+/**
+ * JSON encoder for {@link FileProcessingCoverageSummary}.
+ *
+ * @example
+ * ```ts
+ * import { encodeFileProcessingCoverageSummaryJson, FileProcessingCoverageSummary } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const formats = [
+ *   "doc", "docx", "docm", "rtf", "html", "xhtml", "pdf-text-layer",
+ *   "pst", "plain-text", "markdown", "image-metadata", "xls", "xlsx", "unknown"
+ * ]
+ * const statusCounts = { succeeded: 0, skipped: 0, failed: 0 }
+ *
+ * const program = Effect.gen(function* () {
+ *   const coverage = yield* S.decodeUnknownEffect(FileProcessingCoverageSummary)({
+ *     byFormat: Object.fromEntries(formats.map((format) => [format, statusCounts])),
+ *     failedCount: 0,
+ *     skippedCount: 0,
+ *     sourceCount: 0,
+ *     succeededCount: 0,
+ *     textArtifactCount: 0
+ *   })
+ *
+ *   return yield* encodeFileProcessingCoverageSummaryJson(coverage)
+ * })
+ *
+ * Effect.runPromise(program).then((json) => console.log(json.includes("\"sourceCount\":0"))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const encodeFileProcessingCoverageSummaryJson = S.encodeUnknownEffect(
+  S.fromJsonString(FileProcessingCoverageSummary)
+);
+
+/**
+ * JSONL encoder for {@link SourceProcessingRecord}.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, ContentDigest, OperationId } from "@beep/file-processing/Artifact"
+ * import { encodeSourceProcessingRecordJson, SucceededSourceProcessingRecord } from "@beep/file-processing/Extraction"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const digest = yield* S.decodeUnknownEffect(ContentDigest)("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("note.txt")
+ *
+ *   return yield* encodeSourceProcessingRecordJson(SucceededSourceProcessingRecord.make({
+ *     artifactId,
+ *     digest,
+ *     format: "plain-text",
+ *     operationId,
+ *     relativePath,
+ *     sizeBytes: NonNegativeInt.make(4),
+ *     status: "succeeded"
+ *   }))
+ * })
+ *
+ * Effect.runPromise(program).then((json) => console.log(json.includes("\"status\":\"succeeded\""))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const encodeSourceProcessingRecordJson = S.encodeUnknownEffect(S.fromJsonString(SourceProcessingRecord));
+
+/**
+ * JSONL encoder for {@link FileProcessingFailureRecord}.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, OperationId } from "@beep/file-processing/Artifact"
+ * import { encodeFileProcessingFailureRecordJson, SkippedFileProcessingFailureRecord } from "@beep/file-processing/Extraction"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)("operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("table.xls")
+ *
+ *   return yield* encodeFileProcessingFailureRecordJson(SkippedFileProcessingFailureRecord.make({
+ *     artifactId,
+ *     format: "xls",
+ *     message: "XLS is classified but extraction is deferred in V1.",
+ *     operationId,
+ *     reason: "format-out-of-scope",
+ *     relativePath,
+ *     status: "skipped"
+ *   }))
+ * })
+ *
+ * Effect.runPromise(program).then((json) => console.log(json.includes("\"status\":\"skipped\""))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const encodeFileProcessingFailureRecordJson = S.encodeUnknownEffect(
+  S.fromJsonString(FileProcessingFailureRecord)
+);
+
+/**
+ * JSONL encoder for {@link ChildArtifactRecord}.
+ *
+ * @example
+ * ```ts
+ * import { ArtifactId, ArtifactReference } from "@beep/file-processing/Artifact"
+ * import { ChildArtifactRecord, encodeChildArtifactRecordJson } from "@beep/file-processing/Extraction"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("children/message.txt")
+ *   const child = ArtifactReference.make({
+ *     id: artifactId,
+ *     mediaType: "text/plain",
+ *     relativePath,
+ *     sizeBytes: NonNegativeInt.make(12)
+ *   })
+ *
+ *   return yield* encodeChildArtifactRecordJson(ChildArtifactRecord.make({ child, sourceArtifactId: artifactId }))
+ * })
+ *
+ * Effect.runPromise(program).then((json) => console.log(json.includes("children/message.txt"))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const encodeChildArtifactRecordJson = S.encodeUnknownEffect(S.fromJsonString(ChildArtifactRecord));

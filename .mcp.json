@@ -25,6 +25,11 @@
         "JetBrains",
         "--project-from-cwd"
       ]
+    },
+    "nlp": {
+      "type": "stdio",
+      "command": "bun",
+      "args": ["run", "./packages/drivers/nlp-mcp/src/bin.ts"]
     }
   }
 }

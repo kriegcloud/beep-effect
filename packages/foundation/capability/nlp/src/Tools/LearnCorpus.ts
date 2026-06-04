@@ -6,6 +6,7 @@
  */
 
 import { $NlpId } from "@beep/identity";
+import { NonNegativeInt } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
 import { AiToolError } from "./_schemas.ts";
@@ -39,19 +40,18 @@ class LearnCorpusParameters extends S.Class<LearnCorpusParameters>($I`LearnCorpu
   })
 ) {}
 
-class LearnCorpusSuccess extends S.Class<LearnCorpusSuccess>($I`LearnCorpusSuccess`)(
-  {
-    corpusId: S.String,
-    learnedCount: S.Number,
-    reindexRequired: S.Boolean,
-    skippedCount: S.Number,
-    totalDocuments: S.Number,
-    vocabularySize: S.Number,
-  },
-  $I.annote("LearnCorpusSuccess", {
+const LearnCorpusSuccess = S.Struct({
+  corpusId: S.String,
+  learnedCount: NonNegativeInt,
+  reindexRequired: S.Boolean,
+  skippedCount: NonNegativeInt,
+  totalDocuments: NonNegativeInt,
+  vocabularySize: NonNegativeInt,
+}).pipe(
+  $I.annoteSchema("LearnCorpusSuccess", {
     description: "Learning result summary for an incremental corpus update.",
   })
-) {}
+);
 
 /**
  * Defines the agent-facing tool contract for incrementally learning documents

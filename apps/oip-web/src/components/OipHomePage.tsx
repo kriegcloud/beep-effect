@@ -417,9 +417,11 @@ function Press({ content }: { readonly content: OipSiteContent }) {
 
 function Contact({
   content,
+  initialSubmittedAt,
   status,
 }: {
   readonly content: OipSiteContent;
+  readonly initialSubmittedAt: number;
   readonly status: ContactSubmissionStatus | undefined;
 }) {
   const { contact } = content;
@@ -451,7 +453,7 @@ function Contact({
           </div>
         </div>
         <div className="grid gap-5">
-          <ContactForm email={contact.email} status={status} />
+          <ContactForm email={contact.email} initialSubmittedAt={initialSubmittedAt} status={status} />
           <aside className="rounded-lg border border-[color-mix(in_oklab,var(--oip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--oip-soil)_22%,transparent)] p-6">
             <p className={`${monoLabel} text-[var(--oip-on-burgundy-accent)]`}>Notice</p>
             <div className="mt-4 grid gap-4 text-sm leading-7 text-[color-mix(in_oklab,var(--oip-on-soil)_88%,transparent)]">
@@ -537,7 +539,7 @@ function Footer({ content }: { readonly content: OipSiteContent }) {
  * import { OipHomePage } from "@beep/oip-web/components/OipHomePage"
  * import { oipSiteContent } from "@beep/oip-web/content"
  *
- * const page = <OipHomePage contactStatus={undefined} content={oipSiteContent} />
+ * const page = <OipHomePage contactStatus={undefined} content={oipSiteContent} initialContactSubmittedAt={0} />
  * console.log(page.type)
  * ```
  *
@@ -547,9 +549,11 @@ function Footer({ content }: { readonly content: OipSiteContent }) {
 export function OipHomePage({
   contactStatus,
   content,
+  initialContactSubmittedAt,
 }: {
   readonly contactStatus: ContactSubmissionStatus | undefined;
   readonly content: OipSiteContent;
+  readonly initialContactSubmittedAt: number;
 }) {
   return (
     <div className="min-h-screen bg-[var(--oip-paper)] text-[var(--oip-body)]">
@@ -561,7 +565,7 @@ export function OipHomePage({
         <Matters content={content} />
         <Clients content={content} />
         <Press content={content} />
-        <Contact content={content} status={contactStatus} />
+        <Contact content={content} initialSubmittedAt={initialContactSubmittedAt} status={contactStatus} />
       </main>
       <Footer content={content} />
       <BackToTop />

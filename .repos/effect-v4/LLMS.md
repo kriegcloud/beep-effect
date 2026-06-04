@@ -227,7 +227,7 @@ They let you model finite or infinite data sources.
 
 - **[Creating streams from common data sources](./ai-docs/src/02_stream/10_creating-streams.ts)**:
   Learn how to create streams from various data sources. Includes:
-  
+
   - `Stream.fromIterable` for arrays and other iterables
   - `Stream.fromEffectSchedule` for polling effects
   - `Stream.paginate` for paginated APIs

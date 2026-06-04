@@ -1,7 +1,27 @@
-import { VERSION } from "@beep/oip-web";
-import { contactRequestResponseWithSubmit } from "@beep/oip-web/app/api/contact/ContactRouteResponse";
-import { POST } from "@beep/oip-web/app/api/contact/route";
-import { ContactSubmissionResponse, decodeContactSubmission, submitContact } from "@beep/oip-web/contact";
+import { Button } from "@beep/ui/components/ui/button";
+import { A } from "@beep/utils";
+import { cleanup, render, screen } from "@testing-library/react";
+import { Clock, ConfigProvider, Effect, Exit, Layer } from "effect";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
+import * as React from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { makeOipContactHttpApiWebHandlerWithSubmit } from "@/app/api/contact/ContactHttpApiRoute";
+import { contactRequestResponseWithSubmit } from "@/app/api/contact/ContactRouteResponse";
+import { POST } from "@/app/api/contact/route";
+import Home from "@/app/page";
+import { OipThemeProvider } from "@/components/OipThemeProvider";
+import { oipRedirects } from "@/config/OipRedirects";
+import {
+  ContactSubmissionAccepted,
+  ContactSubmissionRejected,
+  ContactSubmissionResponse,
+  contactSubmissionPayloadFromFormData,
+  decodeContactSubmission,
+  OipContactHttpApiClient,
+  OipHttpApi,
+  submitContact,
+} from "@/contact";
 import {
   decodeOipSiteContentResult,
   launchReviewGates,
@@ -9,17 +29,7 @@ import {
   oipSiteContent,
   oipTwitterHandle,
   ReviewStatus,
-} from "@beep/oip-web/content";
-import { Button } from "@beep/ui/components/ui/button";
-import { A } from "@beep/utils";
-import { cleanup, render, screen } from "@testing-library/react";
-import { Clock, ConfigProvider, Effect, Exit, Layer } from "effect";
-import * as Result from "effect/Result";
-import * as React from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { OipThemeProvider } from "@/components/OipThemeProvider";
-import { oipRedirects } from "@/config/OipRedirects";
-import Home from "../src/app/page.tsx";
+} from "@/content";
 
 vi.mock("next/image", () =>
   vi.importActual<typeof import("react")>("react").then((ReactModule) => {
@@ -117,10 +127,6 @@ describe.sequential("@beep/oip-web", () => {
     window.localStorage.clear();
   });
 
-  it("exposes the package version constant", () => {
-    expect(VERSION).toBe("0.0.0");
-  });
-
   it("renders a shared @beep/ui button", () => {
     render(<Button>Shared UI Button</Button>);
 
@@ -192,6 +198,16 @@ describe.sequential("@beep/oip-web", () => {
       expect(screen.getByRole("heading", { name: /thirty years between a planter row/i })).toBeDefined();
       expect(screen.getByRole("link", { name: oipSiteContent.contact.email })).toBeDefined();
       expect(screen.getByRole("button", { name: "Switch to dark mode" })).toBeDefined();
+    }));
+
+  it("renders a server-seeded contact timestamp for progressive form posts", () =>
+    Home({}).then((page) => {
+      render(page);
+
+      const submittedAtInput = document.querySelector<HTMLInputElement>('input[name="submittedAt"]');
+
+      expect(submittedAtInput).not.toBeNull();
+      expect(Number(submittedAtInput?.value ?? 0)).toBeGreaterThan(0);
     }));
 
   it("renders the progressive theme toggle hook for the static layout script", () =>
@@ -282,6 +298,70 @@ describe.sequential("@beep/oip-web", () => {
       expect(Exit.isFailure(submittedAtExit)).toBe(true);
     }));
 
+  it("exposes an Effect HttpApi contract and Atom client for contact submissions", () => {
+    const submitContactMutation = OipContactHttpApiClient.mutation("contact", "submit");
+
+    expect(OipHttpApi.groups.contact?.identifier).toBe("contact");
+    expect(OipHttpApi.groups.contact?.endpoints.submit?.path).toBe("/api/contact");
+    expect(submitContactMutation).toBeDefined();
+  });
+
+  it("narrows contact HttpApi response schemas to literal statuses", () => {
+    const accepted = ContactSubmissionAccepted.make({
+      message: "Your note was received.",
+      status: "accepted",
+    });
+    const rejected = ContactSubmissionRejected.make({
+      message: "The submission could not be accepted.",
+      status: "rejected",
+    });
+
+    expect(accepted.status).toBe("accepted");
+    expect(rejected.status).toBe("rejected");
+    expect(
+      Exit.isFailure(
+        S.decodeUnknownExit(ContactSubmissionAccepted)({
+          message: "The submission could not be accepted.",
+          status: "rejected",
+        })
+      )
+    ).toBe(true);
+    expect(
+      Exit.isFailure(
+        S.decodeUnknownExit(ContactSubmissionRejected)({
+          message: "Your note was received.",
+          status: "accepted",
+        })
+      )
+    ).toBe(true);
+  });
+
+  it("converts contact FormData into the shared submission payload", () => {
+    const payload = contactSubmissionPayloadFromFormData(contactFormData());
+
+    expect(payload.email).toBe("TOM@EXAMPLE.COM");
+    expect(payload.message).toBe("I would like help protecting a new machine design.");
+    expect(payload.name).toBe("Thomas Oppold");
+    expect(payload.submittedAt).toBeGreaterThan(0);
+  });
+
+  it("defaults a missing FormData submittedAt through the form payload schema", () => {
+    const formData = contactFormData();
+    formData.delete("submittedAt");
+
+    const payload = contactSubmissionPayloadFromFormData(formData);
+
+    expect(payload.submittedAt).toBe(0);
+  });
+
+  it("falls back without throwing for malformed FormData submittedAt values", () => {
+    const formData = contactFormData();
+    formData.set("submittedAt", "not-a-number");
+
+    expect(() => contactSubmissionPayloadFromFormData(formData)).not.toThrow();
+    expect(contactSubmissionPayloadFromFormData(formData).submittedAt).toBe(0);
+  });
+
   it("normalizes accepted contact payload fields before provider submission", () => {
     const fetchSpy = vi
       .spyOn(globalThis, "fetch")
@@ -345,7 +425,7 @@ describe.sequential("@beep/oip-web", () => {
       .finally(() => fetchSpy.mockRestore());
   });
 
-  it("returns a JSON accepted response for valid contact route submissions", () => {
+  it("returns a JSON accepted response through the Effect HttpApi web handler", () => {
     const submit = () =>
       Effect.succeed(
         ContactSubmissionResponse.make({
@@ -353,9 +433,10 @@ describe.sequential("@beep/oip-web", () => {
           status: "accepted",
         })
       );
+    const handler = makeOipContactHttpApiWebHandlerWithSubmit(submit);
 
     return jsonContactRequest(validContactPayload())
-      .then((request) => Effect.runPromise(contactRequestResponseWithSubmit(request, submit)))
+      .then(handler)
       .then((response) =>
         response.json().then((body) => {
           expect(response.status).toBe(202);
@@ -385,31 +466,26 @@ describe.sequential("@beep/oip-web", () => {
         })
       ));
 
-  it("returns a JSON rejected response for unreadable contact route submissions", () =>
-    Effect.runPromise(
-      contactRequestResponseWithSubmit(
-        new Request("https://oip.law/api/contact", {
-          body: "{",
-          headers: { "content-type": "application/json" },
-          method: "POST",
-        }),
-        () =>
-          Effect.succeed(
-            ContactSubmissionResponse.make({
-              message: "Should not submit.",
-              status: "accepted",
-            })
-          )
+  it("redirects malformed browser form submissions without calling submit", () => {
+    const formData = contactFormData();
+    formData.set("submittedAt", "not-a-number");
+    const submit = vi.fn(() =>
+      Effect.succeed(
+        ContactSubmissionResponse.make({
+          message: "Should not submit.",
+          status: "accepted",
+        })
       )
-    ).then((response) =>
-      response.json().then((body) => {
-        expect(response.status).toBe(400);
-        expect(body).toEqual({
-          message: "The submission could not be accepted.",
-          status: "rejected",
-        });
-      })
-    ));
+    );
+
+    return Effect.runPromise(contactRequestResponseWithSubmit(formContactRequest(formData), submit)).then(
+      (response) => {
+        expect(submit).not.toHaveBeenCalled();
+        expect(response.status).toBe(303);
+        expect(response.headers.get("location")).toBe("https://oip.law/?contact=rejected#contact");
+      }
+    );
+  });
 
   it("redirects browser form contact submissions back to the contact section", () =>
     POST(formContactRequest()).then((response) => {

@@ -1,3 +1,5 @@
+import { Effect } from "effect";
+import { describe, expect, it } from "vitest";
 import {
   CanvasCommandError,
   decodeCanvasNodeId,
@@ -5,10 +7,8 @@ import {
   makeCanvasCommandRuntime,
   makeNativeCanvasCommandBridge,
   makePreviewCanvasCommandBridge,
-} from "@beep/canvas";
-import { Effect } from "effect";
-import { describe, expect, it } from "vitest";
-import type { CanvasCommandBridgeEffect, CanvasScene } from "@beep/canvas";
+} from "@/commandBridge";
+import type { CanvasCommandBridgeEffect, CanvasScene } from "@/commandBridge";
 
 const runCanvasEffect = <A>(effect: CanvasCommandBridgeEffect<A>): Promise<A> => {
   const runtime = makeCanvasCommandRuntime();

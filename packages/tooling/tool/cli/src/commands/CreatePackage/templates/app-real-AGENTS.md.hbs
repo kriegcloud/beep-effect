@@ -1,0 +1,26 @@
+# {{scopedName}} Agent Guide
+
+## Purpose & Fit
+- {{description}}
+
+## Surface Map
+| Surface | Key files | Notes |
+| --- | --- | --- |
+{{#if isNextjsApp}}
+| Next.js runtime | `src/app` | App router entry points |
+{{/if}}
+{{#if isTauriApp}}
+| Tauri shell | `src`, `src-tauri` | React frontend plus desktop runtime |
+{{/if}}
+| package API | none | This app does not publish `{{scopedName}}` source exports |
+
+## Laws
+- Keep app internals app-local through `@/*`.
+- Do not add package root exports, dtslint, or docgen for this app unless it is intentionally converted to a runtime proof package.
+- Promote reusable domain contracts to slice or shared packages before importing them elsewhere.
+- Keep framework runtime files standard for the app kind.
+
+## Verifications
+- `bunx turbo run check --filter={{scopedName}}`
+- `bunx turbo run test --filter={{scopedName}}`
+- `bunx turbo run lint --filter={{scopedName}}`

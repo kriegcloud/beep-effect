@@ -788,7 +788,14 @@ describe("FormReact.make", () => {
     effectTest("exposes isValidating state during async validation", function* () {
       const user = userEvent.setup();
 
-      const AsyncField = S.String.pipe(S.filterEffect(() => Effect.succeed(true).pipe(Effect.delay("100 millis"))));
+      let completeValidation: (() => void) | undefined;
+      const AsyncField = S.String.pipe(
+        S.filterEffect(() =>
+          Effect.async<boolean>((resume) => {
+            completeValidation = () => resume(Effect.succeed(true));
+          })
+        )
+      );
 
       const ValidatingInput: FormReact.FieldComponent<string> = ({ field }) => (
         <div>
@@ -831,6 +838,8 @@ describe("FormReact.make", () => {
           expect(screen.getByTestId("is-validating")).toHaveTextContent("true");
         })
       );
+
+      completeValidation?.();
 
       yield* Effect.promise(() =>
         waitFor(
@@ -2600,43 +2609,45 @@ describe("FormReact.make", () => {
     });
 
     effectTest("does NOT re-trigger auto-submit after submission completes", function* () {
-      const user = userEvent.setup();
+      vi.useFakeTimers();
       const submitHandler = vi.fn();
 
-      const formBuilder = FormBuilder.empty.addField(NameField);
+      try {
+        const formBuilder = FormBuilder.empty.addField(NameField);
 
-      const form = FormReact.make(formBuilder, {
-        runtime: createRuntime(),
-        fields: { name: DebounceTextInput },
-        mode: { validation: "onChange", debounce: "50 millis", autoSubmit: true },
-        onSubmit: Effect.fn("FormReactAutoSubmitTest.onSubmit")(function* (_: void, { decoded }) {
-          yield* delay(50);
-          submitHandler(decoded);
-        }),
-      });
+        const form = FormReact.make(formBuilder, {
+          runtime: createRuntime(),
+          fields: { name: DebounceTextInput },
+          mode: { validation: "onChange", debounce: "50 millis", autoSubmit: true },
+          onSubmit: Effect.fn("FormReactAutoSubmitTest.onSubmit")(function* (_: void, { decoded }) {
+            yield* delay(50);
+            submitHandler(decoded);
+          }),
+        });
 
-      render(
-        <form.Initialize defaultValues={{ name: "" }}>
-          <form.name />
-        </form.Initialize>
-      );
+        render(
+          <form.Initialize defaultValues={{ name: "" }}>
+            <form.name />
+          </form.Initialize>
+        );
 
-      const input = screen.getByTestId("text-input");
-      yield* Effect.promise(() => user.type(input, "Lucas"));
+        const input = screen.getByTestId("text-input");
+        act(() => {
+          fireEvent.change(input, { target: { value: "Lucas" } });
+        });
 
-      yield* Effect.promise(() =>
-        waitFor(
-          () => {
-            expect(submitHandler).toHaveBeenCalledTimes(1);
-          },
-          { timeout: 300 }
-        )
-      );
+        yield* Effect.promise(() => act(() => vi.advanceTimersByTimeAsync(50)));
+        expect(submitHandler).not.toHaveBeenCalled();
 
-      yield* delay(200);
+        yield* Effect.promise(() => act(() => vi.advanceTimersByTimeAsync(50)));
+        expect(submitHandler).toHaveBeenCalledTimes(1);
+        expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas" });
 
-      expect(submitHandler).toHaveBeenCalledTimes(1);
-      expect(submitHandler).toHaveBeenCalledWith({ name: "Lucas" });
+        yield* Effect.promise(() => act(() => vi.advanceTimersByTimeAsync(200)));
+        expect(submitHandler).toHaveBeenCalledTimes(1);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     effectTest("batches updates from multiple fields into a single auto-submission", function* () {
