@@ -368,7 +368,12 @@ const isTurboCacheControlArg = (arg: string): boolean =>
 const isExplicitTurboScopeArg = (arg: string): boolean =>
   Str.startsWith("--filter")(arg) || Str.startsWith("--since")(arg);
 
+const isExplicitTurboAffectedOrScopeArg = (arg: string): boolean =>
+  arg === "--affected" || isExplicitTurboScopeArg(arg);
+
 const shouldRunRepoWideSteps = (args: ReadonlyArray<string>): boolean => !A.some(args, isExplicitTurboScopeArg);
+const shouldRunLintRepoWideSteps = (args: ReadonlyArray<string>): boolean =>
+  !A.some(args, isExplicitTurboAffectedOrScopeArg);
 
 const isCi = (): boolean => Bun.env.CI === "true" || configStringEqualsSync("CI", "true");
 
@@ -961,7 +966,7 @@ const rootLintPolicySteps = (
   args: ReadonlyArray<string>,
   fix: boolean
 ): ReadonlyArray<QualityTaskStep> => {
-  if (fix || !shouldRunRepoWideSteps(args)) {
+  if (fix || !shouldRunLintRepoWideSteps(args)) {
     return A.empty<QualityTaskStep>();
   }
 
@@ -1000,7 +1005,7 @@ const runRootLintTask = Effect.fn("QualityTasks.runRootLintTask")(function* (
     fix ? turboStep(repoRoot, "lint:fix", ["lint:fix"], args) : turboStep(repoRoot, "lint", ["lint"], args)
   );
 
-  if (fix || !shouldRunRepoWideSteps(args)) {
+  if (fix || !shouldRunLintRepoWideSteps(args)) {
     return;
   }
 

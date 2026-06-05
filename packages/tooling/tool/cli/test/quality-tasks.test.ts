@@ -500,47 +500,14 @@ describe("quality task adapter", () => {
     expect(O.isNone(parseQualityTaskInvocation(["lint", "schema-first"]))).toBe(true);
   });
 
-  it("delegates affected root lint to the aggregate repo lint lane and repo-wide policy checks", () => {
+  it("delegates affected root lint only to the affected aggregate repo lint lane", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]));
 
-    expect(steps).toHaveLength(20);
+    expect(steps).toHaveLength(1);
     expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--affected", "--summarize"]));
-    expect(steps[3]).toMatchObject({
-      label: "lint:effect-fn",
-      command: "bun",
-      args: ["run", "beep", "laws", "effect-fn", "--check"],
-      cwd: "/repo",
-    });
-    expect(A.map(A.slice(steps, 1), (step) => step.label)).toEqual([
-      "lint:effect-imports",
-      "lint:terse-effect",
-      "lint:effect-fn",
-      "lint:native-runtime",
-      "lint:dual-arity",
-      "lint:allowlist",
-      "lint:tsgo-rules",
-      "lint:package-test-imports",
-      "lint:schema-first",
-      "lint:deprecated-apis",
-      "lint:jsdoc",
-      "lint:jsdoc-module-tags",
-      "lint:docgen",
-      "lint:spell",
-      "lint:markdown",
-      "lint:circular",
-      "lint:tooling-tagged-errors",
-      "lint:clones",
-      "lint:typos",
-    ]);
-    expect(steps[10]).toMatchObject({
-      label: "lint:deprecated-apis",
-      command: "bun",
-      args: ["run", "beep", "lint", "deprecated-apis"],
-      cwd: "/repo",
-    });
   });
 
-  it("skips repo-wide lint policy checks only for explicit package filters", () => {
+  it("skips repo-wide lint policy checks for explicit package filters", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--filter=@beep/schema"]));
 
     expect(steps).toHaveLength(1);
