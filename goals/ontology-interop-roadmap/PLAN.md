@@ -2,8 +2,8 @@
 
 ## Status
 
-This plan executes [SPEC.md](./SPEC.md). Packet research is complete; package
-implementation is intentionally deferred to a future session.
+This plan executes [SPEC.md](./SPEC.md). Packet research is complete and the v1
+package implementation is complete in the existing foundation modeling packages.
 
 ## Phase 0 - Packet And Research
 
@@ -22,47 +22,47 @@ implementation is intentionally deferred to a future session.
 
 ## Phase 1 - RDF Vocabulary Foundation
 
-- [ ] Add `@beep/rdf/Vocab/Skos` with generic SKOS constants.
-- [ ] Add focused tests for namespace and constant IRIs.
-- [ ] Update public exports and dtslint examples.
-- [ ] Move local SKOS constants out of `@beep/ontology` cleanup-on-touch.
+- [x] Add `@beep/rdf/Vocab/Skos` with generic SKOS constants.
+- [x] Add focused tests for namespace and constant IRIs.
+- [x] Update public exports and dtslint examples.
+- [x] Move local SKOS constants out of `@beep/ontology` cleanup-on-touch.
 - [ ] Consider a small `@beep/rdf/Vocab/Dcterms` follow-up if DCTERMS source
   constants remain local to `@beep/ontology`.
 
 ## Phase 2 - Ontology SKOS Profile
 
-- [ ] Add opt-in SKOS profile metadata models in `@beep/ontology`.
-- [ ] Preserve current class metadata compatibility fields.
-- [ ] Support multilingual labels and notes beside current plain string fields.
-- [ ] Allow dual `rdfs:Class` plus `skos:Concept` only when explicitly opted in.
-- [ ] Implement profile validation with hard errors and warnings.
-- [ ] Enrich JSON-LD and Turtle projections for profile fields.
+- [x] Add opt-in SKOS profile metadata models in `@beep/ontology`.
+- [x] Preserve current class metadata compatibility fields.
+- [x] Support multilingual labels and notes beside current plain string fields.
+- [x] Allow dual `rdfs:Class` plus `skos:Concept` only when explicitly opted in.
+- [x] Implement profile validation with hard errors and warnings.
+- [x] Enrich JSON-LD and Turtle projections for profile fields.
 
 ## Phase 3 - Markdown Documentation Projection
 
-- [ ] Add deterministic Markdown projection in `@beep/ontology`.
-- [ ] Default to portable Markdown links.
-- [ ] Add explicit Obsidian wikilink mode for vault/RAG workflows.
-- [ ] Cover ontology, class/concept, predicate, scheme, hierarchy, mapping,
+- [x] Add deterministic Markdown projection in `@beep/ontology`.
+- [x] Default to portable Markdown links.
+- [x] Add explicit Obsidian wikilink mode for vault/RAG workflows.
+- [x] Cover ontology, class/concept, predicate, scheme, hierarchy, mapping,
   source/provenance, and sidecar-pointer sections.
 - [ ] Keep HTML pages, route suffixes, and browsers out of v1 package scope.
 
 ## Phase 4 - JSON Schema Sidecars And Provenance
 
-- [ ] Derive `JsonSchema.Document<"draft-2020-12">` with
+- [x] Derive `JsonSchema.Document<"draft-2020-12">` with
   `S.toJsonSchemaDocument(...)` from source class schemas.
-- [ ] Attach sidecars as non-RDF ontology metadata.
-- [ ] Use safe generation defaults and avoid broad annotation leakage.
-- [ ] Add optional domain-agnostic provenance hooks.
+- [x] Attach sidecars as non-RDF ontology metadata.
+- [x] Use safe generation defaults and avoid broad annotation leakage.
+- [x] Add optional domain-agnostic provenance hooks.
 - [ ] Keep legal/OIP provenance requirements in future ingestion/product slices.
 
 ## Phase 5 - Focused Verification
 
-- [ ] Run package type checks for `@beep/rdf` and `@beep/ontology`.
-- [ ] Run package tests for `@beep/rdf` and `@beep/ontology`.
-- [ ] Add or update dtslint examples for public surfaces.
-- [ ] Refresh repo export catalog only after package checks are green.
-- [ ] Escalate to broader repo quality lanes only if touched surfaces require it.
+- [x] Run package type checks for `@beep/rdf` and `@beep/ontology`.
+- [x] Run package tests for `@beep/rdf` and `@beep/ontology`.
+- [x] Add or update dtslint examples for public surfaces.
+- [x] Refresh repo export catalog only after package checks are green.
+- [x] Escalate to broader repo quality lanes only if touched surfaces require it.
 
 ## Deferred Follow-Ups
 

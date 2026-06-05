@@ -9,6 +9,7 @@ import {
   parseJsonLdOntology,
   projectJsonLdContext,
   projectJsonLdOntology,
+  projectMarkdown,
   projectTurtle,
   VERSION,
 } from "@beep/ontology";
@@ -174,6 +175,102 @@ class DeprecatedClass extends S.Class<DeprecatedClass>($I`DeprecatedClass`)(
     Ont.class({
       deprecated: true,
       description: "Deprecated ontology class.",
+    })
+  )
+) {}
+
+class PracticeScheme extends S.Class<PracticeScheme>($I`PracticeScheme`)(
+  {},
+  $I.annote(
+    "PracticeScheme",
+    Ont.class({
+      description: "Practice-area concept scheme.",
+      label: "Practice Scheme",
+      skosProfile: Ont.skosConceptScheme({
+        definitions: [{ value: "Practice-area concept scheme.", language: "en" }],
+        hasTopConcepts: [Ont.ref("PatentConcept")],
+        prefLabels: [{ value: "Practice Scheme", language: "en" }],
+      }),
+    })
+  )
+) {}
+
+class PatentConcept extends S.Class<PatentConcept>($I`PatentConcept`)(
+  {},
+  $I.annote(
+    "PatentConcept",
+    Ont.class({
+      altLabels: ["Patent alternate"],
+      definition: "Patent concept compatibility definition.",
+      description: "Patent taxonomy concept.",
+      label: "Patent Concept",
+      provenance: Ont.provenance({
+        extractionMethod: "curated",
+        sourceIri: "https://example.org/source#patent",
+        sourceLabel: "Example source",
+        sourceSpan: "p. 12",
+        verificationStatus: "human-reviewed",
+      }),
+      skosProfile: Ont.skosConcept({
+        altLabels: [{ value: "Patents", language: "en" }],
+        broadMatches: [Ont.ref("https://example.org/external#IntellectualProperty")],
+        closeMatches: [Ont.closeMatch("https://schema.org/CreativeWork")],
+        definitions: [{ value: "A patent-related taxonomy concept.", language: "en" }],
+        hiddenLabels: [{ value: "pat.", language: "en" }],
+        inSchemes: [PracticeScheme],
+        prefLabels: [{ value: "Patent", language: "en" }],
+        related: [Ont.ref("https://example.org/external#Inventor")],
+        relatedMatches: [Ont.ref("https://example.org/external#PatentDocument")],
+        scopeNotes: [{ value: "Used for browsing patent concepts.", language: "en" }],
+        topConceptOf: [PracticeScheme],
+      }),
+    })
+  )
+) {}
+
+class WarningConcept extends S.Class<WarningConcept>($I`WarningConcept`)(
+  {},
+  $I.annote(
+    "WarningConcept",
+    Ont.class({
+      description: "Concept with curation warnings.",
+      skosProfile: Ont.skosConcept({
+        broader: [Parent],
+        prefLabels: [{ value: "Warning", language: "en" }],
+        related: [Parent],
+      }),
+    })
+  )
+) {}
+
+class DuplicatePrefLabelConcept extends S.Class<DuplicatePrefLabelConcept>($I`DuplicatePrefLabelConcept`)(
+  {},
+  $I.annote(
+    "DuplicatePrefLabelConcept",
+    Ont.class({
+      description: "Concept with duplicate preferred labels.",
+      skosProfile: Ont.skosConcept({
+        inSchemes: [PracticeScheme],
+        prefLabels: [
+          { value: "Duplicate One", language: "en" },
+          { value: "Duplicate Two", language: "en" },
+        ],
+      }),
+    })
+  )
+) {}
+
+class ConflictingLabelConcept extends S.Class<ConflictingLabelConcept>($I`ConflictingLabelConcept`)(
+  {},
+  $I.annote(
+    "ConflictingLabelConcept",
+    Ont.class({
+      description: "Concept with conflicting labels.",
+      skosProfile: Ont.skosConcept({
+        altLabels: [{ value: "Conflict", language: "en" }],
+        inSchemes: [PracticeScheme],
+        prefLabels: [{ value: "Conflict", language: "en" }],
+      }),
     })
   )
 ) {}
@@ -469,6 +566,51 @@ describe("@beep/ontology", () => {
     expect(ontologyClass.predicates[0]?.fieldName).toBe("value");
   });
 
+  it("assembles opt-in SKOS profiles with provenance and JSON Schema sidecars", () => {
+    const ontology = Effect.runSync(Ont.build([PracticeScheme, PatentConcept]));
+    const concept = pipe(
+      ontology.classes,
+      A.findFirst((ontologyClass) => ontologyClass.termName === "PatentConcept"),
+      O.getOrThrow
+    );
+    const scheme = pipe(
+      ontology.classes,
+      A.findFirst((ontologyClass) => ontologyClass.termName === "PracticeScheme"),
+      O.getOrThrow
+    );
+
+    expect(A.length(ontology.validation.errors)).toBe(0);
+    expect(A.length(ontology.validation.warnings)).toBe(0);
+    expect(O.isSome(concept.skosProfile)).toBe(true);
+    if (O.isSome(concept.skosProfile)) {
+      expect(concept.skosProfile.value.kind).toBe("concept");
+      if (concept.skosProfile.value.kind === "concept") {
+        expect(concept.skosProfile.value.prefLabels[0]?.value).toBe("Patent");
+        expect(concept.skosProfile.value.prefLabels[0]?.language).toEqual(O.some("en"));
+        expect(concept.skosProfile.value.inSchemes[0]?.iri).toBe("https://example.org/test#PracticeScheme");
+      }
+    }
+    expect(O.isSome(scheme.skosProfile)).toBe(true);
+    if (O.isSome(scheme.skosProfile)) {
+      expect(scheme.skosProfile.value.kind).toBe("conceptScheme");
+    }
+    expect(concept.provenance).toEqual(
+      O.some(
+        expect.objectContaining({
+          extractionMethod: O.some("curated"),
+          sourceIri: O.some("https://example.org/source#patent"),
+          verificationStatus: O.some("human-reviewed"),
+        })
+      )
+    );
+    expect(O.isSome(concept.jsonSchemaSidecar)).toBe(true);
+    if (O.isSome(concept.jsonSchemaSidecar)) {
+      expect(concept.jsonSchemaSidecar.value.document.dialect).toBe("draft-2020-12");
+      expect(concept.jsonSchemaSidecar.value.options.additionalProperties).toBe(false);
+      expect(concept.jsonSchemaSidecar.value.options.generateDescriptions).toBe(true);
+    }
+  });
+
   it("projects JSON-LD and Turtle", () => {
     const ontology = Effect.runSync(Ont.build([Parent, Child, RichClass]));
     const context = projectJsonLdContext(ontology);
@@ -500,6 +642,35 @@ describe("@beep/ontology", () => {
     expect(turtle).toContain("<https://example.org/test#homepage> a owl:DatatypeProperty");
   });
 
+  it("projects SKOS profiles to JSON-LD, Turtle, and Markdown link modes", () => {
+    const ontology = Effect.runSync(Ont.build([PracticeScheme, PatentConcept]));
+    const jsonLd = projectJsonLdOntology(ontology);
+    const turtle = projectTurtle(ontology);
+    const markdown = projectMarkdown(ontology);
+    const obsidianMarkdown = Ont.toMarkdown(ontology, { linkMode: "obsidian" });
+    const conceptNode = pipe(
+      jsonLd["@graph"],
+      A.findFirst((node) => node["@id"] === "https://example.org/test#PatentConcept"),
+      O.getOrThrow
+    );
+
+    expect(conceptNode["@type"]).toEqual(["rdfs:Class", "skos:Concept"]);
+    expect(conceptNode["skos:prefLabel"]).toEqual([{ "@value": "Patent", "@language": "en" }]);
+    expect(conceptNode["skos:hiddenLabel"]).toEqual([{ "@value": "pat.", "@language": "en" }]);
+    expect(conceptNode["skos:inScheme"]).toEqual([{ "@id": "https://example.org/test#PracticeScheme" }]);
+    expect(turtle).toContain("<https://example.org/test#PatentConcept> a rdfs:Class, skos:Concept");
+    expect(turtle).toContain('skos:prefLabel "Patent"@en');
+    expect(turtle).toContain("skos:inScheme <https://example.org/test#PracticeScheme>");
+    expect(markdown).toContain(
+      "[https://example\\.org/test\\#PracticeScheme](<https://example.org/test#PracticeScheme>)"
+    );
+    expect(markdown).toContain("JSON Schema sidecar");
+    expect(markdown).toContain("Source IRI");
+    expect(obsidianMarkdown).toContain(
+      "[[https-example-org-test-practicescheme|https://example.org/test#PracticeScheme]]"
+    );
+  });
+
   it("escapes Turtle string literal control characters", () => {
     const ontology = Effect.runSync(Ont.build([MultilineComment]));
     const turtle = projectTurtle(ontology);
@@ -524,6 +695,28 @@ describe("@beep/ontology", () => {
       expect(A.length(roundTrip.success.classes)).toBe(A.length(ontology.classes));
       expect(roundTrip.success.metadata.baseIri).toBe("https://example.org/test#");
       expect(roundTrip.success.classes[0]?.predicates.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("round-trips SKOS profile fields through bounded JSON-LD import", () => {
+    const ontology = Effect.runSync(Ont.build([PracticeScheme, PatentConcept]));
+    const roundTrip = Ont.fromJsonLD(Ont.toJsonLD(ontology));
+
+    expect(Result.isSuccess(roundTrip)).toBe(true);
+    if (Result.isSuccess(roundTrip)) {
+      const concept = pipe(
+        roundTrip.success.classes,
+        A.findFirst((ontologyClass) => ontologyClass.termName === "PatentConcept"),
+        O.getOrThrow
+      );
+
+      expect(O.isSome(concept.skosProfile)).toBe(true);
+      if (O.isSome(concept.skosProfile) && concept.skosProfile.value.kind === "concept") {
+        expect(concept.skosProfile.value.prefLabels[0]?.value).toBe("Patent");
+        expect(concept.skosProfile.value.hiddenLabels[0]?.value).toBe("pat.");
+        expect(concept.skosProfile.value.inSchemes[0]?.iri).toBe("https://example.org/test#PracticeScheme");
+      }
+      expect(concept.jsonSchemaSidecar).toEqual(O.none());
     }
   });
 
@@ -571,5 +764,18 @@ describe("@beep/ontology", () => {
   it("returns typed assembly failures for unresolved relationship targets", () => {
     expectAssemblyFailure(Ont.build([MissingTargetReference]), "unresolvedReferenceTarget");
     expectAssemblyFailure(Ont.build([MissingTargetIdentityReference]), "unresolvedReferenceTarget");
+  });
+
+  it("separates SKOS hard validation failures from warnings", () => {
+    const warningOntology = Effect.runSync(Ont.build([Parent, WarningConcept]));
+    const warningCodes = pipe(
+      warningOntology.validation.warnings,
+      A.map((issue) => issue.code)
+    );
+
+    expect(warningCodes).toContain("missingConceptScheme");
+    expect(warningCodes).toContain("relatedDuplicatesHierarchy");
+    expectAssemblyFailure(Ont.build([PracticeScheme, DuplicatePrefLabelConcept]), "invalidSkosProfile");
+    expectAssemblyFailure(Ont.build([PracticeScheme, ConflictingLabelConcept]), "invalidSkosProfile");
   });
 });

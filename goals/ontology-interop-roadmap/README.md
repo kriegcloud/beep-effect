@@ -2,7 +2,9 @@
 
 ## Status
 
-**ACTIVE - research packet ready; package implementation not started**
+Lifecycle: `completed-retained`
+
+**COMPLETE - v1 package implementation landed; retained as roadmap evidence**
 
 ## Owner
 
@@ -28,8 +30,9 @@ packages:
 - `@beep/semantic-web` remains the capability home for runtime validation,
   reasoners, and heavier semantic-web services.
 
-The packet is research-backed and execution-capable. It intentionally does not
-implement package code.
+The packet is research-backed and execution-capable. Its v1 scope has now been
+implemented in the existing foundation modeling packages, and the packet remains
+as launch context for audit, regression, or follow-up work.
 
 ## Reading Order
 

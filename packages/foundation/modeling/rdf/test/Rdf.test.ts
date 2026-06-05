@@ -68,6 +68,29 @@ import {
 } from "@beep/rdf/Vocab/Prov";
 import { RDF_FIRST, RDF_NAMESPACE, RDF_NIL, RDF_REST, RDF_TYPE } from "@beep/rdf/Vocab/Rdf";
 import { RDFS_CLASS, RDFS_COMMENT, RDFS_LABEL, RDFS_NAMESPACE } from "@beep/rdf/Vocab/Rdfs";
+import {
+  SKOS_ALT_LABEL,
+  SKOS_BROAD_MATCH,
+  SKOS_BROADER,
+  SKOS_CLOSE_MATCH,
+  SKOS_CONCEPT,
+  SKOS_CONCEPT_SCHEME,
+  SKOS_DEFINITION,
+  SKOS_EDITORIAL_NOTE,
+  SKOS_EXACT_MATCH,
+  SKOS_HAS_TOP_CONCEPT,
+  SKOS_HIDDEN_LABEL,
+  SKOS_HISTORY_NOTE,
+  SKOS_IN_SCHEME,
+  SKOS_NAMESPACE,
+  SKOS_NARROW_MATCH,
+  SKOS_NARROWER,
+  SKOS_PREF_LABEL,
+  SKOS_RELATED,
+  SKOS_RELATED_MATCH,
+  SKOS_SCOPE_NOTE,
+  SKOS_TOP_CONCEPT_OF,
+} from "@beep/rdf/Vocab/Skos";
 import { XSD_ANY_URI, XSD_BOOLEAN, XSD_DOUBLE, XSD_INTEGER, XSD_NAMESPACE, XSD_STRING } from "@beep/rdf/Vocab/Xsd";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
@@ -563,6 +586,27 @@ describe("@beep/rdf package and vocabulary exports", () => {
     expect(RDFS_LABEL.value).toBe(`${RDFS_NAMESPACE}label`);
     expect(RDFS_COMMENT.value).toBe(`${RDFS_NAMESPACE}comment`);
     expect(RDFS_CLASS.value).toBe(`${RDFS_NAMESPACE}Class`);
+    expect(SKOS_NAMESPACE).toBe("http://www.w3.org/2004/02/skos/core#");
+    expect(SKOS_CONCEPT.value).toBe(`${SKOS_NAMESPACE}Concept`);
+    expect(SKOS_CONCEPT_SCHEME.value).toBe(`${SKOS_NAMESPACE}ConceptScheme`);
+    expect(SKOS_PREF_LABEL.value).toBe(`${SKOS_NAMESPACE}prefLabel`);
+    expect(SKOS_ALT_LABEL.value).toBe(`${SKOS_NAMESPACE}altLabel`);
+    expect(SKOS_HIDDEN_LABEL.value).toBe(`${SKOS_NAMESPACE}hiddenLabel`);
+    expect(SKOS_DEFINITION.value).toBe(`${SKOS_NAMESPACE}definition`);
+    expect(SKOS_SCOPE_NOTE.value).toBe(`${SKOS_NAMESPACE}scopeNote`);
+    expect(SKOS_EDITORIAL_NOTE.value).toBe(`${SKOS_NAMESPACE}editorialNote`);
+    expect(SKOS_HISTORY_NOTE.value).toBe(`${SKOS_NAMESPACE}historyNote`);
+    expect(SKOS_BROADER.value).toBe(`${SKOS_NAMESPACE}broader`);
+    expect(SKOS_NARROWER.value).toBe(`${SKOS_NAMESPACE}narrower`);
+    expect(SKOS_RELATED.value).toBe(`${SKOS_NAMESPACE}related`);
+    expect(SKOS_EXACT_MATCH.value).toBe(`${SKOS_NAMESPACE}exactMatch`);
+    expect(SKOS_CLOSE_MATCH.value).toBe(`${SKOS_NAMESPACE}closeMatch`);
+    expect(SKOS_BROAD_MATCH.value).toBe(`${SKOS_NAMESPACE}broadMatch`);
+    expect(SKOS_NARROW_MATCH.value).toBe(`${SKOS_NAMESPACE}narrowMatch`);
+    expect(SKOS_RELATED_MATCH.value).toBe(`${SKOS_NAMESPACE}relatedMatch`);
+    expect(SKOS_IN_SCHEME.value).toBe(`${SKOS_NAMESPACE}inScheme`);
+    expect(SKOS_HAS_TOP_CONCEPT.value).toBe(`${SKOS_NAMESPACE}hasTopConcept`);
+    expect(SKOS_TOP_CONCEPT_OF.value).toBe(`${SKOS_NAMESPACE}topConceptOf`);
     expect(XSD_NAMESPACE).toBe("http://www.w3.org/2001/XMLSchema#");
     expect(XSD_STRING.value).toBe(`${XSD_NAMESPACE}string`);
     expect(XSD_ANY_URI.value).toBe(`${XSD_NAMESPACE}anyURI`);

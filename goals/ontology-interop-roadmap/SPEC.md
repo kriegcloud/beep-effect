@@ -189,7 +189,7 @@ mandatory for every generic ontology class.
 - HTML detail pages, API suffix routing, and visual taxonomy browsers.
 - Legal-specific ontology package content.
 
-## Acceptance Criteria For Future Implementation
+## Acceptance Criteria For V1 Implementation
 
 - `@beep/rdf/Vocab/Skos` exports generic SKOS constants through public package
   entrypoints and tests prove expected IRIs.

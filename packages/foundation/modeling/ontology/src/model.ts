@@ -44,6 +44,7 @@ export {
 const $I = $OntologyId.create("model");
 
 const decodeIriResult = S.decodeUnknownResult(IRI);
+const decodeUriResult = S.decodeUnknownResult(URI);
 
 export const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError => {
   /* istanbul ignore else -- public schema decoders surface SchemaError instances in this package */
@@ -124,9 +125,7 @@ export const OntologyProvenanceVerificationStatus = LiteralKit([
 );
 export type OntologyProvenanceVerificationStatus = typeof OntologyProvenanceVerificationStatus.Type;
 
-export class OntologyProvenanceMetadata extends S.Class<OntologyProvenanceMetadata>(
-  $I`OntologyProvenanceMetadata`
-)(
+export class OntologyProvenanceMetadata extends S.Class<OntologyProvenanceMetadata>($I`OntologyProvenanceMetadata`)(
   {
     sourceIri: S.OptionFromOptionalKey(IRI),
     sourceUri: S.OptionFromOptionalKey(URI),
@@ -188,9 +187,7 @@ export const OntologyReferenceTarget = S.Union([
 );
 export type OntologyReferenceTarget = typeof OntologyReferenceTarget.Type;
 
-export class OntologySkosConceptProfile extends S.Class<OntologySkosConceptProfile>(
-  $I`OntologySkosConceptProfile`
-)(
+export class OntologySkosConceptProfile extends S.Class<OntologySkosConceptProfile>($I`OntologySkosConceptProfile`)(
   {
     kind: S.tag("concept"),
     prefLabels: S.Array(OntologyLanguageLiteral),
@@ -301,9 +298,7 @@ export const OntologySkosProfileDraft = S.Union([
 );
 export type OntologySkosProfileDraft = typeof OntologySkosProfileDraft.Type;
 
-export class OntologyJsonSchemaDocument extends S.Class<OntologyJsonSchemaDocument>(
-  $I`OntologyJsonSchemaDocument`
-)(
+export class OntologyJsonSchemaDocument extends S.Class<OntologyJsonSchemaDocument>($I`OntologyJsonSchemaDocument`)(
   {
     dialect: S.Literal("draft-2020-12"),
     schema: S.Record(S.String, S.Unknown),
@@ -327,9 +322,7 @@ export class OntologyJsonSchemaSidecarOptions extends S.Class<OntologyJsonSchema
   })
 ) {}
 
-export class OntologyJsonSchemaSidecar extends S.Class<OntologyJsonSchemaSidecar>(
-  $I`OntologyJsonSchemaSidecar`
-)(
+export class OntologyJsonSchemaSidecar extends S.Class<OntologyJsonSchemaSidecar>($I`OntologyJsonSchemaSidecar`)(
   {
     classIri: IRI,
     schemaIdentity: S.NonEmptyString,
@@ -534,6 +527,8 @@ const decodeOntologyObjectPredicateMetadataResult = S.decodeUnknownResult(Ontolo
 
 export const makeIri = (value: string): IRI => pipe(decodeIriResult(value), Result.getOrThrowWith(schemaIssueToError));
 
+export const makeUri = (value: string): URI => pipe(decodeUriResult(value), Result.getOrThrowWith(schemaIssueToError));
+
 export const makeOntologyTermName = (value: string): OntologyTermName =>
   pipe(decodeOntologyTermNameResult(value), Result.getOrThrowWith(schemaIssueToError));
 
@@ -732,7 +727,7 @@ export class AssembledOntologyClass extends S.Class<AssembledOntologyClass>($I`A
     sameAs: S.Array(OntologyReference),
     skosProfile: S.OptionFromOptionalKey(OntologySkosProfile),
     provenance: S.OptionFromOptionalKey(OntologyProvenanceMetadata),
-    jsonSchemaSidecar: OntologyJsonSchemaSidecar,
+    jsonSchemaSidecar: S.OptionFromOptionalKey(OntologyJsonSchemaSidecar),
     predicates: S.Array(AssembledOntologyPredicate),
   },
   $I.annote("AssembledOntologyClass", {
@@ -796,16 +791,64 @@ export class JsonLdIdReference extends S.Class<JsonLdIdReference>($I`JsonLdIdRef
   })
 ) {}
 
+export class JsonLdLanguageLiteral extends S.Class<JsonLdLanguageLiteral>($I`JsonLdLanguageLiteral`)(
+  {
+    "@value": S.NonEmptyString,
+    "@language": S.OptionFromOptionalKey(LanguageTag),
+  },
+  $I.annote("JsonLdLanguageLiteral", {
+    description: "JSON-LD language literal emitted for SKOS labels and notes.",
+  })
+) {}
+
+export const JsonLdLabelValue = S.Union([S.NonEmptyString, JsonLdLanguageLiteral]).pipe(
+  $I.annoteSchema("JsonLdLabelValue", {
+    description: "JSON-LD label value that preserves legacy plain strings and multilingual SKOS literals.",
+  })
+);
+export type JsonLdLabelValue = typeof JsonLdLabelValue.Type;
+
+export const JsonLdClassType = S.Union([
+  S.Literal("rdfs:Class"),
+  S.Array(S.Union([S.Literal("rdfs:Class"), S.Literal("skos:Concept"), S.Literal("skos:ConceptScheme")])),
+]).pipe(
+  $I.annoteSchema("JsonLdClassType", {
+    description: "JSON-LD class node type, optionally enriched with an explicit SKOS profile type.",
+  })
+);
+export type JsonLdClassType = typeof JsonLdClassType.Type;
+
+export const JsonLdDefinitionValue = S.Union([S.NonEmptyString, S.Array(JsonLdLabelValue)]).pipe(
+  $I.annoteSchema("JsonLdDefinitionValue", {
+    description: "JSON-LD SKOS definition value preserving legacy string definitions and multilingual literals.",
+  })
+);
+export type JsonLdDefinitionValue = typeof JsonLdDefinitionValue.Type;
+
 export class JsonLdClassNode extends S.Class<JsonLdClassNode>($I`JsonLdClassNode`)(
   {
     "@id": IRI,
-    "@type": S.Literal("rdfs:Class"),
+    "@type": JsonLdClassType,
     schemaIdentity: S.NonEmptyString,
     termName: OntologyTermName,
     "rdfs:label": S.NonEmptyString,
     "rdfs:comment": S.OptionFromOptionalKey(S.NonEmptyString),
-    "skos:altLabel": S.Array(S.NonEmptyString),
-    "skos:definition": S.OptionFromOptionalKey(S.NonEmptyString),
+    "skos:prefLabel": S.Array(JsonLdLanguageLiteral),
+    "skos:altLabel": S.Array(JsonLdLabelValue),
+    "skos:hiddenLabel": S.Array(JsonLdLanguageLiteral),
+    "skos:definition": S.OptionFromOptionalKey(JsonLdDefinitionValue),
+    "skos:scopeNote": S.Array(JsonLdLanguageLiteral),
+    "skos:editorialNote": S.Array(JsonLdLanguageLiteral),
+    "skos:historyNote": S.Array(JsonLdLanguageLiteral),
+    "skos:broader": S.Array(JsonLdIdReference),
+    "skos:narrower": S.Array(JsonLdIdReference),
+    "skos:related": S.Array(JsonLdIdReference),
+    "skos:broadMatch": S.Array(JsonLdIdReference),
+    "skos:narrowMatch": S.Array(JsonLdIdReference),
+    "skos:relatedMatch": S.Array(JsonLdIdReference),
+    "skos:inScheme": S.Array(JsonLdIdReference),
+    "skos:topConceptOf": S.Array(JsonLdIdReference),
+    "skos:hasTopConcept": S.Array(JsonLdIdReference),
     "owl:deprecated": S.Boolean,
     "dcterms:source": S.OptionFromOptionalKey(IRI),
     "rdfs:subClassOf": S.Array(JsonLdIdReference),
@@ -816,6 +859,7 @@ export class JsonLdClassNode extends S.Class<JsonLdClassNode>($I`JsonLdClassNode
     "skos:exactMatch": S.Array(JsonLdIdReference),
     "skos:closeMatch": S.Array(JsonLdIdReference),
     "owl:sameAs": S.Array(JsonLdIdReference),
+    provenance: S.OptionFromOptionalKey(OntologyProvenanceMetadata),
   },
   $I.annote("JsonLdClassNode", {
     description: "JSON-LD class node emitted by ontology projections.",

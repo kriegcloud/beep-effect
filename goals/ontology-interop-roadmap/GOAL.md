@@ -1,6 +1,7 @@
 # Goal
 
-Implement the ontology interop roadmap in `goals/ontology-interop-roadmap`.
+Audit or extend the implemented ontology interop roadmap in
+`goals/ontology-interop-roadmap`.
 
 Read first:
 
@@ -27,7 +28,7 @@ packages:
   JSON Schema sidecars, and domain-agnostic provenance hooks.
 - `@beep/semantic-web`: runtime validation, reasoners, and capability services.
 
-Recommended v1 spine:
+Implemented v1 spine:
 
 - Add `@beep/rdf/Vocab/Skos`.
 - Add opt-in SKOS concept/scheme profile metadata in `@beep/ontology`.
@@ -44,9 +45,9 @@ Defer RDF/XML, OWL XML, OWL functional syntax, TriG/N-Quads, full SHACL
 validator engines, OBO bridges, HTML route suffixes, visual browsers, and
 legal-specific package content.
 
-Before coding, read every file under `goals/ontology-interop-roadmap/research/`.
-Use public `@beep/*` aliases in package tests. Keep edits focused and preserve
-unrelated worktree changes.
+Before changing code, read every file under
+`goals/ontology-interop-roadmap/research/`. Use public `@beep/*` aliases in
+package tests. Keep edits focused and preserve unrelated worktree changes.
 
 Validation for packet docs:
 

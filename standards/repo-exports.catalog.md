@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1078 |
-| publicExportEntries | 15058 |
-| uniquePackageSymbols | 6511 |
+| publicExportEntries | 15059 |
+| uniquePackageSymbols | 6512 |
 
 ## Seed Discovery Proof
 
@@ -42,7 +42,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 3 | `dependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
 | 4 | `optionalDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
 | 5 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 48 | 15 |
-| 6 | `@beep/ontology` | `packages/foundation/modeling/ontology` | has-public-exports | 1 | 11 | 11 |
+| 6 | `@beep/ontology` | `packages/foundation/modeling/ontology` | has-public-exports | 1 | 12 | 12 |
 | 7 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
 | 8 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
 | 9 | `@beep/canvas-domain` | `packages/canvas/domain` | has-public-exports | 5 | 35 | 24 |
@@ -189,16 +189,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/ontology` | `getOntologyKeyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:596` | Reads ontology metadata from a schema property-key annotation display map. |
-| `@beep/ontology` | `getOntologyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:587` | Reads ontology metadata from an Effect Schema annotation display map. |
-| `@beep/ontology` | `isOntologyClassAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:525` |  |
-| `@beep/ontology` | `isOntologyPredicateAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:526` |  |
-| `@beep/ontology` | `Ontology` | const | `packages/foundation/modeling/ontology/src/create.ts:42` | Creates an ontology authoring scope with identity-aware annotation helpers, |
-| `@beep/ontology` | `OntologyAssemblyError` | class | `packages/foundation/modeling/ontology/src/model.ts:615` |  |
-| `@beep/ontology` | `parseJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:273` | Parses the POC JSON-LD graph representation back into an assembled ontology result. |
-| `@beep/ontology` | `projectJsonLdContext` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:59` | Projects an assembled ontology into a reusable JSON-LD context document. |
-| `@beep/ontology` | `projectJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:148` | Projects an assembled ontology into the POC JSON-LD graph representation. |
-| `@beep/ontology` | `projectTurtle` | const | `packages/foundation/modeling/ontology/src/projections/turtle.ts:126` | Projects an assembled ontology into a compact Turtle document. |
+| `@beep/ontology` | `getOntologyKeyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:591` | Reads ontology metadata from a schema property-key annotation display map. |
+| `@beep/ontology` | `getOntologyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:582` | Reads ontology metadata from an Effect Schema annotation display map. |
+| `@beep/ontology` | `isOntologyClassAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:518` |  |
+| `@beep/ontology` | `isOntologyPredicateAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:519` |  |
+| `@beep/ontology` | `Ontology` | const | `packages/foundation/modeling/ontology/src/create.ts:52` | Creates an ontology authoring scope with identity-aware annotation helpers, |
+| `@beep/ontology` | `OntologyAssemblyError` | class | `packages/foundation/modeling/ontology/src/model.ts:610` |  |
+| `@beep/ontology` | `parseJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:487` | Parses the POC JSON-LD graph representation back into an assembled ontology result. |
+| `@beep/ontology` | `projectJsonLdContext` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:69` | Projects an assembled ontology into a reusable JSON-LD context document. |
+| `@beep/ontology` | `projectJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:264` | Projects an assembled ontology into the POC JSON-LD graph representation. |
+| `@beep/ontology` | `projectMarkdown` | const | `packages/foundation/modeling/ontology/src/projections/markdown.ts:351` | Projects an assembled ontology into deterministic Markdown documentation. |
+| `@beep/ontology` | `projectTurtle` | const | `packages/foundation/modeling/ontology/src/projections/turtle.ts:260` | Projects an assembled ontology into a compact Turtle document. |
 | `@beep/ontology` | `VERSION` | const | `packages/foundation/modeling/ontology/src/index.ts:14` | Package version. |
 
 ### @beep/architecture-lab-ui

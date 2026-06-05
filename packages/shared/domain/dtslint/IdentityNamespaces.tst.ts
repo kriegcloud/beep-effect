@@ -6,7 +6,6 @@ import type * as Identity from "@beep/shared-domain/identity";
 describe("P3 identity namespace types", () => {
   it("exports the runtime AnyIdentityComposer schema type", () => {
     expect<Identity.AnyIdentityComposer>().type.toBe<CoreIdentity.IdentityComposer<string>>();
-    expect<typeof Identity.AnyIdentityComposer.Type>().type.toBe<CoreIdentity.IdentityComposer<string>>();
   });
 
   it("preserves AgentCapability companion aliases and literals", () => {

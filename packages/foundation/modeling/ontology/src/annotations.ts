@@ -1,14 +1,23 @@
 import { $OntologyId } from "@beep/identity";
+import { LanguageTag } from "@beep/rdf/Rdf";
 import { A, dual, O, Str } from "@beep/utils";
-import { flow, pipe } from "effect";
+import { flow, pipe, Result } from "effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import {
   isOntologyClassAnnotationDraft,
   isOntologyPredicateAnnotationDraft,
+  makeUri,
   OntologyClassAnnotationDraft,
   OntologyDatatypePredicateAnnotationDraft,
+  OntologyLanguageLiteral,
   OntologyObjectPredicateAnnotationDraft,
+  OntologyProvenanceMetadata,
+  OntologyProvenanceVerificationStatus,
+  OntologySkosConceptProfileDraft,
+  OntologySkosConceptSchemeProfileDraft,
+  OntologySkosProfileDraft,
+  schemaIssueToError,
 } from "./model.js";
 import {
   makeReferenceTarget,
@@ -24,6 +33,126 @@ import type { IdentityAnyAnnotationExtras, IdentityComposer, KeyAnnotationExtras
 import type { OntologyMetadataAnnotationPayload, OntologyPredicateAnnotationDraft, OntologyTermName } from "./model.js";
 
 const $I = $OntologyId.create("annotations");
+
+const decodeLanguageTagResult = S.decodeUnknownResult(LanguageTag);
+
+const makeLanguageTag = (value: string): LanguageTag =>
+  pipe(decodeLanguageTagResult(value), Result.getOrThrowWith(schemaIssueToError));
+
+export class OntologyLanguageLiteralInputObject extends S.Class<OntologyLanguageLiteralInputObject>(
+  $I`OntologyLanguageLiteralInputObject`
+)(
+  {
+    value: S.String,
+    language: S.optionalKey(S.String),
+  },
+  $I.annote("OntologyLanguageLiteralInputObject", {
+    description: "Input object for a language-aware ontology literal.",
+  })
+) {}
+
+export const OntologyLanguageLiteralInput = S.Union([S.String, OntologyLanguageLiteralInputObject]).pipe(
+  $I.annoteSchema("OntologyLanguageLiteralInput", {
+    description: "Input value for a SKOS label or note, either plain text or text plus language.",
+  })
+);
+export type OntologyLanguageLiteralInput = typeof OntologyLanguageLiteralInput.Type;
+
+const isPlainLiteralInput = S.is(S.String);
+
+export class OntologySkosConceptProfileInputFields extends S.Class<OntologySkosConceptProfileInputFields>(
+  $I`OntologySkosConceptProfileInputFields`
+)(
+  {
+    prefLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    altLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    hiddenLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    definitions: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    scopeNotes: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    editorialNotes: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    historyNotes: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    broader: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    narrower: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    related: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    exactMatches: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    closeMatches: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    broadMatches: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    narrowMatches: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    relatedMatches: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    inSchemes: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    topConceptOf: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+  },
+  $I.annote("OntologySkosConceptProfileInputFields", {
+    description: "Input fields for an opt-in SKOS concept profile.",
+  })
+) {}
+
+export const OntologySkosConceptProfileInput = S.StructWithRest(
+  S.Struct(OntologySkosConceptProfileInputFields.fields),
+  [S.Record(S.PropertyKey, S.Any)]
+).pipe(
+  $I.annoteSchema("OntologySkosConceptProfileInput", {
+    description: "Input type for an opt-in SKOS concept profile.",
+  })
+);
+export type OntologySkosConceptProfileInput = typeof OntologySkosConceptProfileInput.Type;
+
+export class OntologySkosConceptSchemeProfileInputFields extends S.Class<OntologySkosConceptSchemeProfileInputFields>(
+  $I`OntologySkosConceptSchemeProfileInputFields`
+)(
+  {
+    prefLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    altLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    hiddenLabels: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    definitions: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    scopeNotes: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    editorialNotes: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    historyNotes: OntologyLanguageLiteralInput.pipe(S.Array, S.optionalKey),
+    hasTopConcepts: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+  },
+  $I.annote("OntologySkosConceptSchemeProfileInputFields", {
+    description: "Input fields for an opt-in SKOS concept scheme profile.",
+  })
+) {}
+
+export const OntologySkosConceptSchemeProfileInput = S.StructWithRest(
+  S.Struct(OntologySkosConceptSchemeProfileInputFields.fields),
+  [S.Record(S.PropertyKey, S.Any)]
+).pipe(
+  $I.annoteSchema("OntologySkosConceptSchemeProfileInput", {
+    description: "Input type for an opt-in SKOS concept scheme profile.",
+  })
+);
+export type OntologySkosConceptSchemeProfileInput = typeof OntologySkosConceptSchemeProfileInput.Type;
+
+export class OntologyProvenanceMetadataInputFields extends S.Class<OntologyProvenanceMetadataInputFields>(
+  $I`OntologyProvenanceMetadataInputFields`
+)(
+  {
+    sourceIri: S.optionalKey(OntologyIriInput),
+    sourceUri: S.optionalKey(S.String),
+    sourceLabel: S.optionalKey(S.String),
+    sourceCitation: S.optionalKey(S.String),
+    sourceSpan: S.optionalKey(S.String),
+    sourceSelector: S.optionalKey(S.String),
+    extractionMethod: S.optionalKey(S.String),
+    verificationStatus: S.optionalKey(OntologyProvenanceVerificationStatus),
+    updatedAt: S.optionalKey(S.String),
+  },
+  $I.annote("OntologyProvenanceMetadataInputFields", {
+    description: "Input fields for optional domain-agnostic provenance metadata.",
+  })
+) {}
+
+export const OntologyProvenanceMetadataInput = S.StructWithRest(
+  S.Struct(OntologyProvenanceMetadataInputFields.fields),
+  [S.Record(S.PropertyKey, S.Any)]
+).pipe(
+  $I.annoteSchema("OntologyProvenanceMetadataInput", {
+    description: "Input type for optional domain-agnostic provenance metadata.",
+  })
+);
+export type OntologyProvenanceMetadataInput = typeof OntologyProvenanceMetadataInput.Type;
 
 class OntologyClassAnnotationInputFields extends S.Class<OntologyClassAnnotationInputFields>(
   $I`OntologyClassAnnotationInputFields`
@@ -44,7 +173,10 @@ class OntologyClassAnnotationInputFields extends S.Class<OntologyClassAnnotation
     isDefinedBy: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
     equivalentClasses: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
     exactMatches: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    closeMatches: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
     sameAs: OntologyReferenceTargetInput.pipe(S.Array, S.optionalKey),
+    skosProfile: S.optionalKey(OntologySkosProfileDraft),
+    provenance: S.optionalKey(OntologyProvenanceMetadata),
   },
   $I.annote("OntologyClassAnnotationInputFields", {
     description:
@@ -149,6 +281,24 @@ export const optionalTermName = (value: OntologyTermNameInput | undefined): O.Op
 export const optionalIri = (value: OntologyIriInput | undefined) =>
   pipe(O.fromUndefinedOr(value), O.map(normalizeIriInput));
 
+export const optionalUri = (value: string | undefined) => pipe(O.fromUndefinedOr(value), O.map(makeUri));
+
+export const makeLanguageLiteral = (input: OntologyLanguageLiteralInput): OntologyLanguageLiteral => {
+  if (isPlainLiteralInput(input)) {
+    return OntologyLanguageLiteral.make({ value: input, language: O.none() });
+  }
+
+  return OntologyLanguageLiteral.make({
+    value: input.value,
+    language: pipe(O.fromUndefinedOr(input.language), O.map(makeLanguageTag)),
+  });
+};
+
+export const optionalLanguageLiterals = (
+  value: ReadonlyArray<OntologyLanguageLiteralInput> | undefined
+): ReadonlyArray<OntologyLanguageLiteral> =>
+  pipe(O.fromUndefinedOr(value), O.getOrElse(A.empty<OntologyLanguageLiteralInput>), A.map(makeLanguageLiteral));
+
 const firstStringOption = (first: O.Option<string>, second: O.Option<string>): O.Option<string> =>
   pipe([first, second], O.firstSomeOf);
 
@@ -196,6 +346,56 @@ const draftAnnotationExtras = (
   ontologyMetadata,
 });
 
+export const makeSkosConceptProfileDraft = (input: OntologySkosConceptProfileInput): OntologySkosConceptProfileDraft =>
+  OntologySkosConceptProfileDraft.make({
+    kind: "concept",
+    prefLabels: optionalLanguageLiterals(input.prefLabels),
+    altLabels: optionalLanguageLiterals(input.altLabels),
+    hiddenLabels: optionalLanguageLiterals(input.hiddenLabels),
+    definitions: optionalLanguageLiterals(input.definitions),
+    scopeNotes: optionalLanguageLiterals(input.scopeNotes),
+    editorialNotes: optionalLanguageLiterals(input.editorialNotes),
+    historyNotes: optionalLanguageLiterals(input.historyNotes),
+    broader: optionalReferenceTargets(input.broader),
+    narrower: optionalReferenceTargets(input.narrower),
+    related: optionalReferenceTargets(input.related),
+    exactMatches: optionalReferenceTargets(input.exactMatches),
+    closeMatches: optionalReferenceTargets(input.closeMatches),
+    broadMatches: optionalReferenceTargets(input.broadMatches),
+    narrowMatches: optionalReferenceTargets(input.narrowMatches),
+    relatedMatches: optionalReferenceTargets(input.relatedMatches),
+    inSchemes: optionalReferenceTargets(input.inSchemes),
+    topConceptOf: optionalReferenceTargets(input.topConceptOf),
+  });
+
+export const makeSkosConceptSchemeProfileDraft = (
+  input: OntologySkosConceptSchemeProfileInput
+): OntologySkosConceptSchemeProfileDraft =>
+  OntologySkosConceptSchemeProfileDraft.make({
+    kind: "conceptScheme",
+    prefLabels: optionalLanguageLiterals(input.prefLabels),
+    altLabels: optionalLanguageLiterals(input.altLabels),
+    hiddenLabels: optionalLanguageLiterals(input.hiddenLabels),
+    definitions: optionalLanguageLiterals(input.definitions),
+    scopeNotes: optionalLanguageLiterals(input.scopeNotes),
+    editorialNotes: optionalLanguageLiterals(input.editorialNotes),
+    historyNotes: optionalLanguageLiterals(input.historyNotes),
+    hasTopConcepts: optionalReferenceTargets(input.hasTopConcepts),
+  });
+
+export const makeProvenanceMetadata = (input: OntologyProvenanceMetadataInput): OntologyProvenanceMetadata =>
+  OntologyProvenanceMetadata.make({
+    sourceIri: optionalIri(input.sourceIri),
+    sourceUri: optionalUri(input.sourceUri),
+    sourceLabel: optionalString(input.sourceLabel),
+    sourceCitation: optionalString(input.sourceCitation),
+    sourceSpan: optionalString(input.sourceSpan),
+    sourceSelector: optionalString(input.sourceSelector),
+    extractionMethod: optionalString(input.extractionMethod),
+    verificationStatus: O.fromUndefinedOr(input.verificationStatus),
+    updatedAt: optionalString(input.updatedAt),
+  });
+
 export const makeClassDraft = (input: OntologyClassAnnotationInput): OntologyClassAnnotationDraft =>
   OntologyClassAnnotationDraft.make({
     kind: "classDraft",
@@ -219,6 +419,8 @@ export const makeClassDraft = (input: OntologyClassAnnotationInput): OntologyCla
     exactMatches: optionalReferenceTargets(input.exactMatches),
     closeMatches: optionalReferenceTargets(input.closeMatches),
     sameAs: optionalReferenceTargets(input.sameAs),
+    skosProfile: O.fromUndefinedOr(input.skosProfile),
+    provenance: O.fromUndefinedOr(input.provenance),
   });
 
 export const makeDatatypePredicateDraft = (
