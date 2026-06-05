@@ -39,6 +39,8 @@ const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
   "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
 ]);
 const ALLOWED_NON_PASCAL_FILENAMES = HashSet.fromIterable(["index", "bin"]);
+const DEPRECATED_API_LINT_CACHE_LOCATION = "node_modules/.cache/eslint-deprecated/.eslintcache";
+const DEPRECATED_API_LINT_ESLINT_BIN = "node_modules/.bin/eslint";
 const DEPRECATED_API_LINT_NODE_OPTIONS = "--max-old-space-size=4096";
 const DEPRECATED_API_LINT_SHARDS = [
   "apps/architecture-lab-proof",
@@ -538,12 +540,22 @@ const runDeprecatedApiLintShard = Effect.fn("runDeprecatedApiLintShard")(functio
     return;
   }
 
-  const args = ["eslint", "--config", "eslint.deprecated.config.mjs", shard] as const;
-  yield* Console.log(`[lint:deprecated-apis] ${shard}: bunx ${A.join(args, " ")}`);
+  const hasLocalEslint = yield* fs.exists(DEPRECATED_API_LINT_ESLINT_BIN).pipe(Effect.orElseSucceed(() => false));
+  const command = hasLocalEslint ? `./${DEPRECATED_API_LINT_ESLINT_BIN}` : "bunx";
+  const eslintArgs = [
+    "--cache",
+    "--cache-location",
+    DEPRECATED_API_LINT_CACHE_LOCATION,
+    "--config",
+    "eslint.deprecated.config.mjs",
+    shard,
+  ] as const;
+  const args = hasLocalEslint ? eslintArgs : (["eslint", ...eslintArgs] as const);
+  yield* Console.log(`[lint:deprecated-apis] ${shard}: ${command} ${A.join(args, " ")}`);
 
   const exitCode = yield* Effect.scoped(
     Effect.gen(function* () {
-      const handle = yield* ChildProcess.make("bunx", [...args], {
+      const handle = yield* ChildProcess.make(command, [...args], {
         cwd: process.cwd(),
         env: {
           NODE_OPTIONS: DEPRECATED_API_LINT_NODE_OPTIONS,

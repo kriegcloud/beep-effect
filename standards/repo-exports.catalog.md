@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1078 |
-| publicExportEntries | 15059 |
-| uniquePackageSymbols | 6512 |
+| publicExportEntries | 15061 |
+| uniquePackageSymbols | 6513 |
 
 ## Seed Discovery Proof
 
@@ -53,7 +53,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 14 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 15 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 16 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1683 | 608 |
+| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1685 | 609 |
 | 18 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 19 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 20 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 90 | 65 |
@@ -833,7 +833,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:135` | Image and video curation command group. |
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
-| `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:639` | Lint command group. |
+| `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
@@ -1829,23 +1829,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:31` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:61` | Summary of terse Effect style migration results. |
 | `@beep/repo-cli/commands/Lint` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:434` | Collect schema topology violations without mutating process state. |
-| `@beep/repo-cli/commands/Lint` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:129` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:131` | Collect TypeScript source files under a lint root without following symlink escapes. |
 | `@beep/repo-cli/commands/Lint` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
-| `@beep/repo-cli/commands/Lint` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:639` | Lint command group. |
+| `@beep/repo-cli/commands/Lint` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
 | `@beep/repo-cli/commands/Lint` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
 | `@beep/repo-cli/commands/Lint` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:492` | Lint command for enforcing canonical `@beep/schema` topology. |
 | `@beep/repo-cli/commands/Lint` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:466` | Run the schema topology lint command. |
 | `@beep/repo-cli/commands/Lint` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:63` | Schema topology lint violation. |
 | `@beep/repo-cli/commands/Lint/index` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:434` | Collect schema topology violations without mutating process state. |
-| `@beep/repo-cli/commands/Lint/index` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:129` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint/index` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:131` | Collect TypeScript source files under a lint root without following symlink escapes. |
 | `@beep/repo-cli/commands/Lint/index` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
-| `@beep/repo-cli/commands/Lint/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:639` | Lint command group. |
+| `@beep/repo-cli/commands/Lint/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
 | `@beep/repo-cli/commands/Lint/index` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
 | `@beep/repo-cli/commands/Lint/index` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:492` | Lint command for enforcing canonical `@beep/schema` topology. |
 | `@beep/repo-cli/commands/Lint/index` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:466` | Run the schema topology lint command. |
 | `@beep/repo-cli/commands/Lint/index` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:63` | Schema topology lint violation. |
-| `@beep/repo-cli/commands/Lint/Lint.command` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:129` | Collect TypeScript source files under a lint root without following symlink escapes. |
-| `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:639` | Lint command group. |
+| `@beep/repo-cli/commands/Lint/Lint.command` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:131` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
 | `@beep/repo-cli/commands/Lint/Lint.errors` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
 | `@beep/repo-cli/commands/Lint/Lint.errors` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
 | `@beep/repo-cli/commands/Lint/PackageTestImports` | `lintPackageTestImportsCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/PackageTestImports.ts:319` | Lint command for enforcing package aliases from package test and dtslint files. |
@@ -1907,23 +1907,24 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1205` | Run a subprocess and capture all output. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:104` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1099` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1300` | Collect existing changed files for the root lint fix fast path. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1269` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:105` | Package-local script profile used by the quality task adapter. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1163` | Parse a raw argv vector into a quality task invocation when the first token is |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:160` | Result of parsing a quality command invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:70` | Canonical quality task name. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:87` | Canonical quality task name. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:131` | Planned subprocess invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:996` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1143` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1173` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1222` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:805` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:819` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:786` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:161` | Result of parsing a quality command invocation. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:71` | Canonical quality task name. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:88` | Canonical quality task name. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:132` | Planned subprocess invocation. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1060` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1207` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1237` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1286` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:865` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:879` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:846` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/commands/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/commands/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
@@ -2326,27 +2327,28 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:102` | Summary emitted by the changeset package graph guard. |
 | `@beep/repo-cli/test/Quality` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:309` | Parse package references from one changeset Markdown document. |
 | `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:865` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
-| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1205` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1300` | Collect existing changed files for the root lint fix fast path. |
+| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1269` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:402` | Find changeset package references that are not in the workspace graph. |
 | `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:141` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:154` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:140` | Options for building or writing the JSDoc documentation inventory. |
 | `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:160` | Result returned after writing JSDoc inventory artifacts. |
 | `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
-| `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:104` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1099` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:105` | Package-local script profile used by the quality task adapter. |
+| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1163` | Parse a raw argv vector into a quality task invocation when the first token is |
 | `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:160` | Result of parsing a quality command invocation. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:70` | Canonical quality task name. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:87` | Canonical quality task name. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:131` | Planned subprocess invocation. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:161` | Result of parsing a quality command invocation. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:71` | Canonical quality task name. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:88` | Canonical quality task name. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:132` | Planned subprocess invocation. |
 | `@beep/repo-cli/test/Quality` | `RepoExportsCatalogOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:119` | Options for building, writing, or checking the repo export catalog. |
 | `@beep/repo-cli/test/Quality` | `RepoExportsCatalogWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:137` | Result returned after writing or checking repo export catalog artifacts. |
-| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:996` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1060` | Build root quality task subprocess steps. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:357` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
 | `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
 | `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1202` | Run repo-wide tsgo diagnostics for dtslint files. |
@@ -2354,16 +2356,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1522` | Run the JSDoc inventory generator now owned by repo-cli. |
 | `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1445` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
 | `@beep/repo-cli/test/Quality` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1613` | Run the repo-wide JSDoc quality gate. |
-| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1143` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1173` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1222` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1207` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1237` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1286` | Run a bounded quality task group. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1557` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:805` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:865` | Run the SQL integration lane with an injected resource and child command. |
 | `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1248` | Run repo-wide Effect diagnostics for test files. |
 | `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1011` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
 | `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1344` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:819` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:786` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:879` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:846` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/test/Quality` | `writeJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:995` | Write JSDoc inventory JSONC and Markdown artifacts. |
 | `@beep/repo-cli/test/Quality` | `writeOrCheckRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:698` | Write or freshness-check repo export catalog JSONC and Markdown artifacts. |
@@ -2439,15 +2441,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:382` | Resolver output consumed by reporting and write-mode services. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:366` | YAML location to update in write mode. |
 | `@beep/repo-cli/test/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:716` | Build a schema-first issue index from normalized issues. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:360` | Build the publish-mode yeet run plan. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:367` | Build the publish-mode yeet run plan. |
 | `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1025` | Build a plan for tests without reading repository state. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanWithMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:322` | Build a yeet run plan for a specific mode. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanWithMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:329` | Build a yeet run plan for a specific mode. |
 | `@beep/repo-cli/test/Yeet` | `byRepoPlanStepAscending` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:375` | Order repository plan steps by phase, then identifier. |
 | `@beep/repo-cli/test/Yeet` | `commandTextForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:417` | Render a planned step as a shell-like command string. |
 | `@beep/repo-cli/test/Yeet` | `decodeTurboPlanTasksFromQueryJsonForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:613` | Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests. |
 | `@beep/repo-cli/test/Yeet` | `DEFAULT_YEET_PACKET_DIR` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:34` | Default ignored directory for yeet run artifacts. |
 | `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1044` | Construct baseline yeet options for focused tests. |
-| `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:158` | Create an empty Turbo metadata snapshot. |
+| `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:165` | Create an empty Turbo metadata snapshot. |
 | `@beep/repo-cli/test/Yeet` | `enforceConservativeResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:456` | Ensure a step's resume field follows v1 safety rules. |
 | `@beep/repo-cli/test/Yeet` | `executeRepoPlanStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:162` | Execute a planned repository step and optionally persist its raw output. |
 | `@beep/repo-cli/test/Yeet` | `GITHUB_CHECK_MODE_VALUES` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts:26` | GitHub check mode handled by `beep quality github-checks`. |
@@ -2499,7 +2501,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Yeet` | `YEET_FEEDBACK_TASKS` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:42` | Turbo tasks used by the Yeet feedback phase. |
 | `@beep/repo-cli/test/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:91` | Command that repairs, verifies, or publishes repository work through Yeet. |
 | `@beep/repo-cli/test/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
-| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:377` | Return plan phases in execution order. |
+| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:384` | Return plan phases in execution order. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:58` | Yeet execution modes. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunMode` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:70` | Yeet execution modes. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:150` | Runtime options accepted by the yeet handler. |
@@ -4490,18 +4492,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:988` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1130` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1131` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:704` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
 | `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:533` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1038` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1082` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
 | `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:213` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
 | `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:255` | Constructor input accepted by the external PostgreSQL SQL test driver. |
 | `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:270` | Mode selector for the public PGLite SQL test layer helper. |
 | `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:284` | Options for `makePgliteSqlTestLayer`. |
 | `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:465` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1060` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:197` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
@@ -4510,18 +4512,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:350` | Optional database setup hooks executed after the driver layer has been built. |
 | `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:303` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:988` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1130` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1131` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:704` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
 | `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:533` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1038` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1082` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
 | `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:213` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
 | `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:255` | Constructor input accepted by the external PostgreSQL SQL test driver. |
 | `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:270` | Mode selector for the public PGLite SQL test layer helper. |
 | `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:284` | Options for `makePgliteSqlTestLayer`. |
 | `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:465` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1060` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:197` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
@@ -4531,18 +4533,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:303` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/Layer` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:988` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1130` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1131` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:704` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
 | `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:533` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1038` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1082` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
 | `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:213` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
 | `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:255` | Constructor input accepted by the external PostgreSQL SQL test driver. |
 | `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:270` | Mode selector for the public PGLite SQL test layer helper. |
 | `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:284` | Options for `makePgliteSqlTestLayer`. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:465` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1060` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:197` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:369` | Driver contract for reusable SQL integration-test layers. |

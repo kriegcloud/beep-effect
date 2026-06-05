@@ -19,6 +19,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const { Ont, $I } = Ontology.create({
@@ -27,6 +28,12 @@ const { Ont, $I } = Ontology.create({
   preferredPrefix: "test",
   label: "Ontology Package Test",
 });
+
+type ProjectedJsonLdGraphNode = ReturnType<typeof projectJsonLdOntology>["@graph"][number];
+type ProjectedJsonLdClassNode = Extract<ProjectedJsonLdGraphNode, { readonly "skos:prefLabel": unknown }>;
+
+const isProjectedJsonLdClassNode = (node: ProjectedJsonLdGraphNode): node is ProjectedJsonLdClassNode =>
+  P.hasProperty(node, "skos:prefLabel");
 
 const CommentedOntologyScope = Ontology.create({
   identity: $OntologyId.create("ontology-package-commented-test"),
@@ -650,6 +657,7 @@ describe("@beep/ontology", () => {
     const obsidianMarkdown = Ont.toMarkdown(ontology, { linkMode: "obsidian" });
     const conceptNode = pipe(
       jsonLd["@graph"],
+      A.filter(isProjectedJsonLdClassNode),
       A.findFirst((node) => node["@id"] === "https://example.org/test#PatentConcept"),
       O.getOrThrow
     );

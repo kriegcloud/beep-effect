@@ -106,6 +106,7 @@ const decodeUri = S.decodeUnknownSync(URI);
 const decodeAbsoluteUri = S.decodeUnknownSync(AbsoluteURI);
 const decodeUriReference = S.decodeUnknownSync(URIReference);
 const decodeRelativeUriReference = S.decodeUnknownSync(RelativeURIReference);
+const decodePrefixLabel = S.decodeUnknownSync(PrefixLabel);
 
 const canParseWithNativeUrl = (value: string): boolean => {
   try {
@@ -455,7 +456,7 @@ describe("@beep/rdf RDF term and dataset models", () => {
 
   it("decodes namespace bindings and prefix maps", () => {
     expect(S.decodeUnknownSync(NamespaceBinding)({ prefix: "schema", namespace: "https://schema.org/" })).toEqual(
-      NamespaceBinding.make({ prefix: "schema", namespace: "https://schema.org/" })
+      NamespaceBinding.make({ prefix: decodePrefixLabel("schema"), namespace: decodeIri("https://schema.org/") })
     );
     expect(S.decodeUnknownSync(PrefixMap)({ ex: "https://example.com/" })).toEqual({ ex: "https://example.com/" });
     expect(() => S.decodeUnknownSync(PrefixMap)({ "bad prefix": "https://example.com/" })).toThrow(
@@ -492,6 +493,7 @@ describe("@beep/rdf JSON-LD models", () => {
 
     expect(S.is(JsonLdKeyword)("@context")).toBe(true);
     expect(S.is(JsonLdKeyword)("@invalid")).toBe(false);
+    expect(context["@base"]).toEqual(O.some(decodeAbsoluteIri("https://example.com/")));
     expect(S.decodeUnknownSync(JsonLdTermDefinition)({ "@id": "https://schema.org/name" })["@type"]).toEqual(O.none());
     expect(S.decodeUnknownSync(JsonLdBlankNodeIdentifier)("_:alice")).toBe("_:alice");
     expect(S.decodeUnknownSync(JsonLdNodeIdentifier)("_:alice")).toBe("_:alice");
@@ -499,8 +501,12 @@ describe("@beep/rdf JSON-LD models", () => {
       "https://example.com/alice"
     );
     expect(S.decodeUnknownSync(JsonLdLiteralValue)({ "@value": true })["@value"]).toBe(true);
-    expect(S.decodeUnknownSync(JsonLdPropertyValue)({ "@id": "_:bob" })["@id"]).toBe("_:bob");
-    expect(S.decodeUnknownSync(JsonLdPropertyValue)({ "@value": 1 })["@value"]).toBe(1);
+    expect(S.decodeUnknownSync(JsonLdPropertyValue)({ "@id": "_:bob" })).toEqual(
+      S.decodeUnknownSync(JsonLdReferenceValue)({ "@id": "_:bob" })
+    );
+    expect(S.decodeUnknownSync(JsonLdPropertyValue)({ "@value": 1 })).toEqual(
+      S.decodeUnknownSync(JsonLdLiteralValue)({ "@value": 1 })
+    );
     expect(document["@graph"]).toEqual([node]);
     expect(frame.includeProperties).toEqual(O.some(["https://schema.org/name"]));
   });
@@ -538,7 +544,7 @@ describe("@beep/rdf semantic metadata", () => {
     expect(S.is(SemanticSchemaMetadata)(metadata)).toBe(true);
     expect(metadata.canonicalName).toBe("ExampleIdentifier");
     expect(() =>
-      makeSemanticSchemaMetadata({
+      S.decodeUnknownSync(SemanticSchemaMetadata)({
         ...semanticMetadataInput,
         kind: "unknown",
       })

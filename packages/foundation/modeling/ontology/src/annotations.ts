@@ -1,7 +1,8 @@
 import { $OntologyId } from "@beep/identity";
 import { LanguageTag } from "@beep/rdf/Rdf";
-import { A, dual, O, Str } from "@beep/utils";
+import { A, O, Str } from "@beep/utils";
 import { flow, pipe, Result } from "effect";
+import { dual } from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import {

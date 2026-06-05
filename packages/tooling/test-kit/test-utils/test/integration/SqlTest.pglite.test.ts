@@ -24,7 +24,8 @@ const hasSharedConnectionUri = sharedConnectionUri !== undefined && sharedConnec
 let pgliteTestcontainersAvailable = false;
 const isSqlTestHarnessError = S.is(SqlTestHarnessError);
 const ContainerInspectTimeout = Duration.seconds(5);
-const PgliteIntegrationTimeoutMs = 300_000;
+const SharedPgliteIntegrationTimeoutMs = 15_000;
+const PgliteTestcontainersIntegrationTimeoutMs = 120_000;
 
 beforeAll(() => {
   if (hasSharedConnectionUri) {
@@ -168,7 +169,7 @@ describe("PGLite shared external SQL test driver", { concurrent: false }, () => 
       expect(result.one).toBe(1);
       expect(result.schema).toBe(true);
     }),
-    PgliteIntegrationTimeoutMs
+    SharedPgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -203,7 +204,7 @@ describe("PGLite shared external SQL test driver", { concurrent: false }, () => 
 
       expect(values).toEqual(["alpha", "beta"]);
     }),
-    PgliteIntegrationTimeoutMs
+    SharedPgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -242,7 +243,7 @@ describe("PGLite shared external SQL test driver", { concurrent: false }, () => 
       expect(countAfterCreate).toBe(1);
       expect(countAfterFreshProvision).toBe(0);
     }),
-    PgliteIntegrationTimeoutMs
+    SharedPgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -291,7 +292,7 @@ describe("PGLite shared external SQL test driver", { concurrent: false }, () => 
       expect(result.driver).toBe("pg-external");
       expect(result.values).toEqual(["alpha", "beta"]);
     }),
-    PgliteIntegrationTimeoutMs
+    SharedPgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -320,7 +321,7 @@ describe("PGLite shared external SQL test driver", { concurrent: false }, () => 
         }
       }
     }),
-    PgliteIntegrationTimeoutMs
+    SharedPgliteIntegrationTimeoutMs
   );
 
   it.effect(
@@ -346,67 +347,71 @@ describe("PGLite shared external SQL test driver", { concurrent: false }, () => 
 
       expect(existsAfterClose).toBe(false);
     }),
-    PgliteIntegrationTimeoutMs
+    SharedPgliteIntegrationTimeoutMs
   );
 });
 
-describe.concurrent("PGLite Testcontainers SQL test driver", () => {
-  it.effect(
-    "starts a PGLite Testcontainers database and runs select 1 through SqlClient",
-    Effect.fnUntraced(function* (ctx) {
-      yield* skipTestcontainersWhenUnavailable(ctx);
+if (hasSharedConnectionUri) {
+  describe.skip("PGLite Testcontainers SQL test driver", () => {});
+} else {
+  describe("PGLite Testcontainers SQL test driver", { concurrent: false }, () => {
+    it.effect(
+      "starts a PGLite Testcontainers database and runs select 1 through SqlClient",
+      Effect.fnUntraced(function* (ctx) {
+        yield* skipTestcontainersWhenUnavailable(ctx);
 
-      const result = yield* Effect.gen(function* () {
-        const sql = (yield* SqlClient.SqlClient).withoutTransforms();
-        const info = yield* TestDatabaseInfo;
-        const rows = yield* sql<{ readonly one: number }>`SELECT 1 AS one`;
+        const result = yield* Effect.gen(function* () {
+          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+          const info = yield* TestDatabaseInfo;
+          const rows = yield* sql<{ readonly one: number }>`SELECT 1 AS one`;
 
-        return {
-          connectionUri: O.isSome(info.connectionUri),
-          containerId: O.isSome(info.containerId),
-          database: O.isSome(info.database),
-          driver: info.driver,
-          host: O.isSome(info.host),
-          one: pipe(
-            rows,
-            A.head,
-            O.map((row) => row.one),
-            O.getOrElse(() => 0)
-          ),
-          port: O.isSome(info.port),
-          username: O.isSome(info.username),
-        };
-      }).pipe(provideScopedLayer(makeContainerLayer()));
+          return {
+            connectionUri: O.isSome(info.connectionUri),
+            containerId: O.isSome(info.containerId),
+            database: O.isSome(info.database),
+            driver: info.driver,
+            host: O.isSome(info.host),
+            one: pipe(
+              rows,
+              A.head,
+              O.map((row) => row.one),
+              O.getOrElse(() => 0)
+            ),
+            port: O.isSome(info.port),
+            username: O.isSome(info.username),
+          };
+        }).pipe(provideScopedLayer(makeContainerLayer()));
 
-      expect(result.driver).toBe("pglite-testcontainers");
-      expect(result.one).toBe(1);
-      expect(result.connectionUri).toBe(true);
-      expect(result.containerId).toBe(true);
-      expect(result.database).toBe(true);
-      expect(result.host).toBe(true);
-      expect(result.port).toBe(true);
-      expect(result.username).toBe(true);
-    }),
-    PgliteIntegrationTimeoutMs
-  );
+        expect(result.driver).toBe("pglite-testcontainers");
+        expect(result.one).toBe(1);
+        expect(result.connectionUri).toBe(true);
+        expect(result.containerId).toBe(true);
+        expect(result.database).toBe(true);
+        expect(result.host).toBe(true);
+        expect(result.port).toBe(true);
+        expect(result.username).toBe(true);
+      }),
+      PgliteTestcontainersIntegrationTimeoutMs
+    );
 
-  it.effect(
-    "stops and removes the PGLite container when the layer scope closes",
-    Effect.fnUntraced(function* (ctx) {
-      yield* skipTestcontainersWhenUnavailable(ctx);
+    it.effect(
+      "stops and removes the PGLite container when the layer scope closes",
+      Effect.fnUntraced(function* (ctx) {
+        yield* skipTestcontainersWhenUnavailable(ctx);
 
-      const containerId = yield* Effect.scoped(
-        Effect.gen(function* () {
-          const resource = yield* makePgliteTestcontainerResource();
-          const id = resource.container.getId();
+        const containerId = yield* Effect.scoped(
+          Effect.gen(function* () {
+            const resource = yield* makePgliteTestcontainerResource();
+            const id = resource.container.getId();
 
-          expect(yield* isContainerInspectable(id)).toBe(true);
-          return id;
-        })
-      );
+            expect(yield* isContainerInspectable(id)).toBe(true);
+            return id;
+          })
+        );
 
-      expect(yield* isContainerInspectable(containerId)).toBe(false);
-    }),
-    PgliteIntegrationTimeoutMs
-  );
-});
+        expect(yield* isContainerInspectable(containerId)).toBe(false);
+      }),
+      PgliteTestcontainersIntegrationTimeoutMs
+    );
+  });
+}
