@@ -1,5 +1,6 @@
 import {
   collectEffectTsgoDiagnosticLines,
+  lintFixChangedStepForTesting,
   parseQualityTaskInvocation,
   QualityTaskFailed,
   QualityTaskGroupFailed,
@@ -276,6 +277,17 @@ describe("quality task adapter", () => {
       label: "lint:fix",
       command: "bunx",
       args: expectedTurboArgs("lint:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
+    });
+  });
+
+  it("applies Biome lint fixes in the changed-file lint fix fast path", () => {
+    const step = lintFixChangedStepForTesting("/repo", ["packages/example/src/index.ts"]);
+
+    expect(step).toMatchObject({
+      label: "lint:fix:changed",
+      command: "./node_modules/.bin/biome",
+      args: ["check", "--write", "--files-ignore-unknown=true", "packages/example/src/index.ts"],
+      cwd: "/repo",
     });
   });
 

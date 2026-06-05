@@ -58,7 +58,7 @@ if (changedFiles.length === 0) {
 
 const biome = Bun.which("biome") ?? "./node_modules/.bin/biome";
 const result = Bun.spawnSync({
-  cmd: [biome, "format", "--write", "--files-ignore-unknown=true", ...changedFiles],
+  cmd: [biome, "check", "--write", "--files-ignore-unknown=true", ...changedFiles],
   stderr: "inherit",
   stdout: "inherit",
 });

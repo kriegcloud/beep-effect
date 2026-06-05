@@ -45,6 +45,7 @@ const LINT_POLICY_GROUP_CONCURRENCY = 3;
 const GROUPED_STEP_OUTPUT_MAX_CHARS = 256 * 1024;
 const CHANGED_PATH_DIFF_FILTER = ["A", "C", "M", "R", "T", "U", "X", "B"].join("");
 const LOCAL_BIOME_BIN = "./node_modules/.bin/biome";
+const BIOME_FIX_CHANGED_ARGS = ["check", "--write", "--files-ignore-unknown=true"] as const;
 const groupedStepOutputTruncatedNotice = `\n[beep-cli] output truncated after ${GROUPED_STEP_OUTPUT_MAX_CHARS} characters`;
 const LINT_POLICY_SUBCOMMANDS = [
   "circular",
@@ -458,6 +459,14 @@ const collectExistingWorkingTreeChangedFiles = Effect.fn("QualityTasks.collectEx
     );
   }
 );
+
+const lintFixChangedStep = (repoRoot: string, files: ReadonlyArray<string>) =>
+  QualityTaskStep.make({
+    label: "lint:fix:changed",
+    command: LOCAL_BIOME_BIN,
+    args: [...BIOME_FIX_CHANGED_ARGS, ...files],
+    cwd: repoRoot,
+  });
 
 const isUnresolvedSecretReference = (value: string | undefined): boolean =>
   value !== undefined && Str.startsWith("op://")(value);
@@ -990,14 +999,7 @@ const runRootLintTask = Effect.fn("QualityTasks.runRootLintTask")(function* (
       return;
     }
 
-    yield* runStep(
-      QualityTaskStep.make({
-        label: "lint:fix:changed",
-        command: LOCAL_BIOME_BIN,
-        args: ["format", "--write", "--files-ignore-unknown=true", ...files],
-        cwd: repoRoot,
-      })
-    );
+    yield* runStep(lintFixChangedStep(repoRoot, files));
     return;
   }
 
@@ -1303,3 +1305,18 @@ export const runQualityTaskStepGroupForTesting = runStepGroup;
  * @since 0.0.0
  */
 export const collectLintFixChangedFilesForTesting = collectExistingWorkingTreeChangedFiles;
+
+/**
+ * Build the root lint fix changed-file step. Exposed for focused unit tests.
+ *
+ * @param repoRoot - Repository root directory.
+ * @param files - Changed files to pass to Biome.
+ * @example
+ * ```ts
+ * import { lintFixChangedStepForTesting } from "@beep/repo-cli/commands/Quality"
+ * console.log(lintFixChangedStepForTesting("/repo", ["src/example.ts"]))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const lintFixChangedStepForTesting = lintFixChangedStep;
