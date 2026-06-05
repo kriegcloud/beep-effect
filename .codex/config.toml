@@ -17,11 +17,6 @@ args = ["-y", "shadcn@4.7.0", "mcp"]
 # npx can spend a few seconds revalidating the cache before the MCP handshake.
 startup_timeout_sec = 90
 
-[mcp_servers.next-devtools]
-# This is inherited from the user-global config but is only needed for active
-# Next.js debugging. Keeping it disabled here avoids npm/network work on startup.
-enabled = false
-
 [mcp_servers.serena]
 command = "serena"
 args = [
