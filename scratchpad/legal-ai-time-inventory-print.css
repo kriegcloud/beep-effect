@@ -1,0 +1,80 @@
+@page {
+  margin: 0.55in;
+  size: letter;
+}
+
+body {
+  color: #111827;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  line-height: 1.42;
+}
+
+h1 {
+  border-bottom: 2px solid #111827;
+  font-size: 24px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+}
+
+h2 {
+  font-size: 17px;
+  margin-top: 22px;
+}
+
+h3 {
+  break-after: avoid;
+  border-top: 1px solid #d1d5db;
+  font-size: 14px;
+  margin-top: 18px;
+  padding-top: 10px;
+}
+
+table {
+  border-collapse: collapse;
+  font-size: 8px;
+  margin: 12px 0;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid #d1d5db;
+  padding: 4px 5px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #f3f4f6;
+  font-weight: 700;
+}
+
+td:nth-child(3),
+td:nth-child(4),
+td:nth-child(5),
+th:nth-child(3),
+th:nth-child(4),
+th:nth-child(5) {
+  text-align: right;
+  white-space: nowrap;
+}
+
+ul {
+  margin-top: 6px;
+  padding-left: 18px;
+}
+
+li {
+  margin: 2px 0;
+}
+
+p,
+li,
+td {
+  overflow-wrap: anywhere;
+}
+
+strong {
+  color: #111827;
+}

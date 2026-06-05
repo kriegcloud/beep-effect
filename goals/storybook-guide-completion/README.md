@@ -17,6 +17,15 @@ Execution-capable sessions launch with:
 
 `GOAL.md` is the compact launcher; `SPEC.md` remains the normative contract.
 
+### Agent Capabilities
+
+Execution agents for this initiative require:
+
+- Claude-in-Chrome access to interact with the live Storybook `/settings/guide` UI.
+- Repository write access to author stories, update configs, and commit changes.
+- Shell command execution for verification scripts and tooling.
+- Optional 1Password CLI (`op`) access for credential resolution during P4 publish.
+
 ## Mission
 
 Drive the Storybook **Guide** checklist (`/settings/guide`) for `@beep/ui` from

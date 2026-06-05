@@ -14405,14 +14405,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/native-select` | `NativeSelectOptGroup` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:76` | An `<optgroup>` for use within {@link NativeSelect}, themed to match the system color scheme. |
 | `@beep/ui/components/native-select` | `NativeSelectOption` | function | `packages/foundation/ui-system/ui/src/components/native-select.tsx:57` | An `<option>` for use within {@link NativeSelect}, themed to match the system color scheme. |
 | `@beep/ui/components/navigation-menu` | `NavigationMenu` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:20` | Navigation menu component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuContent` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:140` | Navigation menu content component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuIndicator` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:239` | Navigation menu indicator component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuItem` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:75` | Navigation menu item component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuLink` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:213` | Navigation menu link component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuList` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:52` | Navigation menu list component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuPositioner` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:166` | Navigation menu positioner component. |
-| `@beep/ui/components/navigation-menu` | `NavigationMenuTrigger` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:111` | Navigation menu trigger component. |
-| `@beep/ui/components/navigation-menu` | `navigationMenuTriggerStyle` | const | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:94` | Navigation menu trigger style theme value. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuContent` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:151` | Navigation menu content component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuIndicator` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:254` | Navigation menu indicator component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuItem` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:86` | Navigation menu item component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuLink` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:228` | Navigation menu link component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuList` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:63` | Navigation menu list component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuPositioner` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:177` | Navigation menu positioner component. |
+| `@beep/ui/components/navigation-menu` | `NavigationMenuTrigger` | function | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:122` | Navigation menu trigger component. |
+| `@beep/ui/components/navigation-menu` | `navigationMenuTriggerStyle` | const | `packages/foundation/ui-system/ui/src/components/navigation-menu.tsx:105` | Navigation menu trigger style theme value. |
 | `@beep/ui/components/notification-card` | `ActionStyle` | const | `packages/foundation/ui-system/ui/src/components/notification-card.tsx:84` | Action style theme value. |
 | `@beep/ui/components/notification-card` | `ActionStyle` | type | `packages/foundation/ui-system/ui/src/components/notification-card.tsx:103` | Action style type. |
 | `@beep/ui/components/notification-card` | `ActionType` | const | `packages/foundation/ui-system/ui/src/components/notification-card.tsx:49` | Action type component. |
@@ -14525,18 +14525,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/ui/components/tabs` | `tabsListVariants` | const | `packages/foundation/ui-system/ui/src/components/tabs.tsx:45` | Tabs list variants component. |
 | `@beep/ui/components/tabs` | `TabsTrigger` | function | `packages/foundation/ui-system/ui/src/components/tabs.tsx:101` | Tabs trigger component. |
 | `@beep/ui/components/textarea` | `Textarea` | function | `packages/foundation/ui-system/ui/src/components/textarea.tsx:17` | Textarea component. |
-| `@beep/ui/components/toast` | `Toast` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:157` | Toast component. |
-| `@beep/ui/components/toast` | `ToastAction` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:183` | Toast action component. |
-| `@beep/ui/components/toast` | `ToastActionElement` | type | `packages/foundation/ui-system/ui/src/components/toast.tsx:297` | Toast action element type. |
-| `@beep/ui/components/toast` | `ToastClose` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:210` | Toast close component. |
-| `@beep/ui/components/toast` | `ToastData` | class | `packages/foundation/ui-system/ui/src/components/toast.tsx:135` | Toast data class. |
-| `@beep/ui/components/toast` | `ToastDescription` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:259` | Toast description component. |
+| `@beep/ui/components/toast` | `Toast` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:160` | Toast component. |
+| `@beep/ui/components/toast` | `ToastAction` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:186` | Toast action component. |
+| `@beep/ui/components/toast` | `ToastActionElement` | type | `packages/foundation/ui-system/ui/src/components/toast.tsx:300` | Toast action element type. |
+| `@beep/ui/components/toast` | `ToastClose` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:213` | Toast close component. |
+| `@beep/ui/components/toast` | `ToastData` | class | `packages/foundation/ui-system/ui/src/components/toast.tsx:138` | Toast data class. |
+| `@beep/ui/components/toast` | `ToastDescription` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:262` | Toast description component. |
 | `@beep/ui/components/toast` | `ToastPrimitive` | SourceFile | `node_modules/@base-ui/react/esm/toast/index.parts.d.ts:1` |  |
-| `@beep/ui/components/toast` | `ToastProps` | type | `packages/foundation/ui-system/ui/src/components/toast.tsx:281` | Toast props type. |
+| `@beep/ui/components/toast` | `ToastProps` | type | `packages/foundation/ui-system/ui/src/components/toast.tsx:284` | Toast props type. |
 | `@beep/ui/components/toast` | `ToastProvider` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:39` | Toast variant type. |
-| `@beep/ui/components/toast` | `ToastTitle` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:239` | Toast title component. |
-| `@beep/ui/components/toast` | `ToastVariant` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:100` | Toast variant component. |
-| `@beep/ui/components/toast` | `ToastVariant` | type | `packages/foundation/ui-system/ui/src/components/toast.tsx:120` | Toast variant type. |
+| `@beep/ui/components/toast` | `ToastTitle` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:242` | Toast title component. |
+| `@beep/ui/components/toast` | `ToastVariant` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:103` | Toast variant component. |
+| `@beep/ui/components/toast` | `ToastVariant` | type | `packages/foundation/ui-system/ui/src/components/toast.tsx:123` | Toast variant type. |
 | `@beep/ui/components/toast` | `ToastViewport` | const | `packages/foundation/ui-system/ui/src/components/toast.tsx:54` | Toast viewport component. |
 | `@beep/ui/components/toaster` | `Toaster` | function | `packages/foundation/ui-system/ui/src/components/toaster.tsx:76` | Toaster component. |
 | `@beep/ui/components/toaster` | `ToastPrimitive` | SourceFile | `node_modules/@base-ui/react/esm/toast/index.parts.d.ts:1` |  |

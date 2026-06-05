@@ -39,14 +39,18 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
           "--border-radius": "var(--radius)",
-          "--success-bg": "#ecfdf3",
-          "--success-text": "#047857",
-          "--error-bg": "#fff0f0",
-          "--error-text": "#b91c1c",
-          "--warning-bg": "#fffcf0",
-          "--warning-text": "#b45309",
-          "--info-bg": "#f0f8ff",
-          "--info-text": "#0369a1",
+          // Rich-color toasts derive from the theme's semantic tokens (each carries light/dark
+          // variants) so success/error/warning/info adapt with the active color scheme instead of
+          // pinning light-mode hex values. Backgrounds are a subtle tint of the semantic color over
+          // the popover surface; text uses the matching readable `*-text` token.
+          "--success-bg": "color-mix(in oklch, var(--success) 16%, var(--popover))",
+          "--success-text": "var(--success-text)",
+          "--error-bg": "color-mix(in oklch, var(--destructive) 16%, var(--popover))",
+          "--error-text": "var(--destructive-text)",
+          "--warning-bg": "color-mix(in oklch, var(--warning) 16%, var(--popover))",
+          "--warning-text": "var(--warning-text)",
+          "--info-bg": "color-mix(in oklch, var(--info) 16%, var(--popover))",
+          "--info-text": "var(--info-text)",
         } as React.CSSProperties
       }
       toastOptions={{

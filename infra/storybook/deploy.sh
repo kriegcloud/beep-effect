@@ -12,13 +12,18 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-export VERCEL_API_TOKEN="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_VERCEL_API_TOKEN')"
-export STORYBOOK_CLOUDFLARE_ZONE_ID="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_CLOUDFLARE_ZONE_ID_YEEBOIS_COM')"
+# Assign first, then export, so `op read` failures abort under `set -e` instead of
+# being masked by the surrounding `export` builtin's own exit status (SC2155).
+VERCEL_API_TOKEN="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_VERCEL_API_TOKEN')"
+export VERCEL_API_TOKEN
+STORYBOOK_CLOUDFLARE_ZONE_ID="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/CLOUD_CLOUDFLARE_ZONE_ID_YEEBOIS_COM')"
+export STORYBOOK_CLOUDFLARE_ZONE_ID
 
 # The Cloudflare provider needs an API token to manage the storybook.yeebois.com
-# CNAME. Set CLOUDFLARE_API_TOKEN before running (use your own op reference for
-# the field), e.g.:
-#   export CLOUDFLARE_API_TOKEN="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/<cloudflare-api-token-field>')"
+# CNAME. Set CLOUDFLARE_API_TOKEN before running. Replace the placeholder below with
+# the real 1Password field that stores your Cloudflare API token, e.g.:
+#   export CLOUDFLARE_API_TOKEN="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/<your-cloudflare-api-token-field>')"
+# TODO: swap <your-cloudflare-api-token-field> for the actual field name before use.
 : "${CLOUDFLARE_API_TOKEN:?Set CLOUDFLARE_API_TOKEN before deploying (see comment above).}"
 
 pulumi stack select production 2>/dev/null || pulumi stack init production

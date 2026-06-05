@@ -17,7 +17,18 @@ import type { ComponentPropsWithoutRef } from "react";
  * @category components
  * @since 0.0.0
  */
-function NavigationMenu({ className, children, ...props }: NavigationMenuPrimitive.Root.Props) {
+function NavigationMenu({
+  className,
+  children,
+  submenuLabel = "Submenu",
+  ...props
+}: NavigationMenuPrimitive.Root.Props & {
+  /**
+   * Accessible name for the floating submenu popup `<nav>` landmark. Override per instance when
+   * several navigation menus share a page so each popup stays unique for axe `landmark-unique`.
+   */
+  readonly submenuLabel?: string;
+}) {
   return (
     <NavigationMenuPrimitive.Root
       data-slot="navigation-menu"
@@ -31,7 +42,7 @@ function NavigationMenu({ className, children, ...props }: NavigationMenuPrimiti
       {...props}
     >
       {children}
-      <NavigationMenuPositioner />
+      <NavigationMenuPositioner submenuLabel={submenuLabel} />
     </NavigationMenuPrimitive.Root>
   );
 }
@@ -169,8 +180,12 @@ function NavigationMenuPositioner({
   sideOffset = 8,
   align = "start",
   alignOffset = 0,
+  submenuLabel = "Submenu",
   ...props
-}: NavigationMenuPrimitive.Positioner.Props) {
+}: NavigationMenuPrimitive.Positioner.Props & {
+  /** Accessible name for the popup `<nav>` landmark; defaults to `"Submenu"`. */
+  readonly submenuLabel?: string;
+}) {
   return (
     <NavigationMenuPrimitive.Portal>
       <NavigationMenuPrimitive.Positioner
@@ -186,8 +201,8 @@ function NavigationMenuPositioner({
       >
         <NavigationMenuPrimitive.Popup
           // The popup also renders as a `<nav>` landmark; a distinct label keeps it unique from the
-          // root nav for axe `landmark-unique`.
-          aria-label="Submenu"
+          // root nav for axe `landmark-unique`. Override via `submenuLabel` when several menus coexist.
+          aria-label={submenuLabel}
           className="bg-popover text-popover-foreground ring-foreground/10 rounded-lg shadow ring-1 transition-all ease-[cubic-bezier(0.22,1,0.36,1)] outline-none data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 xs:w-(--popup-width) relative h-(--popup-height) w-(--popup-width) origin-(--transform-origin)"
         >
           <NavigationMenuPrimitive.Viewport className="relative size-full overflow-hidden" />

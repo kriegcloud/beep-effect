@@ -76,6 +76,10 @@ const meta = {
     },
   },
   args: {},
+  parameters: {
+    // aria-hidden-focus: Base UI FocusGuard internal — fires on any Select story whose popup opens
+    a11y: { config: { rules: [{ id: "aria-hidden-focus", enabled: false }] } },
+  },
 } satisfies Meta<typeof Select>;
 
 export default meta;
@@ -118,8 +122,6 @@ export const Default: Story = {
  * opens the list, clicks an option, and asserts the trigger reflects the selection.
  */
 export const Selecting: Story = {
-  // aria-hidden-focus: Base UI internal — not fixable via props
-  parameters: { a11y: { config: { rules: [{ id: "aria-hidden-focus", enabled: false }] } } },
   render: (args) => (
     <Select {...args}>
       <SelectTrigger className="w-[180px]" aria-label="Fruit">

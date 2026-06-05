@@ -24,7 +24,8 @@ Use the helper (defaults to a read-only `preview`; pass `up` to apply):
 ```sh
 cd infra/storybook
 op signin                                 # if not already signed in
-export CLOUDFLARE_API_TOKEN="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/<cloudflare-api-token-field>')"
+# Replace <your-cloudflare-api-token-field> with the real 1Password field name:
+export CLOUDFLARE_API_TOKEN="$(op read 'op://BEEP_SECRETS/BEEP_SECRETS/<your-cloudflare-api-token-field>')"
 ./deploy.sh            # pulumi preview
 ./deploy.sh up         # pulumi up
 ```

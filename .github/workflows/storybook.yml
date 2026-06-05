@@ -20,7 +20,9 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
 
       - name: Setup monorepo CI
         uses: ./.github/actions/setup-monorepo-ci
@@ -28,6 +30,19 @@ jobs:
           cache-turbo: "true"
           cache-write: "false"
 
+      - name: Resolve Playwright version
+        id: playwright
+        run: echo "version=$(bunx playwright --version | awk '{ print $2 }')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright.outputs.version }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      # Browser binary download is skipped on a cache hit; OS deps still install (fast, apt-cached).
       - name: Install Playwright Chromium (with OS deps)
         run: bunx playwright install --with-deps chromium
 
