@@ -1,0 +1,327 @@
+{
+  "schemaVersion": "repo-quality-throughput/tasks/v1",
+  "updated": "2026-06-06",
+  "rankingMethod": "Rank by End-to-End Green wall-clock impact, workflow frequency, correctness risk, implementation cost, resource risk, proof burden, and rollback simplicity.",
+  "tasks": [
+    {
+      "id": "rqt-001",
+      "rank": 1,
+      "status": "seeded-hypothesis",
+      "lane": "yeet-orchestration",
+      "title": "Make Yeet fast-plus-monitor the primary developer path after proof",
+      "commandsOrChecks": [
+        "bun run beep yeet repair",
+        "bun run beep yeet verify",
+        "bun run beep yeet publish --message <message>",
+        "gh pr checks --watch"
+      ],
+      "baseline": {
+        "status": "pending",
+        "evidence": "Measure during Batch 1 and Batch 3."
+      },
+      "expectedImpact": "High if it removes duplicate local waits before GitHub Actions while preserving full proof.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "medium",
+      "benefitGate": "Remove duplicated local waits or change expensive local proof into fast-plus-monitor flow with named full fallback.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected to remove one or more duplicated full-proof waits from the common publish path.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-push",
+      "implementationCost": "medium",
+      "proofBurden": "high",
+      "confidence": "medium",
+      "selectionRationale": "Yeet sits on the critical developer path and can remove redundant local waiting if CI remains authoritative.",
+      "implementationScope": [
+        "packages/tooling/tool/cli/src/commands/Yeet",
+        "packages/tooling/tool/cli/src/commands/Quality",
+        ".github/workflows/check.yml",
+        "lefthook.yml"
+      ],
+      "proofCommands": [
+        "bun run beep yeet repair",
+        "bun run beep yeet verify",
+        "bun run audit:github quality",
+        "gh pr checks --watch"
+      ],
+      "rollbackPlan": "Restore the previous Yeet planner/handler flow and keep manual quality lanes as the canonical path.",
+      "evidence": [
+        "goals/repo-quality-throughput/research/known-findings.md",
+        "goals/repo-quality-acceleration/history/outputs/phase0-synthesis.md"
+      ],
+      "notes": "Do not make Yeet canonical until this task has timing and CI proof."
+    },
+    {
+      "id": "rqt-002",
+      "rank": 2,
+      "status": "seeded-hypothesis",
+      "lane": "docgen",
+      "title": "Add safe package-level docgen fingerprint reuse before symbol-level selectivity",
+      "commandsOrChecks": [
+        "bun run docgen:local",
+        "bun run docgen",
+        "bun run audit:github quality"
+      ],
+      "baseline": {
+        "status": "pending",
+        "evidence": "Measure package docgen, example typecheck, and aggregation cost in Batch 1."
+      },
+      "expectedImpact": "High if unchanged package docs/examples can reuse proof without running the full package docgen path.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "low",
+      "benefitGate": "Reduce repeated docgen work for unchanged packages while keeping full docgen fallback proof.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected to reduce unchanged-package docgen work and example typecheck time on local and CI docgen lanes.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-pr",
+      "implementationCost": "medium",
+      "proofBurden": "high",
+      "confidence": "medium",
+      "selectionRationale": "Docgen has been observed as a slow proof lane, but safe reuse needs package-level measurement first.",
+      "implementationScope": [
+        "packages/tooling/tool/docgen",
+        "packages/tooling/tool/cli/src/commands/Docgen",
+        "turbo.json"
+      ],
+      "proofCommands": [
+        "bun run docgen:local",
+        "bun run docgen",
+        "bun run audit:github quality"
+      ],
+      "rollbackPlan": "Disable fingerprint reuse and fall back to existing package/full docgen behavior.",
+      "evidence": [
+        "goals/repo-quality-throughput/research/known-findings.md",
+        "goals/repo-quality-acceleration/research/docgen-selective-checking.md"
+      ],
+      "notes": "Symbol/example selectivity remains shadow-only until soundness is proven."
+    },
+    {
+      "id": "rqt-003",
+      "rank": 3,
+      "status": "seeded-hypothesis",
+      "lane": "ci-setup-cache",
+      "title": "Reduce GitHub Actions setup/cache overhead when it dominates PR wall clock",
+      "commandsOrChecks": [
+        ".github/actions/setup-monorepo-ci/action.yml",
+        ".github/workflows/check.yml"
+      ],
+      "baseline": {
+        "status": "pending",
+        "evidence": "Compare recent PR setup restore/install/save timings in Batch 1."
+      },
+      "expectedImpact": "High when broad dependency cache restore is slower than cold install or exact-key restore.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "low",
+      "benefitGate": "Remove or shorten repeated GitHub Actions setup/cache wait on critical PR lanes.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected to save setup wall clock when cache restore overhead dominates install time.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-pr",
+      "implementationCost": "low",
+      "proofBurden": "medium",
+      "confidence": "medium",
+      "selectionRationale": "CI setup runs in every PR matrix lane and prior evidence showed setup/cache as a plausible critical-path cost.",
+      "implementationScope": [
+        ".github/actions/setup-monorepo-ci/action.yml",
+        ".github/workflows/check.yml"
+      ],
+      "proofCommands": [
+        "gh run list --workflow check.yml --limit 10 --json databaseId,status,conclusion,createdAt,updatedAt,displayTitle,event,headBranch",
+        "gh run view <run-id> --json jobs"
+      ],
+      "rollbackPlan": "Restore previous cache restore/save policy.",
+      "evidence": [
+        "goals/repo-quality-acceleration/history/outputs/phase0-synthesis.md"
+      ],
+      "notes": "Do not tune cache policy without before/after CI timing evidence."
+    },
+    {
+      "id": "rqt-004",
+      "rank": 4,
+      "status": "seeded-hypothesis",
+      "lane": "turbo-config",
+      "title": "Reduce root config blast radius with measured package-local configuration",
+      "commandsOrChecks": [
+        "turbo.json",
+        "biome.jsonc",
+        "package-local turbo.json",
+        "package-local biome.json"
+      ],
+      "baseline": {
+        "status": "pending",
+        "evidence": "Batch 1 must identify hash inputs and blast-radius changes for root config edits."
+      },
+      "expectedImpact": "Medium to high for frequent root config churn if scoped configs reduce affected package invalidation.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "low",
+      "benefitGate": "Reduce unnecessary affected-package invalidation from root config churn with measured blast-radius proof.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected to reduce affected task fan-out after localized configuration changes.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-commit",
+      "implementationCost": "high",
+      "proofBurden": "high",
+      "confidence": "low",
+      "selectionRationale": "Scoped config could reduce blast radius, but only package-specific measurement can prove it is worth the drift risk.",
+      "implementationScope": [
+        "turbo.json",
+        "package-local config files",
+        "packages/tooling/tool/cli"
+      ],
+      "proofCommands": [
+        "bunx turbo run lint --affected --summarize --dry-run=json",
+        "bunx turbo run check --affected --summarize --dry-run=json"
+      ],
+      "rollbackPlan": "Remove package-local config split and return to root defaults.",
+      "evidence": ["goals/repo-quality-throughput/research/known-findings.md"],
+      "notes": "Hybrid scoped config only; root defaults remain canonical."
+    },
+    {
+      "id": "rqt-005",
+      "rank": 5,
+      "status": "seeded-hypothesis",
+      "lane": "repo-sanity-and-sidecars",
+      "title": "Split and de-duplicate repo-sanity sidecar work across local, hooks, and CI",
+      "commandsOrChecks": [
+        "bun run audit:github repo-sanity",
+        "bun run audit:github quality",
+        "lefthook pre-push"
+      ],
+      "baseline": {
+        "status": "pending",
+        "evidence": "Batch 2 must time changeset graph, config sync, version sync, syncpack, sherif, and audit substeps."
+      },
+      "expectedImpact": "Medium if serial sidecars or repeated local/CI waits are a meaningful part of the green lane.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "low",
+      "benefitGate": "Remove duplicated sidecar work or shorten serial repo-sanity waits without suppressing required diagnostics.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected to reduce serial repo-sanity wait or duplicate hook/CI sidecar work.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-pr",
+      "implementationCost": "medium",
+      "proofBurden": "medium",
+      "confidence": "medium",
+      "selectionRationale": "Repo-sanity participates in PR and all-up quality flows, so substep timing can expose duplicated work.",
+      "implementationScope": [
+        "packages/tooling/tool/cli/src/commands/Quality",
+        "lefthook.yml",
+        ".github/workflows/check.yml"
+      ],
+      "proofCommands": [
+        "bun run audit:github repo-sanity",
+        "bun run audit:github quality"
+      ],
+      "rollbackPlan": "Restore previous repo-sanity sequencing and hook behavior.",
+      "evidence": ["goals/repo-quality-throughput/research/known-findings.md"],
+      "notes": "Must preserve warnings and policy diagnostics that are currently required."
+    },
+    {
+      "id": "rqt-006",
+      "rank": 6,
+      "status": "seeded-hypothesis",
+      "lane": "build-test-coverage-integration",
+      "title": "Classify and optimize build, coverage, and integration-test participation in End-to-End Green",
+      "commandsOrChecks": [
+        "bun run build",
+        "bun run test",
+        "bun run coverage",
+        "bun run test -- --integration"
+      ],
+      "baseline": {
+        "status": "pending",
+        "evidence": "Batch 2 must separate build cache behavior, coverage canonicality, and integration resource setup from execution."
+      },
+      "expectedImpact": "Medium to high if push-only build, integration setup, or coverage proof are slowing merge readiness or being duplicated.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "medium",
+      "benefitGate": "Clarify green-lane participation and reduce repeated build/test/resource setup while preserving exclusive integration semantics.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected to reduce redundant build/test setup or prevent coverage/integration from contaminating the fast path.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-pr",
+      "implementationCost": "medium",
+      "proofBurden": "high",
+      "confidence": "low",
+      "selectionRationale": "This lane may be high value, but coverage and integration participation must be classified before implementation.",
+      "implementationScope": [
+        "turbo.json",
+        "packages/tooling/tool/cli/src/commands/Quality",
+        ".github/workflows/check.yml",
+        "vitest.config.ts",
+        "vitest.shared.ts"
+      ],
+      "proofCommands": [
+        "bunx turbo run build --affected --summarize --dry-run=json",
+        "bun run test",
+        "bun run coverage"
+      ],
+      "rollbackPlan": "Restore previous build/test/coverage/integration task graph and CI participation.",
+      "evidence": ["goals/repo-quality-throughput/research/known-findings.md"],
+      "notes": "Integration tests must remain exclusive when shared resources require it."
+    },
+    {
+      "id": "rqt-007",
+      "rank": 7,
+      "status": "seeded-hypothesis",
+      "lane": "security-hooks-workflows",
+      "title": "Map security, hooks, and non-Check workflows to prevent slow or weakened proof",
+      "commandsOrChecks": [
+        "bun run audit:github pre-push",
+        "lefthook pre-commit",
+        "lefthook pre-push",
+        ".github/workflows/release.yml",
+        ".github/workflows/data-sync.yml"
+      ],
+      "baseline": {
+        "status": "pending",
+        "evidence": "Batch 2 must map CI/security parity, hook cost, and setup/cache effects on release and data-sync."
+      },
+      "expectedImpact": "Medium if fast guards replace duplicate expensive local scans while CI/pre-push full proof remains authoritative.",
+      "correctnessRisk": "high",
+      "resourceRisk": "medium",
+      "benefitGate": "Replace duplicate expensive local scans with fast guards while preserving security and full pre-push/CI fallback proof.",
+      "expectedDelta": {
+        "status": "safety-resource",
+        "summary": "Expected to prevent duplicate expensive local scans while keeping security proof authoritative in CI/pre-push.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-push",
+      "implementationCost": "medium",
+      "proofBurden": "high",
+      "confidence": "medium",
+      "selectionRationale": "Security and hook lanes can slow the green path, but proof weakening risk makes this a safety-first optimization.",
+      "implementationScope": [
+        "lefthook.yml",
+        ".github/workflows",
+        ".github/actions/setup-monorepo-ci",
+        "packages/tooling/tool/cli/src/commands/Quality"
+      ],
+      "proofCommands": [
+        "bun run audit:github pre-push",
+        "gh run view <run-id> --json jobs"
+      ],
+      "rollbackPlan": "Restore previous hook/workflow/security behavior.",
+      "evidence": ["goals/repo-quality-throughput/research/known-findings.md"],
+      "notes": "Do not weaken secrets, SAST, dependency, or Nix proof without explicit full fallback."
+    }
+  ]
+}

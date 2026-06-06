@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://beep-effect.local/goals/repo-quality-throughput/tasks.schema.json",
+  "title": "Repo Quality Throughput Task Inventory",
+  "type": "object",
+  "required": ["schemaVersion", "updated", "rankingMethod", "tasks"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "string"
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "rankingMethod": {
+      "type": "string"
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/task"
+      }
+    }
+  },
+  "$defs": {
+    "task": {
+      "type": "object",
+      "required": [
+        "id",
+        "rank",
+        "status",
+        "lane",
+        "title",
+        "commandsOrChecks",
+        "baseline",
+        "expectedImpact",
+        "benefitGate",
+        "expectedDelta",
+        "frequency",
+        "correctnessRisk",
+        "resourceRisk",
+        "implementationCost",
+        "proofBurden",
+        "confidence",
+        "selectionRationale",
+        "implementationScope",
+        "proofCommands",
+        "rollbackPlan",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^rqt-[0-9]{3}$"
+        },
+        "rank": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "seeded-hypothesis",
+            "candidate",
+            "selected",
+            "in-progress",
+            "done",
+            "deferred",
+            "rejected"
+          ]
+        },
+        "lane": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "commandsOrChecks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "baseline": {
+          "type": "object",
+          "required": ["status", "evidence"],
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "evidence": {
+              "type": "string"
+            }
+          }
+        },
+        "expectedImpact": {
+          "type": "string"
+        },
+        "correctnessRisk": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "resourceRisk": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "benefitGate": {
+          "type": "string"
+        },
+        "expectedDelta": {
+          "type": "object",
+          "required": ["status", "summary"],
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending-measurement",
+                "direct-speedup",
+                "measurement-unlocking",
+                "safety-resource"
+              ]
+            },
+            "summary": {
+              "type": "string"
+            },
+            "seconds": {
+              "type": ["number", "null"]
+            },
+            "percent": {
+              "type": ["number", "null"]
+            }
+          }
+        },
+        "frequency": {
+          "type": "string",
+          "enum": [
+            "every-edit",
+            "every-commit",
+            "every-push",
+            "every-pr",
+            "push-main",
+            "scheduled-or-release",
+            "unknown"
+          ]
+        },
+        "implementationCost": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "proofBurden": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "selectionRationale": {
+          "type": "string"
+        },
+        "implementationScope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "proofCommands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rollbackPlan": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "string"
+        },
+        "deferred": {
+          "$ref": "#/$defs/deferred"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "deferred"
+              }
+            }
+          },
+          "then": {
+            "required": ["deferred"]
+          }
+        }
+      ]
+    },
+    "deferred": {
+      "type": "object",
+      "required": ["reason", "ownerOrSurface", "residualRisk", "nextProofStep"],
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "ownerOrSurface": {
+          "type": "string"
+        },
+        "residualRisk": {
+          "type": "string"
+        },
+        "nextProofStep": {
+          "type": "string"
+        },
+        "followUpTrigger": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
