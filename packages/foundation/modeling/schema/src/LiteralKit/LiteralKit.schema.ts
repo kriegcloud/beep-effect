@@ -280,7 +280,7 @@ const makeThunks = <L extends Literals, M extends EnumMappings<L> | undefined = 
     }))
   );
 
-const LiteralValueSchema = S.Union([S.String, S.BigInt, S.Boolean, S.Number]);
+const LiteralValueSchema = S.Union([S.String, S.BigInt, S.Boolean, S.Finite]);
 const makeLiteralKitErrorBase = <Self, Name extends string, Fields extends S.Struct.Fields>(
   name: Name,
   fields: Fields,
@@ -326,8 +326,8 @@ const LiteralKitKeyCollisionErrorBase: TaggedErrorClassFromFields<
 );
 const LiteralKitEnumMappingDuplicateLiteralErrorFields = {
   literal: LiteralValueSchema,
-  firstIndex: S.Number,
-  secondIndex: S.Number,
+  firstIndex: S.Finite,
+  secondIndex: S.Finite,
 } satisfies S.Struct.Fields;
 const LiteralKitEnumMappingDuplicateLiteralErrorBase: TaggedErrorClassFromFields<
   LiteralKitEnumMappingDuplicateLiteralError,

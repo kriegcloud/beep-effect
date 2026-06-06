@@ -60,15 +60,15 @@ export class TerseEffectRulesOptions extends S.Class<TerseEffectRulesOptions>($I
  */
 export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I`TerseEffectRulesSummary`)(
   {
-    touchedFiles: S.Number,
-    helpersSimplified: S.Number,
-    thunkHelpersSimplified: S.Number,
-    flowCandidatesDetected: S.Number,
-    optionObjectCompactionCandidatesDetected: S.Number,
-    conditionalOptionalObjectSpreadCandidatesDetected: S.Number,
-    nestedOptionMatchCandidatesDetected: S.Number,
-    nestedBoolMatchCandidatesDetected: S.Number,
-    dualOverloadCandidatesDetected: S.Number,
+    touchedFiles: S.Finite,
+    helpersSimplified: S.Finite,
+    thunkHelpersSimplified: S.Finite,
+    flowCandidatesDetected: S.Finite,
+    optionObjectCompactionCandidatesDetected: S.Finite,
+    conditionalOptionalObjectSpreadCandidatesDetected: S.Finite,
+    nestedOptionMatchCandidatesDetected: S.Finite,
+    nestedBoolMatchCandidatesDetected: S.Finite,
+    dualOverloadCandidatesDetected: S.Finite,
     strictFailure: S.Boolean,
     changedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),

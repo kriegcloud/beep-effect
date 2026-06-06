@@ -347,7 +347,7 @@ export class RepoStepRunResult extends S.Class<RepoStepRunResult>($I`RepoStepRun
   {
     stepId: S.String,
     commandText: S.String,
-    exitCode: S.Number,
+    exitCode: S.Finite,
     output: S.optionalKey(S.String),
     rawOutputRef: S.optionalKey(S.String),
     truncated: S.optionalKey(S.Boolean),

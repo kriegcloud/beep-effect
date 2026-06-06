@@ -267,7 +267,7 @@ export class RunSummaryRowOptions extends S.Class<RunSummaryRowOptions>($I`RunSu
   {
     agentName: S.String,
     branch: S.String,
-    maxIterations: S.Number,
+    maxIterations: S.Finite,
     name: S.optionalKey(S.String),
     sandboxName: S.String,
   },

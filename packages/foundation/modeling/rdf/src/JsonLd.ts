@@ -14,7 +14,7 @@ import { makeSemanticSchemaMetadata } from "./SemanticSchemaMetadata.ts";
 
 const $I = $RdfId.create("jsonld");
 
-const JsonLdScalar = S.Union([S.String, S.Number, S.Boolean]).pipe(
+const JsonLdScalar = S.Union([S.String, S.Finite, S.Boolean]).pipe(
   $I.annoteSchema("JsonLdScalar", {
     description: "Scalar JSON-LD literal value input used by bounded document helpers.",
   })

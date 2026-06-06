@@ -141,7 +141,7 @@ export type NonEmptyArrayOfNonEmptyStrings = S.Schema.Type<typeof NonEmptyArrayO
  * @since 0.0.0
  * @category validation
  */
-export const ArrayOfNumbers = S.Array(S.Number).pipe(
+export const ArrayOfNumbers = S.Array(S.Finite).pipe(
   $I.annoteSchema("ArrayOfNumbers", {
     description: "An array of numbers",
   })
@@ -170,7 +170,7 @@ export type ArrayOfNumbers = S.Schema.Type<typeof ArrayOfNumbers>;
  * @since 0.0.0
  * @category validation
  */
-export const NonEmptyArrayOfNumbers = S.NonEmptyArray(S.Number).pipe(
+export const NonEmptyArrayOfNumbers = S.NonEmptyArray(S.Finite).pipe(
   $I.annoteSchema("NonEmptyArrayOfNumbers", {
     description: "An array of non-empty numbers",
   })

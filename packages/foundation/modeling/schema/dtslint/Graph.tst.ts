@@ -21,19 +21,19 @@ describe("Graph primitives", () => {
 
 describe("Graph edge schemas", () => {
   it("preserves encoded edge schema types", () => {
-    const schema = GraphSchema.EdgeEncoded(S.NumberFromString);
+    const schema = GraphSchema.EdgeEncoded(S.FiniteFromString);
 
-    expect(schema.data).type.toBe<typeof S.NumberFromString>();
+    expect(schema.data).type.toBe<typeof S.FiniteFromString>();
     expect<typeof schema.Type>().type.toBe<GraphSchema.EdgeEncoded<number>>();
     expect<typeof schema.Encoded>().type.toBe<GraphSchema.EdgeEncoded<string>>();
   });
 
   it("preserves runtime edge schema types", () => {
-    const schema = GraphSchema.EdgeFromSelf(S.NumberFromString);
+    const schema = GraphSchema.EdgeFromSelf(S.FiniteFromString);
     const decode = S.decodeUnknownSync(schema);
     const decoded = decode(new Graph_.Edge({ source: 0, target: 1, data: "1" }));
 
-    expect(schema.data).type.toBe<typeof S.NumberFromString>();
+    expect(schema.data).type.toBe<typeof S.FiniteFromString>();
     expect<typeof schema.Type>().type.toBe<Graph_.Edge<number>>();
     expect<typeof schema.Encoded>().type.toBe<Graph_.Edge<string>>();
     expect(decoded).type.toBe<Graph_.Edge<number>>();
@@ -42,9 +42,9 @@ describe("Graph edge schemas", () => {
 
 describe("Graph schemas", () => {
   it("preserves the encoded graph schema surface", () => {
-    const schema = GraphSchema.GraphEncoded(S.NumberFromString, S.String);
+    const schema = GraphSchema.GraphEncoded(S.FiniteFromString, S.String);
 
-    expect(schema.node).type.toBe<typeof S.NumberFromString>();
+    expect(schema.node).type.toBe<typeof S.FiniteFromString>();
     expect(schema.edge).type.toBe<typeof S.String>();
     expect<typeof schema.Type>().type.toBe<GraphSchema.GraphEncoded<number, string>>();
     expect<typeof schema.Encoded>().type.toBe<GraphSchema.GraphEncoded<string, string>>();
@@ -52,7 +52,7 @@ describe("Graph schemas", () => {
 
   it("preserves immutable directed graph transform types", () => {
     const schema = GraphSchema.DirectedGraph({
-      node: S.NumberFromString,
+      node: S.FiniteFromString,
       edge: S.String,
     });
     const decode = S.decodeUnknownSync(schema);
@@ -63,7 +63,7 @@ describe("Graph schemas", () => {
       edges: [],
     });
 
-    expect(schema.node).type.toBe<typeof S.NumberFromString>();
+    expect(schema.node).type.toBe<typeof S.FiniteFromString>();
     expect(schema.edge).type.toBe<typeof S.String>();
     expect<typeof schema.Type>().type.toBe<Graph_.DirectedGraph<number, string>>();
     expect<typeof schema.Encoded>().type.toBe<GraphSchema.GraphEncoded<string, string>>();
@@ -72,7 +72,7 @@ describe("Graph schemas", () => {
 
   it("preserves mutable directed graph transform types", () => {
     const schema = GraphSchema.MutableDirectedGraph({
-      node: S.NumberFromString,
+      node: S.FiniteFromString,
       edge: S.String,
     });
 
@@ -82,7 +82,7 @@ describe("Graph schemas", () => {
 
   it("preserves immutable directed graph FromSelf types", () => {
     const schema = GraphSchema.DirectedGraphFromSelf({
-      node: S.NumberFromString,
+      node: S.FiniteFromString,
       edge: S.String,
     });
 

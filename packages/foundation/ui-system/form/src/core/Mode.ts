@@ -71,7 +71,7 @@ const ValidationMode = S.Literals(["onSubmit", "onBlur", "onChange"]).pipe(
 export class ParsedMode extends S.Class<ParsedMode>($I`ParsedMode`)(
   {
     autoSubmit: S.Boolean,
-    debounce: S.NullOr(S.Number),
+    debounce: S.NullOr(S.Finite),
     validation: ValidationMode,
   },
   $I.annote("ParsedMode", {

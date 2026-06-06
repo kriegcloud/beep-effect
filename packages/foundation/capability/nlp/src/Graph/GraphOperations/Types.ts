@@ -56,8 +56,8 @@ const $I = $NlpId.create("Graph/GraphOperations/Types");
  */
 export const ExecutionStrategy = S.TaggedUnion({
   Sequential: {},
-  Parallel: { concurrency: S.Number },
-  Batch: { batchSize: S.Number },
+  Parallel: { concurrency: S.Finite },
+  Batch: { batchSize: S.Finite },
   Streaming: {},
 }).pipe(
   SchemaUtils.withStatics((schema) => ({
@@ -121,13 +121,13 @@ export type ExecutionStrategy = typeof ExecutionStrategy.Type;
  * @category models
  */
 export class ExecutionMetrics extends S.Class<ExecutionMetrics>($I`ExecutionMetrics`)({
-  cacheHits: S.Number,
-  cacheMisses: S.Number,
+  cacheHits: S.Finite,
+  cacheMisses: S.Finite,
   duration: S.Duration,
-  nodesCreated: S.Number,
-  nodesProcessed: S.Number,
+  nodesCreated: S.Finite,
+  nodesProcessed: S.Finite,
   /** Tokens consumed by LLM-backed operations. */
-  tokensConsumed: S.Number.annotateKey({
+  tokensConsumed: S.Finite.annotateKey({
     description: "Tokens consumed by LLM-backed operations.",
   }),
 }) {
@@ -222,11 +222,11 @@ export class ConstantOperationCost extends S.Class<ConstantOperationCost>($I`Con
     complexity: S.tag("O(1)"),
     estimatedTime: S.Duration,
     /** Memory cost in bytes. */
-    memoryCost: S.Number.annotateKey({
+    memoryCost: S.Finite.annotateKey({
       description: "Memory cost in bytes.",
     }),
     /** LLM token cost. */
-    tokenCost: S.Number.annotateKey({
+    tokenCost: S.Finite.annotateKey({
       description: "LLM token cost in tokens.",
     }),
   },
@@ -261,11 +261,11 @@ export class LinearOperationCost extends S.Class<LinearOperationCost>($I`LinearO
     complexity: S.tag("O(n)"),
     estimatedTime: S.Duration,
     /** Memory cost in bytes. */
-    memoryCost: S.Number.annotateKey({
+    memoryCost: S.Finite.annotateKey({
       description: "Memory cost in bytes.",
     }),
     /** LLM token cost. */
-    tokenCost: S.Number.annotateKey({
+    tokenCost: S.Finite.annotateKey({
       description: "LLM token cost in tokens.",
     }),
   },
@@ -300,11 +300,11 @@ export class LinearithmicOperationCost extends S.Class<LinearithmicOperationCost
     complexity: S.tag("O(n log n)"),
     estimatedTime: S.Duration,
     /** Memory cost in bytes. */
-    memoryCost: S.Number.annotateKey({
+    memoryCost: S.Finite.annotateKey({
       description: "Memory cost in bytes.",
     }),
     /** LLM token cost. */
-    tokenCost: S.Number.annotateKey({
+    tokenCost: S.Finite.annotateKey({
       description: "LLM token cost in tokens.",
     }),
   },
@@ -339,11 +339,11 @@ export class QuadraticOperationCost extends S.Class<QuadraticOperationCost>($I`Q
     complexity: S.tag("O(n^2)"),
     estimatedTime: S.Duration,
     /** Memory cost in bytes. */
-    memoryCost: S.Number.annotateKey({
+    memoryCost: S.Finite.annotateKey({
       description: "Memory cost in bytes.",
     }),
     /** LLM token cost. */
-    tokenCost: S.Number.annotateKey({
+    tokenCost: S.Finite.annotateKey({
       description: "LLM token cost in tokens.",
     }),
   },

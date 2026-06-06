@@ -248,7 +248,7 @@ class DocgenQualityFinding extends S.Class<DocgenQualityFinding>($I`DocgenQualit
   {
     code: DocgenQualityFindingCode,
     tier: DocgenQualityTier,
-    scoreImpact: S.Number,
+    scoreImpact: S.Finite,
     message: S.String,
     evidence: S.Array(S.String),
     remediation: S.String,
@@ -261,9 +261,9 @@ class DocgenQualityFinding extends S.Class<DocgenQualityFinding>($I`DocgenQualit
 class DocgenQualityDiagnostic extends S.Class<DocgenQualityDiagnostic>($I`DocgenQualityDiagnostic`)(
   {
     category: S.String,
-    code: S.Number,
+    code: S.Finite,
     message: S.String,
-    line: S.Number,
+    line: S.Finite,
   },
   $I.annote("DocgenQualityDiagnostic", {
     description: "Nearby TypeScript diagnostic carried as quality-review evidence.",
@@ -274,7 +274,7 @@ class DocgenRelatedSymbol extends S.Class<DocgenRelatedSymbol>($I`DocgenRelatedS
   {
     name: S.String,
     kind: S.String,
-    line: S.Number,
+    line: S.Finite,
     signature: S.String,
   },
   $I.annote("DocgenRelatedSymbol", {
@@ -328,7 +328,7 @@ class DocgenQualityReview extends S.Class<DocgenQualityReview>($I`DocgenQualityR
   {
     subjectId: S.String,
     tier: DocgenQualityTier,
-    score: S.Number,
+    score: S.Finite,
     findings: S.Array(DocgenQualityFinding),
     rationale: S.String,
   },
@@ -339,12 +339,12 @@ class DocgenQualityReview extends S.Class<DocgenQualityReview>($I`DocgenQualityR
 
 class DocgenQualitySummary extends S.Class<DocgenQualitySummary>($I`DocgenQualitySummary`)(
   {
-    packages: S.Number,
-    subjects: S.Number,
-    passing: S.Number,
-    warnings: S.Number,
-    failures: S.Number,
-    remediationPackets: S.Number,
+    packages: S.Finite,
+    subjects: S.Finite,
+    passing: S.Finite,
+    warnings: S.Finite,
+    failures: S.Finite,
+    remediationPackets: S.Finite,
   },
   $I.annote("DocgenQualitySummary", {
     description: "Aggregate summary for a JSDoc quality run.",
@@ -356,10 +356,10 @@ class DocgenQualityPackageReport extends S.Class<DocgenQualityPackageReport>($I`
     packageName: S.String,
     packagePath: S.String,
     status: DocgenQualityPackageStatus,
-    durationMs: S.Number,
+    durationMs: S.Finite,
     error: S.NullOr(S.String),
     timedOut: S.Boolean,
-    omittedPacketCount: S.Number,
+    omittedPacketCount: S.Finite,
     subjects: S.Array(DocgenQualitySubject),
     reviews: S.Array(DocgenQualityReview),
     summary: DocgenQualitySummary,
@@ -1800,7 +1800,7 @@ const makeRemediationPacket = (
 
 class RemediationPacketCandidate extends S.Class<RemediationPacketCandidate>($I`RemediationPacketCandidate`)(
   {
-    impact: S.Number,
+    impact: S.Finite,
     isFail: S.Boolean,
     packagePath: S.String,
     packet: DocgenQualityRemediationPacket,
@@ -1862,7 +1862,7 @@ const withRemediationPacketCount = (
 
 class PackageReportOptions extends S.Class<PackageReportOptions>($I`PackageReportOptions`)(
   {
-    durationMs: S.Number,
+    durationMs: S.Finite,
     error: S.NullOr(S.String),
     status: DocgenQualityPackageStatus,
     timedOut: S.Boolean,

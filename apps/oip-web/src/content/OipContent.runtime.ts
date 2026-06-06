@@ -42,7 +42,7 @@ class OipContentLoadError extends TaggedErrorClass<OipContentLoadError>($I`OipCo
     provider: S.optionalKey(S.String),
     providerReason: S.optionalKey(S.String),
     reason: OipContentLoadErrorReason,
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
   },
   $I.annote("OipContentLoadError", {
     description: "Typed server-side OIP content loading failure.",

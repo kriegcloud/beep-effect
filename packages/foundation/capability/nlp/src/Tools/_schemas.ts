@@ -80,14 +80,14 @@ const AiPhoneticAlgorithm = AiPhoneticAlgorithmKit.pipe(
  * @since 0.0.0
  */
 export const AiToken = S.Struct({
-  end: describe(S.Number, "Character offset where the token ends in the source text."),
+  end: describe(S.Finite, "Character offset where the token ends in the source text."),
   isPunctuation: describe(S.Boolean, "Whether the token represents punctuation."),
   isStopWord: describe(S.Boolean, "Whether the token is a common stop word."),
   lemma: describe(S.String, "Base or dictionary form of the token."),
   pos: describe(S.String, "Part-of-speech tag such as NOUN, VERB, or ADJ.", {
     examples: ["NOUN", "VERB", "ADJ", "DET", "ADP"],
   }),
-  start: describe(S.Number, "Character offset where the token begins in the source text."),
+  start: describe(S.Finite, "Character offset where the token begins in the source text."),
   stem: describe(S.String, "Stemmed form of the token."),
   text: describe(S.String, "The token text as it appears in the source input."),
 }).pipe(
@@ -135,12 +135,12 @@ export const AiToken = S.Struct({
  * @since 0.0.0
  */
 export const AiAnalysis = S.Struct({
-  characterCount: describe(S.Number, "Character count of the analyzed text."),
-  sentenceCount: describe(S.Number, "Number of detected sentences."),
+  characterCount: describe(S.Finite, "Character count of the analyzed text."),
+  sentenceCount: describe(S.Finite, "Number of detected sentences."),
   sentences: describe(S.Array(S.String), "Detected sentence texts in document order."),
-  tokenCount: describe(S.Number, "Number of tokens including punctuation."),
+  tokenCount: describe(S.Finite, "Number of tokens including punctuation."),
   tokens: describe(S.Array(AiToken), "Annotated tokens with POS, lemma, stem, and character offsets."),
-  wordCount: describe(S.Number, "Approximate count of word-like tokens excluding punctuation."),
+  wordCount: describe(S.Finite, "Approximate count of word-like tokens excluding punctuation."),
 }).pipe(
   $I.annoteSchema("AiAnalysis", {
     description: "Composite linguistic analysis of a text: counts, sentences, and annotated tokens.",
@@ -173,11 +173,11 @@ export const AiAnalysis = S.Struct({
  * @since 0.0.0
  */
 export const AiSentence = S.Struct({
-  end: describe(S.Number, "Character offset where the sentence ends."),
-  index: describe(S.Number, "Zero-based sentence index in the document."),
-  start: describe(S.Number, "Character offset where the sentence begins."),
+  end: describe(S.Finite, "Character offset where the sentence ends."),
+  index: describe(S.Finite, "Zero-based sentence index in the document."),
+  start: describe(S.Finite, "Character offset where the sentence begins."),
   text: describe(S.String, "The sentence text."),
-  tokenCount: describe(S.Number, "Number of tokens contained in the sentence."),
+  tokenCount: describe(S.Finite, "Number of tokens contained in the sentence."),
 }).pipe(
   $I.annoteSchema("AiSentence", {
     description: "A sentence with token count and character positions.",
@@ -207,7 +207,7 @@ export const AiSentence = S.Struct({
  * @since 0.0.0
  */
 export const AiKeyword = S.Struct({
-  score: describe(S.Number, "Keyword importance score."),
+  score: describe(S.Finite, "Keyword importance score."),
   term: describe(S.String, "The extracted keyword term."),
 }).pipe(
   $I.annoteSchema("AiKeyword", {
@@ -240,10 +240,10 @@ export const AiKeyword = S.Struct({
  * @since 0.0.0
  */
 export const AiDocumentStats = S.Struct({
-  avgSentenceLength: describe(S.Number, "Average number of word-like tokens per sentence."),
-  charCount: describe(S.Number, "Character count of the input text."),
-  sentenceCount: describe(S.Number, "Number of detected sentences."),
-  wordCount: describe(S.Number, "Approximate count of word-like tokens excluding punctuation."),
+  avgSentenceLength: describe(S.Finite, "Average number of word-like tokens per sentence."),
+  charCount: describe(S.Finite, "Character count of the input text."),
+  sentenceCount: describe(S.Finite, "Number of detected sentences."),
+  wordCount: describe(S.Finite, "Approximate count of word-like tokens excluding punctuation."),
 }).pipe(
   $I.annoteSchema("AiDocumentStats", {
     description: "High-level statistics describing a text document.",
@@ -276,10 +276,10 @@ export const AiDocumentStats = S.Struct({
  * @since 0.0.0
  */
 export const AiSentenceChunk = S.Struct({
-  charCount: describe(S.Number, "Character count of the chunk."),
-  endSentenceIndex: describe(S.Number, "Inclusive sentence index where the chunk ends."),
-  sentenceCount: describe(S.Number, "Number of sentences in the chunk."),
-  startSentenceIndex: describe(S.Number, "Inclusive sentence index where the chunk starts."),
+  charCount: describe(S.Finite, "Character count of the chunk."),
+  endSentenceIndex: describe(S.Finite, "Inclusive sentence index where the chunk ends."),
+  sentenceCount: describe(S.Finite, "Number of sentences in the chunk."),
+  startSentenceIndex: describe(S.Finite, "Inclusive sentence index where the chunk starts."),
   text: describe(S.String, "Chunk text built from one or more complete sentences."),
 }).pipe(
   $I.annoteSchema("AiSentenceChunk", {
@@ -310,8 +310,8 @@ export const AiSentenceChunk = S.Struct({
  * @since 0.0.0
  */
 export const AiRankedText = S.Struct({
-  index: describe(S.Number, "Index of the original input text in the candidate array."),
-  score: describe(S.Number, "Relevance score where higher means more relevant."),
+  index: describe(S.Finite, "Index of the original input text in the candidate array."),
+  score: describe(S.Finite, "Relevance score where higher means more relevant."),
 }).pipe(
   $I.annoteSchema("AiRankedText", {
     description: "A ranked candidate entry for query-to-text relevance scoring.",
@@ -346,11 +346,11 @@ export const AiRankedText = S.Struct({
  * @since 0.0.0
  */
 export const AiEntity = S.Struct({
-  end: describe(S.Number, "Character offset where the entity ends."),
-  endTokenIndex: describe(S.Number, "Inclusive token index where the entity ends."),
+  end: describe(S.Finite, "Character offset where the entity ends."),
+  endTokenIndex: describe(S.Finite, "Inclusive token index where the entity ends."),
   source: describe(S.optionalKey(AiEntitySource), "Whether the entity came from built-in or custom matching."),
-  start: describe(S.Number, "Character offset where the entity begins."),
-  startTokenIndex: describe(S.Number, "Inclusive token index where the entity begins."),
+  start: describe(S.Finite, "Character offset where the entity begins."),
+  startTokenIndex: describe(S.Finite, "Inclusive token index where the entity begins."),
   type: describe(S.String, "Entity type label such as DATE, MONEY, EMAIL, or URL."),
   value: describe(S.String, "The extracted entity text."),
 }).pipe(
@@ -382,7 +382,7 @@ export const AiEntity = S.Struct({
  * @since 0.0.0
  */
 export const AiNGram = S.Struct({
-  count: describe(S.Number, "Number of occurrences for the n-gram."),
+  count: describe(S.Finite, "Number of occurrences for the n-gram."),
   value: describe(S.String, "The n-gram string value."),
 }).pipe(
   $I.annoteSchema("AiNGram", {
@@ -419,7 +419,7 @@ export const AiPhoneticMatch = S.Struct({
   algorithm: describe(AiPhoneticAlgorithm, "The phonetic encoding algorithm that was used."),
   leftCodes: describe(S.Array(S.String), "Sorted unique phonetic codes derived from the first text."),
   rightCodes: describe(S.Array(S.String), "Sorted unique phonetic codes derived from the second text."),
-  score: describe(S.Number, "Jaccard overlap score over unique phonetic codes."),
+  score: describe(S.Finite, "Jaccard overlap score over unique phonetic codes."),
   sharedCodes: describe(S.Array(S.String), "Sorted phonetic codes that appear in both texts."),
 }).pipe(
   $I.annoteSchema("AiPhoneticMatch", {
@@ -491,9 +491,9 @@ export class AiToolError extends S.Class<AiToolError>($I`AiToolError`)(
  * @since 0.0.0
  */
 export const AiCorpusConfig = S.Struct({
-  b: describe(S.Number, "BM25 document length normalization parameter."),
-  k: describe(S.Number, "BM25 inverse-document-frequency saturation parameter."),
-  k1: describe(S.Number, "BM25 term-frequency saturation parameter."),
+  b: describe(S.Finite, "BM25 document length normalization parameter."),
+  k: describe(S.Finite, "BM25 inverse-document-frequency saturation parameter."),
+  k1: describe(S.Finite, "BM25 term-frequency saturation parameter."),
   norm: describe(BM25Norm, "Vector normalization mode applied by the BM25 corpus."),
 }).pipe(
   $I.annoteSchema("AiCorpusConfig", {
@@ -529,9 +529,9 @@ export const AiCorpusConfig = S.Struct({
 export const AiCorpusSummary = S.Struct({
   config: AiCorpusConfig,
   corpusId: describe(S.String, "Stable corpus identifier."),
-  createdAtMs: describe(S.Number, "Unix epoch timestamp in milliseconds when the corpus was created."),
-  documentCount: describe(S.Number, "Number of learned documents currently in the corpus."),
-  vocabularySize: describe(S.Number, "Number of unique normalized terms across the corpus."),
+  createdAtMs: describe(S.Finite, "Unix epoch timestamp in milliseconds when the corpus was created."),
+  documentCount: describe(S.Finite, "Number of learned documents currently in the corpus."),
+  vocabularySize: describe(S.Finite, "Number of unique normalized terms across the corpus."),
 }).pipe(
   $I.annoteSchema("AiCorpusSummary", {
     description: "Summary information describing a managed BM25 corpus session.",
@@ -564,8 +564,8 @@ export const AiCorpusSummary = S.Struct({
  */
 export const AiCorpusRankedDocument = S.Struct({
   id: describe(S.String, "Document identifier."),
-  index: describe(S.Number, "Zero-based index of the learned document inside the corpus."),
-  score: describe(S.Number, "Similarity score assigned to the document."),
+  index: describe(S.Finite, "Zero-based index of the learned document inside the corpus."),
+  score: describe(S.Finite, "Similarity score assigned to the document."),
   text: describe(S.optionalKey(S.String), "Source document text when the caller requested text inclusion."),
 }).pipe(
   $I.annoteSchema("AiCorpusRankedDocument", {
@@ -595,7 +595,7 @@ export const AiCorpusRankedDocument = S.Struct({
  * @since 0.0.0
  */
 export const AiCorpusIdf = S.Struct({
-  idf: describe(S.Number, "Inverse document frequency value for the term."),
+  idf: describe(S.Finite, "Inverse document frequency value for the term."),
   term: describe(S.String, "Corpus term associated with the IDF value."),
 }).pipe(
   $I.annoteSchema("AiCorpusIdf", {
@@ -626,8 +626,8 @@ export const AiCorpusIdf = S.Struct({
  * @since 0.0.0
  */
 export const AiCorpusMatrixShape = S.Struct({
-  cols: describe(S.Number, "Number of columns in the document-term matrix."),
-  rows: describe(S.Number, "Number of rows in the document-term matrix."),
+  cols: describe(S.Finite, "Number of columns in the document-term matrix."),
+  rows: describe(S.Finite, "Number of rows in the document-term matrix."),
 }).pipe(
   $I.annoteSchema("AiCorpusMatrixShape", {
     description: "Shape metadata for the optional document-term matrix.",
@@ -663,16 +663,16 @@ export const AiCorpusMatrixShape = S.Struct({
  * @since 0.0.0
  */
 export const AiCorpusStats = S.Struct({
-  averageDocumentLength: describe(S.Number, "Average normalized token count per learned document."),
+  averageDocumentLength: describe(S.Finite, "Average normalized token count per learned document."),
   corpusId: describe(S.String, "Stable corpus identifier."),
   documentTermMatrix: S.optionalKey(
-    describe(S.Array(S.Number).pipe(S.Array), "Optional document-term matrix, one row per learned document.")
+    describe(S.Array(S.Finite).pipe(S.Array), "Optional document-term matrix, one row per learned document.")
   ),
   idfValues: S.optionalKey(describe(S.Array(AiCorpusIdf), "Optional IDF values sorted by descending score.")),
   matrixShape: S.optionalKey(AiCorpusMatrixShape),
   terms: describe(S.Array(S.String), "Learned corpus vocabulary terms in vector order."),
-  totalDocuments: describe(S.Number, "Number of learned documents currently in the corpus."),
-  vocabularySize: describe(S.Number, "Number of unique normalized terms across the corpus."),
+  totalDocuments: describe(S.Finite, "Number of learned documents currently in the corpus."),
+  vocabularySize: describe(S.Finite, "Number of unique normalized terms across the corpus."),
 }).pipe(
   $I.annoteSchema("AiCorpusStats", {
     description: "Detailed statistics for a managed corpus session.",

@@ -36,7 +36,7 @@ export class CodexCommandError extends TaggedErrorClass<CodexCommandError>($I`Co
   "CodexCommandError",
   {
     message: S.String,
-    exitCode: S.optionalKey(S.Number),
+    exitCode: S.optionalKey(S.Finite),
     cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("CodexCommandError", {

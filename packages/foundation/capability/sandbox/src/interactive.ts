@@ -43,7 +43,7 @@ const $I = $SandboxId.create("interactive");
  */
 export class InteractiveResult extends S.Class<InteractiveResult>($I`InteractiveResult`)(
   {
-    exitCode: S.Number,
+    exitCode: S.Finite,
   },
   $I.annote("InteractiveResult", {
     description: "Result of an interactive agent session.",

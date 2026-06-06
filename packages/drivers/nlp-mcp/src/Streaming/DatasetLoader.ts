@@ -126,7 +126,7 @@ export class DatasetMeta extends S.Class<DatasetMeta>($I`DatasetMeta`)(
       description: 'Detected dataset format (`"text"`, `"lines"`, `"jsonl"`, or `"json"`).',
     }),
     /** Unix epoch milliseconds when the dataset was loaded. */
-    loadedAt: S.Number.annotateKey({
+    loadedAt: S.Finite.annotateKey({
       description: "Unix epoch milliseconds when the dataset was loaded.",
     }),
     /** Resolved location (file path or URL) the dataset was loaded from. */
@@ -134,7 +134,7 @@ export class DatasetMeta extends S.Class<DatasetMeta>($I`DatasetMeta`)(
       description: "Resolved location (file path or URL) the dataset was loaded from.",
     }),
     /** Content size in bytes when known. */
-    sizeBytes: S.optionalKey(S.Number).annotateKey({
+    sizeBytes: S.optionalKey(S.Finite).annotateKey({
       description: "Content size in bytes when known.",
     }),
     /** Source channel: `"file"` or `"url"`. */

@@ -843,7 +843,7 @@ const schemaExpression = (schema: JsonSchema, hint: string): string => {
       wrapNullable(schema, pipeExpression(schemaExpression(schema.items ?? { type: "unknown" }, hint), "S.Array"))
     ),
     Match.when("boolean", () => wrapNullable(schema, "S.Boolean")),
-    Match.whenOr("integer", "number", () => wrapNullable(schema, "S.Number")),
+    Match.whenOr("integer", "number", () => wrapNullable(schema, "S.Finite")),
     Match.when("object", () => {
       if (schema.properties !== undefined) {
         const required = schema.required ?? [];

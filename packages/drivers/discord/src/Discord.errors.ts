@@ -58,7 +58,7 @@ export class DiscordError extends TaggedErrorClass<DiscordError>($I`DiscordError
     method: S.optionalKey(S.String),
     path: S.optionalKey(S.String),
     reason: DiscordErrorReason,
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
   },
   $I.annote("DiscordError", {
     description: "Redacted technical failure emitted by the Discord REST driver.",

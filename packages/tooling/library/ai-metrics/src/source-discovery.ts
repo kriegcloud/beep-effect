@@ -85,14 +85,14 @@ export class AiMetricsSourceDiscoveryInput extends S.Class<AiMetricsSourceDiscov
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-    maxFiles: S.Number.pipe(
+    maxFiles: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_FILES)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_FILES))
     ),
-    maxFileBytes: S.optionalKey(S.Number),
+    maxFileBytes: S.optionalKey(S.Finite),
     openClawUnitPath: S.optionalKey(S.String),
     repoRoot: S.String,
-    sinceEpochMillis: S.optionalKey(S.Number),
+    sinceEpochMillis: S.optionalKey(S.Finite),
     target: AiMetricsDeployTarget.pipe(
       S.withConstructorDefault(Effect.succeed(AiMetricsDeployTarget.Enum.local)),
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsDeployTarget.Enum.local))
@@ -121,11 +121,11 @@ export class AiMetricsDiscoveredTranscriptFile extends S.Class<AiMetricsDiscover
     agentNicknameHash: S.optionalKey(S.String),
     agentRoleHash: S.optionalKey(S.String),
     forkedFromIdHash: S.optionalKey(S.String),
-    modifiedAtMillis: S.Number,
+    modifiedAtMillis: S.Finite,
     parentSessionIdHash: S.optionalKey(S.String),
     parentThreadIdHash: S.optionalKey(S.String),
     sessionIdHash: S.optionalKey(S.String),
-    sizeBytes: S.Number,
+    sizeBytes: S.Finite,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
     sourceRole: AiMetricsSourceRole,
@@ -149,13 +149,13 @@ export class AiMetricsDiscoveredTranscriptFile extends S.Class<AiMetricsDiscover
  */
 export class AiMetricsDiscoveredSource extends S.Class<AiMetricsDiscoveredSource>($I`AiMetricsDiscoveredSource`)(
   {
-    candidateFileCount: S.Number.pipe(
+    candidateFileCount: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultKey(Effect.succeed(0))
     ),
-    fileCount: S.Number,
+    fileCount: S.Finite,
     files: S.Array(AiMetricsDiscoveredTranscriptFile),
-    includedFileCount: S.Number.pipe(
+    includedFileCount: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultKey(Effect.succeed(0))
     ),
@@ -164,9 +164,9 @@ export class AiMetricsDiscoveredSource extends S.Class<AiMetricsDiscoveredSource
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     message: S.optionalKey(S.String),
-    newestModifiedAtMillis: S.optionalKey(S.Number),
+    newestModifiedAtMillis: S.optionalKey(S.Finite),
     rootPathHash: S.String,
-    sizeExcludedFileCount: S.Number.pipe(
+    sizeExcludedFileCount: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultKey(Effect.succeed(0))
     ),
@@ -193,15 +193,15 @@ export class AiMetricsSourceDiscoveryResult extends S.Class<AiMetricsSourceDisco
   $I`AiMetricsSourceDiscoveryResult`
 )(
   {
-    discoveredFileCount: S.Number,
-    generatedAtEpochMillis: S.Number,
+    discoveredFileCount: S.Finite,
+    generatedAtEpochMillis: S.Finite,
     hashSaltStatus: AiMetricsHashSaltStatus,
     homeDirHash: S.String,
     includeAll: S.Boolean,
-    maxFiles: S.Number,
-    maxFileBytes: S.optionalKey(S.Number),
+    maxFiles: S.Finite,
+    maxFileBytes: S.optionalKey(S.Finite),
     repoRootHash: S.String,
-    sinceEpochMillis: S.optionalKey(S.Number),
+    sinceEpochMillis: S.optionalKey(S.Finite),
     sources: S.Array(AiMetricsDiscoveredSource),
     target: AiMetricsDeployTarget,
   },

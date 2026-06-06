@@ -116,7 +116,7 @@ export class VersionSyncDriftError extends TaggedErrorClass<VersionSyncDriftErro
   "VersionSyncDriftError",
   {
     message: S.String,
-    driftCount: S.Number,
+    driftCount: S.Finite,
   },
   $I.annote("VersionSyncDriftError", {
     title: "Version Sync Drift Error",

@@ -1,5 +1,6 @@
 import {
   collectEffectTsgoDiagnosticLines,
+  lintFixChangedStepForTesting,
   parseQualityTaskInvocation,
   QualityTaskFailed,
   QualityTaskGroupFailed,
@@ -92,6 +93,9 @@ const isTurboCacheControlArg = (arg: string): boolean =>
   Str.startsWith("--remote-cache-read-only=")(arg) ||
   Str.startsWith("--cache=")(arg);
 
+const isTurboConcurrencyArg = (arg: string): boolean =>
+  arg === "--concurrency" || Str.startsWith("--concurrency=")(arg);
+
 const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyArray<string> => [
   "turbo",
   "run",
@@ -99,6 +103,11 @@ const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyA
   ...(Bun.env.CI === "true" || A.some(args, isTurboCacheControlArg) ? [] : ["--cache=local:rw"]),
   ...args,
 ];
+const expectedRootTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyArray<string> =>
+  expectedTurboArgs(
+    task,
+    Bun.env.CI === "true" || A.some(args, isTurboConcurrencyArg) ? args : ["--concurrency=3", ...args]
+  );
 const bunScriptStep = (label: string, source: string) =>
   QualityTaskStep.make({
     label,
@@ -154,7 +163,7 @@ describe("quality task adapter", () => {
       expect(steps[0]).toMatchObject({
         label: "audit:packages",
         command: "bunx",
-        args: expectedTurboArgs("audit", ["--filter=@beep/schema", "--summarize"]),
+        args: expectedRootTurboArgs("audit", ["--filter=@beep/schema", "--summarize"]),
         cwd: "/repo",
       });
     }));
@@ -164,7 +173,7 @@ describe("quality task adapter", () => {
       const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "--filter=@beep/schema"]));
 
       expect(steps).toHaveLength(1);
-      expect(steps[0]?.args).toEqual(expectedTurboArgs("audit", ["--filter=@beep/schema"]));
+      expect(steps[0]?.args).toEqual(expectedRootTurboArgs("audit", ["--filter=@beep/schema"]));
     }));
 
   it("forces package audit execution in CI unless cache behavior is explicit", () =>
@@ -222,7 +231,7 @@ describe("quality task adapter", () => {
       "turbo",
       "run",
       "check",
-      ...(Bun.env.CI === "true" ? [] : ["--cache=local:rw"]),
+      ...(Bun.env.CI === "true" ? [] : ["--cache=local:rw", "--concurrency=3"]),
       "--affected",
       "--summarize",
     ]);
@@ -262,7 +271,7 @@ describe("quality task adapter", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["check", "--filter=@beep/schema"]));
 
     expect(steps).toHaveLength(1);
-    expect(steps[0]?.args).toEqual(expectedTurboArgs("check", ["--filter=@beep/schema"]));
+    expect(steps[0]?.args).toEqual(expectedRootTurboArgs("check", ["--filter=@beep/schema"]));
   });
 
   it("keeps scope args in the aggregate lint --fix step", () => {
@@ -275,7 +284,35 @@ describe("quality task adapter", () => {
     expect(steps[0]).toMatchObject({
       label: "lint:fix",
       command: "bunx",
-      args: expectedTurboArgs("lint:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
+      args: expectedRootTurboArgs("lint:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
+    });
+  });
+
+  it("strips lint --fix aggregate aliases before delegating to Turbo", () => {
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--fix", "--full", "--repo"]));
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0]).toMatchObject({
+      label: "lint:fix",
+      command: "bunx",
+      args: expectedRootTurboArgs("lint:fix", []),
+    });
+  });
+
+  it("preserves explicit lint Turbo concurrency", () => {
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--fix", "--full", "--concurrency=1"]));
+
+    expect(steps[0]?.args).toEqual(expectedTurboArgs("lint:fix", ["--concurrency=1"]));
+  });
+
+  it("applies Biome lint fixes in the changed-file lint fix fast path", () => {
+    const step = lintFixChangedStepForTesting("/repo", ["packages/example/src/index.ts"]);
+
+    expect(step).toMatchObject({
+      label: "lint:fix:changed",
+      command: "./node_modules/.bin/biome",
+      args: ["check", "--write", "--files-ignore-unknown=true", "packages/example/src/index.ts"],
+      cwd: "/repo",
     });
   });
 
@@ -286,7 +323,7 @@ describe("quality task adapter", () => {
     expect(steps[0]).toMatchObject({
       label: "lint:fix",
       command: "bunx",
-      args: expectedTurboArgs("lint:fix", passthroughTasks),
+      args: expectedRootTurboArgs("lint:fix", passthroughTasks),
       env: {
         VITEST_COVERAGE_REPORT_ONLY: "1",
       },
@@ -303,12 +340,12 @@ describe("quality task adapter", () => {
     expect(steps[0]).toMatchObject({
       label: "test:unit",
       command: "bunx",
-      args: expectedTurboArgs("test", ["--filter=@beep/schema", "--summarize"]),
+      args: expectedRootTurboArgs("test", ["--filter=@beep/schema", "--summarize"]),
     });
     expect(steps[1]).toMatchObject({
       label: "test:types",
       command: "bunx",
-      args: expectedTurboArgs("type-test", ["--filter=@beep/schema", "--summarize"]),
+      args: expectedRootTurboArgs("type-test", ["--filter=@beep/schema", "--summarize"]),
     });
   });
 
@@ -500,51 +537,25 @@ describe("quality task adapter", () => {
     expect(O.isNone(parseQualityTaskInvocation(["lint", "schema-first"]))).toBe(true);
   });
 
-  it("delegates affected root lint to the aggregate repo lint lane and repo-wide policy checks", () => {
-    const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]));
-
-    expect(steps).toHaveLength(20);
-    expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--affected", "--summarize"]));
-    expect(steps[3]).toMatchObject({
-      label: "lint:effect-fn",
-      command: "bun",
-      args: ["run", "beep", "laws", "effect-fn", "--check"],
-      cwd: "/repo",
-    });
-    expect(A.map(A.slice(steps, 1), (step) => step.label)).toEqual([
-      "lint:effect-imports",
-      "lint:terse-effect",
-      "lint:effect-fn",
-      "lint:native-runtime",
-      "lint:dual-arity",
-      "lint:allowlist",
-      "lint:tsgo-rules",
-      "lint:package-test-imports",
-      "lint:schema-first",
-      "lint:deprecated-apis",
-      "lint:jsdoc",
-      "lint:jsdoc-module-tags",
-      "lint:docgen",
-      "lint:spell",
-      "lint:markdown",
-      "lint:circular",
-      "lint:tooling-tagged-errors",
-      "lint:clones",
-      "lint:typos",
-    ]);
-    expect(steps[10]).toMatchObject({
-      label: "lint:deprecated-apis",
-      command: "bun",
-      args: ["run", "beep", "lint", "deprecated-apis"],
-      cwd: "/repo",
-    });
+  it("leaves root CLI help and metadata flags on the existing command tree", () => {
+    expect(O.isNone(parseQualityTaskInvocation(["lint", "--help"]))).toBe(true);
+    expect(O.isNone(parseQualityTaskInvocation(["check", "-h"]))).toBe(true);
+    expect(O.isNone(parseQualityTaskInvocation(["build", "--version"]))).toBe(true);
+    expect(O.isNone(parseQualityTaskInvocation(["test", "--log-level=debug"]))).toBe(true);
   });
 
-  it("skips repo-wide lint policy checks only for explicit package filters", () => {
+  it("delegates affected root lint only to the affected aggregate repo lint lane", () => {
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]));
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", ["--affected", "--summarize"]));
+  });
+
+  it("skips repo-wide lint policy checks for explicit package filters", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--filter=@beep/schema"]));
 
     expect(steps).toHaveLength(1);
-    expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--filter=@beep/schema"]));
+    expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", ["--filter=@beep/schema"]));
   });
 
   it("treats unsupported package tasks as explicit no-ops", () =>

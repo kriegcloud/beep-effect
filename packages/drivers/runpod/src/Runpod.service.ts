@@ -37,7 +37,7 @@ const $I = $RunpodId.create("Runpod.service");
  * @category models
  * @since 0.1.0
  */
-export const RunpodQueryScalar = S.Union([S.Boolean, S.Number, S.String]).pipe(
+export const RunpodQueryScalar = S.Union([S.Boolean, S.Finite, S.String]).pipe(
   $I.annoteSchema("RunpodQueryScalar", {
     description: "Scalar query values accepted by Runpod request models and raw requests.",
   })
@@ -150,7 +150,7 @@ export class RunpodRawResponse extends S.Class<RunpodRawResponse>($I`RunpodRawRe
   {
     body: S.optionalKey(S.Unknown),
     headers: S.Record(S.String, S.String),
-    status: S.Number,
+    status: S.Finite,
     text: S.optionalKey(S.String),
   },
   $I.annote("RunpodRawResponse", {

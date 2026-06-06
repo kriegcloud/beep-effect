@@ -52,6 +52,20 @@ export * as Calendar from "./Calendar.ts";
  */
 export * as CurrencyCodes from "./CurrencyCodes.ts";
 /**
+ * Keyboard shortcut constants namespace.
+ *
+ * @example
+ * ```typescript
+ * import { KeyboardShortcuts } from "@beep/data"
+ *
+ * console.log(KeyboardShortcuts.KeyboardShortcutDataValues[0].name)
+ * ```
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export * as KeyboardShortcuts from "./KeyboardShortcuts.ts";
+/**
  * MIME type lookup utilities namespace.
  *
  * @example

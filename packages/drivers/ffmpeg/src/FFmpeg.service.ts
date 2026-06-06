@@ -36,16 +36,16 @@ import type { FFmpegConfigInput, FFmpegEvent } from "./FFmpeg.models.ts";
 
 const $I = $FfmpegId.create("FFmpeg.service");
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
-const NumberOrString = S.Union([S.Number, S.String]);
+const NumberOrString = S.Union([S.Finite, S.String]);
 
 class FfprobeStream extends S.Class<FfprobeStream>($I`FfprobeStream`)(
   {
     avg_frame_rate: S.optionalKey(NumberOrString),
     duration: S.optionalKey(NumberOrString),
-    height: S.optionalKey(S.Number),
+    height: S.optionalKey(S.Finite),
     nb_frames: S.optionalKey(NumberOrString),
     r_frame_rate: S.optionalKey(NumberOrString),
-    width: S.optionalKey(S.Number),
+    width: S.optionalKey(S.Finite),
   },
   $I.annote("FfprobeStream", {
     description: "Internal ffprobe stream payload.",
@@ -118,7 +118,7 @@ export interface FFmpegShape {
 
 class ProcessResult extends S.Class<ProcessResult>($I`ProcessResult`)(
   {
-    exitCode: S.Number,
+    exitCode: S.Finite,
     stderr: S.String,
     stdout: S.String,
   },
@@ -129,11 +129,11 @@ class ProcessResult extends S.Class<ProcessResult>($I`ProcessResult`)(
 
 class ExtractContext extends S.Class<ExtractContext>($I`ExtractContext`)(
   {
-    expectedFrameCount: S.Number,
+    expectedFrameCount: S.Finite,
     fpsText: S.String,
     manifestPath: S.String,
     outDir: S.String,
-    padding: S.Number,
+    padding: S.Finite,
     prefix: S.String,
     probe: VideoProbe,
     request: ExtractFramesRequest,
@@ -146,7 +146,7 @@ class ExtractContext extends S.Class<ExtractContext>($I`ExtractContext`)(
 
 class TempFrame extends S.Class<TempFrame>($I`TempFrame`)(
   {
-    index: S.Number,
+    index: S.Finite,
     path: S.String,
   },
   $I.annote("TempFrame", {
@@ -177,7 +177,7 @@ class TempFrame extends S.Class<TempFrame>($I`TempFrame`)(
 export class PlannedFrameCommit extends S.Class<PlannedFrameCommit>($I`PlannedFrameCommit`)(
   {
     fileName: S.String,
-    index: S.Number,
+    index: S.Finite,
     relativePath: S.String,
     sourcePath: S.String,
     targetPath: S.String,

@@ -123,7 +123,7 @@ export type EpochMillis = typeof EpochMillis.Type;
  * @since 0.0.0
  * @category constructors
  */
-export const ToIsoStr = S.Union([ISOStr, S.Number]).pipe(
+export const ToIsoStr = S.Union([ISOStr, S.Finite]).pipe(
   S.decodeTo(
     ISOStr,
     SchemaTransformation.transform({

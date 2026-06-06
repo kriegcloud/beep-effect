@@ -25,7 +25,7 @@ class ParagraphizeParameters extends S.Class<ParagraphizeParameters>($I`Paragrap
 ) {}
 
 const ParagraphizeSuccess = S.Struct({
-  count: S.Number,
+  count: S.Finite,
   paragraphs: S.Array(S.String),
 }).pipe(
   $I.annoteSchema("ParagraphizeSuccess", {

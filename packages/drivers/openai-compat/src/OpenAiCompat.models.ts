@@ -16,7 +16,7 @@ const $I = $OpenaiCompatId.create("OpenAiCompat.models");
 const OptionalNullableString = OptionFromOptionalNullishKey(S.String).pipe(
   S.withConstructorDefault(Effect.succeed(O.none<string>()))
 );
-const OptionalNumber = S.OptionFromOptionalKey(S.Number).pipe(
+const OptionalNumber = S.OptionFromOptionalKey(S.Finite).pipe(
   S.withConstructorDefault(Effect.succeed(O.none<number>()))
 );
 const OptionalUnknownRecord = S.OptionFromOptionalKey(S.Record(S.String, S.Unknown)).pipe(
@@ -158,7 +158,7 @@ export class OpenAiCompatToolCall extends S.Class<OpenAiCompatToolCall>($I`OpenA
   {
     function: OpenAiCompatToolCallFunction,
     id: S.String,
-    index: S.optionalKey(S.Number),
+    index: S.optionalKey(S.Finite),
     type: S.tag("function"),
   },
   $I.annote("OpenAiCompatToolCall", {
@@ -217,7 +217,7 @@ export class OpenAiCompatToolCallDelta extends S.Class<OpenAiCompatToolCallDelta
   {
     function: S.optionalKey(OpenAiCompatToolCallFunctionDelta),
     id: S.optionalKey(S.String),
-    index: S.optionalKey(S.Number),
+    index: S.optionalKey(S.Finite),
     type: S.optionalKey(S.Literal("function")),
   },
   $I.annote("OpenAiCompatToolCallDelta", {
@@ -686,21 +686,21 @@ export class OpenAiCompatChatCompletionRequest extends S.Class<OpenAiCompatChatC
   $I`OpenAiCompatChatCompletionRequest`
 )(
   {
-    frequency_penalty: S.Number.pipe(S.optionalKey),
-    max_completion_tokens: S.Number.pipe(S.optionalKey),
-    max_tokens: S.Number.pipe(S.optionalKey),
+    frequency_penalty: S.Finite.pipe(S.optionalKey),
+    max_completion_tokens: S.Finite.pipe(S.optionalKey),
+    max_tokens: S.Finite.pipe(S.optionalKey),
     messages: S.Array(OpenAiCompatChatMessage),
     model: S.String,
     parallel_tool_calls: S.Boolean.pipe(S.optionalKey),
-    presence_penalty: S.Number.pipe(S.optionalKey),
+    presence_penalty: S.Finite.pipe(S.optionalKey),
     response_format: S.optionalKey(OpenAiCompatResponseFormat),
-    seed: S.Number.pipe(S.optionalKey),
+    seed: S.Finite.pipe(S.optionalKey),
     stream: S.Boolean.pipe(S.optionalKey),
     stream_options: S.optionalKey(S.Record(S.String, S.Unknown)),
-    temperature: S.Number.pipe(S.NullOr, S.optionalKey),
+    temperature: S.Finite.pipe(S.NullOr, S.optionalKey),
     tool_choice: S.optionalKey(S.Unknown),
     tools: OpenAiCompatFunctionTool.pipe(S.Array, S.optionalKey),
-    top_p: S.Number.pipe(S.NullOr, S.optionalKey),
+    top_p: S.Finite.pipe(S.NullOr, S.optionalKey),
     user: S.optionalKey(S.String),
   },
   $I.annote("OpenAiCompatChatCompletionRequest", {
@@ -835,7 +835,7 @@ export class OpenAiCompatChatCompletionChoice extends S.Class<OpenAiCompatChatCo
 )(
   {
     finish_reason: OptionalNullableString,
-    index: S.optionalKey(S.Number),
+    index: S.optionalKey(S.Finite),
     message: S.OptionFromOptionalKey(OpenAiCompatAssistantMessage).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<OpenAiCompatAssistantMessage>()))
     ),
@@ -916,7 +916,7 @@ export class OpenAiCompatChatCompletionChunkChoice extends S.Class<OpenAiCompatC
       S.withConstructorDefault(Effect.succeed(O.none<OpenAiCompatAssistantDelta>()))
     ),
     finish_reason: OptionalNullableString,
-    index: S.optionalKey(S.Number),
+    index: S.optionalKey(S.Finite),
   },
   $I.annote("OpenAiCompatChatCompletionChunkChoice", {
     description: "Stream chunk choice returned by OpenAI-compatible endpoints.",

@@ -189,10 +189,10 @@ export class Span extends S.Class<Span>($I`Span`)(
  */
 export class Provenance extends S.Class<Provenance>($I`Provenance`)(
   {
-    confidence: S.optionalKey(S.Number),
+    confidence: S.optionalKey(S.Finite),
     generatedBy: S.String,
     source: S.String,
-    timestamp: S.Number,
+    timestamp: S.Finite,
   },
   $I.annote("Provenance", {
     description:
@@ -272,7 +272,7 @@ export class Mention extends S.Class<Mention>($I`Mention`)(
 export class Entity extends S.Class<Entity>($I`Entity`)(
   {
     canonicalName: S.String,
-    confidence: S.optionalKey(S.Number),
+    confidence: S.optionalKey(S.Finite),
     id: EntityId,
     mentions: S.Array(MentionId),
     provenance: Provenance,
@@ -300,7 +300,7 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
  */
 export class Relation extends S.Class<Relation>($I`Relation`)(
   {
-    confidence: S.optionalKey(S.Number),
+    confidence: S.optionalKey(S.Finite),
     evidence: S.Array(Span).pipe(S.optionalKey),
     id: RelationId,
     object: EntityId,

@@ -36,7 +36,7 @@ import type { TUnsafe } from "@beep/types";
  * import { pluck } from "@beep/schema/SchemaUtils/pluck";
  *
  * const MyTable = S.Struct({
- *   column1: S.NumberFromString
+ *   column1: S.FiniteFromString
  * });
  *
  * const Column1 = MyTable.pipe(pluck("column1"));

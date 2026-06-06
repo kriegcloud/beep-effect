@@ -174,8 +174,8 @@ export const DurationInput = S.Union([
   S.Duration,
   S.Int.check(S.isGreaterThanOrEqualTo(0)),
   S.BigInt.check(S.isGreaterThanOrEqualToBigInt(0n)),
-  S.Tuple([S.Number.pipe(S.brand("seconds")), S.Number.pipe(S.brand("nanos"))]),
-  S.TemplateLiteral([S.Number, " ", DurationUnit]),
+  S.Tuple([S.Finite.pipe(S.brand("seconds")), S.Finite.pipe(S.brand("nanos"))]),
+  S.TemplateLiteral([S.Finite, " ", DurationUnit]),
   NonEmptyDurationObject,
 ]).pipe(
   $I.annoteSchema("DurationInput", {

@@ -128,6 +128,35 @@ Generate barrel file exports for a package.
 bunx @beep/repo-cli codegen [package-dir]
 ```
 
+### `quality package-verify`
+
+Run package-local `beep:lint`, `beep:check`, and `beep:test` scripts in
+parallel for a single workspace package. `--quick` runs lint and check only.
+When no package argument is provided, the command uses the current Git working
+tree to auto-detect exactly one changed package.
+
+```bash
+bun run beep quality package-verify @beep/repo-cli
+bun run beep quality package-verify --quick @beep/repo-cli
+bun run pkg:verify @beep/repo-cli
+bun run pkg:verify:quick @beep/repo-cli
+```
+
+The root `pkg:verify` aliases point at this command; their implementation lives
+inside `@beep/repo-cli`, not in repository-level scripts.
+
+### Root Quality Aliases
+
+Root quality scripts such as `lint`, `lint:fix`, `check`, `test`, `build`, and
+`audit` are thin aliases into `beep-cli`. The `lint:fix` alias uses
+`beep-cli lint --fix`; for an unscoped clean working tree it exits before the
+full command tree loads, and for changed files it applies Biome only to the
+changed file set. Use `bun run lint:fix --full` or `bun run lint:fix --repo`
+when the aggregate Turbo `lint:fix` lane is required. Root lint Turbo lanes add
+`--concurrency=3` by default to avoid saturating local machines with many
+parallel package-level Biome workers; pass an explicit `--concurrency` value
+when a different bound is needed.
+
 ### `docgen quality`
 
 Produce a report-only JSDoc quality review for exported symbols. The command

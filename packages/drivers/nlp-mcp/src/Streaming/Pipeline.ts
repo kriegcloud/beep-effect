@@ -117,22 +117,22 @@ export class PipelineError extends S.Class<PipelineError>($I`PipelineError`)(
  */
 export class PipelineResult extends S.Class<PipelineResult>($I`PipelineResult`)(
   {
-    durationMs: S.Number.annotateKey({
+    durationMs: S.Finite.annotateKey({
       description: "Wall-clock duration of the run in milliseconds.",
     }),
     errors: S.Array(PipelineError).annotateKey({
       description: "Collected per-item failures.",
     }),
-    failed: S.Number.annotateKey({
+    failed: S.Finite.annotateKey({
       description: "Number of items that failed a stage.",
     }),
-    processed: S.Number.annotateKey({
+    processed: S.Finite.annotateKey({
       description: "Number of items processed to completion.",
     }),
     results: S.Array(S.Unknown).annotateKey({
       description: "Transformed output values in input order.",
     }),
-    skipped: S.Number.annotateKey({
+    skipped: S.Finite.annotateKey({
       description: "Number of items skipped before processing.",
     }),
   },

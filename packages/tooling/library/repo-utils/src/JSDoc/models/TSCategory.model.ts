@@ -188,7 +188,7 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
       description: "Typical dependency direction profile.",
     }),
     /** Lower means document first in topological ordering. */
-    documentationPriority: S.Number.annotateKey({
+    documentationPriority: S.Finite.annotateKey({
       description: "Lower means document first in topological ordering.",
     }),
   },

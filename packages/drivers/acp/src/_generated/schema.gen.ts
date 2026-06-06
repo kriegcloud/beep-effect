@@ -152,7 +152,7 @@ export type AvailableCommandInput = typeof AvailableCommandInput.Type;
  * @since 0.0.0
  */
 export const Cost = S.Struct({
-  amount: S.Number.annotateKey({
+  amount: S.Finite.annotateKey({
     description: "Total cumulative cost for session.",
     format: "double",
   }).check(S.isFinite()),
@@ -197,8 +197,8 @@ export type Cost = typeof Cost.Type;
  */
 export const ElicitationContentValue = S.Union([
   S.String.annotateKey({ title: "String" }),
-  S.Number.annotateKey({ title: "Integer", format: "int64" }).check(S.isInt()),
-  S.Number.annotateKey({ title: "Number", format: "double" }).check(
+  S.Finite.annotateKey({ title: "Integer", format: "int64" }).check(S.isInt()),
+  S.Finite.annotateKey({ title: "Number", format: "double" }).check(
     S.isFinite(),
   ),
   S.Boolean.annotateKey({ title: "Boolean" }),
@@ -550,7 +550,7 @@ export const Error = S.Struct({
         "**URL elicitation required**: **UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nThe agent requires user input via a URL-based elicitation before it can proceed.",
       format: "int32",
     }),
-    S.Number.annotateKey({
+    S.Finite.annotateKey({
       title: "Other",
       description: "Other undefined error code.",
       format: "int32",
@@ -946,7 +946,7 @@ export type PlanEntry = typeof PlanEntry.Type;
  */
 export const RequestId = S.Union([
   S.Null.annotateKey({ title: "Null" }),
-  S.Number.annotateKey({ title: "Number", format: "int64" }).check(S.isInt()),
+  S.Finite.annotateKey({ title: "Number", format: "int64" }).check(S.isInt()),
   S.String.annotateKey({ title: "Str" }),
 ]).pipe(
   $I.annoteSchema("RequestId", {
@@ -1467,7 +1467,7 @@ export const TerminalExitStatus = S.Struct({
   ),
   exitCode: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description:
           "The process exit code (may be null if terminated by signal).",
         format: "uint32",
@@ -1533,7 +1533,7 @@ export const ToolCallLocation = S.Struct({
   ),
   line: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Optional line number within the file.",
         format: "uint32",
       })
@@ -1672,7 +1672,7 @@ export type ToolKind = typeof ToolKind.Type;
 export const Usage = S.Struct({
   cachedReadTokens: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Total cache read tokens.",
         format: "uint64",
       })
@@ -1683,7 +1683,7 @@ export const Usage = S.Struct({
   ),
   cachedWriteTokens: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Total cache write tokens.",
         format: "uint64",
       })
@@ -1692,13 +1692,13 @@ export const Usage = S.Struct({
       S.Null,
     ]),
   ),
-  inputTokens: S.Number.annotateKey({
+  inputTokens: S.Finite.annotateKey({
     description: "Total input tokens across all turns.",
     format: "uint64",
   })
     .check(S.isInt())
     .check(S.isGreaterThanOrEqualTo(0)),
-  outputTokens: S.Number.annotateKey({
+  outputTokens: S.Finite.annotateKey({
     description: "Total output tokens across all turns.",
     format: "uint64",
   })
@@ -1706,7 +1706,7 @@ export const Usage = S.Struct({
     .check(S.isGreaterThanOrEqualTo(0)),
   thoughtTokens: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Total thought/reasoning tokens",
         format: "uint64",
       })
@@ -1715,7 +1715,7 @@ export const Usage = S.Struct({
       S.Null,
     ]),
   ),
-  totalTokens: S.Number.annotateKey({
+  totalTokens: S.Finite.annotateKey({
     description: "Sum of all token types across session.",
     format: "uint64",
   })
@@ -2191,7 +2191,7 @@ export const Annotations = S.Struct({
   lastModified: S.optionalKey(S.Union([S.String, S.Null])),
   priority: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({ format: "double" }).check(S.isFinite()),
+      S.Finite.annotateKey({ format: "double" }).check(S.isFinite()),
       S.Null,
     ]),
   ),
@@ -2367,7 +2367,7 @@ export const ElicitationPropertySchema = S.Union(
       ),
       maxLength: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({
+          S.Finite.annotateKey({
             description: "Maximum string length.",
             format: "uint32",
           })
@@ -2378,7 +2378,7 @@ export const ElicitationPropertySchema = S.Union(
       ),
       minLength: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({
+          S.Finite.annotateKey({
             description: "Minimum string length.",
             format: "uint32",
           })
@@ -2419,7 +2419,7 @@ export const ElicitationPropertySchema = S.Union(
       type: S.Literal("number"),
       default: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({
+          S.Finite.annotateKey({
             description: "Default value.",
             format: "double",
           }).check(S.isFinite()),
@@ -2434,7 +2434,7 @@ export const ElicitationPropertySchema = S.Union(
       ),
       maximum: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({
+          S.Finite.annotateKey({
             description: "Maximum value (inclusive).",
             format: "double",
           }).check(S.isFinite()),
@@ -2443,7 +2443,7 @@ export const ElicitationPropertySchema = S.Union(
       ),
       minimum: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({
+          S.Finite.annotateKey({
             description: "Minimum value (inclusive).",
             format: "double",
           }).check(S.isFinite()),
@@ -2466,7 +2466,7 @@ export const ElicitationPropertySchema = S.Union(
       type: S.Literal("integer"),
       default: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({
+          S.Finite.annotateKey({
             description: "Default value.",
             format: "int64",
           }).check(S.isInt()),
@@ -2481,7 +2481,7 @@ export const ElicitationPropertySchema = S.Union(
       ),
       maximum: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({
+          S.Finite.annotateKey({
             description: "Maximum value (inclusive).",
             format: "int64",
           }).check(S.isInt()),
@@ -2490,7 +2490,7 @@ export const ElicitationPropertySchema = S.Union(
       ),
       minimum: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({
+          S.Finite.annotateKey({
             description: "Minimum value (inclusive).",
             format: "int64",
           }).check(S.isInt()),
@@ -2577,7 +2577,7 @@ export const ElicitationPropertySchema = S.Union(
       }),
       maxItems: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({
+          S.Finite.annotateKey({
             description: "Maximum number of items to select.",
             format: "uint64",
           })
@@ -2588,7 +2588,7 @@ export const ElicitationPropertySchema = S.Union(
       ),
       minItems: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({
+          S.Finite.annotateKey({
             description: "Minimum number of items to select.",
             format: "uint64",
           })
@@ -2711,7 +2711,7 @@ export const ContentBlock = S.Union(
       name: S.String,
       size: S.optionalKey(
         S.Union([
-          S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+          S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
           S.Null,
         ]),
       ),
@@ -2855,7 +2855,7 @@ export const ToolCallContent = S.Union(
             name: S.String,
             size: S.optionalKey(
               S.Union([
-                S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+                S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
                 S.Null,
               ]),
             ),
@@ -3493,7 +3493,7 @@ export const AgentNotification = S.Struct({
                       name: S.String,
                       size: S.optionalKey(
                         S.Union([
-                          S.Number.annotateKey({ format: "int64" }).check(
+                          S.Finite.annotateKey({ format: "int64" }).check(
                             S.isInt(),
                           ),
                           S.Null,
@@ -3629,7 +3629,7 @@ export const AgentNotification = S.Struct({
                       name: S.String,
                       size: S.optionalKey(
                         S.Union([
-                          S.Number.annotateKey({ format: "int64" }).check(
+                          S.Finite.annotateKey({ format: "int64" }).check(
                             S.isInt(),
                           ),
                           S.Null,
@@ -3765,7 +3765,7 @@ export const AgentNotification = S.Struct({
                       name: S.String,
                       size: S.optionalKey(
                         S.Union([
-                          S.Number.annotateKey({ format: "int64" }).check(
+                          S.Finite.annotateKey({ format: "int64" }).check(
                             S.isInt(),
                           ),
                           S.Null,
@@ -4068,13 +4068,13 @@ export const AgentNotification = S.Struct({
                     description: "Cumulative session cost (optional).",
                   }),
                 ),
-                size: S.Number.annotateKey({
+                size: S.Finite.annotateKey({
                   description: "Total context window size in tokens.",
                   format: "uint64",
                 })
                   .check(S.isInt())
                   .check(S.isGreaterThanOrEqualTo(0)),
-                used: S.Number.annotateKey({
+                used: S.Finite.annotateKey({
                   description: "Tokens currently in context.",
                   format: "uint64",
                 })
@@ -4203,7 +4203,7 @@ export const AgentRequest = S.Struct({
           ),
           limit: S.optionalKey(
             S.Union([
-              S.Number.annotateKey({
+              S.Finite.annotateKey({
                 description: "Maximum number of lines to read.",
                 format: "uint32",
               })
@@ -4214,7 +4214,7 @@ export const AgentRequest = S.Struct({
           ),
           line: S.optionalKey(
             S.Union([
-              S.Number.annotateKey({
+              S.Finite.annotateKey({
                 description: "Line number to start reading from (1-based).",
                 format: "uint32",
               })
@@ -4350,7 +4350,7 @@ export const AgentRequest = S.Struct({
           ),
           outputByteLimit: S.optionalKey(
             S.Union([
-              S.Number.annotateKey({
+              S.Finite.annotateKey({
                 description:
                   "Maximum number of output bytes to retain.\n\nWhen the limit is exceeded, the Client truncates from the beginning of the output\nto stay within the limit.\n\nThe Client MUST ensure truncation happens at a character boundary to maintain valid\nstring output, even if this means the retained output is slightly less than the\nspecified limit.",
                 format: "uint64",
@@ -4792,7 +4792,7 @@ export const AgentResponse = S.Union([
             default: [],
           }),
         ),
-        protocolVersion: S.Number.annotateKey({
+        protocolVersion: S.Finite.annotateKey({
           description:
             "Protocol version identifier.\n\nThis version is only bumped for breaking changes.\nNon-breaking changes should be introduced via capabilities.",
           format: "uint16",
@@ -5770,7 +5770,7 @@ export const CancelRequestNotification = S.Struct({
   ),
   requestId: S.Union([
     S.Null.annotateKey({ title: "Null" }),
-    S.Number.annotateKey({ title: "Number", format: "int64" }).check(S.isInt()),
+    S.Finite.annotateKey({ title: "Number", format: "int64" }).check(S.isInt()),
     S.String.annotateKey({ title: "Str" }),
   ]).annotateKey({
     description:
@@ -6106,7 +6106,7 @@ export const ClientRequest = S.Struct({
                 "Information about the Client name and version sent to the Agent.\n\nNote: in future versions of the protocol, this will be required.",
             }),
           ),
-          protocolVersion: S.Number.annotateKey({
+          protocolVersion: S.Finite.annotateKey({
             description:
               "Protocol version identifier.\n\nThis version is only bumped for breaking changes.\nNon-breaking changes should be introduced via capabilities.",
             format: "uint16",
@@ -6629,7 +6629,7 @@ export const ClientResponse = S.Union([
         ),
         exitCode: S.optionalKey(
           S.Union([
-            S.Number.annotateKey({
+            S.Finite.annotateKey({
               description:
                 "The process exit code (may be null if terminated by signal).",
               format: "uint32",
@@ -6975,7 +6975,7 @@ export const Content = S.Struct({
         name: S.String,
         size: S.optionalKey(
           S.Union([
-            S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+            S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
             S.Null,
           ]),
         ),
@@ -7117,7 +7117,7 @@ export const ContentChunk = S.Struct({
         name: S.String,
         size: S.optionalKey(
           S.Union([
-            S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+            S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
             S.Null,
           ]),
         ),
@@ -7225,7 +7225,7 @@ export const CreateTerminalRequest = S.Struct({
   ),
   outputByteLimit: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description:
           "Maximum number of output bytes to retain.\n\nWhen the limit is exceeded, the Client truncates from the beginning of the output\nto stay within the limit.\n\nThe Client MUST ensure truncation happens at a character boundary to maintain valid\nstring output, even if this means the retained output is slightly less than the\nspecified limit.",
         format: "uint64",
@@ -8197,7 +8197,7 @@ export const ErrorCode = S.Union([
       "**URL elicitation required**: **UNSTABLE**\n\nThis capability is not part of the spec yet, and may be removed or changed at any point.\n\nThe agent requires user input via a URL-based elicitation before it can proceed.",
     format: "int32",
   }),
-  S.Number.annotateKey({
+  S.Finite.annotateKey({
     title: "Other",
     description: "Other undefined error code.",
     format: "int32",
@@ -8686,7 +8686,7 @@ export const InitializeRequest = S.Struct({
         "Information about the Client name and version sent to the Agent.\n\nNote: in future versions of the protocol, this will be required.",
     }),
   ),
-  protocolVersion: S.Number.annotateKey({
+  protocolVersion: S.Finite.annotateKey({
     description:
       "Protocol version identifier.\n\nThis version is only bumped for breaking changes.\nNon-breaking changes should be introduced via capabilities.",
     format: "uint16",
@@ -8912,7 +8912,7 @@ export const InitializeResponse = S.Struct({
       default: [],
     }),
   ),
-  protocolVersion: S.Number.annotateKey({
+  protocolVersion: S.Finite.annotateKey({
     description:
       "Protocol version identifier.\n\nThis version is only bumped for breaking changes.\nNon-breaking changes should be introduced via capabilities.",
     format: "uint16",
@@ -8959,7 +8959,7 @@ export type InitializeResponse = typeof InitializeResponse.Type;
 export const IntegerPropertySchema = S.Struct({
   default: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Default value.",
         format: "int64",
       }).check(S.isInt()),
@@ -8974,7 +8974,7 @@ export const IntegerPropertySchema = S.Struct({
   ),
   maximum: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Maximum value (inclusive).",
         format: "int64",
       }).check(S.isInt()),
@@ -8983,7 +8983,7 @@ export const IntegerPropertySchema = S.Struct({
   ),
   minimum: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Minimum value (inclusive).",
         format: "int64",
       }).check(S.isInt()),
@@ -9815,7 +9815,7 @@ export const MultiSelectPropertySchema = S.Struct({
   }),
   maxItems: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Maximum number of items to select.",
         format: "uint64",
       })
@@ -9826,7 +9826,7 @@ export const MultiSelectPropertySchema = S.Struct({
   ),
   minItems: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Minimum number of items to select.",
         format: "uint64",
       })
@@ -10005,7 +10005,7 @@ export type NewSessionResponse = typeof NewSessionResponse.Type;
 export const NumberPropertySchema = S.Struct({
   default: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Default value.",
         format: "double",
       }).check(S.isFinite()),
@@ -10020,7 +10020,7 @@ export const NumberPropertySchema = S.Struct({
   ),
   maximum: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Maximum value (inclusive).",
         format: "double",
       }).check(S.isFinite()),
@@ -10029,7 +10029,7 @@ export const NumberPropertySchema = S.Struct({
   ),
   minimum: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Minimum value (inclusive).",
         format: "double",
       }).check(S.isFinite()),
@@ -10479,7 +10479,7 @@ export type PromptResponse = typeof PromptResponse.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ProtocolVersion = S.Number.check(S.isInt())
+export const ProtocolVersion = S.Finite.check(S.isInt())
   .check(S.isGreaterThanOrEqualTo(0))
   .check(S.isLessThanOrEqualTo(65535))
   .pipe(
@@ -10531,7 +10531,7 @@ export const ReadTextFileRequest = S.Struct({
   ),
   limit: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Maximum number of lines to read.",
         format: "uint32",
       })
@@ -10542,7 +10542,7 @@ export const ReadTextFileRequest = S.Struct({
   ),
   line: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Line number to start reading from (1-based).",
         format: "uint32",
       })
@@ -10994,7 +10994,7 @@ export const ResourceLink = S.Struct({
   name: S.String,
   size: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+      S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
       S.Null,
     ]),
   ),
@@ -11716,7 +11716,7 @@ export const SessionNotification = S.Struct({
               name: S.String,
               size: S.optionalKey(
                 S.Union([
-                  S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+                  S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
                   S.Null,
                 ]),
               ),
@@ -11838,7 +11838,7 @@ export const SessionNotification = S.Struct({
               name: S.String,
               size: S.optionalKey(
                 S.Union([
-                  S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+                  S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
                   S.Null,
                 ]),
               ),
@@ -11960,7 +11960,7 @@ export const SessionNotification = S.Struct({
               name: S.String,
               size: S.optionalKey(
                 S.Union([
-                  S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+                  S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
                   S.Null,
                 ]),
               ),
@@ -12253,13 +12253,13 @@ export const SessionNotification = S.Struct({
             description: "Cumulative session cost (optional).",
           }),
         ),
-        size: S.Number.annotateKey({
+        size: S.Finite.annotateKey({
           description: "Total context window size in tokens.",
           format: "uint64",
         })
           .check(S.isInt())
           .check(S.isGreaterThanOrEqualTo(0)),
-        used: S.Number.annotateKey({
+        used: S.Finite.annotateKey({
           description: "Tokens currently in context.",
           format: "uint64",
         })
@@ -12390,7 +12390,7 @@ export const SessionUpdate = S.Union(
             name: S.String,
             size: S.optionalKey(
               S.Union([
-                S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+                S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
                 S.Null,
               ]),
             ),
@@ -12510,7 +12510,7 @@ export const SessionUpdate = S.Union(
             name: S.String,
             size: S.optionalKey(
               S.Union([
-                S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+                S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
                 S.Null,
               ]),
             ),
@@ -12630,7 +12630,7 @@ export const SessionUpdate = S.Union(
             name: S.String,
             size: S.optionalKey(
               S.Union([
-                S.Number.annotateKey({ format: "int64" }).check(S.isInt()),
+                S.Finite.annotateKey({ format: "int64" }).check(S.isInt()),
                 S.Null,
               ]),
             ),
@@ -12922,13 +12922,13 @@ export const SessionUpdate = S.Union(
           description: "Cumulative session cost (optional).",
         }),
       ),
-      size: S.Number.annotateKey({
+      size: S.Finite.annotateKey({
         description: "Total context window size in tokens.",
         format: "uint64",
       })
         .check(S.isInt())
         .check(S.isGreaterThanOrEqualTo(0)),
-      used: S.Number.annotateKey({
+      used: S.Finite.annotateKey({
         description: "Tokens currently in context.",
         format: "uint64",
       })
@@ -13375,7 +13375,7 @@ export const StringPropertySchema = S.Struct({
   ),
   maxLength: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Maximum string length.",
         format: "uint32",
       })
@@ -13386,7 +13386,7 @@ export const StringPropertySchema = S.Struct({
   ),
   minLength: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description: "Minimum string length.",
         format: "uint32",
       })
@@ -14062,13 +14062,13 @@ export const UsageUpdate = S.Struct({
       description: "Cumulative session cost (optional).",
     }),
   ),
-  size: S.Number.annotateKey({
+  size: S.Finite.annotateKey({
     description: "Total context window size in tokens.",
     format: "uint64",
   })
     .check(S.isInt())
     .check(S.isGreaterThanOrEqualTo(0)),
-  used: S.Number.annotateKey({
+  used: S.Finite.annotateKey({
     description: "Tokens currently in context.",
     format: "uint64",
   })
@@ -14174,7 +14174,7 @@ export const WaitForTerminalExitResponse = S.Struct({
   ),
   exitCode: S.optionalKey(
     S.Union([
-      S.Number.annotateKey({
+      S.Finite.annotateKey({
         description:
           "The process exit code (may be null if terminated by signal).",
         format: "uint32",

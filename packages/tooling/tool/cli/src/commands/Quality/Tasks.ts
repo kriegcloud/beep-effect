@@ -9,11 +9,10 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { makePgliteTestcontainerResource } from "@beep/test-utils";
-import { A, Str, thunkFalse } from "@beep/utils";
+import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import * as O from "@beep/utils/Option";
-import { Console, Effect, FileSystem, flow, Match, Path, pipe, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, Match, Order, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
-import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
@@ -44,6 +43,12 @@ const $I = $RepoCliId.create("commands/Quality/Tasks");
 const QUALITY_TASK_NAMES = ["build", "check", "test", "lint", "audit"] as const;
 const LINT_POLICY_GROUP_CONCURRENCY = 3;
 const GROUPED_STEP_OUTPUT_MAX_CHARS = 256 * 1024;
+const CHANGED_PATH_DIFF_FILTER = ["A", "C", "M", "R", "T", "U", "X", "B"].join("");
+const LOCAL_BIOME_BIN = "./node_modules/.bin/biome";
+const BIOME_FIX_CHANGED_ARGS = ["check", "--write", "--files-ignore-unknown=true"] as const;
+const LINT_FIX_AGGREGATE_ARGS = ["--full", "--repo"] as const;
+const ROOT_TURBO_CONCURRENCY_ARG = "--concurrency=3";
+const QUALITY_TASK_BYPASS_ARG_NAMES = ["--completions", "--help", "--log-level", "--version", "-h", "-v"] as const;
 const groupedStepOutputTruncatedNotice = `\n[beep-cli] output truncated after ${GROUPED_STEP_OUTPUT_MAX_CHARS} characters`;
 const LINT_POLICY_SUBCOMMANDS = [
   "circular",
@@ -237,16 +242,20 @@ const profileByTask: Readonly<Record<QualityTaskName, PackageTaskProfile>> = {
 };
 
 const isQualityTaskName = (value: string): value is QualityTaskName =>
-  A.contains(QUALITY_TASK_NAMES as ReadonlyArray<string>, value);
+  A.some(QUALITY_TASK_NAMES, (name) => name === value);
 
 const isLintPolicySubcommand = (value: string | undefined): boolean =>
   pipe(
     O.fromUndefinedOr(value),
-    O.exists((subcommand) => A.contains(LINT_POLICY_SUBCOMMANDS as ReadonlyArray<string>, subcommand))
+    O.exists((subcommand) => A.some(LINT_POLICY_SUBCOMMANDS, (name) => name === subcommand))
   );
 
-const isRootAuditMode = (value: string): value is RootAuditMode =>
-  A.contains(AUDIT_MODE_NAMES as ReadonlyArray<string>, value);
+const isRootAuditMode = (value: string): value is RootAuditMode => A.some(AUDIT_MODE_NAMES, (name) => name === value);
+
+const isQualityTaskBypassArg = (arg: string): boolean =>
+  A.some(QUALITY_TASK_BYPASS_ARG_NAMES, (name) => arg === name || Str.startsWith(`${name}=`)(arg));
+
+const hasQualityTaskBypassArg = (argv: ReadonlyArray<string>): boolean => A.some(argv, isQualityTaskBypassArg);
 
 const isGithubCheckMode = S.is(GithubCheckMode);
 
@@ -364,10 +373,28 @@ const isTurboCacheControlArg = (arg: string): boolean =>
   Str.startsWith("--remote-cache-read-only=")(arg) ||
   Str.startsWith("--cache=")(arg);
 
+const isTurboConcurrencyArg = (arg: string): boolean =>
+  arg === "--concurrency" || Str.startsWith("--concurrency=")(arg);
+
 const isExplicitTurboScopeArg = (arg: string): boolean =>
   Str.startsWith("--filter")(arg) || Str.startsWith("--since")(arg);
 
+const isExplicitTurboAffectedOrScopeArg = (arg: string): boolean =>
+  arg === "--affected" || isExplicitTurboScopeArg(arg);
+
+const isLintFixAggregateArg = (arg: string): boolean => A.some(LINT_FIX_AGGREGATE_ARGS, (name) => name === arg);
+
+const stripLintFixAggregateArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
+  pipe(
+    args,
+    A.filter((arg) => !isLintFixAggregateArg(arg))
+  );
+
+const shouldForceAggregateLintFix = (args: ReadonlyArray<string>): boolean => A.some(args, isLintFixAggregateArg);
+
 const shouldRunRepoWideSteps = (args: ReadonlyArray<string>): boolean => !A.some(args, isExplicitTurboScopeArg);
+const shouldRunLintRepoWideSteps = (args: ReadonlyArray<string>): boolean =>
+  !A.some(args, isExplicitTurboAffectedOrScopeArg);
 
 const isCi = (): boolean => Bun.env.CI === "true" || configStringEqualsSync("CI", "true");
 
@@ -377,6 +404,8 @@ const localTurboCacheArgs = (args: ReadonlyArray<string>): ReadonlyArray<string>
 const ciFreshTurboArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
   isCi() && !A.some(args, isTurboCacheControlArg) ? ["--force", ...args] : args;
 
+const isUnscopedInvocation = (args: ReadonlyArray<string>): boolean => A.isReadonlyArrayEmpty(args);
+
 const turboRunArgs = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>): ReadonlyArray<string> => [
   "turbo",
   "run",
@@ -384,6 +413,9 @@ const turboRunArgs = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>)
   ...localTurboCacheArgs(args),
   ...args,
 ];
+
+const boundedRootTurboArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
+  isCi() || A.some(args, isTurboConcurrencyArg) ? args : [ROOT_TURBO_CONCURRENCY_ARG, ...args];
 
 const includesTurboCoverageTask = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>): boolean =>
   A.some(tasks, (task) => task === "coverage") || A.some(args, (arg) => arg === "coverage");
@@ -393,6 +425,72 @@ const turboCoverageEnv = (
   args: ReadonlyArray<string>
 ): Record<string, string> | undefined =>
   includesTurboCoverageTask(tasks, args) ? { VITEST_COVERAGE_REPORT_ONLY: "1" } : undefined;
+
+const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
+  stream.pipe(
+    Stream.decodeText(),
+    Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
+  );
+
+const linesFromText = (text: string): ReadonlyArray<string> =>
+  pipe(Str.split(/\r?\n/)(text), A.map(Str.trim), A.filter(Str.isNonEmpty));
+
+const runGitLines = Effect.fn("QualityTasks.runGitLines")(function* (repoRoot: string, args: ReadonlyArray<string>) {
+  const output = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make("git", [...args], {
+        cwd: repoRoot,
+        stderr: "ignore",
+        stdout: "pipe",
+      });
+      const text = yield* collectText(handle.stdout);
+      const exitCode = yield* handle.exitCode;
+      if (exitCode !== 0) {
+        return yield* QualityTaskConfigurationError.new(`git ${A.join(args, " ")} failed with exit code ${exitCode}.`);
+      }
+      return text;
+    })
+  ).pipe(QualityTaskConfigurationError.mapError(`Failed to spawn git ${A.join(args, " ")}`));
+
+  return linesFromText(output);
+});
+
+const collectWorkingTreeChangedFiles = Effect.fn("QualityTasks.collectWorkingTreeChangedFiles")(function* (
+  repoRoot: string
+) {
+  const gitArgs: ReadonlyArray<ReadonlyArray<string>> = [
+    ["diff", "--name-only", `--diff-filter=${CHANGED_PATH_DIFF_FILTER}`, "HEAD", "--"],
+    ["diff", "--cached", "--name-only", `--diff-filter=${CHANGED_PATH_DIFF_FILTER}`, "--"],
+    ["ls-files", "--others", "--exclude-standard"],
+  ];
+  const files = yield* Effect.forEach(
+    gitArgs,
+    (args) => runGitLines(repoRoot, args).pipe(Effect.option, Effect.map(O.getOrElse(A.empty<string>))),
+    { concurrency: 3 }
+  );
+
+  return pipe(A.flatten(files), A.dedupe, A.sort(Order.String));
+});
+
+const collectExistingWorkingTreeChangedFiles = Effect.fn("QualityTasks.collectExistingWorkingTreeChangedFiles")(
+  function* (repoRoot: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const changedFiles = yield* collectWorkingTreeChangedFiles(repoRoot);
+
+    return yield* Effect.filter(changedFiles, (file) =>
+      fs.exists(path.join(repoRoot, file)).pipe(Effect.orElseSucceed(thunkFalse))
+    );
+  }
+);
+
+const lintFixChangedStep = (repoRoot: string, files: ReadonlyArray<string>) =>
+  QualityTaskStep.make({
+    label: "lint:fix:changed",
+    command: LOCAL_BIOME_BIN,
+    args: [...BIOME_FIX_CHANGED_ARGS, ...files],
+    cwd: repoRoot,
+  });
 
 const isUnresolvedSecretReference = (value: string | undefined): boolean =>
   value !== undefined && Str.startsWith("op://")(value);
@@ -825,14 +923,14 @@ const rootBuildSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
   QualityTaskStep.make({
     label: "build",
     command: "bunx",
-    args: turboRunArgs(["build"], args),
+    args: turboRunArgs(["build"], boundedRootTurboArgs(args)),
     cwd: repoRoot,
     useLocalEnv: true,
   }),
 ];
 
 const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
-  turboStep(repoRoot, "check", ["check"], args),
+  turboStep(repoRoot, "check", ["check"], boundedRootTurboArgs(args)),
   ...optionalQualityTaskStep({
     enabled: shouldRunRepoWideSteps(args),
     step: () => repoCliStep(repoRoot, "check:dtslint:tsgo", ["quality", "dtslint-tsgo"]),
@@ -848,16 +946,16 @@ const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
 ];
 
 const rootUnitAndTypeTestSteps = (repoRoot: string, lanes: TestLaneSelectionState) => {
-  const unitArgs = lanes.args;
+  const testArgs = boundedRootTurboArgs(lanes.args);
 
   return [
     ...optionalQualityTaskStep({
       enabled: lanes.unit,
-      step: () => turboStep(repoRoot, "test:unit", ["test"], unitArgs),
+      step: () => turboStep(repoRoot, "test:unit", ["test"], testArgs),
     }),
     ...optionalQualityTaskStep({
       enabled: lanes.types,
-      step: () => turboStep(repoRoot, "test:types", ["type-test"], lanes.args),
+      step: () => turboStep(repoRoot, "test:types", ["type-test"], testArgs),
     }),
   ];
 };
@@ -888,7 +986,7 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   bunxStep(repoRoot, "lint:jsdoc", ["eslint", "."]),
   repoCliStep(repoRoot, "lint:jsdoc-module-tags", ["quality", "jsdoc-module-tags"]),
   repoCliStep(repoRoot, "lint:docgen", ["docgen", "check"]),
-  bunxStep(repoRoot, "lint:spell", ["cspell", "."]),
+  bunxStep(repoRoot, "lint:spell", ["cspell", ".", "--no-progress"]),
   bunxStep(repoRoot, "lint:markdown", ["markdownlint-cli2"]),
   repoCliStep(repoRoot, "lint:circular", ["lint", "circular"]),
   repoCliStep(repoRoot, "lint:tooling-tagged-errors", ["lint", "tooling-tagged-errors"]),
@@ -896,47 +994,49 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   bunxStep(repoRoot, "lint:typos", ["typos"]),
 ];
 
-const rootLintFixPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskStep> => [
-  repoCliStep(repoRoot, "lint:effect-imports:fix", ["laws", "effect-imports", "--write"]),
-];
-
 const rootLintPolicySteps = (
   repoRoot: string,
   args: ReadonlyArray<string>,
   fix: boolean
 ): ReadonlyArray<QualityTaskStep> => {
-  const shouldRunRepoWide = shouldRunRepoWideSteps(args);
+  if (fix || !shouldRunLintRepoWideSteps(args)) {
+    return A.empty<QualityTaskStep>();
+  }
 
-  return pipe(
-    [
-      pipe(shouldRunRepoWide && fix, O.liftPredicate(P.isTruthy), O.as(rootLintFixPolicySteps(repoRoot))),
-      pipe(shouldRunRepoWide, O.liftPredicate(P.isTruthy), O.as(rootRepoLintPolicySteps(repoRoot))),
-    ] satisfies ReadonlyArray<O.Option<ReadonlyArray<QualityTaskStep>>>,
-    O.firstSomeOf,
-    O.getOrElse(A.empty<QualityTaskStep>)
-  );
+  return rootRepoLintPolicySteps(repoRoot);
 };
 
-const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boolean) => [
-  fix ? turboStep(repoRoot, "lint:fix", ["lint:fix"], args) : turboStep(repoRoot, "lint", ["lint"], args),
-  ...rootLintPolicySteps(repoRoot, args, fix),
-];
+const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boolean) => {
+  const lintArgs = boundedRootTurboArgs(fix ? stripLintFixAggregateArgs(args) : args);
+  return [
+    fix ? turboStep(repoRoot, "lint:fix", ["lint:fix"], lintArgs) : turboStep(repoRoot, "lint", ["lint"], lintArgs),
+    ...rootLintPolicySteps(repoRoot, lintArgs, fix),
+  ];
+};
 
 const runRootLintTask = Effect.fn("QualityTasks.runRootLintTask")(function* (
   repoRoot: string,
   args: ReadonlyArray<string>,
   fix: boolean
 ) {
-  yield* runStep(
-    fix ? turboStep(repoRoot, "lint:fix", ["lint:fix"], args) : turboStep(repoRoot, "lint", ["lint"], args)
-  );
+  const strippedLintArgs = fix ? stripLintFixAggregateArgs(args) : args;
+  if (fix && !shouldForceAggregateLintFix(args) && isUnscopedInvocation(strippedLintArgs)) {
+    const files = yield* collectExistingWorkingTreeChangedFiles(repoRoot);
+    if (A.isReadonlyArrayEmpty(files)) {
+      yield* Console.log("[beep-cli] lint:fix: no changed files");
+      return;
+    }
 
-  if (!shouldRunRepoWideSteps(args)) {
+    yield* runStep(lintFixChangedStep(repoRoot, files));
     return;
   }
 
-  if (fix) {
-    yield* runSteps(rootLintFixPolicySteps(repoRoot));
+  const lintArgs = boundedRootTurboArgs(strippedLintArgs);
+  yield* runStep(
+    fix ? turboStep(repoRoot, "lint:fix", ["lint:fix"], lintArgs) : turboStep(repoRoot, "lint", ["lint"], lintArgs)
+  );
+
+  if (fix || !shouldRunLintRepoWideSteps(lintArgs)) {
     return;
   }
 
@@ -947,7 +1047,7 @@ const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   const selection = parseRootAuditSelection(args);
 
   if (selection.mode === "packages") {
-    return [turboStep(repoRoot, "audit:packages", ["audit"], ciFreshTurboArgs(selection.args))];
+    return [turboStep(repoRoot, "audit:packages", ["audit"], boundedRootTurboArgs(ciFreshTurboArgs(selection.args)))];
   }
 
   const auditArgs = selection.args;
@@ -1098,7 +1198,7 @@ type QualityTaskError =
  */
 export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Option<QualityTaskInvocation> => {
   const parseCommand = ([command, ...rawArgs]: A.NonEmptyReadonlyArray<string>): O.Option<QualityTaskInvocation> => {
-    if (!isQualityTaskName(command)) {
+    if (!isQualityTaskName(command) || hasQualityTaskBypassArg(argv)) {
       return O.none();
     }
 
@@ -1220,3 +1320,32 @@ export const collectStepOutput = (step: QualityTaskStep) =>
  * @since 0.0.0
  */
 export const runQualityTaskStepGroupForTesting = runStepGroup;
+
+/**
+ * Collect existing changed files for the root lint fix fast path.
+ *
+ * @param repoRoot - Repository root directory.
+ * @example
+ * ```ts
+ * import { collectLintFixChangedFilesForTesting } from "@beep/repo-cli/commands/Quality"
+ * console.log(collectLintFixChangedFilesForTesting)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const collectLintFixChangedFilesForTesting = collectExistingWorkingTreeChangedFiles;
+
+/**
+ * Build the root lint fix changed-file step. Exposed for focused unit tests.
+ *
+ * @param repoRoot - Repository root directory.
+ * @param files - Changed files to pass to Biome.
+ * @example
+ * ```ts
+ * import { lintFixChangedStepForTesting } from "@beep/repo-cli/commands/Quality"
+ * console.log(lintFixChangedStepForTesting("/repo", ["src/example.ts"]))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const lintFixChangedStepForTesting = lintFixChangedStep;

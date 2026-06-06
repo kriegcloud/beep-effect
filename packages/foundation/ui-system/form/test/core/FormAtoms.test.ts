@@ -653,7 +653,7 @@ describe("FormAtoms", () => {
       );
 
       const fieldAtomsA = atoms.getOrCreateFieldAtoms("name", S.String);
-      const fieldAtomsB = atoms.getOrCreateFieldAtoms("name", S.Number);
+      const fieldAtomsB = atoms.getOrCreateFieldAtoms("name", S.Finite);
 
       expect(fieldAtomsA).not.toBe(fieldAtomsB);
       expect(fieldAtomsA.validationAtom).not.toBe(fieldAtomsB.validationAtom);

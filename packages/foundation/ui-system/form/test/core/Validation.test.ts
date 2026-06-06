@@ -106,8 +106,8 @@ describe("Validation", () => {
 
     it("routes first error when schema short-circuits", () => {
       const schema = S.Struct({
-        name: S.Number,
-        email: S.Number,
+        name: S.Finite,
+        email: S.Finite,
       });
       const result = S.decodeUnknownEither(schema)({ name: "not-a-number", email: "also-not" });
 
@@ -160,7 +160,7 @@ describe("Validation", () => {
       const schema = S.Struct({
         items: S.Array(
           S.Struct({
-            name: S.Number,
+            name: S.Finite,
           })
         ),
       });
@@ -248,7 +248,7 @@ describe("Validation", () => {
 
     it("handles type errors at field level", () => {
       const schema = S.Struct({
-        age: S.Number,
+        age: S.Finite,
       });
       const result = S.decodeUnknownEither(schema)({ age: "not a number" });
 
@@ -308,7 +308,7 @@ describe("Validation", () => {
 
     effectTest("tags Union refinement errors as 'refinement'", function* () {
       const OptionA = S.Struct({ type: S.Literal("a"), value: S.String });
-      const OptionB = S.Struct({ type: S.Literal("b"), count: S.Number });
+      const OptionB = S.Struct({ type: S.Literal("b"), count: S.Finite });
       const schema = S.Union(OptionA, OptionB).pipe(
         S.filter((union) => {
           if (union.type === "a" && union.value.length < 3) {
@@ -487,9 +487,9 @@ describe("Validation", () => {
     });
 
     it("prefers refinement errors when field and refinement target the same path", () => {
-      const struct = S.Struct({ age: S.Number });
+      const struct = S.Struct({ age: S.Finite });
 
-      const fieldIssue = new SchemaIssue.Pointer(["age"], new SchemaIssue.InvalidType(S.Number.ast, O.some("x")));
+      const fieldIssue = new SchemaIssue.Pointer(["age"], new SchemaIssue.InvalidType(S.Finite.ast, O.some("x")));
       const refinementInner = new SchemaIssue.Pointer(
         ["age"],
         new SchemaIssue.InvalidValue(O.some({ age: "x" }), { message: "Refinement error" })

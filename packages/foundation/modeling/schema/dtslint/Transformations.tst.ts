@@ -24,7 +24,7 @@ describe("destructiveTransform", () => {
   });
 
   it("supports data-last usage when callback input is explicit", () => {
-    const StringFromNumber = S.NumberFromString.pipe(
+    const StringFromNumber = S.FiniteFromString.pipe(
       destructiveTransform((value: number) => {
         expect(value).type.toBe<number>();
         return value.toString();

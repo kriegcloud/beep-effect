@@ -11,8 +11,8 @@ const { Class, Field, Struct } = VariantSchema.make({
 
 const baseFields = {
   id: Field({
-    select: S.Number,
-    json: S.Number,
+    select: S.Finite,
+    json: S.Finite,
   }),
   name: S.String,
 } as const;
@@ -75,8 +75,8 @@ describe("VariantSchema.Class", () => {
     expect(mappedFields).type.toBe<
       VariantSchema.Struct<{
         readonly id: VariantSchema.Field<{
-          readonly select: typeof S.Number;
-          readonly json: typeof S.Number;
+          readonly select: typeof S.Finite;
+          readonly json: typeof S.Finite;
         }>;
         readonly name: typeof S.String;
         readonly mappedOnly: typeof S.Boolean;

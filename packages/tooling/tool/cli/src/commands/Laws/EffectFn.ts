@@ -96,8 +96,8 @@ export class EffectFnRulesOptions extends S.Class<EffectFnRulesOptions>($I`Effec
 export class EffectFnDiagnostic extends S.Class<EffectFnDiagnostic>($I`EffectFnDiagnostic`)(
   {
     file: S.String,
-    line: S.Number,
-    column: S.Number,
+    line: S.Finite,
+    column: S.Finite,
     ruleId: S.String,
     ownerName: S.String,
     recommendation: EffectFnRecommendation,
@@ -129,9 +129,9 @@ export class EffectFnDiagnostic extends S.Class<EffectFnDiagnostic>($I`EffectFnD
  */
 export class EffectFnRulesSummary extends S.Class<EffectFnRulesSummary>($I`EffectFnRulesSummary`)(
   {
-    scannedFiles: S.Number,
-    touchedFiles: S.Number,
-    violationCount: S.Number,
+    scannedFiles: S.Finite,
+    touchedFiles: S.Finite,
+    violationCount: S.Finite,
     strictFailure: S.Boolean,
     affectedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),

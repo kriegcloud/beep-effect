@@ -20,6 +20,7 @@ import {
 import {
   AiMetricsDerivedStorageWriteInput,
   AiMetricsDerivedTranscriptRecord,
+  AiMetricsParquetExportMode,
   writeAiMetricsDerivedStorage,
 } from "./derived-storage.ts";
 import { summarizeTranscriptText } from "./ingest.ts";
@@ -107,16 +108,20 @@ export class AiMetricsForwarderInput extends S.Class<AiMetricsForwarderInput>($I
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-    maxFiles: S.Number.pipe(
+    maxFiles: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(DEFAULT_MAX_FILES)),
       S.withDecodingDefaultKey(Effect.succeed(DEFAULT_MAX_FILES))
     ),
-    maxFileBytes: S.optionalKey(S.Number),
+    maxFileBytes: S.optionalKey(S.Finite),
     openClawUnitPath: S.optionalKey(S.String),
+    parquetExportMode: AiMetricsParquetExportMode.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsParquetExportMode.Enum.snapshot)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsParquetExportMode.Enum.snapshot))
+    ),
     rawArchiveKey: AiMetricsRawArchiveKey,
     rawArchiveKeySecretRef: S.optionalKey(S.String),
     repoRoot: S.String,
-    sinceEpochMillis: S.optionalKey(S.Number),
+    sinceEpochMillis: S.optionalKey(S.Finite),
     target: AiMetricsDeployTarget.pipe(
       S.withConstructorDefault(Effect.succeed(AiMetricsDeployTarget.Enum.local)),
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsDeployTarget.Enum.local))
@@ -142,10 +147,10 @@ export class AiMetricsForwarderSourceCoverage extends S.Class<AiMetricsForwarder
   $I`AiMetricsForwarderSourceCoverage`
 )(
   {
-    candidateFileCount: S.Number,
-    includedFileCount: S.Number,
+    candidateFileCount: S.Finite,
+    includedFileCount: S.Finite,
     limitedByMaxFiles: S.Boolean,
-    sizeExcludedFileCount: S.Number.pipe(
+    sizeExcludedFileCount: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultKey(Effect.succeed(0))
     ),
@@ -173,11 +178,11 @@ export class AiMetricsForwarderOtlpExported extends S.Class<AiMetricsForwarderOt
   {
     endpointTraceUrl: S.String,
     ingestRunId: S.String,
-    sessionSpanCount: S.Number,
-    spanCount: S.Number,
+    sessionSpanCount: S.Finite,
+    spanCount: S.Finite,
     status: S.Literal("exported"),
     target: AiMetricsDeployTarget,
-    turnSpanCount: S.Number,
+    turnSpanCount: S.Finite,
   },
   $I.annote("AiMetricsForwarderOtlpExported", {
     description: "Safe counts recorded when a forwarder run also exports derived AI metrics spans through OTLP.",
@@ -257,21 +262,22 @@ export type AiMetricsForwarderOtlpExport = typeof AiMetricsForwarderOtlpExport.T
  */
 export class AiMetricsForwarderRunResult extends S.Class<AiMetricsForwarderRunResult>($I`AiMetricsForwarderRunResult`)(
   {
-    archiveObjectCount: S.Number,
+    archiveObjectCount: S.Finite,
     configSnapshotId: S.String,
     duckDbPath: S.String,
     ingestRunId: S.String,
     otlpExport: S.optionalKey(AiMetricsForwarderOtlpExport),
-    parquetExportDir: S.String,
+    parquetExportDir: S.optionalKey(S.String),
+    parquetExportMode: AiMetricsParquetExportMode,
     parquetTables: S.Array(S.String),
     rawArchiveDir: S.String,
     sourceCoverage: S.Array(AiMetricsForwarderSourceCoverage).pipe(
       S.withConstructorDefault(Effect.succeed([])),
       S.withDecodingDefaultKey(Effect.succeed([]))
     ),
-    sourceFileCount: S.Number,
+    sourceFileCount: S.Finite,
     target: AiMetricsDeployTarget,
-    turnCount: S.Number,
+    turnCount: S.Finite,
   },
   $I.annote("AiMetricsForwarderRunResult", {
     description: "Safe counts and storage paths returned by one durable AI metrics forwarder run.",
@@ -295,7 +301,7 @@ export class AiMetricsForwarderTimerInput extends S.Class<AiMetricsForwarderTime
   {
     command: AiMetricsForwarderTimerCommand,
     hashSaltSecretRef: S.optionalKey(S.String),
-    intervalMinutes: S.Number.pipe(
+    intervalMinutes: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(30)),
       S.withDecodingDefaultKey(Effect.succeed(30))
     ),
@@ -786,6 +792,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       AiMetricsDerivedStorageWriteInput.make({
         configSnapshot: configSnapshot.snapshot,
         ingestRunId,
+        parquetExportMode: input.parquetExportMode,
         records,
         repoRootHash,
         startedAtEpochMillis,
@@ -803,7 +810,8 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       configSnapshotId: configSnapshot.snapshot.snapshotId,
       duckDbPath: derived.duckDbPath,
       ingestRunId: derived.ingestRunId,
-      parquetExportDir: derived.parquetExportDir,
+      ...O.getSomesStruct({ parquetExportDir: O.fromUndefinedOr(derived.parquetExportDir) }),
+      parquetExportMode: derived.parquetExportMode,
       parquetTables: derived.parquetTables,
       rawArchiveDir: installSpec.storage.rawArchiveDir,
       sourceCoverage: sourceSelection.coverage,
@@ -818,6 +826,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
         attributes: {
           "ai_metrics.include_all": input.includeAll,
           "ai_metrics.max_files": input.maxFiles,
+          "ai_metrics.parquet_export_mode": input.parquetExportMode,
           "ai_metrics.target": input.target,
         },
       })
@@ -839,6 +848,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
  *   duckDbPath: ".ai-metrics/derived/ai-metrics.duckdb",
  *   ingestRunId: "forwarder-1",
  *   parquetExportDir: ".ai-metrics/derived/parquet/forwarder-1",
+ *   parquetExportMode: "snapshot",
  *   parquetTables: [],
  *   rawArchiveDir: ".ai-metrics/raw",
  *   sourceFileCount: 0,

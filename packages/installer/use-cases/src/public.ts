@@ -233,7 +233,7 @@ export class SecretReferenceValidationResult extends S.Class<SecretReferenceVali
   $I`SecretReferenceValidationResult`
 )(
   {
-    byteLength: S.optionalKey(S.Number),
+    byteLength: S.optionalKey(S.Finite),
     message: S.NonEmptyString,
     purpose: SecretReferencePurpose,
     reference: OnePasswordReference,

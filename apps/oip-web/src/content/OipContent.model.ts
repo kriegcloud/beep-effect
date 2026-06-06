@@ -206,9 +206,9 @@ export class SiteAsset extends S.Class<SiteAsset>($I`SiteAsset`)(
   {
     alt: S.String,
     credit: S.optionalKey(S.String),
-    height: S.optionalKey(S.Number),
+    height: S.optionalKey(S.Finite),
     src: S.String,
-    width: S.optionalKey(S.Number),
+    width: S.optionalKey(S.Finite),
   },
   $I.annote("SiteAsset", {
     description: "Runtime asset reference served by the OIP website.",

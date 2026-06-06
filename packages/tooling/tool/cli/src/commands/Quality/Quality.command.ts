@@ -23,6 +23,7 @@ import { GITHUB_CHECK_MODE_VALUES, GithubCheckMode as GithubCheckModeSchema } fr
 import { runChangesetGraphCheck } from "./ChangesetGraph.js";
 import { configStringEqualsSync } from "./internal/Config.js";
 import { writeJSDocDocumentationInventory } from "./internal/JSDocDocumentationInventory.js";
+import { runPackageVerifyCli } from "./internal/PackageVerify.js";
 import { repoRelative } from "./internal/QualityArtifactSupport.js";
 import { writeOrCheckRepoExportsCatalog } from "./internal/RepoExportsCatalog.js";
 import { QualityScriptCommandError } from "./Quality.errors.js";
@@ -1633,6 +1634,8 @@ const runQualityProgram = <A, R>(
   effect: Effect.Effect<A, QualityScriptCommandError, R>
 ): Effect.Effect<void, QualityScriptCommandError, R> => effect.pipe(Effect.asVoid);
 
+const variadicStrings = (values: ReadonlyArray<unknown>): ReadonlyArray<string> => pipe(values, A.filter(P.isString));
+
 const githubChecksCommand = Command.make(
   "github-checks",
   {
@@ -1694,6 +1697,19 @@ const repoExportsCatalogCommand = Command.make(
   ({ check }) => runQualityProgram(runRepoExportsCatalog(check))
 ).pipe(Command.withDescription("Generate or check the tracked repo export catalog"));
 
+const packageVerifyCommand = Command.make(
+  "package-verify",
+  {
+    packageArgs: Argument.string("package").pipe(
+      Argument.variadic,
+      Argument.withDescription("Optional workspace package name to verify")
+    ),
+    quick: Flag.boolean("quick").pipe(Flag.withDescription("Run lint and check only")),
+  },
+  ({ packageArgs, quick }) =>
+    runQualityProgram(runPackageVerifyCli({ packageArgs: variadicStrings(packageArgs), quick }))
+).pipe(Command.withDescription("Run package-local lint/check/test verification"));
+
 const changesetGraphCommand = Command.make("changeset-graph", {}, () =>
   runQualityProgram(
     findRepoRoot().pipe(
@@ -1736,6 +1752,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality jsdoc-inventory",
     "- bun run beep quality jsdoc-quality",
     "- bun run beep quality repo-exports-catalog",
+    "- bun run beep quality package-verify @beep/repo-cli",
     "- bun run beep quality changeset-graph",
   ])
 ).pipe(
@@ -1751,6 +1768,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     jsdocInventoryCommand,
     jsdocQualityCommand,
     repoExportsCatalogCommand,
+    packageVerifyCommand,
     changesetGraphCommand,
   ])
 );

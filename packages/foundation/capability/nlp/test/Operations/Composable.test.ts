@@ -14,15 +14,15 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as S from "effect/Schema";
 
-const len = Composable.makeOperation("len", S.String, S.Number, (s) => Effect.succeed(s.length));
-const inc = Composable.makeOperation("inc", S.Number, S.Number, (n) => Effect.succeed(n + 1));
-const dbl = Composable.makeOperation("dbl", S.Number, S.Number, (n) => Effect.succeed(n * 2));
+const len = Composable.makeOperation("len", S.String, S.Finite, (s) => Effect.succeed(s.length));
+const inc = Composable.makeOperation("inc", S.Finite, S.Finite, (n) => Effect.succeed(n + 1));
+const dbl = Composable.makeOperation("dbl", S.Finite, S.Finite, (n) => Effect.succeed(n * 2));
 
 describe("Functor laws", () => {
   it.effect(
     "identity: map(id) = id",
     Effect.fnUntraced(function* () {
-      const mapped = yield* len.map((n) => n, S.Number).run("hello");
+      const mapped = yield* len.map((n) => n, S.Finite).run("hello");
       const direct = yield* len.run("hello");
       expect(mapped).toBe(direct);
     })
@@ -33,8 +33,8 @@ describe("Functor laws", () => {
     Effect.fnUntraced(function* () {
       const f = (n: number) => n + 1;
       const g = (n: number) => n * 3;
-      const composed = yield* len.map((n) => g(f(n)), S.Number).run("abcd");
-      const sequential = yield* len.map(f, S.Number).map(g, S.Number).run("abcd");
+      const composed = yield* len.map((n) => g(f(n)), S.Finite).run("abcd");
+      const sequential = yield* len.map(f, S.Finite).map(g, S.Finite).run("abcd");
       expect(composed).toBe(sequential);
     })
   );
@@ -42,10 +42,10 @@ describe("Functor laws", () => {
   it.effect(
     "dual helper supports data-first and pipe-friendly data-last map",
     Effect.fnUntraced(function* () {
-      const dataFirst = Composable.map(len, (n) => n + 1, S.Number);
+      const dataFirst = Composable.map(len, (n) => n + 1, S.Finite);
       const dataLast = pipe(
         len,
-        Composable.map((n) => n * 2, S.Number)
+        Composable.map((n) => n * 2, S.Finite)
       );
 
       expect(yield* dataFirst.run("abc")).toBe(4);
@@ -67,7 +67,7 @@ describe("Monad laws", () => {
   it.effect(
     "right identity: m.flatMap(pure) = m",
     Effect.fnUntraced(function* () {
-      const idOp = Composable.identity(S.Number);
+      const idOp = Composable.identity(S.Finite);
       const viaFlatMap = yield* len.flatMap(idOp).run("hello");
       const direct = yield* len.run("hello");
       expect(viaFlatMap).toBe(direct);
@@ -88,9 +88,9 @@ describe("Applicative", () => {
   it.effect(
     "product runs both operations on the same input",
     Effect.fnUntraced(function* () {
-      const lenA = Composable.makeOperation("lenA", S.String, S.Number, (s) => Effect.succeed(s.length));
-      const lenB = Composable.makeOperation("lenB", S.String, S.Number, (s) => Effect.succeed(s.length * 10));
-      const paired = lenA.product(lenB, S.Tuple([S.Number, S.Number]));
+      const lenA = Composable.makeOperation("lenA", S.String, S.Finite, (s) => Effect.succeed(s.length));
+      const lenB = Composable.makeOperation("lenB", S.String, S.Finite, (s) => Effect.succeed(s.length * 10));
+      const paired = lenA.product(lenB, S.Tuple([S.Finite, S.Finite]));
       const [a, b] = yield* paired.run("abc");
       expect(a).toBe(3);
       expect(b).toBe(30);
@@ -101,9 +101,9 @@ describe("Applicative", () => {
   it.effect(
     "dual helper supports data-first and pipe-friendly data-last product",
     Effect.fnUntraced(function* () {
-      const lenA = Composable.makeOperation("lenA", S.String, S.Number, (s) => Effect.succeed(s.length));
-      const lenB = Composable.makeOperation("lenB", S.String, S.Number, (s) => Effect.succeed(s.length * 10));
-      const outputSchema = S.Tuple([S.Number, S.Number]);
+      const lenA = Composable.makeOperation("lenA", S.String, S.Finite, (s) => Effect.succeed(s.length));
+      const lenB = Composable.makeOperation("lenB", S.String, S.Finite, (s) => Effect.succeed(s.length * 10));
+      const outputSchema = S.Tuple([S.Finite, S.Finite]);
 
       const dataFirst = Composable.product(lenA, lenB, outputSchema);
       const dataLast = pipe(lenA, Composable.product(lenB, outputSchema));
@@ -116,9 +116,9 @@ describe("Applicative", () => {
   it.effect(
     "zipWith combines both results with a function",
     Effect.fnUntraced(function* () {
-      const lenA = Composable.makeOperation("lenA", S.String, S.Number, (s) => Effect.succeed(s.length));
-      const lenB = Composable.makeOperation("lenB", S.String, S.Number, (s) => Effect.succeed(s.length * 10));
-      const summed = lenA.zipWith(lenB, (a, b) => a + b, S.Number);
+      const lenA = Composable.makeOperation("lenA", S.String, S.Finite, (s) => Effect.succeed(s.length));
+      const lenB = Composable.makeOperation("lenB", S.String, S.Finite, (s) => Effect.succeed(s.length * 10));
+      const summed = lenA.zipWith(lenB, (a, b) => a + b, S.Finite);
       expect(yield* summed.run("abc")).toBe(33);
     })
   );
@@ -126,13 +126,13 @@ describe("Applicative", () => {
   it.effect(
     "dual helper supports data-first and pipe-friendly data-last zipWith",
     Effect.fnUntraced(function* () {
-      const lenA = Composable.makeOperation("lenA", S.String, S.Number, (s) => Effect.succeed(s.length));
-      const lenB = Composable.makeOperation("lenB", S.String, S.Number, (s) => Effect.succeed(s.length * 10));
+      const lenA = Composable.makeOperation("lenA", S.String, S.Finite, (s) => Effect.succeed(s.length));
+      const lenB = Composable.makeOperation("lenB", S.String, S.Finite, (s) => Effect.succeed(s.length * 10));
 
-      const dataFirst = Composable.zipWith(lenA, lenB, (a, b) => a + b, S.Number);
+      const dataFirst = Composable.zipWith(lenA, lenB, (a, b) => a + b, S.Finite);
       const dataLast = pipe(
         lenA,
-        Composable.zipWith(lenB, (a, b) => a + b, S.Number)
+        Composable.zipWith(lenB, (a, b) => a + b, S.Finite)
       );
 
       expect(yield* dataFirst.run("abc")).toBe(33);

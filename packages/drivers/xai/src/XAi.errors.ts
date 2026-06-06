@@ -89,7 +89,7 @@ export class XAiError extends TaggedErrorClass<XAiError>($I`XAiError`)(
     methodName: S.optionalKey(XAiEndpointMethodName),
     path: S.optionalKey(S.String),
     reason: XAiErrorReason,
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
   },
   $I.annote("XAiError", {
     description: "Redacted technical failure raised by the xAI driver boundary.",
@@ -207,7 +207,7 @@ const causeFromUnknown = (cause: unknown): O.Option<string> =>
 export class XAiErrorOptions extends S.Class<XAiErrorOptions>($I`XAiErrorOptions`)(
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
   },
   $I.annote("XAiErrorOptions", {
     description: "Options for configuring XAiError instances, including optional redacted cause and status fields.",

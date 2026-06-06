@@ -25,7 +25,7 @@ class StemParameters extends S.Class<StemParameters>($I`StemParameters`)(
 ) {}
 
 const StemSuccess = S.Struct({
-  count: S.Number,
+  count: S.Finite,
   stems: S.Array(S.String),
 }).pipe(
   $I.annoteSchema("StemSuccess", {

@@ -9,7 +9,7 @@ const $I = $SchemaId.create("toml_test");
 class TomlDatabase extends S.Class<TomlDatabase>($I`TomlDatabase`)(
   {
     host: S.String,
-    port: S.Number,
+    port: S.Finite,
   },
   $I.annote("TomlDatabase", {
     description: "Nested TOML database configuration fixture used in schema tests.",

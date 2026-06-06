@@ -151,13 +151,13 @@ export class RepoExportsCatalogSource extends S.Class<RepoExportsCatalogSource>(
  */
 export class RepoExportsCatalogTotals extends S.Class<RepoExportsCatalogTotals>($I`RepoExportsCatalogTotals`)(
   {
-    packages: S.Number,
-    packagesWithPublicExports: S.Number,
-    packagesWithoutPublicExports: S.Number,
-    missingWorkspaceMetadata: S.Number,
-    importSpecifiers: S.Number,
-    publicExportEntries: S.Number,
-    uniquePackageSymbols: S.Number,
+    packages: S.Finite,
+    packagesWithPublicExports: S.Finite,
+    packagesWithoutPublicExports: S.Finite,
+    missingWorkspaceMetadata: S.Finite,
+    importSpecifiers: S.Finite,
+    publicExportEntries: S.Finite,
+    uniquePackageSymbols: S.Finite,
   },
   $I.annote("RepoExportsCatalogTotals", {
     description: "Aggregate counts recorded by the generated repo export catalog.",
@@ -184,9 +184,9 @@ export class RepoExportsCatalogPackageCounts extends S.Class<RepoExportsCatalogP
   $I`RepoExportsCatalogPackageCounts`
 )(
   {
-    publicExportEntries: S.Number,
-    uniqueSymbols: S.Number,
-    sourceFiles: S.Number,
+    publicExportEntries: S.Finite,
+    uniqueSymbols: S.Finite,
+    sourceFiles: S.Finite,
   },
   $I.annote("RepoExportsCatalogPackageCounts", {
     description: "Per-package export counts recorded by the generated repo export catalog.",
@@ -225,14 +225,14 @@ export class RepoExportsCatalogEntry extends S.Class<RepoExportsCatalogEntry>($I
   {
     packageName: S.String,
     packagePath: S.String,
-    topoOrder: S.Number,
+    topoOrder: S.Finite,
     importSpecifier: S.String,
     exportSubpath: S.String,
     exportedFromPath: S.String,
     symbolName: S.String,
     exportKind: S.String,
     sourcePath: S.String,
-    sourceLine: S.Number,
+    sourceLine: S.Finite,
     summary: S.String,
     categories: S.Array(S.String),
     since: S.Array(S.String),
@@ -273,7 +273,7 @@ export class RepoExportsCatalogPackage extends S.Class<RepoExportsCatalogPackage
   {
     packageName: S.String,
     packagePath: S.String,
-    topoOrder: S.Number,
+    topoOrder: S.Finite,
     status: S.String,
     importSpecifiers: S.Array(S.String),
     counts: RepoExportsCatalogPackageCounts,

@@ -93,7 +93,7 @@ export class CanonicalizeDatasetRequest extends S.Class<CanonicalizeDatasetReque
   {
     dataset: Dataset,
     algorithm: CanonicalizationAlgorithm,
-    workLimit: S.OptionFromOptionalKey(S.Number),
+    workLimit: S.OptionFromOptionalKey(S.Finite),
   },
   $I.annote("CanonicalizeDatasetRequest", {
     description: "Dataset canonicalization request.",
@@ -121,7 +121,7 @@ export class FingerprintDatasetRequest extends S.Class<FingerprintDatasetRequest
   {
     dataset: Dataset,
     algorithm: CanonicalizationAlgorithm,
-    workLimit: S.OptionFromOptionalKey(S.Number),
+    workLimit: S.OptionFromOptionalKey(S.Finite),
   },
   $I.annote("FingerprintDatasetRequest", {
     description: "Dataset fingerprint request.",

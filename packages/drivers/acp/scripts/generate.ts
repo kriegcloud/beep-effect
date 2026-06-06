@@ -75,8 +75,8 @@ class SchemaEntry extends S.Class<SchemaEntry>($I`SchemaEntry`)(
 ) {}
 class TextReplacement extends S.Class<TextReplacement>($I`TextReplacement`)(
   {
-    end: S.Number,
-    start: S.Number,
+    end: S.Finite,
+    start: S.Finite,
     text: S.String,
   },
   $I.annote("TextReplacement", {
@@ -98,7 +98,7 @@ class MetaJson extends S.Class<MetaJson>($I`MetaJson`)(
   {
     agentMethods: S.Record(S.String, S.String),
     clientMethods: S.Record(S.String, S.String),
-    version: S.Union([S.Number, S.String]),
+    version: S.Union([S.Finite, S.String]),
   },
   $I.annote("MetaJson", {
     description: "ACP upstream metadata JSON downloaded by the generator.",

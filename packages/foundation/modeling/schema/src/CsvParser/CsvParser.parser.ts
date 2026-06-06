@@ -109,7 +109,7 @@ const getQuotedFieldStart = (input: string, cursor: number, parserOptions: Parse
  */
 export class ParsedField extends S.Class<ParsedField>($I`ParsedField`)(
   {
-    cursor: S.Number,
+    cursor: S.Finite,
     value: S.String,
   },
   $I.annote("ParsedField", {
@@ -264,7 +264,7 @@ const parseField = (
  */
 export class ParsedRow extends S.Class<ParsedRow>($I`ParsedRow`)(
   {
-    cursor: S.Number,
+    cursor: S.Finite,
     row: S.Array(S.String),
   },
   $I.annote("ParsedRow", {

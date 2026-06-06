@@ -6,6 +6,7 @@ import {
   gitPathListFromNulOutputForTesting,
   jsonObjectTextFromMixedOutputForTesting,
   publishPathsOutsideIntentForTesting,
+  publishRestagePathsForTesting,
   qualityIssuesFromStepResult,
   RepoPlanStep,
   RepoRunContext,
@@ -190,13 +191,14 @@ describe("yeet planner", () => {
       )
     ).toEqual([
       "prepare:lint:fix",
-      "prepare:docgen:local",
+      "prepare:docgen",
       "prepare:repo-exports:catalog",
       "feedback:build",
       "feedback:check",
       "feedback:lint",
       "feedback:test",
     ]);
+    expect(findStep(plan.steps, "prepare:docgen").args).toEqual(["run", "docgen"]);
     expect(findStep(plan.steps, "prepare:repo-exports:catalog").args).toEqual(["run", "repo-exports:catalog"]);
   });
 
@@ -226,6 +228,7 @@ describe("yeet planner", () => {
       "--",
       "--filter=@beep/repo-cli",
       "--filter=@beep/schema",
+      "--concurrency=3",
       "--continue=dependencies-successful",
       "--summarize",
       "--ui=stream",
@@ -239,29 +242,19 @@ describe("yeet planner", () => {
       "--unit",
       "--types",
       "--filter=@beep/repo-cli",
+      "--concurrency=3",
       "--continue=dependencies-successful",
       "--summarize",
       "--ui=stream",
     ]);
   });
 
-  it("uses Turbo SCM environment for write-mode affected prepare steps", () => {
+  it("uses changed-file lint fix for write-mode repair", () => {
     const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "repair" });
     const step = findStep(plan.steps, "prepare:lint:fix");
 
-    expect(step.args).toEqual([
-      "run",
-      "lint:fix",
-      "--",
-      "--affected",
-      "--continue=dependencies-successful",
-      "--summarize",
-      "--ui=stream",
-    ]);
-    expect(step.env).toEqual({
-      TURBO_SCM_BASE: "origin/main",
-      TURBO_SCM_HEAD: "feature/head",
-    });
+    expect(step.args).toEqual(["run", "lint:fix"]);
+    expect(step.env).toBeUndefined();
   });
 
   it("omits feedback steps whose task has no affected packages", () => {
@@ -304,6 +297,15 @@ describe("yeet planner", () => {
     expect(publishPathsOutsideIntentForTesting(["src/a.ts", "src/z.ts"], ["src/a.ts", "secrets/local.env"])).toEqual([
       "secrets/local.env",
     ]);
+  });
+
+  it("omits reviewed deletion paths from publish restaging", () => {
+    expect(
+      publishRestagePathsForTesting(
+        ["scripts/removed.ts", "src/changed.ts", "src/new.ts"],
+        ["src/changed.ts", "src/new.ts"]
+      )
+    ).toEqual(["src/changed.ts", "src/new.ts"]);
   });
 
   it("decodes Turbo affected query JSON into plan task metadata", () => {

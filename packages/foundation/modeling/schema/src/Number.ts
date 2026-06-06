@@ -18,7 +18,7 @@ const $I = $SchemaId.create("NumberChecks");
  * import * as S from "effect/Schema"
  * import { isPositive } from "@beep/schema/Number"
  *
- * const PosNum = S.Number.check(isPositive)
+ * const PosNum = S.Finite.check(isPositive)
  * const value = S.decodeUnknownSync(PosNum)(5)
  * console.log(value) // 5
  * ```
@@ -80,7 +80,7 @@ export const isPostgresSerialInt = S.makeFilterGroup(
  * import * as S from "effect/Schema"
  * import { isNonNegative } from "@beep/schema/Number"
  *
- * const NonNeg = S.Number.check(isNonNegative)
+ * const NonNeg = S.Finite.check(isNonNegative)
  * S.decodeUnknownSync(NonNeg)(0)
  * S.decodeUnknownSync(NonNeg)(42)
  * ```
@@ -98,7 +98,7 @@ export const isNonNegative = S.isGreaterThanOrEqualTo(0);
  * import * as S from "effect/Schema"
  * import { isNegative } from "@beep/schema/Number"
  *
- * const NegNum = S.Number.check(isNegative)
+ * const NegNum = S.Finite.check(isNegative)
  * const value = S.decodeUnknownSync(NegNum)(-1)
  * console.log(value) // -1
  * ```
@@ -116,7 +116,7 @@ export const isNegative = S.isLessThan(0);
  * import * as S from "effect/Schema"
  * import { isNonPositive } from "@beep/schema/Number"
  *
- * const NonPos = S.Number.check(isNonPositive)
+ * const NonPos = S.Finite.check(isNonPositive)
  * S.decodeUnknownSync(NonPos)(0)
  * S.decodeUnknownSync(NonPos)(-10)
  * ```
@@ -141,7 +141,7 @@ export const isNonPositive = S.isLessThanOrEqualTo(0);
  * @since 0.0.0
  * @category validation
  */
-export const NonNegNum = S.Number.check(isNonNegative).pipe(
+export const NonNegNum = S.Finite.check(isNonNegative).pipe(
   $I.annoteSchema("NonNegNum", {
     description: "A non-negative number (zero or greater)",
   })

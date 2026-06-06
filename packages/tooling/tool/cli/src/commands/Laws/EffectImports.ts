@@ -59,9 +59,9 @@ export class EffectImportRulesOptions extends S.Class<EffectImportRulesOptions>(
  */
 export class EffectImportRulesSummary extends S.Class<EffectImportRulesSummary>($I`EffectImportRulesSummary`)(
   {
-    touchedFiles: S.Number,
-    aliasRenamed: S.Number,
-    stableConverted: S.Number,
+    touchedFiles: S.Finite,
+    aliasRenamed: S.Finite,
+    stableConverted: S.Finite,
     strictFailure: S.Boolean,
     changedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),

@@ -366,6 +366,8 @@ describe("ai-metrics command", () => {
           expect(output).toContain("8388608");
           expect(output).toContain("--max-files");
           expect(output).toContain("5");
+          expect(output).toContain("--parquet-mode");
+          expect(output).toContain("none");
           expect(output).toContain("OnUnitInactiveSec=30m");
           expect(output).toContain("pins the Bun executable path");
           expect(output).toContain(process.execPath);
@@ -737,6 +739,71 @@ describe("ai-metrics command", () => {
           expect(output).not.toContain("private-forwarder-secret");
           expect(output).not.toContain(rawArchiveKey);
         })
+      )
+    ));
+
+  it("emits retention enforcement summary for forwarder run JSON", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(13)),
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const fs = yield* FileSystem.FileSystem;
+            const homeDir = path.join(tmpDir, "home");
+            const repoRoot = path.join(tmpDir, "repo");
+            const dataRoot = path.join(tmpDir, "metrics");
+
+            yield* writeText(
+              path.join(homeDir, ".codex/sessions/codex-session.jsonl"),
+              A.join(
+                [
+                  '{"type":"session_meta","timestamp":"2026-05-05T10:00:00Z"}',
+                  '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z","payload":{"message":"private-forwarder-retention-secret"}}',
+                ],
+                "\n"
+              )
+            );
+            yield* writeText(path.join(repoRoot, "AGENTS.md"), "root guide\n");
+
+            yield* runAiMetricsCommand([
+              "forwarder",
+              "run",
+              "--repo-root",
+              repoRoot,
+              "--home-dir",
+              homeDir,
+              "--data-root",
+              dataRoot,
+              "--all",
+              "--hash-salt",
+              "test-salt",
+              "--retention-enforce",
+              "--max-snapshot-exports",
+              "0",
+              "--json",
+            ]);
+
+            const output = yield* lastLoggedLine();
+            const json = yield* decodeUnknownJson(output);
+            expect(json).toEqual(
+              expect.objectContaining({
+                retentionEnforcement: expect.objectContaining({
+                  deletedDerivedExportCount: 1,
+                  dryRun: false,
+                  keptDerivedExportCount: 0,
+                  maxSnapshotExports: 0,
+                }),
+              })
+            );
+            expect(output).not.toContain("private-forwarder-retention-secret");
+            expect(
+              (yield* fs.readDirectory(path.join(dataRoot, "derived/parquet"))).filter((entry) =>
+                entry.startsWith("forwarder-")
+              )
+            ).toEqual([]);
+          })
+        )
       )
     ));
 
@@ -1449,6 +1516,68 @@ describe("ai-metrics command", () => {
                 dryRun: true,
                 mode: "delete",
               })
+            );
+          })
+        )
+      )
+    ));
+
+  it("enforces preventive Parquet snapshot retention only after confirmation", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        withRawArchiveKeyEnv(
+          Encoding.encodeBase64(new Uint8Array(32).fill(12)),
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const fs = yield* FileSystem.FileSystem;
+            const { dataRoot } = yield* seedAiMetricsData(tmpDir);
+            const parquetRoot = path.join(dataRoot, "derived/parquet");
+            yield* writeText(path.join(parquetRoot, "latest/ai_metrics_turns.parquet"), "latest\n");
+
+            yield* runAiMetricsCommand([
+              "retention",
+              "enforce",
+              "--data-root",
+              dataRoot,
+              "--max-snapshot-exports",
+              "0",
+              "--json",
+            ]);
+
+            const dryRunJson = yield* decodeUnknownJson(yield* lastLoggedLine());
+            expect(dryRunJson).toEqual(
+              expect.objectContaining({
+                deletedDerivedExportCount: 1,
+                dryRun: true,
+              })
+            );
+            expect(yield* fs.exists(path.join(parquetRoot, "latest"))).toBe(true);
+            expect(
+              (yield* fs.readDirectory(parquetRoot)).filter((entry) => entry.startsWith("forwarder-"))
+            ).toHaveLength(1);
+
+            yield* runAiMetricsCommand([
+              "retention",
+              "enforce",
+              "--data-root",
+              dataRoot,
+              "--max-snapshot-exports",
+              "0",
+              "--confirm",
+              "p7-retention-window",
+              "--json",
+            ]);
+
+            const appliedJson = yield* decodeUnknownJson(yield* lastLoggedLine());
+            expect(appliedJson).toEqual(
+              expect.objectContaining({
+                deletedDerivedExportCount: 1,
+                dryRun: false,
+              })
+            );
+            expect(yield* fs.exists(path.join(parquetRoot, "latest"))).toBe(true);
+            expect((yield* fs.readDirectory(parquetRoot)).filter((entry) => entry.startsWith("forwarder-"))).toEqual(
+              []
             );
           })
         )

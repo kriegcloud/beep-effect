@@ -29,7 +29,7 @@ const $I = $SchemaId.create("Percentage");
  * @category models
  * @since 0.0.0
  */
-export const Percentage = S.Number.check(
+export const Percentage = S.Finite.check(
   S.makeFilterGroup([S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(100)])
 ).pipe(
   S.brand("Percentage"),

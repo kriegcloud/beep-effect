@@ -43,6 +43,9 @@ dedup
 affordances
 notif
 squircle
+SKOS
+Skos
+skos
 todox
 tmpfs
 unhover
@@ -60,3 +63,4 @@ unticking
 USPTO
 vsearch
 yeet
+muda

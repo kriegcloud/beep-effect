@@ -62,9 +62,9 @@ class LearnCustomEntitiesParameters extends S.Class<LearnCustomEntitiesParameter
 const LearnCustomEntitiesSuccess = S.Struct({
   entityNames: S.Array(S.String),
   groupName: S.String,
-  learnedEntityCount: S.Number,
+  learnedEntityCount: S.Finite,
   mode: LearnCustomEntitiesMode,
-  totalEntityCount: S.Number,
+  totalEntityCount: S.Finite,
 }).pipe(
   $I.annoteSchema("LearnCustomEntitiesSuccess", {
     description: "Learning result summary for custom entity definitions.",

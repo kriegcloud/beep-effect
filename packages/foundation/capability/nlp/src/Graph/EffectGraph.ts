@@ -144,9 +144,9 @@ export class NodeNotFoundError extends TaggedErrorClass<NodeNotFoundError>($I`No
  */
 export class NodeMetadata extends S.Class<NodeMetadata>($I`NodeMetadata`)(
   {
-    depth: S.Number,
+    depth: S.Finite,
     operation: S.Option(S.String),
-    timestamp: S.Number,
+    timestamp: S.Finite,
   },
   $I.annote("NodeMetadata", {
     description: "Metadata associated with each graph node, tracking traversal depth, operation, and timestamp.",

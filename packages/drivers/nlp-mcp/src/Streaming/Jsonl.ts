@@ -43,7 +43,7 @@ export class JsonlLineError extends S.Class<JsonlLineError>($I`JsonlLineError`)(
     error: S.String.annotateKey({
       description: "Parser error message (the original line text is never included).",
     }),
-    lineNumber: S.Number.annotateKey({
+    lineNumber: S.Finite.annotateKey({
       description: "Zero-based index of the offending line within the file.",
     }),
   },
@@ -69,15 +69,15 @@ export class JsonlLineError extends S.Class<JsonlLineError>($I`JsonlLineError`)(
 export class JsonlStats extends S.Class<JsonlStats>($I`JsonlStats`)(
   {
     /** Number of lines that failed to parse. */
-    errorCount: S.Number.annotateKey({ description: "Number of lines that failed to parse." }),
+    errorCount: S.Finite.annotateKey({ description: "Number of lines that failed to parse." }),
     /** Reserved skipped-line count, always `0` because blanks are pre-filtered. */
-    skippedCount: S.Number.annotateKey({
+    skippedCount: S.Finite.annotateKey({
       description: "Reserved skipped-line count, always `0` because blanks are pre-filtered.",
     }),
     /** Number of lines that parsed successfully. */
-    successCount: S.Number.annotateKey({ description: "Number of lines that parsed successfully." }),
+    successCount: S.Finite.annotateKey({ description: "Number of lines that parsed successfully." }),
     /** Total number of non-empty lines examined. */
-    totalLines: S.Number.annotateKey({ description: "Total number of non-empty lines examined." }),
+    totalLines: S.Finite.annotateKey({ description: "Total number of non-empty lines examined." }),
   },
   $I.annote("JsonlStats", {
     description: "Aggregate parse statistics for a JSONL file.",

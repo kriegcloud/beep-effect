@@ -106,7 +106,7 @@ describe("Identity", () => {
     const Event = S.Union([
       S.Struct({
         kind: S.tag("close"),
-        code: S.Number,
+        code: S.Finite,
       }),
       S.Struct({
         kind: S.tag("message"),
@@ -151,7 +151,7 @@ describe("Identity", () => {
         messageMissingKey: "Field1 is required",
       })
     );
-    const strictNestedAnnotated = S.Number.pipe(
+    const strictNestedAnnotated = S.Finite.pipe(
       $SchemaId.annoteKey<MyClass>()("MyClass.nested.count", {
         default: 1,
       })
@@ -159,7 +159,7 @@ describe("Identity", () => {
 
     expect(ergonomicAnnotated).type.toBe<typeof S.String>();
     expect(strictAnnotated).type.toBe<typeof S.String>();
-    expect(strictNestedAnnotated).type.toBe<typeof S.Number>();
+    expect(strictNestedAnnotated).type.toBe<typeof S.Finite>();
 
     // @ts-expect-error!
     $SchemaId.annoteKey<MyClass>()("MyClass.missing", {

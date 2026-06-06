@@ -125,7 +125,7 @@ export class DocumentVector extends S.Class<DocumentVector>($I`DocumentVector`)(
   {
     documentId: DocumentId,
     terms: S.Array(S.String),
-    vector: S.Array(S.Number),
+    vector: S.Array(S.Finite),
   },
   $I.annote("DocumentVector", {
     description: "Dense vector representation for a document-like input.",
@@ -153,7 +153,7 @@ export class DocumentVector extends S.Class<DocumentVector>($I`DocumentVector`)(
  */
 export class BagOfWords extends S.Class<BagOfWords>($I`BagOfWords`)(
   {
-    bow: S.Record(S.String, S.Number),
+    bow: S.Record(S.String, S.Finite),
     documentId: DocumentId,
   },
   $I.annote("BagOfWords", {
@@ -181,7 +181,7 @@ export class BagOfWords extends S.Class<BagOfWords>($I`BagOfWords`)(
  */
 export class TermFrequency extends S.Class<TermFrequency>($I`TermFrequency`)(
   {
-    frequency: S.Number,
+    frequency: S.Finite,
     term: S.String,
   },
   $I.annote("TermFrequency", {

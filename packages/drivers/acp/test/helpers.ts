@@ -10,7 +10,7 @@ import type { ChildProcessSpawner } from "effect/unstable/process";
 
 const encoder = new TextEncoder();
 
-const JsonRpcId = S.Union([S.Number, S.String]);
+const JsonRpcId = S.Union([S.Finite, S.String]);
 const JsonRpcHeaders = S.Array(S.Unknown);
 
 export const jsonRpcRequest = <A, I>(method: string, params: S.Codec<A, I>) =>

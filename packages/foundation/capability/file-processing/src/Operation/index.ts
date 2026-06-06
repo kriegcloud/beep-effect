@@ -142,7 +142,7 @@ export class DetectFileOperation extends S.Class<DetectFileOperation>($I`DetectF
  */
 export class DetectionResult extends S.Class<DetectionResult>($I`DetectionResult`)(
   {
-    confidence: S.optionalKey(S.Number),
+    confidence: S.optionalKey(S.Finite),
     engine: S.String,
     format: FileFormatFamily,
     mediaType: S.optionalKey(MimeType),
@@ -170,7 +170,7 @@ export class DetectionResult extends S.Class<DetectionResult>($I`DetectionResult
 export class ExtractFileOperation extends S.Class<ExtractFileOperation>($I`ExtractFileOperation`)(
   {
     format: FileFormatFamily,
-    maxMaterializedBytes: S.optionalKey(S.Number),
+    maxMaterializedBytes: S.optionalKey(S.Finite),
     operationId: OperationId,
     operationKind: S.Literal("extract"),
     preference: StrategyPreference,
@@ -197,7 +197,7 @@ export class ExtractFileOperation extends S.Class<ExtractFileOperation>($I`Extra
 export class ExportArchiveOperation extends S.Class<ExportArchiveOperation>($I`ExportArchiveOperation`)(
   {
     format: FileFormatFamily,
-    maxMaterializedBytes: S.optionalKey(S.Number),
+    maxMaterializedBytes: S.optionalKey(S.Finite),
     operationId: OperationId,
     operationKind: S.Literal("export-archive"),
     preference: StrategyPreference,
@@ -224,7 +224,7 @@ export class ExportArchiveOperation extends S.Class<ExportArchiveOperation>($I`E
 export class ProcessFileOperation extends S.Class<ProcessFileOperation>($I`ProcessFileOperation`)(
   {
     exportChildren: S.Boolean,
-    maxMaterializedBytes: S.optionalKey(S.Number),
+    maxMaterializedBytes: S.optionalKey(S.Finite),
     operationId: OperationId,
     operationKind: S.Literal("process"),
     preference: StrategyPreference,

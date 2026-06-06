@@ -35,9 +35,11 @@ import {
   AiMetricsOtlpExportError,
   AiMetricsOtlpExportInput,
   AiMetricsOutcomeLabelInput,
+  AiMetricsParquetExportMode,
   AiMetricsPrivacyError,
   AiMetricsPrivacyMode,
   AiMetricsQualityGateStatus,
+  AiMetricsRetentionEnforcementPolicy,
   AiMetricsRetentionError,
   AiMetricsRetentionRestoreDrillInput,
   AiMetricsRetentionSelector,
@@ -57,6 +59,7 @@ import {
   aiMetricsLabelQueueToJson,
   aiMetricsMirrorBundleToJson,
   aiMetricsOutcomeLabelToJson,
+  aiMetricsRetentionEnforcementToJson,
   aiMetricsRetentionInventoryToJson,
   aiMetricsRetentionMutationToJson,
   aiMetricsRetentionRestoreDrillToJson,
@@ -65,7 +68,7 @@ import {
   configSnapshotToJson,
   decryptEncryptedRawArchiveEnvelope,
   discoverAiMetricsSources,
-  forwarderRunResultToJson,
+  enforceAiMetricsRetentionPolicy,
   forwarderTimerPlanToJson,
   generateAiMetricsWeeklyReport,
   hashPublicTextSha256,
@@ -126,6 +129,7 @@ import type {
   AiMetricsInstallDoctorResult,
   AiMetricsInstallPlan,
   AiMetricsOtlpExportResult,
+  AiMetricsRetentionEnforcementResult,
 } from "@beep/repo-ai-metrics";
 
 const $I = $RepoCliId.create("commands/AIMetrics/AIMetrics.command");
@@ -264,6 +268,29 @@ const timerMaxFilesFlag = Flag.integer("max-files").pipe(
 const timerMaxFileBytesFlag = Flag.integer("max-file-bytes").pipe(
   Flag.withDefault(8_388_608),
   Flag.withDescription("Maximum source-file byte size for each scheduled forwarder run")
+);
+const parquetExportModeFlag = Flag.choiceWithValue("parquet-mode", [
+  ["none", AiMetricsParquetExportMode.Enum.none],
+  ["latest", AiMetricsParquetExportMode.Enum.latest],
+  ["snapshot", AiMetricsParquetExportMode.Enum.snapshot],
+]).pipe(
+  Flag.withDefault(AiMetricsParquetExportMode.Enum.snapshot),
+  Flag.withDescription("Parquet export mode for this forwarder run")
+);
+const timerParquetExportModeFlag = Flag.choiceWithValue("parquet-mode", [
+  ["none", AiMetricsParquetExportMode.Enum.none],
+  ["latest", AiMetricsParquetExportMode.Enum.latest],
+  ["snapshot", AiMetricsParquetExportMode.Enum.snapshot],
+]).pipe(
+  Flag.withDefault(AiMetricsParquetExportMode.Enum.none),
+  Flag.withDescription("Parquet export mode embedded in the rendered forwarder timer command")
+);
+const retentionEnforceFlag = Flag.boolean("retention-enforce").pipe(
+  Flag.withDescription("Remove old per-run Parquet snapshots after a successful forwarder run")
+);
+const maxSnapshotExportsFlag = Flag.integer("max-snapshot-exports").pipe(
+  Flag.withDefault(0),
+  Flag.withDescription("Number of per-run Parquet snapshot exports to preserve during retention enforcement")
 );
 const hashSaltFlag = Flag.string("hash-salt").pipe(
   Flag.withDescription("Salt for hashing private paths and session identifiers"),
@@ -1209,7 +1236,8 @@ const forwarderRunResultWithOtlpExport = (
     duckDbPath: result.duckDbPath,
     ingestRunId: result.ingestRunId,
     otlpExport,
-    parquetExportDir: result.parquetExportDir,
+    ...O.getSomesStruct({ parquetExportDir: O.fromUndefinedOr(result.parquetExportDir) }),
+    parquetExportMode: result.parquetExportMode,
     parquetTables: result.parquetTables,
     rawArchiveDir: result.rawArchiveDir,
     sourceCoverage: result.sourceCoverage,
@@ -1217,6 +1245,28 @@ const forwarderRunResultWithOtlpExport = (
     target: result.target,
     turnCount: result.turnCount,
   });
+
+const forwarderRunCommandToJson = Effect.fn("AIMetrics.forwarderRunCommandToJson")(function* (
+  result: AiMetricsForwarderRunResult,
+  retentionEnforcement: O.Option<AiMetricsRetentionEnforcementResult>
+) {
+  return yield* encodeCommandJson({
+    archiveObjectCount: result.archiveObjectCount,
+    configSnapshotId: result.configSnapshotId,
+    duckDbPath: result.duckDbPath,
+    ingestRunId: result.ingestRunId,
+    ...O.getSomesStruct({ otlpExport: O.fromUndefinedOr(result.otlpExport) }),
+    ...O.getSomesStruct({ parquetExportDir: O.fromUndefinedOr(result.parquetExportDir) }),
+    parquetExportMode: result.parquetExportMode,
+    parquetTables: result.parquetTables,
+    rawArchiveDir: result.rawArchiveDir,
+    ...O.getSomesStruct({ retentionEnforcement }),
+    sourceCoverage: result.sourceCoverage,
+    sourceFileCount: result.sourceFileCount,
+    target: result.target,
+    turnCount: result.turnCount,
+  });
+});
 
 const forwarderOtlpExported = (result: AiMetricsOtlpExportResult): AiMetricsForwarderOtlpExported =>
   AiMetricsForwarderOtlpExported.make({
@@ -1295,8 +1345,11 @@ type MakeForwarderRunProgramOptions = {
   readonly openClawUnit: O.Option<string>;
   readonly otlp: boolean;
   readonly otlpBaseUrl: O.Option<string>;
+  readonly parquetExportMode: AiMetricsParquetExportMode;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly repoRoot: O.Option<string>;
+  readonly retentionEnforce: boolean;
+  readonly retentionMaxSnapshotExports: number;
   readonly since: O.Option<string>;
   readonly target: AiMetricsDeployTarget;
 };
@@ -1312,8 +1365,11 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
   openClawUnit,
   otlp,
   otlpBaseUrl,
+  parquetExportMode,
   rawArchiveKeySecretRef,
   repoRoot,
+  retentionEnforce,
+  retentionMaxSnapshotExports,
   since,
   target,
 }: MakeForwarderRunProgramOptions) {
@@ -1350,6 +1406,7 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
     ...(O.isSome(maxFileBytes) ? { maxFileBytes: maxFileBytes.value } : {}),
     maxFiles,
     ...(O.isSome(openClawUnit) ? { openClawUnitPath: openClawUnit.value } : {}),
+    parquetExportMode,
     rawArchiveKey: resolvedRawArchiveKey,
     repoRoot: yield* resolveRepoRoot(repoRoot),
     ...O.getSomesStruct({ sinceEpochMillis: O.fromUndefinedOr(sinceEpochMillis) }),
@@ -1392,9 +1449,20 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
 
     result = forwarderRunResultWithOtlpExport(forwarderResult, otlpExport);
   }
+  const retentionEnforcement = retentionEnforce
+    ? O.some(
+        yield* enforceAiMetricsRetentionPolicy(
+          AiMetricsRetentionEnforcementPolicy.make({
+            dataRoot: spec.storage.dataRoot,
+            dryRun: false,
+            maxSnapshotExports: retentionMaxSnapshotExports,
+          })
+        )
+      )
+    : O.none();
 
   if (json) {
-    yield* Console.log(yield* forwarderRunResultToJson(result));
+    yield* Console.log(yield* forwarderRunCommandToJson(result, retentionEnforcement));
     return;
   }
 
@@ -1410,9 +1478,17 @@ const makeForwarderRunProgram = Effect.fn("AIMetrics.makeForwarderRunProgram")(f
     );
   }
   const duckDbLocation = result.duckDbPath;
-  const parquetLocation = result.parquetExportDir;
   yield* Console.log(`derived duckdb: ${duckDbLocation}`);
-  yield* Console.log(`parquet export: ${parquetLocation}`);
+  yield* Console.log(`parquet mode: ${result.parquetExportMode}`);
+  const parquetLocation = O.fromUndefinedOr(result.parquetExportDir);
+  if (O.isSome(parquetLocation)) {
+    yield* Console.log(`parquet export: ${parquetLocation.value}`);
+  }
+  if (O.isSome(retentionEnforcement)) {
+    yield* Console.log(
+      `retention enforcement: deleted=${retentionEnforcement.value.deletedDerivedExportCount} kept=${retentionEnforcement.value.keptDerivedExportCount}`
+    );
+  }
   const otlpExport = O.fromNullishOr(result.otlpExport);
   if (O.isSome(otlpExport)) {
     yield* Console.log(`otlp export: ${otlpExport.value.status}`);
@@ -1433,8 +1509,11 @@ type MakeForwarderTimerProgramOptions = {
   readonly maxFileBytes: number;
   readonly maxFiles: number;
   readonly otlpBaseUrl: O.Option<string>;
+  readonly parquetExportMode: AiMetricsParquetExportMode;
   readonly rawArchiveKeySecretRef: O.Option<string>;
   readonly repoRoot: O.Option<string>;
+  readonly retentionEnforce: boolean;
+  readonly retentionMaxSnapshotExports: number;
   readonly target: AiMetricsDeployTarget;
 };
 const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram")(function* ({
@@ -1445,8 +1524,11 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
   maxFileBytes,
   maxFiles,
   otlpBaseUrl,
+  parquetExportMode,
   rawArchiveKeySecretRef,
   repoRoot,
+  retentionEnforce,
+  retentionMaxSnapshotExports,
   target,
 }: MakeForwarderTimerProgramOptions) {
   const resolvedDataRoot = p6aCollectorDataRoot(dataRoot, target);
@@ -1489,6 +1571,11 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
         `${maxFileBytes}`,
         "--max-files",
         `${maxFiles}`,
+        "--parquet-mode",
+        parquetExportMode,
+        ...(retentionEnforce
+          ? ["--retention-enforce", "--max-snapshot-exports", `${retentionMaxSnapshotExports}`]
+          : []),
         "--json",
       ],
       ...O.getSomesStruct({ hashSaltSecretRef: O.fromUndefinedOr(resolvedHashSaltSecretRef) }),
@@ -2385,6 +2472,44 @@ const makeRetentionMutationProgram = Effect.fn("AIMetrics.makeRetentionMutationP
   yield* Console.log(`reports: ${result.deletedReportCount}`);
 });
 
+const makeRetentionEnforceProgram = Effect.fn("AIMetrics.makeRetentionEnforceProgram")(function* ({
+  confirm,
+  dataRoot,
+  json,
+  maxSnapshotExports,
+}: {
+  readonly confirm: O.Option<string>;
+  readonly dataRoot: O.Option<string>;
+  readonly json: boolean;
+  readonly maxSnapshotExports: number;
+}) {
+  if (O.isSome(confirm) && confirm.value !== p7RetentionConfirmToken) {
+    return yield* AiMetricsCommandError.make({
+      cause: confirm.value,
+      message: `AI metrics retention confirmation must be "${p7RetentionConfirmToken}".`,
+    });
+  }
+
+  const result = yield* enforceAiMetricsRetentionPolicy(
+    AiMetricsRetentionEnforcementPolicy.make({
+      dataRoot: O.getOrElse(dataRoot, () => localCollectorDataRoot),
+      dryRun: O.isNone(confirm),
+      maxSnapshotExports,
+    })
+  );
+
+  if (json) {
+    yield* Console.log(yield* aiMetricsRetentionEnforcementToJson(result));
+    return;
+  }
+
+  yield* Console.log(`ai-metrics retention enforce: dry-run=${result.dryRun}`);
+  yield* Console.log(`confirm token: ${p7RetentionConfirmToken}`);
+  yield* Console.log(`max snapshot exports: ${result.maxSnapshotExports}`);
+  yield* Console.log(`deleted snapshot exports: ${result.deletedDerivedExportCount}`);
+  yield* Console.log(`kept snapshot exports: ${result.keptDerivedExportCount}`);
+});
+
 const makeRetentionRestoreDrillProgram = Effect.fn("AIMetrics.makeRetentionRestoreDrillProgram")(function* ({
   before,
   dataRoot,
@@ -2794,8 +2919,11 @@ const forwarderRunCommand = Command.make(
     openClawUnit: openClawUnitFlag,
     otlp: otlpFlag,
     otlpBaseUrl: otlpBaseUrlFlag,
+    parquetExportMode: parquetExportModeFlag,
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     repoRoot: repoRootFlag,
+    retentionEnforce: retentionEnforceFlag,
+    retentionMaxSnapshotExports: maxSnapshotExportsFlag,
     since: sinceFlag,
     target: targetFlag,
   },
@@ -2811,8 +2939,11 @@ const forwarderRunCommand = Command.make(
     openClawUnit,
     otlp,
     otlpBaseUrl,
+    parquetExportMode,
     rawArchiveKeySecretRef,
     repoRoot,
+    retentionEnforce,
+    retentionMaxSnapshotExports,
     since,
     target,
   }) =>
@@ -2829,8 +2960,11 @@ const forwarderRunCommand = Command.make(
         openClawUnit,
         otlp,
         otlpBaseUrl,
+        parquetExportMode,
         rawArchiveKeySecretRef,
         repoRoot,
+        retentionEnforce,
+        retentionMaxSnapshotExports,
         since,
         target,
       })
@@ -2849,8 +2983,11 @@ const forwarderTimerCommand = Command.make(
     maxFileBytes: timerMaxFileBytesFlag,
     maxFiles: timerMaxFilesFlag,
     otlpBaseUrl: otlpBaseUrlFlag,
+    parquetExportMode: timerParquetExportModeFlag,
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     repoRoot: repoRootFlag,
+    retentionEnforce: retentionEnforceFlag,
+    retentionMaxSnapshotExports: maxSnapshotExportsFlag,
     target: targetFlag,
   },
   ({
@@ -2861,8 +2998,11 @@ const forwarderTimerCommand = Command.make(
     maxFileBytes,
     maxFiles,
     otlpBaseUrl,
+    parquetExportMode,
     rawArchiveKeySecretRef,
     repoRoot,
+    retentionEnforce,
+    retentionMaxSnapshotExports,
     target,
   }) =>
     runAiMetricsProgram(
@@ -2874,8 +3014,11 @@ const forwarderTimerCommand = Command.make(
         maxFileBytes,
         maxFiles,
         otlpBaseUrl,
+        parquetExportMode,
         rawArchiveKeySecretRef,
         repoRoot,
+        retentionEnforce,
+        retentionMaxSnapshotExports,
         target,
       })
     )
@@ -3325,6 +3468,25 @@ const retentionCompactCommand = Command.make(
     )
 ).pipe(Command.withDescription("Dry-run or apply an explicit-window AI metrics derived/report compaction"));
 
+const retentionEnforceCommand = Command.make(
+  "enforce",
+  {
+    confirm: confirmFlag,
+    dataRoot: dataRootFlag,
+    json: jsonFlag,
+    maxSnapshotExports: maxSnapshotExportsFlag,
+  },
+  ({ confirm, dataRoot, json, maxSnapshotExports }) =>
+    runAiMetricsProgram(
+      makeRetentionEnforceProgram({
+        confirm,
+        dataRoot,
+        json,
+        maxSnapshotExports,
+      })
+    )
+).pipe(Command.withDescription("Dry-run or apply preventive AI metrics Parquet snapshot retention"));
+
 const retentionRestoreDrillCommand = Command.make(
   "restore-drill",
   {
@@ -3357,6 +3519,7 @@ const retentionCommand = Command.make("retention", {}, () =>
     "AI metrics retention commands:",
     "- bun run beep ai-metrics retention list --data-root .beep/ai-metrics",
     "- bun run beep ai-metrics retention restore-drill --restore-root /tmp/ai-metrics-restore --before <iso>",
+    "- bun run beep ai-metrics retention enforce --data-root .beep/ai-metrics",
     "- bun run beep ai-metrics retention delete --before <iso>",
     "- bun run beep ai-metrics retention compact --before <iso>",
   ])
@@ -3365,6 +3528,7 @@ const retentionCommand = Command.make("retention", {}, () =>
   Command.withSubcommands([
     retentionListCommand,
     retentionRestoreDrillCommand,
+    retentionEnforceCommand,
     retentionDeleteCommand,
     retentionCompactCommand,
   ])

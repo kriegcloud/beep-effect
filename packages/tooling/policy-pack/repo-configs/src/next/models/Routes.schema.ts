@@ -141,7 +141,7 @@ class RedirectStatusCode extends S.Class<RedirectStatusCode>($I`RedirectStatusCo
     ...RouteBaseFields,
     destination: S.String,
     priority: S.optionalKey(S.Boolean),
-    statusCode: S.Number,
+    statusCode: S.Finite,
     permanent: S.optionalKey(S.Never),
   },
   $I.annote("RedirectStatusCode", {

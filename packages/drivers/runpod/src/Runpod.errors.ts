@@ -124,7 +124,7 @@ export class RunpodError extends TaggedErrorClass<RunpodError>($I`RunpodError`)(
     operationId: S.optionalKey(RunpodOperationId),
     path: S.optionalKey(S.String),
     reason: RunpodErrorReason,
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
   },
   $I.annote("RunpodError", {
     description: "Redacted technical failure raised by the Runpod REST API driver boundary.",
@@ -206,7 +206,7 @@ export class RunpodDocsError extends TaggedErrorClass<RunpodDocsError>($I`Runpod
   {
     cause: S.optionalKey(S.String),
     reason: RunpodDocsErrorReason,
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
     url: S.optionalKey(S.String),
   },
   $I.annote("RunpodDocsError", {
@@ -253,7 +253,7 @@ export class RunpodDocsError extends TaggedErrorClass<RunpodDocsError>($I`Runpod
 export class RunpodErrorOptions extends S.Class<RunpodErrorOptions>($I`RunpodErrorOptions`)(
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
   },
   $I.annote("RunpodErrorOptions", {
     description: "Options for configuring RunpodError instances.",
@@ -284,7 +284,7 @@ export class RunpodRawErrorOptions extends S.Class<RunpodRawErrorOptions>($I`Run
     method: RunpodHttpMethod,
     path: S.String,
     reason: RunpodErrorReason,
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
   },
   $I.annote("RunpodRawErrorOptions", {
     description: "Options for configuring RunpodError instances for raw requests.",
@@ -310,7 +310,7 @@ export class RunpodRawErrorOptions extends S.Class<RunpodRawErrorOptions>($I`Run
 export class RunpodDocsErrorOptions extends S.Class<RunpodDocsErrorOptions>($I`RunpodDocsErrorOptions`)(
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
     url: S.optionalKey(S.String),
   },
   $I.annote("RunpodDocsErrorOptions", {

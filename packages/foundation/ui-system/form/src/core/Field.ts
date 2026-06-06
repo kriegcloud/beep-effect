@@ -235,7 +235,7 @@ export type EncodedFromFields<T extends FieldsRecord> = {
  * import { makeField, type DecodedFromFields } from "@beep/form/core/Field"
  * import * as S from "effect/Schema"
  *
- * const fields = { age: makeField("age", S.Number) }
+ * const fields = { age: makeField("age", S.Finite) }
  * const value: DecodedFromFields<typeof fields> = { age: 42 }
  * console.log(value.age) // 42
  * ```

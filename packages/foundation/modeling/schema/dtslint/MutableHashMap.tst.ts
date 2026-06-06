@@ -7,11 +7,11 @@ describe("MutableHashMap", () => {
   it("preserves the schema surface for existing mutable hash maps", () => {
     const schema = MutableHashMapFromSelf({
       key: S.String,
-      value: S.NumberFromString,
+      value: S.FiniteFromString,
     });
 
     expect(schema.key).type.toBe<typeof S.String>();
-    expect(schema.value).type.toBe<typeof S.NumberFromString>();
+    expect(schema.value).type.toBe<typeof S.FiniteFromString>();
     expect<typeof schema.Type>().type.toBe<MutableHashMap_.MutableHashMap<string, number>>();
     expect<typeof schema.Encoded>().type.toBe<MutableHashMap_.MutableHashMap<string, string>>();
   });
@@ -19,13 +19,13 @@ describe("MutableHashMap", () => {
   it("preserves the entry-array-backed transform surface", () => {
     const schema = MutableHashMap({
       key: S.String,
-      value: S.NumberFromString,
+      value: S.FiniteFromString,
     });
     const decode = S.decodeUnknownSync(schema);
     const decoded = decode([["a", "1"]]);
 
     expect(schema.key).type.toBe<typeof S.String>();
-    expect(schema.value).type.toBe<typeof S.NumberFromString>();
+    expect(schema.value).type.toBe<typeof S.FiniteFromString>();
     expect<typeof schema.Type>().type.toBe<MutableHashMap_.MutableHashMap<string, number>>();
     expect<typeof schema.Encoded>().type.toBe<ReadonlyArray<readonly [string, string]>>();
     expect(decoded).type.toBe<MutableHashMap_.MutableHashMap<string, number>>();

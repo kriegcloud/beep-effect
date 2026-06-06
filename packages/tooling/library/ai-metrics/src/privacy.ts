@@ -86,12 +86,12 @@ export type AiMetricsHashSaltStatus = typeof AiMetricsHashSaltStatus.Type;
  */
 export class AiMetricsRedactionResult extends S.Class<AiMetricsRedactionResult>($I`AiMetricsRedactionResult`)(
   {
-    authHeaderCount: S.Number,
-    bearerTokenCount: S.Number,
-    excludedRawTextFieldCount: S.Number,
-    openAiKeyCount: S.Number,
+    authHeaderCount: S.Finite,
+    bearerTokenCount: S.Finite,
+    excludedRawTextFieldCount: S.Finite,
+    openAiKeyCount: S.Finite,
     safeForDerivedUi: S.Boolean,
-    secretAssignmentCount: S.Number,
+    secretAssignmentCount: S.Finite,
   },
   $I.annote("AiMetricsRedactionResult", {
     description: "Counts of private material detected or excluded before producing derived AI metrics payloads.",
@@ -112,7 +112,7 @@ export class AiMetricsRedactionResult extends S.Class<AiMetricsRedactionResult>(
 export class AiMetricsRawEventEnvelope extends S.Class<AiMetricsRawEventEnvelope>($I`AiMetricsRawEventEnvelope`)(
   {
     eventName: S.String,
-    lineNumber: S.Number,
+    lineNumber: S.Finite,
     rawEventHash: S.String,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
@@ -142,7 +142,7 @@ export class AiMetricsSanitizedTranscript extends S.Class<AiMetricsSanitizedTran
   $I`AiMetricsSanitizedTranscript`
 )(
   {
-    acceptedEvents: S.Number,
+    acceptedEvents: S.Finite,
     agentNicknameHash: S.optionalKey(S.String),
     agentRoleHash: S.optionalKey(S.String),
     eventNames: S.Array(S.String),
@@ -152,7 +152,7 @@ export class AiMetricsSanitizedTranscript extends S.Class<AiMetricsSanitizedTran
     parentSessionIdHash: S.optionalKey(S.String),
     parentThreadIdHash: S.optionalKey(S.String),
     rawEventEnvelopes: S.Array(AiMetricsRawEventEnvelope),
-    rejectedLines: S.Number,
+    rejectedLines: S.Finite,
     sessionIdHash: S.optionalKey(S.String),
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
@@ -161,7 +161,7 @@ export class AiMetricsSanitizedTranscript extends S.Class<AiMetricsSanitizedTran
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
     ),
     threadSpawn: S.optionalKey(S.Boolean),
-    totalLines: S.Number,
+    totalLines: S.Finite,
   },
   $I.annote("AiMetricsSanitizedTranscript", {
     description: "Allowlisted transcript projection that excludes prompt, output, message, and payload text.",

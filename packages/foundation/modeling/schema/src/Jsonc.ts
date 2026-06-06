@@ -31,9 +31,9 @@ const $I = $SchemaId.create("Jsonc");
  */
 export class JsoncParseDiagnostic extends S.Class<JsoncParseDiagnostic>($I`JsoncParseDiagnostic`)(
   {
-    code: S.Number,
-    offset: S.Number,
-    length: S.Number,
+    code: S.Finite,
+    offset: S.Finite,
+    length: S.Finite,
   },
   $I.annote("JsoncParseDiagnostic", {
     description: "Single JSONC parse diagnostic produced by jsonc-parser.",
@@ -111,7 +111,7 @@ export const JsoncTextToUnknown = S.String.pipe(
  * import * as S from "effect/Schema"
  * import { decodeJsoncTextAs } from "@beep/schema/Jsonc"
  *
- * const Config = S.Struct({ port: S.Number, host: S.String })
+ * const Config = S.Struct({ port: S.Finite, host: S.String })
  * const decodeConfig = decodeJsoncTextAs(Config)
  *
  * const program = decodeConfig('{ "port": 8080, "host": "localhost" }')

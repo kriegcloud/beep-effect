@@ -65,7 +65,7 @@ export class AiMetricsLabelQueueItem extends S.Class<AiMetricsLabelQueueItem>($I
   {
     agentTaskId: S.String,
     configSnapshotId: S.String,
-    createdAtEpochMillis: S.Number,
+    createdAtEpochMillis: S.Finite,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
     sourceRole: AiMetricsSourceRole.pipe(
@@ -73,7 +73,7 @@ export class AiMetricsLabelQueueItem extends S.Class<AiMetricsLabelQueueItem>($I
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
     ),
     title: S.String,
-    turnCount: S.Number,
+    turnCount: S.Finite,
   },
   $I.annote("AiMetricsLabelQueueItem", {
     description: "Deploy-safe task summary ready for human label review.",
@@ -93,10 +93,10 @@ export class AiMetricsLabelQueueItem extends S.Class<AiMetricsLabelQueueItem>($I
  */
 export class AiMetricsLabelQueueInput extends S.Class<AiMetricsLabelQueueInput>($I`AiMetricsLabelQueueInput`)(
   {
-    limit: S.Number,
+    limit: S.Finite,
     target: AiMetricsDeployTarget,
-    windowEndEpochMillis: S.Number,
-    windowStartEpochMillis: S.Number,
+    windowEndEpochMillis: S.Finite,
+    windowStartEpochMillis: S.Finite,
   },
   $I.annote("AiMetricsLabelQueueInput", {
     description: "Window and limit used to select unlabeled AI metrics tasks.",
@@ -118,8 +118,8 @@ export class AiMetricsLabelQueueResult extends S.Class<AiMetricsLabelQueueResult
   {
     items: S.Array(AiMetricsLabelQueueItem),
     target: AiMetricsDeployTarget,
-    windowEndEpochMillis: S.Number,
-    windowStartEpochMillis: S.Number,
+    windowEndEpochMillis: S.Finite,
+    windowStartEpochMillis: S.Finite,
   },
   $I.annote("AiMetricsLabelQueueResult", {
     description: "Deploy-safe list of tasks pending human outcome labels.",
@@ -141,12 +141,12 @@ export class AiMetricsOutcomeLabelInput extends S.Class<AiMetricsOutcomeLabelInp
   {
     agentTaskId: S.String,
     followUpFix: S.Boolean,
-    interventionCount: S.Number,
-    labeledAtEpochMillis: S.optionalKey(S.Number),
+    interventionCount: S.Finite,
+    labeledAtEpochMillis: S.optionalKey(S.Finite),
     note: S.optionalKey(S.String),
     passed: S.Boolean,
     qualityGate: AiMetricsQualityGateStatus,
-    rating: S.Number,
+    rating: S.Finite,
   },
   $I.annote("AiMetricsOutcomeLabelInput", {
     description: "Structured human label command payload for one AI-agent task.",
@@ -214,11 +214,11 @@ export class AiMetricsBenchmarkRunInput extends S.Class<AiMetricsBenchmarkRunInp
   {
     benchmarkCaseId: S.String,
     configSnapshotId: S.String,
-    elapsedMs: S.Number,
+    elapsedMs: S.Finite,
     note: S.optionalKey(S.String),
     passed: S.Boolean,
     qualityGate: AiMetricsQualityGateStatus,
-    recordedAtEpochMillis: S.optionalKey(S.Number),
+    recordedAtEpochMillis: S.optionalKey(S.Finite),
   },
   $I.annote("AiMetricsBenchmarkRunInput", {
     description: "Observed benchmark result tied to one AI-agent config snapshot.",
@@ -261,11 +261,11 @@ export class AiMetricsWeeklyReportDocument extends S.Class<AiMetricsWeeklyReport
 )(
   {
     coverageGaps: S.Array(S.String),
-    generatedAtEpochMillis: S.Number,
+    generatedAtEpochMillis: S.Finite,
     scores: S.Array(AiMetricsWeeklyConfigScore),
     target: AiMetricsDeployTarget,
-    windowEndEpochMillis: S.Number,
-    windowStartEpochMillis: S.Number,
+    windowEndEpochMillis: S.Finite,
+    windowStartEpochMillis: S.Finite,
   },
   $I.annote("AiMetricsWeeklyReportDocument", {
     description: "Deploy-safe weekly config-impact scorecard document.",
@@ -287,8 +287,8 @@ export class AiMetricsWeeklyReportInput extends S.Class<AiMetricsWeeklyReportInp
   {
     reportDir: S.String,
     target: AiMetricsDeployTarget,
-    windowEndEpochMillis: S.Number,
-    windowStartEpochMillis: S.Number,
+    windowEndEpochMillis: S.Finite,
+    windowStartEpochMillis: S.Finite,
   },
   $I.annote("AiMetricsWeeklyReportInput", {
     description: "Target, output directory, and rolling window for a weekly AI metrics report.",
@@ -343,7 +343,7 @@ class LabelQueueRow extends S.Class<LabelQueueRow>($I`LabelQueueRow`)(
   {
     agentTaskId: S.String,
     configSnapshotId: S.String,
-    createdAtEpochMillis: S.Number,
+    createdAtEpochMillis: S.Finite,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
     sourceRole: AiMetricsSourceRole.pipe(
@@ -351,7 +351,7 @@ class LabelQueueRow extends S.Class<LabelQueueRow>($I`LabelQueueRow`)(
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
     ),
     title: S.String,
-    turnCount: S.Number,
+    turnCount: S.Finite,
   },
   $I.annote("LabelQueueRow", {
     description: "DuckDB label queue row decoded from task/session/turn aggregates.",
@@ -360,14 +360,14 @@ class LabelQueueRow extends S.Class<LabelQueueRow>($I`LabelQueueRow`)(
 
 class TaskAggregateRow extends S.Class<TaskAggregateRow>($I`TaskAggregateRow`)(
   {
-    averageInterventionCount: S.Number,
-    averageQualityGateScore: S.Number,
-    averageRating: S.Number,
+    averageInterventionCount: S.Finite,
+    averageQualityGateScore: S.Finite,
+    averageRating: S.Finite,
     configSnapshotId: S.String,
-    followUpFixCount: S.Number,
-    labelCount: S.Number,
-    passRate: S.Number,
-    taskCount: S.Number,
+    followUpFixCount: S.Finite,
+    labelCount: S.Finite,
+    passRate: S.Finite,
+    taskCount: S.Finite,
   },
   $I.annote("TaskAggregateRow", {
     description: "Task and label aggregates grouped by AI metrics config snapshot.",
@@ -376,9 +376,9 @@ class TaskAggregateRow extends S.Class<TaskAggregateRow>($I`TaskAggregateRow`)(
 
 class BenchmarkAggregateRow extends S.Class<BenchmarkAggregateRow>($I`BenchmarkAggregateRow`)(
   {
-    benchmarkPassRate: S.Number,
-    benchmarkQualityGateScore: S.Number,
-    benchmarkRunCount: S.Number,
+    benchmarkPassRate: S.Finite,
+    benchmarkQualityGateScore: S.Finite,
+    benchmarkRunCount: S.Finite,
     configSnapshotId: S.String,
   },
   $I.annote("BenchmarkAggregateRow", {
@@ -388,8 +388,8 @@ class BenchmarkAggregateRow extends S.Class<BenchmarkAggregateRow>($I`BenchmarkA
 
 class CoverageCountsRow extends S.Class<CoverageCountsRow>($I`CoverageCountsRow`)(
   {
-    modelCallCount: S.Number,
-    toolInvocationCount: S.Number,
+    modelCallCount: S.Finite,
+    toolInvocationCount: S.Finite,
   },
   $I.annote("CoverageCountsRow", {
     description: "Derived metric coverage counts used by the weekly scorecard.",

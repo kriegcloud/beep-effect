@@ -140,10 +140,10 @@ export interface StoredResult {
  */
 export class CacheStats extends S.Class<CacheStats>($I`CacheStats`)(
   {
-    newestEntry: S.Option(S.Number),
-    oldestEntry: S.Option(S.Number),
-    size: S.Number,
-    totalHits: S.Number,
+    newestEntry: S.Option(S.Finite),
+    oldestEntry: S.Option(S.Finite),
+    size: S.Finite,
+    totalHits: S.Finite,
   },
   $I.annote("CacheStats", {
     description: "Statistics about the cache.",

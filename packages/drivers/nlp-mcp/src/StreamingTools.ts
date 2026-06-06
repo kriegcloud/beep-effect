@@ -56,7 +56,7 @@ export const LinesOutput = S.Class<{
   readonly truncated: boolean;
 }>($I`LinesOutput`)(
   {
-    count: S.Number.annotateKey({
+    count: S.Finite.annotateKey({
       description: "Number of lines returned.",
     }),
     lines: S.Array(S.String).annotateKey({
@@ -109,10 +109,10 @@ export const FileInfoOutput = S.Class<{
     exists: S.Boolean.annotateKey({
       description: "Whether the target file exists.",
     }),
-    lineCount: S.optionalKey(S.Number).annotateKey({
+    lineCount: S.optionalKey(S.Finite).annotateKey({
       description: "Total line count when the file exists.",
     }),
-    sizeBytes: S.optionalKey(S.Number).annotateKey({
+    sizeBytes: S.optionalKey(S.Finite).annotateKey({
       description: "File size in bytes when the file exists.",
     }),
   },
@@ -193,7 +193,7 @@ export const JsonlOutput = S.Class<{
   readonly truncated: boolean;
 }>($I`JsonlOutput`)(
   {
-    count: S.Number.annotateKey({
+    count: S.Finite.annotateKey({
       description: "Number of parsed records returned.",
     }),
     errors: JsonlLineErrorOutput.pipe(S.Array, S.optionalKey).annotateKey({
@@ -383,7 +383,7 @@ export type PipelineOutput = typeof PipelineOutput.Type;
 
 const CountOutput = S.Class<{ readonly count: number }>($I`CountOutput`)(
   {
-    count: S.Number.annotateKey({
+    count: S.Finite.annotateKey({
       description: "Computed count.",
     }),
   },
@@ -402,10 +402,10 @@ const CountWithErrorsOutput = S.Class<{ readonly count: number; readonly errors?
   $I`CountWithErrorsOutput`
 )(
   {
-    count: S.Number.annotateKey({
+    count: S.Finite.annotateKey({
       description: "Computed count.",
     }),
-    errors: S.optionalKey(S.Number).annotateKey({
+    errors: S.optionalKey(S.Finite).annotateKey({
       description: "Optional companion error count.",
     }),
   },
@@ -425,10 +425,10 @@ const ReadLinesParameters = S.Class<{ readonly options?: unknown; readonly path:
     options: S.optionalKey(
       S.Struct({
         encoding: S.optionalKey(TextEncoding),
-        maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-        skip: S.optionalKey(S.Number.check(S.isGreaterThanOrEqualTo(0))),
+        maxLines: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
+        skip: S.optionalKey(S.Finite.check(S.isGreaterThanOrEqualTo(0))),
         skipEmpty: S.optionalKey(S.Boolean),
-        tail: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        tail: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
         trim: S.optionalKey(S.Boolean),
       })
     ),
@@ -476,7 +476,7 @@ const SampleLinesParameters = S.Class<{
       })
     ),
     path: S.String.check(S.isMinLength(1)),
-    sampleSize: S.Number.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(10_000)),
+    sampleSize: S.Finite.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(10_000)),
   },
   $I.annote("SampleLinesParameters", { description: "Inputs for randomly sampling text lines." })
 )
@@ -488,7 +488,7 @@ const ReadJsonlParameters = S.Class<{ readonly options?: unknown; readonly path:
     options: S.optionalKey(
       S.Struct({
         collectErrors: S.optionalKey(S.Boolean),
-        maxRecords: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        maxRecords: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
         skipInvalid: S.optionalKey(S.Boolean),
       })
     ),
@@ -514,8 +514,8 @@ const ValidateJsonlParameters = S.Class<{ readonly options?: unknown; readonly p
   {
     options: S.optionalKey(
       S.Struct({
-        maxErrors: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
-        maxRecords: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        maxErrors: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
+        maxRecords: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
       })
     ),
     path: S.String.check(S.isMinLength(1)),
@@ -537,7 +537,7 @@ const SampleJsonlParameters = S.Class<{
       })
     ),
     path: S.String.check(S.isMinLength(1)),
-    sampleSize: S.Number.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(10_000)),
+    sampleSize: S.Finite.check(S.isGreaterThan(0), S.isLessThanOrEqualTo(10_000)),
   },
   $I.annote("SampleJsonlParameters", { description: "Inputs for randomly sampling JSONL records." })
 )
@@ -550,7 +550,7 @@ const LoadTextParameters = S.Class<{ readonly location: string; readonly options
     options: S.optionalKey(
       S.Struct({
         encoding: S.optionalKey(TextEncoding),
-        timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        timeout: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
       })
     ),
   },
@@ -564,9 +564,9 @@ const LoadLinesParameters = S.Class<{ readonly location: string; readonly option
     location: S.String.check(S.isMinLength(1)),
     options: S.optionalKey(
       S.Struct({
-        maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        maxLines: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
         skipEmpty: S.optionalKey(S.Boolean),
-        timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        timeout: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
         trim: S.optionalKey(S.Boolean),
       })
     ),
@@ -581,9 +581,9 @@ const LoadJsonlParameters = S.Class<{ readonly location: string; readonly option
     location: S.String.check(S.isMinLength(1)),
     options: S.optionalKey(
       S.Struct({
-        maxRecords: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        maxRecords: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
         skipInvalid: S.optionalKey(S.Boolean),
-        timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        timeout: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
       })
     ),
   },
@@ -597,7 +597,7 @@ const LoadJsonParameters = S.Class<{ readonly location: string; readonly options
     location: S.String.check(S.isMinLength(1)),
     options: S.optionalKey(
       S.Struct({
-        timeout: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        timeout: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
       })
     ),
   },
@@ -612,7 +612,7 @@ const ProcessFileParameters = S.Class<{ readonly options?: unknown; readonly pat
   {
     options: S.optionalKey(
       S.Struct({
-        maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        maxLines: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
         skipEmpty: S.optionalKey(S.Boolean),
         stopOnError: S.optionalKey(S.Boolean).annotateKey({
           description:
@@ -636,7 +636,7 @@ const FilterLinesParameters = S.Class<{ readonly options?: unknown; readonly pat
       S.Struct({
         caseInsensitive: S.optionalKey(S.Boolean),
         invert: S.optionalKey(S.Boolean),
-        maxLines: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        maxLines: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
       })
     ),
     path: S.String.check(S.isMinLength(1)),
@@ -657,7 +657,7 @@ const ExtractMatchesParameters = S.Class<{
       S.Struct({
         caseInsensitive: S.optionalKey(S.Boolean),
         fullLines: S.optionalKey(S.Boolean),
-        maxMatches: S.optionalKey(S.Number.check(S.isGreaterThan(0))),
+        maxMatches: S.optionalKey(S.Finite.check(S.isGreaterThan(0))),
       })
     ),
     path: S.String.check(S.isMinLength(1)),
