@@ -30,7 +30,8 @@ pre-push:
         bash -lc '
           set -euo pipefail
 
-          relevant_pattern="(^package\\.json$)|(^standards/repo-exports\\.catalog\\.(jsonc|md)$)|(^packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog\\.ts$)|(^((packages|apps)/.+|infra)/package\\.json$)|(^((packages|apps)/.+|infra)/src/.+\\.(ts|tsx)$)"
+          relevant_pattern="(^package\\.json$)|(^standards/repo-exports\\.catalog\\.(jsonc|md)$)|(^\\.beep/repo-exports/catalog\\.shard\\.jsonc$)|(^((packages|apps)/.+|infra)/\\.beep/repo-exports/catalog\\.shard\\.jsonc$)|(^packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog\\.ts$)|(^((packages|apps)/.+|infra)/package\\.json$)|(^((packages|apps)/.+|infra)/src/.+\\.(ts|tsx)$)"
+          catalog_artifact_pattern="(^standards/repo-exports\\.catalog\\.(jsonc|md)$)|(^\\.beep/repo-exports/catalog\\.shard\\.jsonc$)|(^((packages|apps)/.+|infra)/\\.beep/repo-exports/catalog\\.shard\\.jsonc$)"
           zero_sha="0000000000000000000000000000000000000000"
           pushed_ref_lines="$(cat || true)"
           changed_file="$(mktemp)"
@@ -89,7 +90,7 @@ pre-push:
           fi
 
           if ! bun run repo-exports:catalog:check; then
-            if git diff --name-only HEAD -- standards/repo-exports.catalog.jsonc standards/repo-exports.catalog.md | rg -q .; then
+            if git diff --name-only HEAD -- standards/repo-exports.catalog.jsonc standards/repo-exports.catalog.md .beep packages apps infra | rg -q "${catalog_artifact_pattern}"; then
               echo "repo export catalog: generated artifacts have uncommitted changes; commit them before pushing" >&2
             else
               echo "repo export catalog: check failed; run \`bun run repo-exports:catalog\` and commit any generated changes" >&2
@@ -97,7 +98,7 @@ pre-push:
             exit 1
           fi
 
-          if git diff --name-only HEAD -- standards/repo-exports.catalog.jsonc standards/repo-exports.catalog.md | rg -q .; then
+          if git diff --name-only HEAD -- standards/repo-exports.catalog.jsonc standards/repo-exports.catalog.md .beep packages apps infra | rg -q "${catalog_artifact_pattern}"; then
             echo "repo export catalog: generated artifacts have uncommitted changes; commit them before pushing" >&2
             exit 1
           fi

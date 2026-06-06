@@ -1,0 +1,373 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "22c7d144ee63c0cfe33619d403c3bf2775c2c75df431c1c8e2bb17481cdcbc9c",
+    "inputs": [
+      {
+        "path": "packages/foundation/modeling/ontology/package.json",
+        "sha256": "1e1b8a4e57e9699ab8e7446170f72fb80e7fd87e94e926f812430cfe1a1ee929",
+        "bytes": 2061
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/annotations.ts",
+        "sha256": "e9d1a63da549aeef333f952a5f7a80e6606e8746abda6325bc283de17e690c03",
+        "bytes": 22699
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/assembly.ts",
+        "sha256": "641bfef54767d3a8eb2bbab36dbb9fbe0eb2e626a4cd42a994f41309120cc75d",
+        "bytes": 23501
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/create.ts",
+        "sha256": "fcf09df4f54376725d3b5134999e1d76b04c4552ac439c8bc9e1cffdc0e7b6ea",
+        "bytes": 4693
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/index.ts",
+        "sha256": "86b55cd403a27b43b8313f0f902ac1a64f7843fabf554681c19c365fd18a09c1",
+        "bytes": 1126
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/model.ts",
+        "sha256": "8c0392b5264d730c722bb39d821e8dde79496b10909e7635737dfaddb1f646ae",
+        "bytes": 35017
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/projections/jsonld.ts",
+        "sha256": "7b8bbe30f3fe3e0db3a5e5ac5453d460743637b1002011a9bb20b8139956905c",
+        "bytes": 20007
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/projections/markdown.ts",
+        "sha256": "6962b67b17d385ddea9e2fd8c884653a7269bebb253c201d4e465c866f9521f2",
+        "bytes": 13690
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/projections/turtle.ts",
+        "sha256": "a1b15079da734050ff6e421f6db2d744ef91d24207c50896772a693f39b02651",
+        "bytes": 10079
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/references.ts",
+        "sha256": "fcde22b3a32546bfb80932acd11f2f83e4bcc667bdf2d37627c6e7a2c0aa278f",
+        "bytes": 8477
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/ontology",
+    "packagePath": "packages/foundation/modeling/ontology",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/ontology"
+    ],
+    "counts": {
+      "publicExportEntries": 12,
+      "uniqueSymbols": 12,
+      "sourceFiles": 9
+    },
+    "exports": [
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "getOntologyKeyMetadata",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/model.ts",
+        "sourceLine": 591,
+        "summary": "Reads ontology metadata from a schema property-key annotation display map.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . getontologykeymetadata const reads ontology metadata from a schema property-key annotation display map. utilities packages/foundation/modeling/ontology/src/model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "getOntologyMetadata",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/model.ts",
+        "sourceLine": 582,
+        "summary": "Reads ontology metadata from an Effect Schema annotation display map.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . getontologymetadata const reads ontology metadata from an effect schema annotation display map. utilities packages/foundation/modeling/ontology/src/model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "isOntologyClassAnnotationDraft",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/model.ts",
+        "sourceLine": 518,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . isontologyclassannotationdraft const packages/foundation/modeling/ontology/src/model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "isOntologyPredicateAnnotationDraft",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/model.ts",
+        "sourceLine": 519,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . isontologypredicateannotationdraft const packages/foundation/modeling/ontology/src/model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "Ontology",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/create.ts",
+        "sourceLine": 52,
+        "summary": "Creates an ontology authoring scope with identity-aware annotation helpers,",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontology const creates an ontology authoring scope with identity-aware annotation helpers, constructors packages/foundation/modeling/ontology/src/create.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntologyAssemblyError",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/model.ts",
+        "sourceLine": 610,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontologyassemblyerror class packages/foundation/modeling/ontology/src/model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "parseJsonLdOntology",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/projections/jsonld.ts",
+        "sourceLine": 487,
+        "summary": "Parses the POC JSON-LD graph representation back into an assembled ontology result.",
+        "categories": [
+          "projections"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . parsejsonldontology const parses the poc json-ld graph representation back into an assembled ontology result. projections packages/foundation/modeling/ontology/src/projections/jsonld.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "projectJsonLdContext",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/projections/jsonld.ts",
+        "sourceLine": 69,
+        "summary": "Projects an assembled ontology into a reusable JSON-LD context document.",
+        "categories": [
+          "projections"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . projectjsonldcontext const projects an assembled ontology into a reusable json-ld context document. projections packages/foundation/modeling/ontology/src/projections/jsonld.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "projectJsonLdOntology",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/projections/jsonld.ts",
+        "sourceLine": 264,
+        "summary": "Projects an assembled ontology into the POC JSON-LD graph representation.",
+        "categories": [
+          "projections"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . projectjsonldontology const projects an assembled ontology into the poc json-ld graph representation. projections packages/foundation/modeling/ontology/src/projections/jsonld.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "projectMarkdown",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/projections/markdown.ts",
+        "sourceLine": 351,
+        "summary": "Projects an assembled ontology into deterministic Markdown documentation.",
+        "categories": [
+          "projections"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . projectmarkdown const projects an assembled ontology into deterministic markdown documentation. projections packages/foundation/modeling/ontology/src/projections/markdown.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "projectTurtle",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/projections/turtle.ts",
+        "sourceLine": 260,
+        "summary": "Projects an assembled ontology into a compact Turtle document.",
+        "categories": [
+          "projections"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . projectturtle const projects an assembled ontology into a compact turtle document. projections packages/foundation/modeling/ontology/src/projections/turtle.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/index.ts",
+        "sourceLine": 14,
+        "summary": "Package version.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . version const package version. configuration packages/foundation/modeling/ontology/src/index.ts"
+      }
+    ]
+  }
+}

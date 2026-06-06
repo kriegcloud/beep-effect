@@ -1,0 +1,117 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "d42560e1270c55b537bc4dfe7983cea26a31adfd4e9daf816b055a71ea6e65cd",
+    "inputs": [
+      {
+        "path": "apps/architecture-lab-proof/package.json",
+        "sha256": "cd4a6d7d72444d29d23a1e848ae19559fdff3f7f6505ea65d088ed69d7ae16ca",
+        "bytes": 2453
+      },
+      {
+        "path": "apps/architecture-lab-proof/src/index.ts",
+        "sha256": "67282094ad3dc4f98ab3c148673d389fec1c17e81f527ad317441ffe3157b5b0",
+        "bytes": 2476
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/architecture-lab-proof",
+    "packagePath": "apps/architecture-lab-proof",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/architecture-lab-proof"
+    ],
+    "counts": {
+      "publicExportEntries": 2,
+      "uniqueSymbols": 2,
+      "sourceFiles": 1
+    },
+    "exports": [
+      {
+        "packageName": "@beep/architecture-lab-proof",
+        "packagePath": "apps/architecture-lab-proof",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-proof",
+        "exportSubpath": ".",
+        "exportedFromPath": "apps/architecture-lab-proof/src/index.ts",
+        "symbolName": "ArchitectureLabProofResult",
+        "exportKind": "class",
+        "sourcePath": "apps/architecture-lab-proof/src/index.ts",
+        "sourceLine": 34,
+        "summary": "App-level WorkItem proof result.",
+        "categories": [
+          "workflows"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-proof apps/architecture-lab-proof @beep/architecture-lab-proof . architecturelabproofresult class app-level workitem proof result. workflows apps/architecture-lab-proof/src/index.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-proof",
+        "packagePath": "apps/architecture-lab-proof",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-proof",
+        "exportSubpath": ".",
+        "exportedFromPath": "apps/architecture-lab-proof/src/index.ts",
+        "symbolName": "runArchitectureLabProof",
+        "exportKind": "const",
+        "sourcePath": "apps/architecture-lab-proof/src/index.ts",
+        "sourceLine": 60,
+        "summary": "Execute the architecture lab proof harness against the composed server layer.",
+        "categories": [
+          "workflows"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-proof apps/architecture-lab-proof @beep/architecture-lab-proof . runarchitecturelabproof const execute the architecture lab proof harness against the composed server layer. workflows apps/architecture-lab-proof/src/index.ts"
+      }
+    ]
+  }
+}

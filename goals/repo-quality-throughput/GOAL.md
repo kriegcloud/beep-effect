@@ -1,81 +1,65 @@
-# GOAL: Accelerate End-to-End Green
+# GOAL: Implement End-to-End Green Speedups
 
 Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.
 
-Outcome: research, rank, implement, and prove top End-to-End Green performance
-wins without weakening the final quality proof.
+Outcome: implement every viable repo-quality performance task identified by the
+completed throughput research, prove the wins, and publish a mergeable PR.
 
-This is a compact `/goal` launcher. Treat these packet files as the detailed
-contract:
+This is an implementation-only `/goal` launcher. Do not run new research
+batches. Treat existing `research/` and `history/` files as evidence.
+
+Read first:
 
 - `goals/repo-quality-throughput/README.md`
 - `goals/repo-quality-throughput/SPEC.md`
 - `goals/repo-quality-throughput/PLAN.md`
-- `goals/repo-quality-throughput/ops/manifest.json`
-- `goals/repo-quality-throughput/research/known-findings.md`
 - `goals/repo-quality-throughput/tasks/tasks.jsonc`
+- `goals/repo-quality-throughput/research/repo-exports-sharding-design.md`
+- `AGENTS.md`, `CLAUDE.md`, `standards/ARCHITECTURE.md`
+- `standards/architecture/07-non-slice-families.md`
+- `standards/architecture/08-testing.md`
+- `.patterns/jsdoc-documentation.md`
 
-Read those first, then read `AGENTS.md`, `CLAUDE.md`, `standards/ARCHITECTURE.md`,
-`standards/architecture/07-non-slice-families.md`,
-`standards/architecture/08-testing.md`,
-`standards/architecture/11-evolution-and-deprecation.md`,
-`standards/architecture/12-observability.md`, and
-`.patterns/jsdoc-documentation.md`. Higher-priority repo standards outrank
-packet prose when they conflict.
+Active implementation order:
 
-Scope:
+No selected implementation task remains. Continue with final proof, publish,
+PR checks, and review closeout.
 
-- In: `@beep/repo-cli`, `@beep/repo-utils`, repo tooling libraries, `turbo.json`,
-  package-local config where measured, `lefthook.yml`, GitHub workflows/actions,
-  docgen, Yeet, quality commands, generated repo metadata, and task evidence.
-- Out: product slice behavior, shared-kernel semantics, unrelated refactors,
-  unproven symbol-level docgen selectivity, destructive actions, and durable
-  root scripts for tooling-owned behavior.
-
-Workflow:
-
-1. Inspect current repo state and seed findings.
-2. Run three bounded research batches from `ops/prompts/`; agents return
-   reports and stay read-only unless assigned later disjoint implementation.
-3. Persist reports under `research/` and synthesize ranked tasks into
-   `tasks/tasks.jsonc`.
-4. Implement the highest-impact current-PR tasks until remaining work is low
-   impact, high risk, or needs a separate proof gate.
-5. Prove with a before/after matrix, fast `lint:fix`, Yeet repair/verify,
-   canonical quality proof, and PR/CI monitoring.
-6. Record deferred tasks with risk, owner, rollback, and next proof step.
+Completed guardrails and implementation tasks: `rqt-001`, `rqt-002`,
+`rqt-003`, `rqt-004`, `rqt-005`, `rqt-006`, `rqt-007`, `rqt-008`, and
+`rqt-009`; `rqt-010` carries bounded prototype gate and waiver evidence.
+Rejected stale work: `rqt-011` and `rqt-012`.
 
 Rules:
 
-- Optimize End-to-End Green, not one isolated command.
-- Select tasks only when they can produce substantial measured benefit, remove
-  duplicated work, prevent resource regression, or unlock larger measured wins.
-- Use Yeet as a proved fast-plus-monitor path, but keep manual quality lanes
-  canonical until the dedicated Yeet proof PR is green and the Yeet agent skill
-  exists.
-- Preserve GitHub check names and the authoritative full proof.
-- Eliminate duplicate expensive waits across Yeet, hooks, push, PR checks, and
-  CI only when a named fallback proof remains.
-- Use bounded concurrency, check repo processes before heavy local lanes, and
-  stop if a command makes the workstation unusable.
-- Follow Effect-first, schema-first, and strict JSDoc standards for code.
+- Implement code/config/workflow changes; do not stop at planning or reports.
+- Defer only with concrete blocker evidence, owner, fallback proof, and a
+  waiver record in `tasks/tasks.jsonc`.
+- Keep repo-owned quality behavior in `@beep/repo-cli`, `@beep/repo-utils`,
+  `@beep/repo-codegraph`, Turbo/workflow config, Lefthook, or package
+  manifests. Do not add durable root scripts for tooling-owned behavior.
+- Preserve authoritative proof, GitHub check names, secrets/SAST/security/Nix
+  coverage, and manual quality lanes.
+- Yeet fast-plus-monitor stays opt-in and PR-branch-only until its proof gates
+  and agent guidance are complete.
+- Use bounded resources: focused local checks, one heavy local lane at a time,
+  and GitHub Actions for repeated full proof.
 
-Acceptance:
+Done means:
 
-- [ ] `SPEC.md` acceptance criteria are satisfied.
-- [ ] Research, synthesis, implementation, and proof evidence are recorded.
-- [ ] Required verification passes, or unrelated failures are documented with
-      file/command evidence.
-- [ ] No unrelated refactors or formatting churn.
+- At least one major measured bottleneck is structurally improved.
+- All viable selected tasks are done or carry blocker-quality waiver records.
+- `bun run lint:fix` remains fast.
+- Canonical local quality proof passes or has documented unrelated failure
+  evidence.
+- The branch is committed, pushed, PR checks are monitored, actionable review
+  comments are addressed, and the PR is mergeable.
 
-Verification:
+Packet verification:
 
 ```sh
 test "$(wc -m < goals/repo-quality-throughput/GOAL.md)" -le 4000
 jq . goals/repo-quality-throughput/ops/manifest.json
 jq . goals/repo-quality-throughput/tasks/tasks.schema.json
-git diff --check -- goals/repo-quality-throughput goals/repo-quality-acceleration
+git diff --check -- goals/repo-quality-throughput
 ```
-
-Done only when End-to-End Green is measurably faster, the final proof is green,
-and remaining opportunities are explicitly deferred.

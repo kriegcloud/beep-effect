@@ -86,7 +86,9 @@ const bodiesWithRatings = (rows: ReadonlyArray<{ readonly body: string; readonly
 if (!shouldRunPgliteIntegration) {
   describe.skip("Postgres PgLite integration", () => {});
 } else {
-  describe.concurrent("Postgres PgLite integration", () => {
+  // The shared PgLite wire-protocol server is single-connection; keep the layer
+  // acquisitions sequential so Drizzle and migration tests do not race it.
+  describe("Postgres PgLite integration", { concurrent: false }, () => {
     layer(makePostgresClientLayer(), { timeout: "2 minutes" })((it) => {
       it.effect(
         "provides PostgresClient over the PgLite PgClient",

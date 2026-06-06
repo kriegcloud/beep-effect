@@ -1,0 +1,2974 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "827265de82c9ac752f5683a3c009a9eea20542273ae8e361ade91ff333571572",
+    "inputs": [
+      {
+        "path": "packages/agent-capability/use-cases/package.json",
+        "sha256": "73f7050fb2e184eee1b82a5557bffdff3640683f391a9d08f09dec4ed9a5d149",
+        "bytes": 1833
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/index.ts",
+        "sha256": "41d6bd573291b50da22c11e444c20762abf0c562f3a63c86ed02932dfcff4fb2",
+        "bytes": 364
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts",
+        "sha256": "1d67a1e6c95f7d404606cd4e13558f8d3ddca9812bfebea9ec11205d66efcf3a",
+        "bytes": 1063
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sha256": "8814d903a640708585bb01e8f06efd7b54977ff75d6089793c51c5a42759cd44",
+        "bytes": 11327
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts",
+        "sha256": "92ac92b6dbe49e60f7f52dbccafa3ed9aaf43b64bb61dcf5c38a9ee54208768f",
+        "bytes": 1465
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts",
+        "sha256": "882fd063a83cbb060ed8f3210372bfec396b8573820d6338845be894335ec954",
+        "bytes": 10171
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts",
+        "sha256": "53038cf4aa8313c34e9931336a55f949ed4d6357f4eb5b34df6cd1e98a0f9d44",
+        "bytes": 22858
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts",
+        "sha256": "b4d534246606f19ae5a048fc48fe76cd614d47e068dc9e4819f65bc3ccbc2469",
+        "bytes": 945
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
+        "sha256": "7c6aed2c96d4e1d29adb47b47435d29701973d2e3018cb5c2c96e7316feede39",
+        "bytes": 1136
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sha256": "3f9fe98cf93e50e785c81779aa6d218980de30f1058acaeeb857eb0d03cbc83a",
+        "bytes": 3589
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/proof.ts",
+        "sha256": "776db3b56efbb3d7bc2e444641948e3d91df9acae94e3d66439862fe1e5137a2",
+        "bytes": 1282
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/public.ts",
+        "sha256": "25dd3858f4129bb6738299d550bc852b14bdf3e751adf5658a755f4b1a5f5bdc",
+        "bytes": 2245
+      },
+      {
+        "path": "packages/agent-capability/use-cases/src/test.ts",
+        "sha256": "785a3e2a28e66ee29c12650af62089f4e7e26b7d2210067e5ac0342327e20862",
+        "bytes": 436
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/agent-capability-use-cases",
+    "packagePath": "packages/agent-capability/use-cases",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/agent-capability-use-cases",
+      "@beep/agent-capability-use-cases/proof",
+      "@beep/agent-capability-use-cases/public",
+      "@beep/agent-capability-use-cases/test"
+    ],
+    "counts": {
+      "publicExportEntries": 114,
+      "uniqueSymbols": 30,
+      "sourceFiles": 12
+    },
+    "exports": [
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "CandidateOutputSet",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 433,
+        "summary": "Batch of candidate outputs proposed by an agent run.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . candidateoutputset class batch of candidate outputs proposed by an agent run. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "GetContextPacket",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts",
+        "sourceLine": 26,
+        "summary": "Request for an evidence-bounded context packet.",
+        "categories": [
+          "queries"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . getcontextpacket class request for an evidence-bounded context packet. queries packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.queries.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "ProfessionalRuntimeSdk",
+        "exportKind": "interface",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
+        "sourceLine": 27,
+        "summary": "SDK facade shape exposed to clients and adapters.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . professionalruntimesdk interface sdk facade shape exposed to clients and adapters. services packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.service.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "ProfessionalRuntimeValidationError",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts",
+        "sourceLine": 28,
+        "summary": "Validation failure for runtime SDK requests and candidate proposals.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . professionalruntimevalidationerror class validation failure for runtime sdk requests and candidate proposals. errors packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.errors.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "ProposeCandidateOutputSet",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts",
+        "sourceLine": 27,
+        "summary": "Command for proposing candidate work through the SDK facade.",
+        "categories": [
+          "commands"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . proposecandidateoutputset class command for proposing candidate work through the sdk facade. commands packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.commands.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeActivity",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 345,
+        "summary": "Runtime provenance activity included in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimeactivity class runtime provenance activity included in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeActivityType",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 120,
+        "summary": "Activity types emitted by deterministic runtime fixtures.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimeactivitytype const activity types emitted by deterministic runtime fixtures. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeApprovalDecision",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 63,
+        "summary": "Approval decision vocabulary for candidate approval gates.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimeapprovaldecision const approval decision vocabulary for candidate approval gates. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeApprovalGate",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 245,
+        "summary": "Candidate approval gate proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimeapprovalgate class candidate approval gate proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeCandidateClaim",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 106,
+        "summary": "Candidate claim proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimecandidateclaim class candidate claim proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeCandidateDraft",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 214,
+        "summary": "Candidate draft proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimecandidatedraft class candidate draft proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeCandidateLifecycle",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 25,
+        "summary": "Candidate lifecycle vocabulary used by runtime output sections.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimecandidatelifecycle const candidate lifecycle vocabulary used by runtime output sections. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeCandidateProject",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 136,
+        "summary": "Candidate project proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimecandidateproject class candidate project proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeCandidateTask",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 163,
+        "summary": "Candidate task proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimecandidatetask class candidate task proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeClaimConfidence",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 44,
+        "summary": "Confidence vocabulary for candidate claims.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimeclaimconfidence const confidence vocabulary for candidate claims. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeContextPacketRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 274,
+        "summary": "Request section embedded in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimecontextpacketrequest class request section embedded in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeDraftRecipient",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 191,
+        "summary": "Recipient for a candidate draft.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimedraftrecipient class recipient for a candidate draft. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeEntityRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 59,
+        "summary": "Lightweight reference to a vertical or runtime entity.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimeentityref class lightweight reference to a vertical or runtime entity. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeEvidenceRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 82,
+        "summary": "Source evidence reference for a candidate output.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimeevidenceref class source evidence reference for a candidate output. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeRequestKind",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 82,
+        "summary": "Runtime request kinds represented in context packets.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimerequestkind const runtime request kinds represented in context packets. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeScope",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 35,
+        "summary": "Scope for an SDK request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimescope class scope for an sdk request. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeSourceArtifact",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 320,
+        "summary": "Source artifact declared by a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimesourceartifact class source artifact declared by a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeSourceKind",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 101,
+        "summary": "Source artifact kinds represented in context packets.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimesourcekind const source artifact kinds represented in context packets. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeSourceSpanRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 297,
+        "summary": "Source span declared by a context packet source artifact.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimesourcespanref class source span declared by a context packet source artifact. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeUsageMode",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 139,
+        "summary": "Usage modes emitted by deterministic runtime fixtures.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimeusagemode const usage modes emitted by deterministic runtime fixtures. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "RuntimeUsageRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 371,
+        "summary": "Runtime usage attribution included in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . runtimeusagerecord class runtime usage attribution included in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/index.ts",
+        "symbolName": "SdkContextPacket",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 396,
+        "summary": "Context packet returned to SDK clients.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases . sdkcontextpacket class context packet returned to sdk clients. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "CandidateOutputSet",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 433,
+        "summary": "Batch of candidate outputs proposed by an agent run.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof candidateoutputset class batch of candidate outputs proposed by an agent run. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "GetContextPacket",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts",
+        "sourceLine": 26,
+        "summary": "Request for an evidence-bounded context packet.",
+        "categories": [
+          "queries"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof getcontextpacket class request for an evidence-bounded context packet. queries packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.queries.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "makeInMemoryProfessionalRuntimeSdk",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts",
+        "sourceLine": 199,
+        "summary": "Create an in-memory SDK facade over deterministic runtime fixture inputs.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof makeinmemoryprofessionalruntimesdk const create an in-memory sdk facade over deterministic runtime fixture inputs. constructors packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.fixture-service.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "ProfessionalRuntimeSdk",
+        "exportKind": "interface",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
+        "sourceLine": 27,
+        "summary": "SDK facade shape exposed to clients and adapters.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof professionalruntimesdk interface sdk facade shape exposed to clients and adapters. services packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.service.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "ProfessionalRuntimeValidationError",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts",
+        "sourceLine": 28,
+        "summary": "Validation failure for runtime SDK requests and candidate proposals.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof professionalruntimevalidationerror class validation failure for runtime sdk requests and candidate proposals. errors packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.errors.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "ProposeCandidateOutputSet",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts",
+        "sourceLine": 27,
+        "summary": "Command for proposing candidate work through the SDK facade.",
+        "categories": [
+          "commands"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof proposecandidateoutputset class command for proposing candidate work through the sdk facade. commands packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.commands.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "runRuntimeFixture",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts",
+        "sourceLine": 695,
+        "summary": "Run one deterministic runtime data-loop fixture.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runruntimefixture const run one deterministic runtime data-loop fixture. testing packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.fixtures.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeActivity",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 345,
+        "summary": "Runtime provenance activity included in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimeactivity class runtime provenance activity included in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeActivityType",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 120,
+        "summary": "Activity types emitted by deterministic runtime fixtures.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimeactivitytype const activity types emitted by deterministic runtime fixtures. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeApprovalDecision",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 63,
+        "summary": "Approval decision vocabulary for candidate approval gates.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimeapprovaldecision const approval decision vocabulary for candidate approval gates. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeApprovalGate",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 245,
+        "summary": "Candidate approval gate proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimeapprovalgate class candidate approval gate proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeCandidateClaim",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 106,
+        "summary": "Candidate claim proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimecandidateclaim class candidate claim proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeCandidateDraft",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 214,
+        "summary": "Candidate draft proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimecandidatedraft class candidate draft proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeCandidateLifecycle",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 25,
+        "summary": "Candidate lifecycle vocabulary used by runtime output sections.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimecandidatelifecycle const candidate lifecycle vocabulary used by runtime output sections. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeCandidateProject",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 136,
+        "summary": "Candidate project proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimecandidateproject class candidate project proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeCandidateTask",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 163,
+        "summary": "Candidate task proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimecandidatetask class candidate task proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeClaimConfidence",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 44,
+        "summary": "Confidence vocabulary for candidate claims.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimeclaimconfidence const confidence vocabulary for candidate claims. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeContextPacketRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 274,
+        "summary": "Request section embedded in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimecontextpacketrequest class request section embedded in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeDraftRecipient",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 191,
+        "summary": "Recipient for a candidate draft.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimedraftrecipient class recipient for a candidate draft. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeEntityRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 59,
+        "summary": "Lightweight reference to a vertical or runtime entity.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimeentityref class lightweight reference to a vertical or runtime entity. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeEvidenceRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 82,
+        "summary": "Source evidence reference for a candidate output.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimeevidenceref class source evidence reference for a candidate output. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeFixtureInput",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts",
+        "sourceLine": 76,
+        "summary": "Parsed fixture inputs for one runtime data-loop scenario.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimefixtureinput class parsed fixture inputs for one runtime data-loop scenario. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.fixtures.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeRequestKind",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 82,
+        "summary": "Runtime request kinds represented in context packets.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimerequestkind const runtime request kinds represented in context packets. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeScope",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 35,
+        "summary": "Scope for an SDK request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimescope class scope for an sdk request. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeSourceArtifact",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 320,
+        "summary": "Source artifact declared by a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimesourceartifact class source artifact declared by a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeSourceKind",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 101,
+        "summary": "Source artifact kinds represented in context packets.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimesourcekind const source artifact kinds represented in context packets. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeSourceSpanRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 297,
+        "summary": "Source span declared by a context packet source artifact.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimesourcespanref class source span declared by a context packet source artifact. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeUsageMode",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 139,
+        "summary": "Usage modes emitted by deterministic runtime fixtures.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimeusagemode const usage modes emitted by deterministic runtime fixtures. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "RuntimeUsageRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 371,
+        "summary": "Runtime usage attribution included in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof runtimeusagerecord class runtime usage attribution included in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/proof.ts",
+        "symbolName": "SdkContextPacket",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 396,
+        "summary": "Context packet returned to SDK clients.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/proof ./proof sdkcontextpacket class context packet returned to sdk clients. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "CandidateOutputSet",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 433,
+        "summary": "Batch of candidate outputs proposed by an agent run.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public candidateoutputset class batch of candidate outputs proposed by an agent run. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "GetContextPacket",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts",
+        "sourceLine": 26,
+        "summary": "Request for an evidence-bounded context packet.",
+        "categories": [
+          "queries"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public getcontextpacket class request for an evidence-bounded context packet. queries packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.queries.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "ProfessionalRuntimeSdk",
+        "exportKind": "interface",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
+        "sourceLine": 27,
+        "summary": "SDK facade shape exposed to clients and adapters.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public professionalruntimesdk interface sdk facade shape exposed to clients and adapters. services packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.service.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "ProfessionalRuntimeValidationError",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts",
+        "sourceLine": 28,
+        "summary": "Validation failure for runtime SDK requests and candidate proposals.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public professionalruntimevalidationerror class validation failure for runtime sdk requests and candidate proposals. errors packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.errors.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "ProposeCandidateOutputSet",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts",
+        "sourceLine": 27,
+        "summary": "Command for proposing candidate work through the SDK facade.",
+        "categories": [
+          "commands"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public proposecandidateoutputset class command for proposing candidate work through the sdk facade. commands packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.commands.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeActivity",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 345,
+        "summary": "Runtime provenance activity included in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimeactivity class runtime provenance activity included in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeActivityType",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 120,
+        "summary": "Activity types emitted by deterministic runtime fixtures.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimeactivitytype const activity types emitted by deterministic runtime fixtures. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeApprovalDecision",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 63,
+        "summary": "Approval decision vocabulary for candidate approval gates.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimeapprovaldecision const approval decision vocabulary for candidate approval gates. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeApprovalGate",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 245,
+        "summary": "Candidate approval gate proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimeapprovalgate class candidate approval gate proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeCandidateClaim",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 106,
+        "summary": "Candidate claim proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimecandidateclaim class candidate claim proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeCandidateDraft",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 214,
+        "summary": "Candidate draft proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimecandidatedraft class candidate draft proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeCandidateLifecycle",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 25,
+        "summary": "Candidate lifecycle vocabulary used by runtime output sections.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimecandidatelifecycle const candidate lifecycle vocabulary used by runtime output sections. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeCandidateProject",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 136,
+        "summary": "Candidate project proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimecandidateproject class candidate project proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeCandidateTask",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 163,
+        "summary": "Candidate task proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimecandidatetask class candidate task proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeClaimConfidence",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 44,
+        "summary": "Confidence vocabulary for candidate claims.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimeclaimconfidence const confidence vocabulary for candidate claims. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeContextPacketRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 274,
+        "summary": "Request section embedded in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimecontextpacketrequest class request section embedded in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeDraftRecipient",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 191,
+        "summary": "Recipient for a candidate draft.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimedraftrecipient class recipient for a candidate draft. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeEntityRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 59,
+        "summary": "Lightweight reference to a vertical or runtime entity.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimeentityref class lightweight reference to a vertical or runtime entity. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeEvidenceRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 82,
+        "summary": "Source evidence reference for a candidate output.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimeevidenceref class source evidence reference for a candidate output. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeRequestKind",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 82,
+        "summary": "Runtime request kinds represented in context packets.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimerequestkind const runtime request kinds represented in context packets. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeScope",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 35,
+        "summary": "Scope for an SDK request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimescope class scope for an sdk request. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeSourceArtifact",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 320,
+        "summary": "Source artifact declared by a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimesourceartifact class source artifact declared by a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeSourceKind",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 101,
+        "summary": "Source artifact kinds represented in context packets.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimesourcekind const source artifact kinds represented in context packets. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeSourceSpanRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 297,
+        "summary": "Source span declared by a context packet source artifact.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimesourcespanref class source span declared by a context packet source artifact. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeUsageMode",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 139,
+        "summary": "Usage modes emitted by deterministic runtime fixtures.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimeusagemode const usage modes emitted by deterministic runtime fixtures. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "RuntimeUsageRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 371,
+        "summary": "Runtime usage attribution included in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public runtimeusagerecord class runtime usage attribution included in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/public.ts",
+        "symbolName": "SdkContextPacket",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 396,
+        "summary": "Context packet returned to SDK clients.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/public ./public sdkcontextpacket class context packet returned to sdk clients. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "CandidateOutputSet",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 433,
+        "summary": "Batch of candidate outputs proposed by an agent run.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test candidateoutputset class batch of candidate outputs proposed by an agent run. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "GetContextPacket",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts",
+        "sourceLine": 26,
+        "summary": "Request for an evidence-bounded context packet.",
+        "categories": [
+          "queries"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test getcontextpacket class request for an evidence-bounded context packet. queries packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.queries.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "makeInMemoryProfessionalRuntimeSdk",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixture-service.ts",
+        "sourceLine": 199,
+        "summary": "Create an in-memory SDK facade over deterministic runtime fixture inputs.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test makeinmemoryprofessionalruntimesdk const create an in-memory sdk facade over deterministic runtime fixture inputs. constructors packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.fixture-service.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "ProfessionalRuntimeSdk",
+        "exportKind": "interface",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
+        "sourceLine": 27,
+        "summary": "SDK facade shape exposed to clients and adapters.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test professionalruntimesdk interface sdk facade shape exposed to clients and adapters. services packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.service.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "ProfessionalRuntimeValidationError",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts",
+        "sourceLine": 28,
+        "summary": "Validation failure for runtime SDK requests and candidate proposals.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test professionalruntimevalidationerror class validation failure for runtime sdk requests and candidate proposals. errors packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.errors.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "ProposeCandidateOutputSet",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts",
+        "sourceLine": 27,
+        "summary": "Command for proposing candidate work through the SDK facade.",
+        "categories": [
+          "commands"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test proposecandidateoutputset class command for proposing candidate work through the sdk facade. commands packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.commands.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "runRuntimeFixture",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts",
+        "sourceLine": 695,
+        "summary": "Run one deterministic runtime data-loop fixture.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runruntimefixture const run one deterministic runtime data-loop fixture. testing packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.fixtures.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeActivity",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 345,
+        "summary": "Runtime provenance activity included in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimeactivity class runtime provenance activity included in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeActivityType",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 120,
+        "summary": "Activity types emitted by deterministic runtime fixtures.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimeactivitytype const activity types emitted by deterministic runtime fixtures. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeApprovalDecision",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 63,
+        "summary": "Approval decision vocabulary for candidate approval gates.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimeapprovaldecision const approval decision vocabulary for candidate approval gates. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeApprovalGate",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 245,
+        "summary": "Candidate approval gate proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimeapprovalgate class candidate approval gate proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeCandidateClaim",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 106,
+        "summary": "Candidate claim proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimecandidateclaim class candidate claim proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeCandidateDraft",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 214,
+        "summary": "Candidate draft proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimecandidatedraft class candidate draft proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeCandidateLifecycle",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 25,
+        "summary": "Candidate lifecycle vocabulary used by runtime output sections.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimecandidatelifecycle const candidate lifecycle vocabulary used by runtime output sections. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeCandidateProject",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 136,
+        "summary": "Candidate project proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimecandidateproject class candidate project proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeCandidateTask",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 163,
+        "summary": "Candidate task proposed by the runtime.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimecandidatetask class candidate task proposed by the runtime. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeClaimConfidence",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 44,
+        "summary": "Confidence vocabulary for candidate claims.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimeclaimconfidence const confidence vocabulary for candidate claims. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeContextPacketRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 274,
+        "summary": "Request section embedded in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimecontextpacketrequest class request section embedded in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeDraftRecipient",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 191,
+        "summary": "Recipient for a candidate draft.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimedraftrecipient class recipient for a candidate draft. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeEntityRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 59,
+        "summary": "Lightweight reference to a vertical or runtime entity.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimeentityref class lightweight reference to a vertical or runtime entity. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeEvidenceRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 82,
+        "summary": "Source evidence reference for a candidate output.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimeevidenceref class source evidence reference for a candidate output. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeFixtureInput",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.fixtures.ts",
+        "sourceLine": 76,
+        "summary": "Parsed fixture inputs for one runtime data-loop scenario.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimefixtureinput class parsed fixture inputs for one runtime data-loop scenario. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.fixtures.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeRequestKind",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 82,
+        "summary": "Runtime request kinds represented in context packets.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimerequestkind const runtime request kinds represented in context packets. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeScope",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 35,
+        "summary": "Scope for an SDK request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimescope class scope for an sdk request. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeSourceArtifact",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 320,
+        "summary": "Source artifact declared by a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimesourceartifact class source artifact declared by a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeSourceKind",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 101,
+        "summary": "Source artifact kinds represented in context packets.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimesourcekind const source artifact kinds represented in context packets. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeSourceSpanRef",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 297,
+        "summary": "Source span declared by a context packet source artifact.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimesourcespanref class source span declared by a context packet source artifact. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeUsageMode",
+        "exportKind": "const",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts",
+        "sourceLine": 139,
+        "summary": "Usage modes emitted by deterministic runtime fixtures.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimeusagemode const usage modes emitted by deterministic runtime fixtures. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.values.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "RuntimeUsageRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 371,
+        "summary": "Runtime usage attribution included in a context packet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test runtimeusagerecord class runtime usage attribution included in a context packet. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agent-capability-use-cases",
+        "packagePath": "packages/agent-capability/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agent-capability-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agent-capability/use-cases/src/test.ts",
+        "symbolName": "SdkContextPacket",
+        "exportKind": "class",
+        "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
+        "sourceLine": 396,
+        "summary": "Context packet returned to SDK clients.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agent-capability-use-cases packages/agent-capability/use-cases @beep/agent-capability-use-cases/test ./test sdkcontextpacket class context packet returned to sdk clients. models packages/agent-capability/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      }
+    ]
+  }
+}

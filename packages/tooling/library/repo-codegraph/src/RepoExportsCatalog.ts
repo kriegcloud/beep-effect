@@ -13,9 +13,20 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { parse, printParseErrorCode } from "jsonc-parser";
 import { RepoCodegraphPackageImportPolicy, RepoCodegraphPreferredImport } from "./RepoCodegraphLookup.model.ts";
-import { decodeRepoExportsCatalog } from "./RepoExportsCatalog.model.ts";
+import {
+  decodeRepoExportsCatalog,
+  decodeRepoExportsCatalogIndex,
+  decodeRepoExportsCatalogShard,
+  RepoExportsCatalog,
+  RepoExportsCatalogEntry,
+  RepoExportsCatalogPackage,
+} from "./RepoExportsCatalog.model.ts";
 import type { ParseError } from "jsonc-parser";
-import type { RepoExportsCatalog } from "./RepoExportsCatalog.model.ts";
+import type {
+  RepoExportsCatalogIndex,
+  RepoExportsCatalogIndexPackage,
+  RepoExportsCatalogShard,
+} from "./RepoExportsCatalog.model.ts";
 
 const $I = $RepoCodegraphId.create("RepoExportsCatalog");
 const catalogRelativePath = "standards/repo-exports.catalog.jsonc";
@@ -119,6 +130,15 @@ const parseJsoncUnknown = (path: string, content: string) => {
   return Effect.succeed(parsed);
 };
 
+const parsedStandard = (value: unknown): O.Option<string> => {
+  if (typeof value !== "object" || value === null || !("standard" in value)) {
+    return O.none();
+  }
+
+  const standard = (value as { readonly standard?: unknown }).standard;
+  return typeof standard === "string" ? O.some(standard) : O.none();
+};
+
 const readTextFile = Effect.fn("RepoCodegraph.readTextFile")(function* (path: string) {
   const fs = yield* FileSystem.FileSystem;
   return yield* fs
@@ -128,6 +148,137 @@ const readTextFile = Effect.fn("RepoCodegraph.readTextFile")(function* (path: st
         catalogReadFailure("read-file", path, `Failed to read ${path}: ${Inspectable.toStringUnknown(cause, 0)}`, cause)
       )
     );
+});
+
+const missingPackageFromIndex = (indexPackage: RepoExportsCatalogIndexPackage): RepoExportsCatalogPackage =>
+  RepoExportsCatalogPackage.make({
+    counts: {
+      publicExportEntries: 0,
+      sourceFiles: 0,
+      uniqueSymbols: 0,
+    },
+    exports: [],
+    importSpecifiers: [],
+    packageName: indexPackage.packageName,
+    packagePath: indexPackage.packagePath,
+    status: indexPackage.status,
+    topoOrder: indexPackage.topoOrder,
+  });
+
+const validateShardPackage = (
+  shardPath: string,
+  indexPackage: RepoExportsCatalogIndexPackage,
+  shard: RepoExportsCatalogShard
+) => {
+  const expected = {
+    packageName: indexPackage.packageName,
+    packagePath: indexPackage.packagePath,
+    status: indexPackage.status,
+  };
+  const actual = {
+    packageName: shard.package.packageName,
+    packagePath: shard.package.packagePath,
+    status: shard.package.status,
+  };
+
+  if (
+    expected.packageName === actual.packageName &&
+    expected.packagePath === actual.packagePath &&
+    expected.status === actual.status
+  ) {
+    return Effect.void;
+  }
+
+  return Effect.fail(
+    catalogReadFailure(
+      "hydrate-index",
+      shardPath,
+      `Repo export shard ${shardPath} does not match root index package ${indexPackage.packageName}.`,
+      { actual, expected }
+    )
+  );
+};
+
+const readRepoExportsCatalogShard = Effect.fn("RepoCodegraph.readRepoExportsCatalogShard")(function* (
+  repoRoot: string,
+  shardPath: string
+): Effect.fn.Return<
+  RepoExportsCatalogShard,
+  RepoCodegraphCatalogReadError | S.SchemaError,
+  FileSystem.FileSystem | Path.Path
+> {
+  const pathApi = yield* Path.Path;
+  const absoluteShardPath = pathApi.join(repoRoot, shardPath);
+  const content = yield* readTextFile(absoluteShardPath);
+  const parsed = yield* parseJsoncUnknown(absoluteShardPath, content);
+  return yield* decodeRepoExportsCatalogShard(parsed);
+});
+
+const hydrateIndexPackage = Effect.fn("RepoCodegraph.hydrateIndexPackage")(function* (
+  repoRoot: string,
+  catalogPath: string,
+  indexPackage: RepoExportsCatalogIndexPackage
+): Effect.fn.Return<
+  RepoExportsCatalogPackage,
+  RepoCodegraphCatalogReadError | S.SchemaError,
+  FileSystem.FileSystem | Path.Path
+> {
+  if (indexPackage.status === "missing-workspace-metadata") {
+    return missingPackageFromIndex(indexPackage);
+  }
+
+  if (indexPackage.shardPath === undefined) {
+    return yield* catalogReadFailure(
+      "hydrate-index",
+      catalogPath,
+      `Repo export index package ${indexPackage.packageName} is missing shardPath.`,
+      indexPackage
+    );
+  }
+
+  const shard = yield* readRepoExportsCatalogShard(repoRoot, indexPackage.shardPath);
+  yield* validateShardPackage(indexPackage.shardPath, indexPackage, shard);
+
+  return RepoExportsCatalogPackage.make({
+    counts: shard.package.counts,
+    exports: A.map(shard.package.exports, (entry) =>
+      RepoExportsCatalogEntry.make({
+        ...entry,
+        topoOrder: indexPackage.topoOrder,
+      })
+    ),
+    importSpecifiers: shard.package.importSpecifiers,
+    packageName: shard.package.packageName,
+    packagePath: shard.package.packagePath,
+    status: shard.package.status,
+    topoOrder: indexPackage.topoOrder,
+  });
+});
+
+const hydrateRepoExportsCatalogIndex = Effect.fn("RepoCodegraph.hydrateRepoExportsCatalogIndex")(function* (
+  repoRoot: string,
+  catalogPath: string,
+  index: RepoExportsCatalogIndex
+): Effect.fn.Return<
+  RepoExportsCatalog,
+  RepoCodegraphCatalogReadError | S.SchemaError,
+  FileSystem.FileSystem | Path.Path
+> {
+  const packages = yield* Effect.forEach(
+    index.packages,
+    (indexPackage) => hydrateIndexPackage(repoRoot, catalogPath, indexPackage),
+    { concurrency: 8 }
+  );
+
+  return RepoExportsCatalog.make({
+    authority: index.authority,
+    deterministic: index.deterministic,
+    packages,
+    schemaVersion: "repo-exports-catalog/v1",
+    source: index.source,
+    standard: "repo-exports-catalog",
+    totals: index.totals,
+  });
 });
 
 const packageManifestPolicy = (
@@ -216,6 +367,12 @@ export const readRepoExportsCatalog = Effect.fn("RepoCodegraph.readRepoExportsCa
   const catalogPath = yield* repoExportsCatalogPath(repoRoot);
   const content = yield* readTextFile(catalogPath);
   const parsed = yield* parseJsoncUnknown(catalogPath, content);
+
+  if (pipe(parsedStandard(parsed), O.contains("repo-exports-catalog-index"))) {
+    const index = yield* decodeRepoExportsCatalogIndex(parsed);
+    return yield* hydrateRepoExportsCatalogIndex(repoRoot, catalogPath, index);
+  }
+
   return yield* decodeRepoExportsCatalog(parsed);
 });
 

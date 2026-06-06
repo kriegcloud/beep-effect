@@ -1,0 +1,4671 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "7b2664e2ddd19566eab5479dd70a838e54ba9c4ab1e436b20c324b0a88603727",
+    "inputs": [
+      {
+        "path": "packages/tooling/library/ai-sync/package.json",
+        "sha256": "49aa309502711576e4b75180c8f461acc0c86da51fbc5ef449f54a3a3255d490",
+        "bytes": 2813
+      },
+      {
+        "path": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sha256": "4d0c136122e27a0d55eedd36c065c4c4e209672b130e54604cd825626a6239b9",
+        "bytes": 4830
+      },
+      {
+        "path": "packages/tooling/library/ai-sync/src/_generated/source-metadata.gen.ts",
+        "sha256": "3f2351177c8e3c8b08fe6bb770e86f63f1fec59409a8f81a17ba063927647a77",
+        "bytes": 3760
+      },
+      {
+        "path": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sha256": "66613cd8e9fd32e90a9024ea708c8102590e3bdb140c242daf857fbd1fc937f0",
+        "bytes": 6553
+      },
+      {
+        "path": "packages/tooling/library/ai-sync/src/generator.ts",
+        "sha256": "42a1379e26d995cb39d7794d04806601b2970174939b1f99fe4b23d7657b62b4",
+        "bytes": 13855
+      },
+      {
+        "path": "packages/tooling/library/ai-sync/src/index.ts",
+        "sha256": "40f3cfdb690b2330d8c69c14fbd991f38532d6a1bd597c000b4707a65c314207",
+        "bytes": 1895
+      },
+      {
+        "path": "packages/tooling/library/ai-sync/src/models.ts",
+        "sha256": "cc1128ac96e55d098375cec236413d3c323f7f2f5f19a36d09b2dddd858ba0bd",
+        "bytes": 10337
+      },
+      {
+        "path": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sha256": "58f14c6acb3b0d7c55d75cc48d4b696ffde45f349c18002c31dce19e1890b86c",
+        "bytes": 5742
+      },
+      {
+        "path": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "sha256": "cf8d6ab872e6aa6b4e8261ff0e94a9e6b1e97aace0517afba75051d6c8b4c68b",
+        "bytes": 11649
+      },
+      {
+        "path": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sha256": "4a112e10ac12febc9810e39300965461e98174af2e41ce2e3cf4c192c2809c0f",
+        "bytes": 5630
+      },
+      {
+        "path": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sha256": "0ff2f6fe5aa36f6c6df4e9f566a6dc3d360227dd4b2fcb0a5b4e6cc65170901b",
+        "bytes": 4696
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/ai-sync",
+    "packagePath": "packages/tooling/library/ai-sync",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/ai-sync",
+      "@beep/ai-sync/_generated/schemas.gen",
+      "@beep/ai-sync/_generated/source-metadata.gen",
+      "@beep/ai-sync/drift",
+      "@beep/ai-sync/generator",
+      "@beep/ai-sync/index",
+      "@beep/ai-sync/models",
+      "@beep/ai-sync/schemas",
+      "@beep/ai-sync/source-map",
+      "@beep/ai-sync/transforms",
+      "@beep/ai-sync/validation"
+    ],
+    "counts": {
+      "publicExportEntries": 180,
+      "uniqueSymbols": 57,
+      "sourceFiles": 10
+    },
+    "exports": [
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AgentCommandMetadata",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 115,
+        "summary": "Documentation-backed generic command metadata.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . agentcommandmetadata class documentation-backed generic command metadata. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AgentInstructionDocument",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 35,
+        "summary": "Agent instruction markdown document.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . agentinstructiondocument const agent instruction markdown document. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AgentInstructionDocument",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 53,
+        "summary": "Runtime type for {@link AgentInstructionDocument}.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . agentinstructiondocument type runtime type for {@link agentinstructiondocument}. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AgentPluginManifestMetadata",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 138,
+        "summary": "Generic package/plugin manifest metadata used only where a native schema is known.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . agentpluginmanifestmetadata class generic package/plugin manifest metadata used only where a native schema is known. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AgentSkillFrontmatter",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 66,
+        "summary": "Generic agent skill frontmatter shared by compatible agents.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . agentskillfrontmatter class generic agent skill frontmatter shared by compatible agents. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncAgentId",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 25,
+        "summary": "V1 agent identifiers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncagentid const v1 agent identifiers. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncAgentId",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 52,
+        "summary": "Runtime type for {@link AiSyncAgentId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncagentid type runtime type for {@link aisyncagentid}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDomainId",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 65,
+        "summary": "V1 configuration domains.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncdomainid const v1 configuration domains. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDomainId",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 96,
+        "summary": "Runtime type for {@link AiSyncDomainId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncdomainid type runtime type for {@link aisyncdomainid}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDriftFinding",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 313,
+        "summary": "Drift difference for one upstream source.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncdriftfinding class drift difference for one upstream source. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDriftMechanism",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 171,
+        "summary": "Drift check strategy for a source.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncdriftmechanism const drift check strategy for a source. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDriftMechanism",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 196,
+        "summary": "Runtime type for {@link AiSyncDriftMechanism}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncdriftmechanism type runtime type for {@link aisyncdriftmechanism}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDriftReport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 337,
+        "summary": "Drift check report.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncdriftreport class drift check report. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 417,
+        "summary": "Typed AI sync operational error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncerror class typed ai sync operational error. errors packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSchemaCell",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 283,
+        "summary": "Support matrix cell.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncschemacell class support matrix cell. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSourceMetadata",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 249,
+        "summary": "Metadata for one upstream source.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncsourcemetadata class metadata for one upstream source. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSourceTier",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 109,
+        "summary": "Source evidence tiers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncsourcetier const source evidence tiers. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSourceTier",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 127,
+        "summary": "Runtime type for {@link AiSyncSourceTier}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncsourcetier type runtime type for {@link aisyncsourcetier}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSupportStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 140,
+        "summary": "Support state for an agent/domain cell.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncsupportstatus const support state for an agent/domain cell. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSupportStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 158,
+        "summary": "Runtime type for {@link AiSyncSupportStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncsupportstatus type runtime type for {@link aisyncsupportstatus}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncTransformEvidence",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 366,
+        "summary": "Transform proof metadata.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisynctransformevidence class transform proof metadata. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncTransformStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 209,
+        "summary": "Transform proof status.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisynctransformstatus const transform proof status. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncTransformStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 227,
+        "summary": "Runtime type for {@link AiSyncTransformStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisynctransformstatus type runtime type for {@link aisynctransformstatus}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncValidationResult",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 395,
+        "summary": "Validation success record for a repo-local config file.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . aisyncvalidationresult class validation success record for a repo-local config file. validation packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "assertNoStrictDrift",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 187,
+        "summary": "Fail when strict drift reports any findings.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . assertnostrictdrift const fail when strict drift reports any findings. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "checkGeneratedArtifacts",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 70,
+        "summary": "Offline generated artifact freshness check.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . checkgeneratedartifacts const offline generated artifact freshness check. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "checkSourceDriftWithFetcher",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 133,
+        "summary": "Compare a set of sources with an injected fetcher.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . checksourcedriftwithfetcher const compare a set of sources with an injected fetcher. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "checkStrictDrift",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 169,
+        "summary": "Networked strict drift check against committed Tier-1 hashes.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . checkstrictdrift const networked strict drift check against committed tier-1 hashes. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "ClaudeMcpJson",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 158,
+        "summary": "Generated Claude-style MCP JSON schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . claudemcpjson class generated claude-style mcp json schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "claudeMcpJsonToCodexConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 78,
+        "summary": "Transform Claude-style `.mcp.json` into the Codex TOML MCP server block.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . claudemcpjsontocodexconfig const transform claude-style `.mcp.json` into the codex toml mcp server block. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "claudeMcpJsonToJunieMcpJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 97,
+        "summary": "Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . claudemcpjsontojuniemcpjson const transform claude-style `.mcp.json` into the modeled junie project mcp shape. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "ClaudeSettings",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 178,
+        "summary": "Generated Claude Code settings schema subset.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . claudesettings class generated claude code settings schema subset. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "CodexConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 95,
+        "summary": "Generated Codex config schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . codexconfig class generated codex config schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "CodexMcpServer",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 27,
+        "summary": "Generated MCP server command configuration.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . codexmcpserver class generated mcp server command configuration. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "codexMcpServersToClaudeMcpJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 59,
+        "summary": "Transform Codex TOML MCP server config into Claude-style `.mcp.json`.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . codexmcpserverstoclaudemcpjson const transform codex toml mcp server config into claude-style `.mcp.json`. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "CodexSkillEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 53,
+        "summary": "Generated Codex skill entry.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . codexskillentry class generated codex skill entry. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "CodexSkills",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 74,
+        "summary": "Generated Codex skills block.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . codexskills class generated codex skills block. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "decodeClaudeMcpJsonObject",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 182,
+        "summary": "Decoder for Claude-style MCP JSON values after JSON parsing.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . decodeclaudemcpjsonobject const decoder for claude-style mcp json values after json parsing. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "decodeClaudeSettingsObject",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 195,
+        "summary": "Decoder for Claude settings JSON values after JSON parsing.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . decodeclaudesettingsobject const decoder for claude settings json values after json parsing. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "decodeCodexConfigObject",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 169,
+        "summary": "Decoder for Codex TOML config values after TOML parsing.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . decodecodexconfigobject const decoder for codex toml config values after toml parsing. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "defaultRepoRoot",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 120,
+        "summary": "Resolve the repository root from the package source directory.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . defaultreporoot const resolve the repository root from the package source directory. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "getGeneratedSourceMetadata",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 48,
+        "summary": "Decode committed generated source metadata.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . getgeneratedsourcemetadata const decode committed generated source metadata. constants packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "junieMcpJsonToClaudeMcpJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 113,
+        "summary": "Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . juniemcpjsontoclaudemcpjson const transform the modeled junie project mcp shape into claude-style `.mcp.json`. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "McpJsonServer",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 128,
+        "summary": "Generated Claude-style MCP server schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . mcpjsonserver class generated claude-style mcp server schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "normalizeAgentSkillFrontmatter",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 144,
+        "summary": "Keep only the shared Agent Skills frontmatter fields modeled in V1.",
+        "categories": [
+          "normalization"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . normalizeagentskillfrontmatter const keep only the shared agent skills frontmatter fields modeled in v1. normalization packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "normalizeInstructionDocument",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 128,
+        "summary": "Normalize markdown instruction documents for compatible rule surfaces.",
+        "categories": [
+          "normalization"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . normalizeinstructiondocument const normalize markdown instruction documents for compatible rule surfaces. normalization packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "renderSchemaIssueMessage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 210,
+        "summary": "Helper that turns schema issues into a bounded message.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . renderschemaissuemessage const helper that turns schema issues into a bounded message. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "TIER_ONE_SOURCES",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "sourceLine": 21,
+        "summary": "Tier-1 sources fetched by the generator and strict drift checker.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . tier_one_sources const tier-1 sources fetched by the generator and strict drift checker. constants packages/tooling/library/ai-sync/src/source-map.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "UnknownNativeSchemaCell",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 92,
+        "summary": "Unknown native schema marker for documented-but-undisclosed surfaces.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . unknownnativeschemacell class unknown native schema marker for documented-but-undisclosed surfaces. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "V1_SCHEMA_COVERAGE",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "sourceLine": 120,
+        "summary": "Complete V1 schema support matrix.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . v1_schema_coverage const complete v1 schema support matrix. constants packages/tooling/library/ai-sync/src/source-map.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "V1_TRANSFORM_EVIDENCE",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "sourceLine": 320,
+        "summary": "P4 transform evidence ledger.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . v1_transform_evidence const p4 transform evidence ledger. interop packages/tooling/library/ai-sync/src/source-map.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "validateCurrentCheckoutDogfood",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 136,
+        "summary": "Validate the mandatory V1 config from the current checkout.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . validatecurrentcheckoutdogfood const validate the mandatory v1 config from the current checkout. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "validateDogfoodConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 105,
+        "summary": "Validate the mandatory V1 dogfood config.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . validatedogfoodconfig const validate the mandatory v1 dogfood config. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "validateRepoConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 76,
+        "summary": "Validate one repo-local config file through its native schema.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . validaterepoconfig const validate one repo-local config file through its native schema. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/index.ts",
+        "sourceLine": 20,
+        "summary": "Current package version.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync . version const current package version. constants packages/tooling/library/ai-sync/src/index.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/_generated/schemas.gen",
+        "exportSubpath": "./_generated/schemas.gen",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "symbolName": "ClaudeMcpJson",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 158,
+        "summary": "Generated Claude-style MCP JSON schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/_generated/schemas.gen ./_generated/schemas.gen claudemcpjson class generated claude-style mcp json schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/_generated/schemas.gen",
+        "exportSubpath": "./_generated/schemas.gen",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "symbolName": "ClaudeSettings",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 178,
+        "summary": "Generated Claude Code settings schema subset.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/_generated/schemas.gen ./_generated/schemas.gen claudesettings class generated claude code settings schema subset. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/_generated/schemas.gen",
+        "exportSubpath": "./_generated/schemas.gen",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "symbolName": "CodexConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 95,
+        "summary": "Generated Codex config schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/_generated/schemas.gen ./_generated/schemas.gen codexconfig class generated codex config schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/_generated/schemas.gen",
+        "exportSubpath": "./_generated/schemas.gen",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "symbolName": "CodexMcpServer",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 27,
+        "summary": "Generated MCP server command configuration.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/_generated/schemas.gen ./_generated/schemas.gen codexmcpserver class generated mcp server command configuration. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/_generated/schemas.gen",
+        "exportSubpath": "./_generated/schemas.gen",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "symbolName": "CodexSkillEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 53,
+        "summary": "Generated Codex skill entry.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/_generated/schemas.gen ./_generated/schemas.gen codexskillentry class generated codex skill entry. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/_generated/schemas.gen",
+        "exportSubpath": "./_generated/schemas.gen",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "symbolName": "CodexSkills",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 74,
+        "summary": "Generated Codex skills block.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/_generated/schemas.gen ./_generated/schemas.gen codexskills class generated codex skills block. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/_generated/schemas.gen",
+        "exportSubpath": "./_generated/schemas.gen",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "symbolName": "McpJsonServer",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 128,
+        "summary": "Generated Claude-style MCP server schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/_generated/schemas.gen ./_generated/schemas.gen mcpjsonserver class generated claude-style mcp server schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/_generated/source-metadata.gen",
+        "exportSubpath": "./_generated/source-metadata.gen",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/_generated/source-metadata.gen.ts",
+        "symbolName": "GENERATED_TIER_ONE_SOURCE_METADATA",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/source-metadata.gen.ts",
+        "sourceLine": 22,
+        "summary": "Generated source metadata with content hashes for Tier-1 sources.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/_generated/source-metadata.gen ./_generated/source-metadata.gen generated_tier_one_source_metadata const generated source metadata with content hashes for tier-1 sources. constants packages/tooling/library/ai-sync/src/_generated/source-metadata.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/drift",
+        "exportSubpath": "./drift",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "symbolName": "assertNoStrictDrift",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 187,
+        "summary": "Fail when strict drift reports any findings.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/drift ./drift assertnostrictdrift const fail when strict drift reports any findings. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/drift",
+        "exportSubpath": "./drift",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "symbolName": "checkGeneratedArtifacts",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 70,
+        "summary": "Offline generated artifact freshness check.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/drift ./drift checkgeneratedartifacts const offline generated artifact freshness check. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/drift",
+        "exportSubpath": "./drift",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "symbolName": "checkSourceDriftWithFetcher",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 133,
+        "summary": "Compare a set of sources with an injected fetcher.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/drift ./drift checksourcedriftwithfetcher const compare a set of sources with an injected fetcher. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/drift",
+        "exportSubpath": "./drift",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "symbolName": "checkStrictDrift",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 169,
+        "summary": "Networked strict drift check against committed Tier-1 hashes.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/drift ./drift checkstrictdrift const networked strict drift check against committed tier-1 hashes. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/drift",
+        "exportSubpath": "./drift",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "symbolName": "getGeneratedSourceMetadata",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 48,
+        "summary": "Decode committed generated source metadata.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/drift ./drift getgeneratedsourcemetadata const decode committed generated source metadata. constants packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/generator",
+        "exportSubpath": "./generator",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "symbolName": "AiSyncHttpLayer",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "sourceLine": 429,
+        "summary": "Runtime layer for generator and drift commands.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/generator ./generator aisynchttplayer const runtime layer for generator and drift commands. services packages/tooling/library/ai-sync/src/generator.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/generator",
+        "exportSubpath": "./generator",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "symbolName": "fetchSourceText",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "sourceLine": 337,
+        "summary": "Fetch an upstream source body.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/generator ./generator fetchsourcetext const fetch an upstream source body. services packages/tooling/library/ai-sync/src/generator.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/generator",
+        "exportSubpath": "./generator",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "symbolName": "generateAiSyncArtifacts",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "sourceLine": 411,
+        "summary": "Generate committed schema and source metadata files.",
+        "categories": [
+          "workflows"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/generator ./generator generateaisyncartifacts const generate committed schema and source metadata files. workflows packages/tooling/library/ai-sync/src/generator.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/generator",
+        "exportSubpath": "./generator",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "symbolName": "GENERATED_SCHEMAS_PATH",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "sourceLine": 26,
+        "summary": "Generated schemas file path relative to the package root.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/generator ./generator generated_schemas_path const generated schemas file path relative to the package root. constants packages/tooling/library/ai-sync/src/generator.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/generator",
+        "exportSubpath": "./generator",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "symbolName": "GENERATED_SOURCE_METADATA_PATH",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "sourceLine": 39,
+        "summary": "Generated source metadata file path relative to the package root.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/generator ./generator generated_source_metadata_path const generated source metadata file path relative to the package root. constants packages/tooling/library/ai-sync/src/generator.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/generator",
+        "exportSubpath": "./generator",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "symbolName": "hashSourceText",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "sourceLine": 313,
+        "summary": "Compute a public SHA-256 content hash.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/generator ./generator hashsourcetext const compute a public sha-256 content hash. utilities packages/tooling/library/ai-sync/src/generator.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/generator",
+        "exportSubpath": "./generator",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "symbolName": "renderGeneratedSchemas",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "sourceLine": 398,
+        "summary": "Render generated schemas without network access.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/generator ./generator rendergeneratedschemas const render generated schemas without network access. utilities packages/tooling/library/ai-sync/src/generator.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/generator",
+        "exportSubpath": "./generator",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "symbolName": "renderGeneratedSourceMetadata",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/generator.ts",
+        "sourceLine": 104,
+        "summary": "Render generated source metadata without network access.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/generator ./generator rendergeneratedsourcemetadata const render generated source metadata without network access. utilities packages/tooling/library/ai-sync/src/generator.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AgentCommandMetadata",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 115,
+        "summary": "Documentation-backed generic command metadata.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index agentcommandmetadata class documentation-backed generic command metadata. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AgentInstructionDocument",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 35,
+        "summary": "Agent instruction markdown document.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index agentinstructiondocument const agent instruction markdown document. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AgentInstructionDocument",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 53,
+        "summary": "Runtime type for {@link AgentInstructionDocument}.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index agentinstructiondocument type runtime type for {@link agentinstructiondocument}. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AgentPluginManifestMetadata",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 138,
+        "summary": "Generic package/plugin manifest metadata used only where a native schema is known.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index agentpluginmanifestmetadata class generic package/plugin manifest metadata used only where a native schema is known. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AgentSkillFrontmatter",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 66,
+        "summary": "Generic agent skill frontmatter shared by compatible agents.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index agentskillfrontmatter class generic agent skill frontmatter shared by compatible agents. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncAgentId",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 25,
+        "summary": "V1 agent identifiers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncagentid const v1 agent identifiers. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncAgentId",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 52,
+        "summary": "Runtime type for {@link AiSyncAgentId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncagentid type runtime type for {@link aisyncagentid}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDomainId",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 65,
+        "summary": "V1 configuration domains.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncdomainid const v1 configuration domains. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDomainId",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 96,
+        "summary": "Runtime type for {@link AiSyncDomainId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncdomainid type runtime type for {@link aisyncdomainid}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDriftFinding",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 313,
+        "summary": "Drift difference for one upstream source.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncdriftfinding class drift difference for one upstream source. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDriftMechanism",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 171,
+        "summary": "Drift check strategy for a source.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncdriftmechanism const drift check strategy for a source. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDriftMechanism",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 196,
+        "summary": "Runtime type for {@link AiSyncDriftMechanism}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncdriftmechanism type runtime type for {@link aisyncdriftmechanism}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncDriftReport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 337,
+        "summary": "Drift check report.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncdriftreport class drift check report. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 417,
+        "summary": "Typed AI sync operational error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncerror class typed ai sync operational error. errors packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSchemaCell",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 283,
+        "summary": "Support matrix cell.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncschemacell class support matrix cell. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSourceMetadata",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 249,
+        "summary": "Metadata for one upstream source.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncsourcemetadata class metadata for one upstream source. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSourceTier",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 109,
+        "summary": "Source evidence tiers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncsourcetier const source evidence tiers. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSourceTier",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 127,
+        "summary": "Runtime type for {@link AiSyncSourceTier}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncsourcetier type runtime type for {@link aisyncsourcetier}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSupportStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 140,
+        "summary": "Support state for an agent/domain cell.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncsupportstatus const support state for an agent/domain cell. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncSupportStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 158,
+        "summary": "Runtime type for {@link AiSyncSupportStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncsupportstatus type runtime type for {@link aisyncsupportstatus}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncTransformEvidence",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 366,
+        "summary": "Transform proof metadata.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisynctransformevidence class transform proof metadata. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncTransformStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 209,
+        "summary": "Transform proof status.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisynctransformstatus const transform proof status. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncTransformStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 227,
+        "summary": "Runtime type for {@link AiSyncTransformStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisynctransformstatus type runtime type for {@link aisynctransformstatus}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "AiSyncValidationResult",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 395,
+        "summary": "Validation success record for a repo-local config file.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index aisyncvalidationresult class validation success record for a repo-local config file. validation packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "assertNoStrictDrift",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 187,
+        "summary": "Fail when strict drift reports any findings.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index assertnostrictdrift const fail when strict drift reports any findings. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "checkGeneratedArtifacts",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 70,
+        "summary": "Offline generated artifact freshness check.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index checkgeneratedartifacts const offline generated artifact freshness check. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "checkSourceDriftWithFetcher",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 133,
+        "summary": "Compare a set of sources with an injected fetcher.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index checksourcedriftwithfetcher const compare a set of sources with an injected fetcher. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "checkStrictDrift",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 169,
+        "summary": "Networked strict drift check against committed Tier-1 hashes.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index checkstrictdrift const networked strict drift check against committed tier-1 hashes. validation packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "ClaudeMcpJson",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 158,
+        "summary": "Generated Claude-style MCP JSON schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index claudemcpjson class generated claude-style mcp json schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "claudeMcpJsonToCodexConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 78,
+        "summary": "Transform Claude-style `.mcp.json` into the Codex TOML MCP server block.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index claudemcpjsontocodexconfig const transform claude-style `.mcp.json` into the codex toml mcp server block. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "claudeMcpJsonToJunieMcpJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 97,
+        "summary": "Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index claudemcpjsontojuniemcpjson const transform claude-style `.mcp.json` into the modeled junie project mcp shape. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "ClaudeSettings",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 178,
+        "summary": "Generated Claude Code settings schema subset.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index claudesettings class generated claude code settings schema subset. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "CodexConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 95,
+        "summary": "Generated Codex config schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index codexconfig class generated codex config schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "CodexMcpServer",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 27,
+        "summary": "Generated MCP server command configuration.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index codexmcpserver class generated mcp server command configuration. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "codexMcpServersToClaudeMcpJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 59,
+        "summary": "Transform Codex TOML MCP server config into Claude-style `.mcp.json`.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index codexmcpserverstoclaudemcpjson const transform codex toml mcp server config into claude-style `.mcp.json`. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "CodexSkillEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 53,
+        "summary": "Generated Codex skill entry.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index codexskillentry class generated codex skill entry. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "CodexSkills",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 74,
+        "summary": "Generated Codex skills block.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index codexskills class generated codex skills block. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "decodeClaudeMcpJsonObject",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 182,
+        "summary": "Decoder for Claude-style MCP JSON values after JSON parsing.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index decodeclaudemcpjsonobject const decoder for claude-style mcp json values after json parsing. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "decodeClaudeSettingsObject",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 195,
+        "summary": "Decoder for Claude settings JSON values after JSON parsing.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index decodeclaudesettingsobject const decoder for claude settings json values after json parsing. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "decodeCodexConfigObject",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 169,
+        "summary": "Decoder for Codex TOML config values after TOML parsing.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index decodecodexconfigobject const decoder for codex toml config values after toml parsing. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "defaultRepoRoot",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 120,
+        "summary": "Resolve the repository root from the package source directory.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index defaultreporoot const resolve the repository root from the package source directory. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "getGeneratedSourceMetadata",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/drift.ts",
+        "sourceLine": 48,
+        "summary": "Decode committed generated source metadata.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index getgeneratedsourcemetadata const decode committed generated source metadata. constants packages/tooling/library/ai-sync/src/drift.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "junieMcpJsonToClaudeMcpJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 113,
+        "summary": "Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index juniemcpjsontoclaudemcpjson const transform the modeled junie project mcp shape into claude-style `.mcp.json`. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "McpJsonServer",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 128,
+        "summary": "Generated Claude-style MCP server schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index mcpjsonserver class generated claude-style mcp server schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "normalizeAgentSkillFrontmatter",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 144,
+        "summary": "Keep only the shared Agent Skills frontmatter fields modeled in V1.",
+        "categories": [
+          "normalization"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index normalizeagentskillfrontmatter const keep only the shared agent skills frontmatter fields modeled in v1. normalization packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "normalizeInstructionDocument",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 128,
+        "summary": "Normalize markdown instruction documents for compatible rule surfaces.",
+        "categories": [
+          "normalization"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index normalizeinstructiondocument const normalize markdown instruction documents for compatible rule surfaces. normalization packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "renderSchemaIssueMessage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 210,
+        "summary": "Helper that turns schema issues into a bounded message.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index renderschemaissuemessage const helper that turns schema issues into a bounded message. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "TIER_ONE_SOURCES",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "sourceLine": 21,
+        "summary": "Tier-1 sources fetched by the generator and strict drift checker.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index tier_one_sources const tier-1 sources fetched by the generator and strict drift checker. constants packages/tooling/library/ai-sync/src/source-map.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "UnknownNativeSchemaCell",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 92,
+        "summary": "Unknown native schema marker for documented-but-undisclosed surfaces.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index unknownnativeschemacell class unknown native schema marker for documented-but-undisclosed surfaces. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "V1_SCHEMA_COVERAGE",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "sourceLine": 120,
+        "summary": "Complete V1 schema support matrix.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index v1_schema_coverage const complete v1 schema support matrix. constants packages/tooling/library/ai-sync/src/source-map.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "V1_TRANSFORM_EVIDENCE",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "sourceLine": 320,
+        "summary": "P4 transform evidence ledger.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index v1_transform_evidence const p4 transform evidence ledger. interop packages/tooling/library/ai-sync/src/source-map.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "validateCurrentCheckoutDogfood",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 136,
+        "summary": "Validate the mandatory V1 config from the current checkout.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index validatecurrentcheckoutdogfood const validate the mandatory v1 config from the current checkout. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "validateDogfoodConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 105,
+        "summary": "Validate the mandatory V1 dogfood config.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index validatedogfoodconfig const validate the mandatory v1 dogfood config. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "validateRepoConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 76,
+        "summary": "Validate one repo-local config file through its native schema.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index validaterepoconfig const validate one repo-local config file through its native schema. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/index.ts",
+        "sourceLine": 20,
+        "summary": "Current package version.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/index ./index version const current package version. constants packages/tooling/library/ai-sync/src/index.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncAgentId",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 25,
+        "summary": "V1 agent identifiers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncagentid const v1 agent identifiers. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncAgentId",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 52,
+        "summary": "Runtime type for {@link AiSyncAgentId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncagentid type runtime type for {@link aisyncagentid}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncDomainId",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 65,
+        "summary": "V1 configuration domains.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncdomainid const v1 configuration domains. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncDomainId",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 96,
+        "summary": "Runtime type for {@link AiSyncDomainId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncdomainid type runtime type for {@link aisyncdomainid}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncDriftFinding",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 313,
+        "summary": "Drift difference for one upstream source.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncdriftfinding class drift difference for one upstream source. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncDriftMechanism",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 171,
+        "summary": "Drift check strategy for a source.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncdriftmechanism const drift check strategy for a source. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncDriftMechanism",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 196,
+        "summary": "Runtime type for {@link AiSyncDriftMechanism}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncdriftmechanism type runtime type for {@link aisyncdriftmechanism}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncDriftReport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 337,
+        "summary": "Drift check report.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncdriftreport class drift check report. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 417,
+        "summary": "Typed AI sync operational error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncerror class typed ai sync operational error. errors packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncSchemaCell",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 283,
+        "summary": "Support matrix cell.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncschemacell class support matrix cell. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncSourceMetadata",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 249,
+        "summary": "Metadata for one upstream source.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncsourcemetadata class metadata for one upstream source. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncSourceTier",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 109,
+        "summary": "Source evidence tiers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncsourcetier const source evidence tiers. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncSourceTier",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 127,
+        "summary": "Runtime type for {@link AiSyncSourceTier}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncsourcetier type runtime type for {@link aisyncsourcetier}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncSupportStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 140,
+        "summary": "Support state for an agent/domain cell.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncsupportstatus const support state for an agent/domain cell. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncSupportStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 158,
+        "summary": "Runtime type for {@link AiSyncSupportStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncsupportstatus type runtime type for {@link aisyncsupportstatus}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncTransformEvidence",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 366,
+        "summary": "Transform proof metadata.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisynctransformevidence class transform proof metadata. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncTransformStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 209,
+        "summary": "Transform proof status.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisynctransformstatus const transform proof status. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncTransformStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 227,
+        "summary": "Runtime type for {@link AiSyncTransformStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisynctransformstatus type runtime type for {@link aisynctransformstatus}. models packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/models",
+        "exportSubpath": "./models",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/models.ts",
+        "symbolName": "AiSyncValidationResult",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/models.ts",
+        "sourceLine": 395,
+        "summary": "Validation success record for a repo-local config file.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/models ./models aisyncvalidationresult class validation success record for a repo-local config file. validation packages/tooling/library/ai-sync/src/models.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "AgentCommandMetadata",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 115,
+        "summary": "Documentation-backed generic command metadata.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas agentcommandmetadata class documentation-backed generic command metadata. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "AgentInstructionDocument",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 35,
+        "summary": "Agent instruction markdown document.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas agentinstructiondocument const agent instruction markdown document. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "AgentInstructionDocument",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 53,
+        "summary": "Runtime type for {@link AgentInstructionDocument}.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas agentinstructiondocument type runtime type for {@link agentinstructiondocument}. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "AgentPluginManifestMetadata",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 138,
+        "summary": "Generic package/plugin manifest metadata used only where a native schema is known.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas agentpluginmanifestmetadata class generic package/plugin manifest metadata used only where a native schema is known. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "AgentSkillFrontmatter",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 66,
+        "summary": "Generic agent skill frontmatter shared by compatible agents.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas agentskillfrontmatter class generic agent skill frontmatter shared by compatible agents. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "ClaudeMcpJson",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 158,
+        "summary": "Generated Claude-style MCP JSON schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas claudemcpjson class generated claude-style mcp json schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "ClaudeSettings",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 178,
+        "summary": "Generated Claude Code settings schema subset.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas claudesettings class generated claude code settings schema subset. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "CodexConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 95,
+        "summary": "Generated Codex config schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas codexconfig class generated codex config schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "CodexMcpServer",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 27,
+        "summary": "Generated MCP server command configuration.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas codexmcpserver class generated mcp server command configuration. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "CodexSkillEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 53,
+        "summary": "Generated Codex skill entry.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas codexskillentry class generated codex skill entry. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "CodexSkills",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 74,
+        "summary": "Generated Codex skills block.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas codexskills class generated codex skills block. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "decodeClaudeMcpJsonObject",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 182,
+        "summary": "Decoder for Claude-style MCP JSON values after JSON parsing.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas decodeclaudemcpjsonobject const decoder for claude-style mcp json values after json parsing. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "decodeClaudeSettingsObject",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 195,
+        "summary": "Decoder for Claude settings JSON values after JSON parsing.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas decodeclaudesettingsobject const decoder for claude settings json values after json parsing. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "decodeCodexConfigObject",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 169,
+        "summary": "Decoder for Codex TOML config values after TOML parsing.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas decodecodexconfigobject const decoder for codex toml config values after toml parsing. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "McpJsonServer",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts",
+        "sourceLine": 128,
+        "summary": "Generated Claude-style MCP server schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas mcpjsonserver class generated claude-style mcp server schema. schemas packages/tooling/library/ai-sync/src/_generated/schemas.gen.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "renderSchemaIssueMessage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 210,
+        "summary": "Helper that turns schema issues into a bounded message.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas renderschemaissuemessage const helper that turns schema issues into a bounded message. validation packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/schemas",
+        "exportSubpath": "./schemas",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "symbolName": "UnknownNativeSchemaCell",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/ai-sync/src/schemas.ts",
+        "sourceLine": 92,
+        "summary": "Unknown native schema marker for documented-but-undisclosed surfaces.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/schemas ./schemas unknownnativeschemacell class unknown native schema marker for documented-but-undisclosed surfaces. schemas packages/tooling/library/ai-sync/src/schemas.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/source-map",
+        "exportSubpath": "./source-map",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "symbolName": "TIER_ONE_SOURCES",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "sourceLine": 21,
+        "summary": "Tier-1 sources fetched by the generator and strict drift checker.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/source-map ./source-map tier_one_sources const tier-1 sources fetched by the generator and strict drift checker. constants packages/tooling/library/ai-sync/src/source-map.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/source-map",
+        "exportSubpath": "./source-map",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "symbolName": "V1_SCHEMA_COVERAGE",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "sourceLine": 120,
+        "summary": "Complete V1 schema support matrix.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/source-map ./source-map v1_schema_coverage const complete v1 schema support matrix. constants packages/tooling/library/ai-sync/src/source-map.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/source-map",
+        "exportSubpath": "./source-map",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "symbolName": "V1_TRANSFORM_EVIDENCE",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/source-map.ts",
+        "sourceLine": 320,
+        "summary": "P4 transform evidence ledger.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/source-map ./source-map v1_transform_evidence const p4 transform evidence ledger. interop packages/tooling/library/ai-sync/src/source-map.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/transforms",
+        "exportSubpath": "./transforms",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "symbolName": "claudeMcpJsonToCodexConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 78,
+        "summary": "Transform Claude-style `.mcp.json` into the Codex TOML MCP server block.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/transforms ./transforms claudemcpjsontocodexconfig const transform claude-style `.mcp.json` into the codex toml mcp server block. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/transforms",
+        "exportSubpath": "./transforms",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "symbolName": "claudeMcpJsonToJunieMcpJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 97,
+        "summary": "Transform Claude-style `.mcp.json` into the modeled Junie project MCP shape.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/transforms ./transforms claudemcpjsontojuniemcpjson const transform claude-style `.mcp.json` into the modeled junie project mcp shape. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/transforms",
+        "exportSubpath": "./transforms",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "symbolName": "codexMcpServersToClaudeMcpJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 59,
+        "summary": "Transform Codex TOML MCP server config into Claude-style `.mcp.json`.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/transforms ./transforms codexmcpserverstoclaudemcpjson const transform codex toml mcp server config into claude-style `.mcp.json`. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/transforms",
+        "exportSubpath": "./transforms",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "symbolName": "junieMcpJsonToClaudeMcpJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 113,
+        "summary": "Transform the modeled Junie project MCP shape into Claude-style `.mcp.json`.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/transforms ./transforms juniemcpjsontoclaudemcpjson const transform the modeled junie project mcp shape into claude-style `.mcp.json`. interop packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/transforms",
+        "exportSubpath": "./transforms",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "symbolName": "normalizeAgentSkillFrontmatter",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 144,
+        "summary": "Keep only the shared Agent Skills frontmatter fields modeled in V1.",
+        "categories": [
+          "normalization"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/transforms ./transforms normalizeagentskillfrontmatter const keep only the shared agent skills frontmatter fields modeled in v1. normalization packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/transforms",
+        "exportSubpath": "./transforms",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "symbolName": "normalizeInstructionDocument",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/transforms.ts",
+        "sourceLine": 128,
+        "summary": "Normalize markdown instruction documents for compatible rule surfaces.",
+        "categories": [
+          "normalization"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/transforms ./transforms normalizeinstructiondocument const normalize markdown instruction documents for compatible rule surfaces. normalization packages/tooling/library/ai-sync/src/transforms.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/validation",
+        "exportSubpath": "./validation",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "symbolName": "defaultRepoRoot",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 120,
+        "summary": "Resolve the repository root from the package source directory.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/validation ./validation defaultreporoot const resolve the repository root from the package source directory. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/validation",
+        "exportSubpath": "./validation",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "symbolName": "validateCurrentCheckoutDogfood",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 136,
+        "summary": "Validate the mandatory V1 config from the current checkout.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/validation ./validation validatecurrentcheckoutdogfood const validate the mandatory v1 config from the current checkout. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/validation",
+        "exportSubpath": "./validation",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "symbolName": "validateDogfoodConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 105,
+        "summary": "Validate the mandatory V1 dogfood config.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/validation ./validation validatedogfoodconfig const validate the mandatory v1 dogfood config. validation packages/tooling/library/ai-sync/src/validation.ts"
+      },
+      {
+        "packageName": "@beep/ai-sync",
+        "packagePath": "packages/tooling/library/ai-sync",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ai-sync/validation",
+        "exportSubpath": "./validation",
+        "exportedFromPath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "symbolName": "validateRepoConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/ai-sync/src/validation.ts",
+        "sourceLine": 76,
+        "summary": "Validate one repo-local config file through its native schema.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ai-sync packages/tooling/library/ai-sync @beep/ai-sync/validation ./validation validaterepoconfig const validate one repo-local config file through its native schema. validation packages/tooling/library/ai-sync/src/validation.ts"
+      }
+    ]
+  }
+}

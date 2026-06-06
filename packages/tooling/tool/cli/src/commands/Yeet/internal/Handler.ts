@@ -139,7 +139,21 @@ const shouldCollectAffectedFeedbackTasks = (mode: YeetRunMode): boolean =>
     publish: () => false,
     repair: () => true,
     verify: () => false,
+    monitor: () => false,
   });
+
+class GhPullRequestView extends S.Class<GhPullRequestView>($I`GhPullRequestView`)(
+  {
+    headRefName: S.String,
+    number: S.Finite,
+    state: S.String,
+  },
+  $I.annote("GhPullRequestView", {
+    description: "GitHub pull request metadata used to guard Yeet monitor runs.",
+  })
+) {}
+
+const decodeGhPullRequestView = S.decodeUnknownEffect(S.fromJsonString(GhPullRequestView));
 
 /**
  * Runtime options accepted by the yeet handler.
@@ -148,7 +162,7 @@ const shouldCollectAffectedFeedbackTasks = (mode: YeetRunMode): boolean =>
  * ```ts
  * import { YeetRunOptions } from "@beep/repo-cli/commands/Yeet"
  *
- * const options = YeetRunOptions.make({ base: "origin/main", head: "HEAD", json: false, message: "", mode: "verify", packetDir: ".beep/yeet", plan: true })
+ * const options = YeetRunOptions.make({ base: "origin/main", fast: false, head: "HEAD", json: false, message: "", mode: "verify", monitor: false, packetDir: ".beep/yeet", plan: true })
  * console.log(options.base)
  * ```
  * @category models
@@ -157,10 +171,12 @@ const shouldCollectAffectedFeedbackTasks = (mode: YeetRunMode): boolean =>
 export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
   {
     base: S.String,
+    fast: S.Boolean,
     head: S.String,
     json: S.Boolean,
     message: S.String,
     mode: YeetRunMode,
+    monitor: S.Boolean,
     packetDir: S.String,
     plan: S.Boolean,
   },
@@ -303,6 +319,104 @@ const runGitOutput = Effect.fn("Yeet.runGitOutput")(function* (
     });
   }
   return Str.trim(result.output);
+});
+
+const blockedMonitorBranches: ReadonlyArray<string> = ["main", "master", "HEAD"];
+const shouldMonitorChecks = (options: YeetRunOptions): boolean => options.monitor || options.mode === "monitor";
+
+const validateMonitorBranch = (context: RepoRunContext): Effect.Effect<void, YeetCommandError> => {
+  if (!A.contains(blockedMonitorBranches, context.branch)) {
+    return Effect.void;
+  }
+
+  return Effect.fail(
+    YeetCommandError.make({
+      message: `yeet monitor is PR-branch-only; refusing to monitor branch "${context.branch}".`,
+      command: "git rev-parse --abbrev-ref HEAD",
+      exitCode: 1,
+    })
+  );
+};
+
+const runGhPullRequestView = Effect.fn("Yeet.runGhPullRequestView")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<GhPullRequestView, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const result = yield* runRepoCommandCapture(
+    "gh",
+    ["pr", "view", "--json", "number,headRefName,state"],
+    context.repoRoot
+  ).pipe(Effect.mapError(YeetCommandError.new("Failed to inspect current branch pull request.")));
+
+  if (result.exitCode !== 0) {
+    return yield* YeetCommandError.make({
+      message:
+        "yeet monitor requires an open pull request for the current branch. Run the full local proof fallback with `bun run audit:github pre-push` when no PR is available.",
+      command: "gh pr view --json number,headRefName,state",
+      exitCode: result.exitCode,
+    });
+  }
+
+  if (result.truncated) {
+    return yield* YeetCommandError.make({
+      message: "gh pr view output exceeded the repo-run capture limit.",
+      command: "gh pr view --json number,headRefName,state",
+      exitCode: 1,
+    });
+  }
+
+  return yield* decodeGhPullRequestView(result.output).pipe(
+    Effect.mapError(YeetCommandError.new("Failed to decode gh pr view JSON."))
+  );
+});
+
+const validateOpenPullRequest = Effect.fn("Yeet.validateOpenPullRequest")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const pullRequest = yield* runGhPullRequestView(context);
+
+  if (pullRequest.state !== "OPEN") {
+    return yield* YeetCommandError.make({
+      message: `yeet monitor requires an open pull request; current branch PR #${pullRequest.number} is ${pullRequest.state}.`,
+      command: "gh pr view --json number,headRefName,state",
+      exitCode: 1,
+    });
+  }
+
+  if (pullRequest.headRefName !== context.branch) {
+    return yield* YeetCommandError.make({
+      message: `yeet monitor expected PR head "${context.branch}" but gh reported "${pullRequest.headRefName}".`,
+      command: "gh pr view --json number,headRefName,state",
+      exitCode: 1,
+    });
+  }
+});
+
+const validateMonitorGuards = Effect.fn("Yeet.validateMonitorGuards")(function* (
+  context: RepoRunContext,
+  options: YeetRunOptions
+): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  if (options.fast && options.mode !== "publish") {
+    return yield* YeetCommandError.make({
+      message: "yeet --fast is only valid for publish.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.fast && !options.monitor) {
+    return yield* YeetCommandError.make({
+      message: "yeet publish --fast requires --monitor so hosted PR checks remain explicit.",
+      exitCode: 1,
+    });
+  }
+
+  if (!shouldMonitorChecks(options)) {
+    return;
+  }
+
+  yield* validateMonitorBranch(context);
+  if (!options.plan) {
+    yield* validateOpenPullRequest(context);
+  }
 });
 
 const originRefPrefix = "origin/" as const;
@@ -963,7 +1077,8 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   message: O.Option<string>,
   commitSteps: ReadonlyArray<RepoPlanStep>,
   fullSteps: ReadonlyArray<RepoPlanStep>,
-  publishSteps: ReadonlyArray<RepoPlanStep>
+  publishSteps: ReadonlyArray<RepoPlanStep>,
+  monitorSteps: ReadonlyArray<RepoPlanStep>
 ): Effect.fn.Return<
   YeetRunResult,
   YeetCommandError,
@@ -995,7 +1110,32 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
     return yield* failWithIssueArtifacts(plan.context, publishSteps, publishResults, "yeet publish phase failed.");
   }
 
+  const monitorResults = yield* runPhase(plan.context, monitorSteps);
+  if (A.some(monitorResults, (result) => result.exitCode !== 0)) {
+    return yield* failWithIssueArtifacts(
+      plan.context,
+      monitorSteps,
+      monitorResults,
+      "yeet publish monitor phase failed."
+    );
+  }
+
   return yield* publishResult(plan.context);
+});
+
+const runMonitorMode = Effect.fn("Yeet.runMonitorMode")(function* (
+  context: RepoRunContext,
+  monitorSteps: ReadonlyArray<RepoPlanStep>
+): Effect.fn.Return<
+  YeetRunResult,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const monitorResults = yield* runPhase(context, monitorSteps);
+  if (A.some(monitorResults, (result) => result.exitCode !== 0)) {
+    return yield* failWithIssueArtifacts(context, monitorSteps, monitorResults, "yeet monitor failed.");
+  }
+  return yield* emptyPlanResult(context);
 });
 
 const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
@@ -1012,6 +1152,7 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   const commitSteps = A.filter(plan.steps, (step) => step.phase === "commit");
   const fullSteps = A.filter(plan.steps, (step) => step.phase === "full");
   const publishSteps = A.filter(plan.steps, (step) => step.phase === "publish");
+  const monitorSteps = A.filter(plan.steps, (step) => step.phase === "monitor");
 
   const prepareResults = yield* runPhase(plan.context, prepareSteps);
   if (A.some(prepareResults, (result) => result.exitCode !== 0)) {
@@ -1026,7 +1167,8 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   return yield* YeetRunMode.$match(mode, {
     repair: () => emptyPlanResult(plan.context),
     verify: () => runVerifyMode(plan.context, fullSteps),
-    publish: () => runPublishMode(plan, message, commitSteps, fullSteps, publishSteps),
+    publish: () => runPublishMode(plan, message, commitSteps, fullSteps, publishSteps, monitorSteps),
+    monitor: () => runMonitorMode(plan.context, monitorSteps),
   });
 });
 
@@ -1071,7 +1213,12 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
 > {
   const message = yield* validateRequiredMessage(options);
   const context = yield* hydrateYeetRunContext(options);
-  const plan = buildYeetRunPlanWithMode(context, message, YeetRunPlanModeOptions.make({ mode: options.mode }));
+  yield* validateMonitorGuards(context, options);
+  const plan = buildYeetRunPlanWithMode(
+    context,
+    message,
+    YeetRunPlanModeOptions.make({ fast: options.fast, mode: options.mode, monitor: options.monitor })
+  );
   if (options.plan) {
     yield* renderPlan(plan, options.json);
     return yield* emptyPlanResult(context);
@@ -1090,13 +1237,19 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
  */
 export const buildYeetRunPlanForTesting = (options: {
   readonly context: RepoRunContext;
+  readonly fast?: boolean;
   readonly message: O.Option<string>;
   readonly mode?: YeetRunMode;
+  readonly monitor?: boolean;
 }): RepoRunPlan =>
   buildYeetRunPlanWithMode(
     options.context,
     options.message,
-    YeetRunPlanModeOptions.make({ mode: options.mode ?? "publish" })
+    YeetRunPlanModeOptions.make({
+      fast: options.fast ?? false,
+      mode: options.mode ?? "publish",
+      monitor: options.monitor ?? false,
+    })
   );
 
 /**
@@ -1110,10 +1263,12 @@ export const buildYeetRunPlanForTesting = (options: {
 export const defaultYeetRunOptions = (overrides: Partial<YeetRunOptions> = {}): YeetRunOptions =>
   YeetRunOptions.make({
     base: "origin/main",
+    fast: false,
     head: "HEAD",
     json: false,
     message: "",
     mode: "publish",
+    monitor: false,
     packetDir: DEFAULT_YEET_PACKET_DIR,
     plan: false,
     ...overrides,

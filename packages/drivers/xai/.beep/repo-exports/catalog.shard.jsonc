@@ -1,0 +1,1413 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "9627d86c12af88b0500f628c8792c546fc9d01ebcf4913c18735f3f47979c1fe",
+    "inputs": [
+      {
+        "path": "packages/drivers/xai/package.json",
+        "sha256": "b785b325ed0caa58bf31898830fa7fc0f2a625244ad4887e2967270a861ca4d8",
+        "bytes": 2745
+      },
+      {
+        "path": "packages/drivers/xai/src/index.ts",
+        "sha256": "4e72ce4ef0eb2fe6c484244c37c741fafa871be808a101a780fec3a5bfbb1848",
+        "bytes": 1953
+      },
+      {
+        "path": "packages/drivers/xai/src/XAi.config.ts",
+        "sha256": "ca247c19b793c0e0ccb4a31ba73770546c47505b0edfe503410aee4d2b8def8d",
+        "bytes": 1939
+      },
+      {
+        "path": "packages/drivers/xai/src/XAi.errors.ts",
+        "sha256": "c7c5bcf51150720910e653dd14faa484d33a8947c9a9b052c3c76efdd8c01d63",
+        "bytes": 5783
+      },
+      {
+        "path": "packages/drivers/xai/src/XAi.models.ts",
+        "sha256": "093c6c087ebe14c2f7119919cc421a147d2ffbedf9b5796fa1a0551b10d0ffc3",
+        "bytes": 9831
+      },
+      {
+        "path": "packages/drivers/xai/src/XAi.service.ts",
+        "sha256": "70aff65a2155620677c18d7eb42578e2bc08f92223d49a8995a16996ba40f337",
+        "bytes": 36806
+      },
+      {
+        "path": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sha256": "e5b2d4602bdb0ee1a292472d169320f7cf173b536a5b66adc7ed90745c04eeb1",
+        "bytes": 36871
+      },
+      {
+        "path": "packages/drivers/xai/src/XAiLanguageModel.service.ts",
+        "sha256": "c4cad7d9996d5aa3177022d5b410b13d67beb04b807b2b5d268ac0397ff9d691",
+        "bytes": 7456
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/xai",
+    "packagePath": "packages/drivers/xai",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/xai"
+    ],
+    "counts": {
+      "publicExportEntries": 53,
+      "uniqueSymbols": 40,
+      "sourceFiles": 7
+    },
+    "exports": [
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/index.ts",
+        "sourceLine": 21,
+        "summary": "Package version for `@beep/xai`.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . version const package version for `@beep/xai`. utilities packages/drivers/xai/src/index.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAi",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAi.service.ts",
+        "sourceLine": 978,
+        "summary": "Effect service for all documented xAI API endpoints.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xai class effect service for all documented xai api endpoints. services packages/drivers/xai/src/xai.service.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAI_API_URL",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAi.config.ts",
+        "sourceLine": 26,
+        "summary": "Default xAI inference API base URL.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xai_api_url const default xai inference api base url. utilities packages/drivers/xai/src/xai.config.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAI_ENDPOINT_COUNT",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 27,
+        "summary": "Number of xAI endpoints represented in the manifest.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xai_endpoint_count const number of xai endpoints represented in the manifest. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAI_ENDPOINT_METHOD_NAMES",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 395,
+        "summary": "Runtime list of public `XAi` endpoint method names.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xai_endpoint_method_names const runtime list of public `xai` endpoint method names. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAI_ENDPOINTS",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 595,
+        "summary": "Manifest of every xAI endpoint represented by the `XAi` service.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xai_endpoints const manifest of every xai endpoint represented by the `xai` service. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAI_MANAGEMENT_API_URL",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAi.config.ts",
+        "sourceLine": 41,
+        "summary": "Default xAI management API base URL.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xai_management_api_url const default xai management api base url. utilities packages/drivers/xai/src/xai.config.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAI_WEBSOCKET_URL",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAi.config.ts",
+        "sourceLine": 56,
+        "summary": "Default xAI WebSocket API base URL.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xai_websocket_url const default xai websocket api base url. utilities packages/drivers/xai/src/xai.config.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiAuthKind",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 83,
+        "summary": "Authentication channel required by an xAI endpoint.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiauthkind const authentication channel required by an xai endpoint. schemas packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiAuthKind",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 103,
+        "summary": "Type for {@link XAiAuthKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiauthkind type type for {@link xaiauthkind}. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiBinaryResponse",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 177,
+        "summary": "Binary response returned by the xAI driver.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaibinaryresponse class binary response returned by the xai driver. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiConfigInput",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAi.config.ts",
+        "sourceLine": 77,
+        "summary": "Runtime configuration accepted by {@link XAi.makeLayer}.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiconfiginput class runtime configuration accepted by {@link xai.makelayer}. utilities packages/drivers/xai/src/xai.config.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpoint",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 537,
+        "summary": "Schema for endpoint descriptors stored in {@link XAI_ENDPOINTS}.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpoint class schema for endpoint descriptors stored in {@link xai_endpoints}. schemas packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpointBase",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 121,
+        "summary": "xAI base URL family used by an endpoint.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpointbase const xai base url family used by an endpoint. schemas packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpointBase",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 141,
+        "summary": "Type for {@link XAiEndpointBase}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpointbase type type for {@link xaiendpointbase}. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpointDescriptor",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 578,
+        "summary": "Metadata for one documented xAI endpoint.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpointdescriptor type metadata for one documented xai endpoint. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpointId",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 500,
+        "summary": "Stable endpoint identifiers in the checked-in xAI manifest.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpointid const stable endpoint identifiers in the checked-in xai manifest. schemas packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpointId",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 520,
+        "summary": "Type for {@link XAiEndpointId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpointid type type for {@link xaiendpointid}. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpointMethod",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.service.ts",
+        "sourceLine": 93,
+        "summary": "Function shape used by every non-streaming xAI HTTP endpoint method.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpointmethod type function shape used by every non-streaming xai http endpoint method. models packages/drivers/xai/src/xai.service.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpointMethodName",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 360,
+        "summary": "Public `XAi` service method names that correspond to documented endpoints.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpointmethodname const public `xai` service method names that correspond to documented endpoints. schemas packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpointMethodName",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 380,
+        "summary": "Type for {@link XAiEndpointMethodName}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpointmethodname type type for {@link xaiendpointmethodname}. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpointStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 235,
+        "summary": "Documentation status for an xAI endpoint.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpointstatus const documentation status for an xai endpoint. schemas packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiEndpointStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 255,
+        "summary": "Type for {@link XAiEndpointStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiendpointstatus type type for {@link xaiendpointstatus}. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAi.errors.ts",
+        "sourceLine": 83,
+        "summary": "Technical failure raised by the xAI driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaierror class technical failure raised by the xai driver boundary. errors packages/drivers/xai/src/xai.errors.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiErrorOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAi.errors.ts",
+        "sourceLine": 207,
+        "summary": "Options used when constructing xAI driver errors.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaierroroptions class options used when constructing xai driver errors. errors packages/drivers/xai/src/xai.errors.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAi.errors.ts",
+        "sourceLine": 36,
+        "summary": "Technical error reasons emitted by the xAI driver.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaierrorreason const technical error reasons emitted by the xai driver. errors packages/drivers/xai/src/xai.errors.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.errors.ts",
+        "sourceLine": 65,
+        "summary": "Type for {@link XAiErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaierrorreason type type for {@link xaierrorreason}. errors packages/drivers/xai/src/xai.errors.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiHttpEndpointMethodName",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.service.ts",
+        "sourceLine": 51,
+        "summary": "Endpoint method names backed by normal HTTP requests.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaihttpendpointmethodname type endpoint method names backed by normal http requests. models packages/drivers/xai/src/xai.service.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiHttpMethod",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 45,
+        "summary": "HTTP method literals used by xAI REST endpoints.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaihttpmethod const http method literals used by xai rest endpoints. schemas packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiHttpMethod",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 65,
+        "summary": "Type for {@link XAiHttpMethod}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaihttpmethod type type for {@link xaihttpmethod}. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiJsonResponse",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 113,
+        "summary": "JSON response returned by the xAI driver.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaijsonresponse class json response returned by the xai driver. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiLanguageModel",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/drivers/xai/src/XAiLanguageModel.service.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xailanguagemodel sourcefile packages/drivers/xai/src/xailanguagemodel.service.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiNoBodyResponse",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 208,
+        "summary": "Empty response returned by xAI endpoints that have no body.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xainobodyresponse class empty response returned by xai endpoints that have no body. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiQueryValue",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 29,
+        "summary": "URL query value accepted by xAI request options.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiqueryvalue const url query value accepted by xai request options. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiQueryValue",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 55,
+        "summary": "Type for {@link XAiQueryValue}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiqueryvalue type type for {@link xaiqueryvalue}. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiRequestBodyKind",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 159,
+        "summary": "Request body encoding used by an xAI endpoint.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xairequestbodykind const request body encoding used by an xai endpoint. schemas packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiRequestBodyKind",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 179,
+        "summary": "Type for {@link XAiRequestBodyKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xairequestbodykind type type for {@link xairequestbodykind}. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiRequestOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 78,
+        "summary": "Request options accepted by every xAI endpoint method.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xairequestoptions class request options accepted by every xai endpoint method. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiResponse",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 234,
+        "summary": "Response union returned by non-streaming xAI endpoint methods.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xairesponse const response union returned by non-streaming xai endpoint methods. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiResponse",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 261,
+        "summary": "Type for {@link XAiResponse}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xairesponse type type for {@link xairesponse}. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiResponseBodyKind",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 197,
+        "summary": "Response body encoding returned by an xAI endpoint.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xairesponsebodykind const response body encoding returned by an xai endpoint. schemas packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiResponseBodyKind",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAiEndpoints.models.ts",
+        "sourceLine": 217,
+        "summary": "Type for {@link XAiResponseBodyKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xairesponsebodykind type type for {@link xairesponsebodykind}. models packages/drivers/xai/src/xaiendpoints.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiServerSentEvent",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 282,
+        "summary": "Parsed server-sent event emitted by streaming xAI endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiserversentevent class parsed server-sent event emitted by streaming xai endpoints. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiShape",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.service.ts",
+        "sourceLine": 176,
+        "summary": "Public service shape for every documented xAI endpoint plus SSE helpers.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaishape type public service shape for every documented xai endpoint plus sse helpers. services packages/drivers/xai/src/xai.service.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiStreamMethod",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.service.ts",
+        "sourceLine": 111,
+        "summary": "Function shape used by streaming xAI server-sent event helpers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaistreammethod type function shape used by streaming xai server-sent event helpers. models packages/drivers/xai/src/xai.service.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiTextResponse",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 145,
+        "summary": "Text response returned by the xAI driver.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaitextresponse class text response returned by the xai driver. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiWebSocketEndpointMethodName",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.service.ts",
+        "sourceLine": 70,
+        "summary": "Endpoint method names backed by WebSocket sessions.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiwebsocketendpointmethodname type endpoint method names backed by websocket sessions. models packages/drivers/xai/src/xai.service.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiWebSocketEvent",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 357,
+        "summary": "Event emitted by an xAI WebSocket endpoint session.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiwebsocketevent const event emitted by an xai websocket endpoint session. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiWebSocketEvent",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 414,
+        "summary": "Type for {@link XAiWebSocketEvent}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiwebsocketevent type type for {@link xaiwebsocketevent}. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiWebSocketEventKind",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 307,
+        "summary": "WebSocket event kinds emitted by xAI realtime and streaming audio sessions.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiwebsocketeventkind const websocket event kinds emitted by xai realtime and streaming audio sessions. schemas packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiWebSocketEventKind",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.models.ts",
+        "sourceLine": 327,
+        "summary": "Type for {@link XAiWebSocketEventKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiwebsocketeventkind type type for {@link xaiwebsocketeventkind}. models packages/drivers/xai/src/xai.models.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiWebSocketMethod",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/xai/src/XAi.service.ts",
+        "sourceLine": 158,
+        "summary": "Function shape used by xAI WebSocket endpoint methods.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiwebsocketmethod type function shape used by xai websocket endpoint methods. models packages/drivers/xai/src/xai.service.ts"
+      },
+      {
+        "packageName": "@beep/xai",
+        "packagePath": "packages/drivers/xai",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/xai",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/xai/src/index.ts",
+        "symbolName": "XAiWebSocketSession",
+        "exportKind": "interface",
+        "sourcePath": "packages/drivers/xai/src/XAi.service.ts",
+        "sourceLine": 127,
+        "summary": "Active xAI WebSocket session handle.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/xai packages/drivers/xai @beep/xai . xaiwebsocketsession interface active xai websocket session handle. models packages/drivers/xai/src/xai.service.ts"
+      }
+    ]
+  }
+}

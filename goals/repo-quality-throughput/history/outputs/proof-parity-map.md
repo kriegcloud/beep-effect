@@ -20,6 +20,11 @@ and side-workflow coverage explicit.
 | Nix | no | `audit:github pre-push` | no | full proof path | Nix Shell | Check | Release if configured | `bun run audit:github nix` |
 | Coverage | not canonical today | not canonical today | no | no | absent today | absent today | scheduled/full-only report-only lane | `bun run coverage` for explicit full/scheduled proof |
 
+`yeet publish --fast --monitor` is an opt-in exception to the full-proof local
+publish path. It is PR-branch guarded, monitors all current-branch PR checks via
+`gh pr checks --watch`, and leaves `bun run audit:github pre-push` as the named
+full local fallback for every lane above.
+
 Any lane moved out of the common path must name a fallback proof in this table
 and a task inventory record with residual risk.
 

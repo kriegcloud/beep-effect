@@ -27,6 +27,9 @@ import {
   selectDocgenLocalPackagesForTesting,
   selectQualityWorkerRunpodTemplate,
 } from "@beep/repo-cli/test/Docgen";
+import { Configuration, DEFAULT_THEME, defaultCompilerOptions } from "@beep/repo-docgen/Configuration";
+import { Process } from "@beep/repo-docgen/Domain";
+import { verifyDocgenProofManifest, writeDocgenProofManifest } from "@beep/repo-docgen/ProofManifest";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { Pod, Runpod, Template } from "@beep/runpod";
 import { A, O } from "@beep/utils";
@@ -215,6 +218,90 @@ describe("Docgen operations", () => {
       "--ui=stream",
     ]);
   });
+
+  it("writes and verifies package-level docgen proof manifests", () =>
+    Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          const srcPath = path.join(packageDir, "src", "index.ts");
+          const docsPath = path.join(packageDir, "docs", "modules", "Schema.md");
+
+          yield* fs.makeDirectory(path.dirname(srcPath), { recursive: true });
+          yield* fs.makeDirectory(path.dirname(docsPath), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              homepage: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            srcPath,
+            `/**
+ * Package docs.
+ *
+ * @packageDocumentation
+ * @category schemas
+ * @since 0.0.0
+ */
+
+/**
+ * Current proof fixture.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ProofFixture = 1;
+`
+          );
+          yield* fs.writeFileString(docsPath, "---\ntitle: Schema\n---\n\n# Schema\n");
+          const packageProcessLayer = Layer.succeed(
+            Process,
+            Process.of({
+              argv: Effect.succeed([]),
+              cwd: Effect.succeed(packageDir),
+              platform: Effect.succeed(process.platform),
+            })
+          );
+          const packageConfigurationLayer = Configuration.layer({
+            enableSearch: true,
+            enforceDescriptions: false,
+            enforceExamples: false,
+            enforceVersion: true,
+            examplesCompilerOptions: defaultCompilerOptions,
+            exclude: [],
+            outDir: "docs",
+            parseCompilerOptions: defaultCompilerOptions,
+            projectHomepage: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema",
+            projectName: "@beep/schema",
+            runExamples: false,
+            srcDir: "src",
+            srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
+            theme: DEFAULT_THEME,
+            tscExecutable: "tsc",
+          });
+          const packageDocgenLayer = Layer.mergeAll(packageConfigurationLayer, packageProcessLayer);
+
+          const manifest = yield* writeDocgenProofManifest().pipe(provideScopedLayer(packageDocgenLayer));
+          const current = yield* verifyDocgenProofManifest(packageDir, "@beep/schema");
+
+          yield* fs.writeFileString(srcPath, `${yield* fs.readFileString(srcPath)}\nexport const Changed = 2;\n`);
+          const stale = yield* verifyDocgenProofManifest(packageDir, "@beep/schema");
+
+          expect(manifest.packageName).toBe("@beep/schema");
+          expect(manifest.fingerprint.inputFileCount).toBeGreaterThan(0);
+          expect(manifest.fingerprint.outputFileCount).toBeGreaterThan(0);
+          expect(current.status).toBe("current");
+          expect(stale.status).toBe("stale");
+          expect(stale.reason).toBe("package docgen inputs changed");
+        })
+      )
+    ));
 
   it("builds a package-selected local docgen plan without git discovery", () =>
     Effect.runPromise(

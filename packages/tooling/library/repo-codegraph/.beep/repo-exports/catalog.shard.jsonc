@@ -1,0 +1,3928 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "1f8f182a6796f52d2b678460882313c1bc6b724baf018c8c8185768eb323398f",
+    "inputs": [
+      {
+        "path": "packages/tooling/library/repo-codegraph/package.json",
+        "sha256": "ef5a9b4a2ba4c918c711169bcd23456ad9b15f9bd8bacad76cec161ac09aa656",
+        "bytes": 2460
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "sha256": "c88973e940aced294722346469534a4c94871ae32d020c8c7e4aed536d49a16e",
+        "bytes": 1171
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sha256": "5dbf7cd6dd1a0c5bfa943f82b7b986184c1926f21b7d757f05b890557dcb958b",
+        "bytes": 11161
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sha256": "67262900617272f1d05fadd4bedee26c0f061dd772736b0e9e7a9993d9217a17",
+        "bytes": 19690
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sha256": "a6da88efda9abf390805f29129b850b597351d0fe11af3a8165e8b66a7172a8b",
+        "bytes": 12847
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/repo-codegraph",
+    "packagePath": "packages/tooling/library/repo-codegraph",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/repo-codegraph",
+      "@beep/repo-codegraph/index",
+      "@beep/repo-codegraph/RepoCodegraphLookup",
+      "@beep/repo-codegraph/RepoCodegraphLookup.model",
+      "@beep/repo-codegraph/RepoExportsCatalog",
+      "@beep/repo-codegraph/RepoExportsCatalog.model"
+    ],
+    "counts": {
+      "publicExportEntries": 153,
+      "uniqueSymbols": 42,
+      "sourceFiles": 5
+    },
+    "exports": [
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "decodeRepoExportsCatalog",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 639,
+        "summary": "Decode unknown input into a generated repo export catalog.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . decoderepoexportscatalog const decode unknown input into a generated repo export catalog. schemas packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "decodeRepoExportsCatalogIndex",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 652,
+        "summary": "Decode unknown input into a compact repo export catalog index.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . decoderepoexportscatalogindex const decode unknown input into a compact repo export catalog index. schemas packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "decodeRepoExportsCatalogShard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 665,
+        "summary": "Decode unknown input into a package-local repo export catalog shard.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . decoderepoexportscatalogshard const decode unknown input into a package-local repo export catalog shard. schemas packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "encodeRepoCodegraphLookupResult",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 389,
+        "summary": "Encode a lookup result into its JSON-safe representation.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . encoderepocodegraphlookupresult const encode a lookup result into its json-safe representation. schemas packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "FromPackageResolution",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 61,
+        "summary": "Resolved package and selector details for a lookup request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . frompackageresolution class resolved package and selector details for a lookup request. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "LookupOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 82,
+        "summary": "Optional freshness and import-policy inputs for repo codegraph lookup.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . lookupoptions class optional freshness and import-policy inputs for repo codegraph lookup. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "lookupRepoExports",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 607,
+        "summary": "Lookup public repo exports by symbol name or free-text intent.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . lookuprepoexports const lookup public repo exports by symbol name or free-text intent. utilities packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "NormalizedPathLikeSelector",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 103,
+        "summary": "Normalized path-like selector tokens used for catalog matching.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . normalizedpathlikeselector class normalized path-like selector tokens used for catalog matching. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "readRepoCodegraphImportPolicies",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 390,
+        "summary": "Read package-local import policies from package.json metadata.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . readrepocodegraphimportpolicies const read package-local import policies from package.json metadata. utilities packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "readRepoExportsCatalog",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 360,
+        "summary": "Read and decode the generated repo export catalog from a repo root.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . readrepoexportscatalog const read and decode the generated repo export catalog from a repo root. utilities packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphBoundaryAdvice",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 218,
+        "summary": "Advisory architecture boundary note for a match.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphboundaryadvice class advisory architecture boundary note for a match. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphBoundaryStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 89,
+        "summary": "Advisory boundary status for a candidate import.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphboundarystatus const advisory boundary status for a candidate import. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphBoundaryStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 107,
+        "summary": "Runtime type for {@link RepoCodegraphBoundaryStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphboundarystatus type runtime type for {@link repocodegraphboundarystatus}. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphCatalogReadError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 51,
+        "summary": "Typed failure raised while reading repo-codegraph inputs.",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphcatalogreaderror class typed failure raised while reading repo-codegraph inputs. error-handling packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphFreshnessStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 58,
+        "summary": "Freshness state for the export catalog used by a lookup.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphfreshnessstatus const freshness state for the export catalog used by a lookup. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphFreshnessStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 76,
+        "summary": "Runtime type for {@link RepoCodegraphFreshnessStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphfreshnessstatus type runtime type for {@link repocodegraphfreshnessstatus}. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphImportCandidate",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 188,
+        "summary": "One legal import option for a matched symbol.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphimportcandidate class one legal import option for a matched symbol. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupMatch",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 243,
+        "summary": "One scored lookup match.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphlookupmatch class one scored lookup match. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 126,
+        "summary": "Deterministic lookup request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphlookuprequest class deterministic lookup request. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupResult",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 300,
+        "summary": "Deterministic lookup result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphlookupresult class deterministic lookup result. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 27,
+        "summary": "Lookup result schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphlookupschemaversion const lookup result schema version. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 45,
+        "summary": "Runtime type for {@link RepoCodegraphLookupSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphlookupschemaversion type runtime type for {@link repocodegraphlookupschemaversion}. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupScore",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 156,
+        "summary": "Machine-readable score components for one lookup match.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphlookupscore class machine-readable score components for one lookup match. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupTotals",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 278,
+        "summary": "Aggregate match counts for a lookup result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphlookuptotals class aggregate match counts for a lookup result. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphPackageImportPolicy",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 365,
+        "summary": "Package-local import policy consumed by lookup.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphpackageimportpolicy class package-local import policy consumed by lookup. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphPreferredImport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 333,
+        "summary": "Preferred import rule recorded in package-local repo-codegraph policy.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repocodegraphpreferredimport class preferred import rule recorded in package-local repo-codegraph policy. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalog",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 613,
+        "summary": "Generated repo export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalog class generated repo export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogAuthority",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 93,
+        "summary": "Current authority posture recorded by the export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogauthority class current authority posture recorded by the export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 224,
+        "summary": "One legal public export fact from the generated catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogentry class one legal public export fact from the generated catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndex",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 587,
+        "summary": "Compact root index for package-local repo export catalog shards.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogindex class compact root index for package-local repo export catalog shards. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndexPackage",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 534,
+        "summary": "One package entry in the compact root repo export catalog index.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogindexpackage class one package entry in the compact root repo export catalog index. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndexSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 496,
+        "summary": "Generated export catalog index schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogindexschemaversion const generated export catalog index schema version. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndexSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 514,
+        "summary": "Runtime type for {@link RepoExportsCatalogIndexSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogindexschemaversion type runtime type for {@link repoexportscatalogindexschemaversion}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndexStandard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 465,
+        "summary": "Generated export catalog index standard identifier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogindexstandard const generated export catalog index standard identifier. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndexStandard",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 483,
+        "summary": "Runtime type for {@link RepoExportsCatalogIndexStandard}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogindexstandard type runtime type for {@link repoexportscatalogindexstandard}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogPackage",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 272,
+        "summary": "Per-package export catalog entry.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogpackage class per-package export catalog entry. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogPackageCounts",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 183,
+        "summary": "Per-package counts in the generated export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogpackagecounts class per-package counts in the generated export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "repoExportsCatalogPath",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 342,
+        "summary": "Resolve the generated export catalog path for a repo root.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogpath const resolve the generated export catalog path for a repo root. utilities packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 56,
+        "summary": "Generated export catalog schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogschemaversion const generated export catalog schema version. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 74,
+        "summary": "Runtime type for {@link RepoExportsCatalogSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogschemaversion type runtime type for {@link repoexportscatalogschemaversion}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShard",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 440,
+        "summary": "Package-local generated repo export catalog shard.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogshard class package-local generated repo export catalog shard. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardFingerprint",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 394,
+        "summary": "Deterministic content fingerprint for a repo export catalog shard.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogshardfingerprint class deterministic content fingerprint for a repo export catalog shard. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardFingerprintInput",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 365,
+        "summary": "One content input recorded in a repo export catalog shard fingerprint.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogshardfingerprintinput class one content input recorded in a repo export catalog shard fingerprint. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 329,
+        "summary": "Generated export catalog shard schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogshardschemaversion const generated export catalog shard schema version. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 347,
+        "summary": "Runtime type for {@link RepoExportsCatalogShardSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogshardschemaversion type runtime type for {@link repoexportscatalogshardschemaversion}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardStandard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 298,
+        "summary": "Generated export catalog shard standard identifier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogshardstandard const generated export catalog shard standard identifier. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardStandard",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 316,
+        "summary": "Runtime type for {@link RepoExportsCatalogShardStandard}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogshardstandard type runtime type for {@link repoexportscatalogshardstandard}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogSource",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 121,
+        "summary": "Source metadata for the generated export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogsource class source metadata for the generated export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogStandard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 25,
+        "summary": "Generated export catalog standard identifier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogstandard const generated export catalog standard identifier. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogStandard",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 43,
+        "summary": "Runtime type for {@link RepoExportsCatalogStandard}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogstandard type runtime type for {@link repoexportscatalogstandard}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogTotals",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 152,
+        "summary": "Count metadata recorded in the generated export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph . repoexportscatalogtotals class count metadata recorded in the generated export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "decodeRepoExportsCatalog",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 639,
+        "summary": "Decode unknown input into a generated repo export catalog.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index decoderepoexportscatalog const decode unknown input into a generated repo export catalog. schemas packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "decodeRepoExportsCatalogIndex",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 652,
+        "summary": "Decode unknown input into a compact repo export catalog index.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index decoderepoexportscatalogindex const decode unknown input into a compact repo export catalog index. schemas packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "decodeRepoExportsCatalogShard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 665,
+        "summary": "Decode unknown input into a package-local repo export catalog shard.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index decoderepoexportscatalogshard const decode unknown input into a package-local repo export catalog shard. schemas packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "encodeRepoCodegraphLookupResult",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 389,
+        "summary": "Encode a lookup result into its JSON-safe representation.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index encoderepocodegraphlookupresult const encode a lookup result into its json-safe representation. schemas packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "FromPackageResolution",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 61,
+        "summary": "Resolved package and selector details for a lookup request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index frompackageresolution class resolved package and selector details for a lookup request. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "LookupOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 82,
+        "summary": "Optional freshness and import-policy inputs for repo codegraph lookup.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index lookupoptions class optional freshness and import-policy inputs for repo codegraph lookup. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "lookupRepoExports",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 607,
+        "summary": "Lookup public repo exports by symbol name or free-text intent.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index lookuprepoexports const lookup public repo exports by symbol name or free-text intent. utilities packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "NormalizedPathLikeSelector",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 103,
+        "summary": "Normalized path-like selector tokens used for catalog matching.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index normalizedpathlikeselector class normalized path-like selector tokens used for catalog matching. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "readRepoCodegraphImportPolicies",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 390,
+        "summary": "Read package-local import policies from package.json metadata.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index readrepocodegraphimportpolicies const read package-local import policies from package.json metadata. utilities packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "readRepoExportsCatalog",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 360,
+        "summary": "Read and decode the generated repo export catalog from a repo root.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index readrepoexportscatalog const read and decode the generated repo export catalog from a repo root. utilities packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphBoundaryAdvice",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 218,
+        "summary": "Advisory architecture boundary note for a match.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphboundaryadvice class advisory architecture boundary note for a match. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphBoundaryStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 89,
+        "summary": "Advisory boundary status for a candidate import.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphboundarystatus const advisory boundary status for a candidate import. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphBoundaryStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 107,
+        "summary": "Runtime type for {@link RepoCodegraphBoundaryStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphboundarystatus type runtime type for {@link repocodegraphboundarystatus}. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphCatalogReadError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 51,
+        "summary": "Typed failure raised while reading repo-codegraph inputs.",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphcatalogreaderror class typed failure raised while reading repo-codegraph inputs. error-handling packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphFreshnessStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 58,
+        "summary": "Freshness state for the export catalog used by a lookup.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphfreshnessstatus const freshness state for the export catalog used by a lookup. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphFreshnessStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 76,
+        "summary": "Runtime type for {@link RepoCodegraphFreshnessStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphfreshnessstatus type runtime type for {@link repocodegraphfreshnessstatus}. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphImportCandidate",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 188,
+        "summary": "One legal import option for a matched symbol.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphimportcandidate class one legal import option for a matched symbol. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupMatch",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 243,
+        "summary": "One scored lookup match.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphlookupmatch class one scored lookup match. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 126,
+        "summary": "Deterministic lookup request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphlookuprequest class deterministic lookup request. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupResult",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 300,
+        "summary": "Deterministic lookup result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphlookupresult class deterministic lookup result. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 27,
+        "summary": "Lookup result schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphlookupschemaversion const lookup result schema version. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 45,
+        "summary": "Runtime type for {@link RepoCodegraphLookupSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphlookupschemaversion type runtime type for {@link repocodegraphlookupschemaversion}. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupScore",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 156,
+        "summary": "Machine-readable score components for one lookup match.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphlookupscore class machine-readable score components for one lookup match. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphLookupTotals",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 278,
+        "summary": "Aggregate match counts for a lookup result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphlookuptotals class aggregate match counts for a lookup result. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphPackageImportPolicy",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 365,
+        "summary": "Package-local import policy consumed by lookup.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphpackageimportpolicy class package-local import policy consumed by lookup. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoCodegraphPreferredImport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 333,
+        "summary": "Preferred import rule recorded in package-local repo-codegraph policy.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repocodegraphpreferredimport class preferred import rule recorded in package-local repo-codegraph policy. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalog",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 613,
+        "summary": "Generated repo export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalog class generated repo export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogAuthority",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 93,
+        "summary": "Current authority posture recorded by the export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogauthority class current authority posture recorded by the export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 224,
+        "summary": "One legal public export fact from the generated catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogentry class one legal public export fact from the generated catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndex",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 587,
+        "summary": "Compact root index for package-local repo export catalog shards.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogindex class compact root index for package-local repo export catalog shards. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndexPackage",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 534,
+        "summary": "One package entry in the compact root repo export catalog index.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogindexpackage class one package entry in the compact root repo export catalog index. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndexSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 496,
+        "summary": "Generated export catalog index schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogindexschemaversion const generated export catalog index schema version. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndexSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 514,
+        "summary": "Runtime type for {@link RepoExportsCatalogIndexSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogindexschemaversion type runtime type for {@link repoexportscatalogindexschemaversion}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndexStandard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 465,
+        "summary": "Generated export catalog index standard identifier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogindexstandard const generated export catalog index standard identifier. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogIndexStandard",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 483,
+        "summary": "Runtime type for {@link RepoExportsCatalogIndexStandard}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogindexstandard type runtime type for {@link repoexportscatalogindexstandard}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogPackage",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 272,
+        "summary": "Per-package export catalog entry.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogpackage class per-package export catalog entry. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogPackageCounts",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 183,
+        "summary": "Per-package counts in the generated export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogpackagecounts class per-package counts in the generated export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "repoExportsCatalogPath",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 342,
+        "summary": "Resolve the generated export catalog path for a repo root.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogpath const resolve the generated export catalog path for a repo root. utilities packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 56,
+        "summary": "Generated export catalog schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogschemaversion const generated export catalog schema version. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 74,
+        "summary": "Runtime type for {@link RepoExportsCatalogSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogschemaversion type runtime type for {@link repoexportscatalogschemaversion}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShard",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 440,
+        "summary": "Package-local generated repo export catalog shard.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogshard class package-local generated repo export catalog shard. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardFingerprint",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 394,
+        "summary": "Deterministic content fingerprint for a repo export catalog shard.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogshardfingerprint class deterministic content fingerprint for a repo export catalog shard. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardFingerprintInput",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 365,
+        "summary": "One content input recorded in a repo export catalog shard fingerprint.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogshardfingerprintinput class one content input recorded in a repo export catalog shard fingerprint. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 329,
+        "summary": "Generated export catalog shard schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogshardschemaversion const generated export catalog shard schema version. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 347,
+        "summary": "Runtime type for {@link RepoExportsCatalogShardSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogshardschemaversion type runtime type for {@link repoexportscatalogshardschemaversion}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardStandard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 298,
+        "summary": "Generated export catalog shard standard identifier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogshardstandard const generated export catalog shard standard identifier. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogShardStandard",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 316,
+        "summary": "Runtime type for {@link RepoExportsCatalogShardStandard}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogshardstandard type runtime type for {@link repoexportscatalogshardstandard}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogSource",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 121,
+        "summary": "Source metadata for the generated export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogsource class source metadata for the generated export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogStandard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 25,
+        "summary": "Generated export catalog standard identifier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogstandard const generated export catalog standard identifier. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogStandard",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 43,
+        "summary": "Runtime type for {@link RepoExportsCatalogStandard}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogstandard type runtime type for {@link repoexportscatalogstandard}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/index.ts",
+        "symbolName": "RepoExportsCatalogTotals",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 152,
+        "summary": "Count metadata recorded in the generated export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/index ./index repoexportscatalogtotals class count metadata recorded in the generated export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup",
+        "exportSubpath": "./RepoCodegraphLookup",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "symbolName": "FromPackageResolution",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 61,
+        "summary": "Resolved package and selector details for a lookup request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup ./repocodegraphlookup frompackageresolution class resolved package and selector details for a lookup request. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup",
+        "exportSubpath": "./RepoCodegraphLookup",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "symbolName": "LookupOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 82,
+        "summary": "Optional freshness and import-policy inputs for repo codegraph lookup.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup ./repocodegraphlookup lookupoptions class optional freshness and import-policy inputs for repo codegraph lookup. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup",
+        "exportSubpath": "./RepoCodegraphLookup",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "symbolName": "lookupRepoExports",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 607,
+        "summary": "Lookup public repo exports by symbol name or free-text intent.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup ./repocodegraphlookup lookuprepoexports const lookup public repo exports by symbol name or free-text intent. utilities packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup",
+        "exportSubpath": "./RepoCodegraphLookup",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "symbolName": "NormalizedPathLikeSelector",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+        "sourceLine": 103,
+        "summary": "Normalized path-like selector tokens used for catalog matching.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup ./repocodegraphlookup normalizedpathlikeselector class normalized path-like selector tokens used for catalog matching. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "encodeRepoCodegraphLookupResult",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 389,
+        "summary": "Encode a lookup result into its JSON-safe representation.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model encoderepocodegraphlookupresult const encode a lookup result into its json-safe representation. schemas packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphBoundaryAdvice",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 218,
+        "summary": "Advisory architecture boundary note for a match.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphboundaryadvice class advisory architecture boundary note for a match. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphBoundaryStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 89,
+        "summary": "Advisory boundary status for a candidate import.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphboundarystatus const advisory boundary status for a candidate import. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphBoundaryStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 107,
+        "summary": "Runtime type for {@link RepoCodegraphBoundaryStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphboundarystatus type runtime type for {@link repocodegraphboundarystatus}. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphFreshnessStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 58,
+        "summary": "Freshness state for the export catalog used by a lookup.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphfreshnessstatus const freshness state for the export catalog used by a lookup. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphFreshnessStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 76,
+        "summary": "Runtime type for {@link RepoCodegraphFreshnessStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphfreshnessstatus type runtime type for {@link repocodegraphfreshnessstatus}. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphImportCandidate",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 188,
+        "summary": "One legal import option for a matched symbol.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphimportcandidate class one legal import option for a matched symbol. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphLookupMatch",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 243,
+        "summary": "One scored lookup match.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphlookupmatch class one scored lookup match. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphLookupRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 126,
+        "summary": "Deterministic lookup request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphlookuprequest class deterministic lookup request. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphLookupResult",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 300,
+        "summary": "Deterministic lookup result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphlookupresult class deterministic lookup result. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphLookupSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 27,
+        "summary": "Lookup result schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphlookupschemaversion const lookup result schema version. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphLookupSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 45,
+        "summary": "Runtime type for {@link RepoCodegraphLookupSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphlookupschemaversion type runtime type for {@link repocodegraphlookupschemaversion}. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphLookupScore",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 156,
+        "summary": "Machine-readable score components for one lookup match.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphlookupscore class machine-readable score components for one lookup match. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphLookupTotals",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 278,
+        "summary": "Aggregate match counts for a lookup result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphlookuptotals class aggregate match counts for a lookup result. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphPackageImportPolicy",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 365,
+        "summary": "Package-local import policy consumed by lookup.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphpackageimportpolicy class package-local import policy consumed by lookup. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoCodegraphLookup.model",
+        "exportSubpath": "./RepoCodegraphLookup.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "symbolName": "RepoCodegraphPreferredImport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts",
+        "sourceLine": 333,
+        "summary": "Preferred import rule recorded in package-local repo-codegraph policy.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repocodegraphlookup.model ./repocodegraphlookup.model repocodegraphpreferredimport class preferred import rule recorded in package-local repo-codegraph policy. models packages/tooling/library/repo-codegraph/src/repocodegraphlookup.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog",
+        "exportSubpath": "./RepoExportsCatalog",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "symbolName": "readRepoCodegraphImportPolicies",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 390,
+        "summary": "Read package-local import policies from package.json metadata.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog ./repoexportscatalog readrepocodegraphimportpolicies const read package-local import policies from package.json metadata. utilities packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog",
+        "exportSubpath": "./RepoExportsCatalog",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "symbolName": "readRepoExportsCatalog",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 360,
+        "summary": "Read and decode the generated repo export catalog from a repo root.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog ./repoexportscatalog readrepoexportscatalog const read and decode the generated repo export catalog from a repo root. utilities packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog",
+        "exportSubpath": "./RepoExportsCatalog",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "symbolName": "RepoCodegraphCatalogReadError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 51,
+        "summary": "Typed failure raised while reading repo-codegraph inputs.",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog ./repoexportscatalog repocodegraphcatalogreaderror class typed failure raised while reading repo-codegraph inputs. error-handling packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog",
+        "exportSubpath": "./RepoExportsCatalog",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "symbolName": "repoExportsCatalogPath",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
+        "sourceLine": 342,
+        "summary": "Resolve the generated export catalog path for a repo root.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog ./repoexportscatalog repoexportscatalogpath const resolve the generated export catalog path for a repo root. utilities packages/tooling/library/repo-codegraph/src/repoexportscatalog.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "decodeRepoExportsCatalog",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 639,
+        "summary": "Decode unknown input into a generated repo export catalog.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model decoderepoexportscatalog const decode unknown input into a generated repo export catalog. schemas packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "decodeRepoExportsCatalogIndex",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 652,
+        "summary": "Decode unknown input into a compact repo export catalog index.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model decoderepoexportscatalogindex const decode unknown input into a compact repo export catalog index. schemas packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "decodeRepoExportsCatalogShard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 665,
+        "summary": "Decode unknown input into a package-local repo export catalog shard.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model decoderepoexportscatalogshard const decode unknown input into a package-local repo export catalog shard. schemas packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalog",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 613,
+        "summary": "Generated repo export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalog class generated repo export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogAuthority",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 93,
+        "summary": "Current authority posture recorded by the export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogauthority class current authority posture recorded by the export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 224,
+        "summary": "One legal public export fact from the generated catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogentry class one legal public export fact from the generated catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogIndex",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 587,
+        "summary": "Compact root index for package-local repo export catalog shards.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogindex class compact root index for package-local repo export catalog shards. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogIndexPackage",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 534,
+        "summary": "One package entry in the compact root repo export catalog index.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogindexpackage class one package entry in the compact root repo export catalog index. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogIndexSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 496,
+        "summary": "Generated export catalog index schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogindexschemaversion const generated export catalog index schema version. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogIndexSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 514,
+        "summary": "Runtime type for {@link RepoExportsCatalogIndexSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogindexschemaversion type runtime type for {@link repoexportscatalogindexschemaversion}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogIndexStandard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 465,
+        "summary": "Generated export catalog index standard identifier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogindexstandard const generated export catalog index standard identifier. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogIndexStandard",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 483,
+        "summary": "Runtime type for {@link RepoExportsCatalogIndexStandard}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogindexstandard type runtime type for {@link repoexportscatalogindexstandard}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogPackage",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 272,
+        "summary": "Per-package export catalog entry.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogpackage class per-package export catalog entry. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogPackageCounts",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 183,
+        "summary": "Per-package counts in the generated export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogpackagecounts class per-package counts in the generated export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 56,
+        "summary": "Generated export catalog schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogschemaversion const generated export catalog schema version. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 74,
+        "summary": "Runtime type for {@link RepoExportsCatalogSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogschemaversion type runtime type for {@link repoexportscatalogschemaversion}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogShard",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 440,
+        "summary": "Package-local generated repo export catalog shard.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogshard class package-local generated repo export catalog shard. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogShardFingerprint",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 394,
+        "summary": "Deterministic content fingerprint for a repo export catalog shard.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogshardfingerprint class deterministic content fingerprint for a repo export catalog shard. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogShardFingerprintInput",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 365,
+        "summary": "One content input recorded in a repo export catalog shard fingerprint.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogshardfingerprintinput class one content input recorded in a repo export catalog shard fingerprint. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogShardSchemaVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 329,
+        "summary": "Generated export catalog shard schema version.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogshardschemaversion const generated export catalog shard schema version. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogShardSchemaVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 347,
+        "summary": "Runtime type for {@link RepoExportsCatalogShardSchemaVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogshardschemaversion type runtime type for {@link repoexportscatalogshardschemaversion}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogShardStandard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 298,
+        "summary": "Generated export catalog shard standard identifier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogshardstandard const generated export catalog shard standard identifier. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogShardStandard",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 316,
+        "summary": "Runtime type for {@link RepoExportsCatalogShardStandard}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogshardstandard type runtime type for {@link repoexportscatalogshardstandard}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogSource",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 121,
+        "summary": "Source metadata for the generated export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogsource class source metadata for the generated export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogStandard",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 25,
+        "summary": "Generated export catalog standard identifier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogstandard const generated export catalog standard identifier. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogStandard",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 43,
+        "summary": "Runtime type for {@link RepoExportsCatalogStandard}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogstandard type runtime type for {@link repoexportscatalogstandard}. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-codegraph",
+        "packagePath": "packages/tooling/library/repo-codegraph",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-codegraph/RepoExportsCatalog.model",
+        "exportSubpath": "./RepoExportsCatalog.model",
+        "exportedFromPath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "symbolName": "RepoExportsCatalogTotals",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sourceLine": 152,
+        "summary": "Count metadata recorded in the generated export catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-codegraph packages/tooling/library/repo-codegraph @beep/repo-codegraph/repoexportscatalog.model ./repoexportscatalog.model repoexportscatalogtotals class count metadata recorded in the generated export catalog. models packages/tooling/library/repo-codegraph/src/repoexportscatalog.model.ts"
+      }
+    ]
+  }
+}

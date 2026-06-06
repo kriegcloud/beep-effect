@@ -173,6 +173,67 @@ describe("yeet planner", () => {
     ).toEqual(["readonly"]);
   });
 
+  it("builds monitor as current branch PR context plus check watching", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "monitor" });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["monitor:pr-context", "monitor:pr-checks:watch"]);
+    expect(findStep(plan.steps, "monitor:pr-context").args).toEqual([
+      "pr",
+      "view",
+      "--json",
+      "number,headRefName,state",
+    ]);
+    expect(findStep(plan.steps, "monitor:pr-checks:watch").args).toEqual(["pr", "checks", "--watch"]);
+  });
+
+  it("builds fast-plus-monitor publish without the local full proof", () => {
+    const plan = buildYeetRunPlanForTesting({
+      context,
+      fast: true,
+      message: O.some("feat(repo-cli): add yeet"),
+      monitor: true,
+    });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["commit:git:commit", "publish:git:push", "monitor:pr-context", "monitor:pr-checks:watch"]);
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).not.toContain("full:pre-push");
+  });
+
+  it("keeps publish monitor on the full local proof unless fast is explicit", () => {
+    const plan = buildYeetRunPlanForTesting({
+      context,
+      message: O.some("feat(repo-cli): add yeet"),
+      monitor: true,
+    });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual([
+      "commit:git:commit",
+      "full:pre-push",
+      "publish:git:push",
+      "monitor:pr-context",
+      "monitor:pr-checks:watch",
+    ]);
+  });
+
   it("builds repair as deterministic generators plus affected feedback", () => {
     const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "repair" });
 
