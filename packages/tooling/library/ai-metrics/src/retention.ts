@@ -20,7 +20,11 @@ import {
   readEncryptedRawArchiveEnvelope,
   writeEncryptedRawArchiveObject,
 } from "./archive.ts";
-import { AiMetricsDerivedTranscriptRecord, writeAiMetricsDerivedStorage } from "./derived-storage.ts";
+import {
+  AiMetricsDerivedStorageWriteInput,
+  AiMetricsDerivedTranscriptRecord,
+  writeAiMetricsDerivedStorage,
+} from "./derived-storage.ts";
 import { summarizeTranscriptText } from "./ingest.ts";
 import { AiMetricsInstallInput, makeAiMetricsInstallSpec } from "./install.ts";
 import { AiMetricsDeployTarget, AiMetricsTranscriptSource, ConfigSnapshot } from "./models.ts";
@@ -31,6 +35,7 @@ const $I = $RepoAiMetricsId.create("retention");
 const defaultLocalDataRoot = ".beep/ai-metrics";
 const retentionSchemaVersion = "beep.ai_metrics.retention_inventory.v1";
 const retentionMutationSchemaVersion = "beep.ai_metrics.retention_mutation.v1";
+const retentionEnforcementSchemaVersion = "beep.ai_metrics.retention_enforcement.v1";
 const restoreDrillSchemaVersion = "beep.ai_metrics.retention_restore_drill.v1";
 const AiMetricsRetentionMutationMode = LiteralKit(["delete", "compact"]);
 const RawArchiveObjectIdPattern = /^raw-[a-f0-9]{64}$/u;
@@ -188,13 +193,13 @@ export class AiMetricsRetentionError extends TaggedErrorClass<AiMetricsRetention
  */
 export class AiMetricsRetentionSelector extends S.Class<AiMetricsRetentionSelector>($I`AiMetricsRetentionSelector`)(
   {
-    beforeEpochMillis: S.optionalKey(S.Number),
+    beforeEpochMillis: S.optionalKey(S.Finite),
     dataRoot: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultLocalDataRoot)),
       S.withDecodingDefaultKey(Effect.succeed(defaultLocalDataRoot))
     ),
-    sinceEpochMillis: S.optionalKey(S.Number),
-    untilEpochMillis: S.optionalKey(S.Number),
+    sinceEpochMillis: S.optionalKey(S.Finite),
+    untilEpochMillis: S.optionalKey(S.Finite),
   },
   $I.annote("AiMetricsRetentionSelector", {
     description: "Local data root and optional explicit time window for AI metrics retention operations.",
@@ -217,7 +222,7 @@ export class AiMetricsRetentionRawArchiveItem extends S.Class<AiMetricsRetention
 )(
   {
     archiveObjectId: S.String,
-    encryptedAtEpochMillis: S.Number,
+    encryptedAtEpochMillis: S.Finite,
     ingestRunId: S.String,
     plaintextContentHash: S.String,
     sourceKind: AiMetricsTranscriptSource,
@@ -241,7 +246,7 @@ export class AiMetricsRetentionRawArchiveItem extends S.Class<AiMetricsRetention
  */
 export class AiMetricsRetentionFileItem extends S.Class<AiMetricsRetentionFileItem>($I`AiMetricsRetentionFileItem`)(
   {
-    modifiedAtEpochMillis: S.Number,
+    modifiedAtEpochMillis: S.Finite,
     relativePath: S.String,
   },
   $I.annote("AiMetricsRetentionFileItem", {
@@ -267,9 +272,9 @@ export class AiMetricsRetentionInventory extends S.Class<AiMetricsRetentionInven
     rawArchiveObjects: S.Array(AiMetricsRetentionRawArchiveItem),
     reports: S.Array(AiMetricsRetentionFileItem),
     schemaVersion: S.String,
-    selectedDerivedExportCount: S.Number,
-    selectedRawArchiveObjectCount: S.Number,
-    selectedReportCount: S.Number,
+    selectedDerivedExportCount: S.Finite,
+    selectedRawArchiveObjectCount: S.Finite,
+    selectedReportCount: S.Finite,
   },
   $I.annote("AiMetricsRetentionInventory", {
     description: "Path-safe retained AI metrics raw, derived, and report inventory for one selector.",
@@ -291,9 +296,9 @@ export class AiMetricsRetentionMutationResult extends S.Class<AiMetricsRetention
   $I`AiMetricsRetentionMutationResult`
 )(
   {
-    deletedDerivedExportCount: S.Number,
-    deletedRawArchiveObjectCount: S.Number,
-    deletedReportCount: S.Number,
+    deletedDerivedExportCount: S.Finite,
+    deletedRawArchiveObjectCount: S.Finite,
+    deletedReportCount: S.Finite,
     dryRun: S.Boolean,
     explicitWindow: S.Boolean,
     mode: AiMetricsRetentionMutationMode,
@@ -301,6 +306,66 @@ export class AiMetricsRetentionMutationResult extends S.Class<AiMetricsRetention
   },
   $I.annote("AiMetricsRetentionMutationResult", {
     description: "Summary for an AI metrics retention delete or compaction run.",
+  })
+) {}
+
+/**
+ * Policy for preventive local AI metrics retention enforcement.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsRetentionEnforcementPolicy } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsRetentionEnforcementPolicy.make({}).maxSnapshotExports)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsRetentionEnforcementPolicy extends S.Class<AiMetricsRetentionEnforcementPolicy>(
+  $I`AiMetricsRetentionEnforcementPolicy`
+)(
+  {
+    dataRoot: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed(defaultLocalDataRoot)),
+      S.withDecodingDefaultKey(Effect.succeed(defaultLocalDataRoot))
+    ),
+    dryRun: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(true)),
+      S.withDecodingDefaultKey(Effect.succeed(true))
+    ),
+    maxSnapshotExports: S.Finite.pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
+    ),
+  },
+  $I.annote("AiMetricsRetentionEnforcementPolicy", {
+    description: "Preventive policy for removing old per-run AI metrics Parquet snapshots.",
+  })
+) {}
+
+/**
+ * Result for preventive local AI metrics retention enforcement.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsRetentionEnforcementResult } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsRetentionEnforcementResult)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class AiMetricsRetentionEnforcementResult extends S.Class<AiMetricsRetentionEnforcementResult>(
+  $I`AiMetricsRetentionEnforcementResult`
+)(
+  {
+    dataRoot: S.String,
+    deletedDerivedExportCount: S.Finite,
+    dryRun: S.Boolean,
+    keptDerivedExportCount: S.Finite,
+    maxSnapshotExports: S.Finite,
+    schemaVersion: S.String,
+  },
+  $I.annote("AiMetricsRetentionEnforcementResult", {
+    description: "Summary for preventive AI metrics Parquet snapshot retention enforcement.",
   })
 ) {}
 
@@ -320,7 +385,7 @@ export class AiMetricsRetentionRestoreDrillInput extends S.Class<AiMetricsRetent
 )(
   {
     hashSalt: S.optionalKey(S.String),
-    maxObjects: S.Number.pipe(S.withConstructorDefault(Effect.succeed(1)), S.withDecodingDefaultKey(Effect.succeed(1))),
+    maxObjects: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(1)), S.withDecodingDefaultKey(Effect.succeed(1))),
     rawArchiveKey: AiMetricsRawArchiveKey,
     restoreRoot: S.String,
     selector: AiMetricsRetentionSelector,
@@ -347,7 +412,7 @@ export class AiMetricsRetentionRestoreDrillResult extends S.Class<AiMetricsReten
   {
     derivedDuckDbPath: S.String,
     hashMatches: S.Boolean,
-    replayedObjectCount: S.Number,
+    replayedObjectCount: S.Finite,
     restoreRoot: S.String,
     schemaVersion: S.String,
     transcriptTextPrinted: S.Boolean,
@@ -486,7 +551,11 @@ const readRetentionPlan = Effect.fn("AiMetrics.retention.readPlan")(function* (i
     A.map((row) => stringValue(row.scorecardId))
   );
   const derivedRoot = path.join(input.dataRoot, "derived/parquet");
-  const derivedRootExists = yield* fs.exists(derivedRoot);
+  const derivedRootExists = yield* fs
+    .exists(derivedRoot)
+    .pipe(
+      Effect.mapError((cause) => retentionFailure("Failed to inspect AI metrics Parquet export directory.", cause))
+    );
   let derivedExportItems = A.empty<PathPlanItem>();
   if (derivedRootExists) {
     const entries = yield* fs
@@ -658,6 +727,90 @@ const removePlanPaths = Effect.fn("AiMetrics.retention.removePlanPaths")(functio
         .pipe(Effect.mapError((cause) => retentionFailure("Failed to remove an AI metrics retained file.", cause))),
     { discard: true }
   );
+});
+
+const byModifiedDescending: Order.Order<PathPlanItem> = Order.mapInput(
+  Order.Number,
+  (item) => -item.modifiedAtEpochMillis
+);
+
+const listForwarderSnapshotExportDirs = Effect.fn("AiMetrics.retention.listForwarderSnapshotExportDirs")(function* (
+  dataRoot: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const derivedRoot = path.join(dataRoot, "derived/parquet");
+  const derivedRootExists = yield* fs
+    .exists(derivedRoot)
+    .pipe(
+      Effect.mapError((cause) => retentionFailure("Failed to inspect AI metrics Parquet export directory.", cause))
+    );
+  if (!derivedRootExists) {
+    return A.empty<PathPlanItem>();
+  }
+
+  const entries = yield* fs
+    .readDirectory(derivedRoot)
+    .pipe(Effect.mapError((cause) => retentionFailure("Failed to read AI metrics Parquet export directory.", cause)));
+  const items = yield* Effect.forEach(
+    entries,
+    Effect.fnUntraced(function* (entry) {
+      if (!Str.startsWith("forwarder-")(entry)) {
+        return O.none<PathPlanItem>();
+      }
+
+      const absolutePath = path.join(derivedRoot, entry);
+      const stat = yield* fs
+        .stat(absolutePath)
+        .pipe(Effect.mapError((cause) => retentionFailure("Failed to inspect AI metrics Parquet export.", cause)));
+      if (stat.type !== "Directory") {
+        return O.none<PathPlanItem>();
+      }
+
+      return O.some({
+        absolutePath,
+        modifiedAtEpochMillis: optionalModifiedAtMillis(stat),
+        relativePath: relativeToDataRoot(dataRoot, absolutePath),
+      });
+    }),
+    { concurrency: 8 }
+  );
+
+  return A.getSomes(items);
+});
+
+/**
+ * Enforce local AI metrics retention for old per-run Parquet snapshots.
+ *
+ * @example
+ * ```ts
+ * import { enforceAiMetricsRetentionPolicy } from "@beep/repo-ai-metrics"
+ * console.log(enforceAiMetricsRetentionPolicy)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const enforceAiMetricsRetentionPolicy = Effect.fn("AiMetrics.enforceAiMetricsRetentionPolicy")(function* (
+  policy: AiMetricsRetentionEnforcementPolicy
+) {
+  const snapshotItems = yield* listForwarderSnapshotExportDirs(policy.dataRoot);
+  const sortedSnapshots = A.sort(snapshotItems, byModifiedDescending);
+  const keepCount = policy.maxSnapshotExports < 0 ? 0 : policy.maxSnapshotExports;
+  const keptItems = A.take(sortedSnapshots, keepCount);
+  const deletedItems = A.drop(sortedSnapshots, keepCount);
+
+  if (!policy.dryRun) {
+    yield* removePlanPaths(deletedItems);
+  }
+
+  return AiMetricsRetentionEnforcementResult.make({
+    dataRoot: policy.dataRoot,
+    deletedDerivedExportCount: deletedItems.length,
+    dryRun: policy.dryRun,
+    keptDerivedExportCount: keptItems.length,
+    maxSnapshotExports: keepCount,
+    schemaVersion: retentionEnforcementSchemaVersion,
+  });
 });
 
 const removeRawArchivePaths = Effect.fn("AiMetrics.retention.removeRawArchivePaths")(function* (
@@ -892,15 +1045,17 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
   yield* Effect.scoped(
     Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }))).pipe(
       Effect.flatMap((context) =>
-        writeAiMetricsDerivedStorage({
-          configSnapshot,
-          ingestRunId: `restore-drill-${startedAtEpochMillis}`,
-          records,
-          repoRootHash,
-          startedAtEpochMillis,
-          storage: spec.storage,
-          target: AiMetricsDeployTarget.Enum.local,
-        }).pipe(Effect.provide(context))
+        writeAiMetricsDerivedStorage(
+          AiMetricsDerivedStorageWriteInput.make({
+            configSnapshot,
+            ingestRunId: `restore-drill-${startedAtEpochMillis}`,
+            records,
+            repoRootHash,
+            startedAtEpochMillis,
+            storage: spec.storage,
+            target: AiMetricsDeployTarget.Enum.local,
+          })
+        ).pipe(Effect.provide(context))
       )
     )
   ).pipe(Effect.mapError((cause) => retentionFailure("Failed to write restore drill derived storage.", cause)));
@@ -916,6 +1071,7 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
 });
 
 const encodeInventoryJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsRetentionInventory));
+const encodeEnforcementJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsRetentionEnforcementResult));
 const encodeMutationJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsRetentionMutationResult));
 const encodeRestoreDrillJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsRetentionRestoreDrillResult));
 
@@ -936,6 +1092,26 @@ export const aiMetricsRetentionInventoryToJson: (
   (result) =>
     encodeInventoryJson(result).pipe(
       Effect.mapError((cause) => retentionFailure("Failed to encode AI metrics retention inventory JSON.", cause))
+    )
+);
+
+/**
+ * Render a retention enforcement result as JSON.
+ *
+ * @example
+ * ```ts
+ * import { aiMetricsRetentionEnforcementToJson } from "@beep/repo-ai-metrics"
+ * console.log(aiMetricsRetentionEnforcementToJson)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const aiMetricsRetentionEnforcementToJson: (
+  result: AiMetricsRetentionEnforcementResult
+) => Effect.Effect<string, AiMetricsRetentionError> = Effect.fn("AiMetrics.aiMetricsRetentionEnforcementToJson")(
+  (result) =>
+    encodeEnforcementJson(result).pipe(
+      Effect.mapError((cause) => retentionFailure("Failed to encode AI metrics retention enforcement JSON.", cause))
     )
 );
 

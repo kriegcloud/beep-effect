@@ -7,8 +7,9 @@
 
 import { DuckDb, DuckDbParquetExport } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
-import { TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { Clock, Effect, FileSystem, flow, Path, pipe } from "effect";
 import * as S from "effect/Schema";
 import { AiMetricsRawArchiveObject } from "./archive.ts";
@@ -33,6 +34,37 @@ const DERIVED_TABLES = [
   "ai_metrics_benchmark_runs",
   "ai_metrics_scorecards",
 ] as const;
+
+/**
+ * Parquet export behavior for one derived AI metrics write.
+ *
+ * @example
+ * ```ts
+ * import { AiMetricsParquetExportMode } from "@beep/repo-ai-metrics"
+ * console.log(AiMetricsParquetExportMode.Enum.snapshot)
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export const AiMetricsParquetExportMode = LiteralKit(["none", "latest", "snapshot"]).pipe(
+  $I.annoteSchema("AiMetricsParquetExportMode", {
+    description: "Parquet export mode for one AI metrics derived storage write.",
+  })
+);
+
+/**
+ * Runtime type for {@link AiMetricsParquetExportMode}.
+ *
+ * @example
+ * ```ts
+ * import type { AiMetricsParquetExportMode } from "@beep/repo-ai-metrics"
+ * const mode: AiMetricsParquetExportMode = "latest"
+ * console.log(mode)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type AiMetricsParquetExportMode = typeof AiMetricsParquetExportMode.Type;
 
 const createTableStatements = [
   `CREATE TABLE IF NOT EXISTS ai_metrics_ingest_runs (
@@ -524,9 +556,13 @@ export class AiMetricsDerivedStorageWriteInput extends S.Class<AiMetricsDerivedS
   {
     configSnapshot: ConfigSnapshot,
     ingestRunId: S.String,
+    parquetExportMode: AiMetricsParquetExportMode.pipe(
+      S.withConstructorDefault(Effect.succeed(AiMetricsParquetExportMode.Enum.snapshot)),
+      S.withDecodingDefaultKey(Effect.succeed(AiMetricsParquetExportMode.Enum.snapshot))
+    ),
     records: S.Array(AiMetricsDerivedTranscriptRecord),
     repoRootHash: S.String,
-    startedAtEpochMillis: S.Number,
+    startedAtEpochMillis: S.Finite,
     storage: AiMetricsStorageLayout,
     target: AiMetricsDeployTarget,
   },
@@ -550,13 +586,14 @@ export class AiMetricsDerivedStorageWriteResult extends S.Class<AiMetricsDerived
   $I`AiMetricsDerivedStorageWriteResult`
 )(
   {
-    archiveObjectCount: S.Number,
+    archiveObjectCount: S.Finite,
     duckDbPath: S.String,
     ingestRunId: S.String,
-    parquetExportDir: S.String,
+    parquetExportDir: S.optionalKey(S.String),
+    parquetExportMode: AiMetricsParquetExportMode,
     parquetTables: S.Array(S.String),
-    sourceFileCount: S.Number,
-    turnCount: S.Number,
+    sourceFileCount: S.Finite,
+    turnCount: S.Finite,
   },
   $I.annote("AiMetricsDerivedStorageWriteResult", {
     description: "Safe counts and export paths produced by one DuckDB derived storage write.",
@@ -701,6 +738,53 @@ const epochMillisParam = (value: number): string => globalThis.String(value);
 
 const countCreatedArchiveObjects = (records: ReadonlyArray<AiMetricsDerivedTranscriptRecord>): number =>
   A.filter(records, (record) => record.archiveObject.created).length;
+
+const parquetExportDirFor = (pathApi: Path.Path, input: AiMetricsDerivedStorageWriteInput): O.Option<string> => {
+  if (input.parquetExportMode === AiMetricsParquetExportMode.Enum.none) {
+    return O.none();
+  }
+
+  return O.some(
+    pathApi.join(
+      input.storage.parquetDir,
+      input.parquetExportMode === AiMetricsParquetExportMode.Enum.latest ? "latest" : input.ingestRunId
+    )
+  );
+};
+
+const prepareParquetExportDir = Effect.fn("AiMetrics.derivedStorage.prepareParquetExportDir")(function* (
+  exportDir: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  yield* fs
+    .remove(exportDir, { force: true, recursive: true })
+    .pipe(
+      Effect.mapError((cause) =>
+        derivedFailure("Failed to remove existing AI metrics Parquet export directory.", cause)
+      )
+    );
+  yield* fs
+    .makeDirectory(exportDir, { recursive: true })
+    .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics Parquet export directory.", cause)));
+});
+
+const exportDerivedTablesToParquet = Effect.fn("AiMetrics.derivedStorage.exportDerivedTablesToParquet")(function* (
+  exportDir: string
+) {
+  const pathApi = yield* Path.Path;
+  const duckdb = yield* DuckDb;
+  yield* Effect.forEach(
+    DERIVED_TABLES,
+    (tableName) =>
+      duckdb.copyTableToParquet(
+        DuckDbParquetExport.make({
+          filePath: pathApi.join(exportDir, `${tableName}.parquet`),
+          tableName,
+        })
+      ),
+    { discard: true }
+  ).pipe(Effect.mapError((cause) => derivedFailure("Failed to export AI metrics derived tables to Parquet.", cause)));
+});
 
 const upsertRun = Effect.fn("AiMetrics.derivedStorage.upsertRun")(function* (
   input: AiMetricsDerivedStorageWriteInput,
@@ -1074,13 +1158,13 @@ export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsD
     const fs = yield* FileSystem.FileSystem;
     const pathApi = yield* Path.Path;
     const duckdb = yield* DuckDb;
-    const parquetExportDir = pathApi.join(input.storage.parquetDir, input.ingestRunId);
+    const parquetExportDir = parquetExportDirFor(pathApi, input);
     yield* fs
       .makeDirectory(pathApi.dirname(input.storage.duckDbPath), { recursive: true })
       .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics DuckDB storage directory.", cause)));
-    yield* fs
-      .makeDirectory(parquetExportDir, { recursive: true })
-      .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics Parquet export directory.", cause)));
+    if (O.isSome(parquetExportDir)) {
+      yield* prepareParquetExportDir(parquetExportDir.value);
+    }
     const completedAtEpochMillis = yield* Clock.currentTimeMillis;
     const turnCount = recordTurnCount(input.records);
     const archiveObjectCount = countCreatedArchiveObjects(input.records);
@@ -1106,24 +1190,17 @@ export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsD
       )
       .pipe(Effect.mapError((cause) => derivedFailure("Failed to write AI metrics derived DuckDB tables.", cause)));
 
-    yield* Effect.forEach(
-      DERIVED_TABLES,
-      (tableName) =>
-        duckdb.copyTableToParquet(
-          DuckDbParquetExport.make({
-            filePath: pathApi.join(parquetExportDir, `${tableName}.parquet`),
-            tableName,
-          })
-        ),
-      { discard: true }
-    ).pipe(Effect.mapError((cause) => derivedFailure("Failed to export AI metrics derived tables to Parquet.", cause)));
+    if (O.isSome(parquetExportDir)) {
+      yield* exportDerivedTablesToParquet(parquetExportDir.value);
+    }
 
     return AiMetricsDerivedStorageWriteResult.make({
       archiveObjectCount,
       duckDbPath: input.storage.duckDbPath,
       ingestRunId: input.ingestRunId,
-      parquetExportDir,
-      parquetTables: DERIVED_TABLES,
+      ...O.getSomesStruct({ parquetExportDir }),
+      parquetExportMode: input.parquetExportMode,
+      parquetTables: O.isSome(parquetExportDir) ? DERIVED_TABLES : [],
       sourceFileCount: input.records.length,
       turnCount,
     });
@@ -1133,6 +1210,7 @@ export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsD
       Effect.withSpan("repo_ai_metrics.derived_storage.write", {
         attributes: {
           "ai_metrics.record_count": input.records.length,
+          "ai_metrics.parquet_export_mode": input.parquetExportMode,
           "ai_metrics.target": input.target,
         },
       })
