@@ -184,3 +184,23 @@ packages/tooling/tool/cli/src/bin.ts -- quality repo-exports-catalog --check`
 process. Other heavier Biome/tsgo LSP processes in the machine sample belonged
 to different clones/repos, so they are environment noise for this PR's catalog
 regression analysis.
+
+## 2026-06-06 Batch 3 Pre-Launch Snapshot
+
+Command:
+
+```sh
+ps -eo pid,ppid,pcpu,pmem,etime,command | rg 'bun run|docgen|yeet|quality|repo-exports|semgrep|gitleaks|osv|config-sync|vitest|turbo|gh pr checks|nix'
+```
+
+Result summary before launching Batch 3 read-only research agents:
+
+- Long-lived repo Graphiti proxy was active and low CPU.
+- No docgen, Yeet, quality, repo-export catalog, Turbo verification, Semgrep,
+  gitleaks, OSV, config-sync, Vitest, or `gh pr checks` proof lane was active
+  for this checkout.
+- `nix-daemon` was idle, and one unrelated `packages/drivers/nlp-mcp` Bun
+  process from another task was present at low CPU.
+
+Batch 3 launch status: allowed for six read-only agents. Do not launch heavy
+local quality commands concurrently with the batch.

@@ -1,6 +1,6 @@
 # Research Synthesis
 
-Status: `batch-02-closeout`
+Status: `batch-03-closeout`
 
 ## Accepted Known Findings
 
@@ -36,42 +36,43 @@ Status: `batch-02-closeout`
 - Treating this branch's all-package affected graph as a normal small-PR
   baseline is rejected; the branch changed root/global inputs.
 
-## Highest-Value Gaps For Next Batch
+## Highest-Value Follow-Up Gaps
 
-- Run Batch 3 for Effect v4 prior art, scoped config design, docgen selectivity
-  shadow design, Yeet fast-plus-monitor, external tooling candidates, and final
-  synthesis.
-- Finish publish proof for the in-progress Yeet duplicate-feedback
-  implementation: focused tests, plan evidence, and local
-  `audit:github quality` are green, but `audit:github pre-push` and PR checks
-  remain outstanding.
-- Design package-local repo-export catalog shards plus deterministic root
-  aggregation, mirroring docgen's package-owned `./docs` generated-artifact
-  pattern.
-- Add focused `lint:fix` clean/no-op and changed-file regression tests.
-- Decide whether `@beep/repo-cli` test hot spots belong in this PR: focused
-  proof found the unit lane took 2m40s and `reuse-command.test.ts` took 84s,
-  while repo-cli `type-test` ran the root TSTyche suite.
-- Keep coverage classified as full-only or scheduled/report-only unless policy
-  changes. Integration stays in End-to-End Green, but participation gaps need
-  fixing.
-- Preserve security, SAST, Nix, dependency-review, and check-name parity before
-  relaxing local waits.
+- CI setup/cache comparable-run tuning remains one of the largest PR-level
+  opportunities. Latest run `27064446802` still spent about 2m17s-2m53s in
+  `Setup monorepo CI` on the main verification jobs, but shared workflow/cache
+  behavior needs three comparable before and after runs before any policy change.
+- Package-local repo-export catalog shards plus deterministic root aggregation
+  remain the strongest metadata speed and merge-conflict reduction opportunity.
+  The root aggregate must stay authoritative until repo-cli, repo-codegraph,
+  Turbo, hooks, package scripts, and generated artifacts migrate together.
+- Docgen package fingerprint reuse should start in shadow mode. Symbol/example
+  selectivity remains rejected for current-PR behavior until a full-fallback
+  correctness model is proven.
+- Scoped Turbo/config blast-radius reduction should start with a dry-run proof
+  harness and task-specific inputs, not blanket package-local configs.
+- Type-test and integration participation filtering should be a focused proof;
+  coverage remains full-only or scheduled/report-only for now.
+- Yeet fast-plus-monitor should be opt-in until PR-branch guardrails, known
+  check baselines, monitor output, and explicit `audit:github pre-push` fallback
+  are implemented.
+- OXC, tsgo, Bun cache, and bundle-tool candidates are prototype-only. Batch 3
+  rejected wholesale tool replacement in the current PR.
 
 ## Task Inventory Changes
 
 | Task | Change | Reason | Evidence |
 | --- | --- | --- | --- |
-| rqt-001 | in-progress | Duplicate Yeet affected feedback before full pre-push is the clearest current-PR speedup; focused plan, repo-cli test proof, and local `audit:github quality` are green. | `research/batch-02-repo-cli-orchestration.md`, `history/outputs/before-after-matrix.md` |
-| rqt-002 | selected | The original `lint:fix` regression needs an explicit guard and changed-file proof. | `research/batch-02-lint-fix-biome-eslint.md`, `history/outputs/before-after-matrix.md` |
-| rqt-003 | selected | CI setup/cache dominates repeated PR lanes and needs safe timing before policy tuning. | `research/batch-02-ci-nix-storybook-data-sync.md` |
-| rqt-004 | selected | Proof parity, check names, and Yeet proof-mode guardrails are required before wait removal. | `history/outputs/quality-review-inventory.md` |
-| rqt-005 | candidate | Docgen is high value but needs Batch 2/3 safety design. | `research/batch-01-docgen-cost-model.md` |
-| rqt-006 | candidate | Turbo blast-radius changes are high risk and need scoped design proof. | `research/batch-01-turbo-dag-cache.md` |
+| rqt-001 | done | Duplicate Yeet affected feedback before full pre-push was removed for verify/publish; repair feedback is preserved. | `research/batch-02-repo-cli-orchestration.md`, `history/outputs/before-after-matrix.md`, PR run `27064446802` |
+| rqt-002 | done | The original `lint:fix` regression is guarded by clean-tree and changed-file proofs. | `research/batch-02-lint-fix-biome-eslint.md`, `history/outputs/before-after-matrix.md`, PR run `27064446802` |
+| rqt-003 | deferred | CI setup/cache dominates repeated PR lanes but needs comparable-run proof before policy tuning. | `research/batch-02-ci-nix-storybook-data-sync.md`, `research/batch-03-tooling-candidates.md` |
+| rqt-004 | done | Proof parity, check names, and Yeet proof-mode guardrails are recorded. | `history/outputs/quality-review-inventory.md`, `history/outputs/check-name-baseline.md`, `history/outputs/proof-parity-map.md` |
+| rqt-005 | deferred | Docgen package fingerprinting is safe only as shadow proof with full fallback. | `research/batch-01-docgen-cost-model.md`, `research/batch-03-docgen-selectivity-shadow.md` |
+| rqt-006 | deferred | Turbo/config blast-radius changes need a scoped dry-run harness and task-input proof. | `research/batch-01-turbo-dag-cache.md`, `research/batch-03-scoped-config-design.md` |
 | rqt-007 | deferred | Repo-export catalog is a measured 100s red metadata gate, but the safe package-shard design needs a dedicated shard-v2 migration across repo-cli, repo-codegraph, Turbo, hooks, package scripts, generated artifacts, and agent guidance. | `research/batch-02-metadata-release-sidecars.md`, `research/repo-exports-sharding-design.md` |
-| rqt-008 | candidate | Coverage is full-only/scheduled for now; integration/type-test need participation and no-op graph fixes. | `research/batch-02-check-test-coverage.md` |
-| rqt-009 | candidate | Security/hooks/side workflow parity must precede proof relaxation. | `research/batch-02-security-audit-sast.md`, `research/batch-02-ci-nix-storybook-data-sync.md` |
-| rqt-010 | candidate | User-requested external tooling and Effect v4 prior art must remain represented. | `ops/prompts/batch-03-external-and-synthesis.md` |
+| rqt-008 | deferred | Coverage is full-only/scheduled for now; integration/type-test need participation and no-op graph fixes. | `research/batch-02-check-test-coverage.md`, `research/batch-03-tooling-candidates.md` |
+| rqt-009 | deferred | Security/hooks/side workflow parity must precede proof relaxation. | `research/batch-02-security-audit-sast.md`, `research/batch-02-ci-nix-storybook-data-sync.md`, `research/batch-03-yeet-fast-monitor.md` |
+| rqt-010 | deferred | User-requested Effect v4 and external tooling exploration found prototype-only candidates and rejected broad tool swaps. | `research/batch-03-effect-v4-tools.md`, `research/batch-03-tooling-candidates.md` |
 | rqt-011 | rejected | Turbo credential hash work is already done. | `research/batch-01-turbo-dag-cache.md` |
 | rqt-012 | rejected | Initial lint sidecar grouping is already done. | `research/batch-01-quality-command-map.md` |
 
@@ -112,10 +113,34 @@ Status: `batch-02-closeout`
 - Security, SAST, dependency review, Nix, and secret-scanning surfaces are not
   exact local/CI duplicates; preserve check names and proof parity.
 
+## Batch 3 Closeout Findings
+
+- Effect v4 prior art supports source-hashed metadata, OXC diagnostics replay,
+  and generator-service decomposition as follow-up designs, but no current-PR
+  wholesale adoption is safe.
+- External tooling candidates are prototype-only. Batch 3 rejected replacing
+  Biome/ESLint, Vitest, root build, Turbo, or workflow policy without a focused
+  benchmark and fallback proof.
+- Docgen selectivity should start at package fingerprint shadow metadata.
+  Symbol/example selectivity remains rejected for current-PR behavior.
+- Scoped configuration should be a hybrid proof harness. Package-local
+  Turbo/Biome overlays may help only where resolved task definitions show a
+  smaller affected graph.
+- Yeet fast-plus-monitor should be opt-in and PR-branch guarded; manual quality
+  lanes remain canonical until dedicated Yeet proof gates pass.
+- Latest live pre-closeout PR evidence: PR #214 was mergeable at
+  `a7be8dc1e1119d095be0239b39cd812e5650ebec`, Check run `27064446802`, with
+  all current checks green or intentionally skipped.
+
 ## Deferred Tasks
 
-- None yet. P3 synthesis must defer any candidate that remains too risky, too
-  small, or dependent on a separate proof gate.
+- `rqt-003`: setup/cache comparable-run tuning.
+- `rqt-005`: docgen package fingerprint shadow proof.
+- `rqt-006`: scoped-config dry-run harness and task-input proof.
+- `rqt-007`: repo-export package shards plus root aggregation.
+- `rqt-008`: type-test/integration participation filtering.
+- `rqt-009`: security/hooks/side workflow parity and opt-in monitor proof.
+- `rqt-010`: external tooling prototypes only.
 
 ## Rejected Tasks
 

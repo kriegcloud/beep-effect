@@ -1,6 +1,6 @@
 # Proof Parity Map
 
-Status: `current-through-899d5b4b`
+Status: `current-through-a7be8dc1`
 
 This map prevents speedups from weakening proof by making local, Yeet, PR, push,
 and side-workflow coverage explicit.
@@ -28,11 +28,11 @@ and a task inventory record with residual risk.
 - Local `bun run audit:github quality` passed after the Yeet and lint fast-path
   work; targeted ESLint and scoped repo-cli docgen passed after the follow-up
   JSDoc repair.
-- PR Check run `27063362752` is green on commit
-  `899d5b4b6bda25169579887509fbb76234c222fa`; `Build` remains present and
+- PR Check run `27064446802` is green on commit
+  `a7be8dc1e1119d095be0239b39cd812e5650ebec`; `Build` remains present and
   intentionally skipped by workflow policy.
 - `gh pr checks 214 --required` reported no required checks on
   `ontology_builder_refinement`, so preservation is tracked by live check-name
   evidence rather than a branch-ruleset requirement.
 - Thread-aware PR review inspection found zero unresolved actionable threads
-  before the next push.
+  before the packet-only follow-up push.

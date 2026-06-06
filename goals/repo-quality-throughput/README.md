@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `current-pr-proof-green`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -45,17 +45,36 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-Phase `P1` Batch 1 evidence has been persisted and synthesized. Next action:
-run Batch 2 from
-[`ops/prompts/batch-02-hotspots.md`](./ops/prompts/batch-02-hotspots.md), then
-perform the Batch 2 closeout before launching Batch 3.
+Phase `P6` closeout is complete through the latest live PR proof available
+before this packet-only follow-up commit. Batch 1, Batch 2, and Batch 3 reports
+are persisted, selected current-PR tasks are either done or explicitly
+deferred, and the final local packet verification should run before pushing any
+additional evidence changes.
 
 ## Latest Evidence
 
-Batch 1 reports now live under [`research/`](./research), and
-[`history/outputs/research-synthesis.md`](./history/outputs/research-synthesis.md)
-selects the first current-PR candidates. Clean-tree `lint:fix` currently proves
-the repo-cli no-op path in `real 0.04`.
+Batch 3 reports now live under [`research/`](./research), including
+[`research/batch-03-synthesis.md`](./research/batch-03-synthesis.md). The
+latest recorded live PR proof before this follow-up commit is Check run
+`27064446802` on commit `a7be8dc1e1119d095be0239b39cd812e5650ebec`; PR #214
+was mergeable and all current checks were green or intentionally skipped.
+
+Implemented current-PR wins:
+
+- `rqt-001`: Yeet verify/publish no longer duplicate affected feedback before
+  the full proof.
+- `rqt-002`: `lint:fix` keeps its sub-50 ms clean-tree no-op path and
+  changed-file Biome fixing path.
+- `rqt-004`: proof parity and check-name guardrails are recorded.
+
+Deferred high-value follow-ups:
+
+- setup/cache comparable-run tuning;
+- docgen package fingerprint shadow proof;
+- scoped Turbo/config blast-radius proof;
+- repo-export package shards plus root aggregation;
+- type-test/integration participation filtering;
+- opt-in Yeet fast-plus-monitor with full fallback.
 
 ## Notes
 

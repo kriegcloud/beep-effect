@@ -3,14 +3,14 @@
   "initiative": {
     "id": "repo-quality-throughput",
     "title": "Repo Quality Throughput",
-    "status": "active",
+    "status": "current-pr-proof-green",
     "created": "2026-06-06",
     "updated": "2026-06-06",
     "packetAnchorDocument": "SPEC.md",
     "supersedes": ["repo-quality-acceleration"]
   },
   "packetPath": "goals/repo-quality-throughput",
-  "lifecycle": "active",
+  "lifecycle": "current-pr-proof-green",
   "executionCapable": true,
   "mission": "Make the repo's End-to-End Green lane materially faster while preserving the authoritative quality proof.",
   "optimizationTarget": "End-to-End Green: edit, local repair, local blockers, commit, push, PR checks, review comments, and merge readiness.",
@@ -129,7 +129,7 @@
       "name": "External Prior Art And Synthesis",
       "prompt": "ops/prompts/batch-03-external-and-synthesis.md",
       "agentCount": 6,
-      "status": "pending",
+      "status": "complete",
       "writePolicy": "All agents return reports; orchestrator owns synthesis writes after reports are collected.",
       "dependsOn": ["batch-02 closeout"],
       "lanes": [
@@ -184,22 +184,22 @@
     {
       "id": "P3",
       "name": "Research Batch 3 And Synthesis",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Implement Current-PR Wins",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P5",
       "name": "Prove End-to-End Green",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P6",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "taskInventory": {
@@ -216,7 +216,8 @@
     "history/outputs/quality-review-inventory.md",
     "history/outputs/check-name-baseline.md",
     "history/outputs/proof-parity-map.md",
-    "history/outputs/process-snapshots.md"
+    "history/outputs/process-snapshots.md",
+    "history/outputs/final-acceptance-audit.md"
   ],
   "verificationCommands": [
     "test \"$(wc -m < goals/repo-quality-throughput/GOAL.md)\" -le 4000",

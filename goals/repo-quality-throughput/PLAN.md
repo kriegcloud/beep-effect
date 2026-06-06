@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `current-pr-proof-green-packet-open`
+Status: `current-pr-proof-green-batch-03-closed`
 
 ## Operating Posture
 
@@ -18,10 +18,10 @@ slow local commands.
 | P0 Bootstrap | complete | Create the executable packet and supersede the old research packet. | Packet files validate and old packet points here. |
 | P1 Research Batch 1 | complete | Establish command map, timing baseline, DAG/cache shape, duplicate work, docgen cost, and config inventory. | Six reports exist under `research/`, synthesis is updated, and Batch 2 is not launched from stale tasks. |
 | P2 Research Batch 2 | complete | Inspect implementation hotspots across repo-cli, lint, check/test, security, metadata, and CI side lanes. | Reports exist under `research/`, synthesis is updated, and concrete candidate/selected tasks are recorded. |
-| P3 Research Batch 3 | deferred | Compare external prior art, scoped config designs, docgen selectivity, Yeet UX, and synthesize tasks. | No seeded hypotheses remain; external/tooling and scoped-config items are candidates or deferred follow-ups instead of current-PR blockers. |
-| P4 Implement Current-PR Wins | complete | Implement ranked tasks until diminishing returns or separate design gates. | `rqt-001`, `rqt-002`, and `rqt-004` are done; `rqt-003` and `rqt-007` are deferred to focused proof gates. |
-| P5 Prove End-to-End Green | in-progress | Run the fast local path, full proof, push/PR monitor, and benchmark comparison. | Before/after matrix, proof parity, check-name baseline, and green PR proof are recorded under `history/`; next push requires another live PR check sweep afterward. |
-| P6 Close | in-progress | Run final quality-review-fix-loop, update packet status, and prepare PR notes. | Current review has no blocking findings; remaining backlog is explicit and the PR is mergeable before the next docs/evidence push. |
+| P3 Research Batch 3 | complete | Compare external prior art, scoped config designs, docgen selectivity, Yeet UX, and synthesize tasks. | Six reports exist, including `research/batch-03-synthesis.md`; no task remains only a seeded hypothesis or undecided candidate. |
+| P4 Implement Current-PR Wins | complete | Implement ranked tasks until diminishing returns or separate design gates. | `rqt-001`, `rqt-002`, and `rqt-004` are done; remaining high-value tasks are deferred with owner, risk, rollback, and next proof steps. |
+| P5 Prove End-to-End Green | complete | Run the fast local path, full proof, push/PR monitor, and benchmark comparison. | Before/after matrix, proof parity, check-name baseline, local quality evidence, and live green PR proof are recorded under `history/`. |
+| P6 Close | complete | Run final quality-review-fix-loop, update packet status, and prepare PR notes. | Current packet review has zero blocking findings; PR #214 was mergeable and green before the final packet-only follow-up push. |
 
 ## Research Batch Commands
 
@@ -175,4 +175,8 @@ rg -n "Coverage.*(green-lane|full-only|scheduled|out-of-scope|deferred)" \
 None for current-PR execution. Remaining high-value performance work is
 deferred to focused proof gates: setup/cache comparable-run tuning, repo-export
 catalog sharding, docgen fingerprint reuse, scoped Turbo/config blast-radius
-reduction, and integration/type-test participation filtering.
+reduction, integration/type-test participation filtering, side-workflow parity,
+and opt-in Yeet fast-plus-monitor.
+
+Before pushing any follow-up commit, recheck PR comments and pipeline state.
+After pushing, rerun `gh pr checks --watch` and keep PR #214 green.
