@@ -1,8 +1,7 @@
 "use client";
 
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";
-import { A, thunk } from "@beep/utils";
-import * as React from "react";
+import { A } from "@beep/utils";
 import { cn } from "../lib/index.ts";
 
 const sliderValues = (
@@ -43,7 +42,7 @@ const sliderValues = (
  * @since 0.0.0
  */
 function Slider({ className, defaultValue, value, min = 0, max = 100, ref, ...props }: SliderPrimitive.Root.Props) {
-  const _values = React.useMemo(thunk(sliderValues(value, defaultValue, min)), [value, defaultValue, min]);
+  const _values = sliderValues(value, defaultValue, min);
 
   return (
     <SliderPrimitive.Root

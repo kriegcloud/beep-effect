@@ -1,10 +1,13 @@
 "use client";
 
-import { A, Str } from "@beep/utils";
+import { Str } from "@beep/utils";
+import { make as makeScopedAtom, useAtom, useAtomMount, useAtomValue } from "@effect/atom-react";
 import { ListIcon } from "@phosphor-icons/react";
 import { cva } from "class-variance-authority";
 import * as P from "effect/Predicate";
+import { Atom } from "effect/unstable/reactivity";
 import * as React from "react";
+import { mediaQueryAtom } from "../internal/react-atoms.ts";
 import { cn } from "../lib/index.ts";
 import { requireReactContext } from "../lib/react-invariant.ts";
 import { Button } from "./button";
@@ -28,14 +31,41 @@ const randomIntBelow = (maxExclusive: number): number => {
 type SidebarContextValue = {
   readonly state: "expanded" | "collapsed";
   readonly open: boolean;
-  readonly setOpen: (open: boolean) => void;
+  readonly setOpen: (open: boolean | ((open: boolean) => boolean)) => void;
   readonly openMobile: boolean;
-  readonly setOpenMobile: (open: boolean) => void;
+  readonly setOpenMobile: (open: boolean | ((open: boolean) => boolean)) => void;
   readonly isMobile: boolean;
   readonly toggleSidebar: () => void;
 };
 
 const SidebarContext = React.createContext<SidebarContextValue | null>(null);
+
+type SidebarState = {
+  readonly open: boolean;
+  readonly openMobile: boolean;
+};
+
+const SidebarScope = makeScopedAtom((defaultOpen: boolean) =>
+  Atom.make<SidebarState>({
+    open: defaultOpen,
+    openMobile: false,
+  })
+);
+
+const SidebarMenuSkeletonScope = makeScopedAtom(() => Atom.make(`${randomIntBelow(40) + 50}%`));
+
+const sidebarStorageHydrationAtom = Atom.family((stateAtom: Atom.Writable<SidebarState, SidebarState>) =>
+  Atom.make((get) => {
+    try {
+      const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+      if (P.isNotNull(stored)) {
+        get.set(stateAtom, { ...get.once(stateAtom), open: stored === "true" });
+      }
+    } catch {
+      // localStorage may be unavailable
+    }
+  })
+);
 
 /**
  * Use sidebar hook.
@@ -53,20 +83,6 @@ const SidebarContext = React.createContext<SidebarContextValue | null>(null);
 function useSidebar() {
   const context = React.useContext(SidebarContext);
   return requireReactContext(context, { message: "useSidebar must be used within a SidebarProvider." });
-}
-
-function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState(false);
-
-  React.useEffect(() => {
-    const mql = window.matchMedia("(max-width: 768px)");
-    const onChange = () => setIsMobile(mql.matches);
-    mql.addEventListener("change", onChange);
-    setIsMobile(mql.matches);
-    return () => mql.removeEventListener("change", onChange);
-  }, A.empty());
-
-  return isMobile;
 }
 
 interface SidebarProviderProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -88,8 +104,15 @@ interface SidebarProviderProps extends React.ComponentPropsWithoutRef<"div"> {
  * @category providers
  * @since 0.0.0
  */
-function SidebarProvider({
-  defaultOpen = true,
+function SidebarProvider({ defaultOpen = true, ...props }: SidebarProviderProps) {
+  return (
+    <SidebarScope.Provider value={defaultOpen}>
+      <SidebarProviderInner {...props} />
+    </SidebarScope.Provider>
+  );
+}
+
+function SidebarProviderInner({
   open: openProp,
   onOpenChange: setOpenProp,
   className,
@@ -97,72 +120,67 @@ function SidebarProvider({
   children,
   ...props
 }: SidebarProviderProps) {
-  const isMobile = useIsMobile();
-  const [openMobile, setOpenMobile] = React.useState(false);
-  const [_open, _setOpen] = React.useState(defaultOpen);
-  const open = openProp ?? _open;
+  const stateAtom = SidebarScope.use();
+  const [sidebarState, setSidebarState] = useAtom(stateAtom);
+  const isMobile = useAtomValue(mediaQueryAtom("(max-width: 768px)"));
+  const open = openProp ?? sidebarState.open;
+  const openMobile = sidebarState.openMobile;
 
-  // Sync from localStorage after mount to avoid hydration mismatch
-  React.useEffect(() => {
-    if (P.isNotUndefined(openProp)) return; // controlled mode, skip localStorage sync
-    try {
-      const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
-      if (P.isNotNull(stored)) {
-        _setOpen(stored === "true");
-      }
-    } catch {
-      // localStorage may be unavailable
+  const storageHydrationAtom = sidebarStorageHydrationAtom(stateAtom);
+  useAtomMount(storageHydrationAtom);
+
+  const setOpenMobile = (value: boolean | ((value: boolean) => boolean)) => {
+    setSidebarState((state) => ({
+      ...state,
+      openMobile: P.isFunction(value) ? value(state.openMobile) : value,
+    }));
+  };
+
+  const setOpen = (value: boolean | ((value: boolean) => boolean)) => {
+    const openState = P.isFunction(value) ? value(open) : value;
+    if (setOpenProp !== undefined) {
+      setOpenProp(openState);
+    } else {
+      setSidebarState((state) => ({ ...state, open: openState }));
     }
-  }, [openProp]);
+    try {
+      localStorage.setItem(SIDEBAR_STORAGE_KEY, String(openState));
+    } catch {
+      // localStorage may be unavailable in some contexts
+    }
+  };
 
-  const setOpen = React.useCallback(
-    (value: boolean | ((value: boolean) => boolean)) => {
-      const openState = P.isFunction(value) ? value(open) : value;
-      if (setOpenProp !== undefined) {
-        setOpenProp(openState);
-      } else {
-        _setOpen(openState);
+  const toggleSidebar = () => (isMobile ? setOpenMobile((current) => !current) : setOpen((current) => !current));
+
+  useAtomMount(
+    Atom.make((get) => {
+      if (typeof window === "undefined") {
+        return;
       }
-      try {
-        localStorage.setItem(SIDEBAR_STORAGE_KEY, String(openState));
-      } catch {
-        // localStorage may be unavailable in some contexts
-      }
-    },
-    [setOpenProp, open]
+
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
+          event.preventDefault();
+          toggleSidebar();
+        }
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+      get.addFinalizer(() => window.removeEventListener("keydown", handleKeyDown));
+    })
   );
-
-  const toggleSidebar = React.useCallback(
-    () => (isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)),
-    [isMobile, setOpen, setOpenMobile]
-  );
-
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault();
-        toggleSidebar();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [toggleSidebar]);
 
   const state = open ? "expanded" : "collapsed";
 
-  const contextValue = React.useMemo<SidebarContextValue>(
-    () => ({
-      state,
-      open,
-      setOpen,
-      isMobile,
-      openMobile,
-      setOpenMobile,
-      toggleSidebar,
-    }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
-  );
+  const contextValue: SidebarContextValue = {
+    state,
+    open,
+    setOpen,
+    isMobile,
+    openMobile,
+    setOpenMobile,
+    toggleSidebar,
+  };
 
   return (
     <SidebarContext.Provider value={contextValue}>
@@ -852,13 +870,25 @@ function SidebarMenuBadge({ className, ...props }: React.ComponentPropsWithoutRe
  * @since 0.0.0
  */
 function SidebarMenuSkeleton({
+  ...props
+}: React.ComponentPropsWithoutRef<"div"> & {
+  readonly showIcon?: undefined | boolean;
+}) {
+  return (
+    <SidebarMenuSkeletonScope.Provider>
+      <SidebarMenuSkeletonInner {...props} />
+    </SidebarMenuSkeletonScope.Provider>
+  );
+}
+
+function SidebarMenuSkeletonInner({
   className,
   showIcon = false,
   ...props
 }: React.ComponentPropsWithoutRef<"div"> & {
   readonly showIcon?: undefined | boolean;
 }) {
-  const width = React.useMemo(() => `${randomIntBelow(40) + 50}%`, A.empty());
+  const width = useAtomValue(SidebarMenuSkeletonScope.use());
 
   return (
     <div

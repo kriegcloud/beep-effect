@@ -136,6 +136,7 @@
         "@beep/ui": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/atom-react": "catalog:",
+        "@effect/platform-browser": "catalog:",
         "@mdx-js/react": "catalog:",
         "@next/bundle-analyzer": "catalog:",
         "@next/mdx": "catalog:",
@@ -169,6 +170,7 @@
       "version": "0.0.3",
       "dependencies": {
         "@beep/ui": "workspace:^",
+        "@effect/atom-react": "catalog:",
         "@phosphor-icons/react": "catalog:",
         "@tauri-apps/api": "catalog:",
         "react": "catalog:",

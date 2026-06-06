@@ -15,9 +15,15 @@ import {
   ContextMenuTrigger,
 } from "@beep/ui/components/context-menu";
 import { A } from "@beep/utils";
-import { useState } from "react";
+import { useAtom } from "@effect/atom-react";
+import { Atom } from "effect/unstable/reactivity";
 import { expect, fireEvent, screen, userEvent, waitFor, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+
+const contextCheckboxStateAtom = Atom.make({
+  showBookmarks: true,
+  showFullUrls: false,
+});
 
 const editActions: ReadonlyArray<{ readonly label: string; readonly shortcut: string }> = [
   { label: "Cut", shortcut: "⌘X" },
@@ -156,18 +162,23 @@ export const DestructiveItem: Story = {
  */
 export const WithCheckboxes: Story = {
   render: (args) => {
-    const [showBookmarks, setShowBookmarks] = useState(true);
-    const [showFullUrls, setShowFullUrls] = useState(false);
+    const [checkboxState, setCheckboxState] = useAtom(contextCheckboxStateAtom);
     return (
       <ContextMenu {...args}>
         <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">
           Right click here
         </ContextMenuTrigger>
         <ContextMenuContent className="w-52">
-          <ContextMenuCheckboxItem checked={showBookmarks} onCheckedChange={setShowBookmarks}>
+          <ContextMenuCheckboxItem
+            checked={checkboxState.showBookmarks}
+            onCheckedChange={(showBookmarks) => setCheckboxState((state) => ({ ...state, showBookmarks }))}
+          >
             Show Bookmarks
           </ContextMenuCheckboxItem>
-          <ContextMenuCheckboxItem checked={showFullUrls} onCheckedChange={setShowFullUrls}>
+          <ContextMenuCheckboxItem
+            checked={checkboxState.showFullUrls}
+            onCheckedChange={(showFullUrls) => setCheckboxState((state) => ({ ...state, showFullUrls }))}
+          >
             Show Full URLs
           </ContextMenuCheckboxItem>
         </ContextMenuContent>

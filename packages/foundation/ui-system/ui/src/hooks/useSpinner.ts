@@ -1,23 +1,14 @@
 import { $UiId } from "@beep/identity";
-import { LiteralKit, NonNegativeInt } from "@beep/schema";
-import { Match, pipe, Result } from "effect";
-import * as Bool from "effect/Boolean";
-import * as O from "effect/Option";
-import * as P from "effect/Predicate";
+import { NonNegativeInt } from "@beep/schema";
+import { useAtomMount, useAtomSet } from "@effect/atom-react";
+import { Result } from "effect";
 import * as S from "effect/Schema";
-import React, { useCallback, useRef, useState } from "react";
+import { Atom } from "effect/unstable/reactivity";
+import { useId } from "react";
 
 const $I = $UiId.create("hooks/useSpinner");
 const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
   cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);
-
-const SpinnerAction = LiteralKit(["increment", "decrement"]).pipe(
-  $I.annoteSchema("SpinnerAction", {
-    description: "Spinner directions supported by the number-input long-press hook.",
-  })
-);
-
-type SpinnerAction = typeof SpinnerAction.Type;
 
 class SpinnerSchedule extends S.Class<SpinnerSchedule>($I`SpinnerSchedule`)(
   {
@@ -37,47 +28,80 @@ const spinnerSchedule = decodeSpinnerSchedule({
   continuousChangeDelay: 300,
 });
 
-const noopVoid = (): void => {};
+type SpinnerState = {
+  readonly interval: number | undefined;
+  readonly runOnce: boolean;
+  readonly timeout: number | undefined;
+};
 
-function canUseDOM(): boolean {
-  const runtimeWindow = globalThis.window;
-  return P.isNotUndefined(runtimeWindow) && runtimeWindow.document !== undefined && P.isNotNull(runtimeWindow.document);
-}
-
-const isBrowser = canUseDOM();
-
-const useSafeLayoutEffect = isBrowser ? React.useLayoutEffect : React.useEffect;
-
-function useCallbackRef<TArgs extends ReadonlyArray<unknown>, TResult>(
-  fn: (...args: TArgs) => TResult,
-  deps: React.DependencyList = []
-): (...args: TArgs) => TResult {
-  const ref = React.useRef(fn);
-
-  useSafeLayoutEffect(() => {
-    ref.current = fn;
-  });
-
-  return React.useCallback((...args: TArgs) => ref.current(...args), deps);
-}
-
-function useInterval(callback: () => void, delay: number | null) {
-  const fn = useCallbackRef(callback);
-
-  React.useEffect(() => {
-    if (delay === null) {
-      return;
+type SpinnerCommand =
+  | {
+      readonly _tag: "start";
+      readonly run: () => void;
     }
+  | {
+      readonly _tag: "stop";
+    };
 
-    const intervalId = window.setInterval(fn, delay);
+const emptySpinnerState: SpinnerState = {
+  interval: undefined,
+  runOnce: true,
+  timeout: undefined,
+};
 
-    return () => window.clearInterval(intervalId);
-  }, [delay, fn]);
-}
+const clearSpinnerTimers = (state: SpinnerState): void => {
+  if (state.timeout !== undefined) {
+    window.clearTimeout(state.timeout);
+  }
+  if (state.interval !== undefined) {
+    window.clearInterval(state.interval);
+  }
+};
 
-function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
-  React.useEffect(() => () => fn(), deps);
-}
+const spinnerStateAtom = Atom.family((_scope: string) => Atom.make<SpinnerState>(emptySpinnerState));
+
+const spinnerCommandAtom = Atom.family((scope: string) =>
+  Atom.writable(
+    () => undefined,
+    (ctx, command: SpinnerCommand) => {
+      const stateAtom = spinnerStateAtom(scope);
+      const state = ctx.get(stateAtom);
+
+      if (command._tag === "stop") {
+        clearSpinnerTimers(state);
+        ctx.set(stateAtom, emptySpinnerState);
+        return;
+      }
+
+      clearSpinnerTimers(state);
+
+      if (state.runOnce) {
+        command.run();
+      }
+
+      const timeout = window.setTimeout(() => {
+        const interval = window.setInterval(command.run, spinnerSchedule.continuousChangeInterval);
+        ctx.set(stateAtom, {
+          interval,
+          runOnce: false,
+          timeout: undefined,
+        });
+      }, spinnerSchedule.continuousChangeDelay);
+
+      ctx.set(stateAtom, {
+        interval: undefined,
+        runOnce: state.runOnce,
+        timeout,
+      });
+    }
+  )
+);
+
+const spinnerCleanupAtom = Atom.family((scope: string) =>
+  Atom.make((get) => {
+    get.addFinalizer(() => clearSpinnerTimers(get.once(spinnerStateAtom(scope))));
+  })
+);
 
 /**
  * React hook used by spinner buttons to repeatedly increment or decrement a value
@@ -123,76 +147,22 @@ function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
  * @since 0.0.0
  */
 export function useSpinner<T>(increment: (params?: T) => void, decrement: (params?: T) => void) {
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [action, setAction] = useState<O.Option<SpinnerAction>>(O.none());
-  const [runOnce, setRunOnce] = useState(true);
+  const scope = useId();
+  const dispatch = useAtomSet(spinnerCommandAtom(scope));
 
-  const paramsRef = useRef<T | undefined>(undefined);
-  const timeoutRef = useRef<number | undefined>(undefined);
+  useAtomMount(spinnerCleanupAtom(scope));
 
-  const removeTimeout = useCallback(() => {
-    if (timeoutRef.current !== undefined) {
-      window.clearTimeout(timeoutRef.current);
-      timeoutRef.current = undefined;
-    }
-  }, []);
-
-  const runAction = useCallback(
-    (nextAction: SpinnerAction, params?: T) =>
-      pipe(
-        nextAction,
-        Match.type<SpinnerAction>().pipe(
-          Match.when("increment", () => increment(params)),
-          Match.when("decrement", () => decrement(params)),
-          Match.exhaustive
-        )
-      ),
-    [decrement, increment]
-  );
-
-  useInterval(
-    () =>
-      pipe(
-        action,
-        O.match({
-          onNone: noopVoid,
-          onSome: (nextAction) => runAction(nextAction, paramsRef.current),
-        })
-      ),
-    isSpinning ? spinnerSchedule.continuousChangeInterval : null
-  );
-
-  const scheduleSpin = useCallback(
-    (nextAction: SpinnerAction, params?: T) => {
-      paramsRef.current = params;
-
-      Bool.match(runOnce, {
-        onTrue: () => runAction(nextAction, params),
-        onFalse: noopVoid,
-      });
-
-      timeoutRef.current = window.setTimeout(() => {
-        setRunOnce(false);
-        setIsSpinning(true);
-        setAction(O.some(nextAction));
-      }, spinnerSchedule.continuousChangeDelay);
-    },
-    [runAction, runOnce]
-  );
-
-  const up = useCallback((params?: T) => scheduleSpin("increment", params), [scheduleSpin]);
-
-  const down = useCallback((params?: T) => scheduleSpin("decrement", params), [scheduleSpin]);
-
-  const stop = useCallback(() => {
-    paramsRef.current = undefined;
-    setRunOnce(true);
-    setIsSpinning(false);
-    setAction(O.none());
-    removeTimeout();
-  }, [removeTimeout]);
-
-  useUnmountEffect(removeTimeout);
-
-  return { up, down, stop };
+  return {
+    up: (params?: T) =>
+      dispatch({
+        _tag: "start",
+        run: () => increment(params),
+      }),
+    down: (params?: T) =>
+      dispatch({
+        _tag: "start",
+        run: () => decrement(params),
+      }),
+    stop: () => dispatch({ _tag: "stop" }),
+  };
 }

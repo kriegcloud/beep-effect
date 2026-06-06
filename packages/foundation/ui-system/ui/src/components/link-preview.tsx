@@ -2,11 +2,12 @@
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { Str } from "@beep/utils";
+import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { ArrowSquareOutIcon, InfoIcon } from "@phosphor-icons/react";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Atom } from "effect/unstable/reactivity";
 import { cn, sanitizeAnchorHref } from "../lib/index.ts";
 import type { ReactNode } from "react";
 
@@ -25,6 +26,134 @@ interface LinkPreviewProps {
   readonly href: string;
   readonly metadata?: undefined | null | Partial<UrlMetadata>;
 }
+
+type LinkPreviewState = {
+  readonly element: HTMLAnchorElement | null;
+  readonly error: null | string;
+  readonly fetchedMetadata: null | UrlMetadata;
+  readonly isInView: boolean;
+  readonly isLoading: boolean;
+  readonly validFavicon: boolean;
+  readonly validImage: boolean;
+};
+
+const emptyLinkPreviewState: LinkPreviewState = {
+  element: null,
+  error: null,
+  fetchedMetadata: null,
+  isInView: false,
+  isLoading: false,
+  validFavicon: true,
+  validImage: true,
+};
+
+const linkPreviewStateAtom = Atom.family((_href: string) => Atom.make<LinkPreviewState>(emptyLinkPreviewState));
+
+const linkPreviewElementAtom = Atom.family((href: string) =>
+  Atom.writable(
+    (get) => get(linkPreviewStateAtom(href)).element,
+    (ctx, element: HTMLAnchorElement | null) => {
+      const stateAtom = linkPreviewStateAtom(href);
+      ctx.set(stateAtom, { ...ctx.get(stateAtom), element });
+    }
+  )
+);
+
+const linkPreviewObserverAtom = Atom.family((href: string) =>
+  Atom.make((get) => {
+    let cleanupObserver: (() => void) | undefined;
+
+    const observe = (element: HTMLAnchorElement | null) => {
+      cleanupObserver?.();
+      cleanupObserver = undefined;
+
+      if (element === null || href.length === 0) {
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry?.isIntersecting) {
+            const stateAtom = linkPreviewStateAtom(href);
+            get.set(stateAtom, { ...get.once(stateAtom), isInView: true });
+            observer.unobserve(element);
+          }
+        },
+        {
+          rootMargin: "100px",
+          threshold: 0.1,
+        }
+      );
+
+      observer.observe(element);
+      cleanupObserver = () => observer.unobserve(element);
+    };
+
+    get.subscribe(linkPreviewElementAtom(href), observe, { immediate: true });
+    get.addFinalizer(() => cleanupObserver?.());
+  })
+);
+
+const linkPreviewFetchAtom = Atom.family((href: string) =>
+  Atom.make((get) => {
+    let disposed = false;
+
+    const maybeFetch = (state: LinkPreviewState) => {
+      if (!state.isInView || !canFetchMetadata(href) || state.fetchedMetadata !== null || state.isLoading) {
+        return;
+      }
+
+      const stateAtom = linkPreviewStateAtom(href);
+      get.set(stateAtom, {
+        ...get.once(stateAtom),
+        error: null,
+        isLoading: true,
+      });
+
+      void Effect.runPromise(fetchMetadataHtml(href)).then((htmlOption) => {
+        if (disposed) {
+          return;
+        }
+
+        if (O.isNone(htmlOption)) {
+          get.set(stateAtom, {
+            ...get.once(stateAtom),
+            error: "Preview unavailable",
+            isLoading: false,
+          });
+          return;
+        }
+
+        const html = htmlOption.value;
+        const titleMatch = O.getOrUndefined(Str.match(/<title[^>]*>([^<]+)<\/title>/i)(html));
+        const parsed = new URL(href);
+
+        get.set(stateAtom, {
+          ...get.once(stateAtom),
+          fetchedMetadata: {
+            title: extractMetaTag(html, "og:title") ?? extractMetaTag(html, "twitter:title") ?? titleMatch?.[1] ?? null,
+            description:
+              extractMetaTag(html, "og:description") ??
+              extractMetaTag(html, "twitter:description") ??
+              extractMetaTag(html, "description") ??
+              null,
+            websiteImage: extractMetaTag(html, "og:image") ?? extractMetaTag(html, "twitter:image") ?? null,
+            favicon:
+              extractMetaTag(html, "icon") ?? extractMetaTag(html, "shortcut icon") ?? `${parsed.origin}/favicon.ico`,
+            websiteName: extractMetaTag(html, "og:site_name") ?? parsed.hostname,
+            url: href,
+          },
+          isLoading: false,
+        });
+      });
+    };
+
+    get.subscribe(linkPreviewStateAtom(href), maybeFetch, { immediate: true });
+    get.addFinalizer(() => {
+      disposed = true;
+    });
+  })
+);
 
 const isEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
@@ -120,100 +249,26 @@ const getFallbackMetadata = (href: string): UrlMetadata => {
  * @since 0.0.0
  */
 export function LinkPreview({ href, children, className, metadata }: LinkPreviewProps) {
-  const elementRef = useRef<HTMLAnchorElement>(null);
-
-  const [isInView, setIsInView] = useState(false);
-  const [validFavicon, setValidFavicon] = useState(true);
-  const [validImage, setValidImage] = useState(true);
-  const [fetchedMetadata, setFetchedMetadata] = useState<null | UrlMetadata>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<null | string>(null);
+  const stateAtom = linkPreviewStateAtom(href);
+  const state = useAtomValue(stateAtom);
+  const setElement = useAtomSet(linkPreviewElementAtom(href));
+  const setState = useAtomSet(stateAtom);
   const safeHref = sanitizeAnchorHref(href);
 
   const isValidUrl = href.length > 0 && isValidHttpUrl(href) && !isEmail(href) && !Str.startsWith(href, "mailto:");
 
-  const shouldFetch = isValidUrl && canFetchMetadata(href);
+  useAtomMount(linkPreviewObserverAtom(href));
+  useAtomMount(linkPreviewFetchAtom(href));
 
-  useEffect(() => {
-    if (!isInView || !shouldFetch || fetchedMetadata !== null) {
-      return;
-    }
+  const resolvedMetadata = {
+    ...(state.fetchedMetadata ?? getFallbackMetadata(href)),
+    ...metadata,
+  };
 
-    let disposed = false;
-    setIsLoading(true);
-    setError(null);
-
-    void Effect.runPromise(fetchMetadataHtml(href)).then((htmlOption) => {
-      if (disposed) {
-        return;
-      }
-
-      if (O.isNone(htmlOption)) {
-        setError("Preview unavailable");
-        setIsLoading(false);
-        return;
-      }
-
-      const html = htmlOption.value;
-      const titleMatch = O.getOrUndefined(Str.match(/<title[^>]*>([^<]+)<\/title>/i)(html));
-      const parsed = new URL(href);
-
-      setFetchedMetadata({
-        title: extractMetaTag(html, "og:title") ?? extractMetaTag(html, "twitter:title") ?? titleMatch?.[1] ?? null,
-        description:
-          extractMetaTag(html, "og:description") ??
-          extractMetaTag(html, "twitter:description") ??
-          extractMetaTag(html, "description") ??
-          null,
-        websiteImage: extractMetaTag(html, "og:image") ?? extractMetaTag(html, "twitter:image") ?? null,
-        favicon:
-          extractMetaTag(html, "icon") ?? extractMetaTag(html, "shortcut icon") ?? `${parsed.origin}/favicon.ico`,
-        websiteName: extractMetaTag(html, "og:site_name") ?? parsed.hostname,
-        url: href,
-      });
-      setIsLoading(false);
-    });
-
-    return () => {
-      disposed = true;
-    };
-  }, [fetchedMetadata, href, isInView, shouldFetch]);
-
-  useEffect(() => {
-    const element = elementRef.current;
-    if (element === null || href.length === 0) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          setIsInView(true);
-          observer.unobserve(element);
-        }
-      },
-      {
-        rootMargin: "100px",
-        threshold: 0.1,
-      }
-    );
-
-    observer.observe(element);
-
-    return () => void observer.unobserve(element);
-  }, [href]);
-
-  const resolvedMetadata = useMemo(() => {
-    const base = fetchedMetadata ?? getFallbackMetadata(href);
-    return {
-      ...base,
-      ...metadata,
-    };
-  }, [fetchedMetadata, href, metadata]);
-
-  const errorMessage = !isValidUrl ? "Invalid URL" : (error ?? "Failed to load preview");
-  const favicon = validFavicon && hasText(resolvedMetadata.favicon) ? resolvedMetadata.favicon : undefined;
-  const websiteImage = validImage && hasText(resolvedMetadata.websiteImage) ? resolvedMetadata.websiteImage : undefined;
+  const errorMessage = !isValidUrl ? "Invalid URL" : (state.error ?? "Failed to load preview");
+  const favicon = state.validFavicon && hasText(resolvedMetadata.favicon) ? resolvedMetadata.favicon : undefined;
+  const websiteImage =
+    state.validImage && hasText(resolvedMetadata.websiteImage) ? resolvedMetadata.websiteImage : undefined;
   const websiteName = hasText(resolvedMetadata.websiteName) ? resolvedMetadata.websiteName : undefined;
   const title = hasText(resolvedMetadata.title) ? resolvedMetadata.title : undefined;
   const description = hasText(resolvedMetadata.description) ? resolvedMetadata.description : undefined;
@@ -231,7 +286,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
             alt="Website preview"
             className="h-full w-full rounded-lg object-cover"
             src={websiteImage}
-            onError={() => setValidImage(false)}
+            onError={() => setState((current) => ({ ...current, validImage: false }))}
           />
         </div>
       )}
@@ -245,7 +300,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
               alt="Favicon"
               className="size-5 rounded-full"
               src={favicon}
-              onError={() => setValidFavicon(false)}
+              onError={() => setState((current) => ({ ...current, validFavicon: false }))}
             />
           ) : (
             <ArrowSquareOutIcon size={18} className="text-muted-foreground" />
@@ -265,13 +320,13 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
     </div>
   );
 
-  if (isLoading) {
+  if (state.isLoading) {
     tooltipContent = (
       <div className="flex justify-center p-5">
         <div className="size-5 animate-spin rounded-full border-2 border-border border-t-foreground" />
       </div>
     );
-  } else if (error !== null || !isValidUrl) {
+  } else if (state.error !== null || !isValidUrl) {
     tooltipContent = (
       <div className="flex items-center gap-2 p-3 text-destructive">
         <InfoIcon size={16} weight="fill" />
@@ -285,7 +340,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
       <TooltipTrigger
         render={
           <a
-            ref={elementRef}
+            ref={setElement}
             href={safeHref}
             className={cn(
               "cursor-pointer rounded-sm bg-primary/20 px-1 text-sm font-medium text-primary transition-all hover:text-foreground hover:underline",

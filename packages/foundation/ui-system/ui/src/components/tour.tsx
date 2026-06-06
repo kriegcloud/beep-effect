@@ -12,10 +12,12 @@ import {
 } from "@beep/ui/components/card";
 import { Popover, PopoverContent } from "@beep/ui/components/popover";
 import { A } from "@beep/utils";
+import { make as makeScopedAtom, useAtom, useAtomMount, useAtomValue } from "@effect/atom-react";
 import { XIcon } from "@phosphor-icons/react";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import { Atom } from "effect/unstable/reactivity";
 import Link from "next/link";
 import * as React from "react";
 import { createPortal } from "react-dom";
@@ -26,6 +28,127 @@ const TourContext = React.createContext<{
   readonly start: (tourId: string) => void;
   readonly close: () => void;
 } | null>(null);
+
+type TourState = {
+  readonly activeTourId: string | null;
+  readonly currentStepIndex: number;
+  readonly isOpen: boolean;
+};
+
+type TourTargetRect = {
+  readonly width: number;
+  readonly height: number;
+  readonly x: number;
+  readonly y: number;
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly toJSON: () => void;
+};
+
+type TourTarget = {
+  readonly rect: TourTargetRect;
+  readonly radius: number;
+};
+
+const closedTourState: TourState = {
+  activeTourId: null,
+  currentStepIndex: 0,
+  isOpen: false,
+};
+
+const TourScope = makeScopedAtom(() => Atom.make<TourState>(closedTourState));
+
+const tourTargetsAtom = Atom.family((_stepId: string) => Atom.make<ReadonlyArray<TourTarget>>(A.empty()));
+
+const tourOverlayPositionAtom = Atom.family((stepId: string) =>
+  Atom.make((get) => {
+    let needsScroll = true;
+
+    const updatePosition = () => {
+      const elements = document.querySelectorAll(`[data-tour-step-id*='${stepId}']`);
+
+      if (elements.length === 0) {
+        get.set(tourTargetsAtom(stepId), A.empty());
+        return;
+      }
+
+      let validElements = A.empty<{
+        readonly rect: TourTargetRect;
+        readonly radius: number;
+        readonly element: Element;
+      }>();
+
+      for (const element of elements) {
+        const rect = element.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) continue;
+
+        const style = window.getComputedStyle(element);
+        const radius = Number(style.borderRadius) || 4;
+
+        validElements = A.append(validElements, {
+          rect: {
+            width: rect.width,
+            height: rect.height,
+            x: rect.left,
+            y: rect.top,
+            left: rect.left,
+            top: rect.top,
+            right: rect.right,
+            bottom: rect.bottom,
+            toJSON: () => {},
+          },
+          radius,
+          element,
+        });
+      }
+
+      get.set(
+        tourTargetsAtom(stepId),
+        A.map(validElements, ({ rect, radius }) => ({ rect, radius }))
+      );
+
+      if (A.isArrayNonEmpty(validElements) && needsScroll) {
+        validElements[0].element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+        needsScroll = false;
+      }
+    };
+
+    updatePosition();
+
+    const handleResizeOrScroll = () => updatePosition();
+    window.addEventListener("resize", handleResizeOrScroll);
+    window.addEventListener("scroll", handleResizeOrScroll, true);
+
+    const observer = new MutationObserver(() => updatePosition());
+    observer.observe(document.body, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
+
+    const resizeObserver = new ResizeObserver(() => updatePosition());
+    resizeObserver.observe(document.body);
+
+    get.addFinalizer(() => {
+      window.removeEventListener("resize", handleResizeOrScroll);
+      window.removeEventListener("scroll", handleResizeOrScroll, true);
+      observer.disconnect();
+      resizeObserver.disconnect();
+    });
+  })
+);
+
+const tourBodyOverflowLockAtom = Atom.make((get) => {
+  document.body.style.overflow = "hidden";
+  get.addFinalizer(() => {
+    document.body.style.overflow = "";
+  });
+});
 
 /**
  * Use tour hook.
@@ -107,9 +230,16 @@ interface Tour {
  * @since 0.0.0
  */
 function TourProvider({ tours, children }: { readonly tours: Tour[]; readonly children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [activeTourId, setActiveTourId] = React.useState<string | null>(null);
-  const [currentStepIndex, setCurrentStepIndex] = React.useState(0);
+  return (
+    <TourScope.Provider>
+      <TourProviderInner tours={tours}>{children}</TourProviderInner>
+    </TourScope.Provider>
+  );
+}
+
+function TourProviderInner({ tours, children }: { readonly tours: Tour[]; readonly children: React.ReactNode }) {
+  const [tourState, setTourState] = useAtom(TourScope.use());
+  const { activeTourId, currentStepIndex, isOpen } = tourState;
 
   const activeTour = pipe(
     tours,
@@ -120,24 +250,20 @@ function TourProvider({ tours, children }: { readonly tours: Tour[]; readonly ch
 
   function next() {
     if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex((prev) => prev + 1);
+      setTourState((current) => ({ ...current, currentStepIndex: current.currentStepIndex + 1 }));
     } else {
-      setIsOpen(false);
-      setCurrentStepIndex(0);
-      setActiveTourId(null);
+      setTourState(closedTourState);
     }
   }
 
   function previous() {
     if (currentStepIndex > 0) {
-      setCurrentStepIndex((prev) => prev - 1);
+      setTourState((current) => ({ ...current, currentStepIndex: current.currentStepIndex - 1 }));
     }
   }
 
   function close() {
-    setIsOpen(false);
-    setCurrentStepIndex(0);
-    setActiveTourId(null);
+    setTourState(closedTourState);
   }
 
   function start(tourId: string) {
@@ -148,9 +274,11 @@ function TourProvider({ tours, children }: { readonly tours: Tour[]; readonly ch
     );
     if (tour !== undefined) {
       if (tour.steps.length > 0) {
-        setActiveTourId(tourId);
-        setIsOpen(true);
-        setCurrentStepIndex(0);
+        setTourState({
+          activeTourId: tourId,
+          currentStepIndex: 0,
+          isOpen: true,
+        });
       } else {
         Effect.runSync(Effect.logError(`Tour with id '${tourId}' has no steps.`));
       }
@@ -196,99 +324,10 @@ function TourOverlay({
   readonly onPrevious: () => void;
   readonly onClose: () => void;
 }) {
-  const [targets, setTargets] = React.useState<{ readonly rect: DOMRect; readonly radius: number }[]>([]);
+  const targets = useAtomValue(tourTargetsAtom(step.id));
 
-  React.useEffect(() => {
-    let needsScroll = true;
-
-    function updatePosition() {
-      const elements = document.querySelectorAll(`[data-tour-step-id*='${step.id}']`);
-
-      if (elements.length > 0) {
-        let validElements = A.empty<{
-          readonly rect: {
-            readonly width: number;
-            readonly height: number;
-            readonly x: number;
-            readonly y: number;
-            readonly left: number;
-            readonly top: number;
-            readonly right: number;
-            readonly bottom: number;
-            readonly toJSON: () => void;
-          };
-          readonly radius: number;
-          readonly element: Element;
-        }>();
-
-        for (const element of elements) {
-          const rect = element.getBoundingClientRect();
-          if (rect.width === 0 && rect.height === 0) continue;
-
-          const style = window.getComputedStyle(element);
-          const radius = Number(style.borderRadius) || 4;
-
-          validElements = A.append(validElements, {
-            rect: {
-              width: rect.width,
-              height: rect.height,
-              x: rect.left,
-              y: rect.top,
-              left: rect.left,
-              top: rect.top,
-              right: rect.right,
-              bottom: rect.bottom,
-              toJSON: () => {},
-            },
-            radius,
-            element,
-          });
-        }
-
-        setTargets(A.map(validElements, ({ rect, radius }) => ({ rect, radius })));
-
-        if (validElements.length > 0 && needsScroll) {
-          validElements[0]?.element.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-          needsScroll = false;
-        }
-      } else {
-        setTargets([]);
-      }
-    }
-
-    updatePosition();
-    const handleResizeOrScroll = () => updatePosition();
-
-    window.addEventListener("resize", handleResizeOrScroll);
-    window.addEventListener("scroll", handleResizeOrScroll, true);
-
-    const observer = new MutationObserver(() => updatePosition());
-    observer.observe(document.body, {
-      attributes: true,
-      childList: true,
-      subtree: true,
-    });
-
-    const resizeObserver = new ResizeObserver(() => updatePosition());
-    resizeObserver.observe(document.body);
-
-    return () => {
-      window.removeEventListener("resize", handleResizeOrScroll);
-      window.removeEventListener("scroll", handleResizeOrScroll, true);
-      observer.disconnect();
-      resizeObserver.disconnect();
-    };
-  }, [step]);
-
-  React.useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
+  useAtomMount(tourOverlayPositionAtom(step.id));
+  useAtomMount(tourBodyOverflowLockAtom);
 
   const portalDocument = (globalThis as { readonly document?: Document }).document;
   if (P.isUndefined(portalDocument)) return null;
@@ -326,7 +365,7 @@ function TourOverlay({
           />
         ))}
       </svg>
-      {A.isArrayNonEmpty(targets) && (
+      {A.isReadonlyArrayNonEmpty(targets) && (
         <Popover key={step.id} open={true}>
           <PopoverContent
             className={cn("px-0", step.className)}

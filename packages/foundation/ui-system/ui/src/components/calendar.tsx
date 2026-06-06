@@ -2,9 +2,9 @@
 
 import { Button, buttonVariants } from "@beep/ui/components/button";
 import { CaretDownIcon, CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
-import * as React from "react";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
 import { cn } from "../lib/index.ts";
+import type * as React from "react";
 import type { DayButton } from "react-day-picker";
 
 /**
@@ -161,13 +161,13 @@ function Calendar({
 function CalendarDayButton({ className, day, modifiers, style, ...props }: React.ComponentProps<typeof DayButton>) {
   const defaultClassNames = getDefaultClassNames();
 
-  const ref = React.useRef<HTMLButtonElement>(null);
-  React.useEffect(() => {
-    if (modifiers.focused) ref.current?.focus();
-  }, [modifiers.focused]);
-
   return (
     <Button
+      ref={(button) => {
+        if (modifiers.focused) {
+          button?.focus();
+        }
+      }}
       {...(style === undefined ? {} : { style })}
       variant="ghost"
       size="icon"

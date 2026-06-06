@@ -160,7 +160,7 @@ interface EntityModel {
 
 const fixtureRoot = new URL("../../../goals/agentic-professional-runtime/fixtures/runtime-data-loop/", import.meta.url);
 
-const readJson = <A>(schema: S.Decoder<A, never>, scenarioId: string, fileName: string): Promise<A> =>
+const readJson = <A>(schema: S.Decoder<A>, scenarioId: string, fileName: string): Promise<A> =>
   Bun.file(new URL(`${scenarioId}/${fileName}`, fixtureRoot))
     .json()
     .then((value) => S.decodeUnknownSync(schema)(value));

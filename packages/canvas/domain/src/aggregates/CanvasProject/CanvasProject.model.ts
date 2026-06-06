@@ -53,7 +53,7 @@ export class CanvasNode extends S.Class<CanvasNode>($I`CanvasNode`)(
   })
 ) {}
 
-class OpenCanvasProject extends S.Class<OpenCanvasProject>($I`OpenCanvasProject`)(
+export class OpenCanvasProject extends S.Class<OpenCanvasProject>($I`OpenCanvasProject`)(
   {
     id: CanvasProjectId,
     title: CanvasProjectTitle,
@@ -66,7 +66,7 @@ class OpenCanvasProject extends S.Class<OpenCanvasProject>($I`OpenCanvasProject`
   })
 ) {}
 
-class ArchivedCanvasProject extends S.Class<ArchivedCanvasProject>($I`ArchivedCanvasProject`)(
+export class ArchivedCanvasProject extends S.Class<ArchivedCanvasProject>($I`ArchivedCanvasProject`)(
   {
     id: CanvasProjectId,
     title: CanvasProjectTitle,

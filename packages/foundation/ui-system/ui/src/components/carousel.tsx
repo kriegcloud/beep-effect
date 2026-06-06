@@ -1,8 +1,9 @@
 "use client";
 
 import { Button } from "@beep/ui/components/button";
-import { A } from "@beep/utils";
+import { make as makeScopedAtom, useAtom, useAtomMount } from "@effect/atom-react";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
+import { Atom } from "effect/unstable/reactivity";
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
@@ -45,6 +46,18 @@ type CarouselContextProps = {
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null);
 
+type CarouselState = {
+  readonly canScrollNext: boolean;
+  readonly canScrollPrev: boolean;
+};
+
+const CarouselStateScope = makeScopedAtom(() =>
+  Atom.make<CarouselState>({
+    canScrollNext: false,
+    canScrollPrev: false,
+  })
+);
+
 /**
  * Use carousel hook.
  *
@@ -76,7 +89,15 @@ function useCarousel() {
  * @category components
  * @since 0.0.0
  */
-function Carousel({
+function Carousel({ ...props }: React.ComponentProps<"div"> & CarouselProps) {
+  return (
+    <CarouselStateScope.Provider>
+      <CarouselInner {...props} />
+    </CarouselStateScope.Provider>
+  );
+}
+
+function CarouselInner({
   orientation = "horizontal",
   opts,
   setApi,
@@ -85,6 +106,7 @@ function Carousel({
   children,
   ...props
 }: React.ComponentProps<"div"> & CarouselProps) {
+  const [carouselState, setCarouselState] = useAtom(CarouselStateScope.use());
   const [carouselRef, api] = useEmblaCarousel(
     {
       ...opts,
@@ -92,53 +114,48 @@ function Carousel({
     },
     plugins
   );
-  const [canScrollPrev, setCanScrollPrev] = React.useState(false);
-  const [canScrollNext, setCanScrollNext] = React.useState(false);
 
-  const onSelect = React.useCallback((api: CarouselApi) => {
+  const onSelect = (api: CarouselApi) => {
     if (api === undefined) return;
-    setCanScrollPrev(api.canScrollPrev());
-    setCanScrollNext(api.canScrollNext());
-  }, A.empty());
+    setCarouselState({
+      canScrollNext: api.canScrollNext(),
+      canScrollPrev: api.canScrollPrev(),
+    });
+  };
 
-  const scrollPrev = React.useCallback(() => api?.scrollPrev(), A.make(api));
+  const scrollPrev = () => api?.scrollPrev();
 
-  const scrollNext = React.useCallback(() => api?.scrollNext(), [api]);
+  const scrollNext = () => api?.scrollNext();
 
-  const handleKeyDown = React.useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        scrollPrev();
-      } else if (event.key === "ArrowRight") {
-        event.preventDefault();
-        scrollNext();
-      }
-    },
-    [scrollPrev, scrollNext]
-  );
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      scrollPrev();
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      scrollNext();
+    }
+  };
 
-  React.useEffect(
-    () => {
+  useAtomMount(
+    Atom.make(() => {
       if (api === undefined || setApi === undefined) return;
       setApi(api);
-    },
-    A.make(api, setApi)
+    })
   );
 
-  React.useEffect(
-    () => {
+  useAtomMount(
+    Atom.make((get) => {
       if (api === undefined) return;
       onSelect(api);
       api.on("reInit", onSelect);
       api.on("select", onSelect);
 
-      return () => {
+      get.addFinalizer(() => {
         api?.off("select", onSelect);
         api?.off("reInit", onSelect);
-      };
-    },
-    A.make(api, onSelect)
+      });
+    })
   );
 
   return (
@@ -150,8 +167,8 @@ function Carousel({
         orientation: orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
         scrollPrev,
         scrollNext,
-        canScrollPrev,
-        canScrollNext,
+        canScrollPrev: carouselState.canScrollPrev,
+        canScrollNext: carouselState.canScrollNext,
       }}
     >
       <div
