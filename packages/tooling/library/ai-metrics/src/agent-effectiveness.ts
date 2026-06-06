@@ -112,7 +112,7 @@ export type AgentEffectivenessStatus = typeof AgentEffectivenessStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export const AgentEffectivenessAnnotationValue = S.Union([S.String, S.Number, S.Boolean]).pipe(
+export const AgentEffectivenessAnnotationValue = S.Union([S.String, S.Finite, S.Boolean]).pipe(
   $I.annoteSchema("AgentEffectivenessAnnotationValue", {
     description: "Sanitized primitive value allowed in an agent-effectiveness annotation plan.",
   })
@@ -204,7 +204,7 @@ export class AgentEffectivenessAnnotationPlanInput extends S.Class<AgentEffectiv
   $I`AgentEffectivenessAnnotationPlanInput`
 )(
   {
-    annotationLimit: S.Number.pipe(
+    annotationLimit: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(defaultAnnotationLimit)),
       S.withDecodingDefaultKey(Effect.succeed(defaultAnnotationLimit))
     ),
@@ -240,11 +240,11 @@ export class AgentEffectivenessPhoenixProject extends S.Class<AgentEffectiveness
   {
     hasTraces: S.Boolean,
     name: S.String,
-    recordCount: S.Number,
+    recordCount: S.Finite,
     spanAnnotationNames: S.Array(S.String),
     sessionAnnotationNames: S.Array(S.String),
     traceAnnotationNames: S.Array(S.String),
-    traceCount: S.Number,
+    traceCount: S.Finite,
   },
   $I.annote("AgentEffectivenessPhoenixProject", {
     description: "Sanitized Phoenix project inventory row used by the agent-effectiveness doctor.",
@@ -267,12 +267,12 @@ export class AgentEffectivenessPhoenixSection extends S.Class<AgentEffectiveness
 )(
   {
     baseUrl: S.String,
-    datasetCount: S.Number,
-    evaluatorCount: S.Number,
+    datasetCount: S.Finite,
+    evaluatorCount: S.Finite,
     message: S.String,
-    projectCount: S.Number,
+    projectCount: S.Finite,
     projects: S.Array(AgentEffectivenessPhoenixProject),
-    promptCount: S.Number,
+    promptCount: S.Finite,
     serverInsufficientStorage: S.Boolean,
     status: AgentEffectivenessStatus,
     version: S.NullOr(S.String),
@@ -297,12 +297,12 @@ export class AgentEffectivenessSourceCoverage extends S.Class<AgentEffectiveness
   $I`AgentEffectivenessSourceCoverage`
 )(
   {
-    acceptedEvents: S.Number,
+    acceptedEvents: S.Finite,
     lastTimestamp: S.NullOr(S.String),
-    rejectedLines: S.Number,
-    sourceFileCount: S.Number,
+    rejectedLines: S.Finite,
+    sourceFileCount: S.Finite,
     sourceKind: S.String,
-    totalLines: S.Number,
+    totalLines: S.Finite,
   },
   $I.annote("AgentEffectivenessSourceCoverage", {
     description: "Aggregate source coverage for one transcript source kind.",
@@ -324,13 +324,13 @@ export class AgentEffectivenessForwarderSummary extends S.Class<AgentEffectivene
   $I`AgentEffectivenessForwarderSummary`
 )(
   {
-    archiveObjectCount: S.Number,
-    completedAtEpochMillis: S.Number,
+    archiveObjectCount: S.Finite,
+    completedAtEpochMillis: S.Finite,
     configSnapshotId: S.String,
     ingestRunId: S.String,
-    sourceFileCount: S.Number,
+    sourceFileCount: S.Finite,
     target: AiMetricsDeployTarget,
-    turnCount: S.Number,
+    turnCount: S.Finite,
   },
   $I.annote("AgentEffectivenessForwarderSummary", {
     description: "Latest deploy-safe forwarder run summary.",
@@ -352,16 +352,16 @@ export class AgentEffectivenessScorecardSummary extends S.Class<AgentEffectivene
   $I`AgentEffectivenessScorecardSummary`
 )(
   {
-    benchmarkRunCount: S.Number,
+    benchmarkRunCount: S.Finite,
     completionReady: S.Boolean,
     configSnapshotId: S.String,
     coverageGaps: S.Array(S.String),
-    labelCount: S.Number,
+    labelCount: S.Finite,
     scorecardId: S.String,
-    taskCount: S.Number,
-    totalScore: S.Number,
-    windowEndEpochMillis: S.Number,
-    windowStartEpochMillis: S.Number,
+    taskCount: S.Finite,
+    totalScore: S.Finite,
+    windowEndEpochMillis: S.Finite,
+    windowStartEpochMillis: S.Finite,
   },
   $I.annote("AgentEffectivenessScorecardSummary", {
     description: "Latest deploy-safe scorecard summary.",
@@ -383,10 +383,10 @@ export class AgentEffectivenessAiMetricsSection extends S.Class<AgentEffectivene
   $I`AgentEffectivenessAiMetricsSection`
 )(
   {
-    benchmarkRunCount: S.Number,
+    benchmarkRunCount: S.Finite,
     dataRoot: S.String,
     derivedDuckDbPath: S.String,
-    labelCount: S.Number,
+    labelCount: S.Finite,
     latestForwarder: S.NullOr(AgentEffectivenessForwarderSummary),
     latestScorecard: S.NullOr(AgentEffectivenessScorecardSummary),
     message: S.String,
@@ -416,15 +416,15 @@ export class AgentEffectivenessJsdocWorkerSection extends S.Class<AgentEffective
   {
     cleanupDeleteStatus: S.NullOr(S.String),
     cleanupStopStatus: S.NullOr(S.String),
-    completedPackets: S.Number,
-    failedPackets: S.Number,
+    completedPackets: S.Finite,
+    failedPackets: S.Finite,
     message: S.String,
     otlpStatus: S.NullOr(S.String),
     policyViolationCodes: S.Array(S.String),
     reportPath: S.String,
-    selectedPackets: S.Number,
+    selectedPackets: S.Finite,
     status: AgentEffectivenessStatus,
-    timedOutPackets: S.Number,
+    timedOutPackets: S.Finite,
   },
   $I.annote("AgentEffectivenessJsdocWorkerSection", {
     description: "Read-only JSDoc worker-eval evidence summarized for the agent-effectiveness doctor.",
@@ -583,7 +583,7 @@ export class AgentEffectivenessAnnotationCheckReport extends S.Class<AgentEffect
   $I`AgentEffectivenessAnnotationCheckReport`
 )(
   {
-    annotationCount: S.Number,
+    annotationCount: S.Finite,
     findings: S.Array(AgentEffectivenessAnnotationCheckFinding),
     generatedAt: S.String,
     schemaVersion: S.String,
@@ -1016,13 +1016,13 @@ export class AgentEffectivenessPhoenixSyncResult extends S.Class<AgentEffectiven
   $I`AgentEffectivenessPhoenixSyncResult`
 )(
   {
-    annotationCount: S.Number,
-    datasetCount: S.Number,
+    annotationCount: S.Finite,
+    datasetCount: S.Finite,
     dryRun: S.Boolean,
-    experimentCount: S.Number,
+    experimentCount: S.Finite,
     mutationPolicy: S.String,
-    promptCount: S.Number,
-    skippedAnnotationCount: S.Number,
+    promptCount: S.Finite,
+    skippedAnnotationCount: S.Finite,
     status: AgentEffectivenessStatus,
     writtenDatasetIds: S.Array(S.String),
     writtenExperimentIds: S.Array(S.String),
@@ -1035,12 +1035,12 @@ export class AgentEffectivenessPhoenixSyncResult extends S.Class<AgentEffectiven
 
 class SourceCoverageRow extends S.Class<SourceCoverageRow>($I`SourceCoverageRow`)(
   {
-    acceptedEvents: S.Number,
+    acceptedEvents: S.Finite,
     lastTimestamp: S.NullOr(S.String),
-    rejectedLines: S.Number,
-    sourceFileCount: S.Number,
+    rejectedLines: S.Finite,
+    sourceFileCount: S.Finite,
     sourceKind: S.String,
-    totalLines: S.Number,
+    totalLines: S.Finite,
   },
   $I.annote("SourceCoverageRow", {
     description: "Internal DuckDB source coverage row.",
@@ -1049,13 +1049,13 @@ class SourceCoverageRow extends S.Class<SourceCoverageRow>($I`SourceCoverageRow`
 
 class ForwarderSummaryRow extends S.Class<ForwarderSummaryRow>($I`ForwarderSummaryRow`)(
   {
-    archiveObjectCount: S.Number,
-    completedAtEpochMillis: S.Number,
+    archiveObjectCount: S.Finite,
+    completedAtEpochMillis: S.Finite,
     configSnapshotId: S.String,
     ingestRunId: S.String,
-    sourceFileCount: S.Number,
+    sourceFileCount: S.Finite,
     target: AiMetricsDeployTarget,
-    turnCount: S.Number,
+    turnCount: S.Finite,
   },
   $I.annote("ForwarderSummaryRow", {
     description: "Internal DuckDB forwarder summary row.",
@@ -1064,16 +1064,16 @@ class ForwarderSummaryRow extends S.Class<ForwarderSummaryRow>($I`ForwarderSumma
 
 class ScorecardSummaryRow extends S.Class<ScorecardSummaryRow>($I`ScorecardSummaryRow`)(
   {
-    benchmarkRunCount: S.Number,
+    benchmarkRunCount: S.Finite,
     completionReady: S.Boolean,
     configSnapshotId: S.String,
     coverageGapsJson: S.String,
-    labelCount: S.Number,
+    labelCount: S.Finite,
     scorecardId: S.String,
-    taskCount: S.Number,
-    totalScore: S.Number,
-    windowEndEpochMillis: S.Number,
-    windowStartEpochMillis: S.Number,
+    taskCount: S.Finite,
+    totalScore: S.Finite,
+    windowEndEpochMillis: S.Finite,
+    windowStartEpochMillis: S.Finite,
   },
   $I.annote("ScorecardSummaryRow", {
     description: "Internal DuckDB scorecard summary row.",
@@ -1082,7 +1082,7 @@ class ScorecardSummaryRow extends S.Class<ScorecardSummaryRow>($I`ScorecardSumma
 
 class CountRow extends S.Class<CountRow>($I`CountRow`)(
   {
-    count: S.Number,
+    count: S.Finite,
   },
   $I.annote("CountRow", {
     description: "Internal DuckDB count row.",
@@ -1093,11 +1093,11 @@ class OutcomeLabelAnnotationRow extends S.Class<OutcomeLabelAnnotationRow>($I`Ou
   {
     agentTaskId: S.String,
     followUpFix: S.Boolean,
-    interventionCount: S.Number,
+    interventionCount: S.Finite,
     labelId: S.String,
     passed: S.Boolean,
     qualityGate: S.String,
-    rating: S.Number,
+    rating: S.Finite,
   },
   $I.annote("OutcomeLabelAnnotationRow", {
     description: "Internal row used to plan outcome label annotations.",
@@ -1109,7 +1109,7 @@ class BenchmarkRunAnnotationRow extends S.Class<BenchmarkRunAnnotationRow>($I`Be
     benchmarkCaseId: S.String,
     benchmarkRunId: S.String,
     configSnapshotId: S.String,
-    elapsedMs: S.Number,
+    elapsedMs: S.Finite,
     passed: S.Boolean,
     qualityGate: S.String,
   },
@@ -1120,10 +1120,10 @@ class BenchmarkRunAnnotationRow extends S.Class<BenchmarkRunAnnotationRow>($I`Be
 
 class WorkerEvalSummary extends S.Class<WorkerEvalSummary>($I`WorkerEvalSummary`)(
   {
-    completed: S.Number,
-    failed: S.Number,
-    selectedPackets: S.Number,
-    timedOut: S.Number,
+    completed: S.Finite,
+    failed: S.Finite,
+    selectedPackets: S.Finite,
+    timedOut: S.Finite,
   },
   $I.annote("WorkerEvalSummary", {
     description: "Internal minimal JSDoc worker-eval summary.",
@@ -1228,11 +1228,11 @@ class PhoenixGraphqlProjectNode extends S.Class<PhoenixGraphqlProjectNode>($I`Ph
   {
     hasTraces: S.Boolean,
     name: S.String,
-    recordCount: S.Number,
+    recordCount: S.Finite,
     spanAnnotationNames: S.Array(S.String),
     sessionAnnotationNames: S.Array(S.String),
     traceAnnotationsNames: S.Array(S.String),
-    traceCount: S.Number,
+    traceCount: S.Finite,
   },
   $I.annote("PhoenixGraphqlProjectNode", {
     description: "Internal Phoenix GraphQL project node.",
@@ -1270,11 +1270,11 @@ class PhoenixGraphqlServerStatus extends S.Class<PhoenixGraphqlServerStatus>($I`
 
 class PhoenixGraphqlData extends S.Class<PhoenixGraphqlData>($I`PhoenixGraphqlData`)(
   {
-    datasetCount: S.Number,
-    evaluatorCount: S.Number,
-    projectCount: S.Number,
+    datasetCount: S.Finite,
+    evaluatorCount: S.Finite,
+    projectCount: S.Finite,
     projects: PhoenixGraphqlProjectsConnection,
-    promptCount: S.Number,
+    promptCount: S.Finite,
     serverStatus: PhoenixGraphqlServerStatus,
   },
   $I.annote("PhoenixGraphqlData", {

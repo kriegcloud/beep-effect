@@ -9,7 +9,7 @@ interface InputWithService extends S.Codec<number, string, "InputService"> {
   readonly "~rebuild.out": this;
 }
 
-const InputWithService = S.make<InputWithService>(S.NumberFromString.ast);
+const InputWithService = S.make<InputWithService>(S.FiniteFromString.ast);
 
 describe("Fn", () => {
   it("preserves thunk inference when input is omitted", () => {
@@ -32,12 +32,12 @@ describe("Fn", () => {
     const schema = Fn({
       input: S.Undefined,
       output: S.String,
-      error: S.Number,
+      error: S.Finite,
     });
     const impl = schema.implementEffect(() => Effect.fail(1));
 
     expect<typeof schema.inputSchema>().type.toBe<typeof S.Undefined>();
-    expect<typeof schema.errorSchema>().type.toBe<typeof S.Number>();
+    expect<typeof schema.errorSchema>().type.toBe<typeof S.Finite>();
     expect<typeof schema.Type>().type.toBe<() => string>();
     expect<FnType<undefined, string>>().type.toBe<() => string>();
     expect(impl).type.toBe<() => Effect.Effect<string, SchemaIssue.Issue | number>>();
@@ -45,7 +45,7 @@ describe("Fn", () => {
 
   it("preserves unary inference and validated wrapper signatures", () => {
     const schema = Fn({
-      input: S.NumberFromString,
+      input: S.FiniteFromString,
       output: S.String,
       error: S.NonEmptyString,
     });
@@ -53,7 +53,7 @@ describe("Fn", () => {
     const effectImpl = schema.implementEffect((count) => Effect.fail(`${count}`));
     const syncImpl = schema.implementSync((count) => `${count}`);
 
-    expect<typeof schema.inputSchema>().type.toBe<typeof S.NumberFromString>();
+    expect<typeof schema.inputSchema>().type.toBe<typeof S.FiniteFromString>();
     expect<typeof schema.outputSchema>().type.toBe<typeof S.String>();
     expect<typeof schema.errorSchema>().type.toBe<typeof S.NonEmptyString>();
     expect<typeof schema.Type>().type.toBe<(input: number) => string>();
@@ -67,7 +67,7 @@ describe("Fn", () => {
     const schema = Fn({
       input: InputWithService,
       output: S.String,
-      error: S.Number,
+      error: S.Finite,
     });
     const impl = schema.implementEffect((_count): Effect.Effect<string, number, "HandlerEnv"> => Effect.fail(1));
 
@@ -78,7 +78,7 @@ describe("Fn", () => {
 
   it("preserves implementEffect failures when no error schema is declared", () => {
     const schema = Fn({
-      input: S.Number,
+      input: S.Finite,
       output: S.String,
     });
     const impl = schema.implementEffect((_count): Effect.Effect<string, "boom"> => Effect.fail("boom" as const));
@@ -88,18 +88,18 @@ describe("Fn", () => {
 
   it("exposes exported helper types", () => {
     expect<FnSchema<typeof S.Never, typeof S.String>["inputSchema"]>().type.toBe<typeof S.Never>();
-    expect<FnSchema<typeof S.Never, typeof S.String, typeof S.Number>["errorSchema"]>().type.toBe<typeof S.Number>();
-    expect<FnSchemaStatics<typeof S.NumberFromString, typeof S.String, typeof S.Number>["outputSchema"]>().type.toBe<
+    expect<FnSchema<typeof S.Never, typeof S.String, typeof S.Finite>["errorSchema"]>().type.toBe<typeof S.Finite>();
+    expect<FnSchemaStatics<typeof S.FiniteFromString, typeof S.String, typeof S.Finite>["outputSchema"]>().type.toBe<
       typeof S.String
     >();
-    expect<FnSchemaStatics<typeof S.NumberFromString, typeof S.String, typeof S.Number>["errorSchema"]>().type.toBe<
-      typeof S.Number
+    expect<FnSchemaStatics<typeof S.FiniteFromString, typeof S.String, typeof S.Finite>["errorSchema"]>().type.toBe<
+      typeof S.Finite
     >();
     expect<AnyFnType>().type.toBe<Function>();
   });
 
   it("supports AnyFn and ThunkOf", () => {
-    const schema = ThunkOf(S.NumberFromString, S.String);
+    const schema = ThunkOf(S.FiniteFromString, S.String);
     const impl = schema.implementSync(() => 1);
 
     expect<AnyFn>().type.toBe<Function>();

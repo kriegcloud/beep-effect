@@ -297,7 +297,7 @@ export class ReuseCandidate extends S.Class<ReuseCandidate>($I`ReuseCandidate`)(
     recommendedAction: S.NonEmptyString,
     proposedDestinationPackage: S.NonEmptyString,
     proposedDestinationModule: S.NonEmptyString,
-    confidence: S.Number,
+    confidence: S.Finite,
     evidence: S.Array(S.NonEmptyString),
     blockingConcerns: S.Array(S.NonEmptyString),
     implementationSteps: S.Array(S.NonEmptyString),

@@ -47,9 +47,9 @@ export class FirecrawlConfigInput extends S.Class<FirecrawlConfigInput>($I`Firec
   {
     apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
     apiUrl: S.optionalKey(S.String),
-    backoffFactor: S.optionalKey(S.Number),
-    maxRetries: S.optionalKey(S.Number),
-    timeoutMs: S.optionalKey(S.Number),
+    backoffFactor: S.optionalKey(S.Finite),
+    maxRetries: S.optionalKey(S.Finite),
+    timeoutMs: S.optionalKey(S.Finite),
   },
   $I.annote("FirecrawlConfigInput", {
     description: "Runtime configuration accepted by the Firecrawl technical driver layer.",

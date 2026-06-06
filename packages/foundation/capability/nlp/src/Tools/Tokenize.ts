@@ -25,7 +25,7 @@ class TokenizeParameters extends S.Class<TokenizeParameters>($I`TokenizeParamete
 ) {}
 
 const TokenizeSuccess = S.Struct({
-  tokenCount: S.Number,
+  tokenCount: S.Finite,
   tokens: S.Array(AiToken),
 }).pipe(
   $I.annoteSchema("TokenizeSuccess", {

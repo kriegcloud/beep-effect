@@ -13,8 +13,8 @@ const variantTitle = (schema: S.Top): unknown => schema.ast.annotations?.title;
 
 const baseFields = {
   id: Field({
-    select: S.Number,
-    json: S.Number,
+    select: S.Finite,
+    json: S.Finite,
   }),
   name: S.String,
   secret: FieldExcept(["json", "jsonCreate", "jsonUpdate"])(S.String),
@@ -58,11 +58,11 @@ describe("VariantSchema.Class", () => {
       source: S.String,
     }) {}
     class OverrideChild extends BaseModel.extend<OverrideChild>("OverrideChild")({
-      name: S.Number,
+      name: S.Finite,
     }) {}
 
-    expect(OverrideChild.select.fields.name).toBe(S.Number);
-    expect(OverrideChild.insert.fields.name).toBe(S.Number);
+    expect(OverrideChild.select.fields.name).toBe(S.Finite);
+    expect(OverrideChild.insert.fields.name).toBe(S.Finite);
     expect(OverrideChild.select.fields.source).toBe(S.String);
   });
 
@@ -117,7 +117,7 @@ describe("VariantSchema.Class", () => {
     });
     const union = Union([
       Struct({ _tag: S.Literal("A"), value: S.String }),
-      Struct({ _tag: S.Literal("B"), count: S.Number }),
+      Struct({ _tag: S.Literal("B"), count: S.Finite }),
     ]);
 
     expect(struct.pipe(VariantSchema.fields)).toBe(struct[VariantSchema.TypeId]);

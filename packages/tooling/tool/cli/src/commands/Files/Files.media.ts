@@ -56,8 +56,8 @@ class TargetNameForEntryOptions extends S.Class<TargetNameForEntryOptions>($I`Ta
   {
     dimensions: S.Option(MediaDimensions),
     file: SortableFile,
-    index: S.Number,
-    width: S.Number,
+    index: S.Finite,
+    width: S.Finite,
   },
   $I.annote("TargetNameForEntryOptions", {
     description: "Inputs used to build a generated target filename for a sortable file.",
@@ -76,10 +76,10 @@ class StripMetadataTempEntry extends S.Class<StripMetadataTempEntry>($I`StripMet
 
 class RawImagePixelData extends S.Class<RawImagePixelData>($I`RawImagePixelData`)(
   {
-    channels: S.Number,
+    channels: S.Finite,
     data: S.Uint8Array,
-    height: S.Number,
-    width: S.Number,
+    height: S.Finite,
+    width: S.Finite,
   },
   $I.annote("RawImagePixelData", {
     description: "Decoded raw image pixels in channel-interleaved byte order.",
@@ -100,8 +100,8 @@ class BorderDetectionThresholds extends S.Class<BorderDetectionThresholds>($I`Bo
 
 class BorderLineStats extends S.Class<BorderLineStats>($I`BorderLineStats`)(
   {
-    averageDistance: S.Number,
-    solidPct: S.Number,
+    averageDistance: S.Finite,
+    solidPct: S.Finite,
   },
   $I.annote("BorderLineStats", {
     description: "Per-line border color match metrics.",
@@ -110,10 +110,10 @@ class BorderLineStats extends S.Class<BorderLineStats>($I`BorderLineStats`)(
 
 class CandidateAssessmentThresholds extends S.Class<CandidateAssessmentThresholds>($I`CandidateAssessmentThresholds`)(
   {
-    maxAspect: S.Number,
-    maxUpscale: S.Number,
-    minShortEdge: S.Number,
-    targetResolution: S.Number,
+    maxAspect: S.Finite,
+    maxUpscale: S.Finite,
+    minShortEdge: S.Finite,
+    targetResolution: S.Finite,
   },
   $I.annote("CandidateAssessmentThresholds", {
     description: "Hard thresholds used to assess image candidate quality.",

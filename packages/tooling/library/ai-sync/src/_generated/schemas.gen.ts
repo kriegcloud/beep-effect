@@ -31,7 +31,7 @@ export class CodexMcpServer extends S.Class<CodexMcpServer>($I`CodexMcpServer`)(
     env: S.Record(S.String, S.String).pipe(S.optionalKey),
     url: S.String.pipe(S.optionalKey),
     headers: S.Record(S.String, S.String).pipe(S.optionalKey),
-    timeout_ms: S.Number.pipe(S.optionalKey),
+    timeout_ms: S.Finite.pipe(S.optionalKey),
   },
   $I.annote("CodexMcpServer", {
     description: "Generated Codex MCP server configuration cell from the pinned Codex config schema.",
@@ -137,7 +137,7 @@ export class McpJsonServer extends S.Class<McpJsonServer>($I`McpJsonServer`)(
     env: S.Record(S.String, S.String).pipe(S.optionalKey),
     url: S.String.pipe(S.optionalKey),
     headers: S.Record(S.String, S.String).pipe(S.optionalKey),
-    timeout_ms: S.Number.pipe(S.optionalKey),
+    timeout_ms: S.Finite.pipe(S.optionalKey),
   },
   $I.annote("McpJsonServer", {
     description: "Generated Claude-compatible MCP server JSON schema.",

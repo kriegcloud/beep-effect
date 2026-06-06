@@ -26,8 +26,8 @@ class BagOfWordsParameters extends S.Class<BagOfWordsParameters>($I`BagOfWordsPa
 
 const BagOfWordsSuccess = S.Struct({
   terms: S.Array(AiNGram),
-  totalTerms: S.Number,
-  uniqueTerms: S.Number,
+  totalTerms: S.Finite,
+  uniqueTerms: S.Finite,
 }).pipe(
   $I.annoteSchema("BagOfWordsSuccess", {
     description: "Bag-of-words term-frequency table with total and unique term counts.",

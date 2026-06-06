@@ -315,7 +315,7 @@ export class AiMetricsInstallPlanStep extends S.Class<AiMetricsInstallPlanStep>(
     command: S.String,
     description: S.String,
     mutatesHost: S.Boolean,
-    order: S.Number,
+    order: S.Finite,
     required: S.Boolean,
     requiresRemote: S.Boolean,
     stepId: S.String,
@@ -481,7 +481,7 @@ export class AiMetricsInstallDoctorResult extends S.Class<AiMetricsInstallDoctor
   $I`AiMetricsInstallDoctorResult`
 )(
   {
-    availableSourceCount: S.Number,
+    availableSourceCount: S.Finite,
     checks: S.Array(AiMetricsInstallDoctorCheck),
     plan: AiMetricsInstallPlan,
     status: AiMetricsInstallDoctorStatus,

@@ -112,7 +112,7 @@ export const TomlTextToUnknown = S.String.pipe(
  * import * as S from "effect/Schema"
  * import { decodeTomlTextAs } from "@beep/schema/Toml"
  *
- * const ServerConfig = S.Struct({ port: S.Number, host: S.String })
+ * const ServerConfig = S.Struct({ port: S.Finite, host: S.String })
  * const decodeConfig = decodeTomlTextAs(S.Struct({ server: ServerConfig }))
  *
  * const program = decodeConfig("[server]\nport = 8080\nhost = \"localhost\"")

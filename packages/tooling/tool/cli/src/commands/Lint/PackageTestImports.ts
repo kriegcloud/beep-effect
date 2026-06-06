@@ -29,7 +29,7 @@ class PackageSourceRoot extends S.Class<PackageSourceRoot>($I`PackageSourceRoot`
 
 class ModuleSpecifierUse extends S.Class<ModuleSpecifierUse>($I`ModuleSpecifierUse`)(
   {
-    line: S.Number,
+    line: S.Finite,
     specifier: S.String,
   },
   $I.annote("ModuleSpecifierUse", {
@@ -41,7 +41,7 @@ class ModuleSpecifierUse extends S.Class<ModuleSpecifierUse>($I`ModuleSpecifierU
 class PackageTestImportViolation extends S.Class<PackageTestImportViolation>($I`PackageTestImportViolation`)(
   {
     file: S.String,
-    line: S.Number,
+    line: S.Finite,
     replacement: S.String,
     specifier: S.String,
   },

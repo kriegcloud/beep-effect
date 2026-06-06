@@ -80,7 +80,7 @@ type MutableHashMapEntry<Key extends S.Top, Value extends S.Top> = S.Codec<
  * import type { MutableHashMapIso } from "@beep/schema/MutableHashMap"
  * import * as S from "effect/Schema"
  *
- * const entries = [["key", 1]] satisfies MutableHashMapIso<typeof S.String, typeof S.Number>
+ * const entries = [["key", 1]] satisfies MutableHashMapIso<typeof S.String, typeof S.Finite>
  * console.log(entries.length)
  * ```
  *
@@ -155,7 +155,7 @@ export const isMutableHashMap = <Key, Value>(value: unknown): value is MutableHa
  * import * as S from "effect/Schema"
  * import { MutableHashMapFromSelf } from "@beep/schema/MutableHashMap"
  *
- * const MapSchema = MutableHashMapFromSelf({ key: S.String, value: S.Number })
+ * const MapSchema = MutableHashMapFromSelf({ key: S.String, value: S.Finite })
  * const map = MutableHashMap.fromIterable([["a", 1]])
  * const decoded = S.decodeUnknownSync(MapSchema)(map)
  * console.log(decoded)
@@ -253,7 +253,7 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
  *
  * const StringNumberMap = MutableHashMap({
  *   key: S.String,
- *   value: S.NumberFromString
+ *   value: S.FiniteFromString
  * })
  *
  * const decoded = S.decodeUnknownSync(StringNumberMap)([["a", "1"]])

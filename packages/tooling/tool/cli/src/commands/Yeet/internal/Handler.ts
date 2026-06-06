@@ -76,7 +76,7 @@ class TurboQueryAffectedTaskConnection extends S.Class<TurboQueryAffectedTaskCon
 )(
   {
     items: S.Array(TurboQueryAffectedTask),
-    length: S.Number,
+    length: S.Finite,
   },
   $I.annote("TurboQueryAffectedTaskConnection", {
     description: "Turbo affected task connection payload.",
@@ -113,7 +113,7 @@ class TurboQueryPackage extends S.Class<TurboQueryPackage>($I`TurboQueryPackage`
 
 class TurboQueryPackageConnection extends S.Class<TurboQueryPackageConnection>($I`TurboQueryPackageConnection`)(
   {
-    count: S.Number,
+    count: S.Finite,
     items: S.Array(TurboQueryPackage),
   },
   $I.annote("TurboQueryPackageConnection", {

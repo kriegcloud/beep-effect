@@ -24,7 +24,7 @@ describe("Form", () => {
     });
 
     it("addField accepts inline key and schema", () => {
-      const builder = FormBuilder.empty.addField("email", S.String).addField("age", S.Number);
+      const builder = FormBuilder.empty.addField("email", S.String).addField("age", S.Finite);
 
       expect(FormBuilder.isFormBuilder(builder)).toBe(true);
       expect(builder.fields).toHaveProperty("email");
@@ -34,7 +34,7 @@ describe("Form", () => {
     });
 
     it("addField inline syntax builds correct schema", () => {
-      const builder = FormBuilder.empty.addField("name", S.String).addField("age", S.Number);
+      const builder = FormBuilder.empty.addField("name", S.String).addField("age", S.Finite);
 
       const schema = FormBuilder.buildSchema(builder);
       const result = S.decodeUnknownSync(schema)({ name: "John", age: 30 });
@@ -100,7 +100,7 @@ describe("Form", () => {
 
     it("merge prefers fields from the second builder on key collision", () => {
       const first = FormBuilder.empty.addField("value", S.String);
-      const second = FormBuilder.empty.addField("value", S.Number);
+      const second = FormBuilder.empty.addField("value", S.Finite);
 
       const schema = FormBuilder.buildSchema(first.merge(second));
 
@@ -112,7 +112,7 @@ describe("Form", () => {
   describe("buildSchema", () => {
     it("builds a Schema from simple fields", () => {
       const EmailField = Field.makeField("email", S.String);
-      const AgeField = Field.makeField("age", S.Number);
+      const AgeField = Field.makeField("age", S.Finite);
 
       const builder = FormBuilder.empty.addField(EmailField).addField(AgeField);
 

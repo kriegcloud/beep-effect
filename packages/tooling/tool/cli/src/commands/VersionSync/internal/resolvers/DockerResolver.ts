@@ -72,7 +72,7 @@ class DockerImageRef extends S.Class<DockerImageRef>($I`DockerImageRef`)(
     registry: S.String,
     repository: S.String,
     tag: S.String,
-    yamlPath: S.Array(S.Union([S.String, S.Number])),
+    yamlPath: S.Array(S.Union([S.String, S.Finite])),
   },
   $I.annote("DockerImageRef", {
     description: "Docker image reference parsed from docker-compose.yml",

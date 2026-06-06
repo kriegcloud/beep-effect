@@ -46,10 +46,10 @@ const QueryCorpusSuccess = S.Struct({
   ranked: S.Array(AiCorpusRankedDocument).annotateKey({
     description: "Ranked documents returned from the corpus query.",
   }),
-  returned: S.Number.annotateKey({
+  returned: S.Finite.annotateKey({
     description: "Number of ranked documents returned in this response.",
   }),
-  totalDocuments: S.Number.annotateKey({
+  totalDocuments: S.Finite.annotateKey({
     description: "Total number of learned documents available in the corpus.",
   }),
 }).pipe(

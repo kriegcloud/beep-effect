@@ -120,7 +120,7 @@ describe("@beep/identity", () => {
     const schema = S.Union([
       S.Struct({
         kind: S.tag("close"),
-        code: S.Number,
+        code: S.Finite,
       }),
       S.Struct({
         kind: S.tag("message"),

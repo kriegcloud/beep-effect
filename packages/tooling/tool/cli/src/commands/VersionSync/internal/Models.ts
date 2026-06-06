@@ -38,7 +38,7 @@ export class VersionDriftItem extends S.Class<VersionDriftItem>($I`VersionDriftI
     field: S.String,
     current: S.String,
     expected: S.String,
-    line: S.Option(S.Number),
+    line: S.Option(S.Finite),
   },
   $I.annote("VersionDriftItem", {
     description: "A single version pin location with its current and expected values",
@@ -366,7 +366,7 @@ export type VersionSyncOptions = typeof VersionSyncOptions.Type;
 export class VersionSyncUpdateLocation extends S.Class<VersionSyncUpdateLocation>($I`VersionSyncUpdateLocation`)(
   {
     file: S.String,
-    yamlPath: S.Array(S.Union([S.String, S.Number])),
+    yamlPath: S.Array(S.Union([S.String, S.Finite])),
   },
   $I.annote("VersionSyncUpdateLocation", {
     description: "YAML location to update in write mode.",

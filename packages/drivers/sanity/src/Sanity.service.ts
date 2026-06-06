@@ -40,7 +40,7 @@ const $I = $SanityId.create("Sanity.service");
  * @category models
  * @since 0.0.0
  */
-export const SanityQueryParamValue = S.Union([S.Boolean, S.Number, S.String]).pipe(
+export const SanityQueryParamValue = S.Union([S.Boolean, S.Finite, S.String]).pipe(
   $I.annoteSchema("SanityQueryParamValue", {
     description: "Scalar JSON value accepted in Sanity query params.",
   })
@@ -115,7 +115,7 @@ export class SanityQueryRequest extends S.Class<SanityQueryRequest>($I`SanityQue
  */
 export class SanityQueryResponse extends S.Class<SanityQueryResponse>($I`SanityQueryResponse`)(
   {
-    ms: S.optionalKey(S.Number),
+    ms: S.optionalKey(S.Finite),
     result: S.Unknown,
   },
   $I.annote("SanityQueryResponse", {

@@ -25,8 +25,8 @@ const runCause = <A, E>(effect: Effect.Effect<A, E>) => Effect.runPromise(Effect
 describe("Fn schema", () => {
   it("decodes and encodes runtime functions without wrapping them", () => {
     const schema = Fn({
-      input: S.NumberFromString,
-      output: S.NumberFromString,
+      input: S.FiniteFromString,
+      output: S.FiniteFromString,
     });
     const handler = (count: number) => count + 1;
 
@@ -52,7 +52,7 @@ describe("Fn thunks", () => {
     Effect.gen(function* () {
       const schema = Fn({
         output: S.String,
-        error: S.NumberFromString,
+        error: S.FiniteFromString,
       });
       const impl = schema.implementEffect(() => Effect.fail(2));
       const result = yield* Effect.promise(() => Promise.resolve(runResult(impl())));
@@ -61,17 +61,17 @@ describe("Fn thunks", () => {
         _tag: "Failure",
         error: 2,
       });
-      expect(schema.errorSchema).toBe(S.NumberFromString);
+      expect(schema.errorSchema).toBe(S.FiniteFromString);
     }));
 
   it("validates transformed outputs against the schema type side", () =>
     Effect.gen(function* () {
-      const schema = Fn({ output: S.NumberFromString });
+      const schema = Fn({ output: S.FiniteFromString });
       const impl = schema.implement(() => 2);
 
       expect(yield* impl()).toBe(2);
       expect(schema.inputSchema).toBe(S.Never);
-      expect(schema.outputSchema).toBe(S.NumberFromString);
+      expect(schema.outputSchema).toBe(S.FiniteFromString);
     }));
 
   it("preserves handler failures for implementEffect", () =>
@@ -114,7 +114,7 @@ describe("Fn unary functions", () => {
   it("decodes transformed inputs before running the handler", () =>
     Effect.gen(function* () {
       const schema = Fn({
-        input: S.NumberFromString,
+        input: S.FiniteFromString,
         output: S.String,
       });
       const impl = schema.implement((count) => `${count + 1}`);
@@ -125,7 +125,7 @@ describe("Fn unary functions", () => {
   it("validates input before calling the handler", () =>
     Effect.gen(function* () {
       const schema = Fn({
-        input: S.Number,
+        input: S.Finite,
         output: S.String,
       });
 
@@ -143,7 +143,7 @@ describe("Fn unary functions", () => {
   it("validates output values from implement", () =>
     Effect.gen(function* () {
       const schema = Fn({
-        input: S.Number,
+        input: S.Finite,
         output: S.NonEmptyString,
       });
       const impl = schema.implement(() => "");
@@ -155,7 +155,7 @@ describe("Fn unary functions", () => {
   it("validates failure values from implementEffect", () =>
     Effect.gen(function* () {
       const schema = Fn({
-        input: S.Number,
+        input: S.Finite,
         output: S.String,
         error: S.NonEmptyString,
       });
@@ -170,8 +170,8 @@ describe("Fn unary functions", () => {
 
   it("supports implementSync for transformed input schemas", () => {
     const schema = Fn({
-      input: S.NumberFromString,
-      output: S.NumberFromString,
+      input: S.FiniteFromString,
+      output: S.FiniteFromString,
     });
     const impl = schema.implementSync((count) => count + 1);
 
@@ -193,7 +193,7 @@ describe("Fn unary functions", () => {
       const schema = Fn({
         input: S.Struct({
           name: S.String,
-          age: S.NumberFromString,
+          age: S.FiniteFromString,
         }),
         output: S.Struct({
           id: S.String,
@@ -217,7 +217,7 @@ describe("Fn convenience exports", () => {
     const schema = Fn({
       input: S.Undefined,
       output: S.String,
-      error: S.Number,
+      error: S.Finite,
     });
     const annotated = schema.annotate({
       description: "Annotated thunk",
@@ -225,8 +225,8 @@ describe("Fn convenience exports", () => {
 
     expect(schema.inputSchema).toBe(S.Undefined);
     expect(annotated.inputSchema).toBe(S.Undefined);
-    expect(schema.errorSchema).toBe(S.Number);
-    expect(annotated.errorSchema).toBe(S.Number);
+    expect(schema.errorSchema).toBe(S.Finite);
+    expect(annotated.errorSchema).toBe(S.Finite);
     expect(annotated.implementSync(() => "hello")()).toBe("hello");
   });
 
@@ -237,7 +237,7 @@ describe("Fn convenience exports", () => {
   });
 
   it("creates thunk schemas with ThunkOf", () => {
-    const schema = ThunkOf(S.NumberFromString, S.String);
+    const schema = ThunkOf(S.FiniteFromString, S.String);
     const impl = schema.implementSync(() => 1);
 
     expect(impl()).toBe(1);

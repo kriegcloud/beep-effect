@@ -27,7 +27,7 @@ const $I = $FfmpegId.create("FFmpeg.models");
  * @category schemas
  * @since 0.0.0
  */
-export const PositiveFrameRate = S.Number.check(
+export const PositiveFrameRate = S.Finite.check(
   S.makeFilterGroup(
     [
       S.isFinite({
@@ -86,7 +86,7 @@ export type PositiveFrameRate = typeof PositiveFrameRate.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const PositiveMilliseconds = S.Number.check(
+export const PositiveMilliseconds = S.Finite.check(
   S.makeFilterGroup(
     [
       S.isFinite({
@@ -283,11 +283,11 @@ export class ProbeVideoRequest extends S.Class<ProbeVideoRequest>($I`ProbeVideoR
 export class VideoProbe extends S.Class<VideoProbe>($I`VideoProbe`)(
   {
     videoPath: S.String,
-    durationSeconds: S.optionalKey(S.Number),
-    fps: S.optionalKey(S.Number),
-    frameCount: S.optionalKey(S.Number),
-    height: S.optionalKey(S.Number),
-    width: S.optionalKey(S.Number),
+    durationSeconds: S.optionalKey(S.Finite),
+    fps: S.optionalKey(S.Finite),
+    frameCount: S.optionalKey(S.Finite),
+    height: S.optionalKey(S.Finite),
+    width: S.optionalKey(S.Finite),
   },
   $I.annote("VideoProbe", {
     description: "Video metadata extracted from the first ffprobe video stream.",
@@ -361,7 +361,7 @@ export class ExtractFramesRequest extends S.Class<ExtractFramesRequest>($I`Extra
 export class ExtractedFrame extends S.Class<ExtractedFrame>($I`ExtractedFrame`)(
   {
     fileName: S.String,
-    index: S.Number,
+    index: S.Finite,
     path: S.String,
     relativePath: S.String,
   },
@@ -415,7 +415,7 @@ export class ExtractFramesManifestSummary extends S.Class<ExtractFramesManifestS
   $I`ExtractFramesManifestSummary`
 )(
   {
-    frameCount: S.Number,
+    frameCount: S.Finite,
   },
   $I.annote("ExtractFramesManifestSummary", {
     description: "Summary recorded in an extract-frames manifest.",
@@ -483,7 +483,7 @@ export class ExtractFramesManifest extends S.Class<ExtractFramesManifest>($I`Ext
  */
 export class ExtractFramesResult extends S.Class<ExtractFramesResult>($I`ExtractFramesResult`)(
   {
-    frameCount: S.Number,
+    frameCount: S.Finite,
     frames: S.Array(ExtractedFrame),
     manifestPath: S.String,
     outDir: S.String,
@@ -543,10 +543,10 @@ export class FFmpegStartedEvent extends S.Class<FFmpegStartedEvent>($I`FFmpegSta
  */
 export class FFmpegProgressEvent extends S.Class<FFmpegProgressEvent>($I`FFmpegProgressEvent`)(
   {
-    frameCount: S.Number,
+    frameCount: S.Finite,
     kind: S.tag("progress"),
-    outTimeSeconds: S.optionalKey(S.Number),
-    percent: S.Number,
+    outTimeSeconds: S.optionalKey(S.Finite),
+    percent: S.Finite,
     progress: S.String,
     speed: S.optionalKey(S.String),
   },
@@ -576,7 +576,7 @@ export class FFmpegProgressEvent extends S.Class<FFmpegProgressEvent>($I`FFmpegP
  */
 export class FFmpegCompletedEvent extends S.Class<FFmpegCompletedEvent>($I`FFmpegCompletedEvent`)(
   {
-    frameCount: S.Number,
+    frameCount: S.Finite,
     kind: S.tag("completed"),
     manifestPath: S.String,
     outDir: S.String,

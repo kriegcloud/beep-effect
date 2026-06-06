@@ -33,8 +33,8 @@ const SENTENCE_BOUNDARY_PATTERN = /[.!?] $/;
  */
 export class TextDeltaBufferOptions extends S.Class<TextDeltaBufferOptions>($I`TextDeltaBufferOptions`)(
   {
-    debounceMs: S.Number,
-    lengthThreshold: S.Number,
+    debounceMs: S.Finite,
+    lengthThreshold: S.Finite,
   },
   $I.annote("TextDeltaBufferOptions", {
     description: "Configuration for buffered streaming text flush behavior.",

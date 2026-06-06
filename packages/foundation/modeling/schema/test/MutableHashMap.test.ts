@@ -8,14 +8,14 @@ describe("MutableHashMapFromSelf", () => {
   it("preserves schema metadata and validates existing mutable hash maps", () => {
     const schema = MutableHashMapFromSelf({
       key: S.String,
-      value: S.NumberFromString,
+      value: S.FiniteFromString,
     });
     const decoded = S.decodeUnknownSync(schema)(MutableHashMap_.make(["a", "1"], ["b", "2"]));
 
     expect(schema.key).toBe(S.String);
-    expect(schema.value).toBe(S.NumberFromString);
+    expect(schema.value).toBe(S.FiniteFromString);
     expect(schema.annotate({}).key).toBe(S.String);
-    expect(schema.annotate({}).value).toBe(S.NumberFromString);
+    expect(schema.annotate({}).value).toBe(S.FiniteFromString);
     expect(isMutableHashMap(decoded)).toBe(true);
     expect(A.fromIterable(decoded)).toEqual([
       ["a", 1],
@@ -26,7 +26,7 @@ describe("MutableHashMapFromSelf", () => {
   it("rejects non-mutable-hash-map inputs", () => {
     const schema = MutableHashMapFromSelf({
       key: S.String,
-      value: S.NumberFromString,
+      value: S.FiniteFromString,
     });
 
     expect(() => S.decodeUnknownSync(schema)(null)).toThrow("Expected MutableHashMapFromSelf, got null");
@@ -35,7 +35,7 @@ describe("MutableHashMapFromSelf", () => {
   it("reports entry decode failures at the entries path", () => {
     const schema = MutableHashMapFromSelf({
       key: S.String,
-      value: S.NumberFromString,
+      value: S.FiniteFromString,
     });
 
     expect(() => S.decodeUnknownSync(schema)(MutableHashMap_.make(["a", null]))).toThrow(`Expected string, got null
@@ -46,13 +46,13 @@ describe("MutableHashMapFromSelf", () => {
     const formatter = S.toFormatter(
       MutableHashMapFromSelf({
         key: S.String,
-        value: S.Number,
+        value: S.Finite,
       })
     );
     const equivalence = S.toEquivalence(
       MutableHashMapFromSelf({
         key: S.String,
-        value: S.Number,
+        value: S.Finite,
       })
     );
 
@@ -66,7 +66,7 @@ describe("MutableHashMap", () => {
   it("decodes entry arrays into mutable hash maps", () => {
     const schema = MutableHashMap({
       key: S.String,
-      value: S.NumberFromString,
+      value: S.FiniteFromString,
     });
     const decoded = S.decodeUnknownSync(schema)([
       ["a", "1"],
@@ -74,9 +74,9 @@ describe("MutableHashMap", () => {
     ]);
 
     expect(schema.key).toBe(S.String);
-    expect(schema.value).toBe(S.NumberFromString);
+    expect(schema.value).toBe(S.FiniteFromString);
     expect(schema.annotate({}).key).toBe(S.String);
-    expect(schema.annotate({}).value).toBe(S.NumberFromString);
+    expect(schema.annotate({}).value).toBe(S.FiniteFromString);
     expect(isMutableHashMap(decoded)).toBe(true);
     expect(A.fromIterable(decoded)).toEqual([
       ["a", 1],
@@ -87,7 +87,7 @@ describe("MutableHashMap", () => {
   it("encodes mutable hash maps back to entry arrays", () => {
     const schema = MutableHashMap({
       key: S.String,
-      value: S.NumberFromString,
+      value: S.FiniteFromString,
     });
 
     expect(S.encodeSync(schema)(MutableHashMap_.make(["a", 1], ["b", 2]))).toEqual([
@@ -99,7 +99,7 @@ describe("MutableHashMap", () => {
   it("expects the encoded entry-array form at the boundary", () => {
     const schema = MutableHashMap({
       key: S.String,
-      value: S.NumberFromString,
+      value: S.FiniteFromString,
     });
 
     expect(() => S.decodeUnknownSync(schema)(MutableHashMap_.make(["a", null]))).toThrow(

@@ -90,7 +90,7 @@ const collectText = Effect.fnUntraced(function* <E>(
  */
 export class ProcessResult extends S.Class<ProcessResult>($I`ProcessResult`)(
   {
-    exitCode: S.Number,
+    exitCode: S.Finite,
     stderr: S.String,
     stdout: S.String,
   },

@@ -47,7 +47,7 @@ class ContactSubmissionError extends TaggedErrorClass<ContactSubmissionError>($I
     provider: S.optionalKey(S.String),
     providerReason: S.optionalKey(S.String),
     reason: ContactSubmissionErrorReason,
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
   },
   $I.annote("ContactSubmissionError", {
     description: "Typed server-side contact submission boundary failure.",

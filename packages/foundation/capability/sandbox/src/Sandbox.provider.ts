@@ -57,7 +57,7 @@ export type SandboxProviderKind = typeof SandboxProviderKind.Type;
  */
 export class ExecResult extends S.Class<ExecResult>($I`ExecResult`)(
   {
-    exitCode: S.Number,
+    exitCode: S.Finite,
     stderr: S.String,
     stdout: S.String,
   },
@@ -106,7 +106,7 @@ export class SandboxExecOptions extends S.Class<SandboxExecOptions>($I`SandboxEx
  */
 export class InteractiveExecResult extends S.Class<InteractiveExecResult>($I`InteractiveExecResult`)(
   {
-    exitCode: S.Number,
+    exitCode: S.Finite,
   },
   $I.annote("InteractiveExecResult", {
     description: "Result of an interactive sandbox command.",

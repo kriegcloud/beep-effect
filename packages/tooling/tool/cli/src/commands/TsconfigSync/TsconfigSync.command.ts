@@ -546,7 +546,7 @@ export type PlannedFileChange = typeof PlannedFileChange.Type;
 class TsconfigSyncResultSync extends S.Class<TsconfigSyncResultSync>($I`TsconfigSyncResultSync`)(
   {
     mode: S.tag("sync"),
-    changedFiles: S.Number,
+    changedFiles: S.Finite,
     changes: S.Array(TsconfigSyncChange),
   },
   $I.annote("TsconfigSyncResultSync", {
@@ -557,7 +557,7 @@ class TsconfigSyncResultSync extends S.Class<TsconfigSyncResultSync>($I`Tsconfig
 class TsconfigSyncResultCheck extends S.Class<TsconfigSyncResultCheck>($I`TsconfigSyncResultCheck`)(
   {
     mode: S.tag("check"),
-    changedFiles: S.Number,
+    changedFiles: S.Finite,
     changes: S.Array(TsconfigSyncChange),
   },
   $I.annote("TsconfigSyncResultCheck", {
@@ -568,7 +568,7 @@ class TsconfigSyncResultCheck extends S.Class<TsconfigSyncResultCheck>($I`Tsconf
 class TsconfigSyncResultDryRun extends S.Class<TsconfigSyncResultDryRun>($I`TsconfigSyncResultDryRun`)(
   {
     mode: S.tag("dry-run"),
-    changedFiles: S.Number,
+    changedFiles: S.Finite,
     changes: S.Array(TsconfigSyncChange),
   },
   $I.annote("TsconfigSyncResultDryRun", {

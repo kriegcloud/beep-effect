@@ -107,7 +107,7 @@ export const stringReplaceAll: {
  */
 class StringEncaseCrlfOptionsModel extends S.Class<StringEncaseCrlfOptionsModel>($I`StringEncaseCrlfOptions`)(
   {
-    index: S.Number,
+    index: S.Finite,
     postfix: S.String,
   },
   $I.annote("StringEncaseCrlfOptions", {

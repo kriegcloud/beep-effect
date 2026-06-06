@@ -42,7 +42,7 @@ type EventShape<TTag extends TString.NonEmpty, TFields extends S.Struct.Fields> 
  * import * as S from "effect/Schema"
  * import { makeEvent } from "@beep/utils/Event"
  *
- * const Progress = makeEvent({ percent: S.Number }, "Progress")
+ * const Progress = makeEvent({ percent: S.Finite }, "Progress")
  * const decoded = S.decodeUnknownSync(Progress)({
  *   kind: "Event",
  *   _tag: "Progress",
@@ -78,7 +78,7 @@ type MakeEventSchema<TTag extends TString.NonEmpty, TFields extends S.Struct.Fie
  * import * as S from "effect/Schema"
  * import { makeEvent } from "@beep/utils/Event"
  *
- * const Progress = makeEvent({ percent: S.Number })("Progress")
+ * const Progress = makeEvent({ percent: S.Finite })("Progress")
  * const event = new Progress({ payload: { percent: 100 } })
  * console.log(event)
  * ```

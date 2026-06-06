@@ -234,9 +234,9 @@ export type VeniceAIErrorReason = typeof VeniceAIErrorReason.Type;
  * @since 0.0.0
  */
 export const VeniceAIQueryValue = S.Union([
-  S.Array(S.Union([S.Boolean, S.Number, S.String])),
+  S.Array(S.Union([S.Boolean, S.Finite, S.String])),
   S.Boolean,
-  S.Number,
+  S.Finite,
   S.String,
 ]).pipe(
   $I.annoteSchema("VeniceAIQueryValue", {
@@ -378,7 +378,7 @@ export class VeniceAIJsonResponse extends S.TaggedClass<VeniceAIJsonResponse>($I
     body: S.Unknown,
     contentType: S.optionalKey(S.String),
     headers: S.Record(S.String, S.String),
-    status: S.Number,
+    status: S.Finite,
   },
   $I.annote("VeniceAIJsonResponse", {
     description: "JSON response returned by the Venice AI driver.",
@@ -410,7 +410,7 @@ export class VeniceAITextResponse extends S.TaggedClass<VeniceAITextResponse>($I
   {
     contentType: S.optionalKey(S.String),
     headers: S.Record(S.String, S.String),
-    status: S.Number,
+    status: S.Finite,
     text: S.String,
   },
   $I.annote("VeniceAITextResponse", {
@@ -444,7 +444,7 @@ export class VeniceAIBinaryResponse extends S.TaggedClass<VeniceAIBinaryResponse
     bytes: S.Uint8Array,
     contentType: S.optionalKey(S.String),
     headers: S.Record(S.String, S.String),
-    status: S.Number,
+    status: S.Finite,
   },
   $I.annote("VeniceAIBinaryResponse", {
     description: "Binary response returned by the Venice AI driver.",
@@ -511,7 +511,7 @@ export class VeniceAIServerSentEvent extends S.Class<VeniceAIServerSentEvent>($I
   {
     data: S.optionalKey(S.Unknown),
     done: S.Boolean,
-    index: S.Number,
+    index: S.Finite,
   },
   $I.annote("VeniceAIServerSentEvent", {
     description: "Parsed server-sent event emitted by Venice streaming endpoints.",
@@ -549,7 +549,7 @@ export class VeniceAIError extends TaggedErrorClass<VeniceAIError>($I`VeniceAIEr
     operation: S.optionalKey(VeniceAIOperationId),
     path: S.optionalKey(S.String),
     reason: VeniceAIErrorReason,
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
   },
   $I.annote("VeniceAIError", {
     description: "Redacted technical failure raised by the Venice AI driver boundary.",

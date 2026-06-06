@@ -84,7 +84,7 @@ export class SanityError extends TaggedErrorClass<SanityError>($I`SanityError`)(
   {
     cause: S.optionalKey(S.String),
     reason: SanityErrorReason,
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
     url: S.optionalKey(S.String),
   },
   $I.annote("SanityError", {
@@ -140,7 +140,7 @@ export class SanityError extends TaggedErrorClass<SanityError>($I`SanityError`)(
 export class SanityErrorOptions extends S.Class<SanityErrorOptions>($I`SanityErrorOptions`)(
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
     url: S.optionalKey(S.String),
   },
   $I.annote("SanityErrorOptions", {

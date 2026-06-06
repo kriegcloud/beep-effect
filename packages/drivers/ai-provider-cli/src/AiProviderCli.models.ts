@@ -80,7 +80,7 @@ export type AiProviderCliAuthStatus = typeof AiProviderCliAuthStatus.Type;
  */
 export class AiProviderCliProcessResult extends S.Class<AiProviderCliProcessResult>($I`AiProviderCliProcessResult`)(
   {
-    exitCode: S.Number,
+    exitCode: S.Finite,
     stderr: S.String,
     stdout: S.String,
   },

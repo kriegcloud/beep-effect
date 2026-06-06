@@ -324,9 +324,9 @@ export class AiMetricsOtlpEndpointSpec extends S.Class<AiMetricsOtlpEndpointSpec
  */
 export class AiMetricsScoreWeights extends S.Class<AiMetricsScoreWeights>($I`AiMetricsScoreWeights`)(
   {
-    cost: S.Number.pipe(S.withConstructorDefault(Effect.succeed(0.1)), S.withDecodingDefaultKey(Effect.succeed(0.1))),
-    flow: S.Number.pipe(S.withConstructorDefault(Effect.succeed(0.2)), S.withDecodingDefaultKey(Effect.succeed(0.2))),
-    outcome: S.Number.pipe(
+    cost: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(0.1)), S.withDecodingDefaultKey(Effect.succeed(0.1))),
+    flow: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(0.2)), S.withDecodingDefaultKey(Effect.succeed(0.2))),
+    outcome: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0.7)),
       S.withDecodingDefaultKey(Effect.succeed(0.7))
     ),
@@ -380,7 +380,7 @@ export class AgentTask extends S.Class<AgentTask>($I`AgentTask`)(
   {
     agentTaskId: S.String,
     configSnapshotId: S.optionalKey(S.String),
-    createdAtEpochMillis: S.Number,
+    createdAtEpochMillis: S.Finite,
     firstSeenAt: S.optionalKey(S.String),
     lastSeenAt: S.optionalKey(S.String),
     repoRootHash: S.String,
@@ -447,7 +447,7 @@ export class AgentSession extends S.Class<AgentSession>($I`AgentSession`)(
 export class AgentTurn extends S.Class<AgentTurn>($I`AgentTurn`)(
   {
     eventName: S.String,
-    lineNumber: S.Number,
+    lineNumber: S.Finite,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
     sourceRole: AiMetricsSourceRole.pipe(
@@ -475,10 +475,10 @@ export class AgentTurn extends S.Class<AgentTurn>($I`AgentTurn`)(
 export class ModelCall extends S.Class<ModelCall>($I`ModelCall`)(
   {
     callId: S.String,
-    latencyMs: S.optionalKey(S.Number),
+    latencyMs: S.optionalKey(S.Finite),
     model: S.String,
     provider: S.String,
-    totalTokens: S.optionalKey(S.Number),
+    totalTokens: S.optionalKey(S.Finite),
   },
   $I.annote("ModelCall", {
     description: "Provider/model usage, latency, and token measurement for a coding-agent run.",
@@ -498,8 +498,8 @@ export class ModelCall extends S.Class<ModelCall>($I`ModelCall`)(
  */
 export class ToolInvocation extends S.Class<ToolInvocation>($I`ToolInvocation`)(
   {
-    durationMs: S.optionalKey(S.Number),
-    exitCode: S.optionalKey(S.Number),
+    durationMs: S.optionalKey(S.Finite),
+    exitCode: S.optionalKey(S.Finite),
     toolName: S.String,
     toolRunId: S.String,
   },
@@ -523,13 +523,13 @@ export class OutcomeLabel extends S.Class<OutcomeLabel>($I`OutcomeLabel`)(
   {
     agentTaskId: S.String,
     followUpFix: S.Boolean,
-    interventionCount: S.Number,
+    interventionCount: S.Finite,
     labelId: S.String,
-    labeledAtEpochMillis: S.Number,
+    labeledAtEpochMillis: S.Finite,
     note: S.optionalKey(S.String),
     passed: S.Boolean,
     qualityGate: AiMetricsQualityGateStatus,
-    rating: S.Number,
+    rating: S.Finite,
   },
   $I.annote("OutcomeLabel", {
     description: "Structured manual label used to calibrate deploy-safe AI metrics scorecards.",
@@ -576,11 +576,11 @@ export class BenchmarkRun extends S.Class<BenchmarkRun>($I`BenchmarkRun`)(
     benchmarkCaseId: S.String,
     benchmarkRunId: S.String,
     configSnapshotId: S.String,
-    elapsedMs: S.Number,
+    elapsedMs: S.Finite,
     note: S.optionalKey(S.String),
     passed: S.Boolean,
     qualityGate: AiMetricsQualityGateStatus,
-    recordedAtEpochMillis: S.Number,
+    recordedAtEpochMillis: S.Finite,
   },
   $I.annote("BenchmarkRun", {
     description: "Observed result from running one benchmark case against one configuration snapshot.",
@@ -600,23 +600,23 @@ export class BenchmarkRun extends S.Class<BenchmarkRun>($I`BenchmarkRun`)(
  */
 export class Scorecard extends S.Class<Scorecard>($I`Scorecard`)(
   {
-    benchmarkRunCount: S.Number,
+    benchmarkRunCount: S.Finite,
     completionReady: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     configSnapshotId: S.String,
-    costScore: S.Number,
+    costScore: S.Finite,
     coverageGaps: S.Array(S.String),
-    flowScore: S.Number,
-    labelCount: S.Number,
-    outcomeScore: S.Number,
+    flowScore: S.Finite,
+    labelCount: S.Finite,
+    outcomeScore: S.Finite,
     scorecardId: S.String,
-    taskCount: S.Number,
-    totalScore: S.Number,
+    taskCount: S.Finite,
+    totalScore: S.Finite,
     weights: AiMetricsScoreWeights,
-    windowEndEpochMillis: S.Number,
-    windowStartEpochMillis: S.Number,
+    windowEndEpochMillis: S.Finite,
+    windowStartEpochMillis: S.Finite,
   },
   $I.annote("Scorecard", {
     description: "Outcome-heavy aggregate score for one config snapshot inside a weekly review window.",
@@ -636,14 +636,14 @@ export class Scorecard extends S.Class<Scorecard>($I`Scorecard`)(
  */
 export class TranscriptIngestSummary extends S.Class<TranscriptIngestSummary>($I`TranscriptIngestSummary`)(
   {
-    acceptedEvents: S.Number,
+    acceptedEvents: S.Finite,
     eventNames: S.Array(S.String),
     firstTimestamp: S.optionalKey(S.String),
     lastTimestamp: S.optionalKey(S.String),
-    rejectedLines: S.Number,
+    rejectedLines: S.Finite,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
-    totalLines: S.Number,
+    totalLines: S.Finite,
   },
   $I.annote("TranscriptIngestSummary", {
     description: "Line-count, timestamp, and event-name summary from transcript ingestion with private paths hashed.",

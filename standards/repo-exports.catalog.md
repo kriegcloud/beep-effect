@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1078 |
-| publicExportEntries | 15063 |
-| uniquePackageSymbols | 6514 |
+| publicExportEntries | 15081 |
+| uniquePackageSymbols | 6519 |
 
 ## Seed Discovery Proof
 
@@ -80,7 +80,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 41 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
 | 42 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 271 | 219 |
 | 43 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 782 | 581 |
-| 44 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 702 | 214 |
+| 44 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 720 | 219 |
 | 45 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
 | 46 | `@beep/tika` | `packages/drivers/tika` | has-public-exports | 4 | 23 | 7 |
 | 47 | `@beep/libpff` | `packages/drivers/libpff` | has-public-exports | 4 | 26 | 8 |
@@ -846,13 +846,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
-| `@beep/repo-cli/commands/AIMetrics` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3416` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3580` | AI metrics root command. |
 | `@beep/repo-cli/commands/AIMetrics` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
 | `@beep/repo-cli/commands/AIMetrics` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
-| `@beep/repo-cli/commands/AIMetrics/AIMetrics.command` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3416` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics/AIMetrics.command` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3580` | AI metrics root command. |
 | `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
 | `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
-| `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3416` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3580` | AI metrics root command. |
 | `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
 | `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
 | `@beep/repo-cli/commands/Architecture` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:266` | Apply a decoded operation plan with failsafe conflict behavior. |
@@ -6044,23 +6044,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AiMetricsConfigSnapshotResult` | class | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:124` | Complete repo-local agent configuration snapshot result. |
 | `@beep/repo-ai-metrics` | `AiMetricsDeployTarget` | const | `packages/tooling/library/ai-metrics/src/models.ts:26` | Supported deployment targets for the AI metrics stack. |
 | `@beep/repo-ai-metrics` | `AiMetricsDeployTarget` | type | `packages/tooling/library/ai-metrics/src/models.ts:44` | Runtime type for {@link AiMetricsDeployTarget}. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:474` | Error raised by the DuckDB derived storage projection. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:521` | Input for a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:549` | Result of a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:498` | One sanitized transcript ready for derived storage projection. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:506` | Error raised by the DuckDB derived storage projection. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:553` | Input for a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:585` | Result of a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:530` | One sanitized transcript ready for derived storage projection. |
 | `@beep/repo-ai-metrics` | `AiMetricsDiscoveredSource` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:150` | Source-level discovery summary. |
 | `@beep/repo-ai-metrics` | `AiMetricsDiscoveredTranscriptFile` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:117` | One transcript or source metadata file discovered for AI metrics. |
 | `@beep/repo-ai-metrics` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:76` | Error raised by the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:98` | Input for the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:224` | Tagged derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:245` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:170` | Successful derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:198` | Failed derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:258` | Safe result emitted by one durable AI metrics forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:141` | Per-source coverage selected by one durable forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:292` | Input for rendering a workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:327` | Rendered systemd user units for the workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:77` | Error raised by the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:99` | Input for the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:229` | Tagged derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:250` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:175` | Successful derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:203` | Failed derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:263` | Safe result emitted by one durable AI metrics forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:146` | Per-source coverage selected by one durable forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:298` | Input for rendering a workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:333` | Rendered systemd user units for the workstation-owned forwarder timer. |
 | `@beep/repo-ai-metrics` | `AiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:56` | Whether private identifier hashes used an operator-provided salt or a local smoke fallback. |
 | `@beep/repo-ai-metrics` | `AiMetricsHashSaltStatus` | type | `packages/tooling/library/ai-metrics/src/privacy.ts:74` | Runtime type for {@link AiMetricsHashSaltStatus}. |
 | `@beep/repo-ai-metrics` | `AiMetricsIngestError` | class | `packages/tooling/library/ai-metrics/src/ingest.ts:43` | Error raised by AI metrics ingest helpers. |
@@ -6107,6 +6107,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AiMetricsOtlpSpanProjectionBatch` | class | `packages/tooling/library/ai-metrics/src/otlp.ts:181` | Span projection batch resolved for one derived ingest run. |
 | `@beep/repo-ai-metrics` | `AiMetricsOutcomeLabelInput` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:140` | Input for adding or replacing the current label for one task. |
 | `@beep/repo-ai-metrics` | `aiMetricsOutcomeLabelToJson` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1332` | Render an outcome label as JSON. |
+| `@beep/repo-ai-metrics` | `AiMetricsParquetExportMode` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:49` | Parquet export behavior for one derived AI metrics write. |
+| `@beep/repo-ai-metrics` | `AiMetricsParquetExportMode` | type | `packages/tooling/library/ai-metrics/src/derived-storage.ts:67` | Runtime type for {@link AiMetricsParquetExportMode}. |
 | `@beep/repo-ai-metrics` | `AiMetricsPrivacyCheckResult` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:182` | Result produced by the P1 privacy proof command. |
 | `@beep/repo-ai-metrics` | `AiMetricsPrivacyError` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:206` | Error raised by AI metrics privacy helpers. |
 | `@beep/repo-ai-metrics` | `AiMetricsPrivacyMode` | const | `packages/tooling/library/ai-metrics/src/models.ts:177` | Raw transcript retention and derived-dashboard privacy posture. |
@@ -6118,17 +6120,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AiMetricsRawArchiveObject` | class | `packages/tooling/library/ai-metrics/src/archive.ts:86` | Safe archive object metadata returned after an encrypted write or lookup. |
 | `@beep/repo-ai-metrics` | `AiMetricsRawEventEnvelope` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:112` | Hash-only envelope for a raw transcript event line. |
 | `@beep/repo-ai-metrics` | `AiMetricsRedactionResult` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:87` | Redaction proof for text that crossed the raw-transcript boundary. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:167` | Error raised by P7 AI metrics retention workflows. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:242` | Deploy-safe retained file inventory row. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:263` | Path-safe inventory returned by `ai-metrics retention list`. |
-| `@beep/repo-ai-metrics` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:933` | Render a retention inventory as JSON. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:290` | Result for delete or compaction retention commands. |
-| `@beep/repo-ai-metrics` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:953` | Render a retention mutation result as JSON. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:215` | Deploy-safe raw archive inventory row. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:318` | Input for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:344` | Result for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:973` | Render a restore drill result as JSON. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:189` | Time-window selector for AI metrics retention commands. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionEnforcementPolicy` | class | `packages/tooling/library/ai-metrics/src/retention.ts:323` | Policy for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionEnforcementResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:356` | Result for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionEnforcementToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1109` | Render a retention enforcement result as JSON. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:172` | Error raised by P7 AI metrics retention workflows. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:247` | Deploy-safe retained file inventory row. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:268` | Path-safe inventory returned by `ai-metrics retention list`. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1089` | Render a retention inventory as JSON. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:295` | Result for delete or compaction retention commands. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1129` | Render a retention mutation result as JSON. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:220` | Deploy-safe raw archive inventory row. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:383` | Input for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:409` | Result for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1149` | Render a restore drill result as JSON. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:194` | Time-window selector for AI metrics retention commands. |
 | `@beep/repo-ai-metrics` | `AiMetricsSanitizedTranscript` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:141` | Redacted transcript summary safe for derived tables, dashboards, and OTLP attributes. |
 | `@beep/repo-ai-metrics` | `AiMetricsScorecardError` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:42` | Error raised by AI metrics label, benchmark, or scorecard workflows. |
 | `@beep/repo-ai-metrics` | `AiMetricsScoreWeights` | class | `packages/tooling/library/ai-metrics/src/models.ts:325` | Outcome-heavy scorecard weights for coding-agent performance. |
@@ -6161,14 +6166,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `decryptEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:362` | Decrypt an archive envelope for package-level verification. |
 | `@beep/repo-ai-metrics` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:53` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:574` | Discover local AI metrics transcript sources for the smoke target. |
-| `@beep/repo-ai-metrics` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:691` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:854` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:875` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics` | `enforceAiMetricsRetentionPolicy` | const | `packages/tooling/library/ai-metrics/src/retention.ts:793` | Enforce local AI metrics retention for old per-run Parquet snapshots. |
+| `@beep/repo-ai-metrics` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:728` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
+| `@beep/repo-ai-metrics` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:864` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:885` | Render a forwarder timer plan as JSON. |
 | `@beep/repo-ai-metrics` | `generateAiMetricsWeeklyReport` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1224` | Generate and persist a weekly config-impact report. |
 | `@beep/repo-ai-metrics` | `hashPrivateIdentifier` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:347` | Compute a salted SHA-256 digest for private identifiers such as local paths and session ids. |
 | `@beep/repo-ai-metrics` | `hashPublicTextSha256` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:323` | Compute a deterministic public SHA-256 digest for non-private content identity. |
 | `@beep/repo-ai-metrics` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
-| `@beep/repo-ai-metrics` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:581` | List retained AI metrics raw archive objects and derived/report outputs. |
+| `@beep/repo-ai-metrics` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:650` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
 | `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2989` | Check a local annotation plan for Phase 1 privacy and schema safety. |
 | `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2150` | Build a sanitized local-only annotation plan. |
@@ -6194,15 +6200,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `readEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:399` | Read and decode an encrypted raw archive envelope from disk. |
 | `@beep/repo-ai-metrics` | `recordAiMetricsBenchmarkRun` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:796` | Record an observed benchmark run for one config snapshot. |
 | `@beep/repo-ai-metrics` | `redactAiMetricsSensitiveText` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:502` | Redact secret-shaped text before any diagnostic rendering. |
-| `@beep/repo-ai-metrics` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:415` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
+| `@beep/repo-ai-metrics` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:421` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
 | `@beep/repo-ai-metrics` | `renderAiMetricsLocalPhoenixCompose` | const | `packages/tooling/library/ai-metrics/src/compose.ts:46` | Render a dedicated Docker Compose file for local Phoenix smoke tests. |
 | `@beep/repo-ai-metrics` | `resolveAiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:307` | Resolve the effective private hash salt status. |
 | `@beep/repo-ai-metrics` | `resolveAiMetricsHashSaltValue` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:291` | Resolve the effective private hash salt value. |
-| `@beep/repo-ai-metrics` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:750` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:756` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics` | `runAiMetricsOtlpExport` | const | `packages/tooling/library/ai-metrics/src/otlp.ts:474` | Emit redacted AI metrics derived spans through the active Effect tracer. |
-| `@beep/repo-ai-metrics` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:773` | Compact selected AI metrics derived Parquet and report outputs. |
-| `@beep/repo-ai-metrics` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:748` | Delete selected AI metrics raw, derived, and report data. |
-| `@beep/repo-ai-metrics` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:798` | Restore selected encrypted raw archive objects into disposable derived storage. |
+| `@beep/repo-ai-metrics` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:926` | Compact selected AI metrics derived Parquet and report outputs. |
+| `@beep/repo-ai-metrics` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:901` | Delete selected AI metrics raw, derived, and report data. |
+| `@beep/repo-ai-metrics` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:951` | Restore selected encrypted raw archive objects into disposable derived storage. |
 | `@beep/repo-ai-metrics` | `Scorecard` | class | `packages/tooling/library/ai-metrics/src/models.ts:601` | Derived scorecard for weekly or config-impact review. |
 | `@beep/repo-ai-metrics` | `shellQuote` | const | `packages/tooling/library/ai-metrics/src/shell.ts:24` | Quote a value as one POSIX shell token. |
 | `@beep/repo-ai-metrics` | `sourceDiscoveryToJson` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:631` | Render a source discovery result as JSON. |
@@ -6213,7 +6219,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `TranscriptIngestSummary` | class | `packages/tooling/library/ai-metrics/src/models.ts:637` | Summary produced by transcript ingestion. |
 | `@beep/repo-ai-metrics` | `upsertAiMetricsBenchmarkCase` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:681` | Add or replace a deploy-safe benchmark case. |
 | `@beep/repo-ai-metrics` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:477` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
-| `@beep/repo-ai-metrics` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1072` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
+| `@beep/repo-ai-metrics` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1156` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
 | `@beep/repo-ai-metrics` | `writeEncryptedRawArchiveObject` | const | `packages/tooling/library/ai-metrics/src/archive.ts:251` | Write one raw transcript file into the encrypted content-addressed archive. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AGENT_EFFECTIVENESS_PHOENIX_PROJECT` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:609` | Dedicated Phoenix project namespace for the agent-effectiveness loop. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:623` | Confirmation token required before live Phoenix writes. |
@@ -6283,26 +6289,28 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/config-snapshot` | `configSnapshotToJson` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:543` | Render a config snapshot result as JSON. |
 | `@beep/repo-ai-metrics/config-snapshot` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:424` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics/config-snapshot` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:477` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:474` | Error raised by the DuckDB derived storage projection. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:521` | Input for a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:549` | Result of a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:498` | One sanitized transcript ready for derived storage projection. |
-| `@beep/repo-ai-metrics/derived-storage` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:691` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics/derived-storage` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1072` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:76` | Error raised by the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:98` | Input for the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:224` | Tagged derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:245` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:170` | Successful derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:198` | Failed derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:258` | Safe result emitted by one durable AI metrics forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:141` | Per-source coverage selected by one durable forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:292` | Input for rendering a workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:327` | Rendered systemd user units for the workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics/forwarder` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:854` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics/forwarder` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:875` | Render a forwarder timer plan as JSON. |
-| `@beep/repo-ai-metrics/forwarder` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:415` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
-| `@beep/repo-ai-metrics/forwarder` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:750` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:506` | Error raised by the DuckDB derived storage projection. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:553` | Input for a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:585` | Result of a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:530` | One sanitized transcript ready for derived storage projection. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsParquetExportMode` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:49` | Parquet export behavior for one derived AI metrics write. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsParquetExportMode` | type | `packages/tooling/library/ai-metrics/src/derived-storage.ts:67` | Runtime type for {@link AiMetricsParquetExportMode}. |
+| `@beep/repo-ai-metrics/derived-storage` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:728` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
+| `@beep/repo-ai-metrics/derived-storage` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1156` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:77` | Error raised by the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:99` | Input for the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:229` | Tagged derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:250` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:175` | Successful derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:203` | Failed derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:263` | Safe result emitted by one durable AI metrics forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:146` | Per-source coverage selected by one durable forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:298` | Input for rendering a workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:333` | Rendered systemd user units for the workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/forwarder` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:864` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics/forwarder` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:885` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics/forwarder` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:421` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
+| `@beep/repo-ai-metrics/forwarder` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:756` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics/index` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
 | `@beep/repo-ai-metrics/index` | `AGENT_EFFECTIVENESS_PHOENIX_PROJECT` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:609` | Dedicated Phoenix project namespace for the agent-effectiveness loop. |
 | `@beep/repo-ai-metrics/index` | `AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:623` | Confirmation token required before live Phoenix writes. |
@@ -6366,23 +6374,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AiMetricsConfigSnapshotResult` | class | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:124` | Complete repo-local agent configuration snapshot result. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDeployTarget` | const | `packages/tooling/library/ai-metrics/src/models.ts:26` | Supported deployment targets for the AI metrics stack. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDeployTarget` | type | `packages/tooling/library/ai-metrics/src/models.ts:44` | Runtime type for {@link AiMetricsDeployTarget}. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:474` | Error raised by the DuckDB derived storage projection. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:521` | Input for a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:549` | Result of a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:498` | One sanitized transcript ready for derived storage projection. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:506` | Error raised by the DuckDB derived storage projection. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:553` | Input for a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:585` | Result of a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:530` | One sanitized transcript ready for derived storage projection. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDiscoveredSource` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:150` | Source-level discovery summary. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDiscoveredTranscriptFile` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:117` | One transcript or source metadata file discovered for AI metrics. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:76` | Error raised by the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:98` | Input for the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:224` | Tagged derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:245` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:170` | Successful derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:198` | Failed derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:258` | Safe result emitted by one durable AI metrics forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:141` | Per-source coverage selected by one durable forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:292` | Input for rendering a workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:327` | Rendered systemd user units for the workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:77` | Error raised by the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:99` | Input for the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:229` | Tagged derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:250` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:175` | Successful derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:203` | Failed derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:263` | Safe result emitted by one durable AI metrics forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:146` | Per-source coverage selected by one durable forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:298` | Input for rendering a workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:333` | Rendered systemd user units for the workstation-owned forwarder timer. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:56` | Whether private identifier hashes used an operator-provided salt or a local smoke fallback. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsHashSaltStatus` | type | `packages/tooling/library/ai-metrics/src/privacy.ts:74` | Runtime type for {@link AiMetricsHashSaltStatus}. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsIngestError` | class | `packages/tooling/library/ai-metrics/src/ingest.ts:43` | Error raised by AI metrics ingest helpers. |
@@ -6429,6 +6437,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AiMetricsOtlpSpanProjectionBatch` | class | `packages/tooling/library/ai-metrics/src/otlp.ts:181` | Span projection batch resolved for one derived ingest run. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsOutcomeLabelInput` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:140` | Input for adding or replacing the current label for one task. |
 | `@beep/repo-ai-metrics/index` | `aiMetricsOutcomeLabelToJson` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1332` | Render an outcome label as JSON. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsParquetExportMode` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:49` | Parquet export behavior for one derived AI metrics write. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsParquetExportMode` | type | `packages/tooling/library/ai-metrics/src/derived-storage.ts:67` | Runtime type for {@link AiMetricsParquetExportMode}. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsPrivacyCheckResult` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:182` | Result produced by the P1 privacy proof command. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsPrivacyError` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:206` | Error raised by AI metrics privacy helpers. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsPrivacyMode` | const | `packages/tooling/library/ai-metrics/src/models.ts:177` | Raw transcript retention and derived-dashboard privacy posture. |
@@ -6440,17 +6450,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AiMetricsRawArchiveObject` | class | `packages/tooling/library/ai-metrics/src/archive.ts:86` | Safe archive object metadata returned after an encrypted write or lookup. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRawEventEnvelope` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:112` | Hash-only envelope for a raw transcript event line. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRedactionResult` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:87` | Redaction proof for text that crossed the raw-transcript boundary. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:167` | Error raised by P7 AI metrics retention workflows. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:242` | Deploy-safe retained file inventory row. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:263` | Path-safe inventory returned by `ai-metrics retention list`. |
-| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:933` | Render a retention inventory as JSON. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:290` | Result for delete or compaction retention commands. |
-| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:953` | Render a retention mutation result as JSON. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:215` | Deploy-safe raw archive inventory row. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:318` | Input for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:344` | Result for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:973` | Render a restore drill result as JSON. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:189` | Time-window selector for AI metrics retention commands. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionEnforcementPolicy` | class | `packages/tooling/library/ai-metrics/src/retention.ts:323` | Policy for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionEnforcementResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:356` | Result for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionEnforcementToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1109` | Render a retention enforcement result as JSON. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:172` | Error raised by P7 AI metrics retention workflows. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:247` | Deploy-safe retained file inventory row. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:268` | Path-safe inventory returned by `ai-metrics retention list`. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1089` | Render a retention inventory as JSON. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:295` | Result for delete or compaction retention commands. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1129` | Render a retention mutation result as JSON. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:220` | Deploy-safe raw archive inventory row. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:383` | Input for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:409` | Result for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1149` | Render a restore drill result as JSON. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:194` | Time-window selector for AI metrics retention commands. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsSanitizedTranscript` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:141` | Redacted transcript summary safe for derived tables, dashboards, and OTLP attributes. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsScorecardError` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:42` | Error raised by AI metrics label, benchmark, or scorecard workflows. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsScoreWeights` | class | `packages/tooling/library/ai-metrics/src/models.ts:325` | Outcome-heavy scorecard weights for coding-agent performance. |
@@ -6483,14 +6496,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `decryptEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:362` | Decrypt an archive envelope for package-level verification. |
 | `@beep/repo-ai-metrics/index` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:53` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics/index` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:574` | Discover local AI metrics transcript sources for the smoke target. |
-| `@beep/repo-ai-metrics/index` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:691` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics/index` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:854` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics/index` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:875` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics/index` | `enforceAiMetricsRetentionPolicy` | const | `packages/tooling/library/ai-metrics/src/retention.ts:793` | Enforce local AI metrics retention for old per-run Parquet snapshots. |
+| `@beep/repo-ai-metrics/index` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:728` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
+| `@beep/repo-ai-metrics/index` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:864` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics/index` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:885` | Render a forwarder timer plan as JSON. |
 | `@beep/repo-ai-metrics/index` | `generateAiMetricsWeeklyReport` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1224` | Generate and persist a weekly config-impact report. |
 | `@beep/repo-ai-metrics/index` | `hashPrivateIdentifier` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:347` | Compute a salted SHA-256 digest for private identifiers such as local paths and session ids. |
 | `@beep/repo-ai-metrics/index` | `hashPublicTextSha256` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:323` | Compute a deterministic public SHA-256 digest for non-private content identity. |
 | `@beep/repo-ai-metrics/index` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
-| `@beep/repo-ai-metrics/index` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:581` | List retained AI metrics raw archive objects and derived/report outputs. |
+| `@beep/repo-ai-metrics/index` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:650` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics/index` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
 | `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2989` | Check a local annotation plan for Phase 1 privacy and schema safety. |
 | `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2150` | Build a sanitized local-only annotation plan. |
@@ -6516,15 +6530,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `readEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:399` | Read and decode an encrypted raw archive envelope from disk. |
 | `@beep/repo-ai-metrics/index` | `recordAiMetricsBenchmarkRun` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:796` | Record an observed benchmark run for one config snapshot. |
 | `@beep/repo-ai-metrics/index` | `redactAiMetricsSensitiveText` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:502` | Redact secret-shaped text before any diagnostic rendering. |
-| `@beep/repo-ai-metrics/index` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:415` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
+| `@beep/repo-ai-metrics/index` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:421` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
 | `@beep/repo-ai-metrics/index` | `renderAiMetricsLocalPhoenixCompose` | const | `packages/tooling/library/ai-metrics/src/compose.ts:46` | Render a dedicated Docker Compose file for local Phoenix smoke tests. |
 | `@beep/repo-ai-metrics/index` | `resolveAiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:307` | Resolve the effective private hash salt status. |
 | `@beep/repo-ai-metrics/index` | `resolveAiMetricsHashSaltValue` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:291` | Resolve the effective private hash salt value. |
-| `@beep/repo-ai-metrics/index` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:750` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics/index` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:756` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics/index` | `runAiMetricsOtlpExport` | const | `packages/tooling/library/ai-metrics/src/otlp.ts:474` | Emit redacted AI metrics derived spans through the active Effect tracer. |
-| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:773` | Compact selected AI metrics derived Parquet and report outputs. |
-| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:748` | Delete selected AI metrics raw, derived, and report data. |
-| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:798` | Restore selected encrypted raw archive objects into disposable derived storage. |
+| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:926` | Compact selected AI metrics derived Parquet and report outputs. |
+| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:901` | Delete selected AI metrics raw, derived, and report data. |
+| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:951` | Restore selected encrypted raw archive objects into disposable derived storage. |
 | `@beep/repo-ai-metrics/index` | `Scorecard` | class | `packages/tooling/library/ai-metrics/src/models.ts:601` | Derived scorecard for weekly or config-impact review. |
 | `@beep/repo-ai-metrics/index` | `shellQuote` | const | `packages/tooling/library/ai-metrics/src/shell.ts:24` | Quote a value as one POSIX shell token. |
 | `@beep/repo-ai-metrics/index` | `sourceDiscoveryToJson` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:631` | Render a source discovery result as JSON. |
@@ -6535,7 +6549,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `TranscriptIngestSummary` | class | `packages/tooling/library/ai-metrics/src/models.ts:637` | Summary produced by transcript ingestion. |
 | `@beep/repo-ai-metrics/index` | `upsertAiMetricsBenchmarkCase` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:681` | Add or replace a deploy-safe benchmark case. |
 | `@beep/repo-ai-metrics/index` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:477` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
-| `@beep/repo-ai-metrics/index` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1072` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
+| `@beep/repo-ai-metrics/index` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1156` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
 | `@beep/repo-ai-metrics/index` | `writeEncryptedRawArchiveObject` | const | `packages/tooling/library/ai-metrics/src/archive.ts:251` | Write one raw transcript file into the encrypted content-addressed archive. |
 | `@beep/repo-ai-metrics/ingest` | `AiMetricsIngestError` | class | `packages/tooling/library/ai-metrics/src/ingest.ts:43` | Error raised by AI metrics ingest helpers. |
 | `@beep/repo-ai-metrics/ingest` | `summarizeTranscriptText` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:177` | Summarize JSONL transcript text into a stable ingest summary. |
@@ -6634,21 +6648,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/privacy` | `redactAiMetricsSensitiveText` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:502` | Redact secret-shaped text before any diagnostic rendering. |
 | `@beep/repo-ai-metrics/privacy` | `resolveAiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:307` | Resolve the effective private hash salt status. |
 | `@beep/repo-ai-metrics/privacy` | `resolveAiMetricsHashSaltValue` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:291` | Resolve the effective private hash salt value. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:167` | Error raised by P7 AI metrics retention workflows. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:242` | Deploy-safe retained file inventory row. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:263` | Path-safe inventory returned by `ai-metrics retention list`. |
-| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:933` | Render a retention inventory as JSON. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:290` | Result for delete or compaction retention commands. |
-| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:953` | Render a retention mutation result as JSON. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:215` | Deploy-safe raw archive inventory row. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:318` | Input for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:344` | Result for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:973` | Render a restore drill result as JSON. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:189` | Time-window selector for AI metrics retention commands. |
-| `@beep/repo-ai-metrics/retention` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:581` | List retained AI metrics raw archive objects and derived/report outputs. |
-| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:773` | Compact selected AI metrics derived Parquet and report outputs. |
-| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:748` | Delete selected AI metrics raw, derived, and report data. |
-| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:798` | Restore selected encrypted raw archive objects into disposable derived storage. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionEnforcementPolicy` | class | `packages/tooling/library/ai-metrics/src/retention.ts:323` | Policy for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionEnforcementResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:356` | Result for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionEnforcementToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1109` | Render a retention enforcement result as JSON. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:172` | Error raised by P7 AI metrics retention workflows. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:247` | Deploy-safe retained file inventory row. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:268` | Path-safe inventory returned by `ai-metrics retention list`. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1089` | Render a retention inventory as JSON. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:295` | Result for delete or compaction retention commands. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1129` | Render a retention mutation result as JSON. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:220` | Deploy-safe raw archive inventory row. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:383` | Input for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:409` | Result for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1149` | Render a restore drill result as JSON. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:194` | Time-window selector for AI metrics retention commands. |
+| `@beep/repo-ai-metrics/retention` | `enforceAiMetricsRetentionPolicy` | const | `packages/tooling/library/ai-metrics/src/retention.ts:793` | Enforce local AI metrics retention for old per-run Parquet snapshots. |
+| `@beep/repo-ai-metrics/retention` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:650` | List retained AI metrics raw archive objects and derived/report outputs. |
+| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:926` | Compact selected AI metrics derived Parquet and report outputs. |
+| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:901` | Delete selected AI metrics raw, derived, and report data. |
+| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:951` | Restore selected encrypted raw archive objects into disposable derived storage. |
 | `@beep/repo-ai-metrics/scorecard` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
 | `@beep/repo-ai-metrics/scorecard` | `AiMetricsBenchmarkCaseInput` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:167` | Input for adding or replacing a benchmark case. |
 | `@beep/repo-ai-metrics/scorecard` | `AiMetricsBenchmarkCaseListResult` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:191` | Result returned by the benchmark case list command. |

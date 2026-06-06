@@ -59,7 +59,7 @@ export type NodeIndex = typeof NodeIndex.Type;
  * @since 0.0.0
  * @category constructors
  */
-export const NodeIndexFromString = S.NumberFromString.pipe(
+export const NodeIndexFromString = S.FiniteFromString.pipe(
   S.decodeTo(NodeIndex),
   $I.annoteSchema("NodeIndexFromString", {
     description: "A graph node index decoded from a string.",
@@ -111,7 +111,7 @@ export type EdgeIndex = typeof EdgeIndex.Type;
  * @since 0.0.0
  * @category constructors
  */
-export const EdgeIndexFromString = S.NumberFromString.pipe(
+export const EdgeIndexFromString = S.FiniteFromString.pipe(
   S.decodeTo(EdgeIndex),
   $I.annoteSchema("EdgeIndexFromString", {
     description: "A graph edge index decoded from a string.",

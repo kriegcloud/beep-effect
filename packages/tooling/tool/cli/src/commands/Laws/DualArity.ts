@@ -90,9 +90,9 @@ class DualArityInventoryEntry extends S.Class<DualArityInventoryEntry>($I`DualAr
     owner: S.String,
     reason: S.String,
     issue: S.String.pipe(S.UndefinedOr, S.optionalKey),
-    line: S.Number,
-    column: S.Number,
-    parameterCount: S.Number,
+    line: S.Finite,
+    column: S.Finite,
+    parameterCount: S.Finite,
     diagnostics: S.Array(DualArityDiagnosticKind),
   },
   $I.annote("DualArityInventoryEntry", {
@@ -188,13 +188,13 @@ export class DualArityRulesOptions extends S.Class<DualArityRulesOptions>($I`Dua
  */
 export class DualArityRulesSummary extends S.Class<DualArityRulesSummary>($I`DualArityRulesSummary`)(
   {
-    liveEntries: S.Number,
-    trackedEntries: S.Number,
-    missingEntries: S.Number,
-    staleEntries: S.Number,
-    enforcedCandidates: S.Number,
-    invalidExceptions: S.Number,
-    excludedLegitimate: S.Number,
+    liveEntries: S.Finite,
+    trackedEntries: S.Finite,
+    missingEntries: S.Finite,
+    staleEntries: S.Finite,
+    enforcedCandidates: S.Finite,
+    invalidExceptions: S.Finite,
+    excludedLegitimate: S.Finite,
     wroteInventory: S.Boolean,
     strictFailure: S.Boolean,
     diagnostics: S.Array(S.String).pipe(

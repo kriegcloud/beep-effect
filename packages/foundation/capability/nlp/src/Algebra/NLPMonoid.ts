@@ -33,7 +33,7 @@ const $I = $NlpId.create("Algebra/NLPMonoid");
 
 const TermNumberMap = MutableHashMapFromSelf({
   key: S.String,
-  value: S.Number,
+  value: S.Finite,
 });
 
 type TermNumberMap = typeof TermNumberMap.Type;
@@ -271,9 +271,9 @@ export const DocumentText: Monoid.Monoid<string> = Monoid.StringJoin("\n\n");
  */
 export class DocumentStatistics extends S.Class<DocumentStatistics>($I`DocumentStatistics`)(
   {
-    charCount: S.Number,
-    sentenceCount: S.Number,
-    wordCount: S.Number,
+    charCount: S.Finite,
+    sentenceCount: S.Finite,
+    wordCount: S.Finite,
   },
   $I.annote("DocumentStatistics", {
     description: "Document statistics carrier.",
@@ -369,8 +369,8 @@ export const AnnotationMap = <K, V>(): Monoid.Monoid<MutableHashMap.MutableHashM
  */
 export class NamedEntity extends S.Class<NamedEntity>($I`NamedEntity`)(
   {
-    endPos: S.Number,
-    startPos: S.Number,
+    endPos: S.Finite,
+    startPos: S.Finite,
     text: S.String,
     type: S.String,
   },
@@ -422,8 +422,8 @@ export const NamedEntityList: Monoid.Monoid<ReadonlyArray<NamedEntity>> = Monoid
  */
 export class DependencyEdge extends S.Class<DependencyEdge>($I`DependencyEdge`)(
   {
-    dependent: S.Number,
-    head: S.Number,
+    dependent: S.Finite,
+    head: S.Finite,
     relation: S.String,
   },
   $I.annote("DependencyEdge", {
@@ -610,7 +610,7 @@ export class TextAnalysis extends S.Class<TextAnalysis>($I`TextAnalysis`)(
   {
     bow: BagOfWords,
     entities: S.Array(NamedEntity),
-    sentenceCount: S.Number,
+    sentenceCount: S.Finite,
     vocabulary: S.HashSet(S.String),
   },
   $I.annote("TextAnalysis", {

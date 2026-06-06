@@ -11,7 +11,7 @@ const $I = $SchemaId.create("yaml_test");
 class YamlPerson extends S.Class<YamlPerson>($I`YamlPerson`)(
   {
     name: S.String,
-    age: S.Number,
+    age: S.Finite,
   },
   $I.annote("YamlPerson", {
     description: "Typed YAML person fixture used in schema tests.",

@@ -94,7 +94,7 @@ const REQUIRED_TAGGED_UNIONS = [
 class LintViolation extends S.Class<LintViolation>($I`LintViolation`)(
   {
     file: S.String,
-    line: S.Number,
+    line: S.Finite,
     kind: S.String,
     detail: S.String,
   },

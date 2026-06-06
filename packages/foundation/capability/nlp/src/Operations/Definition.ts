@@ -35,7 +35,7 @@ import type * as S from "effect/Schema";
  *   name: "length",
  *   description: "Count Unicode code units in a string.",
  *   inputSchema: S.String,
- *   outputSchema: S.Number,
+ *   outputSchema: S.Finite,
  *   implementation: (input) => Effect.succeed(input.length)
  * }
  *
@@ -66,7 +66,7 @@ export interface OperationDefinition<A, B, R = never, E = never> {
  * const definition: OperationDefinition<unknown, number> = {
  *   name: "length",
  *   inputSchema: S.String,
- *   outputSchema: S.Number,
+ *   outputSchema: S.Finite,
  *   implementation: (input) => Effect.succeed(String(input).length)
  * }
  *
@@ -92,7 +92,7 @@ export type OperationInput<D extends OperationDefinition<unknown, unknown, unkno
  * const definition: OperationDefinition<unknown, number> = {
  *   name: "length",
  *   inputSchema: S.String,
- *   outputSchema: S.Number,
+ *   outputSchema: S.Finite,
  *   implementation: (input) => Effect.succeed(String(input).length)
  * }
  *

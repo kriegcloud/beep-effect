@@ -556,7 +556,7 @@ describe("@beep/rdf semantic metadata", () => {
     const curried = annotateSemanticSchema({
       ...semanticMetadataInput,
       canonicalName: "NestedIdentifier",
-    })(S.Number);
+    })(S.Finite);
     const wrapped = S.Array(curried);
 
     expect(getSemanticSchemaMetadata(direct)?.canonicalName).toBe("ExampleIdentifier");

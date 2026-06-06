@@ -34,7 +34,7 @@ export class NodeVersionLocation extends S.Class<NodeVersionLocation>($I`NodeVer
     jobName: S.String,
     stepIndex: NonNegativeInt,
     currentValue: S.String,
-    yamlPath: S.Array(S.Union([S.String, S.Number])),
+    yamlPath: S.Array(S.Union([S.String, S.Finite])),
   },
   $I.annote("NodeVersionLocation", {
     description: "A workflow file location with a node-version field.",

@@ -95,7 +95,7 @@ export class DiscordChannelProof extends S.Class<DiscordChannelProof>($I`Discord
     channelId: S.NonEmptyString,
     guildId: S.optionalKey(S.String),
     name: S.optionalKey(S.String),
-    status: S.Number,
+    status: S.Finite,
   },
   $I.annote("DiscordChannelProof", {
     description: "Sanitized Discord channel lookup proof.",
@@ -119,7 +119,7 @@ export class DiscordMessageProof extends S.Class<DiscordMessageProof>($I`Discord
   {
     channelId: S.NonEmptyString,
     messageId: S.NonEmptyString,
-    status: S.Number,
+    status: S.Finite,
     timestamp: S.optionalKey(S.String),
   },
   $I.annote("DiscordMessageProof", {

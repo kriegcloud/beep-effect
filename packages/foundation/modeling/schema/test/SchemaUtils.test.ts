@@ -11,7 +11,7 @@ import * as S from "effect/Schema";
 describe("pluck", () => {
   it("decodes a one-property struct into the selected field value", () => {
     const schema = S.Struct({
-      column1: S.NumberFromString,
+      column1: S.FiniteFromString,
       column2: S.String,
     }).pipe(pluck("column1"));
 
@@ -20,7 +20,7 @@ describe("pluck", () => {
 
   it("encodes the selected field value back into a one-property struct", () => {
     const schema = S.Struct({
-      column1: S.NumberFromString,
+      column1: S.FiniteFromString,
       column2: S.String,
     }).pipe(pluck("column1"));
 

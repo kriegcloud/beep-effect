@@ -25,7 +25,7 @@ class SentencesParameters extends S.Class<SentencesParameters>($I`SentencesParam
 ) {}
 
 const SentencesSuccess = S.Struct({
-  sentenceCount: S.Number,
+  sentenceCount: S.Finite,
   sentences: S.Array(AiSentence),
 }).pipe(
   $I.annoteSchema("SentencesSuccess", {

@@ -434,7 +434,7 @@ export class AiMetricsMirrorBundleInput extends S.Class<AiMetricsMirrorBundleInp
 export class AiMetricsMirrorTableExport extends S.Class<AiMetricsMirrorTableExport>($I`AiMetricsMirrorTableExport`)(
   {
     parquetPath: S.String,
-    rowCount: S.Number,
+    rowCount: S.Finite,
     tableName: S.String,
   },
   $I.annote("AiMetricsMirrorTableExport", {
@@ -481,7 +481,7 @@ export class AiMetricsMirrorBundleManifest extends S.Class<AiMetricsMirrorBundle
 )(
   {
     bundleId: S.String,
-    createdAtEpochMillis: S.Number,
+    createdAtEpochMillis: S.Finite,
     includedTables: S.Array(S.String),
     mirrorStatusSchemaVersion: S.String,
     omittedDataClasses: S.Array(S.String),
@@ -489,7 +489,7 @@ export class AiMetricsMirrorBundleManifest extends S.Class<AiMetricsMirrorBundle
     p6ProofPreserved: S.Boolean,
     privacyProof: AiMetricsMirrorPrivacyProof,
     remoteRoot: S.String,
-    rowCounts: S.Record(S.String, S.Number),
+    rowCounts: S.Record(S.String, S.Finite),
     schemaVersion: S.String,
     sourceDataClass: S.String,
     target: AiMetricsDeployTarget,

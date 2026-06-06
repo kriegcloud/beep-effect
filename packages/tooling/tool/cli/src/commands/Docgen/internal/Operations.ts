@@ -230,7 +230,7 @@ export class DocgenExportAnalysis extends S.Class<DocgenExportAnalysis>($I`Docge
     name: S.String,
     kind: DocgenExportKind,
     filePath: S.String,
-    line: S.Number,
+    line: S.Finite,
     presentTags: S.Array(S.String),
     missingTags: S.Array(S.String),
     categoryValues: S.Array(S.String),
@@ -253,13 +253,13 @@ export class DocgenExportAnalysis extends S.Class<DocgenExportAnalysis>($I`Docge
  */
 export class DocgenAnalysisSummary extends S.Class<DocgenAnalysisSummary>($I`DocgenAnalysisSummary`)(
   {
-    totalExports: S.Number,
-    fullyDocumented: S.Number,
-    missingDocumentation: S.Number,
-    missingCategory: S.Number,
-    invalidCategory: S.Number,
-    missingExample: S.Number,
-    missingSince: S.Number,
+    totalExports: S.Finite,
+    fullyDocumented: S.Finite,
+    missingDocumentation: S.Finite,
+    missingCategory: S.Finite,
+    invalidCategory: S.Finite,
+    missingExample: S.Finite,
+    missingSince: S.Finite,
   },
   $I.annote("DocgenAnalysisSummary", {
     description: "Summary counts for a package analysis run.",
@@ -296,7 +296,7 @@ export class DocgenGenerationResult extends S.Class<DocgenGenerationResult>($I`D
     packageName: S.String,
     packagePath: S.String,
     success: S.Boolean,
-    moduleCount: S.optionalKey(S.Number),
+    moduleCount: S.optionalKey(S.Finite),
     error: S.optionalKey(S.String),
     output: S.optionalKey(S.String),
   },
@@ -316,7 +316,7 @@ export class DocgenAggregateResult extends S.Class<DocgenAggregateResult>($I`Doc
     packageName: S.String,
     packagePath: S.String,
     docsOutputPath: S.String,
-    fileCount: S.Number,
+    fileCount: S.Finite,
   },
   $I.annote("DocgenAggregateResult", {
     description: "Per-package aggregated docs result.",

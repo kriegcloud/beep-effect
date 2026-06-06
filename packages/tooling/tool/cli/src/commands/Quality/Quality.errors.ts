@@ -92,7 +92,7 @@ export class QualityScriptCommandError extends TaggedErrorClass<QualityScriptCom
   {
     message: S.String,
     command: S.optionalKey(S.String),
-    exitCode: S.optionalKey(S.Number),
+    exitCode: S.optionalKey(S.Finite),
     cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("QualityScriptCommandError", {
@@ -146,7 +146,7 @@ export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`Qu
   {
     label: S.String,
     command: S.String,
-    exitCode: S.Number,
+    exitCode: S.Finite,
   },
   $I.annote("QualityTaskFailed", {
     description: "A quality subprocess exited with a non-zero status code.",
@@ -199,7 +199,7 @@ export class QualityTaskGroupFailed extends TaggedErrorClass<QualityTaskGroupFai
   "QualityTaskGroupFailed",
   {
     label: S.String,
-    exitCode: S.Number,
+    exitCode: S.Finite,
     failures: S.Array(QualityTaskFailed),
   },
   $I.annote("QualityTaskGroupFailed", {

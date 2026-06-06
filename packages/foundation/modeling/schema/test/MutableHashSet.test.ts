@@ -6,23 +6,23 @@ import * as S from "effect/Schema";
 
 describe("MutableHashSetFromSelf", () => {
   it("preserves schema metadata and validates existing mutable hash sets", () => {
-    const schema = MutableHashSetFromSelf(S.NumberFromString);
+    const schema = MutableHashSetFromSelf(S.FiniteFromString);
     const decoded = S.decodeUnknownSync(schema)(MutableHashSet_.make("1", "2", "1"));
 
-    expect(schema.value).toBe(S.NumberFromString);
-    expect(schema.annotate({}).value).toBe(S.NumberFromString);
+    expect(schema.value).toBe(S.FiniteFromString);
+    expect(schema.annotate({}).value).toBe(S.FiniteFromString);
     expect(isMutableHashSet(decoded)).toBe(true);
     expect(A.fromIterable(decoded)).toEqual([1, 2]);
   });
 
   it("rejects non-mutable-hash-set inputs", () => {
-    const schema = MutableHashSetFromSelf(S.NumberFromString);
+    const schema = MutableHashSetFromSelf(S.FiniteFromString);
 
     expect(() => S.decodeUnknownSync(schema)(null)).toThrow("Expected MutableHashSetFromSelf, got null");
   });
 
   it("reports member decode failures at the values path", () => {
-    const schema = MutableHashSetFromSelf(S.NumberFromString);
+    const schema = MutableHashSetFromSelf(S.FiniteFromString);
 
     expect(() => S.decodeUnknownSync(schema)(MutableHashSet_.make("1", null))).toThrow(`Expected string, got null
   at ["values"][1]`);
@@ -40,23 +40,23 @@ describe("MutableHashSetFromSelf", () => {
 
 describe("MutableHashSet", () => {
   it("decodes arrays into mutable hash sets and removes duplicates", () => {
-    const schema = MutableHashSet(S.NumberFromString);
+    const schema = MutableHashSet(S.FiniteFromString);
     const decoded = S.decodeUnknownSync(schema)(["1", "2", "1"]);
 
-    expect(schema.value).toBe(S.NumberFromString);
-    expect(schema.annotate({}).value).toBe(S.NumberFromString);
+    expect(schema.value).toBe(S.FiniteFromString);
+    expect(schema.annotate({}).value).toBe(S.FiniteFromString);
     expect(isMutableHashSet(decoded)).toBe(true);
     expect(A.fromIterable(decoded)).toEqual([1, 2]);
   });
 
   it("encodes mutable hash sets back to arrays", () => {
-    const schema = MutableHashSet(S.NumberFromString);
+    const schema = MutableHashSet(S.FiniteFromString);
 
     expect(S.encodeSync(schema)(MutableHashSet_.make(1, 2, 3))).toEqual(["1", "2", "3"]);
   });
 
   it("expects the encoded array form at the boundary", () => {
-    const schema = MutableHashSet(S.NumberFromString);
+    const schema = MutableHashSet(S.FiniteFromString);
 
     expect(() => S.decodeUnknownSync(schema)(MutableHashSet_.make("1", null))).toThrow(
       `Expected array, got MutableHashSet(["1",null])`

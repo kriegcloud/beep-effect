@@ -163,7 +163,7 @@ export {
    * import * as Schema from "effect/Schema"
    * import * as Model from "@beep/schema/Model"
    *
-   * export const GroupId = Schema.Number.pipe(Schema.brand("GroupId"))
+   * export const GroupId = Schema.Finite.pipe(Schema.brand("GroupId"))
    *
    * export class Group extends Model.Class<Group>("Group")({}) {}
    *
@@ -297,7 +297,7 @@ export {
    * import * as Model from "@beep/schema/Model"
    *
    * const a = Model.Struct({ _tag: Schema.tag("A"), value: Schema.String })
-   * const b = Model.Struct({ _tag: Schema.tag("B"), count: Schema.Number })
+   * const b = Model.Struct({ _tag: Schema.tag("B"), count: Schema.Finite })
    * const AB = Model.Union([a, b])
    *
    * console.log(AB)
@@ -337,7 +337,7 @@ export const fields: <A extends VariantSchema.Struct<TUnsafe.Any>>(self: A) => A
  * import * as S from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * const GroupId = S.Number.pipe(S.brand("GroupId"))
+ * const GroupId = S.Finite.pipe(S.brand("GroupId"))
  *
  * class Group extends Model.Class<Group>("Group")({}) {}
  *

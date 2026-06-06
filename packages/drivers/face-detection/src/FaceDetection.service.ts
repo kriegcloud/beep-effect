@@ -49,11 +49,11 @@ const outputNames = [
 class PreprocessedImage extends S.Class<PreprocessedImage>($I`PreprocessedImage`)(
   {
     height: S.Int,
-    offsetX: S.Number,
-    offsetY: S.Number,
+    offsetX: S.Finite,
+    offsetY: S.Finite,
     padHeight: S.Int,
     padWidth: S.Int,
-    scale: S.Number,
+    scale: S.Finite,
     tensorData: S.Uint8Array,
     width: S.Int,
   },

@@ -31,7 +31,7 @@ const makeDefaultedStringField = (name: string, fallback: string, description: s
 
 const makeDefaultedPositiveIntField = (name: string, fallback: number, description: string) =>
   S.UndefinedOr(S.String).pipe(
-    S.decodeTo(S.Number, {
+    S.decodeTo(S.Finite, {
       decode: SchemaGetter.transform((value: string | undefined) => {
         const normalized = O.getOrElse(O.fromUndefinedOr(value), () => `${fallback}`);
         const parsed = globalThis.Number(normalized);

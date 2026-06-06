@@ -66,13 +66,13 @@ export class OpenAiCompatLanguageModelConfig extends S.Class<OpenAiCompatLanguag
   $I`OpenAiCompatLanguageModelConfig`
 )(
   {
-    maxCompletionTokens: S.optionalKey(S.Number),
-    maxTokens: S.optionalKey(S.Number),
+    maxCompletionTokens: S.optionalKey(S.Finite),
+    maxTokens: S.optionalKey(S.Finite),
     parallelToolCalls: S.optionalKey(S.Boolean),
-    seed: S.optionalKey(S.Number),
+    seed: S.optionalKey(S.Finite),
     strictJsonSchema: S.optionalKey(S.Boolean),
-    temperature: S.Number.pipe(S.NullOr, S.optionalKey),
-    topP: S.Number.pipe(S.NullOr, S.optionalKey),
+    temperature: S.Finite.pipe(S.NullOr, S.optionalKey),
+    topP: S.Finite.pipe(S.NullOr, S.optionalKey),
     user: S.optionalKey(S.String),
   },
   $I.annote("OpenAiCompatLanguageModelConfig", {

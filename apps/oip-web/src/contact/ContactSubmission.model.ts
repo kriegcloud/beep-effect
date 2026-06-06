@@ -138,7 +138,7 @@ export class ContactSubmission extends S.Class<ContactSubmission>($I`ContactSubm
   })
 ) {}
 
-const ContactSubmissionFormSubmittedAtFromString = S.NumberFromString.pipe(
+const ContactSubmissionFormSubmittedAtFromString = S.FiniteFromString.pipe(
   S.decodeTo(NonNegativeInt),
   $I.annoteSchema("ContactSubmissionFormSubmittedAtFromString", {
     description: "Form-submitted contact timestamp decoded from a numeric string.",

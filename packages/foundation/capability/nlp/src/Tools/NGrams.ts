@@ -49,9 +49,9 @@ class NGramsParameters extends S.Class<NGramsParameters>($I`NGramsParameters`)(
 const NGramsSuccess = S.Struct({
   mode: NGramMode,
   ngrams: S.Array(AiNGram),
-  size: S.Number,
-  totalNGrams: S.Number,
-  uniqueNGrams: S.Number,
+  size: S.Finite,
+  totalNGrams: S.Finite,
+  uniqueNGrams: S.Finite,
 }).pipe(
   $I.annoteSchema("NGramsSuccess", {
     description: "Extracted n-gram entries and summary counts for the selected mode.",

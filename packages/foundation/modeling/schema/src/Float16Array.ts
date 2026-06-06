@@ -118,7 +118,7 @@ export type Float16Arr = typeof Float16Arr.Type;
  * console.log(encoded); // [0.5, 1.25, 2.75]
  * ```
  */
-export const Float16ArrayFromArray = S.Number.pipe(
+export const Float16ArrayFromArray = S.Finite.pipe(
   S.Array,
   S.decodeTo(
     Float16Arr,

@@ -30,8 +30,8 @@ import type { GraphKindValue } from "./Graph.shared.ts";
  * import { GraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * type Schema = import("@beep/schema/Graph").GraphFromSelf<typeof S.String, typeof S.Number>
- * console.log(S.isSchema(GraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * type Schema = import("@beep/schema/Graph").GraphFromSelf<typeof S.String, typeof S.Finite>
+ * console.log(S.isSchema(GraphFromSelf({ node: S.String, edge: S.Finite }) satisfies Schema))
  * ```
  *
  * @since 0.0.0
@@ -57,8 +57,8 @@ export interface GraphFromSelf<Node extends S.Top, Edge extends S.Top>
  * import { DirectedGraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * type Schema = import("@beep/schema/Graph").DirectedGraphFromSelf<typeof S.String, typeof S.Number>
- * console.log(S.isSchema(DirectedGraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * type Schema = import("@beep/schema/Graph").DirectedGraphFromSelf<typeof S.String, typeof S.Finite>
+ * console.log(S.isSchema(DirectedGraphFromSelf({ node: S.String, edge: S.Finite }) satisfies Schema))
  * ```
  *
  * @since 0.0.0
@@ -84,8 +84,8 @@ export interface DirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
  * import { UndirectedGraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * type Schema = import("@beep/schema/Graph").UndirectedGraphFromSelf<typeof S.String, typeof S.Number>
- * console.log(S.isSchema(UndirectedGraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * type Schema = import("@beep/schema/Graph").UndirectedGraphFromSelf<typeof S.String, typeof S.Finite>
+ * console.log(S.isSchema(UndirectedGraphFromSelf({ node: S.String, edge: S.Finite }) satisfies Schema))
  * ```
  *
  * @since 0.0.0
@@ -111,8 +111,8 @@ export interface UndirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
  * import { MutableGraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * type Schema = import("@beep/schema/Graph").MutableGraphFromSelf<typeof S.String, typeof S.Number>
- * console.log(S.isSchema(MutableGraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * type Schema = import("@beep/schema/Graph").MutableGraphFromSelf<typeof S.String, typeof S.Finite>
+ * console.log(S.isSchema(MutableGraphFromSelf({ node: S.String, edge: S.Finite }) satisfies Schema))
  * ```
  *
  * @since 0.0.0
@@ -138,8 +138,8 @@ export interface MutableGraphFromSelf<Node extends S.Top, Edge extends S.Top>
  * import { MutableDirectedGraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * type Schema = import("@beep/schema/Graph").MutableDirectedGraphFromSelf<typeof S.String, typeof S.Number>
- * console.log(S.isSchema(MutableDirectedGraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * type Schema = import("@beep/schema/Graph").MutableDirectedGraphFromSelf<typeof S.String, typeof S.Finite>
+ * console.log(S.isSchema(MutableDirectedGraphFromSelf({ node: S.String, edge: S.Finite }) satisfies Schema))
  * ```
  *
  * @since 0.0.0
@@ -165,8 +165,8 @@ export interface MutableDirectedGraphFromSelf<Node extends S.Top, Edge extends S
  * import { MutableUndirectedGraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * type Schema = import("@beep/schema/Graph").MutableUndirectedGraphFromSelf<typeof S.String, typeof S.Number>
- * console.log(S.isSchema(MutableUndirectedGraphFromSelf({ node: S.String, edge: S.Number }) satisfies Schema))
+ * type Schema = import("@beep/schema/Graph").MutableUndirectedGraphFromSelf<typeof S.String, typeof S.Finite>
+ * console.log(S.isSchema(MutableUndirectedGraphFromSelf({ node: S.String, edge: S.Finite }) satisfies Schema))
  * ```
  *
  * @since 0.0.0
@@ -298,7 +298,7 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
  * import { GraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * const schema = GraphFromSelf({ node: S.String, edge: S.Number })
+ * const schema = GraphFromSelf({ node: S.String, edge: S.Finite })
  * console.log(S.isSchema(schema))
  * ```
  *
@@ -325,7 +325,7 @@ export const GraphFromSelf = <Node extends S.Top, Edge extends S.Top>(options: {
  * import { DirectedGraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * const schema = DirectedGraphFromSelf({ node: S.String, edge: S.Number })
+ * const schema = DirectedGraphFromSelf({ node: S.String, edge: S.Finite })
  * console.log(S.isSchema(schema))
  * ```
  *
@@ -355,7 +355,7 @@ export const DirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(op
  * import { UndirectedGraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * const schema = UndirectedGraphFromSelf({ node: S.String, edge: S.Number })
+ * const schema = UndirectedGraphFromSelf({ node: S.String, edge: S.Finite })
  * console.log(S.isSchema(schema))
  * ```
  *
@@ -385,7 +385,7 @@ export const UndirectedGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
  * import { MutableGraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * const schema = MutableGraphFromSelf({ node: S.String, edge: S.Number })
+ * const schema = MutableGraphFromSelf({ node: S.String, edge: S.Finite })
  * console.log(S.isSchema(schema))
  * ```
  *
@@ -412,7 +412,7 @@ export const MutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(opt
  * import { MutableDirectedGraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * const schema = MutableDirectedGraphFromSelf({ node: S.String, edge: S.Number })
+ * const schema = MutableDirectedGraphFromSelf({ node: S.String, edge: S.Finite })
  * console.log(S.isSchema(schema))
  * ```
  *
@@ -442,7 +442,7 @@ export const MutableDirectedGraphFromSelf = <Node extends S.Top, Edge extends S.
  * import { MutableUndirectedGraphFromSelf } from "@beep/schema/Graph"
  * import * as S from "effect/Schema"
  *
- * const schema = MutableUndirectedGraphFromSelf({ node: S.String, edge: S.Number })
+ * const schema = MutableUndirectedGraphFromSelf({ node: S.String, edge: S.Finite })
  * console.log(S.isSchema(schema))
  * ```
  *

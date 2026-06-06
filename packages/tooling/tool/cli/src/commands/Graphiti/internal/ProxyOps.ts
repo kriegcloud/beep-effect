@@ -41,8 +41,8 @@ class ProxyEnsureConfig extends S.Class<ProxyEnsureConfig>($I`ProxyEnsureConfig`
     recoveryMcpUrl: S.String,
     recoveryVerifyGroup: S.String,
     stateDir: S.String,
-    timeoutSeconds: S.Number,
-    waitSeconds: S.Number,
+    timeoutSeconds: S.Finite,
+    waitSeconds: S.Finite,
   },
   $I.annote("ProxyEnsureConfig", {
     description: "Configuration for ensuring the Graphiti proxy service is running.",

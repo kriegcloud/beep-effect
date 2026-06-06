@@ -74,7 +74,7 @@ export type SyncDataRunMode = typeof SyncDataRunMode.Type;
 export class SyncDataTargetProjection extends S.Class<SyncDataTargetProjection>($I`SyncDataTargetProjection`)(
   {
     content: S.String,
-    recordCount: S.Number,
+    recordCount: S.Finite,
     summary: S.String,
   },
   $I.annote("SyncDataTargetProjection", {
@@ -165,7 +165,7 @@ export class SyncDataTargetResult extends S.Class<SyncDataTargetResult>($I`SyncD
     targetId: S.String,
     outputPath: S.String,
     changed: S.Boolean,
-    recordCount: S.Number,
+    recordCount: S.Finite,
     summary: S.String,
     sourceUrl: S.String,
   },

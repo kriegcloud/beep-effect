@@ -21,7 +21,7 @@ class JsonlChunkParseError extends S.Class<JsonlChunkParseError>($I`JsonlChunkPa
 class JsonlChunkParseResult extends S.Class<JsonlChunkParseResult>($I`JsonlChunkParseResult`)({
   done: S.Boolean,
   error: S.NullOr(JsonlChunkParseError),
-  read: S.Number,
+  read: S.Finite,
   values: S.Unknown,
 }) {}
 const decodeJsonlChunkParseResult = S.decodeUnknownEffect(JsonlChunkParseResult);
@@ -120,7 +120,7 @@ export const JsonlTextToUnknown = S.String.pipe(
  * import * as S from "effect/Schema"
  * import { decodeJsonlTextAs } from "@beep/schema/Jsonl"
  *
- * const Row = S.Struct({ a: S.Number })
+ * const Row = S.Struct({ a: S.Finite })
  * const decodeRows = decodeJsonlTextAs(S.Array(Row))
  *
  * const program = decodeRows('{"a":1}\n')

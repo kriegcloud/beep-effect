@@ -188,8 +188,8 @@ export class CompilerConfig extends S.Class<CompilerConfig>($I`CompilerConfig`)(
     styledComponents: S.optionalKey(S.Union([S.Boolean, StyledComponentsConfig])),
     emotion: S.optionalKey(S.Union([S.Boolean, EmotionConfig])),
     styledJsx: S.optionalKey(S.Union([S.Boolean, StyledJsxConfig])),
-    define: S.optionalKey(S.Record(S.String, S.Union([S.String, S.Number, S.Boolean]))),
-    defineServer: S.optionalKey(S.Record(S.String, S.Union([S.String, S.Number, S.Boolean]))),
+    define: S.optionalKey(S.Record(S.String, S.Union([S.String, S.Finite, S.Boolean]))),
+    defineServer: S.optionalKey(S.Record(S.String, S.Union([S.String, S.Finite, S.Boolean]))),
     runAfterProductionCompile: S.optionalKey(RunAfterProductionCompile),
   },
   $I.annote("CompilerConfig", {

@@ -5,19 +5,19 @@ import { describe, expect, it } from "tstyche";
 
 describe("MutableHashSet", () => {
   it("preserves the schema surface for existing mutable hash sets", () => {
-    const schema = MutableHashSetFromSelf(S.NumberFromString);
+    const schema = MutableHashSetFromSelf(S.FiniteFromString);
 
-    expect(schema.value).type.toBe<typeof S.NumberFromString>();
+    expect(schema.value).type.toBe<typeof S.FiniteFromString>();
     expect<typeof schema.Type>().type.toBe<MutableHashSet_.MutableHashSet<number>>();
     expect<typeof schema.Encoded>().type.toBe<MutableHashSet_.MutableHashSet<string>>();
   });
 
   it("preserves the array-backed transform surface", () => {
-    const schema = MutableHashSet(S.NumberFromString);
+    const schema = MutableHashSet(S.FiniteFromString);
     const decode = S.decodeUnknownSync(schema);
     const decoded = decode(["1", "2"]);
 
-    expect(schema.value).type.toBe<typeof S.NumberFromString>();
+    expect(schema.value).type.toBe<typeof S.FiniteFromString>();
     expect<typeof schema.Type>().type.toBe<MutableHashSet_.MutableHashSet<number>>();
     expect<typeof schema.Encoded>().type.toBe<ReadonlyArray<string>>();
     expect(decoded).type.toBe<MutableHashSet_.MutableHashSet<number>>();

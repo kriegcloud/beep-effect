@@ -22,10 +22,10 @@ const $I = $RepoCliId.create("commands/Ci/Ci.command");
 class TurboSummaryExecution extends S.Class<TurboSummaryExecution>($I`TurboSummaryExecution`)(
   {
     command: S.optionalKey(S.String),
-    attempted: S.optionalKey(S.Number),
-    success: S.optionalKey(S.Number),
-    startTime: S.optionalKey(S.Number),
-    endTime: S.optionalKey(S.Number),
+    attempted: S.optionalKey(S.Finite),
+    success: S.optionalKey(S.Finite),
+    startTime: S.optionalKey(S.Finite),
+    endTime: S.optionalKey(S.Finite),
   },
   $I.annote("TurboSummaryExecution", {
     description: "Execution metadata emitted by a Turbo run summary.",
@@ -34,8 +34,8 @@ class TurboSummaryExecution extends S.Class<TurboSummaryExecution>($I`TurboSumma
 
 class TurboSummaryTaskExecution extends S.Class<TurboSummaryTaskExecution>($I`TurboSummaryTaskExecution`)(
   {
-    startTime: S.optionalKey(S.Number),
-    endTime: S.optionalKey(S.Number),
+    startTime: S.optionalKey(S.Finite),
+    endTime: S.optionalKey(S.Finite),
   },
   $I.annote("TurboSummaryTaskExecution", {
     description: "Task execution timing metadata emitted by Turbo.",
@@ -91,7 +91,7 @@ const decodeTurboSummary = S.decodeUnknownEffect(S.fromJsonString(TurboSummary))
 class SummaryCandidate extends S.Class<SummaryCandidate>($I`SummaryCandidate`)(
   {
     path: S.String,
-    mtimeMillis: S.Number,
+    mtimeMillis: S.Finite,
   },
   $I.annote("SummaryCandidate", {
     description: "Candidate file for Turbo summary parsing.",
@@ -101,7 +101,7 @@ class SummaryCandidate extends S.Class<SummaryCandidate>($I`SummaryCandidate`)(
 class LongestTask extends S.Class<LongestTask>($I`LongestTask`)(
   {
     taskId: S.String,
-    durationMs: S.Number,
+    durationMs: S.Finite,
     cacheStatus: S.String,
   },
   $I.annote("LongestTask", {

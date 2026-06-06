@@ -58,7 +58,7 @@ export class SentenceSpanFailure extends S.TaggedClass<SentenceSpanFailure>($I`S
   "SentenceSpanFailure",
   {
     reason: S.String,
-    sentenceIndex: S.Number,
+    sentenceIndex: S.Finite,
     sentenceText: S.String,
   },
   $I.annote("SentenceSpanFailure", {

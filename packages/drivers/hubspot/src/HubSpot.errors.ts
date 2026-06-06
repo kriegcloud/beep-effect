@@ -84,7 +84,7 @@ export class HubSpotError extends TaggedErrorClass<HubSpotError>($I`HubSpotError
     email: S.optionalKey(S.String),
     formGuid: S.optionalKey(S.String),
     reason: HubSpotErrorReason,
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
     url: S.optionalKey(S.String),
   },
   $I.annote("HubSpotError", {
@@ -173,7 +173,7 @@ export class HubSpotErrorOptions extends S.Class<HubSpotErrorOptions>($I`HubSpot
     cause: S.optionalKey(S.Defect({ includeStack: true })),
     email: S.optionalKey(S.String),
     formGuid: S.optionalKey(S.String),
-    status: S.optionalKey(S.Number),
+    status: S.optionalKey(S.Finite),
     url: S.optionalKey(S.String),
   },
   $I.annote("HubSpotErrorOptions", {

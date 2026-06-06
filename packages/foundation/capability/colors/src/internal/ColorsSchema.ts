@@ -26,7 +26,7 @@ const $I = $ColorsId.create("Domain");
  * @category models
  * @since 0.0.0
  */
-export const FormatterInput = S.Union([S.String, S.Number]).pipe(
+export const FormatterInput = S.Union([S.String, S.Finite]).pipe(
   S.UndefinedOr,
   $I.annoteSchema("FormatterInput", {
     description: "Input accepted by a color formatter.",

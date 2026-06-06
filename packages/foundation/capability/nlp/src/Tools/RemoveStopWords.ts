@@ -25,8 +25,8 @@ class RemoveStopWordsParameters extends S.Class<RemoveStopWordsParameters>($I`Re
 ) {}
 
 const RemoveStopWordsSuccess = S.Struct({
-  count: S.Number,
-  removedCount: S.Number,
+  count: S.Finite,
+  removedCount: S.Finite,
   tokens: S.Array(S.String),
 }).pipe(
   $I.annoteSchema("RemoveStopWordsSuccess", {

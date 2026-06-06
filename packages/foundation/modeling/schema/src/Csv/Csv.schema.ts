@@ -287,7 +287,7 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
  *
  * The row schema must be an object-like Effect schema with named fields. CSV
  * cells remain string boundaries, so callers should use string-backed field
- * schemas such as `S.NumberFromString` when coercion is needed.
+ * schemas such as `S.FiniteFromString` when coercion is needed.
  *
  * @example
  * ```ts
@@ -295,7 +295,7 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
  * import * as S from "effect/Schema"
  * import { CSV } from "@beep/schema/Csv"
  *
- * const Row = S.Struct({ name: S.String, age: S.NumberFromString })
+ * const Row = S.Struct({ name: S.String, age: S.FiniteFromString })
  * const CsvSchema = CSV(Row)
  *
  * const program = S.decodeUnknownEffect(CsvSchema)("name,age\nAda,36")

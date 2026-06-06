@@ -38,7 +38,7 @@ const $I = $SchemaId.create("StatusCauseError");
  */
 export const StatusCauseFields = {
   message: S.String,
-  status: S.Number,
+  status: S.Finite,
   cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
 } as const;
 
@@ -61,7 +61,7 @@ export const StatusCauseFields = {
  */
 export class StatusCauseInputOptions extends S.Class<StatusCauseInputOptions>($I`StatusCauseInputOptions`)(
   {
-    status: S.Number,
+    status: S.Finite,
     cause: S.Defect({ includeStack: true }),
   },
   $I.annote("StatusCauseInputOptions", {
@@ -87,7 +87,7 @@ export class StatusCauseInputOptions extends S.Class<StatusCauseInputOptions>($I
 export class StatusCauseInput extends S.Class<StatusCauseInput>($I`StatusCauseInput`)(
   {
     message: S.String,
-    status: S.Number,
+    status: S.Finite,
     cause: S.Option(S.Unknown),
   },
   $I.annote("StatusCauseInput", {

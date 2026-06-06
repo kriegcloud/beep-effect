@@ -433,7 +433,7 @@ export const makeSecretReferenceServer = Effect.fn("InstallerServer.makeSecretRe
               status: "reference-valid",
               usedBy: request.usedBy,
               ...R.getSomes({
-                byteLength: S.decodeUnknownOption(S.Number)(probe.byteLength),
+                byteLength: S.decodeUnknownOption(S.Finite)(probe.byteLength),
               }),
             }),
         })

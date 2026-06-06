@@ -49,9 +49,9 @@ const declaredFunction = <A extends Function>(name: string, description: string)
 const StringArray = S.String.pipe(S.Array, S.mutable);
 class CacheLifeProfile extends S.Class<CacheLifeProfile>($I`CacheLifeProfile`)(
   {
-    stale: optional(S.Number, "Seconds that a cache entry may be served stale."),
-    revalidate: optional(S.Number, "Seconds before cached output should be revalidated."),
-    expire: optional(S.Number, "Seconds before cached output must expire."),
+    stale: optional(S.Finite, "Seconds that a cache entry may be served stale."),
+    revalidate: optional(S.Finite, "Seconds before cached output should be revalidated."),
+    expire: optional(S.Finite, "Seconds before cached output must expire."),
   },
   $I.annote("CacheLifeProfile", {
     description: "Timing values for a Next.js cache life profile.",
@@ -85,8 +85,8 @@ const DevIndicatorsConfig = S.Union([S.Literal(false), DevIndicatorsConfigOption
 );
 class OnDemandEntriesConfig extends S.Class<OnDemandEntriesConfig>($I`OnDemandEntriesConfig`)(
   {
-    maxInactiveAge: optional(S.Number, "Period in milliseconds where the server keeps pages in the buffer."),
-    pagesBufferLength: optional(S.Number, "Number of pages kept simultaneously without being disposed."),
+    maxInactiveAge: optional(S.Finite, "Period in milliseconds where the server keeps pages in the buffer."),
+    pagesBufferLength: optional(S.Finite, "Number of pages kept simultaneously without being disposed."),
   },
   $I.annote("OnDemandEntriesConfig", {
     description: "Development-time on-demand entries cache configuration.",
@@ -125,7 +125,7 @@ const OutputFileTracingRules = S.Record(S.String, StringArray).pipe(
 );
 class WatchOptionsConfig extends S.Class<WatchOptionsConfig>($I`WatchOptionsConfig`)(
   {
-    pollIntervalMs: optional(S.Number, "Polling interval in milliseconds for file watching."),
+    pollIntervalMs: optional(S.Finite, "Polling interval in milliseconds for file watching."),
   },
   $I.annote("WatchOptionsConfig", {
     description: "File watching options for Next.js.",
@@ -253,7 +253,7 @@ export class NextConfig extends S.Class<NextConfig>($I`NextConfig`)(
     ),
     adapterPath: optional(S.String, "Path to a custom adapter module for deployment platform integration."),
     cacheHandlers: optional(CacheHandlersConfig, "Named cache handler module paths."),
-    cacheMaxMemorySize: optional(S.Number, "In-memory cache size in bytes."),
+    cacheMaxMemorySize: optional(S.Finite, "In-memory cache size in bytes."),
     useFileSystemPublicRoutes: optional(
       S.Boolean,
       "Whether pages are served from the filesystem routes.",
@@ -323,7 +323,7 @@ export class NextConfig extends S.Class<NextConfig>($I`NextConfig`)(
       "https://nextjs.org/docs/app/api-reference/config/next-config-js/reactStrictMode"
     ),
     reactMaxHeadersLength: optional(
-      S.Number,
+      S.Finite,
       "Maximum length of headers emitted by React and added to the response.",
       "https://nextjs.org/docs/app/api-reference/config/next-config-js/reactMaxHeadersLength"
     ),
@@ -332,7 +332,7 @@ export class NextConfig extends S.Class<NextConfig>($I`NextConfig`)(
       "HTTP keep-alive agent options.",
       "https://nextjs.org/docs/app/api-reference/next-config-js/httpAgentOptions"
     ),
-    staticPageGenerationTimeout: optional(S.Number, "Timeout in seconds for static page generation."),
+    staticPageGenerationTimeout: optional(S.Finite, "Timeout in seconds for static page generation."),
     crossOrigin: optional(
       LiteralKit(["anonymous", "use-credentials"]),
       "Cross-origin attribute for generated script elements.",
@@ -366,7 +366,7 @@ export class NextConfig extends S.Class<NextConfig>($I`NextConfig`)(
       "https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheComponents"
     ),
     cacheLife: optional(CacheLifeConfig, "Named cache life profiles."),
-    expireTime: optional(S.Number, "Seconds where the server may serve stale cache."),
+    expireTime: optional(S.Finite, "Seconds where the server may serve stale cache."),
     agentRules: optional(S.Boolean, "Enable generated AI coding agent rules for Next.js development."),
     experimental: optional(ExperimentalConfig, "Experimental Next.js feature flags."),
     bundlePagesRouterDependencies: optional(

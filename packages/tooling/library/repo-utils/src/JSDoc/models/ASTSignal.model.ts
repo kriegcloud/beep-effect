@@ -34,7 +34,7 @@ export class ASTSignal extends S.Class<ASTSignal>($I`ASTSignal`)(
      * When combined signals exceed 0.85, classification
      * can skip LLM inference entirely.
      */
-    confidence: S.Number.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1)])).annotateKey({
+    confidence: S.Finite.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1)])).annotateKey({
       description:
         "How confident this signal alone is (0.0 to 1.0). When combined signals exceed 0.85, classification can skip LLM inference entirely.",
     }),

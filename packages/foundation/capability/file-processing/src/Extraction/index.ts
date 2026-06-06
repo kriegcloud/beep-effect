@@ -80,8 +80,8 @@ export class TextArtifactReference extends S.Class<TextArtifactReference>($I`Tex
  */
 export class TextSpan extends S.Class<TextSpan>($I`TextSpan`)(
   {
-    endOffset: S.Number,
-    startOffset: S.Number,
+    endOffset: S.Finite,
+    startOffset: S.Finite,
     text: S.String,
   },
   $I.annote("TextSpan", {

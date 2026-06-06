@@ -46,9 +46,9 @@ type BM25VectorizerFactory = (config?: {
 
 class CreateCorpusBM25Config extends S.Class<CreateCorpusBM25Config>($I`CreateCorpusBM25Config`)(
   {
-    b: S.Number.pipe(S.UndefinedOr, S.optionalKey),
-    k: S.Number.pipe(S.UndefinedOr, S.optionalKey),
-    k1: S.Number.pipe(S.UndefinedOr, S.optionalKey),
+    b: S.Finite.pipe(S.UndefinedOr, S.optionalKey),
+    k: S.Finite.pipe(S.UndefinedOr, S.optionalKey),
+    k1: S.Finite.pipe(S.UndefinedOr, S.optionalKey),
     norm: BM25Norm.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("CreateCorpusBM25Config", {
@@ -82,7 +82,7 @@ class QueryCorpusParams extends S.Class<QueryCorpusParams>($I`QueryCorpusParams`
     corpusId: S.String,
     includeText: S.Boolean.pipe(S.UndefinedOr, S.optionalKey),
     query: S.String,
-    topN: S.Number.pipe(S.UndefinedOr, S.optionalKey),
+    topN: S.Finite.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("QueryCorpusParams", {
     description: "Parameters for querying a managed Wink BM25 corpus session.",
@@ -94,7 +94,7 @@ class CorpusStatsParams extends S.Class<CorpusStatsParams>($I`CorpusStatsParams`
     corpusId: S.String,
     includeIdf: S.Boolean.pipe(S.UndefinedOr, S.optionalKey),
     includeMatrix: S.Boolean.pipe(S.UndefinedOr, S.optionalKey),
-    topIdfTerms: S.Number.pipe(S.UndefinedOr, S.optionalKey),
+    topIdfTerms: S.Finite.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("CorpusStatsParams", {
     description: "Parameters for retrieving corpus statistics with Wink.",
@@ -105,9 +105,9 @@ class CorpusSummary extends S.Class<CorpusSummary>($I`CorpusSummary`)(
   {
     config: BM25Config,
     corpusId: S.String,
-    createdAtMs: S.Number,
-    documentCount: S.Number,
-    vocabularySize: S.Number,
+    createdAtMs: S.Finite,
+    documentCount: S.Finite,
+    vocabularySize: S.Finite,
   },
   $I.annote("CorpusSummary", {
     description: "Summary of a corpus learned with Wink.",
@@ -131,8 +131,8 @@ class LearnCorpusResult extends S.Class<LearnCorpusResult>($I`LearnCorpusResult`
 class RankedCorpusDocument extends S.Class<RankedCorpusDocument>($I`RankedCorpusDocument`)(
   {
     id: S.String,
-    index: S.Number,
-    score: S.Number,
+    index: S.Finite,
+    score: S.Finite,
     text: S.optionalKey(S.String),
   },
   $I.annote("RankedCorpusDocument", {
@@ -146,8 +146,8 @@ class QueryCorpusResult extends S.Class<QueryCorpusResult>($I`QueryCorpusResult`
     method: S.Literal("vector.cosine"),
     query: S.String,
     ranked: S.Array(RankedCorpusDocument),
-    returned: S.Number,
-    totalDocuments: S.Number,
+    returned: S.Finite,
+    totalDocuments: S.Finite,
   },
   $I.annote("QueryCorpusResult", {
     description: "Ranked corpus query results and result-count metadata.",
@@ -156,7 +156,7 @@ class QueryCorpusResult extends S.Class<QueryCorpusResult>($I`QueryCorpusResult`
 
 class CorpusIdfValue extends S.Class<CorpusIdfValue>($I`CorpusIdfValue`)(
   {
-    idf: S.Number,
+    idf: S.Finite,
     term: S.String,
   },
   $I.annote("CorpusIdfValue", {
@@ -166,8 +166,8 @@ class CorpusIdfValue extends S.Class<CorpusIdfValue>($I`CorpusIdfValue`)(
 
 class CorpusMatrixShape extends S.Class<CorpusMatrixShape>($I`CorpusMatrixShape`)(
   {
-    cols: S.Number,
-    rows: S.Number,
+    cols: S.Finite,
+    rows: S.Finite,
   },
   $I.annote("CorpusMatrixShape", {
     description: "Shape metadata for a corpus document-term matrix.",
@@ -176,14 +176,14 @@ class CorpusMatrixShape extends S.Class<CorpusMatrixShape>($I`CorpusMatrixShape`
 
 class CorpusStatsResult extends S.Class<CorpusStatsResult>($I`CorpusStatsResult`)(
   {
-    averageDocumentLength: S.Number,
+    averageDocumentLength: S.Finite,
     corpusId: S.String,
-    documentTermMatrix: S.Array(S.Number).pipe(S.Array),
+    documentTermMatrix: S.Array(S.Finite).pipe(S.Array),
     idfValues: S.Array(CorpusIdfValue),
     matrixShape: CorpusMatrixShape,
     terms: S.Array(S.String),
-    totalDocuments: S.Number,
-    vocabularySize: S.Number,
+    totalDocuments: S.Finite,
+    vocabularySize: S.Finite,
   },
   $I.annote("CorpusStatsResult", {
     description: "Detailed statistics for a managed Wink BM25 corpus session.",

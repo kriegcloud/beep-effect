@@ -6,13 +6,13 @@ import * as S from "../helpers/SchemaCompat.ts";
 describe("Field", () => {
   describe("getDefaultFromSchema", () => {
     it("returns defaults for primitive keywords", () => {
-      expect(Field.getDefaultFromSchema(S.Number)).toBe(0);
+      expect(Field.getDefaultFromSchema(S.Finite)).toBe(0);
       expect(Field.getDefaultFromSchema(S.Boolean)).toBe(false);
     });
 
     it("unwraps refinements and transformations", () => {
-      const refined = S.Number.check(S.isGreaterThan(1));
-      const transformed = S.flip(S.NumberFromString);
+      const refined = S.Finite.check(S.isGreaterThan(1));
+      const transformed = S.flip(S.FiniteFromString);
 
       expect(Field.getDefaultFromSchema(refined)).toBe(0);
       expect(Field.getDefaultFromSchema(transformed)).toBe(0);
@@ -40,7 +40,7 @@ describe("Field", () => {
   describe("getDefaultEncodedValues", () => {
     it("returns empty string for scalar fields", () => {
       const EmailField = Field.makeField("email", S.String);
-      const AgeField = Field.makeField("age", S.Number);
+      const AgeField = Field.makeField("age", S.Finite);
 
       const fields = {
         email: EmailField,
@@ -69,7 +69,7 @@ describe("Field", () => {
 
   describe("extractStructFieldDefs", () => {
     it("returns field defs for struct schema", () => {
-      const schema = S.Struct({ name: S.String, age: S.Number });
+      const schema = S.Struct({ name: S.String, age: S.Finite });
       const defs = Field.extractStructFieldDefs(schema);
 
       expect(defs).toBeDefined();
@@ -79,7 +79,7 @@ describe("Field", () => {
     });
 
     it("unwraps refinements, transformations, and suspends", () => {
-      const base = S.Struct({ name: S.String, age: S.Number });
+      const base = S.Struct({ name: S.String, age: S.Finite });
       const refined = base.check(S.makeFilter(() => true));
       const transformed = base.pipe(
         S.decodeTo(

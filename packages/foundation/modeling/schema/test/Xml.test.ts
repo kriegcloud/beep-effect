@@ -9,7 +9,7 @@ const $I = $SchemaId.create("xml_test");
 class PersonNode extends S.Class<PersonNode>($I`PersonNode`)(
   {
     name: S.String,
-    age: S.NumberFromString,
+    age: S.FiniteFromString,
   },
   $I.annote("PersonNode", {
     description: "Parsed XML person node used in schema tests.",

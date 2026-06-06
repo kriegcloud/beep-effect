@@ -36,7 +36,7 @@ export interface Generated<S extends S.Top>
  * import * as S from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * const GroupId = S.Number.pipe(S.brand("GroupId"))
+ * const GroupId = S.Finite.pipe(S.brand("GroupId"))
  *
  * class Group extends Model.Class<Group>("Group")({}) {}
  *
@@ -159,7 +159,7 @@ export interface optionalOption<S extends S.Top>
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * const opt = Model.optionalOption(Schema.Number)
+ * const opt = Model.optionalOption(Schema.Finite)
  * console.log(opt)
  * ```
  *
