@@ -6,7 +6,7 @@
     {
       "id": "rqt-001",
       "rank": 1,
-      "status": "in-progress",
+      "status": "done",
       "lane": "yeet-orchestration",
       "title": "Remove duplicated Yeet affected feedback when full pre-push proof immediately follows",
       "commandsOrChecks": [
@@ -75,12 +75,35 @@
         "currentPrCandidate": true,
         "fallbackProof": "Full local `bun run audit:github pre-push` and PR GitHub Actions remain authoritative."
       },
+      "done": {
+        "beforeAfterRows": [
+          "Yeet verify/publish local portion",
+          "Canonical full proof"
+        ],
+        "proofEvidence": [
+          "`bun run beep yeet repair --plan --json` preserves affected feedback for repair with `taskCount=348`.",
+          "`bun run beep yeet verify --plan --json` now plans only `full:pre-push` with `taskCount=0`.",
+          "`bun run beep yeet publish --message \"fix(repo-cli): internalize quality helpers\" --plan --json` now plans only commit, full pre-push, and push with `taskCount=0`.",
+          "`bun run audit:github quality` exited 0 after the implementation and targeted JSDoc repair.",
+          "PR Check run `27063362752` is green on commit `899d5b4b6bda25169579887509fbb76234c222fa`."
+        ],
+        "finalProofCommands": [
+          "bun run beep yeet repair --plan --json",
+          "bun run beep yeet verify --plan --json",
+          "bun run beep yeet publish --message \"fix(repo-cli): internalize quality helpers\" --plan --json",
+          "bun run audit:github quality",
+          "gh pr checks 214"
+        ],
+        "commitOrRunId": "32a95c2665; PR Check run 27063362752",
+        "confidence": "medium",
+        "qualityReviewStatus": "No unresolved actionable PR review threads; PR checks green; full Yeet execution speed remains guarded by full pre-push/CI proof."
+      },
       "notes": "Do not promote Yeet beyond proof mode until the dedicated Yeet proof PR is green and the Yeet agent skill exists."
     },
     {
       "id": "rqt-002",
       "rank": 2,
-      "status": "selected",
+      "status": "done",
       "lane": "lint-fix",
       "title": "Keep lint:fix on the fast repo-cli changed-file path",
       "commandsOrChecks": ["bun run lint:fix", "beep-cli lint --fix"],
@@ -141,12 +164,34 @@
         "substantialBenefitGate": "prevents workstation-hostile or repo-wide behavior on a common fast repair command",
         "currentPrCandidate": true,
         "fallbackProof": "`bun run audit:github quality` remains the full quality proof."
+      },
+      "done": {
+        "beforeAfterRows": [
+          "lint:fix clean tree",
+          "lint:fix small changed-file set"
+        ],
+        "proofEvidence": [
+          "Five warm clean-tree samples of `bun run lint:fix` exited 0 in 43-44 ms and printed `[beep-cli] lint:fix: no changed files`.",
+          "`packages/tooling/tool/cli/test/quality-tasks.test.ts` proves the changed-file fast path uses `biome check --write --files-ignore-unknown=true` rather than format-only behavior.",
+          "The fast-path dedupe in `bin-main.ts` no longer uses `Array.from(new Set(...))`, removing the native-runtime warning in the touched entrypoint surface.",
+          "Dirty small-file probes recorded in `before-after-matrix.md` stayed on the changed-file Biome path and out of Turbo.",
+          "`bun run test -- --filter=@beep/repo-cli` and `bun run audit:github quality` passed after the repo-cli fast-path work."
+        ],
+        "finalProofCommands": [
+          "bun run lint:fix",
+          "bun run test -- --filter=@beep/repo-cli",
+          "bun run audit:github quality",
+          "gh pr checks 214"
+        ],
+        "commitOrRunId": "1553e021bb; ea8759bb84; PR Check run 27063362752",
+        "confidence": "high",
+        "qualityReviewStatus": "Original lint:fix regression lane is protected by a sub-50 ms clean-tree proof, changed-file unit coverage, and green PR checks."
       }
     },
     {
       "id": "rqt-003",
       "rank": 3,
-      "status": "selected",
+      "status": "deferred",
       "lane": "ci-setup-cache",
       "title": "Instrument and tune GitHub Actions setup/cache overhead only with comparable CI evidence",
       "commandsOrChecks": [
@@ -206,12 +251,18 @@
         "substantialBenefitGate": "unlocks a larger measured speedup by adding timing, cache, or proof metadata that was previously missing",
         "currentPrCandidate": true,
         "fallbackProof": "No cache-policy speedup is marked done until comparable CI runs prove it; existing workflow behavior remains fallback."
+      },
+      "deferred": {
+        "reason": "Latest PR run already exposes step timings through GitHub job metadata, and changing setup/cache behavior in this broad green PR would restart every expensive lane without the required three-run before/after proof.",
+        "ownerOrSurface": ".github/actions/setup-monorepo-ci/action.yml and .github/workflows/check.yml",
+        "residualRisk": "Critical PR lanes still spend about 2m17s to 2m42s in `Setup monorepo CI`; every PR continues to pay this until a focused setup/cache PR proves a smaller policy safely.",
+        "nextProofStep": "Open a focused setup/cache throughput PR with three comparable before run ids, one targeted cache/instrumentation change, and three after run ids before marking a direct CI speedup done."
       }
     },
     {
       "id": "rqt-004",
       "rank": 4,
-      "status": "selected",
+      "status": "done",
       "lane": "proof-safety",
       "title": "Maintain proof parity, check-name, and Yeet proof-mode guardrails while optimizing",
       "commandsOrChecks": [
@@ -276,6 +327,30 @@
         "substantialBenefitGate": "unlocks a larger measured speedup by adding timing, cache, or proof metadata that was previously missing",
         "currentPrCandidate": true,
         "fallbackProof": "Manual quality lanes remain canonical and every relaxed wait names a full fallback proof."
+      },
+      "done": {
+        "beforeAfterRows": [
+          "Check names and rulesets",
+          "Local/CI proof parity",
+          "Security/Nix/SAST",
+          "Coverage"
+        ],
+        "proofEvidence": [
+          "`proof-parity-map.md` records local quality, local pre-push, Yeet, PR, push/main, side workflow, and fallback coverage by lane.",
+          "`check-name-baseline.md` records the current PR check names and latest statuses from run `27063362752`.",
+          "`gh pr checks 214 --required` reported no required checks on the branch; `gh api repos/kriegcloud/beep-effect/rulesets` reported the active `main` ruleset without returned rule entries.",
+          "Thread-aware PR comment sweep found zero unresolved actionable review threads before the next push.",
+          "AGENTS/CLAUDE guardrails still keep manual quality lanes canonical until the dedicated Yeet proof PR and Yeet agent skill exist."
+        ],
+        "finalProofCommands": [
+          "gh pr checks 214 --json name,state,bucket,workflow,link,description",
+          "gh pr checks 214 --required",
+          "gh api repos/kriegcloud/beep-effect/rulesets",
+          "python /home/elpresidank/.codex/plugins/cache/openai-curated/github/2cb26e7b/skills/gh-address-comments/scripts/fetch_comments.py --repo . --pr 214 --json"
+        ],
+        "commitOrRunId": "899d5b4b6; PR Check run 27063362752",
+        "confidence": "high",
+        "qualityReviewStatus": "Proof-safety packet records are current, PR checks are green, and no unresolved actionable comments are present."
       }
     },
     {

@@ -1,6 +1,6 @@
 # Quality Review Inventory
 
-Status: `round-2-plus-batch-2-fixed-in-packet`
+Status: `current-review-no-blockers-through-899d5b4b`
 
 This file records quality-review-fix-loop findings against the packet itself.
 Final P6 closure must rerun the panel and update this file to `zero-blocker` or
@@ -14,7 +14,7 @@ record explicit waivers.
 | RQT-EXEC-004 | Execution Completeness | blocking | fixed | Added implementation, CI, check-name, parity, and review closeout artifacts. |
 | RQT-PERF-001 | Performance Benefit | blocking | fixed | Task inventory now includes selected current-PR tasks and Batch 1 evidence. |
 | RQT-PERF-002 | Performance Benefit | blocking | fixed | Schema and SPEC require materiality evidence before `done`. |
-| RQT-PERF-003 | Performance Benefit | blocking | fixed | Matrix includes required closeout rows and forbids closing completed tasks with `TBD` evidence. |
+| RQT-PERF-003 | Performance Benefit | blocking | fixed | Matrix includes required closeout rows and forbids closing completed tasks with placeholder evidence. |
 | RQT-PERF-004 | Performance Benefit | blocking | fixed | Stale predecessor wins are represented as regression guards or rejected/deferred work. |
 | RQT-PERF-005 | Performance Benefit | blocking | fixed | Coverage classification is explicit task work and a P6 acceptance criterion. |
 | RQT-PSR-001 | Proof And Safety | blocking | fixed | Yeet promotion is blocked until dedicated proof PR and Yeet agent skill gates pass. |
@@ -38,6 +38,10 @@ record explicit waivers.
 | RQT-QA-001 | Local Quality Proof | blocking | fixed | `audit:github quality` emitted two PackageVerify JSDoc warnings; added useful `@param`/`@returns`, then targeted ESLint passed. |
 | RQT-QA-002 | Generated Docs Proof | blocking | fixed | Post-warning scoped `beep docgen run -p @beep/repo-cli` passed and produced no tracked doc drift. |
 | RQT-QA-003 | Performance Evidence | non-blocking | fixed-in-packet | Full quality bottlenecks were recorded: docgen example typecheck workers, repo-export check, serial no-op integration probes, and repo-cli test/type-test hotspots. |
+| RQT-QA-004 | PR Review And CI | blocking | fixed | Before the next push, `gh pr checks 214` was green on run `27063362752`, the PR was mergeable, and thread-aware review inspection found no unresolved actionable threads. |
+| RQT-QA-005 | Original Lint Regression | blocking | fixed | Five warm clean-tree `bun run lint:fix` samples completed in 43-44 ms and stayed out of Turbo; changed-file lint fixing is unit-covered as `biome check --write`. |
+| RQT-QA-006 | Selected Task Closure | blocking | fixed | `rqt-001`, `rqt-002`, and `rqt-004` now have `done` records with before/after rows; `rqt-003` is deferred to a focused comparable-run setup/cache PR. |
+| RQT-QA-007 | Native Runtime Policy | blocking | fixed | Replaced the `Array.from(new Set(...))` fast-path dedupe in `bin-main.ts`; `bun run beep laws native-runtime --check` no longer reports a `bin-main.ts` warning. |
 
 ## Final P6 Gate
 

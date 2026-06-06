@@ -1,6 +1,6 @@
 # Proof Parity Map
 
-Status: `template`
+Status: `current-through-899d5b4b`
 
 This map prevents speedups from weakening proof by making local, Yeet, PR, push,
 and side-workflow coverage explicit.
@@ -18,7 +18,21 @@ and side-workflow coverage explicit.
 | Security | no | `audit:github pre-push` | no | full proof path | Security | Check | Release if configured | `bun run audit:github security` |
 | SAST | no | `audit:github pre-push` | no | full proof path | SAST | Check | Release if configured | `bun run audit:github sast` |
 | Nix | no | `audit:github pre-push` | no | full proof path | Nix Shell | Check | Release if configured | `bun run audit:github nix` |
-| Coverage | not canonical today | not canonical today | no | no | absent today | absent today | scheduled/full-only decision pending | `bun run coverage` when classified |
+| Coverage | not canonical today | not canonical today | no | no | absent today | absent today | scheduled/full-only report-only lane | `bun run coverage` for explicit full/scheduled proof |
 
 Any lane moved out of the common path must name a fallback proof in this table
 and a task inventory record with residual risk.
+
+## Current Evidence
+
+- Local `bun run audit:github quality` passed after the Yeet and lint fast-path
+  work; targeted ESLint and scoped repo-cli docgen passed after the follow-up
+  JSDoc repair.
+- PR Check run `27063362752` is green on commit
+  `899d5b4b6bda25169579887509fbb76234c222fa`; `Build` remains present and
+  intentionally skipped by workflow policy.
+- `gh pr checks 214 --required` reported no required checks on
+  `ontology_builder_refinement`, so preservation is tracked by live check-name
+  evidence rather than a branch-ruleset requirement.
+- Thread-aware PR review inspection found zero unresolved actionable threads
+  before the next push.

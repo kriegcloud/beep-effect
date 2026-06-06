@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `ready-to-execute`
+Status: `current-pr-proof-green-packet-open`
 
 ## Operating Posture
 
@@ -17,11 +17,11 @@ slow local commands.
 | --- | --- | --- | --- |
 | P0 Bootstrap | complete | Create the executable packet and supersede the old research packet. | Packet files validate and old packet points here. |
 | P1 Research Batch 1 | complete | Establish command map, timing baseline, DAG/cache shape, duplicate work, docgen cost, and config inventory. | Six reports exist under `research/`, synthesis is updated, and Batch 2 is not launched from stale tasks. |
-| P2 Research Batch 2 | pending | Inspect implementation hotspots across repo-cli, lint, check/test, security, metadata, and CI side lanes. | Six reports exist, synthesis is updated, and concrete candidate/selected tasks are recorded. |
-| P3 Research Batch 3 | pending | Compare external prior art, scoped config designs, docgen selectivity, Yeet UX, and synthesize tasks. | Six reports plus synthesis update `tasks/tasks.jsonc`; no task remains only a seeded hypothesis. |
-| P4 Implement Current-PR Wins | pending | Implement ranked tasks until diminishing returns or separate design gates. | Each completed task has code/config changes, proof commands, and rollback notes. |
-| P5 Prove End-to-End Green | pending | Run the fast local path, full proof, push/PR monitor, and benchmark comparison. | Before/after matrix, proof parity, check-name baseline, and green proof are recorded under `history/`. |
-| P6 Close | pending | Run final quality-review-fix-loop, update packet status, and prepare PR notes. | Zero blocking reviewer findings or explicit waivers; remaining backlog is explicit and the PR is mergeable. |
+| P2 Research Batch 2 | complete | Inspect implementation hotspots across repo-cli, lint, check/test, security, metadata, and CI side lanes. | Reports exist under `research/`, synthesis is updated, and concrete candidate/selected tasks are recorded. |
+| P3 Research Batch 3 | deferred | Compare external prior art, scoped config designs, docgen selectivity, Yeet UX, and synthesize tasks. | No seeded hypotheses remain; external/tooling and scoped-config items are candidates or deferred follow-ups instead of current-PR blockers. |
+| P4 Implement Current-PR Wins | complete | Implement ranked tasks until diminishing returns or separate design gates. | `rqt-001`, `rqt-002`, and `rqt-004` are done; `rqt-003` and `rqt-007` are deferred to focused proof gates. |
+| P5 Prove End-to-End Green | in-progress | Run the fast local path, full proof, push/PR monitor, and benchmark comparison. | Before/after matrix, proof parity, check-name baseline, and green PR proof are recorded under `history/`; next push requires another live PR check sweep afterward. |
+| P6 Close | in-progress | Run final quality-review-fix-loop, update packet status, and prepare PR notes. | Current review has no blocking findings; remaining backlog is explicit and the PR is mergeable before the next docs/evidence push. |
 
 ## Research Batch Commands
 
@@ -106,27 +106,28 @@ Selection bar:
 
 ## Before/After Matrix
 
-Record at least these rows in `history/outputs/before-after-matrix.md`:
+Record at least these rows in `history/outputs/before-after-matrix.md`; the
+current measured values live in that artifact, not in this plan template:
 
-| Lane | Baseline command/evidence | After command/evidence | Delta | Notes |
-| --- | --- | --- | --- | --- |
-| `lint:fix` clean tree | TBD | TBD | TBD | Must be fast. |
-| `lint:fix` small changed-file set | TBD | TBD | TBD | Must use the real repo-cli path. |
-| Yeet repair | TBD | TBD | TBD | Fast local repair path. |
-| Yeet verify/publish local portion | TBD | TBD | TBD | Avoid duplicate full waits. |
-| Repo sanity | TBD | TBD | TBD | Split substep cost and duplicate proof work. |
-| Build | TBD | TBD | TBD | Include cache/env/setup behavior. |
-| Docgen local | TBD | TBD | TBD | Include package/example cost. |
-| Integration tests | TBD | TBD | TBD | Separate setup/resource cost from test cost. |
-| Coverage | TBD | TBD | TBD | Decide if green-lane, full-only, or out-of-scope. |
-| Security/Nix/SAST | TBD | TBD | TBD | Preserve PR/push/pre-push parity. |
-| Lefthook | TBD | TBD | TBD | Fast guard cost and CI overlap. |
-| PR GitHub Actions wall clock | TBD | TBD | TBD | Preserve check names. |
-| Release/data-sync side workflows | TBD | TBD | TBD | Ensure setup/cache changes do not regress them. |
-| Slowest CI lane | TBD | TBD | TBD | Record setup vs verification cost. |
-| Canonical full proof | TBD | TBD | TBD | Must still pass. |
-| Check names and rulesets | TBD | TBD | TBD | Prove workflow edits did not drop checks. |
-| Local/CI proof parity | TBD | TBD | TBD | Map quality, pre-push, PR, push, and side workflows. |
+| Lane | Measurement requirement |
+| --- | --- |
+| `lint:fix` clean tree | Must be fast. |
+| `lint:fix` small changed-file set | Must use the real repo-cli path. |
+| Yeet repair | Fast local repair path. |
+| Yeet verify/publish local portion | Avoid duplicate full waits. |
+| Repo sanity | Split substep cost and duplicate proof work. |
+| Build | Include cache/env/setup behavior. |
+| Docgen local | Include package/example cost. |
+| Integration tests | Separate setup/resource cost from test cost. |
+| Coverage | Decide if green-lane, full-only, or out-of-scope. |
+| Security/Nix/SAST | Preserve PR/push/pre-push parity. |
+| Lefthook | Fast guard cost and CI overlap. |
+| PR GitHub Actions wall clock | Preserve check names. |
+| Release/data-sync side workflows | Ensure setup/cache changes do not regress them. |
+| Slowest CI lane | Record setup vs verification cost. |
+| Canonical full proof | Must still pass. |
+| Check names and rulesets | Prove workflow edits did not drop checks. |
+| Local/CI proof parity | Map quality, pre-push, PR, push, and side workflows. |
 
 Every row should include command shape, run count, cache state, commit/branch,
 and resource notes. Use comparable before/after commands; if the command shape
@@ -171,4 +172,7 @@ rg -n "Coverage.*(green-lane|full-only|scheduled|out-of-scope|deferred)" \
 
 ## Current Blockers
 
-None for packet execution. Research and implementation remain pending.
+None for current-PR execution. Remaining high-value performance work is
+deferred to focused proof gates: setup/cache comparable-run tuning, repo-export
+catalog sharding, docgen fingerprint reuse, scoped Turbo/config blast-radius
+reduction, and integration/type-test participation filtering.

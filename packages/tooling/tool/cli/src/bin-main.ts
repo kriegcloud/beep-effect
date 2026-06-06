@@ -36,7 +36,17 @@ const nonEmptyLines = (text: string): ReadonlyArray<string> =>
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
 
-const unique = (values: ReadonlyArray<string>): ReadonlyArray<string> => Array.from(new Set(values));
+const unique = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
+  const result: Array<string> = [];
+
+  for (const value of values) {
+    if (!result.includes(value)) {
+      result.push(value);
+    }
+  }
+
+  return result;
+};
 
 const spawnTextOption = (args: ReadonlyArray<string>): string | undefined => {
   const result = Bun.spawnSync({
