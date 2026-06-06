@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `implementation-active`
+Status: `complete`
 
 ## Operating Posture
 
@@ -24,11 +24,13 @@ use GitHub Actions for repeated full-lane proof.
 | P4 Docgen Reuse | complete | Add proof manifests, shadow parity, and gated package-level reuse. | Local proof reuse skips current packages with full fallback preserved. |
 | P5 Scoped Config | complete | Add a dry-run harness and safe task-input/package-overlay changes. | Affected dry-runs prove reduced blast radius without stale caches. |
 | P6 CI / Yeet / Prototypes | complete | Add CI timing/order wins, guarded Yeet monitor, and bounded prototypes. | PR checks preserve names, pass, and show measured or instrumented wins. |
-| P7 Close | in-progress | Run quality-review-fix-loop, push, monitor PR, and address comments. | PR is mergeable with selected tasks done or blocker-waived. |
+| P7 Close | complete | Run quality-review-fix-loop, push, monitor PR, and address comments. | PR #215 source-change proof is mergeable with selected tasks done or blocker-waived; packet-only evidence commits use live PR checks as final authority. |
 
 ## Active Task Order
 
-No selected implementation task remains. Continue with P7 closeout.
+No selected implementation task remains. P7 source-change closeout is complete
+on PR #215, and packet-only evidence commits use live PR checks as final
+authority.
 
 Do not spend implementation time on `rqt-001`, `rqt-002`, `rqt-004`, or the
 now-complete `rqt-003`, `rqt-005`, `rqt-006`, `rqt-007`, `rqt-008`, and

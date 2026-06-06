@@ -108,9 +108,9 @@
           "bun run repo-exports:catalog:full:check",
           "bun run beep reuse lookup --query UnknownRecord --limit 2 --strict"
         ],
-        "commitOrRunId": "working tree proof pending commit",
+        "commitOrRunId": "PR #215 head 380a2dc796; Check run 27073900626",
         "confidence": "high",
-        "qualityReviewStatus": "Focused checks, lint, generator tests, shard-backed check, full-scan fallback, and strict lookup are green; full `audit:github quality` remains a final closeout gate after the remaining selected tasks."
+        "qualityReviewStatus": "Focused checks, lint, generator tests, shard-backed check, full-scan fallback, strict lookup, local full quality proof, and hosted PR Check run 27073900626 are green."
       },
       "notes": "Do not leave this at additive ignored shards only. The target is tracked shards plus a small root index after consumers are migrated."
     },
@@ -209,9 +209,9 @@
           "bun run --cwd packages/_internal/db-admin test:integration",
           "bun run test -- --types --dry-run=json"
         ],
-        "commitOrRunId": "working tree proof pending commit",
+        "commitOrRunId": "PR #215 head 380a2dc796; Check run 27073900626",
         "confidence": "high",
-        "qualityReviewStatus": "Focused CLI checks, root type dry-run, filtered direct integration dry-run, explicit-filter guard, and package unit/type/integration entrypoints are green; full `bun run test` and `audit:github quality` remain final closeout gates after the remaining selected tasks."
+        "qualityReviewStatus": "Focused CLI checks, root type dry-run, filtered direct integration dry-run, explicit-filter guard, package unit/type/integration entrypoints, local full quality proof, and hosted PR Check run 27073900626 are green."
       }
     },
     {
@@ -304,9 +304,9 @@
           "bun run beep docgen generate -p @beep/repo-cli --json",
           "bun run docgen:local -- -p @beep/repo-docgen --parallel=3"
         ],
-        "commitOrRunId": "working tree proof pending commit",
+        "commitOrRunId": "PR #215 head 380a2dc796; Check run 27073900626",
         "confidence": "high",
-        "qualityReviewStatus": "Focused docgen/CLI checks, lint, docgen tests, full-plan JSON, package manifest verification, and 24-package manifest reuse proof are green; full `bun run docgen` and `audit:github quality` remain final closeout gates after the remaining selected tasks."
+        "qualityReviewStatus": "Focused docgen/CLI checks, lint, docgen tests, full-plan JSON, package manifest verification, 24-package manifest reuse proof, local full quality proof, and hosted PR Check run 27073900626 are green."
       },
       "notes": "Do not use `DocgenQualitySubject.contentHash` alone as the package generation proof key."
     },
@@ -394,9 +394,9 @@
           "isolated clone: bun <current repo-cli src/bin.ts> quality turbo-config-proof --base main --head HEAD --selector affected --json lint check test type-test docgen for synthetic biome/tstyche/vitest changes",
           "./node_modules/.bin/turbo run lint --filter=@beep/repo-cli --dry-run=json --ui=stream"
         ],
-        "commitOrRunId": "local-rqt006-synthetic-proof-precommit",
+        "commitOrRunId": "PR #215 head 380a2dc796; Check run 27073900626",
         "confidence": "high",
-        "qualityReviewStatus": "Focused repo-cli check/lint/tests and Turbo config smoke passed; full `audit:github quality` remains final closeout proof after remaining selected tasks."
+        "qualityReviewStatus": "Focused repo-cli check/lint/tests, Turbo config smoke, local full quality proof, and hosted PR Check run 27073900626 are green."
       }
     },
     {
@@ -488,9 +488,9 @@
           "post-push: gh run view <after-run-id> --json jobs",
           "post-push: gh pr checks --watch"
         ],
-        "commitOrRunId": "local-rqt003-workflow-proof-precommit",
+        "commitOrRunId": "PR #215 head 380a2dc796; Check run 27073900626",
         "confidence": "medium",
-        "qualityReviewStatus": "Local workflow/source proof and repo-cli Nix fallback passed; hosted-runner setup timing and PR check proof remain final closeout evidence after push."
+        "qualityReviewStatus": "Local workflow/source proof, repo-cli Nix fallback, hosted setup timing, and PR Check run 27073900626 are green."
       }
     },
     {
@@ -584,9 +584,9 @@
           "bun run beep yeet publish --message \"chore(repo): proof\" --fast --plan --json",
           "post-push: gh pr checks --watch"
         ],
-        "commitOrRunId": "local-rqt009-yeet-monitor-proof-precommit",
+        "commitOrRunId": "PR #215 head 380a2dc796; Check run 27073900626",
         "confidence": "medium",
-        "qualityReviewStatus": "Focused repo-cli check/lint/tests and plan/guard proofs passed; live PR monitor proof remains final closeout evidence after push."
+        "qualityReviewStatus": "Focused repo-cli check/lint/tests, Yeet plan/guard proofs, resolved review closeout, and hosted PR Check run 27073900626 are green."
       }
     },
     {
@@ -672,9 +672,9 @@
           "bun -e 'import { readFileSync } from \"node:fs\"; import { parse, printParseErrorCode } from \"jsonc-parser\"; const errors = []; parse(readFileSync(\"goals/repo-quality-throughput/tasks/tasks.jsonc\", \"utf8\"), errors, { allowTrailingComma: true }); if (errors.length) { for (const error of errors) console.error(`${printParseErrorCode(error.error)} at ${error.offset}`); process.exit(1); } console.log(\"tasks.jsonc: ok\");'",
           "git diff --check -- goals/repo-quality-throughput"
         ],
-        "commitOrRunId": "local-rqt010-prototype-gates-precommit",
+        "commitOrRunId": "PR #215 head 380a2dc796; Check run 27073900626",
         "confidence": "medium",
-        "qualityReviewStatus": "Current-pr external tooling closure is evidence/waiver only; no broad prototype or external dependency was introduced."
+        "qualityReviewStatus": "Current-pr external tooling closure is evidence/waiver only; no broad prototype or external dependency was introduced. Hosted PR Check run 27073900626 is green."
       },
       "waiverRecord": {
         "sourceStandard": "goals/repo-quality-throughput/GOAL.md selected-task waiver rule and batch-03 tooling synthesis",

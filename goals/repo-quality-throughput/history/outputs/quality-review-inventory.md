@@ -1,6 +1,6 @@
 # Quality Review Inventory
 
-Status: `zero-blocker-through-a7be8dc1`
+Status: `source-proof-zero-blocker-through-380a2dc796`
 
 This file records quality-review-fix-loop findings against the packet itself.
 Final P6 closure must rerun the panel and update this file to `zero-blocker` or
@@ -38,18 +38,17 @@ record explicit waivers.
 | RQT-QA-001 | Local Quality Proof | blocking | fixed | `audit:github quality` emitted two PackageVerify JSDoc warnings; added useful `@param`/`@returns`, then targeted ESLint passed. |
 | RQT-QA-002 | Generated Docs Proof | blocking | fixed | Post-warning scoped `beep docgen run -p @beep/repo-cli` passed and produced no tracked doc drift. |
 | RQT-QA-003 | Performance Evidence | non-blocking | fixed-in-packet | Full quality bottlenecks were recorded: docgen example typecheck workers, repo-export check, serial no-op integration probes, and repo-cli test/type-test hotspots. |
-| RQT-QA-004 | PR Review And CI | blocking | fixed | Before the packet-only follow-up push, `gh pr checks 214` was green on run `27064446802`, the PR was mergeable, and thread-aware review inspection found no unresolved actionable threads. |
+| RQT-QA-004 | PR Review And CI | blocking | fixed | After the shard-check follow-up push, `gh pr checks 215` was green on run `27073900626`, the PR was mergeable, and thread-aware review inspection found no unresolved actionable threads. |
 | RQT-QA-005 | Original Lint Regression | blocking | fixed | Five warm clean-tree `bun run lint:fix` samples completed in 43-44 ms and stayed out of Turbo; changed-file lint fixing is unit-covered as `biome check --write`. |
-| RQT-QA-006 | Selected Task Closure | blocking | fixed | `rqt-001`, `rqt-002`, and `rqt-004` now have `done` records with before/after rows; `rqt-003` is deferred to a focused comparable-run setup/cache PR. |
+| RQT-QA-006 | Selected Task Closure | blocking | fixed | `rqt-001` through `rqt-010` now have `done` or waiver-backed done records with before/after rows; `activeTaskOrder` is empty. |
 | RQT-QA-007 | Native Runtime Policy | blocking | fixed | Replaced the `Array.from(new Set(...))` fast-path dedupe in `bin-main.ts`; `bun run beep laws native-runtime --check` no longer reports a `bin-main.ts` warning. |
 | RQT-B3-001 | Batch 3 Completion | blocking | fixed | Persisted five Batch 3 research reports plus `research/batch-03-synthesis.md`; `ops/manifest.json` now marks Batch 3/P3 complete. |
-| RQT-B3-002 | Candidate Closure | blocking | fixed | Converted `rqt-005`, `rqt-006`, `rqt-008`, `rqt-009`, and `rqt-010` from `candidate` to `deferred` with owner/surface, residual risk, next proof step, and follow-up trigger records. |
-| RQT-B3-003 | Stale Proof Evidence | blocking | fixed | Refreshed proof artifacts from old latest references to PR head `a7be8dc1e1119d095be0239b39cd812e5650ebec` and Check run `27064446802`; older runs remain only as explicit historical baselines. |
-| RQT-B3-004 | Final Packet Verification | blocking | fixed | Packet JSON/schema checks, `git diff --check`, `bun run lint:fix`, Yeet plan probes, PR comment sweep, and PR checks passed before committing and pushing this packet-only closeout; evidence is summarized in `final-acceptance-audit.md`. |
+| RQT-B3-002 | Candidate Closure | blocking | fixed | Converted selected candidates into completed implementation records; `rqt-010` retains waiver evidence for broad external-tool replacement. |
+| RQT-B3-003 | Stale Proof Evidence | blocking | fixed | Refreshed source-change proof artifacts to PR head `380a2dc79627cddbbcffe94bdfff6358b1672680` and Check run `27073900626`; older runs remain only as explicit historical baselines. |
+| RQT-B3-004 | Final Packet Verification | blocking | fixed | Packet JSON/schema checks, `git diff --check`, `bun run lint:fix`, Yeet plan probes, PR comment sweep, and PR checks passed before this packet-only closeout evidence commit; evidence is summarized in `final-acceptance-audit.md`. |
 
 ## Final P6 Gate
 
-The packet may be closed after the packet-only follow-up commit is pushed and
-PR #214 remains mergeable with all known checks green or intentionally skipped.
-Remaining performance work is deferred with explicit owner, risk, and next
-proof records; no blocker remains as a bare candidate.
+The packet is closed when PR #215 remains mergeable with all known checks green
+or intentionally skipped after the packet-only evidence commit. No selected
+implementation task remains active, and no blocker remains as a bare candidate.

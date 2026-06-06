@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `implementation-active`
+Lifecycle: `complete`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -42,8 +42,10 @@ contract. `tasks/tasks.jsonc` is the active work queue.
 
 ## Active Work
 
-No selected implementation tasks remain. Continue with final proof, publish,
-PR monitoring, and review closeout.
+No selected implementation tasks remain. Source-change proof, publish, PR
+monitoring, and review closeout are complete on PR #215; any later packet-only
+evidence commit is verified by live PR checks instead of re-recording another
+proof row.
 
 Completed guardrails and implementation tasks:
 

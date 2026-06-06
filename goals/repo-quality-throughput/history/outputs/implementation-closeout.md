@@ -1,8 +1,11 @@
 # Implementation Closeout
 
-Status: `current-pr-proof-green`
+Status: `complete-through-pr-215`
 
-Fill this during P4-P6.
+Source-change closeout is PR #215 at head
+`380a2dc79627cddbbcffe94bdfff6358b1672680`; GitHub Check run `27073900626`
+is green and the PR is mergeable. Later packet-only evidence commits are
+verified by live PR checks instead of adding another proof row here.
 
 ## Completed Current-PR Tasks
 
@@ -12,17 +15,17 @@ Fill this during P4-P6.
 | rqt-002 | `1553e021bb`, `ea8759bb84`; PR run `27064446802` | `packages/tooling/tool/cli/src/bin.ts`, `packages/tooling/tool/cli/src/bin-main.ts`, `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts`, `packages/tooling/tool/cli/test/quality-tasks.test.ts` | Five warm clean-tree `bun run lint:fix` samples exited in 43-44 ms and avoided Turbo; changed-file fast path is unit-covered as `biome check --write`; final cleanup removed the native-runtime warning from `bin-main.ts`. | `git revert 1553e021bb ea8759bb84` if the integrated fast path regresses | No direct speedup beyond the restored fast path; this is the original regression guard. |
 | rqt-004 | `a7be8dc1e1`; PR run `27064446802` | `goals/repo-quality-throughput/history/outputs/proof-parity-map.md`, `goals/repo-quality-throughput/history/outputs/check-name-baseline.md`, `goals/repo-quality-throughput/history/outputs/ci-proof.md`, `goals/repo-quality-throughput/tasks/tasks.jsonc` | Check-name and proof-parity artifacts now reflect live PR evidence; no unresolved actionable review threads; latest recorded PR checks are green and mergeable. | Revert only the packet evidence commit if it is superseded by stricter proof records | Ruleset API reports no required checks for this branch, so check preservation is evidence-based rather than enforcement-based. |
 
-## Deferred Or Rejected Tasks
+## Current Selected Task Closure
 
-| Task | Status | Reason | Owner or surface | Next proof step |
-| --- | --- | --- | --- | --- |
-| rqt-003 | deferred | Setup/cache changes need three comparable before and after CI runs. Latest PR job metadata already provides enough step timing to show the opportunity, and changing shared setup in this broad green PR would restart all expensive lanes without a focused proof. | `.github/actions/setup-monorepo-ci/action.yml`, `.github/workflows/check.yml` | Open a focused setup/cache PR with three before run ids, one targeted change, and three after run ids. |
-| rqt-005 | deferred | Package-level docgen fingerprint reuse is promising, but Batch 3 keeps it shadow-only until full docgen fallback proves soundness. | docgen package and repo-cli docgen command | Open a docgen fingerprint-shadow PR with package fingerprints, full fallback comparison, and no symbol/example selectivity in the authoritative lane. |
-| rqt-006 | deferred | Scoped config work can reduce blast radius, but blanket package-local config splits are too risky without task-input proof. | Turbo/Biome/config-sync surfaces | Build a dry-run harness that compares affected task counts before and after task-specific input classification. |
-| rqt-007 | deferred | Package-local shards are the right direction, but the correct implementation needs a dedicated shard-v2 migration across repo-cli, repo-codegraph, Turbo, hooks, package scripts, and generated artifacts. Hash-only shard reuse would weaken the authoritative proof. | repo-export catalog / repo-sanity | Open a follow-up shard-v2 PR using `goals/repo-quality-throughput/research/repo-exports-sharding-design.md` as the starting contract. |
-| rqt-008 | deferred | Coverage is full-only/scheduled; integration/type-test participation fixes need separate proof. | Quality test orchestration | Compare filtered dry-runs and run controlled unit/type-test/integration proof. |
-| rqt-009 | deferred | Security/hooks/side-workflow waits are not exact duplicates; Batch 3 keeps monitor UX opt-in until known check baselines and full fallback are implemented. | Yeet, hooks, security, Nix, SAST, release/data-sync/Storybook/Vercel workflows | Prototype PR-branch-only `yeet publish --fast --monitor` or `yeet monitor` with `audit:github pre-push` fallback. |
-| rqt-010 | deferred | Effect v4 and external tooling exploration found useful prototypes but rejected broad tool swaps in this PR. | OXC metadata scan, tsgo timing, Bun cache A/B, bundle/report fixtures | Run bounded prototype PRs with speed measurements and full proof fallback before adoption. |
+| Task | Status | Closeout evidence |
+| --- | --- | --- |
+| rqt-007 | done | Tracked package-local shards, compact root index, shard-aware lookup, full-scan fallback, and final shard-check fix are included in PR #215. |
+| rqt-008 | done | Type-test and integration lanes filter to real script owners while preserving explicit caller scopes; hosted Test Unit and Test Integration passed on run `27073900626`. |
+| rqt-005 | done | Docgen proof manifests and `docgen:local` package proof reuse are implemented; hosted Docgen passed on run `27073900626`. |
+| rqt-006 | done | Turbo task-input affected proof harness and safe input changes are implemented; hosted Check/Lint/Test/Docgen lanes passed on run `27073900626`. |
+| rqt-003 | done | CI setup timing/cache metadata, PR Nix direct proof path, and release no-op setup gating are implemented; hosted Nix Shell and full Check workflow passed on run `27073900626`. |
+| rqt-009 | done | Yeet monitor and guarded `publish --fast --monitor` plan are opt-in, PR-branch-only, and documented with full local fallback. |
+| rqt-010 | done with waiver | Bounded prototype gate/waiver evidence is recorded in `external-tooling-prototype-gates.md`; no broad external-tool replacement was adopted. |
 
 ## Final Commands
 
@@ -42,9 +45,9 @@ Fill this during P4-P6.
 | `bun run repo-exports:catalog` | pass | Wrote root catalog JSONC/Markdown; 92 packages, 1078 import specifiers, 15094 public export entries. | Generated gate refresh took roughly 90s. |
 | `bun run repo-exports:catalog:check` | pass | `[repo-exports-catalog] generated artifacts are current`; same package/export counts. | Check took roughly 117s, reinforcing rqt-007. |
 | Live repo-export catalog check after shard review | pass | `[repo-exports-catalog] generated artifacts are current`; `packages=92 importSpecifiers=1078 publicExportEntries=15094`. | Still sequential and slow; process snapshot showed one hot repo-cli Bun process rather than a runaway parallel workload. |
-| `bun run audit:github pre-push` | waived-for-packet-only-follow-up | Full local `audit:github quality` passed for the code changes, the final follow-up is packet evidence only, and live PR Check run `27064446802` is green before this commit. | Rerun PR checks after pushing this packet-only follow-up; run full local pre-push again before any further source/config change. |
-| `gh pr checks 214` | pass | Run `27064446802` is green on commit `a7be8dc1e1`: Check, Lint, Test Unit, Test Integration, Repo Sanity, Docgen, Nix Shell, SAST, Secret Scanning, Security, PR Size Label, Vercel, and CodeRabbit passed; Build is skipped by workflow policy. | Checked before preparing this packet-only follow-up commit to avoid pushing on top of failing CI. |
-| Thread-aware PR comment sweep | pass | `fetch_comments.py` found one Codex inline thread on deleted `scripts/lint-fix-fast.ts`; it is resolved and outdated. No unresolved actionable review threads remain before the next push. | CodeRabbit comment is non-actionable because review was skipped due PR size. |
+| `bun run audit:github pre-push` | waived-for-final-evidence-commit | Full local `audit:github quality` passed for the code/config changes, focused proof covered the final shard-check script fix, and hosted PR Check run `27073900626` is green. | Run full local pre-push again before any further source/config change. |
+| `gh pr checks 215` | pass | Run `27073900626` is green on commit `380a2dc796`: Check, Lint, Test Unit, Test Integration, Repo Sanity, Docgen, Nix Shell, SAST, Secret Scanning, Security, PR Size Label, Vercel, and CodeRabbit passed; Build is skipped by workflow policy. | Checked after the shard-check review fix push. |
+| Thread-aware PR comment sweep | pass | GraphQL review-thread sweep found the Codex package.json shard-check thread resolved and outdated. No unresolved actionable review threads remain. | CodeRabbit comment is non-actionable because review was skipped due PR size. |
 
 ## Closeout Notes
 
