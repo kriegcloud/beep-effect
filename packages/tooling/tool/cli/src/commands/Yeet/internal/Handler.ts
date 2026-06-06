@@ -134,6 +134,13 @@ class TurboQueryLsDocument extends S.Class<TurboQueryLsDocument>($I`TurboQueryLs
 const decodeTurboQueryAffectedDocument = S.decodeUnknownEffect(S.fromJsonString(TurboQueryAffectedDocument));
 const decodeTurboQueryLsDocument = S.decodeUnknownEffect(S.fromJsonString(TurboQueryLsDocument));
 
+const shouldCollectAffectedFeedbackTasks = (mode: YeetRunMode): boolean =>
+  YeetRunMode.$match(mode, {
+    publish: () => false,
+    repair: () => true,
+    verify: () => false,
+  });
+
 /**
  * Runtime options accepted by the yeet handler.
  *
@@ -634,6 +641,30 @@ const turboPlanTasksFromQueryDocuments = (
   return pipe(affectedDocument.data.affectedTasks.items, A.map(turboPlanTaskFromAffectedTask(pathsByName)));
 };
 
+const collectAffectedFeedbackTasks = Effect.fn("Yeet.collectAffectedFeedbackTasks")(function* (
+  repoRoot: string,
+  options: YeetRunOptions,
+  packageDocument: TurboQueryLsDocument
+): Effect.fn.Return<
+  ReadonlyArray<TurboPlanTask>,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  if (!shouldCollectAffectedFeedbackTasks(options.mode)) {
+    return [];
+  }
+
+  const affectedJson = yield* runTurboQueryJson(
+    repoRoot,
+    ["query", "affected", "--tasks", ...YEET_FEEDBACK_TASKS, "--base", options.base, "--head", options.head],
+    "turbo query affected"
+  );
+  const affectedDocument = yield* decodeTurboQueryAffectedDocument(affectedJson).pipe(
+    Effect.mapError(YeetCommandError.new("Failed to decode Turbo affected query JSON."))
+  );
+  return turboPlanTasksFromQueryDocuments(affectedDocument, packageDocument);
+});
+
 const decodeTurboPlanTasksFromQueryJson = Effect.fn("Yeet.decodeTurboPlanTasksFromQueryJson")(function* (
   affectedJson: string,
   packageJson: string
@@ -664,19 +695,11 @@ const collectTurboPlanSnapshot = Effect.fn("Yeet.collectTurboPlanSnapshot")(func
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   const turboVersion = yield* collectTurboVersion(repoRoot);
-  const affectedJson = yield* runTurboQueryJson(
-    repoRoot,
-    ["query", "affected", "--tasks", ...YEET_FEEDBACK_TASKS, "--base", options.base, "--head", options.head],
-    "turbo query affected"
-  );
   const packageJson = yield* runTurboQueryJson(repoRoot, ["query", "ls", "--output", "json"], "turbo query ls");
-  const affectedDocument = yield* decodeTurboQueryAffectedDocument(affectedJson).pipe(
-    Effect.mapError(YeetCommandError.new("Failed to decode Turbo affected query JSON."))
-  );
   const packageDocument = yield* decodeTurboQueryLsDocument(packageJson).pipe(
     Effect.mapError(YeetCommandError.new("Failed to decode Turbo package query JSON."))
   );
-  const tasks = turboPlanTasksFromQueryDocuments(affectedDocument, packageDocument);
+  const tasks = yield* collectAffectedFeedbackTasks(repoRoot, options, packageDocument);
   const packages = turboWorkspacePackagesFromQueryDocument(packageDocument);
 
   return TurboPlanSnapshot.make({

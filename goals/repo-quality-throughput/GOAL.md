@@ -35,9 +35,9 @@ Scope:
 Workflow:
 
 1. Inspect current repo state and seed findings.
-2. Run three bounded research batches from `ops/prompts/`; agents are read-only
-   unless assigned a later disjoint implementation task.
-3. Write reports under `research/` and synthesize ranked tasks into
+2. Run three bounded research batches from `ops/prompts/`; agents return
+   reports and stay read-only unless assigned later disjoint implementation.
+3. Persist reports under `research/` and synthesize ranked tasks into
    `tasks/tasks.jsonc`.
 4. Implement the highest-impact current-PR tasks until remaining work is low
    impact, high risk, or needs a separate proof gate.
@@ -50,8 +50,9 @@ Rules:
 - Optimize End-to-End Green, not one isolated command.
 - Select tasks only when they can produce substantial measured benefit, remove
   duplicated work, prevent resource regression, or unlock larger measured wins.
-- Use Yeet as the fast-plus-monitor developer path once proven; keep an
-  explicit full local proof.
+- Use Yeet as a proved fast-plus-monitor path, but keep manual quality lanes
+  canonical until the dedicated Yeet proof PR is green and the Yeet agent skill
+  exists.
 - Preserve GitHub check names and the authoritative full proof.
 - Eliminate duplicate expensive waits across Yeet, hooks, push, PR checks, and
   CI only when a named fallback proof remains.

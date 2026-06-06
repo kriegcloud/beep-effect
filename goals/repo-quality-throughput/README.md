@@ -45,16 +45,17 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-Phase `P1` is ready to launch; `P0` bootstrap is complete. Next action: run the
-three bounded research batches, store reports under `research/`, then synthesize
-ranked tasks in
-[`tasks/tasks.jsonc`](./tasks/tasks.jsonc).
+Phase `P1` Batch 1 evidence has been persisted and synthesized. Next action:
+run Batch 2 from
+[`ops/prompts/batch-02-hotspots.md`](./ops/prompts/batch-02-hotspots.md), then
+perform the Batch 2 closeout before launching Batch 3.
 
 ## Latest Evidence
 
-Packet bootstrap only. Initial seed evidence is inherited from
-[`goals/repo-quality-acceleration/history/outputs/phase0-synthesis.md`](../repo-quality-acceleration/history/outputs/phase0-synthesis.md)
-and the prior `lint:fix` regression repair memory.
+Batch 1 reports now live under [`research/`](./research), and
+[`history/outputs/research-synthesis.md`](./history/outputs/research-synthesis.md)
+selects the first current-PR candidates. Clean-tree `lint:fix` currently proves
+the repo-cli no-op path in `real 0.04`.
 
 ## Notes
 

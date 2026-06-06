@@ -201,7 +201,7 @@ const feedbackFilterArgs = (context: RepoRunContext, feedbackTask: YeetFeedbackT
   );
 
 const feedbackRunArgs = (feedbackTask: YeetFeedbackTask, filters: ReadonlyArray<string>): ReadonlyArray<string> =>
-  // Feedback tests stay on unit/type lanes; repair is generator-only, and verify/publish run integration in full proof.
+  // Repair feedback stays on unit/type lanes; verify/publish use only the full pre-push proof.
   feedbackTask === "test"
     ? ["--unit", "--types", ...filters, ...sharedFeedbackTurboArgs]
     : [...filters, ...sharedFeedbackTurboArgs];
@@ -263,8 +263,8 @@ const stepsForMode = (
 ): ReadonlyArray<RepoPlanStep> =>
   YeetRunMode.$match(mode, {
     repair: () => [...repairSteps(context), ...feedbackSteps(context)],
-    verify: () => [...feedbackSteps(context), proofStep(context)],
-    publish: () => [...feedbackSteps(context), commitStep(context, message), proofStep(context), pushStep(context)],
+    verify: () => [proofStep(context)],
+    publish: () => [commitStep(context, message), proofStep(context), pushStep(context)],
   });
 
 /**

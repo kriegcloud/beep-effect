@@ -16,12 +16,12 @@ slow local commands.
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
 | P0 Bootstrap | complete | Create the executable packet and supersede the old research packet. | Packet files validate and old packet points here. |
-| P1 Research Batch 1 | pending | Establish command map, timing baseline, DAG/cache shape, duplicate work, docgen cost, and config inventory. | Six reports exist under `research/` with evidence and no source edits. |
-| P2 Research Batch 2 | pending | Inspect implementation hotspots across repo-cli, lint, check/test, security, metadata, and CI side lanes. | Six reports exist and identify concrete candidate tasks. |
-| P3 Research Batch 3 | pending | Compare external prior art, scoped config designs, docgen selectivity, Yeet UX, and synthesize tasks. | Six reports plus synthesis update `tasks/tasks.jsonc`. |
+| P1 Research Batch 1 | complete | Establish command map, timing baseline, DAG/cache shape, duplicate work, docgen cost, and config inventory. | Six reports exist under `research/`, synthesis is updated, and Batch 2 is not launched from stale tasks. |
+| P2 Research Batch 2 | pending | Inspect implementation hotspots across repo-cli, lint, check/test, security, metadata, and CI side lanes. | Six reports exist, synthesis is updated, and concrete candidate/selected tasks are recorded. |
+| P3 Research Batch 3 | pending | Compare external prior art, scoped config designs, docgen selectivity, Yeet UX, and synthesize tasks. | Six reports plus synthesis update `tasks/tasks.jsonc`; no task remains only a seeded hypothesis. |
 | P4 Implement Current-PR Wins | pending | Implement ranked tasks until diminishing returns or separate design gates. | Each completed task has code/config changes, proof commands, and rollback notes. |
-| P5 Prove End-to-End Green | pending | Run the fast local path, full proof, push/PR monitor, and benchmark comparison. | Before/after matrix and green proof are recorded under `history/`. |
-| P6 Close | pending | Update packet status and prepare PR notes. | Remaining backlog is explicit and the PR is mergeable. |
+| P5 Prove End-to-End Green | pending | Run the fast local path, full proof, push/PR monitor, and benchmark comparison. | Before/after matrix, proof parity, check-name baseline, and green proof are recorded under `history/`. |
+| P6 Close | pending | Run final quality-review-fix-loop, update packet status, and prepare PR notes. | Zero blocking reviewer findings or explicit waivers; remaining backlog is explicit and the PR is mergeable. |
 
 ## Research Batch Commands
 
@@ -31,13 +31,24 @@ Launch agents with:
 - [`ops/prompts/batch-02-hotspots.md`](./ops/prompts/batch-02-hotspots.md)
 - [`ops/prompts/batch-03-external-and-synthesis.md`](./ops/prompts/batch-03-external-and-synthesis.md)
 
-Each agent writes a report under `research/` using stable filenames:
+Research agents return a report in the requested shape. The orchestrator writes
+the returned reports under `research/` using stable filenames:
 
 ```text
 batch-01-<lane>.md
 batch-02-<lane>.md
 batch-03-<lane>.md
 ```
+
+Do not start the next research batch until the current batch closeout is done:
+
+1. Confirm all six expected report paths exist.
+2. Add accepted, stale, and rejected findings to
+   `history/outputs/research-synthesis.md`.
+3. Update `tasks/tasks.jsonc` with new evidence, rank/status changes,
+   acceptance commands, rollback commands, and deferred/rejected records.
+4. Record a process snapshot and note whether any heavy local lane is already
+   running.
 
 ## Synthesis
 
@@ -74,6 +85,9 @@ Selection bar:
   already implemented.
 - Do not keep `baseline.status = "pending"` on a `selected` task unless the
   task exists only to add missing measurement/instrumentation.
+- Do not enter P4 while a task is still `seeded-hypothesis`.
+- Do not enter P5 while any `selected` or `in-progress` task lacks a `done`,
+  `deferred`, or `rejected` record with evidence.
 
 ## Implementation Rules
 
@@ -82,6 +96,8 @@ Selection bar:
 - Prefer `@beep/repo-cli` and `@beep/repo-utils` over root scripts for durable
   behavior.
 - Preserve existing GitHub check names.
+- Preserve manual quality lanes as canonical until the dedicated Yeet proof PR
+  is green and the Yeet agent skill exists.
 - Keep PR affected lanes and push/main full lanes distinct when that reduces
   wait without weakening final proof.
 - Do not merge package-local config splits without measured blast-radius proof.
@@ -109,6 +125,8 @@ Record at least these rows in `history/outputs/before-after-matrix.md`:
 | Release/data-sync side workflows | TBD | TBD | TBD | Ensure setup/cache changes do not regress them. |
 | Slowest CI lane | TBD | TBD | TBD | Record setup vs verification cost. |
 | Canonical full proof | TBD | TBD | TBD | Must still pass. |
+| Check names and rulesets | TBD | TBD | TBD | Prove workflow edits did not drop checks. |
+| Local/CI proof parity | TBD | TBD | TBD | Map quality, pre-push, PR, push, and side workflows. |
 
 Every row should include command shape, run count, cache state, commit/branch,
 and resource notes. Use comparable before/after commands; if the command shape
@@ -136,7 +154,19 @@ bun run lint:fix
 bun run beep yeet repair
 bun run beep yeet verify
 bun run audit:github quality
+bun run audit:github pre-push # or explicit waiver with fallback CI proof
 gh pr checks --watch
+```
+
+Final closeout:
+
+```sh
+rg -n "blockingStatus.*blocking|waiverRecord|zero blocking" \
+  goals/repo-quality-throughput/history/outputs/quality-review-inventory.md
+rg -n "dedicated Yeet proof PR|Yeet agent skill|manual quality lanes" \
+  goals/repo-quality-throughput
+rg -n "Coverage.*(green-lane|full-only|scheduled|out-of-scope|deferred)" \
+  goals/repo-quality-throughput
 ```
 
 ## Current Blockers

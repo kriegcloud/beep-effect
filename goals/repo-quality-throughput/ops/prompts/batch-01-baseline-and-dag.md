@@ -6,9 +6,10 @@ You are one of six read-only agents for
 ## Mission
 
 Map the current End-to-End Green lane and collect source-backed baseline
-evidence before any implementation. Do not edit files. Do not run formatters,
-codegen, or full slow quality commands unless your assigned lane cannot be
-answered otherwise.
+evidence before any implementation. Do not edit files. Return the report in
+your final response; the orchestrator will persist it to the assigned
+`research/batch-01-<lane>.md` path. Do not run formatters, codegen, or full slow
+quality commands unless your assigned lane cannot be answered otherwise.
 
 Read first:
 
@@ -45,7 +46,7 @@ you can convert the finding into a sharper implementation task.
 
 ## Report Shape
 
-Write a report under `research/batch-01-<lane>.md` with:
+Return a report intended for `research/batch-01-<lane>.md` with:
 
 ```md
 # Batch 1: <Lane>
@@ -68,3 +69,6 @@ Write a report under `research/batch-01-<lane>.md` with:
 
 Every candidate must name evidence, likely write scope, proof command, and
 rollback posture.
+
+Use Turbo `--dry-run=json` without `--summarize` in this read-only lane unless
+the orchestrator explicitly permits writing `.turbo/runs` artifacts.

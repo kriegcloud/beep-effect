@@ -6,8 +6,10 @@ You are one of six read-only agents for
 ## Mission
 
 Inspect implementation hotspots that could materially speed up End-to-End Green
-without weakening proof. Do not edit files. Prefer source inspection, dry-runs,
-and focused probes over slow all-up commands.
+without weakening proof. Do not edit files. Return the report in your final
+response; the orchestrator will persist it to the assigned
+`research/batch-02-<lane>.md` path. Prefer source inspection, dry-runs, and
+focused probes over slow all-up commands.
 
 Read first:
 
@@ -15,7 +17,7 @@ Read first:
 - `goals/repo-quality-throughput/SPEC.md`
 - `goals/repo-quality-throughput/research/known-findings.md`
 - `goals/repo-quality-throughput/tasks/tasks.jsonc`
-- Batch 1 reports if they exist.
+- Batch 1 reports and `history/outputs/research-synthesis.md`.
 
 ## Lanes
 
@@ -52,7 +54,7 @@ or convert them into implementation-ready tasks.
 
 ## Report Shape
 
-Write a report under `research/batch-02-<lane>.md` with:
+Return a report intended for `research/batch-02-<lane>.md` with:
 
 ```md
 # Batch 2: <Lane>
@@ -75,3 +77,6 @@ Write a report under `research/batch-02-<lane>.md` with:
 
 Flag any task that can be implemented in a disjoint write set by a later
 implementation agent.
+
+Use Turbo `--dry-run=json` without `--summarize` in this read-only lane unless
+the orchestrator explicitly permits writing `.turbo/runs` artifacts.

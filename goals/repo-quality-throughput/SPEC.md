@@ -52,6 +52,13 @@ isolated micro-optimizations. If the synthesis cannot identify at least one
 safe high-impact current-PR implementation, it must record why with evidence and
 defer the packet instead of claiming completion.
 
+Before P4 begins, the task inventory must contain at least one `selected`
+current-PR task whose evidence already satisfies one of the substantial benefit
+gates. Before P6 closes, at least one selected task must be `done` with a
+measured speedup, removed duplicate wait, or resource-safety win, unless the
+packet is explicitly deferred with a waiver-quality record explaining why no
+safe implementation exists.
+
 Lane-specific materiality bars:
 
 - `lint:fix`: clean-tree warm runs should be effectively no-op fast, targeting
@@ -59,7 +66,9 @@ Lane-specific materiality bars:
   on the changed-file Biome fixing path and avoid repo-wide scans.
 - Yeet: selected work must remove duplicated local waits, shorten the local
   blocker path, or make CI monitoring replace unnecessary local full-proof
-  waiting while preserving an explicit full proof.
+  waiting while preserving an explicit full proof. Yeet remains in proof mode:
+  manual quality lanes stay canonical until the dedicated Yeet proof PR is
+  green in GitHub Actions and the Yeet agent skill is added.
 - GitHub Actions setup/cache: selected work should show at least 30 seconds or
   10 percent improvement on a critical PR lane, or add missing substep timing
   needed to prove such a change safely.
@@ -137,8 +146,11 @@ Research and implementation may inspect or change:
 
 ## Required Research Lanes
 
-Run three bounded batches with six independent agents each. Agents are
-read-only unless a later implementation phase assigns a disjoint write set.
+Run three bounded batches with six independent agents each. Research agents are
+read-only: they return a report in the requested shape, and the orchestrator
+persists it to the assigned `research/batch-XX-<lane>.md` path. Agents must not
+edit source, config, generated outputs, or packet files unless a later
+implementation phase assigns an explicit disjoint write set.
 
 Each batch must start by reading all previous batch reports and
 `tasks/tasks.jsonc`. Agents must add new evidence or contradict stale evidence;
@@ -217,9 +229,12 @@ Sample-count guidance:
   machine remains responsive.
 - For heavy local commands, one focused sample plus process/resource evidence is
   acceptable when repeated runs would be disruptive.
-- For GitHub Actions, prefer at least three comparable recent run ids before and
-  after. If fewer comparable runs exist, state the confidence as low and keep
-  the task below `done` unless the improvement is obvious and safety-preserving.
+- For GitHub Actions workflow/action behavior changes, require at least three
+  comparable before run ids and three comparable after run ids for each changed
+  critical lane before marking a direct speedup `done`. If fewer comparable
+  runs exist, keep the task measurement-only or low-confidence and do not mark
+  it `done` as a speedup unless the change only adds timing/metadata or prevents
+  a safety/resource regression.
 - Always record cache state as cold, warm, mixed, or unknown. Do not compare a
   cold baseline to a warm after-run without saying the result is low confidence.
 
@@ -227,9 +242,14 @@ Preferred local timing shapes:
 
 ```sh
 /usr/bin/time -p <command>
-bunx turbo run <task> --affected --summarize --dry-run=json
+bunx turbo run <task> --affected --dry-run=json
 ps -eo pid,ppid,pcpu,pmem,etime,command | rg 'bun|turbo|docgen|vitest|semgrep|gitleaks|osv|nix'
 ```
+
+Use Turbo `--summarize` only in implementation/proof phases where writing
+`.turbo/runs/<run-id>.json` is acceptable and the artifact will be recorded.
+Read-only research probes should use `--dry-run=json` without `--summarize`
+unless the orchestrator explicitly allows generated Turbo run summaries.
 
 Do not run a full expensive local proof just to collect a baseline when recent
 GitHub Actions timing, Turbo dry-runs, or focused local probes answer the
@@ -241,8 +261,10 @@ question.
   batch, with no additional local heavy quality command running concurrently.
 - Never run multiple heavy local quality lanes in parallel unless the task
   explicitly proves that concurrency is safe.
-- Before launching a known-heavy command, inspect current repo-related
-  processes when the workstation has recently been laggy.
+- Before launching each research batch and before any known-heavy command,
+  inspect current repo-related processes and record the snapshot. This is
+  mandatory even in a fresh session because prior runs may have left long-lived
+  local services or workers alive.
 - Prefer `--affected`, package filters, dry-runs, summaries, and read-only
   probes before full all-up commands.
 - Default focused probe timeout is 10 minutes; use a shorter timeout for
@@ -259,9 +281,11 @@ question.
 
 ## Implementation Requirements
 
-- Use Yeet as the primary developer orchestrator after this packet proves the
-  path: fast local blockers, push quickly, monitor CI, and retain an explicit
-  full local proof command.
+- Use Yeet as a proved developer orchestrator path only within the current
+  proof-mode constraints: fast local blockers, push quickly when allowed,
+  monitor CI, and retain an explicit full local proof command. Do not declare
+  Yeet canonical until the dedicated Yeet proof PR is green in GitHub Actions
+  and the Yeet agent skill is added.
 - Eliminate redundant waiting between Yeet, hooks, push, PR checks, and CI
   where doing so does not weaken proof.
 - Keep pre-commit and pre-push hooks as fast guards; move expensive exhaustive
@@ -309,8 +333,23 @@ Every task must include:
 - selection rationale;
 - implementation scope;
 - proof commands;
+- acceptance commands;
 - rollback plan;
+- rollback commands and proof after rollback;
 - status.
+
+Status-specific fields are required:
+
+- `selected`: evidence, substantial benefit gate, current-PR candidacy, and
+  named fallback proof;
+- `done`: before/after matrix rows, proof evidence, final proof commands,
+  commit or run id, confidence, and quality-review status;
+- `deferred`: reason, owner/surface, residual risk, next proof step, and
+  follow-up trigger when known;
+- `rejected`: reason and evidence.
+
+Any red proof or unfixed blocker requires a waiver record with source standard,
+reason, owner, expiry or follow-up, residual risk, and acceptance evidence.
 
 ## Acceptance Criteria
 
@@ -321,16 +360,30 @@ Every task must include:
       reports.
 - [ ] The task inventory identifies selected, deferred, and rejected tasks; each
       selected task satisfies the substantial benefit bar.
+- [ ] Before entering P4, no task remains only a `seeded-hypothesis`; each task
+      is selected, candidate with a named remaining research lane, deferred, or
+      rejected.
 - [ ] Highest-impact current-PR tasks are implemented until remaining tasks are
       deferred for low impact, high risk, or separate proof gates.
+- [ ] Coverage is classified as common End-to-End Green, full/scheduled proof,
+      or out of scope with a deferred-task record.
 - [ ] `lint:fix` has a fast clean-tree and small-changed-file proof.
 - [ ] Yeet has a fast-plus-monitor proof and no duplicate expensive local/CI
       waits that can be removed safely.
+- [ ] Yeet promotion beyond proof mode is blocked until the dedicated proof PR
+      is green and the Yeet agent skill exists; manual quality lanes remain
+      canonical before that.
+- [ ] A local/CI proof parity map covers quality, pre-push, PR jobs, push-only
+      jobs, security, Nix, SAST, secrets, release, and side workflows.
+- [ ] A check-name/ruleset baseline proves workflow edits did not drop or rename
+      authoritative checks without an explicit recorded decision.
 - [ ] Before/after timing matrix follows the benchmark protocol and covers
       local repair, local blocker proof, push/PR feedback, docgen, repo sanity,
       build, integration resources, security/hooks, and slowest GitHub Actions
       lanes.
 - [ ] Canonical quality proof still exists and passes locally or in CI.
+- [ ] A final quality-review-fix-loop panel returns zero blocking findings, or
+      every remaining blocker has an explicit waiver record.
 - [ ] Any deferred performance opportunity has evidence, risk, owner, and next
       proof step recorded.
 - [ ] No unrelated refactors or formatting churn.

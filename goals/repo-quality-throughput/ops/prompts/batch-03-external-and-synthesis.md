@@ -5,9 +5,11 @@ You are one of six agents for
 
 ## Mission
 
-Compare prior art and finish the ranked implementation inventory. Agents are
-read-only except the synthesis agent, which may update
-`tasks/tasks.jsonc` and add human-readable task briefs under `tasks/`.
+Compare prior art and finish the ranked implementation inventory. All Batch 3
+research agents are read-only and return reports in their final responses; the
+orchestrator persists them to the assigned `research/batch-03-<lane>.md` paths.
+The orchestrator owns any later synthesis writes to `tasks/tasks.jsonc` or task
+briefs after all agent reports are collected.
 
 Read first:
 
@@ -15,6 +17,7 @@ Read first:
 - `goals/repo-quality-throughput/SPEC.md`
 - `goals/repo-quality-throughput/tasks/tasks.jsonc`
 - Batch 1 and Batch 2 reports.
+- `goals/repo-quality-throughput/history/outputs/research-synthesis.md`.
 - `.repos/effect-v4/packages/tools` for Effect v4 prior art.
 - Official docs for any external tool being recommended.
 
@@ -37,7 +40,7 @@ Assign one lane per agent:
 
 ## Report Shape
 
-Non-synthesis agents write `research/batch-03-<lane>.md`:
+Non-synthesis agents return reports intended for `research/batch-03-<lane>.md`:
 
 ```md
 # Batch 3: <Lane>
@@ -56,8 +59,8 @@ Non-synthesis agents write `research/batch-03-<lane>.md`:
 ## Open Questions
 ```
 
-The synthesis agent updates `tasks/tasks.jsonc` and writes
-`research/batch-03-synthesis.md` with:
+The synthesis agent returns content intended for `research/batch-03-synthesis.md`
+with:
 
 ```md
 # Batch 3: Synthesis
@@ -75,4 +78,8 @@ The synthesis agent updates `tasks/tasks.jsonc` and writes
 
 Do not select a task for implementation unless it has a proof command and a
 rollback plan. Do not keep a task selected unless it satisfies the substantial
-benefit bar in `SPEC.md`.
+benefit bar in `SPEC.md`. The orchestrator applies any task inventory edits
+after reviewing all Batch 3 reports.
+
+Use Turbo `--dry-run=json` without `--summarize` in read-only lanes unless the
+orchestrator explicitly permits writing `.turbo/runs` artifacts.

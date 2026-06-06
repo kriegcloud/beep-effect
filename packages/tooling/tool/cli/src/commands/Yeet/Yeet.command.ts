@@ -65,7 +65,7 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
   );
 
 const yeetVerifyCommand = Command.make("verify", sharedFlags, (options) => runYeetMode("verify", options)).pipe(
-  Command.withDescription("Run read-only affected feedback and the canonical pre-push proof")
+  Command.withDescription("Run the canonical pre-push proof without duplicate affected feedback")
 );
 
 const yeetRepairCommand = Command.make("repair", sharedFlags, (options) => runYeetMode("repair", options)).pipe(

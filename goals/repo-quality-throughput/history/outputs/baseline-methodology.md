@@ -28,17 +28,31 @@ Useful local probes:
 
 ```sh
 /usr/bin/time -p <command>
-bunx turbo run <task> --affected --summarize --dry-run=json
+bunx turbo run <task> --affected --dry-run=json
 ps -eo pid,ppid,pcpu,pmem,etime,command | rg 'bun|turbo|docgen|vitest|semgrep|gitleaks|osv|nix'
 ```
 
+Record a process snapshot before every research batch and before every heavy
+local command. Include active repo-related processes, concurrency setting,
+timeout, and whether the machine was already under load.
+
+Use Turbo `--summarize` only when writing `.turbo/runs/<run-id>.json` is
+acceptable for the current phase and the artifact will be linked from the
+matrix or synthesis.
+
 ## GitHub Actions
 
-- Prefer at least three comparable run ids before and after.
+- For workflow/action behavior changes, require at least three comparable run
+  ids before and three comparable run ids after for each changed critical lane
+  before claiming a speedup.
+- For measurement-only changes, fewer runs are acceptable, but confidence stays
+  low until comparable before/after evidence exists.
 - Record workflow, job name, check name, event, branch, commit, started time,
   completed time, and conclusion.
 - Separate setup/cache/install time from verification time whenever job logs
   expose those boundaries.
+- Record workflow/job/check-name baselines and ruleset evidence before changing
+  workflow names, job names, matrices, or branch-protection-facing checks.
 - Treat before/after comparisons as low confidence when cache state, runner
   type, branch contents, or event type differs materially.
 
