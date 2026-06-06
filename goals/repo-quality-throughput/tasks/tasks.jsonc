@@ -397,7 +397,7 @@
     {
       "id": "rqt-007",
       "rank": 7,
-      "status": "selected",
+      "status": "deferred",
       "lane": "repo-sanity-and-metadata",
       "title": "Shard repo-export catalogs per package, then aggregate like docgen docs",
       "commandsOrChecks": [
@@ -432,9 +432,12 @@
       "implementationScope": [
         "packages/tooling/tool/cli/src/commands/Quality",
         "packages/tooling/tool/cli/src/commands/Quality/internal",
-        "packages/**/repo-exports.catalog.jsonc",
+        "packages/**/.beep/repo-exports/catalog.shard.jsonc",
+        "packages/**/package.json",
+        "packages/tooling/library/repo-codegraph",
+        "turbo.json",
         "lefthook.yml",
-        ".github/workflows/check.yml"
+        "generated-file ignore policy"
       ],
       "proofCommands": [
         "bun run repo-exports:catalog",
@@ -464,13 +467,21 @@
         "selectionEvidence": [
           "Batch 2 measured repo-export catalog check at `real 100.70` and found it stale on the current branch.",
           "The current root catalog is a very large single merge surface: 377,073 JSONC lines and 15,637 Markdown lines.",
-          "The user proposed the docgen-style package-local generated artifact pattern, which aligns with package ownership and Turbo cache boundaries."
+          "The user proposed the docgen-style package-local generated artifact pattern, which aligns with package ownership and Turbo cache boundaries.",
+          "Current design review found that hash-only shard reuse would weaken the authoritative proof; the safe speedup needs Turbo-backed package shard tasks plus shard-aware repo-codegraph lookup."
         ],
         "substantialBenefitGate": "reduces root generated-artifact churn and turns a measured slow metadata gate into package-cacheable work plus deterministic aggregation",
-        "currentPrCandidate": true,
+        "currentPrCandidate": false,
         "fallbackProof": "The root aggregate catalog check remains the authoritative proof until shard generation and aggregation are green."
       },
-      "notes": "Design target: package step writes package-local catalog shard; root aggregate validates schema, sorts deterministically, and renders the repo-wide catalog."
+      "deferred": {
+        "reason": "A correct sharding implementation is broader than this green PR: it must add package-local generator tasks, Turbo cache boundaries, package scripts, shard-aware repo-codegraph reading, hook updates, and generated artifacts without weakening the full catalog proof.",
+        "ownerOrSurface": "@beep/repo-cli, @beep/repo-codegraph, turbo.json, lefthook.yml, workspace package manifests, and generated repo-export artifacts",
+        "residualRisk": "Leaving the current root-only catalog in place preserves correctness but keeps the ~100s metadata gate and root merge surface until the shard-v2 migration lands.",
+        "nextProofStep": "Open a dedicated repo-exports shard-v2 PR that first keeps the root catalog compatibility shape, measures Turbo cache hits for package shards, then migrates lookup/docs if the root artifact is reduced to an index.",
+        "followUpTrigger": "Start after PR #214 lands or when repo-export catalog churn blocks another End-to-End Green lane."
+      },
+      "notes": "Design target recorded in `goals/repo-quality-throughput/research/repo-exports-sharding-design.md`; current PR should not trust hash-only package shards or shrink the root catalog without consumer migration."
     },
     {
       "id": "rqt-008",

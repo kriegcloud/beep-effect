@@ -168,3 +168,19 @@ Resource note:
   non-repo JetBrains `tsgo --lsp` process from another project was using
   noticeable CPU and memory. The scoped docgen refresh was run with `nice -n 10`
   to reduce desktop contention.
+
+## Repo-Exports Shard Review Snapshot
+
+During the package-local shard design review, `bun run repo-exports:catalog:check`
+completed successfully with:
+
+```text
+[repo-exports-catalog] generated artifacts are current
+packages=92 importSpecifiers=1078 publicExportEntries=15094
+```
+
+The active process sample showed a single hot `bun run
+packages/tooling/tool/cli/src/bin.ts -- quality repo-exports-catalog --check`
+process. Other heavier Biome/tsgo LSP processes in the machine sample belonged
+to different clones/repos, so they are environment noise for this PR's catalog
+regression analysis.

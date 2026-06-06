@@ -68,7 +68,7 @@ Status: `batch-02-closeout`
 | rqt-004 | selected | Proof parity, check names, and Yeet proof-mode guardrails are required before wait removal. | `history/outputs/quality-review-inventory.md` |
 | rqt-005 | candidate | Docgen is high value but needs Batch 2/3 safety design. | `research/batch-01-docgen-cost-model.md` |
 | rqt-006 | candidate | Turbo blast-radius changes are high risk and need scoped design proof. | `research/batch-01-turbo-dag-cache.md` |
-| rqt-007 | selected | Repo-export catalog is a measured 100s red metadata gate; package-local shards plus root aggregation should reduce rebuild and merge-conflict blast radius. | `research/batch-02-metadata-release-sidecars.md` |
+| rqt-007 | deferred | Repo-export catalog is a measured 100s red metadata gate, but the safe package-shard design needs a dedicated shard-v2 migration across repo-cli, repo-codegraph, Turbo, hooks, package scripts, generated artifacts, and agent guidance. | `research/batch-02-metadata-release-sidecars.md`, `research/repo-exports-sharding-design.md` |
 | rqt-008 | candidate | Coverage is full-only/scheduled for now; integration/type-test need participation and no-op graph fixes. | `research/batch-02-check-test-coverage.md` |
 | rqt-009 | candidate | Security/hooks/side workflow parity must precede proof relaxation. | `research/batch-02-security-audit-sast.md`, `research/batch-02-ci-nix-storybook-data-sync.md` |
 | rqt-010 | candidate | User-requested external tooling and Effect v4 prior art must remain represented. | `ops/prompts/batch-03-external-and-synthesis.md` |
@@ -86,7 +86,9 @@ Status: `batch-02-closeout`
   before cache-policy speedup claims.
 - `rqt-004`: maintain proof parity, check-name, and Yeet proof-mode guardrails.
 - `rqt-007`: shard repo-export catalogs per package, then aggregate like docgen
-  package docs.
+  package docs. Deferred from the current PR because hash-only shard reuse would
+  weaken the authoritative proof; the safe version needs Turbo-backed package
+  shard tasks and shard-aware lookup consumers.
 
 ## Batch 2 Closeout Findings
 
