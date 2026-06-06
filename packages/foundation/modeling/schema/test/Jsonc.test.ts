@@ -9,7 +9,7 @@ const $I = $SchemaId.create("jsonc_test");
 class JsoncPerson extends S.Class<JsoncPerson>($I`JsoncPerson`)(
   {
     name: S.String,
-    age: S.Number,
+    age: S.Finite,
   },
   $I.annote("JsoncPerson", {
     description: "Typed JSONC person fixture used in schema tests.",

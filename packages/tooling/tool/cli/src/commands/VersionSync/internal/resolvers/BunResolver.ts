@@ -88,7 +88,7 @@ const extractPackageManagerVersion = Str.replace(/^bun@/, "");
 const BUN_SEMVER_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
 const NUMERIC_PRERELEASE_IDENTIFIER = /^\d+$/;
 
-const BunSemverIdentifier = S.Union([S.Number, S.String]);
+const BunSemverIdentifier = S.Union([S.Finite, S.String]);
 
 type BunSemverIdentifier = typeof BunSemverIdentifier.Type;
 
@@ -100,7 +100,7 @@ type BunSemverIdentifier = typeof BunSemverIdentifier.Type;
  */
 export class BunSemver extends S.Class<BunSemver>($I`BunSemver`)(
   {
-    core: S.Tuple([S.Number, S.Number, S.Number]),
+    core: S.Tuple([S.Finite, S.Finite, S.Finite]),
     prerelease: BunSemverIdentifier.pipe(S.NonEmptyArray, S.Option),
   },
   $I.annote("BunSemver", {

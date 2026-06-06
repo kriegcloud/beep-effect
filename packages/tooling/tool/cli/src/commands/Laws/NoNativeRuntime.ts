@@ -121,8 +121,8 @@ export class NoNativeRuntimeDiagnostic extends S.Class<NoNativeRuntimeDiagnostic
   {
     severity: NoNativeRuntimeSeverity,
     file: S.String,
-    line: S.Number,
-    column: S.Number,
+    line: S.Finite,
+    column: S.Finite,
     message: S.String,
     messageId: S.String.pipe(S.UndefinedOr, S.optionalKey),
   },
@@ -167,16 +167,16 @@ export declare namespace NoNativeRuntimeDiagnostic {
  */
 export class NoNativeRuntimeRulesSummary extends S.Class<NoNativeRuntimeRulesSummary>($I`NoNativeRuntimeRulesSummary`)(
   {
-    scannedFiles: S.Number,
-    touchedFiles: S.Number,
-    warningCount: S.Number,
-    errorCount: S.Number,
+    scannedFiles: S.Finite,
+    touchedFiles: S.Finite,
+    warningCount: S.Finite,
+    errorCount: S.Finite,
     strictFailure: S.Boolean,
     affectedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
-    allowlistedCount: S.Number.pipe(
+    allowlistedCount: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefault(Effect.succeed(0))
     ),

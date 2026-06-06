@@ -76,8 +76,8 @@ type ModuleNewOptions = {
  * @since 0.0.0
  */
 export class Position extends S.Class<Position>($I`Position`)({
-  column: S.Number,
-  line: S.Number,
+  column: S.Finite,
+  line: S.Finite,
 }) {
   /**
    * Creates a source position from line and column coordinates.

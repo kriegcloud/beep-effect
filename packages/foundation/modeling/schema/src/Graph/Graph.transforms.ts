@@ -138,7 +138,7 @@ const makeGraphTransform = <Node extends S.Top, Edge extends S.Top>(
  * import * as S from "effect/Schema"
  * import { DirectedGraph } from "@beep/schema/Graph"
  *
- * const GraphSchema = DirectedGraph({ node: S.String, edge: S.Number })
+ * const GraphSchema = DirectedGraph({ node: S.String, edge: S.Finite })
  *
  * console.log(GraphSchema.ast)
  * ```
@@ -172,7 +172,7 @@ export const DirectedGraph = <Node extends S.Top, Edge extends S.Top>(options: {
  * import * as S from "effect/Schema"
  * import { UndirectedGraph } from "@beep/schema/Graph"
  *
- * const GraphSchema = UndirectedGraph({ node: S.String, edge: S.Number })
+ * const GraphSchema = UndirectedGraph({ node: S.String, edge: S.Finite })
  *
  * console.log(GraphSchema.ast)
  * ```
@@ -206,7 +206,7 @@ export const UndirectedGraph = <Node extends S.Top, Edge extends S.Top>(options:
  * import * as S from "effect/Schema"
  * import { MutableDirectedGraph } from "@beep/schema/Graph"
  *
- * const GraphSchema = MutableDirectedGraph({ node: S.String, edge: S.Number })
+ * const GraphSchema = MutableDirectedGraph({ node: S.String, edge: S.Finite })
  *
  * console.log(GraphSchema.ast)
  * ```
@@ -240,7 +240,7 @@ export const MutableDirectedGraph = <Node extends S.Top, Edge extends S.Top>(opt
  * import * as S from "effect/Schema"
  * import { MutableUndirectedGraph } from "@beep/schema/Graph"
  *
- * const GraphSchema = MutableUndirectedGraph({ node: S.String, edge: S.Number })
+ * const GraphSchema = MutableUndirectedGraph({ node: S.String, edge: S.Finite })
  *
  * console.log(GraphSchema.ast)
  * ```

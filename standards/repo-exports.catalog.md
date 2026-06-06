@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 82 |
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1075 |
-| publicExportEntries | 14977 |
-| uniquePackageSymbols | 6461 |
+| importSpecifiers | 1078 |
+| publicExportEntries | 15094 |
+| uniquePackageSymbols | 6531 |
 
 ## Seed Discovery Proof
 
@@ -42,18 +42,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 3 | `dependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
 | 4 | `optionalDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
 | 5 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 48 | 15 |
-| 6 | `@beep/ontology` | `packages/foundation/modeling/ontology` | has-public-exports | 1 | 11 | 11 |
+| 6 | `@beep/ontology` | `packages/foundation/modeling/ontology` | has-public-exports | 1 | 12 | 12 |
 | 7 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
 | 8 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
 | 9 | `@beep/canvas-domain` | `packages/canvas/domain` | has-public-exports | 5 | 35 | 24 |
 | 10 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 11 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 13 | 5 |
 | 12 | `@beep/repo-codegraph` | `packages/tooling/library/repo-codegraph` | has-public-exports | 6 | 108 | 31 |
-| 13 | `@beep/shared-domain` | `packages/shared/domain` | has-public-exports | 41 | 291 | 111 |
+| 13 | `@beep/shared-domain` | `packages/shared/domain` | has-public-exports | 41 | 297 | 113 |
 | 14 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 15 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 16 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1683 | 608 |
+| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1700 | 622 |
 | 18 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 19 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 20 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 90 | 65 |
@@ -80,7 +80,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 41 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
 | 42 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 271 | 219 |
 | 43 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 782 | 581 |
-| 44 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 702 | 214 |
+| 44 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 720 | 219 |
 | 45 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
 | 46 | `@beep/tika` | `packages/drivers/tika` | has-public-exports | 4 | 23 | 7 |
 | 47 | `@beep/libpff` | `packages/drivers/libpff` | has-public-exports | 4 | 26 | 8 |
@@ -103,11 +103,11 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 64 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
 | 65 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 67 | 1751 | 512 |
 | 66 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
-| 67 | `@beep/rdf` | `packages/foundation/modeling/rdf` | has-public-exports | 13 | 280 | 89 |
+| 67 | `@beep/rdf` | `packages/foundation/modeling/rdf` | has-public-exports | 14 | 301 | 110 |
 | 68 | `@beep/codedank-web` | `apps/codedank-web` | no-public-exports | 0 | 0 | 0 |
 | 69 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
 | 70 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
-| 71 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 8 | 44 | 38 |
+| 71 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 10 | 98 | 65 |
 | 72 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
 | 73 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
 | 74 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
@@ -189,16 +189,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/ontology` | `getOntologyKeyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:352` | Reads ontology metadata from a schema property-key annotation display map. |
-| `@beep/ontology` | `getOntologyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:343` | Reads ontology metadata from an Effect Schema annotation display map. |
-| `@beep/ontology` | `isOntologyClassAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:276` |  |
-| `@beep/ontology` | `isOntologyPredicateAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:277` |  |
-| `@beep/ontology` | `Ontology` | const | `packages/foundation/modeling/ontology/src/create.ts:42` | Creates an ontology authoring scope with identity-aware annotation helpers, |
-| `@beep/ontology` | `OntologyAssemblyError` | class | `packages/foundation/modeling/ontology/src/model.ts:370` |  |
-| `@beep/ontology` | `parseJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:273` | Parses the POC JSON-LD graph representation back into an assembled ontology result. |
-| `@beep/ontology` | `projectJsonLdContext` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:59` | Projects an assembled ontology into a reusable JSON-LD context document. |
-| `@beep/ontology` | `projectJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:148` | Projects an assembled ontology into the POC JSON-LD graph representation. |
-| `@beep/ontology` | `projectTurtle` | const | `packages/foundation/modeling/ontology/src/projections/turtle.ts:125` | Projects an assembled ontology into a compact Turtle document. |
+| `@beep/ontology` | `getOntologyKeyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:591` | Reads ontology metadata from a schema property-key annotation display map. |
+| `@beep/ontology` | `getOntologyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:582` | Reads ontology metadata from an Effect Schema annotation display map. |
+| `@beep/ontology` | `isOntologyClassAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:518` |  |
+| `@beep/ontology` | `isOntologyPredicateAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:519` |  |
+| `@beep/ontology` | `Ontology` | const | `packages/foundation/modeling/ontology/src/create.ts:52` | Creates an ontology authoring scope with identity-aware annotation helpers, |
+| `@beep/ontology` | `OntologyAssemblyError` | class | `packages/foundation/modeling/ontology/src/model.ts:610` |  |
+| `@beep/ontology` | `parseJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:487` | Parses the POC JSON-LD graph representation back into an assembled ontology result. |
+| `@beep/ontology` | `projectJsonLdContext` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:69` | Projects an assembled ontology into a reusable JSON-LD context document. |
+| `@beep/ontology` | `projectJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:264` | Projects an assembled ontology into the POC JSON-LD graph representation. |
+| `@beep/ontology` | `projectMarkdown` | const | `packages/foundation/modeling/ontology/src/projections/markdown.ts:351` | Projects an assembled ontology into deterministic Markdown documentation. |
+| `@beep/ontology` | `projectTurtle` | const | `packages/foundation/modeling/ontology/src/projections/turtle.ts:260` | Projects an assembled ontology into a compact Turtle document. |
 | `@beep/ontology` | `VERSION` | const | `packages/foundation/modeling/ontology/src/index.ts:14` | Package version. |
 
 ### @beep/architecture-lab-ui
@@ -404,7 +405,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-domain` | `Entities` | SourceFile | `packages/shared/domain/src/entities/index.ts:14` |  |
 | `@beep/shared-domain` | `EntityId` | SourceFile | `packages/shared/domain/src/entity/EntityId.ts:8` |  |
 | `@beep/shared-domain` | `EntityRef` | SourceFile | `packages/shared/domain/src/entity/EntityRef.ts:8` |  |
-| `@beep/shared-domain` | `Identity` | SourceFile | `packages/shared/domain/src/identity/index.ts:21` |  |
+| `@beep/shared-domain` | `Identity` | SourceFile | `packages/shared/domain/src/identity/index.ts:8` |  |
 | `@beep/shared-domain` | `Principal` | SourceFile | `packages/shared/domain/src/entity/Principal.ts:8` |  |
 | `@beep/shared-domain` | `SourceKind` | SourceFile | `packages/shared/domain/src/entity/SourceKind.ts:8` |  |
 | `@beep/shared-domain` | `Values` | SourceFile | `packages/shared/domain/src/values/index.ts:21` |  |
@@ -513,7 +514,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-domain/entity/SourceKind` | `SourceKind` | const | `packages/shared/domain/src/entity/SourceKind.ts:26` | Denormalized source facet used by BaseEntity rows and audit filters. |
 | `@beep/shared-domain/entity/SourceKind` | `SourceKind` | type | `packages/shared/domain/src/entity/SourceKind.ts:46` | Runtime type for {@link SourceKind}. |
 | `@beep/shared-domain/identity` | `AgentCapability` | SourceFile | `packages/shared/domain/src/identity/AgentCapability.ts:8` |  |
+| `@beep/shared-domain/identity` | `AnyIdentityComposer` | const | `packages/shared/domain/src/identity/index.ts:115` | Effect Schema for validating any runtime {@link IdentityComposerType} value. |
+| `@beep/shared-domain/identity` | `AnyIdentityComposer` | type | `packages/shared/domain/src/identity/index.ts:135` | Runtime type for {@link AnyIdentityComposer}. |
 | `@beep/shared-domain/identity` | `Epistemic` | SourceFile | `packages/shared/domain/src/identity/Epistemic.ts:8` |  |
+| `@beep/shared-domain/identity` | `isIdentityComposer` | const | `packages/shared/domain/src/identity/index.ts:81` | Guard for runtime identity composer values. |
 | `@beep/shared-domain/identity` | `LawPractice` | SourceFile | `packages/shared/domain/src/identity/LawPractice.ts:8` |  |
 | `@beep/shared-domain/identity` | `Shared` | SourceFile | `packages/shared/domain/src/identity/Shared.ts:8` |  |
 | `@beep/shared-domain/identity` | `WealthManagement` | SourceFile | `packages/shared/domain/src/identity/WealthManagement.ts:8` |  |
@@ -531,7 +535,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-domain/identity/Epistemic` | `UsageRecordId` | const | `packages/shared/domain/src/identity/Epistemic.ts:141` | Usage record entity identifier. |
 | `@beep/shared-domain/identity/Epistemic` | `UsageRecordId` | type | `packages/shared/domain/src/identity/Epistemic.ts:164` | Runtime type for {@link UsageRecordId}. |
 | `@beep/shared-domain/identity/index` | `AgentCapability` | SourceFile | `packages/shared/domain/src/identity/AgentCapability.ts:8` |  |
+| `@beep/shared-domain/identity/index` | `AnyIdentityComposer` | const | `packages/shared/domain/src/identity/index.ts:115` | Effect Schema for validating any runtime {@link IdentityComposerType} value. |
+| `@beep/shared-domain/identity/index` | `AnyIdentityComposer` | type | `packages/shared/domain/src/identity/index.ts:135` | Runtime type for {@link AnyIdentityComposer}. |
 | `@beep/shared-domain/identity/index` | `Epistemic` | SourceFile | `packages/shared/domain/src/identity/Epistemic.ts:8` |  |
+| `@beep/shared-domain/identity/index` | `isIdentityComposer` | const | `packages/shared/domain/src/identity/index.ts:81` | Guard for runtime identity composer values. |
 | `@beep/shared-domain/identity/index` | `LawPractice` | SourceFile | `packages/shared/domain/src/identity/LawPractice.ts:8` |  |
 | `@beep/shared-domain/identity/index` | `Shared` | SourceFile | `packages/shared/domain/src/identity/Shared.ts:8` |  |
 | `@beep/shared-domain/identity/index` | `WealthManagement` | SourceFile | `packages/shared/domain/src/identity/WealthManagement.ts:8` |  |
@@ -591,7 +598,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/shared-domain/index` | `Entities` | SourceFile | `packages/shared/domain/src/entities/index.ts:14` |  |
 | `@beep/shared-domain/index` | `EntityId` | SourceFile | `packages/shared/domain/src/entity/EntityId.ts:8` |  |
 | `@beep/shared-domain/index` | `EntityRef` | SourceFile | `packages/shared/domain/src/entity/EntityRef.ts:8` |  |
-| `@beep/shared-domain/index` | `Identity` | SourceFile | `packages/shared/domain/src/identity/index.ts:21` |  |
+| `@beep/shared-domain/index` | `Identity` | SourceFile | `packages/shared/domain/src/identity/index.ts:8` |  |
 | `@beep/shared-domain/index` | `Principal` | SourceFile | `packages/shared/domain/src/entity/Principal.ts:8` |  |
 | `@beep/shared-domain/index` | `SourceKind` | SourceFile | `packages/shared/domain/src/entity/SourceKind.ts:8` |  |
 | `@beep/shared-domain/index` | `Values` | SourceFile | `packages/shared/domain/src/values/index.ts:21` |  |
@@ -826,9 +833,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
 | `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:135` | Image and video curation command group. |
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
-| `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:639` | Lint command group. |
+| `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
+| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:46` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
@@ -839,13 +846,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
-| `@beep/repo-cli/commands/AIMetrics` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3416` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3580` | AI metrics root command. |
 | `@beep/repo-cli/commands/AIMetrics` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
 | `@beep/repo-cli/commands/AIMetrics` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
-| `@beep/repo-cli/commands/AIMetrics/AIMetrics.command` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3416` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics/AIMetrics.command` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3580` | AI metrics root command. |
 | `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
 | `@beep/repo-cli/commands/AIMetrics/AIMetrics.errors` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
-| `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3416` | AI metrics root command. |
+| `@beep/repo-cli/commands/AIMetrics/index` | `aiMetricsCommand` | const | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts:3580` | AI metrics root command. |
 | `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsCommandError` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:26` | Error raised by the AI metrics CLI. |
 | `@beep/repo-cli/commands/AIMetrics/index` | `AiMetricsStatusExit` | class | `packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts:47` | Silent non-zero status used after the status command has already rendered output. |
 | `@beep/repo-cli/commands/Architecture` | `applyCanonicalSliceOperationPlan` | const | `packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts:266` | Apply a decoded operation plan with failsafe conflict behavior. |
@@ -1822,23 +1829,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:31` | Runtime options for terse Effect style migration checks. |
 | `@beep/repo-cli/commands/Laws/TerseEffect` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:61` | Summary of terse Effect style migration results. |
 | `@beep/repo-cli/commands/Lint` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:434` | Collect schema topology violations without mutating process state. |
-| `@beep/repo-cli/commands/Lint` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:129` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:131` | Collect TypeScript source files under a lint root without following symlink escapes. |
 | `@beep/repo-cli/commands/Lint` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
-| `@beep/repo-cli/commands/Lint` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:639` | Lint command group. |
+| `@beep/repo-cli/commands/Lint` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
 | `@beep/repo-cli/commands/Lint` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
 | `@beep/repo-cli/commands/Lint` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:492` | Lint command for enforcing canonical `@beep/schema` topology. |
 | `@beep/repo-cli/commands/Lint` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:466` | Run the schema topology lint command. |
 | `@beep/repo-cli/commands/Lint` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:63` | Schema topology lint violation. |
 | `@beep/repo-cli/commands/Lint/index` | `collectSchemaTopologyViolations` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:434` | Collect schema topology violations without mutating process state. |
-| `@beep/repo-cli/commands/Lint/index` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:129` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint/index` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:131` | Collect TypeScript source files under a lint root without following symlink escapes. |
 | `@beep/repo-cli/commands/Lint/index` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
-| `@beep/repo-cli/commands/Lint/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:639` | Lint command group. |
+| `@beep/repo-cli/commands/Lint/index` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
 | `@beep/repo-cli/commands/Lint/index` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
 | `@beep/repo-cli/commands/Lint/index` | `lintSchemaTopologyCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:492` | Lint command for enforcing canonical `@beep/schema` topology. |
 | `@beep/repo-cli/commands/Lint/index` | `runSchemaTopologyLint` | const | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:466` | Run the schema topology lint command. |
 | `@beep/repo-cli/commands/Lint/index` | `SchemaTopologyViolation` | class | `packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts:63` | Schema topology lint violation. |
-| `@beep/repo-cli/commands/Lint/Lint.command` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:129` | Collect TypeScript source files under a lint root without following symlink escapes. |
-| `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:639` | Lint command group. |
+| `@beep/repo-cli/commands/Lint/Lint.command` | `collectTypeScriptFiles` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:131` | Collect TypeScript source files under a lint root without following symlink escapes. |
+| `@beep/repo-cli/commands/Lint/Lint.command` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
 | `@beep/repo-cli/commands/Lint/Lint.errors` | `LintCircularAnalysisError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:32` | Failure raised when circular dependency analysis cannot complete. |
 | `@beep/repo-cli/commands/Lint/Lint.errors` | `LintFileDiscoveryError` | class | `packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts:63` | Failure raised when lint file discovery cannot read a source root. |
 | `@beep/repo-cli/commands/Lint/PackageTestImports` | `lintPackageTestImportsCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/PackageTestImports.ts:319` | Lint command for enforcing package aliases from package test and dtslint files. |
@@ -1859,7 +1866,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Purge/Purge.command` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge/Purge.command` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:127` | Summary statistics returned after a purge run. |
 | `@beep/repo-cli/commands/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/commands/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
@@ -1873,50 +1880,52 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
 | `@beep/repo-cli/commands/Quality/index` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
 | `@beep/repo-cli/commands/Quality/index` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:865` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:141` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:154` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:866` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:142` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/commands/Quality/Quality.command` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:357` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1202` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:617` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1522` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1445` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1613` | Run the repo-wide JSDoc quality gate. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1557` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1248` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1011` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1344` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:358` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1203` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:618` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1523` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1446` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1614` | Run the repo-wide JSDoc quality gate. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1558` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1249` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1012` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1345` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1205` | Run a subprocess and capture all output. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:104` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1099` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1336` | Collect existing changed files for the root lint fix fast path. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1305` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `lintFixChangedStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1351` | Build the root lint fix changed-file step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Package-local script profile used by the quality task adapter. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1199` | Parse a raw argv vector into a quality task invocation when the first token is |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:160` | Result of parsing a quality command invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:70` | Canonical quality task name. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:87` | Canonical quality task name. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:131` | Planned subprocess invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:996` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1143` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1173` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1222` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:805` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:819` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:786` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:165` | Result of parsing a quality command invocation. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:75` | Canonical quality task name. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:92` | Canonical quality task name. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:136` | Planned subprocess invocation. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1096` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1243` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1273` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1322` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:903` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:917` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:884` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/commands/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/commands/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
@@ -2124,8 +2133,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
 | `@beep/repo-cli/commands/Yeet` | `YeetRunMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:58` | Yeet execution modes. |
 | `@beep/repo-cli/commands/Yeet` | `YeetRunMode` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:70` | Yeet execution modes. |
-| `@beep/repo-cli/commands/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:150` | Runtime options accepted by the yeet handler. |
-| `@beep/repo-cli/commands/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:178` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/commands/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:157` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/commands/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:185` | Result returned by a yeet execution attempt. |
 | `@beep/repo-cli/commands/Yeet/index` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
 | `@beep/repo-cli/commands/Yeet/index` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
 | `@beep/repo-cli/commands/Yeet/index` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
@@ -2140,8 +2149,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Yeet/index` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
 | `@beep/repo-cli/commands/Yeet/index` | `YeetRunMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:58` | Yeet execution modes. |
 | `@beep/repo-cli/commands/Yeet/index` | `YeetRunMode` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:70` | Yeet execution modes. |
-| `@beep/repo-cli/commands/Yeet/index` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:150` | Runtime options accepted by the yeet handler. |
-| `@beep/repo-cli/commands/Yeet/index` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:178` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/commands/Yeet/index` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:157` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/commands/Yeet/index` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:185` | Result returned by a yeet execution attempt. |
 | `@beep/repo-cli/commands/Yeet/Yeet.command` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:91` | Command that repairs, verifies, or publishes repository work through Yeet. |
 | `@beep/repo-cli/commands/Yeet/Yeet.errors` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:671` | Check whether config entries already exist (for dry-run output). |
@@ -2318,45 +2327,59 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:72` | A package name referenced by a changeset file. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:102` | Summary emitted by the changeset package graph guard. |
 | `@beep/repo-cli/test/Quality` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:309` | Parse package references from one changeset Markdown document. |
-| `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:865` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
-| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1205` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:866` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
+| `@beep/repo-cli/test/Quality` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1336` | Collect existing changed files for the root lint fix fast path. |
+| `@beep/repo-cli/test/Quality` | `collectPackageVerifyChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:653` | Collect changed paths used for package verification auto-detection. |
+| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1305` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:402` | Find changeset package references that are not in the workspace graph. |
-| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:141` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:154` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:142` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:140` | Options for building or writing the JSDoc documentation inventory. |
 | `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:160` | Result returned after writing JSDoc inventory artifacts. |
+| `@beep/repo-cli/test/Quality` | `lintFixChangedStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1351` | Build the root lint fix changed-file step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
-| `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:104` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1099` | Parse a raw argv vector into a quality task invocation when the first token is |
-| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Package-local script profile used by the quality task adapter. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyReport` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:171` | Package verification report. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyStepName` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:41` | Verification step names run by `quality package-verify`. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyStepName` | type | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:60` | Verification step names run by `quality package-verify`. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyStepResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:138` | Package verification subprocess result. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyStepSpec` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:106` | Package verification step specification. |
+| `@beep/repo-cli/test/Quality` | `packageVerifyStepSpecsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:638` | Build package verification step specs. Exposed for focused tests. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyWorkspace` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:79` | Workspace package candidate used by package verification. |
+| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1199` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:160` | Result of parsing a quality command invocation. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:70` | Canonical quality task name. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:87` | Canonical quality task name. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:131` | Planned subprocess invocation. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:165` | Result of parsing a quality command invocation. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:75` | Canonical quality task name. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:92` | Canonical quality task name. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:136` | Planned subprocess invocation. |
+| `@beep/repo-cli/test/Quality` | `renderPackageVerifyReportForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:557` | Render a package verification report for terminal output. |
 | `@beep/repo-cli/test/Quality` | `RepoExportsCatalogOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:119` | Options for building, writing, or checking the repo export catalog. |
 | `@beep/repo-cli/test/Quality` | `RepoExportsCatalogWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:137` | Result returned after writing or checking repo export catalog artifacts. |
-| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:996` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:357` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1096` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:358` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
 | `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
-| `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1202` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/test/Quality` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:617` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1522` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1445` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/test/Quality` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1613` | Run the repo-wide JSDoc quality gate. |
-| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1143` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1173` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1222` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1557` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:805` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1248` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1011` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1344` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:819` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:786` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1203` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/test/Quality` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:618` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1523` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1446` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/test/Quality` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1614` | Run the repo-wide JSDoc quality gate. |
+| `@beep/repo-cli/test/Quality` | `runPackageVerify` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:499` | Run package-local verification for a workspace package. |
+| `@beep/repo-cli/test/Quality` | `runPackageVerifyCli` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:597` | Run package verification and render the CLI result. |
+| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1243` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1273` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1322` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1558` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:903` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1249` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1012` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1345` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/test/Quality` | `selectPackageVerifyTargetForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:321` | Resolve the package target for package verification. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:917` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:884` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/test/Quality` | `writeJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:995` | Write JSDoc inventory JSONC and Markdown artifacts. |
 | `@beep/repo-cli/test/Quality` | `writeOrCheckRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:698` | Write or freshness-check repo export catalog JSONC and Markdown artifacts. |
@@ -2432,26 +2455,27 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:382` | Resolver output consumed by reporting and write-mode services. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:366` | YAML location to update in write mode. |
 | `@beep/repo-cli/test/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:716` | Build a schema-first issue index from normalized issues. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:360` | Build the publish-mode yeet run plan. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1025` | Build a plan for tests without reading repository state. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanWithMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:322` | Build a yeet run plan for a specific mode. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:340` | Build the publish-mode yeet run plan. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1091` | Build a plan for tests without reading repository state. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanWithMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:302` | Build a yeet run plan for a specific mode. |
 | `@beep/repo-cli/test/Yeet` | `byRepoPlanStepAscending` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:375` | Order repository plan steps by phase, then identifier. |
 | `@beep/repo-cli/test/Yeet` | `commandTextForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:417` | Render a planned step as a shell-like command string. |
-| `@beep/repo-cli/test/Yeet` | `decodeTurboPlanTasksFromQueryJsonForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:613` | Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests. |
+| `@beep/repo-cli/test/Yeet` | `decodeTurboPlanTasksFromQueryJsonForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:687` | Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests. |
 | `@beep/repo-cli/test/Yeet` | `DEFAULT_YEET_PACKET_DIR` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:34` | Default ignored directory for yeet run artifacts. |
-| `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1044` | Construct baseline yeet options for focused tests. |
-| `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:158` | Create an empty Turbo metadata snapshot. |
+| `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1110` | Construct baseline yeet options for focused tests. |
+| `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:163` | Create an empty Turbo metadata snapshot. |
 | `@beep/repo-cli/test/Yeet` | `enforceConservativeResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:456` | Ensure a step's resume field follows v1 safety rules. |
 | `@beep/repo-cli/test/Yeet` | `executeRepoPlanStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:162` | Execute a planned repository step and optionally persist its raw output. |
 | `@beep/repo-cli/test/Yeet` | `GITHUB_CHECK_MODE_VALUES` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts:26` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Yeet` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts:42` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Yeet` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts:54` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/test/Yeet` | `gitPathListFromNulOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:250` | Parse NUL-delimited Git path output for Yeet publish-safety tests. |
-| `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:662` | Hydrate a shared yeet run context from repository state. |
+| `@beep/repo-cli/test/Yeet` | `gitPathListFromNulOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:267` | Parse NUL-delimited Git path output for Yeet publish-safety tests. |
+| `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:728` | Hydrate a shared yeet run context from repository state. |
 | `@beep/repo-cli/test/Yeet` | `isConservativeResumeCandidate` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:445` | Determine whether a planned step may use conservative resume metadata. |
-| `@beep/repo-cli/test/Yeet` | `jsonObjectTextFromMixedOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:494` | Extract the last decodable JSON object from mixed command output for tests. |
+| `@beep/repo-cli/test/Yeet` | `jsonObjectTextFromMixedOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:544` | Extract the last decodable JSON object from mixed command output for tests. |
 | `@beep/repo-cli/test/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
-| `@beep/repo-cli/test/Yeet` | `publishPathsOutsideIntentForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:258` | Return observed paths that are not part of the reviewed Yeet publish intent. |
+| `@beep/repo-cli/test/Yeet` | `publishPathsOutsideIntentForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:275` | Return observed paths that are not part of the reviewed Yeet publish intent. |
+| `@beep/repo-cli/test/Yeet` | `publishRestagePathsForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:284` | Return reviewed paths that can be passed to `git add` without failing on |
 | `@beep/repo-cli/test/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
 | `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
 | `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:71` | Type-level union of normalized yeet quality finding categories. |
@@ -2484,7 +2508,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Yeet` | `RepoStepRunResult` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:346` | Captured subprocess result for a planned step. |
 | `@beep/repo-cli/test/Yeet` | `resolveLocalRepoBinary` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:203` | Resolve a local node_modules binary when present. |
 | `@beep/repo-cli/test/Yeet` | `runRepoCommandCapture` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:92` | Execute a command and capture combined output. |
-| `@beep/repo-cli/test/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:999` | Run yeet with the provided options. |
+| `@beep/repo-cli/test/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1065` | Run yeet with the provided options. |
 | `@beep/repo-cli/test/Yeet` | `TurboPlanSnapshot` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:214` | Turbo snapshot stored in the shared run context. |
 | `@beep/repo-cli/test/Yeet` | `TurboPlanTask` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:162` | Turbo task metadata captured from dry-runs or summaries. |
 | `@beep/repo-cli/test/Yeet` | `turboTaskForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:473` | Lookup Turbo metadata for a planned step, if available. |
@@ -2492,12 +2516,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Yeet` | `YEET_FEEDBACK_TASKS` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:42` | Turbo tasks used by the Yeet feedback phase. |
 | `@beep/repo-cli/test/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:91` | Command that repairs, verifies, or publishes repository work through Yeet. |
 | `@beep/repo-cli/test/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
-| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:377` | Return plan phases in execution order. |
+| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:357` | Return plan phases in execution order. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:58` | Yeet execution modes. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunMode` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:70` | Yeet execution modes. |
-| `@beep/repo-cli/test/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:150` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/test/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:157` | Runtime options accepted by the yeet handler. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunPlanModeOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:84` | Options for building a Yeet run plan in a specific mode. |
-| `@beep/repo-cli/test/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:178` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/test/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:185` | Result returned by a yeet execution attempt. |
 
 ### @beep/ai-sync
 
@@ -4483,18 +4507,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:988` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1130` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1131` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:704` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
 | `@beep/test-utils` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:533` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1038` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1082` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
 | `@beep/test-utils` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:213` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
 | `@beep/test-utils` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:255` | Constructor input accepted by the external PostgreSQL SQL test driver. |
 | `@beep/test-utils` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:270` | Mode selector for the public PGLite SQL test layer helper. |
 | `@beep/test-utils` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:284` | Options for `makePgliteSqlTestLayer`. |
 | `@beep/test-utils` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:465` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1060` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:197` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
@@ -4503,18 +4527,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils` | `SqlTestHooks` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:350` | Optional database setup hooks executed after the driver layer has been built. |
 | `@beep/test-utils` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:303` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
-| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:988` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1130` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/index` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1131` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils/index` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:704` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
 | `@beep/test-utils/index` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:533` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1038` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1082` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/index` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/index` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
 | `@beep/test-utils/index` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:213` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
 | `@beep/test-utils/index` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:255` | Constructor input accepted by the external PostgreSQL SQL test driver. |
 | `@beep/test-utils/index` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:270` | Mode selector for the public PGLite SQL test layer helper. |
 | `@beep/test-utils/index` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:284` | Options for `makePgliteSqlTestLayer`. |
 | `@beep/test-utils/index` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:465` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1060` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/index` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:197` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/index` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
@@ -4524,18 +4548,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/test-utils/index` | `TestDatabaseInfo` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:303` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/index` | `TestDatabaseInfoShape` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:120` | Runtime metadata for an ephemeral integration-test database instance. |
 | `@beep/test-utils/Layer` | `provideScopedLayer` | const | `packages/tooling/test-kit/test-utils/src/Layer.ts:30` | Provide a layer to an effect inside a scoped lifetime. |
-| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:988` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1130` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
+| `@beep/test-utils/SqlTest` | `BunSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:989` | Fresh Bun SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `makePgliteSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1131` | Build the recommended PGLite SQL test layer for vertical-slice integration tests. |
 | `@beep/test-utils/SqlTest` | `makePgliteTestcontainerResource` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:704` | Start a scoped PGLite Testcontainers PostgreSQL wire-protocol resource. |
 | `@beep/test-utils/SqlTest` | `makeSqlTestLayer` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:533` | Build a fresh, scoped SQL integration-test layer for a concrete driver. |
-| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1038` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
-| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1082` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
+| `@beep/test-utils/SqlTest` | `NodeSqliteTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1039` | Fresh Node SQLite integration-test driver backed by a scoped temp directory. |
+| `@beep/test-utils/SqlTest` | `PgExternalTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1083` | External PostgreSQL-compatible integration-test driver backed by a caller-managed server. |
 | `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:213` | Runtime configuration for an externally managed PostgreSQL-compatible SQL test driver. |
 | `@beep/test-utils/SqlTest` | `PgExternalTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:255` | Constructor input accepted by the external PostgreSQL SQL test driver. |
 | `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerMode` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:270` | Mode selector for the public PGLite SQL test layer helper. |
 | `@beep/test-utils/SqlTest` | `PgliteSqlTestLayerOptions` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:284` | Options for `makePgliteSqlTestLayer`. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainerResource` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:465` | Scoped PGLite Testcontainers resource metadata. |
-| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1060` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
+| `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriver` | const | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:1061` | Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfig` | class | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:150` | Runtime configuration for the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/SqlTest` | `PgliteTestcontainersTestDriverConfigInput` | type | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:197` | Constructor input accepted by the PGLite Testcontainers SQL test driver. |
 | `@beep/test-utils/SqlTest` | `SqlTestDriver` | interface | `packages/tooling/test-kit/test-utils/src/SqlTest.ts:369` | Driver contract for reusable SQL integration-test layers. |
@@ -4907,14 +4931,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/semantic-web` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:935` | RFC 3987 `absolute-IRI` schema without a fragment component. |
-| `@beep/semantic-web` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:956` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
-| `@beep/semantic-web` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:973` | RFC 3987 `IRI` schema. |
-| `@beep/semantic-web` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:994` | RFC 3987 `IRI` syntax. |
-| `@beep/semantic-web` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:859` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
-| `@beep/semantic-web` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:880` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
-| `@beep/semantic-web` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:897` | RFC 3987 `irelative-ref` schema. |
-| `@beep/semantic-web` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:918` | RFC 3987 `irelative-ref` syntax. |
+| `@beep/semantic-web` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:936` | RFC 3987 `absolute-IRI` schema without a fragment component. |
+| `@beep/semantic-web` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:957` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
+| `@beep/semantic-web` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:974` | RFC 3987 `IRI` schema. |
+| `@beep/semantic-web` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:995` | RFC 3987 `IRI` syntax. |
+| `@beep/semantic-web` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:860` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
+| `@beep/semantic-web` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:881` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
+| `@beep/semantic-web` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:898` | RFC 3987 `irelative-ref` schema. |
+| `@beep/semantic-web` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:919` | RFC 3987 `irelative-ref` syntax. |
 | `@beep/semantic-web/adapters/canonicalization` | `CanonicalizationServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/canonicalization.ts:250` | Canonicalization service live layer. |
 | `@beep/semantic-web/adapters/jsonld-context` | `JsonLdContextServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-context.ts:132` | JSON-LD context service live layer. |
 | `@beep/semantic-web/adapters/jsonld-document` | `JsonLdDocumentServiceLive` | const | `packages/foundation/capability/semantic-web/src/adapters/jsonld-document.ts:748` | JSON-LD document service live layer. |
@@ -4945,22 +4969,22 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web/evidence` | `FragmentSelector` | class | `packages/foundation/capability/semantic-web/src/evidence.ts:154` | Fragment selector for evidence anchors. |
 | `@beep/semantic-web/evidence` | `TextPositionSelector` | class | `packages/foundation/capability/semantic-web/src/evidence.ts:114` | Text-position selector for evidence anchors. |
 | `@beep/semantic-web/evidence` | `TextQuoteSelector` | class | `packages/foundation/capability/semantic-web/src/evidence.ts:72` | Text-quote selector for evidence anchors. |
-| `@beep/semantic-web/index` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:935` | RFC 3987 `absolute-IRI` schema without a fragment component. |
-| `@beep/semantic-web/index` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:956` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
-| `@beep/semantic-web/index` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:973` | RFC 3987 `IRI` schema. |
-| `@beep/semantic-web/index` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:994` | RFC 3987 `IRI` syntax. |
-| `@beep/semantic-web/index` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:859` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
-| `@beep/semantic-web/index` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:880` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
-| `@beep/semantic-web/index` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:897` | RFC 3987 `irelative-ref` schema. |
-| `@beep/semantic-web/index` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:918` | RFC 3987 `irelative-ref` syntax. |
-| `@beep/semantic-web/iri` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:935` | RFC 3987 `absolute-IRI` schema without a fragment component. |
-| `@beep/semantic-web/iri` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:956` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
-| `@beep/semantic-web/iri` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:973` | RFC 3987 `IRI` schema. |
-| `@beep/semantic-web/iri` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:994` | RFC 3987 `IRI` syntax. |
-| `@beep/semantic-web/iri` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:859` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
-| `@beep/semantic-web/iri` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:880` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
-| `@beep/semantic-web/iri` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:897` | RFC 3987 `irelative-ref` schema. |
-| `@beep/semantic-web/iri` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:918` | RFC 3987 `irelative-ref` syntax. |
+| `@beep/semantic-web/index` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:936` | RFC 3987 `absolute-IRI` schema without a fragment component. |
+| `@beep/semantic-web/index` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:957` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
+| `@beep/semantic-web/index` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:974` | RFC 3987 `IRI` schema. |
+| `@beep/semantic-web/index` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:995` | RFC 3987 `IRI` syntax. |
+| `@beep/semantic-web/index` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:860` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
+| `@beep/semantic-web/index` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:881` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
+| `@beep/semantic-web/index` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:898` | RFC 3987 `irelative-ref` schema. |
+| `@beep/semantic-web/index` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:919` | RFC 3987 `irelative-ref` syntax. |
+| `@beep/semantic-web/iri` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:936` | RFC 3987 `absolute-IRI` schema without a fragment component. |
+| `@beep/semantic-web/iri` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:957` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
+| `@beep/semantic-web/iri` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:974` | RFC 3987 `IRI` schema. |
+| `@beep/semantic-web/iri` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:995` | RFC 3987 `IRI` syntax. |
+| `@beep/semantic-web/iri` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:860` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
+| `@beep/semantic-web/iri` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:881` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
+| `@beep/semantic-web/iri` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:898` | RFC 3987 `irelative-ref` schema. |
+| `@beep/semantic-web/iri` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:919` | RFC 3987 `irelative-ref` syntax. |
 | `@beep/semantic-web/jsonld` | `JsonLdBlankNodeIdentifier` | const | `packages/foundation/modeling/rdf/src/JsonLd.ts:168` | JSON-LD blank-node identifier used by the bounded document model. |
 | `@beep/semantic-web/jsonld` | `JsonLdBlankNodeIdentifier` | type | `packages/foundation/modeling/rdf/src/JsonLd.ts:199` | Type for {@link JsonLdBlankNodeIdentifier}. |
 | `@beep/semantic-web/jsonld` | `JsonLdContext` | class | `packages/foundation/modeling/rdf/src/JsonLd.ts:134` | Normalized JSON-LD context model with bounded base, vocab, and term bindings. |
@@ -5007,7 +5031,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web/prov` | `SoftwareAgent` | class | `packages/foundation/capability/semantic-web/src/prov.ts:374` | PROV software agent. |
 | `@beep/semantic-web/prov` | `Start` | class | `packages/foundation/capability/semantic-web/src/prov.ts:770` | PROV start relation. |
 | `@beep/semantic-web/prov` | `Usage` | class | `packages/foundation/capability/semantic-web/src/prov.ts:550` | PROV usage relation. |
-| `@beep/semantic-web/rdf` | `areDatasetsEquivalent` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1043` | Compare datasets by sorted quad serialization. |
+| `@beep/semantic-web/rdf` | `areDatasetsEquivalent` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1044` | Compare datasets by sorted quad serialization. |
 | `@beep/semantic-web/rdf` | `BlankNode` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:374` | RDF blank node value. |
 | `@beep/semantic-web/rdf` | `Curie` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:263` | CURIE-style compact IRI expression. |
 | `@beep/semantic-web/rdf` | `Curie` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:285` | Type for {@link Curie}. |
@@ -5019,12 +5043,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web/rdf` | `LanguageTag` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:335` | Type for {@link LanguageTag}. |
 | `@beep/semantic-web/rdf` | `Literal` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:413` | RDF literal value. |
 | `@beep/semantic-web/rdf` | `makeBlankNode` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:791` | Build a blank node from a non-empty label. |
-| `@beep/semantic-web/rdf` | `makeDataset` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:951` | Build a dataset from quads. |
+| `@beep/semantic-web/rdf` | `makeDataset` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:952` | Build a dataset from quads. |
 | `@beep/semantic-web/rdf` | `makeLiteral` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:854` | Build an RDF literal. |
 | `@beep/semantic-web/rdf` | `MakeLiteralOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:811` | Optional language settings for {@link makeLiteral}. |
 | `@beep/semantic-web/rdf` | `makeNamedNode` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:765` | Build a named node from an IRI string. |
-| `@beep/semantic-web/rdf` | `makeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:915` | Build an RDF quad. |
-| `@beep/semantic-web/rdf` | `MakeQuadOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:875` | Object and optional graph settings for {@link makeQuad}. |
+| `@beep/semantic-web/rdf` | `makeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:916` | Build an RDF quad. |
+| `@beep/semantic-web/rdf` | `MakeQuadOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:876` | Object and optional graph settings for {@link makeQuad}. |
 | `@beep/semantic-web/rdf` | `NamedNode` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:350` | RDF named node value. |
 | `@beep/semantic-web/rdf` | `NamespaceBinding` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:685` | Prefix-to-namespace binding for RDF compaction and expansion. |
 | `@beep/semantic-web/rdf` | `ObjectTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:564` | RDF object term union. |
@@ -5034,28 +5058,28 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web/rdf` | `PrefixMap` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:709` | Prefix map keyed by {@link PrefixLabel}. |
 | `@beep/semantic-web/rdf` | `PrefixMap` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:743` | Type for {@link PrefixMap}. |
 | `@beep/semantic-web/rdf` | `Quad` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:636` | RDF quad value aligned with RDF/JS. |
-| `@beep/semantic-web/rdf` | `serializeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1000` | Serialize an RDF quad to a deterministic lexical form. |
-| `@beep/semantic-web/rdf` | `serializeTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:969` | Serialize an RDF term to a deterministic lexical form. |
-| `@beep/semantic-web/rdf` | `sortDatasetQuads` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1022` | Sort dataset quads by deterministic quad serialization. |
+| `@beep/semantic-web/rdf` | `serializeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1001` | Serialize an RDF quad to a deterministic lexical form. |
+| `@beep/semantic-web/rdf` | `serializeTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:970` | Serialize an RDF term to a deterministic lexical form. |
+| `@beep/semantic-web/rdf` | `sortDatasetQuads` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1023` | Sort dataset quads by deterministic quad serialization. |
 | `@beep/semantic-web/rdf` | `Subject` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:528` | RDF subject term union. |
 | `@beep/semantic-web/rdf` | `Subject` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:549` | Type for {@link Subject}. |
 | `@beep/semantic-web/rdf` | `Term` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:476` | RDF term union. |
 | `@beep/semantic-web/rdf` | `Term` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:513` | Type for {@link Term}. |
-| `@beep/semantic-web/semantic-schema-metadata` | `annotateSemanticSchema` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:346` | Attach validated semantic metadata to any Effect schema. |
-| `@beep/semantic-web/semantic-schema-metadata` | `getSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:427` | Read semantic metadata from any Effect schema, if present. |
-| `@beep/semantic-web/semantic-schema-metadata` | `makeSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:316` | Validate a metadata payload before attaching it to a public schema. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentation` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:220` | Single representation note attached to semantic-web schemas. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentationKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:151` | Representation label for semantic-web values. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentationKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:178` | Type for {@link SemanticRepresentationKind}. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadata` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:243` | Typed metadata payload stored in the `semanticSchemaMetadata` annotation key. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataAnnotationPayload` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:281` | Payload stored in the `semanticSchemaMetadata` annotation key. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:37` | Closed v1 metadata kind domain for semantic-web schemas. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:66` | Type for {@link SemanticSchemaMetadataKind}. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecification` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:193` | Single specification reference attached to public semantic-web schemas. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecificationDisposition` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:116` | Specification disposition attached to a semantic schema reference. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecificationDisposition` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:136` | Type for {@link SemanticSchemaSpecificationDisposition}. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaStatus` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:81` | Stability classification for semantic-web schema metadata. |
-| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaStatus` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:101` | Type for {@link SemanticSchemaStatus}. |
+| `@beep/semantic-web/semantic-schema-metadata` | `annotateSemanticSchema` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:347` | Attach validated semantic metadata to any Effect schema. |
+| `@beep/semantic-web/semantic-schema-metadata` | `getSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:430` | Read semantic metadata from any Effect schema, if present. |
+| `@beep/semantic-web/semantic-schema-metadata` | `makeSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:317` | Validate a metadata payload before attaching it to a public schema. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentation` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:221` | Single representation note attached to semantic-web schemas. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentationKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:152` | Representation label for semantic-web values. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticRepresentationKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:179` | Type for {@link SemanticRepresentationKind}. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadata` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:244` | Typed metadata payload stored in the `semanticSchemaMetadata` annotation key. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataAnnotationPayload` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:282` | Payload stored in the `semanticSchemaMetadata` annotation key. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:38` | Closed v1 metadata kind domain for semantic-web schemas. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaMetadataKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:67` | Type for {@link SemanticSchemaMetadataKind}. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecification` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:194` | Single specification reference attached to public semantic-web schemas. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecificationDisposition` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:117` | Specification disposition attached to a semantic schema reference. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaSpecificationDisposition` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:137` | Type for {@link SemanticSchemaSpecificationDisposition}. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaStatus` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:82` | Stability classification for semantic-web schema metadata. |
+| `@beep/semantic-web/semantic-schema-metadata` | `SemanticSchemaStatus` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:102` | Type for {@link SemanticSchemaStatus}. |
 | `@beep/semantic-web/services/canonicalization` | `CanonicalDatasetResult` | class | `packages/foundation/capability/semantic-web/src/services/canonicalization.ts:148` | Canonical dataset output. |
 | `@beep/semantic-web/services/canonicalization` | `CanonicalizationAlgorithm` | const | `packages/foundation/capability/semantic-web/src/services/canonicalization.ts:48` | Canonicalization algorithm name. |
 | `@beep/semantic-web/services/canonicalization` | `CanonicalizationError` | class | `packages/foundation/capability/semantic-web/src/services/canonicalization.ts:67` | Typed canonicalization error. |
@@ -5138,17 +5162,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web/services/sparql-query` | `SparqlQueryServiceShape` | interface | `packages/foundation/capability/semantic-web/src/services/sparql-query.ts:221` | SPARQL query service contract shape. |
 | `@beep/semantic-web/services/sparql-query` | `SparqlSelectResult` | class | `packages/foundation/capability/semantic-web/src/services/sparql-query.ts:87` | SPARQL select result. |
 | `@beep/semantic-web/services/sparql-query` | `UnsupportedSparqlQueryServiceLive` | const | `packages/foundation/capability/semantic-web/src/services/sparql-query.ts:255` | Unsupported default live layer for the minimal v1 SPARQL contract. |
-| `@beep/semantic-web/uri` | `AbsoluteURI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:282` | RFC 3986 `absolute-URI` schema without a fragment component. |
-| `@beep/semantic-web/uri` | `AbsoluteURI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:304` | Type for {@link AbsoluteURI}. |
-| `@beep/semantic-web/uri` | `areUrisEquivalent` | const | `packages/foundation/modeling/rdf/src/Uri.ts:405` | Compare two URI values using URI-family normalization rules. |
-| `@beep/semantic-web/uri` | `normalizeUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:361` | Normalize a URI or URI reference for transport-oriented comparisons. |
-| `@beep/semantic-web/uri` | `RelativeURIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:243` | RFC 3986 `relative-ref` schema. |
-| `@beep/semantic-web/uri` | `RelativeURIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:265` | Type for {@link RelativeURIReference}. |
-| `@beep/semantic-web/uri` | `resolveUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:381` | Resolve a URI reference against an absolute base URI. |
-| `@beep/semantic-web/uri` | `URI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:321` | RFC 3986 `URI` schema. |
-| `@beep/semantic-web/uri` | `URI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:343` | Type for {@link URI}. |
-| `@beep/semantic-web/uri` | `URIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:204` | RFC 3986 `URI-reference` schema, including absolute and relative forms. |
-| `@beep/semantic-web/uri` | `URIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:226` | Type for {@link URIReference}. |
+| `@beep/semantic-web/uri` | `AbsoluteURI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:283` | RFC 3986 `absolute-URI` schema without a fragment component. |
+| `@beep/semantic-web/uri` | `AbsoluteURI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:305` | Type for {@link AbsoluteURI}. |
+| `@beep/semantic-web/uri` | `areUrisEquivalent` | const | `packages/foundation/modeling/rdf/src/Uri.ts:406` | Compare two URI values using URI-family normalization rules. |
+| `@beep/semantic-web/uri` | `normalizeUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:362` | Normalize a URI or URI reference for transport-oriented comparisons. |
+| `@beep/semantic-web/uri` | `RelativeURIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:244` | RFC 3986 `relative-ref` schema. |
+| `@beep/semantic-web/uri` | `RelativeURIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:266` | Type for {@link RelativeURIReference}. |
+| `@beep/semantic-web/uri` | `resolveUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:382` | Resolve a URI reference against an absolute base URI. |
+| `@beep/semantic-web/uri` | `URI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:322` | RFC 3986 `URI` schema. |
+| `@beep/semantic-web/uri` | `URI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:344` | Type for {@link URI}. |
+| `@beep/semantic-web/uri` | `URIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:205` | RFC 3986 `URI-reference` schema, including absolute and relative forms. |
+| `@beep/semantic-web/uri` | `URIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:227` | Type for {@link URIReference}. |
 | `@beep/semantic-web/vocab/oa` | `OA_ANNOTATION` | const | `packages/foundation/modeling/rdf/src/Vocab/Oa.ts:39` | `oa:Annotation` |
 | `@beep/semantic-web/vocab/oa` | `OA_HAS_SELECTOR` | const | `packages/foundation/modeling/rdf/src/Vocab/Oa.ts:69` | `oa:hasSelector` |
 | `@beep/semantic-web/vocab/oa` | `OA_HAS_TARGET` | const | `packages/foundation/modeling/rdf/src/Vocab/Oa.ts:54` | `oa:hasTarget` |
@@ -5172,12 +5196,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/semantic-web/vocab/rdfs` | `RDFS_COMMENT` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:54` | `rdfs:comment` |
 | `@beep/semantic-web/vocab/rdfs` | `RDFS_LABEL` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:39` | `rdfs:label` |
 | `@beep/semantic-web/vocab/rdfs` | `RDFS_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:24` | RDFS namespace IRI. |
-| `@beep/semantic-web/vocab/xsd` | `XSD_ANY_URI` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:54` | `xsd:anyURI` |
-| `@beep/semantic-web/vocab/xsd` | `XSD_BOOLEAN` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:69` | `xsd:boolean` |
-| `@beep/semantic-web/vocab/xsd` | `XSD_DOUBLE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:99` | `xsd:double` |
-| `@beep/semantic-web/vocab/xsd` | `XSD_INTEGER` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:84` | `xsd:integer` |
-| `@beep/semantic-web/vocab/xsd` | `XSD_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:24` | XSD namespace IRI. |
-| `@beep/semantic-web/vocab/xsd` | `XSD_STRING` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:39` | `xsd:string` |
+| `@beep/semantic-web/vocab/xsd` | `XSD_ANY_URI` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:55` | `xsd:anyURI` |
+| `@beep/semantic-web/vocab/xsd` | `XSD_BOOLEAN` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:70` | `xsd:boolean` |
+| `@beep/semantic-web/vocab/xsd` | `XSD_DOUBLE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:100` | `xsd:double` |
+| `@beep/semantic-web/vocab/xsd` | `XSD_INTEGER` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:85` | `xsd:integer` |
+| `@beep/semantic-web/vocab/xsd` | `XSD_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:25` | XSD namespace IRI. |
+| `@beep/semantic-web/vocab/xsd` | `XSD_STRING` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:40` | `xsd:string` |
 
 ### @beep/utils
 
@@ -6033,23 +6057,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AiMetricsConfigSnapshotResult` | class | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:124` | Complete repo-local agent configuration snapshot result. |
 | `@beep/repo-ai-metrics` | `AiMetricsDeployTarget` | const | `packages/tooling/library/ai-metrics/src/models.ts:26` | Supported deployment targets for the AI metrics stack. |
 | `@beep/repo-ai-metrics` | `AiMetricsDeployTarget` | type | `packages/tooling/library/ai-metrics/src/models.ts:44` | Runtime type for {@link AiMetricsDeployTarget}. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:474` | Error raised by the DuckDB derived storage projection. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:521` | Input for a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:549` | Result of a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:498` | One sanitized transcript ready for derived storage projection. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:506` | Error raised by the DuckDB derived storage projection. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:553` | Input for a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:585` | Result of a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:530` | One sanitized transcript ready for derived storage projection. |
 | `@beep/repo-ai-metrics` | `AiMetricsDiscoveredSource` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:150` | Source-level discovery summary. |
 | `@beep/repo-ai-metrics` | `AiMetricsDiscoveredTranscriptFile` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:117` | One transcript or source metadata file discovered for AI metrics. |
 | `@beep/repo-ai-metrics` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:76` | Error raised by the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:98` | Input for the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:224` | Tagged derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:245` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:170` | Successful derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:198` | Failed derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:258` | Safe result emitted by one durable AI metrics forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:141` | Per-source coverage selected by one durable forwarder run. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:292` | Input for rendering a workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:327` | Rendered systemd user units for the workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:77` | Error raised by the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:99` | Input for the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:229` | Tagged derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:250` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:175` | Successful derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:203` | Failed derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:263` | Safe result emitted by one durable AI metrics forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:146` | Per-source coverage selected by one durable forwarder run. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:298` | Input for rendering a workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:333` | Rendered systemd user units for the workstation-owned forwarder timer. |
 | `@beep/repo-ai-metrics` | `AiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:56` | Whether private identifier hashes used an operator-provided salt or a local smoke fallback. |
 | `@beep/repo-ai-metrics` | `AiMetricsHashSaltStatus` | type | `packages/tooling/library/ai-metrics/src/privacy.ts:74` | Runtime type for {@link AiMetricsHashSaltStatus}. |
 | `@beep/repo-ai-metrics` | `AiMetricsIngestError` | class | `packages/tooling/library/ai-metrics/src/ingest.ts:43` | Error raised by AI metrics ingest helpers. |
@@ -6096,6 +6120,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AiMetricsOtlpSpanProjectionBatch` | class | `packages/tooling/library/ai-metrics/src/otlp.ts:181` | Span projection batch resolved for one derived ingest run. |
 | `@beep/repo-ai-metrics` | `AiMetricsOutcomeLabelInput` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:140` | Input for adding or replacing the current label for one task. |
 | `@beep/repo-ai-metrics` | `aiMetricsOutcomeLabelToJson` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1332` | Render an outcome label as JSON. |
+| `@beep/repo-ai-metrics` | `AiMetricsParquetExportMode` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:49` | Parquet export behavior for one derived AI metrics write. |
+| `@beep/repo-ai-metrics` | `AiMetricsParquetExportMode` | type | `packages/tooling/library/ai-metrics/src/derived-storage.ts:67` | Runtime type for {@link AiMetricsParquetExportMode}. |
 | `@beep/repo-ai-metrics` | `AiMetricsPrivacyCheckResult` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:182` | Result produced by the P1 privacy proof command. |
 | `@beep/repo-ai-metrics` | `AiMetricsPrivacyError` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:206` | Error raised by AI metrics privacy helpers. |
 | `@beep/repo-ai-metrics` | `AiMetricsPrivacyMode` | const | `packages/tooling/library/ai-metrics/src/models.ts:177` | Raw transcript retention and derived-dashboard privacy posture. |
@@ -6107,17 +6133,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `AiMetricsRawArchiveObject` | class | `packages/tooling/library/ai-metrics/src/archive.ts:86` | Safe archive object metadata returned after an encrypted write or lookup. |
 | `@beep/repo-ai-metrics` | `AiMetricsRawEventEnvelope` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:112` | Hash-only envelope for a raw transcript event line. |
 | `@beep/repo-ai-metrics` | `AiMetricsRedactionResult` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:87` | Redaction proof for text that crossed the raw-transcript boundary. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:167` | Error raised by P7 AI metrics retention workflows. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:242` | Deploy-safe retained file inventory row. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:263` | Path-safe inventory returned by `ai-metrics retention list`. |
-| `@beep/repo-ai-metrics` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:933` | Render a retention inventory as JSON. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:290` | Result for delete or compaction retention commands. |
-| `@beep/repo-ai-metrics` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:953` | Render a retention mutation result as JSON. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:215` | Deploy-safe raw archive inventory row. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:318` | Input for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:344` | Result for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:973` | Render a restore drill result as JSON. |
-| `@beep/repo-ai-metrics` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:189` | Time-window selector for AI metrics retention commands. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionEnforcementPolicy` | class | `packages/tooling/library/ai-metrics/src/retention.ts:323` | Policy for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionEnforcementResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:356` | Result for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionEnforcementToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1109` | Render a retention enforcement result as JSON. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:172` | Error raised by P7 AI metrics retention workflows. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:247` | Deploy-safe retained file inventory row. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:268` | Path-safe inventory returned by `ai-metrics retention list`. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1089` | Render a retention inventory as JSON. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:295` | Result for delete or compaction retention commands. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1129` | Render a retention mutation result as JSON. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:220` | Deploy-safe raw archive inventory row. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:383` | Input for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:409` | Result for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1149` | Render a restore drill result as JSON. |
+| `@beep/repo-ai-metrics` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:194` | Time-window selector for AI metrics retention commands. |
 | `@beep/repo-ai-metrics` | `AiMetricsSanitizedTranscript` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:141` | Redacted transcript summary safe for derived tables, dashboards, and OTLP attributes. |
 | `@beep/repo-ai-metrics` | `AiMetricsScorecardError` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:42` | Error raised by AI metrics label, benchmark, or scorecard workflows. |
 | `@beep/repo-ai-metrics` | `AiMetricsScoreWeights` | class | `packages/tooling/library/ai-metrics/src/models.ts:325` | Outcome-heavy scorecard weights for coding-agent performance. |
@@ -6150,14 +6179,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `decryptEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:362` | Decrypt an archive envelope for package-level verification. |
 | `@beep/repo-ai-metrics` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:53` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:574` | Discover local AI metrics transcript sources for the smoke target. |
-| `@beep/repo-ai-metrics` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:691` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:854` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:875` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics` | `enforceAiMetricsRetentionPolicy` | const | `packages/tooling/library/ai-metrics/src/retention.ts:793` | Enforce local AI metrics retention for old per-run Parquet snapshots. |
+| `@beep/repo-ai-metrics` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:728` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
+| `@beep/repo-ai-metrics` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:864` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:885` | Render a forwarder timer plan as JSON. |
 | `@beep/repo-ai-metrics` | `generateAiMetricsWeeklyReport` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1224` | Generate and persist a weekly config-impact report. |
 | `@beep/repo-ai-metrics` | `hashPrivateIdentifier` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:347` | Compute a salted SHA-256 digest for private identifiers such as local paths and session ids. |
 | `@beep/repo-ai-metrics` | `hashPublicTextSha256` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:323` | Compute a deterministic public SHA-256 digest for non-private content identity. |
 | `@beep/repo-ai-metrics` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
-| `@beep/repo-ai-metrics` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:581` | List retained AI metrics raw archive objects and derived/report outputs. |
+| `@beep/repo-ai-metrics` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:650` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
 | `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2989` | Check a local annotation plan for Phase 1 privacy and schema safety. |
 | `@beep/repo-ai-metrics` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2150` | Build a sanitized local-only annotation plan. |
@@ -6183,15 +6213,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `readEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:399` | Read and decode an encrypted raw archive envelope from disk. |
 | `@beep/repo-ai-metrics` | `recordAiMetricsBenchmarkRun` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:796` | Record an observed benchmark run for one config snapshot. |
 | `@beep/repo-ai-metrics` | `redactAiMetricsSensitiveText` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:502` | Redact secret-shaped text before any diagnostic rendering. |
-| `@beep/repo-ai-metrics` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:415` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
+| `@beep/repo-ai-metrics` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:421` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
 | `@beep/repo-ai-metrics` | `renderAiMetricsLocalPhoenixCompose` | const | `packages/tooling/library/ai-metrics/src/compose.ts:46` | Render a dedicated Docker Compose file for local Phoenix smoke tests. |
 | `@beep/repo-ai-metrics` | `resolveAiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:307` | Resolve the effective private hash salt status. |
 | `@beep/repo-ai-metrics` | `resolveAiMetricsHashSaltValue` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:291` | Resolve the effective private hash salt value. |
-| `@beep/repo-ai-metrics` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:750` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:756` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics` | `runAiMetricsOtlpExport` | const | `packages/tooling/library/ai-metrics/src/otlp.ts:474` | Emit redacted AI metrics derived spans through the active Effect tracer. |
-| `@beep/repo-ai-metrics` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:773` | Compact selected AI metrics derived Parquet and report outputs. |
-| `@beep/repo-ai-metrics` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:748` | Delete selected AI metrics raw, derived, and report data. |
-| `@beep/repo-ai-metrics` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:798` | Restore selected encrypted raw archive objects into disposable derived storage. |
+| `@beep/repo-ai-metrics` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:926` | Compact selected AI metrics derived Parquet and report outputs. |
+| `@beep/repo-ai-metrics` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:901` | Delete selected AI metrics raw, derived, and report data. |
+| `@beep/repo-ai-metrics` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:951` | Restore selected encrypted raw archive objects into disposable derived storage. |
 | `@beep/repo-ai-metrics` | `Scorecard` | class | `packages/tooling/library/ai-metrics/src/models.ts:601` | Derived scorecard for weekly or config-impact review. |
 | `@beep/repo-ai-metrics` | `shellQuote` | const | `packages/tooling/library/ai-metrics/src/shell.ts:24` | Quote a value as one POSIX shell token. |
 | `@beep/repo-ai-metrics` | `sourceDiscoveryToJson` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:631` | Render a source discovery result as JSON. |
@@ -6202,7 +6232,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics` | `TranscriptIngestSummary` | class | `packages/tooling/library/ai-metrics/src/models.ts:637` | Summary produced by transcript ingestion. |
 | `@beep/repo-ai-metrics` | `upsertAiMetricsBenchmarkCase` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:681` | Add or replace a deploy-safe benchmark case. |
 | `@beep/repo-ai-metrics` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:477` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
-| `@beep/repo-ai-metrics` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1072` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
+| `@beep/repo-ai-metrics` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1156` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
 | `@beep/repo-ai-metrics` | `writeEncryptedRawArchiveObject` | const | `packages/tooling/library/ai-metrics/src/archive.ts:251` | Write one raw transcript file into the encrypted content-addressed archive. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AGENT_EFFECTIVENESS_PHOENIX_PROJECT` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:609` | Dedicated Phoenix project namespace for the agent-effectiveness loop. |
 | `@beep/repo-ai-metrics/agent-effectiveness` | `AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:623` | Confirmation token required before live Phoenix writes. |
@@ -6272,26 +6302,28 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/config-snapshot` | `configSnapshotToJson` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:543` | Render a config snapshot result as JSON. |
 | `@beep/repo-ai-metrics/config-snapshot` | `makeAiMetricsConfigSnapshot` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:424` | Build a deterministic snapshot of repo-owned agent-facing configuration. |
 | `@beep/repo-ai-metrics/config-snapshot` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:477` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:474` | Error raised by the DuckDB derived storage projection. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:521` | Input for a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:549` | Result of a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:498` | One sanitized transcript ready for derived storage projection. |
-| `@beep/repo-ai-metrics/derived-storage` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:691` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics/derived-storage` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1072` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:76` | Error raised by the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:98` | Input for the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:224` | Tagged derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:245` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:170` | Successful derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:198` | Failed derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:258` | Safe result emitted by one durable AI metrics forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:141` | Per-source coverage selected by one durable forwarder run. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:292` | Input for rendering a workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:327` | Rendered systemd user units for the workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics/forwarder` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:854` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics/forwarder` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:875` | Render a forwarder timer plan as JSON. |
-| `@beep/repo-ai-metrics/forwarder` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:415` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
-| `@beep/repo-ai-metrics/forwarder` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:750` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:506` | Error raised by the DuckDB derived storage projection. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:553` | Input for a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:585` | Result of a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:530` | One sanitized transcript ready for derived storage projection. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsParquetExportMode` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:49` | Parquet export behavior for one derived AI metrics write. |
+| `@beep/repo-ai-metrics/derived-storage` | `AiMetricsParquetExportMode` | type | `packages/tooling/library/ai-metrics/src/derived-storage.ts:67` | Runtime type for {@link AiMetricsParquetExportMode}. |
+| `@beep/repo-ai-metrics/derived-storage` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:728` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
+| `@beep/repo-ai-metrics/derived-storage` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1156` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:77` | Error raised by the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:99` | Input for the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:229` | Tagged derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:250` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:175` | Successful derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:203` | Failed derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:263` | Safe result emitted by one durable AI metrics forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:146` | Per-source coverage selected by one durable forwarder run. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:298` | Input for rendering a workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/forwarder` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:333` | Rendered systemd user units for the workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/forwarder` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:864` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics/forwarder` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:885` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics/forwarder` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:421` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
+| `@beep/repo-ai-metrics/forwarder` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:756` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics/index` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
 | `@beep/repo-ai-metrics/index` | `AGENT_EFFECTIVENESS_PHOENIX_PROJECT` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:609` | Dedicated Phoenix project namespace for the agent-effectiveness loop. |
 | `@beep/repo-ai-metrics/index` | `AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:623` | Confirmation token required before live Phoenix writes. |
@@ -6355,23 +6387,23 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AiMetricsConfigSnapshotResult` | class | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:124` | Complete repo-local agent configuration snapshot result. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDeployTarget` | const | `packages/tooling/library/ai-metrics/src/models.ts:26` | Supported deployment targets for the AI metrics stack. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDeployTarget` | type | `packages/tooling/library/ai-metrics/src/models.ts:44` | Runtime type for {@link AiMetricsDeployTarget}. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:474` | Error raised by the DuckDB derived storage projection. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:521` | Input for a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:549` | Result of a derived DuckDB storage write. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:498` | One sanitized transcript ready for derived storage projection. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageError` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:506` | Error raised by the DuckDB derived storage projection. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteInput` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:553` | Input for a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedStorageWriteResult` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:585` | Result of a derived DuckDB storage write. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsDerivedTranscriptRecord` | class | `packages/tooling/library/ai-metrics/src/derived-storage.ts:530` | One sanitized transcript ready for derived storage projection. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDiscoveredSource` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:150` | Source-level discovery summary. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsDiscoveredTranscriptFile` | class | `packages/tooling/library/ai-metrics/src/source-discovery.ts:117` | One transcript or source metadata file discovered for AI metrics. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsEncryptedRawArchiveEnvelope` | class | `packages/tooling/library/ai-metrics/src/archive.ts:57` | Encrypted raw transcript archive envelope stored on disk. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:76` | Error raised by the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:98` | Input for the durable AI metrics forwarder. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:224` | Tagged derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:245` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:170` | Successful derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:198` | Failed derived OTLP export status attached to a forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:258` | Safe result emitted by one durable AI metrics forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:141` | Per-source coverage selected by one durable forwarder run. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:292` | Input for rendering a workstation-owned forwarder timer. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:327` | Rendered systemd user units for the workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderError` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:77` | Error raised by the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:99` | Input for the durable AI metrics forwarder. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:229` | Tagged derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExport` | type | `packages/tooling/library/ai-metrics/src/forwarder.ts:250` | Runtime type for {@link AiMetricsForwarderOtlpExport}. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExported` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:175` | Successful derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderOtlpExportFailed` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:203` | Failed derived OTLP export status attached to a forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderRunResult` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:263` | Safe result emitted by one durable AI metrics forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderSourceCoverage` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:146` | Per-source coverage selected by one durable forwarder run. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerInput` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:298` | Input for rendering a workstation-owned forwarder timer. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsForwarderTimerPlan` | class | `packages/tooling/library/ai-metrics/src/forwarder.ts:333` | Rendered systemd user units for the workstation-owned forwarder timer. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:56` | Whether private identifier hashes used an operator-provided salt or a local smoke fallback. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsHashSaltStatus` | type | `packages/tooling/library/ai-metrics/src/privacy.ts:74` | Runtime type for {@link AiMetricsHashSaltStatus}. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsIngestError` | class | `packages/tooling/library/ai-metrics/src/ingest.ts:43` | Error raised by AI metrics ingest helpers. |
@@ -6418,6 +6450,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AiMetricsOtlpSpanProjectionBatch` | class | `packages/tooling/library/ai-metrics/src/otlp.ts:181` | Span projection batch resolved for one derived ingest run. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsOutcomeLabelInput` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:140` | Input for adding or replacing the current label for one task. |
 | `@beep/repo-ai-metrics/index` | `aiMetricsOutcomeLabelToJson` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1332` | Render an outcome label as JSON. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsParquetExportMode` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:49` | Parquet export behavior for one derived AI metrics write. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsParquetExportMode` | type | `packages/tooling/library/ai-metrics/src/derived-storage.ts:67` | Runtime type for {@link AiMetricsParquetExportMode}. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsPrivacyCheckResult` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:182` | Result produced by the P1 privacy proof command. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsPrivacyError` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:206` | Error raised by AI metrics privacy helpers. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsPrivacyMode` | const | `packages/tooling/library/ai-metrics/src/models.ts:177` | Raw transcript retention and derived-dashboard privacy posture. |
@@ -6429,17 +6463,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `AiMetricsRawArchiveObject` | class | `packages/tooling/library/ai-metrics/src/archive.ts:86` | Safe archive object metadata returned after an encrypted write or lookup. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRawEventEnvelope` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:112` | Hash-only envelope for a raw transcript event line. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsRedactionResult` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:87` | Redaction proof for text that crossed the raw-transcript boundary. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:167` | Error raised by P7 AI metrics retention workflows. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:242` | Deploy-safe retained file inventory row. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:263` | Path-safe inventory returned by `ai-metrics retention list`. |
-| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:933` | Render a retention inventory as JSON. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:290` | Result for delete or compaction retention commands. |
-| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:953` | Render a retention mutation result as JSON. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:215` | Deploy-safe raw archive inventory row. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:318` | Input for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:344` | Result for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:973` | Render a restore drill result as JSON. |
-| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:189` | Time-window selector for AI metrics retention commands. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionEnforcementPolicy` | class | `packages/tooling/library/ai-metrics/src/retention.ts:323` | Policy for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionEnforcementResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:356` | Result for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionEnforcementToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1109` | Render a retention enforcement result as JSON. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:172` | Error raised by P7 AI metrics retention workflows. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:247` | Deploy-safe retained file inventory row. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:268` | Path-safe inventory returned by `ai-metrics retention list`. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1089` | Render a retention inventory as JSON. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:295` | Result for delete or compaction retention commands. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1129` | Render a retention mutation result as JSON. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:220` | Deploy-safe raw archive inventory row. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:383` | Input for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:409` | Result for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics/index` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1149` | Render a restore drill result as JSON. |
+| `@beep/repo-ai-metrics/index` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:194` | Time-window selector for AI metrics retention commands. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsSanitizedTranscript` | class | `packages/tooling/library/ai-metrics/src/privacy.ts:141` | Redacted transcript summary safe for derived tables, dashboards, and OTLP attributes. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsScorecardError` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:42` | Error raised by AI metrics label, benchmark, or scorecard workflows. |
 | `@beep/repo-ai-metrics/index` | `AiMetricsScoreWeights` | class | `packages/tooling/library/ai-metrics/src/models.ts:325` | Outcome-heavy scorecard weights for coding-agent performance. |
@@ -6472,14 +6509,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `decryptEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:362` | Decrypt an archive envelope for package-level verification. |
 | `@beep/repo-ai-metrics/index` | `DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:53` | Stable default pointer used to locate the latest checked-in JSDoc worker-eval evidence. |
 | `@beep/repo-ai-metrics/index` | `discoverAiMetricsSources` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:574` | Discover local AI metrics transcript sources for the smoke target. |
-| `@beep/repo-ai-metrics/index` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:691` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
-| `@beep/repo-ai-metrics/index` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:854` | Render a durable forwarder run result as JSON. |
-| `@beep/repo-ai-metrics/index` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:875` | Render a forwarder timer plan as JSON. |
+| `@beep/repo-ai-metrics/index` | `enforceAiMetricsRetentionPolicy` | const | `packages/tooling/library/ai-metrics/src/retention.ts:793` | Enforce local AI metrics retention for old per-run Parquet snapshots. |
+| `@beep/repo-ai-metrics/index` | `ensureAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:728` | Ensure the AI metrics derived DuckDB schema exists and has P4 columns. |
+| `@beep/repo-ai-metrics/index` | `forwarderRunResultToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:864` | Render a durable forwarder run result as JSON. |
+| `@beep/repo-ai-metrics/index` | `forwarderTimerPlanToJson` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:885` | Render a forwarder timer plan as JSON. |
 | `@beep/repo-ai-metrics/index` | `generateAiMetricsWeeklyReport` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:1224` | Generate and persist a weekly config-impact report. |
 | `@beep/repo-ai-metrics/index` | `hashPrivateIdentifier` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:347` | Compute a salted SHA-256 digest for private identifiers such as local paths and session ids. |
 | `@beep/repo-ai-metrics/index` | `hashPublicTextSha256` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:323` | Compute a deterministic public SHA-256 digest for non-private content identity. |
 | `@beep/repo-ai-metrics/index` | `listAiMetricsBenchmarkCases` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:760` | List deploy-safe benchmark cases. |
-| `@beep/repo-ai-metrics/index` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:581` | List retained AI metrics raw archive objects and derived/report outputs. |
+| `@beep/repo-ai-metrics/index` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:650` | List retained AI metrics raw archive objects and derived/report outputs. |
 | `@beep/repo-ai-metrics/index` | `locateLatestAiMetricsMirrorBundle` | const | `packages/tooling/library/ai-metrics/src/mirror.ts:540` | Locate the latest local mirror bundle pointer for a data root. |
 | `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationCheckReport` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2989` | Check a local annotation plan for Phase 1 privacy and schema safety. |
 | `@beep/repo-ai-metrics/index` | `makeAgentEffectivenessAnnotationPlan` | const | `packages/tooling/library/ai-metrics/src/agent-effectiveness.ts:2150` | Build a sanitized local-only annotation plan. |
@@ -6505,15 +6543,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `readEncryptedRawArchiveEnvelope` | const | `packages/tooling/library/ai-metrics/src/archive.ts:399` | Read and decode an encrypted raw archive envelope from disk. |
 | `@beep/repo-ai-metrics/index` | `recordAiMetricsBenchmarkRun` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:796` | Record an observed benchmark run for one config snapshot. |
 | `@beep/repo-ai-metrics/index` | `redactAiMetricsSensitiveText` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:502` | Redact secret-shaped text before any diagnostic rendering. |
-| `@beep/repo-ai-metrics/index` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:415` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
+| `@beep/repo-ai-metrics/index` | `renderAiMetricsForwarderTimerPlan` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:421` | Render a systemd user timer that repeatedly runs the forwarder with locking and status evidence. |
 | `@beep/repo-ai-metrics/index` | `renderAiMetricsLocalPhoenixCompose` | const | `packages/tooling/library/ai-metrics/src/compose.ts:46` | Render a dedicated Docker Compose file for local Phoenix smoke tests. |
 | `@beep/repo-ai-metrics/index` | `resolveAiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:307` | Resolve the effective private hash salt status. |
 | `@beep/repo-ai-metrics/index` | `resolveAiMetricsHashSaltValue` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:291` | Resolve the effective private hash salt value. |
-| `@beep/repo-ai-metrics/index` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:750` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
+| `@beep/repo-ai-metrics/index` | `runAiMetricsForwarder` | const | `packages/tooling/library/ai-metrics/src/forwarder.ts:756` | Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export. |
 | `@beep/repo-ai-metrics/index` | `runAiMetricsOtlpExport` | const | `packages/tooling/library/ai-metrics/src/otlp.ts:474` | Emit redacted AI metrics derived spans through the active Effect tracer. |
-| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:773` | Compact selected AI metrics derived Parquet and report outputs. |
-| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:748` | Delete selected AI metrics raw, derived, and report data. |
-| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:798` | Restore selected encrypted raw archive objects into disposable derived storage. |
+| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:926` | Compact selected AI metrics derived Parquet and report outputs. |
+| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:901` | Delete selected AI metrics raw, derived, and report data. |
+| `@beep/repo-ai-metrics/index` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:951` | Restore selected encrypted raw archive objects into disposable derived storage. |
 | `@beep/repo-ai-metrics/index` | `Scorecard` | class | `packages/tooling/library/ai-metrics/src/models.ts:601` | Derived scorecard for weekly or config-impact review. |
 | `@beep/repo-ai-metrics/index` | `shellQuote` | const | `packages/tooling/library/ai-metrics/src/shell.ts:24` | Quote a value as one POSIX shell token. |
 | `@beep/repo-ai-metrics/index` | `sourceDiscoveryToJson` | const | `packages/tooling/library/ai-metrics/src/source-discovery.ts:631` | Render a source discovery result as JSON. |
@@ -6524,7 +6562,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/index` | `TranscriptIngestSummary` | class | `packages/tooling/library/ai-metrics/src/models.ts:637` | Summary produced by transcript ingestion. |
 | `@beep/repo-ai-metrics/index` | `upsertAiMetricsBenchmarkCase` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:681` | Add or replace a deploy-safe benchmark case. |
 | `@beep/repo-ai-metrics/index` | `writeAiMetricsConfigSnapshotArtifacts` | const | `packages/tooling/library/ai-metrics/src/config-snapshot.ts:477` | Persist a config snapshot manifest and latest pointer for future diff attribution. |
-| `@beep/repo-ai-metrics/index` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1072` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
+| `@beep/repo-ai-metrics/index` | `writeAiMetricsDerivedStorage` | const | `packages/tooling/library/ai-metrics/src/derived-storage.ts:1156` | Project sanitized AI metrics records into DuckDB and export Parquet snapshots. |
 | `@beep/repo-ai-metrics/index` | `writeEncryptedRawArchiveObject` | const | `packages/tooling/library/ai-metrics/src/archive.ts:251` | Write one raw transcript file into the encrypted content-addressed archive. |
 | `@beep/repo-ai-metrics/ingest` | `AiMetricsIngestError` | class | `packages/tooling/library/ai-metrics/src/ingest.ts:43` | Error raised by AI metrics ingest helpers. |
 | `@beep/repo-ai-metrics/ingest` | `summarizeTranscriptText` | const | `packages/tooling/library/ai-metrics/src/ingest.ts:177` | Summarize JSONL transcript text into a stable ingest summary. |
@@ -6623,21 +6661,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-ai-metrics/privacy` | `redactAiMetricsSensitiveText` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:502` | Redact secret-shaped text before any diagnostic rendering. |
 | `@beep/repo-ai-metrics/privacy` | `resolveAiMetricsHashSaltStatus` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:307` | Resolve the effective private hash salt status. |
 | `@beep/repo-ai-metrics/privacy` | `resolveAiMetricsHashSaltValue` | const | `packages/tooling/library/ai-metrics/src/privacy.ts:291` | Resolve the effective private hash salt value. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:167` | Error raised by P7 AI metrics retention workflows. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:242` | Deploy-safe retained file inventory row. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:263` | Path-safe inventory returned by `ai-metrics retention list`. |
-| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:933` | Render a retention inventory as JSON. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:290` | Result for delete or compaction retention commands. |
-| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:953` | Render a retention mutation result as JSON. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:215` | Deploy-safe raw archive inventory row. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:318` | Input for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:344` | Result for a retained raw archive restore drill. |
-| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:973` | Render a restore drill result as JSON. |
-| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:189` | Time-window selector for AI metrics retention commands. |
-| `@beep/repo-ai-metrics/retention` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:581` | List retained AI metrics raw archive objects and derived/report outputs. |
-| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:773` | Compact selected AI metrics derived Parquet and report outputs. |
-| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:748` | Delete selected AI metrics raw, derived, and report data. |
-| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:798` | Restore selected encrypted raw archive objects into disposable derived storage. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionEnforcementPolicy` | class | `packages/tooling/library/ai-metrics/src/retention.ts:323` | Policy for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionEnforcementResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:356` | Result for preventive local AI metrics retention enforcement. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionEnforcementToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1109` | Render a retention enforcement result as JSON. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionError` | class | `packages/tooling/library/ai-metrics/src/retention.ts:172` | Error raised by P7 AI metrics retention workflows. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionFileItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:247` | Deploy-safe retained file inventory row. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionInventory` | class | `packages/tooling/library/ai-metrics/src/retention.ts:268` | Path-safe inventory returned by `ai-metrics retention list`. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionInventoryToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1089` | Render a retention inventory as JSON. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionMutationResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:295` | Result for delete or compaction retention commands. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionMutationToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1129` | Render a retention mutation result as JSON. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRawArchiveItem` | class | `packages/tooling/library/ai-metrics/src/retention.ts:220` | Deploy-safe raw archive inventory row. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRestoreDrillInput` | class | `packages/tooling/library/ai-metrics/src/retention.ts:383` | Input for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionRestoreDrillResult` | class | `packages/tooling/library/ai-metrics/src/retention.ts:409` | Result for a retained raw archive restore drill. |
+| `@beep/repo-ai-metrics/retention` | `aiMetricsRetentionRestoreDrillToJson` | const | `packages/tooling/library/ai-metrics/src/retention.ts:1149` | Render a restore drill result as JSON. |
+| `@beep/repo-ai-metrics/retention` | `AiMetricsRetentionSelector` | class | `packages/tooling/library/ai-metrics/src/retention.ts:194` | Time-window selector for AI metrics retention commands. |
+| `@beep/repo-ai-metrics/retention` | `enforceAiMetricsRetentionPolicy` | const | `packages/tooling/library/ai-metrics/src/retention.ts:793` | Enforce local AI metrics retention for old per-run Parquet snapshots. |
+| `@beep/repo-ai-metrics/retention` | `listAiMetricsRetentionInventory` | const | `packages/tooling/library/ai-metrics/src/retention.ts:650` | List retained AI metrics raw archive objects and derived/report outputs. |
+| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionCompact` | const | `packages/tooling/library/ai-metrics/src/retention.ts:926` | Compact selected AI metrics derived Parquet and report outputs. |
+| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionDelete` | const | `packages/tooling/library/ai-metrics/src/retention.ts:901` | Delete selected AI metrics raw, derived, and report data. |
+| `@beep/repo-ai-metrics/retention` | `runAiMetricsRetentionRestoreDrill` | const | `packages/tooling/library/ai-metrics/src/retention.ts:951` | Restore selected encrypted raw archive objects into disposable derived storage. |
 | `@beep/repo-ai-metrics/scorecard` | `addAiMetricsOutcomeLabel` | const | `packages/tooling/library/ai-metrics/src/scorecard.ts:603` | Add or replace the current structured human label for a task. |
 | `@beep/repo-ai-metrics/scorecard` | `AiMetricsBenchmarkCaseInput` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:167` | Input for adding or replacing a benchmark case. |
 | `@beep/repo-ai-metrics/scorecard` | `AiMetricsBenchmarkCaseListResult` | class | `packages/tooling/library/ai-metrics/src/scorecard.ts:191` | Result returned by the benchmark case list command. |
@@ -13292,25 +13334,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/rdf` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:935` | RFC 3987 `absolute-IRI` schema without a fragment component. |
-| `@beep/rdf` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:956` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
-| `@beep/rdf` | `AbsoluteURI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:282` | RFC 3986 `absolute-URI` schema without a fragment component. |
-| `@beep/rdf` | `AbsoluteURI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:304` | Type for {@link AbsoluteURI}. |
-| `@beep/rdf` | `annotateSemanticSchema` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:346` | Attach validated semantic metadata to any Effect schema. |
-| `@beep/rdf` | `areDatasetsEquivalent` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1043` | Compare datasets by sorted quad serialization. |
-| `@beep/rdf` | `areUrisEquivalent` | const | `packages/foundation/modeling/rdf/src/Uri.ts:405` | Compare two URI values using URI-family normalization rules. |
+| `@beep/rdf` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:936` | RFC 3987 `absolute-IRI` schema without a fragment component. |
+| `@beep/rdf` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:957` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
+| `@beep/rdf` | `AbsoluteURI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:283` | RFC 3986 `absolute-URI` schema without a fragment component. |
+| `@beep/rdf` | `AbsoluteURI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:305` | Type for {@link AbsoluteURI}. |
+| `@beep/rdf` | `annotateSemanticSchema` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:347` | Attach validated semantic metadata to any Effect schema. |
+| `@beep/rdf` | `areDatasetsEquivalent` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1044` | Compare datasets by sorted quad serialization. |
+| `@beep/rdf` | `areUrisEquivalent` | const | `packages/foundation/modeling/rdf/src/Uri.ts:406` | Compare two URI values using URI-family normalization rules. |
 | `@beep/rdf` | `BlankNode` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:374` | RDF blank node value. |
 | `@beep/rdf` | `Curie` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:263` | CURIE-style compact IRI expression. |
 | `@beep/rdf` | `Curie` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:285` | Type for {@link Curie}. |
 | `@beep/rdf` | `Dataset` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:662` | Dataset wrapper for RDF quads. |
 | `@beep/rdf` | `DefaultGraph` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:439` | RDF default graph term. |
-| `@beep/rdf` | `getSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:427` | Read semantic metadata from any Effect schema, if present. |
+| `@beep/rdf` | `getSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:430` | Read semantic metadata from any Effect schema, if present. |
 | `@beep/rdf` | `GraphTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:600` | RDF graph term union. |
 | `@beep/rdf` | `GraphTerm` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:621` | Type for {@link GraphTerm}. |
-| `@beep/rdf` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:973` | RFC 3987 `IRI` schema. |
-| `@beep/rdf` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:994` | RFC 3987 `IRI` syntax. |
-| `@beep/rdf` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:859` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
-| `@beep/rdf` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:880` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
+| `@beep/rdf` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:974` | RFC 3987 `IRI` schema. |
+| `@beep/rdf` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:995` | RFC 3987 `IRI` syntax. |
+| `@beep/rdf` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:860` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
+| `@beep/rdf` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:881` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
 | `@beep/rdf` | `JsonLdBlankNodeIdentifier` | const | `packages/foundation/modeling/rdf/src/JsonLd.ts:168` | JSON-LD blank-node identifier used by the bounded document model. |
 | `@beep/rdf` | `JsonLdBlankNodeIdentifier` | type | `packages/foundation/modeling/rdf/src/JsonLd.ts:199` | Type for {@link JsonLdBlankNodeIdentifier}. |
 | `@beep/rdf` | `JsonLdContext` | class | `packages/foundation/modeling/rdf/src/JsonLd.ts:134` | Normalized JSON-LD context model with bounded base, vocab, and term bindings. |
@@ -13330,16 +13372,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/rdf` | `LanguageTag` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:335` | Type for {@link LanguageTag}. |
 | `@beep/rdf` | `Literal` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:413` | RDF literal value. |
 | `@beep/rdf` | `makeBlankNode` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:791` | Build a blank node from a non-empty label. |
-| `@beep/rdf` | `makeDataset` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:951` | Build a dataset from quads. |
+| `@beep/rdf` | `makeDataset` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:952` | Build a dataset from quads. |
 | `@beep/rdf` | `makeLiteral` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:854` | Build an RDF literal. |
 | `@beep/rdf` | `MakeLiteralOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:811` | Optional language settings for {@link makeLiteral}. |
 | `@beep/rdf` | `makeNamedNode` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:765` | Build a named node from an IRI string. |
-| `@beep/rdf` | `makeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:915` | Build an RDF quad. |
-| `@beep/rdf` | `MakeQuadOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:875` | Object and optional graph settings for {@link makeQuad}. |
-| `@beep/rdf` | `makeSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:316` | Validate a metadata payload before attaching it to a public schema. |
+| `@beep/rdf` | `makeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:916` | Build an RDF quad. |
+| `@beep/rdf` | `MakeQuadOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:876` | Object and optional graph settings for {@link makeQuad}. |
+| `@beep/rdf` | `makeSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:317` | Validate a metadata payload before attaching it to a public schema. |
 | `@beep/rdf` | `NamedNode` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:350` | RDF named node value. |
 | `@beep/rdf` | `NamespaceBinding` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:685` | Prefix-to-namespace binding for RDF compaction and expansion. |
-| `@beep/rdf` | `normalizeUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:361` | Normalize a URI or URI reference for transport-oriented comparisons. |
+| `@beep/rdf` | `normalizeUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:362` | Normalize a URI or URI reference for transport-oriented comparisons. |
 | `@beep/rdf` | `ObjectTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:564` | RDF object term union. |
 | `@beep/rdf` | `ObjectTerm` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:585` | Type for {@link ObjectTerm}. |
 | `@beep/rdf` | `PrefixLabel` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:214` | Prefix label used by RDF namespace bindings. |
@@ -13347,54 +13389,54 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/rdf` | `PrefixMap` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:709` | Prefix map keyed by {@link PrefixLabel}. |
 | `@beep/rdf` | `PrefixMap` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:743` | Type for {@link PrefixMap}. |
 | `@beep/rdf` | `Quad` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:636` | RDF quad value aligned with RDF/JS. |
-| `@beep/rdf` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:897` | RFC 3987 `irelative-ref` schema. |
-| `@beep/rdf` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:918` | RFC 3987 `irelative-ref` syntax. |
-| `@beep/rdf` | `RelativeURIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:243` | RFC 3986 `relative-ref` schema. |
-| `@beep/rdf` | `RelativeURIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:265` | Type for {@link RelativeURIReference}. |
-| `@beep/rdf` | `resolveUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:381` | Resolve a URI reference against an absolute base URI. |
-| `@beep/rdf` | `SemanticRepresentation` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:220` | Single representation note attached to semantic-web schemas. |
-| `@beep/rdf` | `SemanticRepresentationKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:151` | Representation label for semantic-web values. |
-| `@beep/rdf` | `SemanticRepresentationKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:178` | Type for {@link SemanticRepresentationKind}. |
-| `@beep/rdf` | `SemanticSchemaMetadata` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:243` | Typed metadata payload stored in the `semanticSchemaMetadata` annotation key. |
-| `@beep/rdf` | `SemanticSchemaMetadataAnnotationPayload` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:281` | Payload stored in the `semanticSchemaMetadata` annotation key. |
-| `@beep/rdf` | `SemanticSchemaMetadataKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:37` | Closed v1 metadata kind domain for semantic-web schemas. |
-| `@beep/rdf` | `SemanticSchemaMetadataKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:66` | Type for {@link SemanticSchemaMetadataKind}. |
-| `@beep/rdf` | `SemanticSchemaSpecification` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:193` | Single specification reference attached to public semantic-web schemas. |
-| `@beep/rdf` | `SemanticSchemaSpecificationDisposition` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:116` | Specification disposition attached to a semantic schema reference. |
-| `@beep/rdf` | `SemanticSchemaSpecificationDisposition` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:136` | Type for {@link SemanticSchemaSpecificationDisposition}. |
-| `@beep/rdf` | `SemanticSchemaStatus` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:81` | Stability classification for semantic-web schema metadata. |
-| `@beep/rdf` | `SemanticSchemaStatus` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:101` | Type for {@link SemanticSchemaStatus}. |
-| `@beep/rdf` | `serializeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1000` | Serialize an RDF quad to a deterministic lexical form. |
-| `@beep/rdf` | `serializeTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:969` | Serialize an RDF term to a deterministic lexical form. |
-| `@beep/rdf` | `sortDatasetQuads` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1022` | Sort dataset quads by deterministic quad serialization. |
+| `@beep/rdf` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:898` | RFC 3987 `irelative-ref` schema. |
+| `@beep/rdf` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:919` | RFC 3987 `irelative-ref` syntax. |
+| `@beep/rdf` | `RelativeURIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:244` | RFC 3986 `relative-ref` schema. |
+| `@beep/rdf` | `RelativeURIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:266` | Type for {@link RelativeURIReference}. |
+| `@beep/rdf` | `resolveUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:382` | Resolve a URI reference against an absolute base URI. |
+| `@beep/rdf` | `SemanticRepresentation` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:221` | Single representation note attached to semantic-web schemas. |
+| `@beep/rdf` | `SemanticRepresentationKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:152` | Representation label for semantic-web values. |
+| `@beep/rdf` | `SemanticRepresentationKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:179` | Type for {@link SemanticRepresentationKind}. |
+| `@beep/rdf` | `SemanticSchemaMetadata` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:244` | Typed metadata payload stored in the `semanticSchemaMetadata` annotation key. |
+| `@beep/rdf` | `SemanticSchemaMetadataAnnotationPayload` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:282` | Payload stored in the `semanticSchemaMetadata` annotation key. |
+| `@beep/rdf` | `SemanticSchemaMetadataKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:38` | Closed v1 metadata kind domain for semantic-web schemas. |
+| `@beep/rdf` | `SemanticSchemaMetadataKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:67` | Type for {@link SemanticSchemaMetadataKind}. |
+| `@beep/rdf` | `SemanticSchemaSpecification` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:194` | Single specification reference attached to public semantic-web schemas. |
+| `@beep/rdf` | `SemanticSchemaSpecificationDisposition` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:117` | Specification disposition attached to a semantic schema reference. |
+| `@beep/rdf` | `SemanticSchemaSpecificationDisposition` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:137` | Type for {@link SemanticSchemaSpecificationDisposition}. |
+| `@beep/rdf` | `SemanticSchemaStatus` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:82` | Stability classification for semantic-web schema metadata. |
+| `@beep/rdf` | `SemanticSchemaStatus` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:102` | Type for {@link SemanticSchemaStatus}. |
+| `@beep/rdf` | `serializeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1001` | Serialize an RDF quad to a deterministic lexical form. |
+| `@beep/rdf` | `serializeTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:970` | Serialize an RDF term to a deterministic lexical form. |
+| `@beep/rdf` | `sortDatasetQuads` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1023` | Sort dataset quads by deterministic quad serialization. |
 | `@beep/rdf` | `Subject` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:528` | RDF subject term union. |
 | `@beep/rdf` | `Subject` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:549` | Type for {@link Subject}. |
 | `@beep/rdf` | `Term` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:476` | RDF term union. |
 | `@beep/rdf` | `Term` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:513` | Type for {@link Term}. |
-| `@beep/rdf` | `URI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:321` | RFC 3986 `URI` schema. |
-| `@beep/rdf` | `URI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:343` | Type for {@link URI}. |
-| `@beep/rdf` | `URIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:204` | RFC 3986 `URI-reference` schema, including absolute and relative forms. |
-| `@beep/rdf` | `URIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:226` | Type for {@link URIReference}. |
+| `@beep/rdf` | `URI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:322` | RFC 3986 `URI` schema. |
+| `@beep/rdf` | `URI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:344` | Type for {@link URI}. |
+| `@beep/rdf` | `URIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:205` | RFC 3986 `URI-reference` schema, including absolute and relative forms. |
+| `@beep/rdf` | `URIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:227` | Type for {@link URIReference}. |
 | `@beep/rdf` | `VERSION` | const | `packages/foundation/modeling/rdf/src/index.ts:14` | Package version. |
-| `@beep/rdf/index` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:935` | RFC 3987 `absolute-IRI` schema without a fragment component. |
-| `@beep/rdf/index` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:956` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
-| `@beep/rdf/index` | `AbsoluteURI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:282` | RFC 3986 `absolute-URI` schema without a fragment component. |
-| `@beep/rdf/index` | `AbsoluteURI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:304` | Type for {@link AbsoluteURI}. |
-| `@beep/rdf/index` | `annotateSemanticSchema` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:346` | Attach validated semantic metadata to any Effect schema. |
-| `@beep/rdf/index` | `areDatasetsEquivalent` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1043` | Compare datasets by sorted quad serialization. |
-| `@beep/rdf/index` | `areUrisEquivalent` | const | `packages/foundation/modeling/rdf/src/Uri.ts:405` | Compare two URI values using URI-family normalization rules. |
+| `@beep/rdf/index` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:936` | RFC 3987 `absolute-IRI` schema without a fragment component. |
+| `@beep/rdf/index` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:957` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
+| `@beep/rdf/index` | `AbsoluteURI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:283` | RFC 3986 `absolute-URI` schema without a fragment component. |
+| `@beep/rdf/index` | `AbsoluteURI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:305` | Type for {@link AbsoluteURI}. |
+| `@beep/rdf/index` | `annotateSemanticSchema` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:347` | Attach validated semantic metadata to any Effect schema. |
+| `@beep/rdf/index` | `areDatasetsEquivalent` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1044` | Compare datasets by sorted quad serialization. |
+| `@beep/rdf/index` | `areUrisEquivalent` | const | `packages/foundation/modeling/rdf/src/Uri.ts:406` | Compare two URI values using URI-family normalization rules. |
 | `@beep/rdf/index` | `BlankNode` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:374` | RDF blank node value. |
 | `@beep/rdf/index` | `Curie` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:263` | CURIE-style compact IRI expression. |
 | `@beep/rdf/index` | `Curie` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:285` | Type for {@link Curie}. |
 | `@beep/rdf/index` | `Dataset` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:662` | Dataset wrapper for RDF quads. |
 | `@beep/rdf/index` | `DefaultGraph` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:439` | RDF default graph term. |
-| `@beep/rdf/index` | `getSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:427` | Read semantic metadata from any Effect schema, if present. |
+| `@beep/rdf/index` | `getSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:430` | Read semantic metadata from any Effect schema, if present. |
 | `@beep/rdf/index` | `GraphTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:600` | RDF graph term union. |
 | `@beep/rdf/index` | `GraphTerm` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:621` | Type for {@link GraphTerm}. |
-| `@beep/rdf/index` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:973` | RFC 3987 `IRI` schema. |
-| `@beep/rdf/index` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:994` | RFC 3987 `IRI` syntax. |
-| `@beep/rdf/index` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:859` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
-| `@beep/rdf/index` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:880` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
+| `@beep/rdf/index` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:974` | RFC 3987 `IRI` schema. |
+| `@beep/rdf/index` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:995` | RFC 3987 `IRI` syntax. |
+| `@beep/rdf/index` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:860` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
+| `@beep/rdf/index` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:881` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
 | `@beep/rdf/index` | `JsonLdBlankNodeIdentifier` | const | `packages/foundation/modeling/rdf/src/JsonLd.ts:168` | JSON-LD blank-node identifier used by the bounded document model. |
 | `@beep/rdf/index` | `JsonLdBlankNodeIdentifier` | type | `packages/foundation/modeling/rdf/src/JsonLd.ts:199` | Type for {@link JsonLdBlankNodeIdentifier}. |
 | `@beep/rdf/index` | `JsonLdContext` | class | `packages/foundation/modeling/rdf/src/JsonLd.ts:134` | Normalized JSON-LD context model with bounded base, vocab, and term bindings. |
@@ -13414,16 +13456,16 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/rdf/index` | `LanguageTag` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:335` | Type for {@link LanguageTag}. |
 | `@beep/rdf/index` | `Literal` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:413` | RDF literal value. |
 | `@beep/rdf/index` | `makeBlankNode` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:791` | Build a blank node from a non-empty label. |
-| `@beep/rdf/index` | `makeDataset` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:951` | Build a dataset from quads. |
+| `@beep/rdf/index` | `makeDataset` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:952` | Build a dataset from quads. |
 | `@beep/rdf/index` | `makeLiteral` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:854` | Build an RDF literal. |
 | `@beep/rdf/index` | `MakeLiteralOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:811` | Optional language settings for {@link makeLiteral}. |
 | `@beep/rdf/index` | `makeNamedNode` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:765` | Build a named node from an IRI string. |
-| `@beep/rdf/index` | `makeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:915` | Build an RDF quad. |
-| `@beep/rdf/index` | `MakeQuadOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:875` | Object and optional graph settings for {@link makeQuad}. |
-| `@beep/rdf/index` | `makeSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:316` | Validate a metadata payload before attaching it to a public schema. |
+| `@beep/rdf/index` | `makeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:916` | Build an RDF quad. |
+| `@beep/rdf/index` | `MakeQuadOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:876` | Object and optional graph settings for {@link makeQuad}. |
+| `@beep/rdf/index` | `makeSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:317` | Validate a metadata payload before attaching it to a public schema. |
 | `@beep/rdf/index` | `NamedNode` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:350` | RDF named node value. |
 | `@beep/rdf/index` | `NamespaceBinding` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:685` | Prefix-to-namespace binding for RDF compaction and expansion. |
-| `@beep/rdf/index` | `normalizeUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:361` | Normalize a URI or URI reference for transport-oriented comparisons. |
+| `@beep/rdf/index` | `normalizeUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:362` | Normalize a URI or URI reference for transport-oriented comparisons. |
 | `@beep/rdf/index` | `ObjectTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:564` | RDF object term union. |
 | `@beep/rdf/index` | `ObjectTerm` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:585` | Type for {@link ObjectTerm}. |
 | `@beep/rdf/index` | `PrefixLabel` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:214` | Prefix label used by RDF namespace bindings. |
@@ -13431,43 +13473,43 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/rdf/index` | `PrefixMap` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:709` | Prefix map keyed by {@link PrefixLabel}. |
 | `@beep/rdf/index` | `PrefixMap` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:743` | Type for {@link PrefixMap}. |
 | `@beep/rdf/index` | `Quad` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:636` | RDF quad value aligned with RDF/JS. |
-| `@beep/rdf/index` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:897` | RFC 3987 `irelative-ref` schema. |
-| `@beep/rdf/index` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:918` | RFC 3987 `irelative-ref` syntax. |
-| `@beep/rdf/index` | `RelativeURIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:243` | RFC 3986 `relative-ref` schema. |
-| `@beep/rdf/index` | `RelativeURIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:265` | Type for {@link RelativeURIReference}. |
-| `@beep/rdf/index` | `resolveUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:381` | Resolve a URI reference against an absolute base URI. |
-| `@beep/rdf/index` | `SemanticRepresentation` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:220` | Single representation note attached to semantic-web schemas. |
-| `@beep/rdf/index` | `SemanticRepresentationKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:151` | Representation label for semantic-web values. |
-| `@beep/rdf/index` | `SemanticRepresentationKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:178` | Type for {@link SemanticRepresentationKind}. |
-| `@beep/rdf/index` | `SemanticSchemaMetadata` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:243` | Typed metadata payload stored in the `semanticSchemaMetadata` annotation key. |
-| `@beep/rdf/index` | `SemanticSchemaMetadataAnnotationPayload` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:281` | Payload stored in the `semanticSchemaMetadata` annotation key. |
-| `@beep/rdf/index` | `SemanticSchemaMetadataKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:37` | Closed v1 metadata kind domain for semantic-web schemas. |
-| `@beep/rdf/index` | `SemanticSchemaMetadataKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:66` | Type for {@link SemanticSchemaMetadataKind}. |
-| `@beep/rdf/index` | `SemanticSchemaSpecification` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:193` | Single specification reference attached to public semantic-web schemas. |
-| `@beep/rdf/index` | `SemanticSchemaSpecificationDisposition` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:116` | Specification disposition attached to a semantic schema reference. |
-| `@beep/rdf/index` | `SemanticSchemaSpecificationDisposition` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:136` | Type for {@link SemanticSchemaSpecificationDisposition}. |
-| `@beep/rdf/index` | `SemanticSchemaStatus` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:81` | Stability classification for semantic-web schema metadata. |
-| `@beep/rdf/index` | `SemanticSchemaStatus` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:101` | Type for {@link SemanticSchemaStatus}. |
-| `@beep/rdf/index` | `serializeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1000` | Serialize an RDF quad to a deterministic lexical form. |
-| `@beep/rdf/index` | `serializeTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:969` | Serialize an RDF term to a deterministic lexical form. |
-| `@beep/rdf/index` | `sortDatasetQuads` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1022` | Sort dataset quads by deterministic quad serialization. |
+| `@beep/rdf/index` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:898` | RFC 3987 `irelative-ref` schema. |
+| `@beep/rdf/index` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:919` | RFC 3987 `irelative-ref` syntax. |
+| `@beep/rdf/index` | `RelativeURIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:244` | RFC 3986 `relative-ref` schema. |
+| `@beep/rdf/index` | `RelativeURIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:266` | Type for {@link RelativeURIReference}. |
+| `@beep/rdf/index` | `resolveUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:382` | Resolve a URI reference against an absolute base URI. |
+| `@beep/rdf/index` | `SemanticRepresentation` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:221` | Single representation note attached to semantic-web schemas. |
+| `@beep/rdf/index` | `SemanticRepresentationKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:152` | Representation label for semantic-web values. |
+| `@beep/rdf/index` | `SemanticRepresentationKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:179` | Type for {@link SemanticRepresentationKind}. |
+| `@beep/rdf/index` | `SemanticSchemaMetadata` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:244` | Typed metadata payload stored in the `semanticSchemaMetadata` annotation key. |
+| `@beep/rdf/index` | `SemanticSchemaMetadataAnnotationPayload` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:282` | Payload stored in the `semanticSchemaMetadata` annotation key. |
+| `@beep/rdf/index` | `SemanticSchemaMetadataKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:38` | Closed v1 metadata kind domain for semantic-web schemas. |
+| `@beep/rdf/index` | `SemanticSchemaMetadataKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:67` | Type for {@link SemanticSchemaMetadataKind}. |
+| `@beep/rdf/index` | `SemanticSchemaSpecification` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:194` | Single specification reference attached to public semantic-web schemas. |
+| `@beep/rdf/index` | `SemanticSchemaSpecificationDisposition` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:117` | Specification disposition attached to a semantic schema reference. |
+| `@beep/rdf/index` | `SemanticSchemaSpecificationDisposition` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:137` | Type for {@link SemanticSchemaSpecificationDisposition}. |
+| `@beep/rdf/index` | `SemanticSchemaStatus` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:82` | Stability classification for semantic-web schema metadata. |
+| `@beep/rdf/index` | `SemanticSchemaStatus` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:102` | Type for {@link SemanticSchemaStatus}. |
+| `@beep/rdf/index` | `serializeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1001` | Serialize an RDF quad to a deterministic lexical form. |
+| `@beep/rdf/index` | `serializeTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:970` | Serialize an RDF term to a deterministic lexical form. |
+| `@beep/rdf/index` | `sortDatasetQuads` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1023` | Sort dataset quads by deterministic quad serialization. |
 | `@beep/rdf/index` | `Subject` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:528` | RDF subject term union. |
 | `@beep/rdf/index` | `Subject` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:549` | Type for {@link Subject}. |
 | `@beep/rdf/index` | `Term` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:476` | RDF term union. |
 | `@beep/rdf/index` | `Term` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:513` | Type for {@link Term}. |
-| `@beep/rdf/index` | `URI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:321` | RFC 3986 `URI` schema. |
-| `@beep/rdf/index` | `URI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:343` | Type for {@link URI}. |
-| `@beep/rdf/index` | `URIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:204` | RFC 3986 `URI-reference` schema, including absolute and relative forms. |
-| `@beep/rdf/index` | `URIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:226` | Type for {@link URIReference}. |
+| `@beep/rdf/index` | `URI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:322` | RFC 3986 `URI` schema. |
+| `@beep/rdf/index` | `URI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:344` | Type for {@link URI}. |
+| `@beep/rdf/index` | `URIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:205` | RFC 3986 `URI-reference` schema, including absolute and relative forms. |
+| `@beep/rdf/index` | `URIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:227` | Type for {@link URIReference}. |
 | `@beep/rdf/index` | `VERSION` | const | `packages/foundation/modeling/rdf/src/index.ts:14` | Package version. |
-| `@beep/rdf/Iri` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:935` | RFC 3987 `absolute-IRI` schema without a fragment component. |
-| `@beep/rdf/Iri` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:956` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
-| `@beep/rdf/Iri` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:973` | RFC 3987 `IRI` schema. |
-| `@beep/rdf/Iri` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:994` | RFC 3987 `IRI` syntax. |
-| `@beep/rdf/Iri` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:859` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
-| `@beep/rdf/Iri` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:880` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
-| `@beep/rdf/Iri` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:897` | RFC 3987 `irelative-ref` schema. |
-| `@beep/rdf/Iri` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:918` | RFC 3987 `irelative-ref` syntax. |
+| `@beep/rdf/Iri` | `AbsoluteIRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:936` | RFC 3987 `absolute-IRI` schema without a fragment component. |
+| `@beep/rdf/Iri` | `AbsoluteIRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:957` | RFC 3987 `absolute-IRI` syntax without a fragment component. |
+| `@beep/rdf/Iri` | `IRI` | const | `packages/foundation/modeling/rdf/src/Iri.ts:974` | RFC 3987 `IRI` schema. |
+| `@beep/rdf/Iri` | `IRI` | type | `packages/foundation/modeling/rdf/src/Iri.ts:995` | RFC 3987 `IRI` syntax. |
+| `@beep/rdf/Iri` | `IRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:860` | RFC 3987 `IRI-reference` schema, including absolute and relative forms. |
+| `@beep/rdf/Iri` | `IRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:881` | RFC 3987 `IRI-reference` syntax, including absolute and relative forms. |
+| `@beep/rdf/Iri` | `RelativeIRIReference` | const | `packages/foundation/modeling/rdf/src/Iri.ts:898` | RFC 3987 `irelative-ref` schema. |
+| `@beep/rdf/Iri` | `RelativeIRIReference` | type | `packages/foundation/modeling/rdf/src/Iri.ts:919` | RFC 3987 `irelative-ref` syntax. |
 | `@beep/rdf/JsonLd` | `JsonLdBlankNodeIdentifier` | const | `packages/foundation/modeling/rdf/src/JsonLd.ts:168` | JSON-LD blank-node identifier used by the bounded document model. |
 | `@beep/rdf/JsonLd` | `JsonLdBlankNodeIdentifier` | type | `packages/foundation/modeling/rdf/src/JsonLd.ts:199` | Type for {@link JsonLdBlankNodeIdentifier}. |
 | `@beep/rdf/JsonLd` | `JsonLdContext` | class | `packages/foundation/modeling/rdf/src/JsonLd.ts:134` | Normalized JSON-LD context model with bounded base, vocab, and term bindings. |
@@ -13483,7 +13525,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/rdf/JsonLd` | `JsonLdPropertyValue` | type | `packages/foundation/modeling/rdf/src/JsonLd.ts:344` | Type for {@link JsonLdPropertyValue}. |
 | `@beep/rdf/JsonLd` | `JsonLdReferenceValue` | class | `packages/foundation/modeling/rdf/src/JsonLd.ts:259` | JSON-LD node reference value. |
 | `@beep/rdf/JsonLd` | `JsonLdTermDefinition` | class | `packages/foundation/modeling/rdf/src/JsonLd.ts:102` | Normalized JSON-LD term definition used by the bounded context model. |
-| `@beep/rdf/Rdf` | `areDatasetsEquivalent` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1043` | Compare datasets by sorted quad serialization. |
+| `@beep/rdf/Rdf` | `areDatasetsEquivalent` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1044` | Compare datasets by sorted quad serialization. |
 | `@beep/rdf/Rdf` | `BlankNode` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:374` | RDF blank node value. |
 | `@beep/rdf/Rdf` | `Curie` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:263` | CURIE-style compact IRI expression. |
 | `@beep/rdf/Rdf` | `Curie` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:285` | Type for {@link Curie}. |
@@ -13495,12 +13537,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/rdf/Rdf` | `LanguageTag` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:335` | Type for {@link LanguageTag}. |
 | `@beep/rdf/Rdf` | `Literal` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:413` | RDF literal value. |
 | `@beep/rdf/Rdf` | `makeBlankNode` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:791` | Build a blank node from a non-empty label. |
-| `@beep/rdf/Rdf` | `makeDataset` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:951` | Build a dataset from quads. |
+| `@beep/rdf/Rdf` | `makeDataset` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:952` | Build a dataset from quads. |
 | `@beep/rdf/Rdf` | `makeLiteral` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:854` | Build an RDF literal. |
 | `@beep/rdf/Rdf` | `MakeLiteralOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:811` | Optional language settings for {@link makeLiteral}. |
 | `@beep/rdf/Rdf` | `makeNamedNode` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:765` | Build a named node from an IRI string. |
-| `@beep/rdf/Rdf` | `makeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:915` | Build an RDF quad. |
-| `@beep/rdf/Rdf` | `MakeQuadOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:875` | Object and optional graph settings for {@link makeQuad}. |
+| `@beep/rdf/Rdf` | `makeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:916` | Build an RDF quad. |
+| `@beep/rdf/Rdf` | `MakeQuadOptions` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:876` | Object and optional graph settings for {@link makeQuad}. |
 | `@beep/rdf/Rdf` | `NamedNode` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:350` | RDF named node value. |
 | `@beep/rdf/Rdf` | `NamespaceBinding` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:685` | Prefix-to-namespace binding for RDF compaction and expansion. |
 | `@beep/rdf/Rdf` | `ObjectTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:564` | RDF object term union. |
@@ -13510,39 +13552,39 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/rdf/Rdf` | `PrefixMap` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:709` | Prefix map keyed by {@link PrefixLabel}. |
 | `@beep/rdf/Rdf` | `PrefixMap` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:743` | Type for {@link PrefixMap}. |
 | `@beep/rdf/Rdf` | `Quad` | class | `packages/foundation/modeling/rdf/src/Rdf.ts:636` | RDF quad value aligned with RDF/JS. |
-| `@beep/rdf/Rdf` | `serializeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1000` | Serialize an RDF quad to a deterministic lexical form. |
-| `@beep/rdf/Rdf` | `serializeTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:969` | Serialize an RDF term to a deterministic lexical form. |
-| `@beep/rdf/Rdf` | `sortDatasetQuads` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1022` | Sort dataset quads by deterministic quad serialization. |
+| `@beep/rdf/Rdf` | `serializeQuad` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1001` | Serialize an RDF quad to a deterministic lexical form. |
+| `@beep/rdf/Rdf` | `serializeTerm` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:970` | Serialize an RDF term to a deterministic lexical form. |
+| `@beep/rdf/Rdf` | `sortDatasetQuads` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:1023` | Sort dataset quads by deterministic quad serialization. |
 | `@beep/rdf/Rdf` | `Subject` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:528` | RDF subject term union. |
 | `@beep/rdf/Rdf` | `Subject` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:549` | Type for {@link Subject}. |
 | `@beep/rdf/Rdf` | `Term` | const | `packages/foundation/modeling/rdf/src/Rdf.ts:476` | RDF term union. |
 | `@beep/rdf/Rdf` | `Term` | type | `packages/foundation/modeling/rdf/src/Rdf.ts:513` | Type for {@link Term}. |
-| `@beep/rdf/SemanticSchemaMetadata` | `annotateSemanticSchema` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:346` | Attach validated semantic metadata to any Effect schema. |
-| `@beep/rdf/SemanticSchemaMetadata` | `getSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:427` | Read semantic metadata from any Effect schema, if present. |
-| `@beep/rdf/SemanticSchemaMetadata` | `makeSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:316` | Validate a metadata payload before attaching it to a public schema. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticRepresentation` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:220` | Single representation note attached to semantic-web schemas. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticRepresentationKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:151` | Representation label for semantic-web values. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticRepresentationKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:178` | Type for {@link SemanticRepresentationKind}. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaMetadata` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:243` | Typed metadata payload stored in the `semanticSchemaMetadata` annotation key. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaMetadataAnnotationPayload` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:281` | Payload stored in the `semanticSchemaMetadata` annotation key. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaMetadataKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:37` | Closed v1 metadata kind domain for semantic-web schemas. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaMetadataKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:66` | Type for {@link SemanticSchemaMetadataKind}. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaSpecification` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:193` | Single specification reference attached to public semantic-web schemas. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaSpecificationDisposition` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:116` | Specification disposition attached to a semantic schema reference. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaSpecificationDisposition` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:136` | Type for {@link SemanticSchemaSpecificationDisposition}. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaStatus` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:81` | Stability classification for semantic-web schema metadata. |
-| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaStatus` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:101` | Type for {@link SemanticSchemaStatus}. |
-| `@beep/rdf/Uri` | `AbsoluteURI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:282` | RFC 3986 `absolute-URI` schema without a fragment component. |
-| `@beep/rdf/Uri` | `AbsoluteURI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:304` | Type for {@link AbsoluteURI}. |
-| `@beep/rdf/Uri` | `areUrisEquivalent` | const | `packages/foundation/modeling/rdf/src/Uri.ts:405` | Compare two URI values using URI-family normalization rules. |
-| `@beep/rdf/Uri` | `normalizeUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:361` | Normalize a URI or URI reference for transport-oriented comparisons. |
-| `@beep/rdf/Uri` | `RelativeURIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:243` | RFC 3986 `relative-ref` schema. |
-| `@beep/rdf/Uri` | `RelativeURIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:265` | Type for {@link RelativeURIReference}. |
-| `@beep/rdf/Uri` | `resolveUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:381` | Resolve a URI reference against an absolute base URI. |
-| `@beep/rdf/Uri` | `URI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:321` | RFC 3986 `URI` schema. |
-| `@beep/rdf/Uri` | `URI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:343` | Type for {@link URI}. |
-| `@beep/rdf/Uri` | `URIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:204` | RFC 3986 `URI-reference` schema, including absolute and relative forms. |
-| `@beep/rdf/Uri` | `URIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:226` | Type for {@link URIReference}. |
+| `@beep/rdf/SemanticSchemaMetadata` | `annotateSemanticSchema` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:347` | Attach validated semantic metadata to any Effect schema. |
+| `@beep/rdf/SemanticSchemaMetadata` | `getSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:430` | Read semantic metadata from any Effect schema, if present. |
+| `@beep/rdf/SemanticSchemaMetadata` | `makeSemanticSchemaMetadata` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:317` | Validate a metadata payload before attaching it to a public schema. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticRepresentation` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:221` | Single representation note attached to semantic-web schemas. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticRepresentationKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:152` | Representation label for semantic-web values. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticRepresentationKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:179` | Type for {@link SemanticRepresentationKind}. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaMetadata` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:244` | Typed metadata payload stored in the `semanticSchemaMetadata` annotation key. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaMetadataAnnotationPayload` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:282` | Payload stored in the `semanticSchemaMetadata` annotation key. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaMetadataKind` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:38` | Closed v1 metadata kind domain for semantic-web schemas. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaMetadataKind` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:67` | Type for {@link SemanticSchemaMetadataKind}. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaSpecification` | class | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:194` | Single specification reference attached to public semantic-web schemas. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaSpecificationDisposition` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:117` | Specification disposition attached to a semantic schema reference. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaSpecificationDisposition` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:137` | Type for {@link SemanticSchemaSpecificationDisposition}. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaStatus` | const | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:82` | Stability classification for semantic-web schema metadata. |
+| `@beep/rdf/SemanticSchemaMetadata` | `SemanticSchemaStatus` | type | `packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts:102` | Type for {@link SemanticSchemaStatus}. |
+| `@beep/rdf/Uri` | `AbsoluteURI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:283` | RFC 3986 `absolute-URI` schema without a fragment component. |
+| `@beep/rdf/Uri` | `AbsoluteURI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:305` | Type for {@link AbsoluteURI}. |
+| `@beep/rdf/Uri` | `areUrisEquivalent` | const | `packages/foundation/modeling/rdf/src/Uri.ts:406` | Compare two URI values using URI-family normalization rules. |
+| `@beep/rdf/Uri` | `normalizeUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:362` | Normalize a URI or URI reference for transport-oriented comparisons. |
+| `@beep/rdf/Uri` | `RelativeURIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:244` | RFC 3986 `relative-ref` schema. |
+| `@beep/rdf/Uri` | `RelativeURIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:266` | Type for {@link RelativeURIReference}. |
+| `@beep/rdf/Uri` | `resolveUriReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:382` | Resolve a URI reference against an absolute base URI. |
+| `@beep/rdf/Uri` | `URI` | const | `packages/foundation/modeling/rdf/src/Uri.ts:322` | RFC 3986 `URI` schema. |
+| `@beep/rdf/Uri` | `URI` | type | `packages/foundation/modeling/rdf/src/Uri.ts:344` | Type for {@link URI}. |
+| `@beep/rdf/Uri` | `URIReference` | const | `packages/foundation/modeling/rdf/src/Uri.ts:205` | RFC 3986 `URI-reference` schema, including absolute and relative forms. |
+| `@beep/rdf/Uri` | `URIReference` | type | `packages/foundation/modeling/rdf/src/Uri.ts:227` | Type for {@link URIReference}. |
 | `@beep/rdf/Vocab/Oa` | `OA_ANNOTATION` | const | `packages/foundation/modeling/rdf/src/Vocab/Oa.ts:39` | `oa:Annotation` |
 | `@beep/rdf/Vocab/Oa` | `OA_HAS_SELECTOR` | const | `packages/foundation/modeling/rdf/src/Vocab/Oa.ts:69` | `oa:hasSelector` |
 | `@beep/rdf/Vocab/Oa` | `OA_HAS_TARGET` | const | `packages/foundation/modeling/rdf/src/Vocab/Oa.ts:54` | `oa:hasTarget` |
@@ -13566,12 +13608,33 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/rdf/Vocab/Rdfs` | `RDFS_COMMENT` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:54` | `rdfs:comment` |
 | `@beep/rdf/Vocab/Rdfs` | `RDFS_LABEL` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:39` | `rdfs:label` |
 | `@beep/rdf/Vocab/Rdfs` | `RDFS_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Rdfs.ts:24` | RDFS namespace IRI. |
-| `@beep/rdf/Vocab/Xsd` | `XSD_ANY_URI` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:54` | `xsd:anyURI` |
-| `@beep/rdf/Vocab/Xsd` | `XSD_BOOLEAN` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:69` | `xsd:boolean` |
-| `@beep/rdf/Vocab/Xsd` | `XSD_DOUBLE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:99` | `xsd:double` |
-| `@beep/rdf/Vocab/Xsd` | `XSD_INTEGER` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:84` | `xsd:integer` |
-| `@beep/rdf/Vocab/Xsd` | `XSD_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:24` | XSD namespace IRI. |
-| `@beep/rdf/Vocab/Xsd` | `XSD_STRING` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:39` | `xsd:string` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_ALT_LABEL` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:56` | `skos:altLabel` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_BROAD_MATCH` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:144` | `skos:broadMatch` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_BROADER` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:104` | `skos:broader` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_CLOSE_MATCH` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:136` | `skos:closeMatch` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_CONCEPT` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:32` | `skos:Concept` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_CONCEPT_SCHEME` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:40` | `skos:ConceptScheme` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_DEFINITION` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:72` | `skos:definition` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_EDITORIAL_NOTE` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:88` | `skos:editorialNote` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_EXACT_MATCH` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:128` | `skos:exactMatch` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_HAS_TOP_CONCEPT` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:176` | `skos:hasTopConcept` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_HIDDEN_LABEL` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:64` | `skos:hiddenLabel` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_HISTORY_NOTE` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:96` | `skos:historyNote` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_IN_SCHEME` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:168` | `skos:inScheme` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:24` | SKOS namespace IRI. |
+| `@beep/rdf/Vocab/Skos` | `SKOS_NARROW_MATCH` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:152` | `skos:narrowMatch` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_NARROWER` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:112` | `skos:narrower` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_PREF_LABEL` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:48` | `skos:prefLabel` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_RELATED` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:120` | `skos:related` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_RELATED_MATCH` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:160` | `skos:relatedMatch` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_SCOPE_NOTE` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:80` | `skos:scopeNote` |
+| `@beep/rdf/Vocab/Skos` | `SKOS_TOP_CONCEPT_OF` | const | `packages/foundation/modeling/rdf/src/Vocab/Skos.ts:184` | `skos:topConceptOf` |
+| `@beep/rdf/Vocab/Xsd` | `XSD_ANY_URI` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:55` | `xsd:anyURI` |
+| `@beep/rdf/Vocab/Xsd` | `XSD_BOOLEAN` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:70` | `xsd:boolean` |
+| `@beep/rdf/Vocab/Xsd` | `XSD_DOUBLE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:100` | `xsd:double` |
+| `@beep/rdf/Vocab/Xsd` | `XSD_INTEGER` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:85` | `xsd:integer` |
+| `@beep/rdf/Vocab/Xsd` | `XSD_NAMESPACE` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:25` | XSD namespace IRI. |
+| `@beep/rdf/Vocab/Xsd` | `XSD_STRING` | const | `packages/foundation/modeling/rdf/src/Vocab/Xsd.ts:40` | `xsd:string` |
 
 ### @beep/onepassword-cli
 
@@ -13646,6 +13709,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/data` | `Blockchain` | SourceFile | `packages/foundation/primitive/data/src/Blockchain.ts:25` |  |
 | `@beep/data` | `Calendar` | SourceFile | `packages/foundation/primitive/data/src/Calendar.ts:13` |  |
 | `@beep/data` | `CurrencyCodes` | SourceFile | `packages/foundation/primitive/data/src/CurrencyCodes.ts:12` |  |
+| `@beep/data` | `KeyboardShortcuts` | SourceFile | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:13` |  |
 | `@beep/data` | `MimeTypesData` | SourceFile | `packages/foundation/primitive/data/src/MimeTypes.ts:12` |  |
 | `@beep/data` | `Timezones` | SourceFile | `packages/foundation/primitive/data/src/Timezones.ts:11` |  |
 | `@beep/data/Blockchain` | `Networks` | const | `packages/foundation/primitive/data/src/Blockchain.ts:25` | Common blockchain network ticker metadata. |
@@ -13667,11 +13731,64 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/data/generated/iso4217` | `CurrencyCodeDataPublished` | const | `packages/foundation/primitive/data/src/generated/iso4217.ts:25` | Published date reported by the official ISO 4217 List One feed. |
 | `@beep/data/generated/iso4217` | `CurrencyCodeDataSourceUrl` | const | `packages/foundation/primitive/data/src/generated/iso4217.ts:40` | Official source URL for the ISO 4217 List One feed. |
 | `@beep/data/generated/iso4217` | `CurrencyCodeDataValues` | const | `packages/foundation/primitive/data/src/generated/iso4217.ts:55` | Normalized ISO 4217 currency entries emitted from the official feed. |
+| `@beep/data/HotKey` | `KeyboardShortcutCategory` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:81` | Shortcut category identifiers used for grouping command rows. |
+| `@beep/data/HotKey` | `KeyboardShortcutCategoryValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:295` | Shortcut category identifiers. |
+| `@beep/data/HotKey` | `KeyboardShortcutChordData` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:161` | A platform-specific shortcut chord for one command. |
+| `@beep/data/HotKey` | `KeyboardShortcutCommandLabel` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:145` | PascalCase command label derived from a shortcut command name. |
+| `@beep/data/HotKey` | `KeyboardShortcutCommandLabelValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:343` | PascalCase shortcut command labels. |
+| `@beep/data/HotKey` | `KeyboardShortcutCommandName` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:129` | Lower-camel command name used as the stable shortcut command id. |
+| `@beep/data/HotKey` | `KeyboardShortcutCommandNameValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:327` | Stable shortcut command names. |
+| `@beep/data/HotKey` | `KeyboardShortcutData` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:228` | A curated shortcut command row for a single platform and command name. |
+| `@beep/data/HotKey` | `KeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:440` | Combined shortcut command data across all supported platform datasets. |
+| `@beep/data/HotKey` | `KeyboardShortcutDisplay` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:193` | Platform display literal for rendering a shortcut hint. |
+| `@beep/data/HotKey` | `KeyboardShortcutPlatform` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:33` | Supported shortcut platform identifiers. |
+| `@beep/data/HotKey` | `KeyboardShortcutPlatformValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:247` | Supported shortcut platform identifiers. |
+| `@beep/data/HotKey` | `KeyboardShortcutRuntimeSupport` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:65` | Runtime registration support status for a shortcut chord. |
+| `@beep/data/HotKey` | `KeyboardShortcutRuntimeSupportValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:279` | Runtime registration support statuses. |
+| `@beep/data/HotKey` | `KeyboardShortcutScope` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:49` | Shortcut scope identifiers. |
+| `@beep/data/HotKey` | `KeyboardShortcutScopeValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:263` | Shortcut scope identifiers. |
+| `@beep/data/HotKey` | `KeyboardShortcutSource` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:97` | Source metadata entry for a curated shortcut reference. |
+| `@beep/data/HotKey` | `KeyboardShortcutSourceId` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:113` | Source identifier used by shortcut data rows. |
+| `@beep/data/HotKey` | `KeyboardShortcutSourceValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:311` | Source metadata for curated shortcut references. |
+| `@beep/data/HotKey` | `KeyboardShortcutTauriAccelerator` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:209` | Tauri/muda accelerator literal for chords that can be represented at runtime. |
+| `@beep/data/HotKey` | `KeyboardShortcutValue` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:177` | Canonical WAI-ARIA/UI Events shortcut literal. |
+| `@beep/data/HotKey` | `LinuxGnomeKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:407` | GNOME-specific app and shell shortcut defaults. |
+| `@beep/data/HotKey` | `LinuxKdePlasmaKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:423` | KDE Plasma and KStandardShortcut defaults. |
+| `@beep/data/HotKey` | `LinuxKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:391` | Portable Linux app shortcut defaults where GNOME and KDE broadly agree. |
+| `@beep/data/HotKey` | `MacOSKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:359` | macOS shortcut command data. |
+| `@beep/data/HotKey` | `WindowsKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:375` | Windows shortcut command data. |
 | `@beep/data/index` | `Blockchain` | SourceFile | `packages/foundation/primitive/data/src/Blockchain.ts:25` |  |
 | `@beep/data/index` | `Calendar` | SourceFile | `packages/foundation/primitive/data/src/Calendar.ts:13` |  |
 | `@beep/data/index` | `CurrencyCodes` | SourceFile | `packages/foundation/primitive/data/src/CurrencyCodes.ts:12` |  |
+| `@beep/data/index` | `KeyboardShortcuts` | SourceFile | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:13` |  |
 | `@beep/data/index` | `MimeTypesData` | SourceFile | `packages/foundation/primitive/data/src/MimeTypes.ts:12` |  |
 | `@beep/data/index` | `Timezones` | SourceFile | `packages/foundation/primitive/data/src/Timezones.ts:11` |  |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCategory` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:81` | Shortcut category identifiers used for grouping command rows. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCategoryValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:295` | Shortcut category identifiers. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutChordData` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:161` | A platform-specific shortcut chord for one command. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCommandLabel` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:145` | PascalCase command label derived from a shortcut command name. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCommandLabelValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:343` | PascalCase shortcut command labels. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCommandName` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:129` | Lower-camel command name used as the stable shortcut command id. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutCommandNameValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:327` | Stable shortcut command names. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutData` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:228` | A curated shortcut command row for a single platform and command name. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:440` | Combined shortcut command data across all supported platform datasets. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutDisplay` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:193` | Platform display literal for rendering a shortcut hint. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutPlatform` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:33` | Supported shortcut platform identifiers. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutPlatformValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:247` | Supported shortcut platform identifiers. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutRuntimeSupport` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:65` | Runtime registration support status for a shortcut chord. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutRuntimeSupportValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:279` | Runtime registration support statuses. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutScope` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:49` | Shortcut scope identifiers. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutScopeValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:263` | Shortcut scope identifiers. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutSource` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:97` | Source metadata entry for a curated shortcut reference. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutSourceId` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:113` | Source identifier used by shortcut data rows. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutSourceValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:311` | Source metadata for curated shortcut references. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutTauriAccelerator` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:209` | Tauri/muda accelerator literal for chords that can be represented at runtime. |
+| `@beep/data/KeyboardShortcuts` | `KeyboardShortcutValue` | type | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:177` | Canonical WAI-ARIA/UI Events shortcut literal. |
+| `@beep/data/KeyboardShortcuts` | `LinuxGnomeKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:407` | GNOME-specific app and shell shortcut defaults. |
+| `@beep/data/KeyboardShortcuts` | `LinuxKdePlasmaKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:423` | KDE Plasma and KStandardShortcut defaults. |
+| `@beep/data/KeyboardShortcuts` | `LinuxKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:391` | Portable Linux app shortcut defaults where GNOME and KDE broadly agree. |
+| `@beep/data/KeyboardShortcuts` | `MacOSKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:359` | macOS shortcut command data. |
+| `@beep/data/KeyboardShortcuts` | `WindowsKeyboardShortcutDataValues` | const | `packages/foundation/primitive/data/src/KeyboardShortcuts.ts:375` | Windows shortcut command data. |
 | `@beep/data/MimeTypes` | `application` | const | `packages/foundation/primitive/data/src/MimeTypes.ts:71` | Record of `application/*` MIME type definitions sourced from IANA, Apache, |
 | `@beep/data/MimeTypes` | `audio` | const | `packages/foundation/primitive/data/src/MimeTypes.ts:87` | Record of `audio/*` MIME type definitions sourced from IANA, Apache, |
 | `@beep/data/MimeTypes` | `FileExtension` | type | `packages/foundation/primitive/data/src/MimeTypes.ts:51` | Union of all known file extension strings (without leading dot) derived |

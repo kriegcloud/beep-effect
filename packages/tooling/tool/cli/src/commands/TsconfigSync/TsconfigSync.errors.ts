@@ -26,7 +26,7 @@ const $I = $RepoCliId.create("commands/TsconfigSync/TsconfigSync.errors");
 export class TsconfigSyncDriftError extends TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
   "TsconfigSyncDriftError",
   {
-    fileCount: S.Number,
+    fileCount: S.Finite,
     summary: S.String,
   },
   $I.annote("TsconfigSyncDriftError", {

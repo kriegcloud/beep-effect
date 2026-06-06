@@ -71,7 +71,7 @@ const typedUnknown = <A>(name: string, description: string): S.Decoder<A> =>
 const optionalString = S.OptionFromOptionalKey(S.String).pipe(
   S.withConstructorDefault(Effect.succeed(O.none<string>()))
 );
-const optionalNumber = S.OptionFromOptionalKey(S.Number).pipe(
+const optionalNumber = S.OptionFromOptionalKey(S.Finite).pipe(
   S.withConstructorDefault(Effect.succeed(O.none<number>()))
 );
 const optionalBoolean = S.OptionFromOptionalKey(S.Boolean).pipe(

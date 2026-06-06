@@ -97,7 +97,7 @@ export class SyncDataToTsDriftError extends TaggedErrorClass<SyncDataToTsDriftEr
   "SyncDataToTsDriftError",
   {
     message: S.String,
-    driftCount: S.Number,
+    driftCount: S.Finite,
   },
   $I.annote("SyncDataToTsDriftError", {
     title: "Sync Data To TypeScript Drift Error",

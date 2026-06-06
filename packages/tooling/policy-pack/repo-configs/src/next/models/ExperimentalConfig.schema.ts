@@ -58,9 +58,9 @@ const OnBeforeDeferredEntries = S.declare<NonNullable<ExperimentalConfigFromNext
 
 class CacheLifeProfile extends S.Class<CacheLifeProfile>($I`CacheLifeProfile`)(
   {
-    stale: S.optionalKey(S.Number),
-    revalidate: S.optionalKey(S.Number),
-    expire: S.optionalKey(S.Number),
+    stale: S.optionalKey(S.Finite),
+    revalidate: S.optionalKey(S.Finite),
+    expire: S.optionalKey(S.Finite),
   },
   $I.annote("CacheLifeProfile", {
     description: "Cache life timing profile for a named cache strategy.",
@@ -71,8 +71,8 @@ const CacheLife = S.Record(S.String, CacheLifeProfile);
 
 class PrefetchInliningOptions extends S.Class<PrefetchInliningOptions>($I`PrefetchInliningOptions`)(
   {
-    maxSize: S.optionalKey(S.Number),
-    maxBundleSize: S.optionalKey(S.Number),
+    maxSize: S.optionalKey(S.Finite),
+    maxBundleSize: S.optionalKey(S.Finite),
   },
   $I.annote("PrefetchInliningOptions", {
     description: "Prefetch inlining size limits.",
@@ -83,9 +83,9 @@ const PrefetchInlining = S.Union([S.Boolean, PrefetchInliningOptions]);
 
 class StaleTimes extends S.Class<StaleTimes>($I`StaleTimes`)(
   {
-    dynamic: S.optionalKey(S.Number),
+    dynamic: S.optionalKey(S.Finite),
     static: S.optionalKey(
-      S.Number.check(
+      S.Finite.check(
         S.isGreaterThanOrEqualTo(30, {
           identifier: $I`StaleTimesStaticMinimum`,
           title: "Static stale time minimum",
@@ -163,8 +163,8 @@ class BrowserDebugInfoInTerminalOptions extends S.Class<BrowserDebugInfoInTermin
 )(
   {
     level: S.optionalKey(BrowserDebugLevel),
-    depthLimit: S.optionalKey(S.Number),
-    edgeLimit: S.optionalKey(S.Number),
+    depthLimit: S.optionalKey(S.Finite),
+    edgeLimit: S.optionalKey(S.Finite),
     showSourceLocation: S.optionalKey(S.Boolean),
   },
   $I.annote("BrowserDebugInfoInTerminalOptions", {
@@ -215,7 +215,7 @@ export class ExperimentalConfig extends S.Class<ExperimentalConfig>($I`Experimen
     clientRouterFilterRedirects: S.optionalKey(S.Boolean),
     staleTimes: S.optionalKey(StaleTimes),
     cacheLife: S.optionalKey(CacheLife),
-    clientRouterFilterAllowedRate: S.optionalKey(S.Number),
+    clientRouterFilterAllowedRate: S.optionalKey(S.Finite),
     externalMiddlewareRewritesResolve: S.optionalKey(S.Boolean),
     externalProxyRewritesResolve: S.optionalKey(S.Boolean),
     exposeTestingApiInProductionBuild: S.optionalKey(S.Boolean),
@@ -223,22 +223,22 @@ export class ExperimentalConfig extends S.Class<ExperimentalConfig>($I`Experimen
     extensionAlias: S.optionalKey(S.Record(S.String, S.Unknown)),
     allowedRevalidateHeaderKeys: S.optionalKey(StringArray),
     fetchCacheKeyPrefix: S.optionalKey(S.String),
-    imgOptConcurrency: S.optionalKey(S.Number.pipe(S.NullOr)),
-    imgOptTimeoutInSeconds: S.optionalKey(S.Number),
-    imgOptMaxInputPixels: S.optionalKey(S.Number),
+    imgOptConcurrency: S.optionalKey(S.Finite.pipe(S.NullOr)),
+    imgOptTimeoutInSeconds: S.optionalKey(S.Finite),
+    imgOptMaxInputPixels: S.optionalKey(S.Finite),
     imgOptSequentialRead: S.optionalKey(S.Boolean.pipe(S.NullOr)),
     imgOptSkipMetadata: S.optionalKey(S.Boolean.pipe(S.NullOr)),
     optimisticClientCache: S.optionalKey(S.Boolean),
-    expireTime: S.optionalKey(S.Number),
+    expireTime: S.optionalKey(S.Finite),
     middlewarePrefetch: S.optionalKey(ProxyPrefetchMode),
     proxyPrefetch: S.optionalKey(ProxyPrefetchMode),
     manualClientBasePath: S.optionalKey(S.Boolean),
     cssChunking: S.optionalKey(BooleanOrStrict),
     disablePostcssPresetEnv: S.optionalKey(S.Boolean),
-    cpus: S.optionalKey(S.Number),
+    cpus: S.optionalKey(S.Finite),
     memoryBasedWorkersCount: S.optionalKey(S.Boolean),
     proxyTimeout: S.optionalKey(
-      S.Number.check(
+      S.Finite.check(
         S.isGreaterThanOrEqualTo(0, {
           identifier: $I`ProxyTimeoutMinimum`,
           title: "Proxy timeout minimum",
@@ -262,7 +262,7 @@ export class ExperimentalConfig extends S.Class<ExperimentalConfig>($I`Experimen
     forceSwcTransforms: S.optionalKey(S.Boolean),
     swcPlugins: S.optionalKey(SwcPlugins),
     swcEnvOptions: S.optionalKey(SwcEnvOptions),
-    largePageDataBytes: S.optionalKey(S.Number),
+    largePageDataBytes: S.optionalKey(S.Finite),
     fallbackNodePolyfills: S.optionalKey(S.Literal(false)),
     sri: S.optionalKey(SriConfig),
     webVitalsAttribution: S.optionalKey(WebVitalsMetric.pipe(S.Array, S.mutable)),
@@ -271,7 +271,7 @@ export class ExperimentalConfig extends S.Class<ExperimentalConfig>($I`Experimen
     strictRouteTypes: S.optionalKey(S.Boolean),
     transitionIndicator: S.optionalKey(S.Boolean),
     gestureTransition: S.optionalKey(S.Boolean),
-    turbopackMemoryLimit: S.optionalKey(S.Number),
+    turbopackMemoryLimit: S.optionalKey(S.Finite),
     turbopackPluginRuntimeStrategy: S.optionalKey(TurbopackRuntimeStrategy),
     turbopackMinify: S.optionalKey(S.Boolean),
     turbopackImportTypeBytes: S.optionalKey(S.Boolean),
@@ -327,7 +327,7 @@ export class ExperimentalConfig extends S.Class<ExperimentalConfig>($I`Experimen
     inlineCss: S.optionalKey(S.Boolean),
     authInterrupts: S.optionalKey(S.Boolean),
     useCacheTimeout: S.optionalKey(
-      S.Number.check(
+      S.Finite.check(
         S.isGreaterThan(0, {
           identifier: $I`UseCacheTimeoutPositive`,
           title: "Use cache timeout positive",

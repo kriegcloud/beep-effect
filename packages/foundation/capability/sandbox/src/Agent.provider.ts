@@ -54,10 +54,10 @@ type ClaudeToolUseBlock = Extract<
 
 class ClaudeUsage extends S.Class<ClaudeUsage>($I`ClaudeUsage`)(
   {
-    cache_creation_input_tokens: S.Number,
-    cache_read_input_tokens: S.Number,
-    input_tokens: S.Number,
-    output_tokens: S.Number,
+    cache_creation_input_tokens: S.Finite,
+    cache_read_input_tokens: S.Finite,
+    input_tokens: S.Finite,
+    output_tokens: S.Finite,
   },
   $I.annote("ClaudeUsage", {
     description: "Claude token usage payload decoded from a JSON stream line.",
@@ -480,10 +480,10 @@ export class PrintCommand extends S.Class<PrintCommand>($I`PrintCommand`)(
  */
 export class IterationUsage extends S.Class<IterationUsage>($I`IterationUsage`)(
   {
-    cacheCreationInputTokens: S.Number,
-    cacheReadInputTokens: S.Number,
-    inputTokens: S.Number,
-    outputTokens: S.Number,
+    cacheCreationInputTokens: S.Finite,
+    cacheReadInputTokens: S.Finite,
+    inputTokens: S.Finite,
+    outputTokens: S.Finite,
   },
   $I.annote("IterationUsage", {
     description: "Token usage snapshot extracted from an agent session.",

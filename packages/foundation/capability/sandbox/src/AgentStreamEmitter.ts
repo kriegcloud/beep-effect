@@ -31,13 +31,13 @@ const $I = $SandboxId.create("AgentStreamEmitter");
 export const AgentStreamEvent = S.TaggedUnion({
   Text: {
     message: S.String,
-    iteration: S.Number,
+    iteration: S.Finite,
     timestamp: S.DateTimeUtcFromDate,
   },
   ToolCall: {
     name: S.String,
     formattedArgs: S.String,
-    iteration: S.Number,
+    iteration: S.Finite,
     timestamp: S.DateTimeUtcFromDate,
   },
 }).pipe(

@@ -20,9 +20,9 @@ import type { LiteralKit as LiteralKitSchema, LiteralToKey } from "../LiteralKit
 const $I = $SchemaId.create("MappedLiteralKit");
 const MappedLiteralDuplicateErrorFields = {
   side: S.Literals(["from", "to"]),
-  literal: S.Union([S.String, S.BigInt, S.Boolean, S.Number]),
-  firstIndex: S.Number,
-  secondIndex: S.Number,
+  literal: S.Union([S.String, S.BigInt, S.Boolean, S.Finite]),
+  firstIndex: S.Finite,
+  secondIndex: S.Finite,
 } satisfies S.Struct.Fields;
 const MappedLiteralDuplicateErrorBase: TaggedErrorClassFromFields<
   MappedLiteralDuplicateError,

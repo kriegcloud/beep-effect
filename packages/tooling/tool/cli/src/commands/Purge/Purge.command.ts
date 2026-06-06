@@ -126,9 +126,9 @@ const ensureContainedPurgeTarget = Effect.fn(function* (rootDir: string, target:
  */
 export class PurgeSummary extends S.Class<PurgeSummary>($I`PurgeSummary`)(
   {
-    targetedCount: S.Number,
-    removedCount: S.Number,
-    workspaceCount: S.Number,
+    targetedCount: S.Finite,
+    removedCount: S.Finite,
+    workspaceCount: S.Finite,
   },
   $I.annote("PurgeSummary", {
     description: "Summary statistics returned after a purge run.",

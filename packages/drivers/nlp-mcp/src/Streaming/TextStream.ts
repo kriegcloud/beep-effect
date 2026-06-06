@@ -107,10 +107,10 @@ export class TextReadOptions extends S.Class<TextReadOptions>($I`TextReadOptions
 export class TextStreamOptions extends S.Class<TextStreamOptions>($I`TextStreamOptions`)(
   {
     ...TextReadOptions.fields,
-    maxLines: S.optionalKey(S.Number).annotateKey({
+    maxLines: S.optionalKey(S.Finite).annotateKey({
       description: "Maximum number of lines to emit after skipping (default: unbounded).",
     }),
-    skip: S.optionalKey(S.Number).annotateKey({
+    skip: S.optionalKey(S.Finite).annotateKey({
       description: "Number of leading lines to skip before emitting (default: 0).",
     }),
   },
@@ -142,22 +142,22 @@ export class TextStreamOptions extends S.Class<TextStreamOptions>($I`TextStreamO
  */
 export class TextStreamStats extends S.Class<TextStreamStats>($I`TextStreamStats`)(
   {
-    avgLineLength: S.Number.annotateKey({
+    avgLineLength: S.Finite.annotateKey({
       description: "Mean processed line length across all counted lines.",
     }),
-    maxLineLength: S.Number.annotateKey({
+    maxLineLength: S.Finite.annotateKey({
       description: "Longest processed line length seen.",
     }),
-    minLineLength: S.Number.annotateKey({
+    minLineLength: S.Finite.annotateKey({
       description: "Shortest processed line length seen, or 0 for an empty file.",
     }),
-    nonEmptyLines: S.Number.annotateKey({
+    nonEmptyLines: S.Finite.annotateKey({
       description: "Number of lines that were non-empty after processing.",
     }),
-    totalBytes: S.Number.annotateKey({
+    totalBytes: S.Finite.annotateKey({
       description: "Total bytes attributed to processed lines, including newline separators.",
     }),
-    totalLines: S.Number.annotateKey({
+    totalLines: S.Finite.annotateKey({
       description: "Total number of processed lines.",
     }),
   },

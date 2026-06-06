@@ -48,7 +48,7 @@ export class ImageLoaderProps extends S.Class<ImageLoaderProps>($I`ImageLoaderPr
   {
     src: S.String,
     width: NonNegNum,
-    quality: S.optionalKey(S.Number),
+    quality: S.optionalKey(S.Finite),
   },
   $I.annote("ImageLoaderProps", {
     description: "Configuration properties for the image loader component.",
@@ -202,7 +202,7 @@ export type ImageFormat = typeof ImageFormat.Type;
 export class ImageConfigComplete extends S.Class<ImageConfigComplete>($I`ImageConfigComplete`)(
   {
     /** @see [Device sizes documentation](https://nextjs.org/docs/api-reference/next/image#device-sizes) */
-    deviceSizes: S.Number.pipe(
+    deviceSizes: S.Finite.pipe(
       S.Array,
       S.mutable,
       S.annotateKey({
@@ -211,7 +211,7 @@ export class ImageConfigComplete extends S.Class<ImageConfigComplete>($I`ImageCo
     ),
 
     /** @see [Image sizing documentation](https://nextjs.org/docs/app/building-your-application/optimizing/images#image-sizing) */
-    imageSizes: S.Number.pipe(
+    imageSizes: S.Finite.pipe(
       S.Array,
       S.mutable,
       S.annotateKey({
@@ -252,7 +252,7 @@ export class ImageConfigComplete extends S.Class<ImageConfigComplete>($I`ImageCo
     }),
 
     /** @see [Cache behavior](https://nextjs.org/docs/api-reference/next/image#caching-behavior) */
-    minimumCacheTTL: S.Number.annotateKey({
+    minimumCacheTTL: S.Finite.annotateKey({
       documentation: "https://nextjs.org/docs/api-reference/next/image#caching-behavior",
     }),
 
@@ -266,17 +266,17 @@ export class ImageConfigComplete extends S.Class<ImageConfigComplete>($I`ImageCo
     ),
 
     /** @see [Maximum Disk Cache Size (in bytes)](https://nextjs.org/docs/api-reference/next/image#maximumdiskcachesize) */
-    maximumDiskCacheSize: S.UndefinedOr(S.Number).annotateKey({
+    maximumDiskCacheSize: S.UndefinedOr(S.Finite).annotateKey({
       documentation: "https://nextjs.org/docs/api-reference/next/image#maximumdiskcachesize",
     }),
 
     /** @see [Maximum Redirects](https://nextjs.org/docs/api-reference/next/image#maximumredirects) */
-    maximumRedirects: S.Number.annotateKey({
+    maximumRedirects: S.Finite.annotateKey({
       documentation: "https://nextjs.org/docs/api-reference/next/image#maximumredirects",
     }),
 
     /** @see [Maximum Response Body](https://nextjs.org/docs/api-reference/next/image#maximumresponsebody) */
-    maximumResponseBody: S.Number.annotateKey({
+    maximumResponseBody: S.Finite.annotateKey({
       documentation: "https://nextjs.org/docs/api-reference/next/image#maximumresponsebody",
     }),
 
@@ -320,7 +320,7 @@ export class ImageConfigComplete extends S.Class<ImageConfigComplete>($I`ImageCo
     ),
 
     /** @see [Qualities](https://nextjs.org/docs/api-reference/next/image#qualities) */
-    qualities: S.Number.pipe(
+    qualities: S.Finite.pipe(
       S.Array,
       S.mutable,
       S.UndefinedOr,

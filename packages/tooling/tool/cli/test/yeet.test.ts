@@ -6,6 +6,7 @@ import {
   gitPathListFromNulOutputForTesting,
   jsonObjectTextFromMixedOutputForTesting,
   publishPathsOutsideIntentForTesting,
+  publishRestagePathsForTesting,
   qualityIssuesFromStepResult,
   RepoPlanStep,
   RepoRunContext,
@@ -121,7 +122,7 @@ const findStep = (steps: ReadonlyArray<RepoPlanStep>, label: string): RepoPlanSt
   );
 
 describe("yeet planner", () => {
-  it("builds publish as feedback, commit, pre-push proof, then push", () => {
+  it("builds publish as commit, pre-push proof, then push", () => {
     const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
 
     expect(
@@ -129,22 +130,14 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual([
-      "feedback:build",
-      "feedback:check",
-      "feedback:lint",
-      "feedback:test",
-      "commit:git:commit",
-      "full:pre-push",
-      "publish:git:push",
-    ]);
+    ).toEqual(["commit:git:commit", "full:pre-push", "publish:git:push"]);
     expect(
       pipe(
         plan.steps,
         A.map((step) => step.phase),
         A.dedupe
       )
-    ).toEqual(["feedback", "commit", "full", "publish"]);
+    ).toEqual(["commit", "full", "publish"]);
 
     const commit = findStep(plan.steps, "commit:git:commit");
     const proof = findStep(plan.steps, "full:pre-push");
@@ -162,7 +155,7 @@ describe("yeet planner", () => {
     ).not.toContainEqual(["add", "-A"]);
   });
 
-  it("builds verify as read-only feedback plus the canonical pre-push proof", () => {
+  it("builds verify as only the canonical pre-push proof", () => {
     const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "verify" });
 
     expect(
@@ -170,7 +163,7 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual(["feedback:build", "feedback:check", "feedback:lint", "feedback:test", "full:pre-push"]);
+    ).toEqual(["full:pre-push"]);
     expect(
       pipe(
         plan.steps,
@@ -190,13 +183,14 @@ describe("yeet planner", () => {
       )
     ).toEqual([
       "prepare:lint:fix",
-      "prepare:docgen:local",
+      "prepare:docgen",
       "prepare:repo-exports:catalog",
       "feedback:build",
       "feedback:check",
       "feedback:lint",
       "feedback:test",
     ]);
+    expect(findStep(plan.steps, "prepare:docgen").args).toEqual(["run", "docgen"]);
     expect(findStep(plan.steps, "prepare:repo-exports:catalog").args).toEqual(["run", "repo-exports:catalog"]);
   });
 
@@ -207,7 +201,7 @@ describe("yeet planner", () => {
     expect(proof.label).toBe("full:pre-push");
   });
 
-  it("threads task-aware affected filters into feedback runs", () => {
+  it("threads task-aware affected filters into repair feedback runs", () => {
     const scopedContext = contextWithTasks([
       turboTask("build"),
       turboTask("check"),
@@ -218,6 +212,7 @@ describe("yeet planner", () => {
     const plan = buildYeetRunPlanForTesting({
       context: scopedContext,
       message: O.some("feat(repo-cli): add yeet"),
+      mode: "repair",
     });
 
     expect(findStep(plan.steps, "feedback:check").args).toEqual([
@@ -226,6 +221,7 @@ describe("yeet planner", () => {
       "--",
       "--filter=@beep/repo-cli",
       "--filter=@beep/schema",
+      "--concurrency=3",
       "--continue=dependencies-successful",
       "--summarize",
       "--ui=stream",
@@ -239,35 +235,26 @@ describe("yeet planner", () => {
       "--unit",
       "--types",
       "--filter=@beep/repo-cli",
+      "--concurrency=3",
       "--continue=dependencies-successful",
       "--summarize",
       "--ui=stream",
     ]);
   });
 
-  it("uses Turbo SCM environment for write-mode affected prepare steps", () => {
+  it("uses changed-file lint fix for write-mode repair", () => {
     const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "repair" });
     const step = findStep(plan.steps, "prepare:lint:fix");
 
-    expect(step.args).toEqual([
-      "run",
-      "lint:fix",
-      "--",
-      "--affected",
-      "--continue=dependencies-successful",
-      "--summarize",
-      "--ui=stream",
-    ]);
-    expect(step.env).toEqual({
-      TURBO_SCM_BASE: "origin/main",
-      TURBO_SCM_HEAD: "feature/head",
-    });
+    expect(step.args).toEqual(["run", "lint:fix"]);
+    expect(step.env).toBeUndefined();
   });
 
-  it("omits feedback steps whose task has no affected packages", () => {
+  it("omits repair feedback steps whose task has no affected packages", () => {
     const plan = buildYeetRunPlanForTesting({
       context: contextWithTasks([turboTask("build"), turboTask("lint")]),
       message: O.some("feat(repo-cli): add yeet"),
+      mode: "repair",
     });
 
     expect(
@@ -279,10 +266,11 @@ describe("yeet planner", () => {
     ).toEqual(["feedback:build", "feedback:lint"]);
   });
 
-  it("keeps feedback as a no-op instead of falling back to all packages", () => {
+  it("keeps repair feedback as a no-op instead of falling back to all packages", () => {
     const plan = buildYeetRunPlanForTesting({
       context: contextWithTasks([]),
       message: O.some("feat(repo-cli): add yeet"),
+      mode: "repair",
     });
 
     expect(
@@ -296,7 +284,7 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual(["commit:git:commit", "full:pre-push", "publish:git:push"]);
+    ).toEqual(["prepare:lint:fix", "prepare:docgen", "prepare:repo-exports:catalog"]);
   });
 
   it("filters publish paths against the reviewed staged intent", () => {
@@ -304,6 +292,15 @@ describe("yeet planner", () => {
     expect(publishPathsOutsideIntentForTesting(["src/a.ts", "src/z.ts"], ["src/a.ts", "secrets/local.env"])).toEqual([
       "secrets/local.env",
     ]);
+  });
+
+  it("omits reviewed deletion paths from publish restaging", () => {
+    expect(
+      publishRestagePathsForTesting(
+        ["scripts/removed.ts", "src/changed.ts", "src/new.ts"],
+        ["src/changed.ts", "src/new.ts"]
+      )
+    ).toEqual(["src/changed.ts", "src/new.ts"]);
   });
 
   it("decodes Turbo affected query JSON into plan task metadata", () => {
@@ -369,11 +366,12 @@ describe("yeet planner", () => {
   });
 
   it("does not enable fingerprint resume until runtime skip execution exists", () => {
-    const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
+    const repairPlan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "repair" });
+    const publishPlan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
 
-    expect(findStep(plan.steps, "feedback:check").resume).toBe("never");
-    expect(findStep(plan.steps, "full:pre-push").resume).toBe("never");
-    expect(findStep(plan.steps, "commit:git:commit").resume).toBe("never");
+    expect(findStep(repairPlan.steps, "feedback:check").resume).toBe("never");
+    expect(findStep(publishPlan.steps, "full:pre-push").resume).toBe("never");
+    expect(findStep(publishPlan.steps, "commit:git:commit").resume).toBe("never");
   });
 
   it("quotes command text without changing argv", () => {

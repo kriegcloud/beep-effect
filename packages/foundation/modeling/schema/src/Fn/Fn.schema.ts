@@ -203,7 +203,7 @@ export interface FnSchemaNoArg<Input extends NoArgInputSchema, Output extends S.
  * import type { FnSchemaUnary } from "@beep/schema/Fn"
  * import * as S from "effect/Schema"
  *
- * declare const schema: FnSchemaUnary<typeof S.Number, typeof S.String, typeof S.Never>
+ * declare const schema: FnSchemaUnary<typeof S.Finite, typeof S.String, typeof S.Never>
  * const format = schema.implementSync((input) => `${input}`)
  *
  * console.log(format(1))
@@ -234,7 +234,7 @@ export interface FnSchemaUnary<Input extends S.Top, Output extends S.Top, Error 
  * import type { FnSchema } from "@beep/schema/Fn"
  * import * as S from "effect/Schema"
  *
- * type FormatCount = FnSchema<typeof S.Number, typeof S.String>
+ * type FormatCount = FnSchema<typeof S.Finite, typeof S.String>
  * const schema = S.String satisfies FormatCount["outputSchema"]
  *
  * console.log(schema.ast._tag)
@@ -261,7 +261,7 @@ export type FnSchema<Input extends S.Top, Output extends S.Top, Error extends S.
  * import type { FnSchemaStatics } from "@beep/schema/Fn"
  * import * as S from "effect/Schema"
  *
- * declare const statics: FnSchemaStatics<typeof S.Number, typeof S.String>
+ * declare const statics: FnSchemaStatics<typeof S.Finite, typeof S.String>
  * const format = statics.implementSync((input) => `${input}`)
  *
  * console.log(format(1))
@@ -501,7 +501,7 @@ export function ThunkOf<Output extends S.Top>(output: Output): FnSchema<typeof S
  * import { ThunkOf } from "@beep/schema"
  * import * as S from "effect/Schema"
  *
- * const GetCount = ThunkOf(S.Number, S.String)
+ * const GetCount = ThunkOf(S.Finite, S.String)
  * console.log(GetCount.errorSchema.ast._tag)
  * ```
  *
@@ -566,7 +566,7 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  * import { Fn } from "@beep/schema"
  * import * as S from "effect/Schema"
  *
- * const GetTime = Fn({ input: S.Undefined, output: S.Number })
+ * const GetTime = Fn({ input: S.Undefined, output: S.Finite })
  * const getTime = GetTime.implementSync(() => Date.now())
  * console.log(getTime)
  * ```
@@ -617,7 +617,7 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  * import * as S from "effect/Schema"
  *
  * const FormatCount = Fn({
- *   input: S.Number,
+ *   input: S.Finite,
  *   output: S.String
  * })
  *
@@ -645,7 +645,7 @@ export function Fn<Input extends S.Top, Output extends S.Top, Error extends S.To
  * import { Fn } from "@beep/schema"
  * import * as S from "effect/Schema"
  *
- * const FormatCount = Fn({ input: S.Number, output: S.String })
+ * const FormatCount = Fn({ input: S.Finite, output: S.String })
  * const formatCount = FormatCount.implementSync((count) => `${count}`)
  *
  * console.log(formatCount(1))

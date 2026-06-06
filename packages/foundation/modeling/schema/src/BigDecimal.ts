@@ -30,7 +30,7 @@ const $I = $SchemaId.create("BigDecimal");
  * console.log(value)
  * ```
  */
-export const BigDecimalFromNumber: S.decodeTo<S.BigDecimal, S.Number> = S.Number.pipe(
+export const BigDecimalFromNumber: S.decodeTo<S.BigDecimal, S.Finite> = S.Finite.pipe(
   S.decodeTo(S.BigDecimal, {
     decode: SchemaGetter.transform(BigDecimal.fromNumberUnsafe),
     encode: SchemaGetter.transform(BigDecimal.toNumberUnsafe),

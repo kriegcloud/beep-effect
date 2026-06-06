@@ -76,7 +76,7 @@ class TurboQueryAffectedTaskConnection extends S.Class<TurboQueryAffectedTaskCon
 )(
   {
     items: S.Array(TurboQueryAffectedTask),
-    length: S.Number,
+    length: S.Finite,
   },
   $I.annote("TurboQueryAffectedTaskConnection", {
     description: "Turbo affected task connection payload.",
@@ -113,7 +113,7 @@ class TurboQueryPackage extends S.Class<TurboQueryPackage>($I`TurboQueryPackage`
 
 class TurboQueryPackageConnection extends S.Class<TurboQueryPackageConnection>($I`TurboQueryPackageConnection`)(
   {
-    count: S.Number,
+    count: S.Finite,
     items: S.Array(TurboQueryPackage),
   },
   $I.annote("TurboQueryPackageConnection", {
@@ -133,6 +133,13 @@ class TurboQueryLsDocument extends S.Class<TurboQueryLsDocument>($I`TurboQueryLs
 
 const decodeTurboQueryAffectedDocument = S.decodeUnknownEffect(S.fromJsonString(TurboQueryAffectedDocument));
 const decodeTurboQueryLsDocument = S.decodeUnknownEffect(S.fromJsonString(TurboQueryLsDocument));
+
+const shouldCollectAffectedFeedbackTasks = (mode: YeetRunMode): boolean =>
+  YeetRunMode.$match(mode, {
+    publish: () => false,
+    repair: () => true,
+    verify: () => false,
+  });
 
 /**
  * Runtime options accepted by the yeet handler.
@@ -226,6 +233,16 @@ const publishPathsOutsideIntent = (
     sortedUniquePaths
   );
 
+const publishRestagePaths = (
+  intendedPaths: ReadonlyArray<string>,
+  existingPaths: ReadonlyArray<string>
+): ReadonlyArray<string> =>
+  pipe(
+    intendedPaths,
+    A.filter((filePath) => A.contains(existingPaths, filePath)),
+    sortedUniquePaths
+  );
+
 const formatPublishPaths = (paths: ReadonlyArray<string>): string =>
   pipe(
     paths,
@@ -256,6 +273,15 @@ export const gitPathListFromNulOutputForTesting = gitPathListFromNulOutput;
  * @since 0.0.0
  */
 export const publishPathsOutsideIntentForTesting = publishPathsOutsideIntent;
+
+/**
+ * Return reviewed paths that can be passed to `git add` without failing on
+ * reviewed deletions.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const publishRestagePathsForTesting = publishRestagePaths;
 
 const renderJson = Effect.fn("Yeet.renderJson")(function* (value: unknown): Effect.fn.Return<string, YeetCommandError> {
   return yield* encodeJson(value).pipe(Effect.mapError(YeetCommandError.new("Failed to encode yeet JSON output.")));
@@ -398,12 +424,36 @@ const validatePublishIntentStillSafe = Effect.fn("Yeet.validatePublishIntentStil
   }
 });
 
+const collectExistingPublishIntentPaths = Effect.fn("Yeet.collectExistingPublishIntentPaths")(function* (
+  context: RepoRunContext,
+  intent: YeetPublishIntent
+): Effect.fn.Return<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const existingPaths = yield* Effect.forEach(intent.paths, (filePath) =>
+    pipe(
+      fs.exists(path.join(context.repoRoot, filePath)),
+      Effect.orElseSucceed(() => false),
+      Effect.map((exists) => (exists ? O.some(filePath) : O.none()))
+    )
+  );
+  return pipe(existingPaths, A.getSomes, sortedUniquePaths);
+});
+
 const stageReviewedPublishIntent = Effect.fn("Yeet.stageReviewedPublishIntent")(function* (
   context: RepoRunContext,
   intent: YeetPublishIntent
-): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  void,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   yield* validatePublishIntentStillSafe(context, intent);
-  yield* runGitOutput(context.repoRoot, ["add", "--", ...intent.paths]);
+  const existingPaths = yield* collectExistingPublishIntentPaths(context, intent);
+  const restagePaths = publishRestagePaths(intent.paths, existingPaths);
+  if (!A.isReadonlyArrayEmpty(restagePaths)) {
+    yield* runGitOutput(context.repoRoot, ["add", "--", ...restagePaths]);
+  }
   yield* validatePublishIntentStillSafe(context, intent);
 
   const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);
@@ -591,6 +641,30 @@ const turboPlanTasksFromQueryDocuments = (
   return pipe(affectedDocument.data.affectedTasks.items, A.map(turboPlanTaskFromAffectedTask(pathsByName)));
 };
 
+const collectAffectedFeedbackTasks = Effect.fn("Yeet.collectAffectedFeedbackTasks")(function* (
+  repoRoot: string,
+  options: YeetRunOptions,
+  packageDocument: TurboQueryLsDocument
+): Effect.fn.Return<
+  ReadonlyArray<TurboPlanTask>,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  if (!shouldCollectAffectedFeedbackTasks(options.mode)) {
+    return [];
+  }
+
+  const affectedJson = yield* runTurboQueryJson(
+    repoRoot,
+    ["query", "affected", "--tasks", ...YEET_FEEDBACK_TASKS, "--base", options.base, "--head", options.head],
+    "turbo query affected"
+  );
+  const affectedDocument = yield* decodeTurboQueryAffectedDocument(affectedJson).pipe(
+    Effect.mapError(YeetCommandError.new("Failed to decode Turbo affected query JSON."))
+  );
+  return turboPlanTasksFromQueryDocuments(affectedDocument, packageDocument);
+});
+
 const decodeTurboPlanTasksFromQueryJson = Effect.fn("Yeet.decodeTurboPlanTasksFromQueryJson")(function* (
   affectedJson: string,
   packageJson: string
@@ -621,19 +695,11 @@ const collectTurboPlanSnapshot = Effect.fn("Yeet.collectTurboPlanSnapshot")(func
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   const turboVersion = yield* collectTurboVersion(repoRoot);
-  const affectedJson = yield* runTurboQueryJson(
-    repoRoot,
-    ["query", "affected", "--tasks", ...YEET_FEEDBACK_TASKS, "--base", options.base, "--head", options.head],
-    "turbo query affected"
-  );
   const packageJson = yield* runTurboQueryJson(repoRoot, ["query", "ls", "--output", "json"], "turbo query ls");
-  const affectedDocument = yield* decodeTurboQueryAffectedDocument(affectedJson).pipe(
-    Effect.mapError(YeetCommandError.new("Failed to decode Turbo affected query JSON."))
-  );
   const packageDocument = yield* decodeTurboQueryLsDocument(packageJson).pipe(
     Effect.mapError(YeetCommandError.new("Failed to decode Turbo package query JSON."))
   );
-  const tasks = turboPlanTasksFromQueryDocuments(affectedDocument, packageDocument);
+  const tasks = yield* collectAffectedFeedbackTasks(repoRoot, options, packageDocument);
   const packages = turboWorkspacePackagesFromQueryDocument(packageDocument);
 
   return TurboPlanSnapshot.make({

@@ -216,7 +216,7 @@ export class Token extends S.Class<Token>($I`Token`)(
     prefix: S.OptionFromOptionalKey(S.String),
     suffix: S.OptionFromOptionalKey(S.String),
     case: S.OptionFromOptionalKey(S.String),
-    uniqueId: S.OptionFromOptionalKey(S.Number),
+    uniqueId: S.OptionFromOptionalKey(S.Finite),
     abbrevFlag: S.OptionFromOptionalKey(S.Boolean),
     contractionFlag: S.OptionFromOptionalKey(S.Boolean),
     stopWordFlag: S.OptionFromOptionalKey(S.Boolean),

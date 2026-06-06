@@ -80,7 +80,7 @@ export type MutableTextGraph = Graph.MutableDirectedGraph<TextNode, TextEdge>;
 export class GraphCycleError extends TaggedErrorClass<GraphCycleError>($I`GraphCycleError`)(
   "GraphCycleError",
   {
-    parentIndex: S.Number,
+    parentIndex: S.Finite,
   },
   $I.annote("GraphCycleError", {
     description: "Raised when a text-graph mutation would create a cycle.",

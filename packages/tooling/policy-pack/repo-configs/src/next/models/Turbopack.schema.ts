@@ -36,7 +36,7 @@ export type JSONValue = string | number | boolean | Array<JSONValue> | { [key: s
  * @since 0.0.0
  */
 export const JSONValue: S.Codec<JSONValue, JSONValue> = S.suspend(() =>
-  S.Union([S.String, S.Number, S.Boolean, JSONValue.pipe(S.Array, S.mutable), S.Record(S.String, JSONValue)])
+  S.Union([S.String, S.Finite, S.Boolean, JSONValue.pipe(S.Array, S.mutable), S.Record(S.String, JSONValue)])
 ).pipe(
   $I.annoteSchema("JSONValue", {
     description: "JSON-compatible value accepted by Turbopack loader options.",

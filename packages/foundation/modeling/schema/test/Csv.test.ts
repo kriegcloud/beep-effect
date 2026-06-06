@@ -8,7 +8,7 @@ const $I = $SchemaId.create("csv_test");
 
 class UserRow extends S.Class<UserRow>($I`UserRow`)(
   {
-    id: S.NumberFromString,
+    id: S.FiniteFromString,
     first_name: S.String,
     last_name: S.String,
     address: S.String,
@@ -20,7 +20,7 @@ class UserRow extends S.Class<UserRow>($I`UserRow`)(
 
 class OptionalUserRow extends S.Class<OptionalUserRow>($I`OptionalUserRow`)(
   {
-    id: S.NumberFromString,
+    id: S.FiniteFromString,
     first_name: S.String,
     nickname: S.optionalKey(S.String),
   },
@@ -31,7 +31,7 @@ class OptionalUserRow extends S.Class<OptionalUserRow>($I`OptionalUserRow`)(
 
 class NullableUserRow extends S.Class<NullableUserRow>($I`NullableUserRow`)(
   {
-    id: S.NumberFromString,
+    id: S.FiniteFromString,
     nickname: S.NullOr(S.String),
   },
   $I.annote("NullableUserRow", {
@@ -41,7 +41,7 @@ class NullableUserRow extends S.Class<NullableUserRow>($I`NullableUserRow`)(
 
 class InvalidNumberRow extends S.Class<InvalidNumberRow>($I`InvalidNumberRow`)(
   {
-    id: S.Number,
+    id: S.Finite,
     name: S.String,
   },
   $I.annote("InvalidNumberRow", {

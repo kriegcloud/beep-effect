@@ -127,7 +127,7 @@ export class RepoCodegraphLookupRequest extends S.Class<RepoCodegraphLookupReque
   {
     query: S.NonEmptyString,
     fromPackage: S.OptionFromNullOr(S.String),
-    limit: S.Number.pipe(S.withConstructorDefault(Effect.succeed(8)), S.withDecodingDefault(Effect.succeed(8))),
+    limit: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(8)), S.withDecodingDefault(Effect.succeed(8))),
   },
   $I.annote("RepoCodegraphLookupRequest", {
     description: "Deterministic symbol and intent lookup request over the generated repo export catalog.",
@@ -155,12 +155,12 @@ export class RepoCodegraphLookupRequest extends S.Class<RepoCodegraphLookupReque
  */
 export class RepoCodegraphLookupScore extends S.Class<RepoCodegraphLookupScore>($I`RepoCodegraphLookupScore`)(
   {
-    exact: S.Number,
-    lexical: S.Number,
-    semantic: S.Number,
-    graph: S.Number,
-    boundary: S.Number,
-    total: S.Number,
+    exact: S.Finite,
+    lexical: S.Finite,
+    semantic: S.Finite,
+    graph: S.Finite,
+    boundary: S.Finite,
+    total: S.Finite,
   },
   $I.annote("RepoCodegraphLookupScore", {
     description: "Explainable deterministic score components for a repo-codegraph lookup match.",
@@ -247,7 +247,7 @@ export class RepoCodegraphLookupMatch extends S.Class<RepoCodegraphLookupMatch>(
     symbolName: S.NonEmptyString,
     exportKind: S.NonEmptyString,
     sourcePath: S.NonEmptyString,
-    sourceLine: S.Number,
+    sourceLine: S.Finite,
     summary: S.OptionFromNullOr(S.String),
     recommendedImport: RepoCodegraphImportCandidate,
     legalImports: S.Array(RepoCodegraphImportCandidate),
@@ -277,9 +277,9 @@ export class RepoCodegraphLookupMatch extends S.Class<RepoCodegraphLookupMatch>(
  */
 export class RepoCodegraphLookupTotals extends S.Class<RepoCodegraphLookupTotals>($I`RepoCodegraphLookupTotals`)(
   {
-    catalogEntries: S.Number,
-    matchedEntries: S.Number,
-    returnedMatches: S.Number,
+    catalogEntries: S.Finite,
+    matchedEntries: S.Finite,
+    returnedMatches: S.Finite,
   },
   $I.annote("RepoCodegraphLookupTotals", {
     description: "Aggregate counts for a deterministic repo-codegraph lookup result.",
@@ -302,7 +302,7 @@ export class RepoCodegraphLookupResult extends S.Class<RepoCodegraphLookupResult
     schemaVersion: RepoCodegraphLookupSchemaVersion,
     query: S.NonEmptyString,
     fromPackage: S.OptionFromNullOr(S.String),
-    limit: S.Number,
+    limit: S.Finite,
     freshnessStatus: RepoCodegraphFreshnessStatus,
     warnings: S.Array(S.String),
     matches: S.Array(RepoCodegraphLookupMatch),

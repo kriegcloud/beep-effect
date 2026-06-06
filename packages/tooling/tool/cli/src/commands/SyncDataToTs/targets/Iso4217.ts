@@ -95,7 +95,7 @@ class Iso4217CurrencyEntry extends S.Class<Iso4217CurrencyEntry>($I`Iso4217Curre
   {
     code: S.String,
     number: S.String,
-    digits: S.Number,
+    digits: S.Finite,
     currency: S.String,
     countries: S.Array(S.String),
   },

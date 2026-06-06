@@ -207,7 +207,7 @@ export const withFallback = (primary: NLPBackendShape, secondary: NLPBackendShap
  */
 export class CachingOptions extends S.Class<CachingOptions>($I`CachingOptions`)(
   {
-    capacity: S.optionalKey(S.Number),
+    capacity: S.optionalKey(S.Finite),
     timeToLive: S.optionalKey(S.Duration),
   },
   $I.annote("CachingOptions", {

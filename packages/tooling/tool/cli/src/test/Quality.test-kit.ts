@@ -10,4 +10,5 @@ export * from "@beep/repo-cli/commands/Quality/index";
 export * from "@beep/repo-cli/commands/Quality/Quality.command";
 export * from "@beep/repo-cli/commands/Quality/Tasks";
 export * from "../commands/Quality/internal/JSDocDocumentationInventory.js";
+export * from "../commands/Quality/internal/PackageVerify.js";
 export * from "../commands/Quality/internal/RepoExportsCatalog.js";

@@ -168,9 +168,12 @@ commands below as the source of truth when the snapshot drifts.
 - `oip-web-launch` — implementation complete; launch review pending.
 - `repo-codegraph` — deterministic-first codegraph lookup and retrieval
   implementation packet.
-- `repo-quality-acceleration` — research-first quality feedback speedup packet.
+- `repo-quality-acceleration` — superseded research-first quality feedback
+  speedup packet; active execution moved to `repo-quality-throughput`.
 - `repo-quality-convergence` — 9/10 repo-health scorecard, release guardrail,
   and quality closure packet.
+- `repo-quality-throughput` — active End-to-End Green quality/CI performance
+  research, task synthesis, implementation, and proof packet.
 - `repo-context-topology` — generated topology and export catalog work for
   coding-agent symbol discovery.
 - `stack-installer`

@@ -14,9 +14,11 @@ import {
   AiMetricsMirrorBundleInput,
   AiMetricsOtlpExportInput,
   AiMetricsOutcomeLabelInput,
+  AiMetricsParquetExportMode,
   AiMetricsPrivacyMode,
   AiMetricsQualityGateStatus,
   AiMetricsRawArchiveObject,
+  AiMetricsRetentionEnforcementPolicy,
   AiMetricsRetentionRestoreDrillInput,
   AiMetricsRetentionSelector,
   AiMetricsSourceDiscoveryInput,
@@ -27,10 +29,12 @@ import {
   aiMetricsInstallApplyDryRunToJson,
   aiMetricsInstallDoctorToJson,
   aiMetricsInstallPlanToJson,
+  aiMetricsRetentionEnforcementToJson,
   buildAiMetricsMirrorBundle,
   configSnapshotToJson,
   decryptEncryptedRawArchiveEnvelope,
   discoverAiMetricsSources,
+  enforceAiMetricsRetentionPolicy,
   ensureAiMetricsDerivedStorage,
   forwarderRunResultToJson,
   forwarderTimerPlanToJson,
@@ -218,7 +222,13 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
               ])
             );
             expect(yield* forwarderRunResultToJson(result)).toContain(result.ingestRunId);
-            expect(yield* fs.exists(path.join(result.parquetExportDir, "ai_metrics_turns.parquet"))).toBe(true);
+            expect(result.parquetExportMode).toBe("snapshot");
+            const parquetExportDir = result.parquetExportDir;
+            expect(parquetExportDir).toBeDefined();
+            if (parquetExportDir === undefined) {
+              return;
+            }
+            expect(yield* fs.exists(path.join(parquetExportDir, "ai_metrics_turns.parquet"))).toBe(true);
             expect(yield* fs.exists(path.join(dataRoot, "config-snapshots/latest.json"))).toBe(true);
 
             const duckdb = yield* DuckDb;
@@ -238,6 +248,105 @@ layer(NodeServices.layer as Layer.Layer<TUnsafe.Any>)("@beep/repo-ai-metrics", (
             const envelope = yield* readEncryptedRawArchiveEnvelope(archivePath);
             const plaintext = yield* decryptEncryptedRawArchiveEnvelope({ envelope, rawArchiveKey });
             expect(plaintext).toContain("secret-value");
+          }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
+        })
+      ).pipe(provideScopedLayer(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "supports disabled and latest-only Parquet export modes",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const dataRoot = path.join(tmpDir, "metrics");
+          const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
+          const sourcePath = path.join(tmpDir, "home/.codex/sessions/codex.jsonl");
+          const content = '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}';
+
+          yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
+
+          yield* Effect.gen(function* () {
+            const summary = yield* summarizeTranscriptText({
+              content,
+              hashSalt: "test-salt",
+              sourceKind: AiMetricsTranscriptSource.Enum.codex,
+              sourcePath,
+            });
+            const privacy = yield* makeAiMetricsPrivacyCheckResult({
+              content,
+              hashSalt: "test-salt",
+              sourcePath,
+              summary,
+            });
+            const installSpec = yield* makeAiMetricsInstallSpec(
+              AiMetricsInstallInput.make({
+                dataRoot,
+                target: AiMetricsDeployTarget.Enum.local,
+              })
+            );
+            const configSnapshot = yield* makeAiMetricsConfigSnapshot(
+              AiMetricsConfigSnapshotInput.make({
+                repoRoot: path.join(tmpDir, "repo"),
+              })
+            );
+            const record = AiMetricsDerivedTranscriptRecord.make({
+              archiveObject: AiMetricsRawArchiveObject.make({
+                algorithm: "AES-256-GCM",
+                archiveObjectId: "raw-content-addressed-object",
+                archivePath: path.join(dataRoot, "raw/codex/raw-content-addressed-object.json"),
+                created: false,
+                encryptedAtEpochMillis: 1,
+                plaintextContentHash: "plaintext-content-hash",
+                sourceKind: AiMetricsTranscriptSource.Enum.codex,
+                sourcePathHash: summary.sourcePathHash,
+              }),
+              privacy,
+            });
+            const baseInput = {
+              configSnapshot: configSnapshot.snapshot,
+              records: [record],
+              repoRootHash: "repo-root-hash",
+              startedAtEpochMillis: 1,
+              storage: installSpec.storage,
+              target: AiMetricsDeployTarget.Enum.local,
+            };
+
+            const disabled = yield* writeAiMetricsDerivedStorage(
+              AiMetricsDerivedStorageWriteInput.make({
+                ...baseInput,
+                ingestRunId: "forwarder-none",
+                parquetExportMode: AiMetricsParquetExportMode.Enum.none,
+              })
+            );
+            expect(disabled.parquetExportMode).toBe("none");
+            expect(disabled.parquetExportDir).toBeUndefined();
+            expect(disabled.parquetTables).toEqual([]);
+            expect(yield* fs.exists(path.join(dataRoot, "derived/parquet"))).toBe(false);
+
+            const latest = yield* writeAiMetricsDerivedStorage(
+              AiMetricsDerivedStorageWriteInput.make({
+                ...baseInput,
+                ingestRunId: "forwarder-latest",
+                parquetExportMode: AiMetricsParquetExportMode.Enum.latest,
+              })
+            );
+            expect(latest.parquetExportMode).toBe("latest");
+            expect(latest.parquetExportDir).toBe(path.join(dataRoot, "derived/parquet/latest"));
+            expect(yield* fs.exists(path.join(dataRoot, "derived/parquet/latest/ai_metrics_turns.parquet"))).toBe(true);
+
+            yield* writeText(path.join(dataRoot, "derived/parquet/latest/stale.tmp"), "stale\n");
+            yield* writeAiMetricsDerivedStorage(
+              AiMetricsDerivedStorageWriteInput.make({
+                ...baseInput,
+                ingestRunId: "forwarder-latest-2",
+                parquetExportMode: AiMetricsParquetExportMode.Enum.latest,
+              })
+            );
+            expect(yield* fs.exists(path.join(dataRoot, "derived/parquet/latest/stale.tmp"))).toBe(false);
+            expect(yield* fs.exists(path.join(dataRoot, "derived/parquet/forwarder-latest-2"))).toBe(false);
           }).pipe(provideScopedLayer(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: duckDbPath }))));
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
@@ -1943,6 +2052,53 @@ volumes:
           expect(drill.replayedObjectCount).toBe(1);
           expect(drill.transcriptTextPrinted).toBe(false);
           expect(yield* fs.exists(drill.derivedDuckDbPath)).toBe(true);
+        })
+      ).pipe(provideScopedLayer(NodeServices.layer));
+    })
+  );
+
+  it.effect(
+    "enforces preventive Parquet snapshot retention without deleting latest exports",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const dataRoot = path.join(tmpDir, "metrics");
+          const parquetRoot = path.join(dataRoot, "derived/parquet");
+          const oldSnapshot = path.join(parquetRoot, "forwarder-old/ai_metrics_turns.parquet");
+          const newSnapshot = path.join(parquetRoot, "forwarder-new/ai_metrics_turns.parquet");
+          const latestExport = path.join(parquetRoot, "latest/ai_metrics_turns.parquet");
+
+          yield* writeText(oldSnapshot, "old\n");
+          yield* writeText(newSnapshot, "new\n");
+          yield* writeText(latestExport, "latest\n");
+
+          const dryRun = yield* enforceAiMetricsRetentionPolicy(
+            AiMetricsRetentionEnforcementPolicy.make({
+              dataRoot,
+              dryRun: true,
+              maxSnapshotExports: 0,
+            })
+          );
+          const dryRunJson = yield* aiMetricsRetentionEnforcementToJson(dryRun);
+          expect(dryRun.deletedDerivedExportCount).toBe(2);
+          expect(dryRun.dryRun).toBe(true);
+          expect(dryRunJson).toContain("beep.ai_metrics.retention_enforcement.v1");
+          expect(yield* fs.exists(path.join(parquetRoot, "forwarder-old"))).toBe(true);
+
+          const applied = yield* enforceAiMetricsRetentionPolicy(
+            AiMetricsRetentionEnforcementPolicy.make({
+              dataRoot,
+              dryRun: false,
+              maxSnapshotExports: 0,
+            })
+          );
+          expect(applied.deletedDerivedExportCount).toBe(2);
+          expect(applied.keptDerivedExportCount).toBe(0);
+          expect(yield* fs.exists(path.join(parquetRoot, "forwarder-old"))).toBe(false);
+          expect(yield* fs.exists(path.join(parquetRoot, "forwarder-new"))).toBe(false);
+          expect(yield* fs.exists(path.join(parquetRoot, "latest"))).toBe(true);
         })
       ).pipe(provideScopedLayer(NodeServices.layer));
     })

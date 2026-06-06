@@ -1,3 +1,4 @@
+import { $SharedDomainId, make } from "@beep/identity";
 import * as Identity from "@beep/shared-domain/identity";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Exit } from "effect";
@@ -313,6 +314,46 @@ describe("P3 identity namespaces", () => {
         expect(spec.schema.equivalence(cast(1), cast(2)), spec.label).toBe(false);
         yield* expectFailure(decode(0));
       }
+    })
+  );
+
+  it.effect(
+    "validates runtime identity composers",
+    Effect.fnUntraced(function* () {
+      const { $IdentityComposerExampleId } = make("identity-composer-example");
+      const decode = S.decodeUnknownEffect(Identity.AnyIdentityComposer);
+
+      const rootComposer = yield* decode($SharedDomainId);
+      const nestedComposer = yield* decode($SharedDomainId.create("identity"));
+      const customComposer = yield* decode($IdentityComposerExampleId);
+
+      expect(rootComposer.make("Probe")).toBe("@beep/shared-domain/Probe");
+      expect(nestedComposer.string()).toBe("@beep/shared-domain/identity");
+      expect(customComposer.identifier).toBe("@beep/identity-composer-example");
+    })
+  );
+
+  it.effect(
+    "rejects invalid identity composer lookalikes",
+    Effect.fnUntraced(function* () {
+      const decode = S.decodeUnknownEffect(Identity.AnyIdentityComposer);
+      const wrongProbeResult = Object.assign(() => "@beep/fake/IdentityComposerProbe", {
+        identifier: "@beep/fake",
+        value: "@beep/fake",
+        annote: () => ({}),
+        annoteHttp: () => (self: unknown) => self,
+        annoteKey: () => (self: unknown) => self,
+        annoteSchema: () => (self: unknown) => self,
+        compose: () => ({}),
+        create: () => wrongProbeResult,
+        make: () => "@beep/fake/WrongProbe",
+        string: () => "@beep/fake",
+        symbol: () => Symbol.for("@beep/fake"),
+      });
+
+      yield* expectFailure(decode({ identifier: "@beep/fake" }));
+      yield* expectFailure(decode(() => "@beep/fake/IdentityComposerProbe"));
+      yield* expectFailure(decode(wrongProbeResult));
     })
   );
 });

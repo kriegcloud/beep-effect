@@ -9,7 +9,7 @@ const $I = $SchemaId.create("jsonl_test");
 class JsonlPerson extends S.Class<JsonlPerson>($I`JsonlPerson`)(
   {
     name: S.String,
-    age: S.Number,
+    age: S.Finite,
   },
   $I.annote("JsonlPerson", {
     description: "Typed JSONL person fixture used in schema tests.",

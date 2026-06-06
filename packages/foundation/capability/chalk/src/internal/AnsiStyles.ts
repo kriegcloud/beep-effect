@@ -299,7 +299,7 @@ const renderMonochromeAnsi256 = (red: number): number => (red < 8 ? 16 : renderE
  */
 class BlueChannelOptionsModel extends S.Class<BlueChannelOptionsModel>($I`BlueChannelOptions`)(
   {
-    blue: S.Number,
+    blue: S.Finite,
   },
   $I.annote("BlueChannelOptions", {
     description: "Blue channel companion value for dual RGB conversion helpers.",

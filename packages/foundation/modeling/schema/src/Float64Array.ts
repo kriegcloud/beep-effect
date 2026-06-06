@@ -78,7 +78,7 @@ export type Float64Arr = typeof Float64Arr.Type;
  * console.log(encoded); // [0.5, 1.25, 2.75]
  * ```
  */
-export const Float64ArrayFromArray = S.Number.pipe(
+export const Float64ArrayFromArray = S.Finite.pipe(
   S.Array,
   S.decodeTo(
     Float64Arr,

@@ -51,9 +51,9 @@ type TokenUtilities = {
 
 class NGramResult extends S.Class<NGramResult>($I`NGramResult`)(
   {
-    ngrams: S.Record(S.String, S.Number),
-    totalNGrams: S.Number,
-    uniqueNGrams: S.Number,
+    ngrams: S.Record(S.String, S.Finite),
+    totalNGrams: S.Finite,
+    uniqueNGrams: S.Finite,
   },
   $I.annote("NGramResult", {
     description: "Result of n-gram analysis, including n-gram counts, total n-grams, and unique n-grams.",

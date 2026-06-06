@@ -40,8 +40,8 @@ export class CloneBaselineEntry extends S.Class<CloneBaselineEntry>($I`CloneBase
   {
     id: S.String,
     title: S.String,
-    occurrences: S.Number,
-    packages: S.Number,
+    occurrences: S.Finite,
+    packages: S.Finite,
     members: S.Array(S.String),
   },
   $I.annote("CloneBaselineEntry", {

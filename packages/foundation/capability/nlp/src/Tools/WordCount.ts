@@ -25,8 +25,8 @@ class WordCountParameters extends S.Class<WordCountParameters>($I`WordCountParam
 ) {}
 
 const WordCountSuccess = S.Struct({
-  characterCount: S.Number,
-  wordCount: S.Number,
+  characterCount: S.Finite,
+  wordCount: S.Finite,
 }).pipe(
   $I.annoteSchema("WordCountSuccess", {
     description: "Count word-like tokens and characters in text.",

@@ -71,7 +71,7 @@ export class TimeoutError extends TaggedErrorClass<TimeoutError>($I`TimeoutError
   {
     nodeId: S.String,
     operationName: S.String,
-    timeoutMs: S.Number,
+    timeoutMs: S.Finite,
   },
   $I.annote("TimeoutError", {
     description: "Raised when a graph operation exceeds its configured time limit.",

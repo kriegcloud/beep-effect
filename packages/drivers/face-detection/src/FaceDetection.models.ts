@@ -58,7 +58,7 @@ export type PositivePixelDimension = typeof PositivePixelDimension.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const FaceDetectionConfidence = S.Number.check(
+export const FaceDetectionConfidence = S.Finite.check(
   S.makeFilterGroup(
     [
       S.isGreaterThanOrEqualTo(0, {
@@ -107,7 +107,7 @@ export type FaceDetectionConfidence = typeof FaceDetectionConfidence.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const FaceDetectionPercentage = S.Number.check(
+export const FaceDetectionPercentage = S.Finite.check(
   S.makeFilterGroup(
     [
       S.isGreaterThanOrEqualTo(0, {
@@ -241,8 +241,8 @@ export class FaceDetectionImageRequest extends S.Class<FaceDetectionImageRequest
  */
 export class FaceDetectionPoint extends S.Class<FaceDetectionPoint>($I`FaceDetectionPoint`)(
   {
-    x: S.Number,
-    y: S.Number,
+    x: S.Finite,
+    y: S.Finite,
   },
   $I.annote("FaceDetectionPoint", {
     description: "Two-dimensional image point emitted by a face detector.",
@@ -264,10 +264,10 @@ export class FaceDetectionPoint extends S.Class<FaceDetectionPoint>($I`FaceDetec
  */
 export class FaceDetectionBox extends S.Class<FaceDetectionBox>($I`FaceDetectionBox`)(
   {
-    height: S.Number,
-    width: S.Number,
-    x: S.Number,
-    y: S.Number,
+    height: S.Finite,
+    width: S.Finite,
+    x: S.Finite,
+    y: S.Finite,
   },
   $I.annote("FaceDetectionBox", {
     description: "Face bounding box using top-left x/y coordinates plus width and height.",

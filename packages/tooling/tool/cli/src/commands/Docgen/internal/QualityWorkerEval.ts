@@ -35,7 +35,7 @@ const JSON_FORMAT_MAX_LENGTH = 500_000;
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 const decodeQualityReportJson = S.decodeUnknownEffect(S.fromJsonString(DocgenQualityReport));
 
-const DocgenQualityWorkerEvalLocalScore = S.Number.check(
+const DocgenQualityWorkerEvalLocalScore = S.Finite.check(
   S.makeFilterGroup(
     [
       S.isGreaterThanOrEqualTo(1, {
@@ -318,8 +318,8 @@ class DocgenQualityWorkerEvalRuntime extends S.Class<DocgenQualityWorkerEvalRunt
   $I`DocgenQualityWorkerEvalRuntime`
 )(
   {
-    totalDurationMs: S.Number,
-    packetTimeoutMs: S.Number,
+    totalDurationMs: S.Finite,
+    packetTimeoutMs: S.Finite,
   },
   $I.annote("DocgenQualityWorkerEvalRuntime", {
     description: "Runtime measurements for one worker eval run.",
@@ -343,7 +343,7 @@ class DocgenQualityWorkerEvalPacketResult extends S.Class<DocgenQualityWorkerEva
     expectedVerificationCommand: S.String,
     policyViolationCodes: S.Array(DocgenQualityWorkerEvalPolicyViolationCode),
     reviewDisposition: DocgenQualityWorkerEvalReviewDisposition,
-    durationMs: S.Number,
+    durationMs: S.Finite,
     error: S.NullOr(S.String),
   },
   $I.annote("DocgenQualityWorkerEvalPacketResult", {
@@ -355,15 +355,15 @@ class DocgenQualityWorkerEvalSummary extends S.Class<DocgenQualityWorkerEvalSumm
   $I`DocgenQualityWorkerEvalSummary`
 )(
   {
-    packages: S.Number,
-    sourcePackets: S.Number,
-    selectedPackets: S.Number,
-    completed: S.Number,
-    failed: S.Number,
-    timedOut: S.Number,
-    candidates: S.Number,
-    needsHumanReview: S.Number,
-    rejected: S.Number,
+    packages: S.Finite,
+    sourcePackets: S.Finite,
+    selectedPackets: S.Finite,
+    completed: S.Finite,
+    failed: S.Finite,
+    timedOut: S.Finite,
+    candidates: S.Finite,
+    needsHumanReview: S.Finite,
+    rejected: S.Finite,
   },
   $I.annote("DocgenQualityWorkerEvalSummary", {
     description: "Aggregate summary for a worker JSDoc quality eval.",
@@ -514,7 +514,7 @@ export class AnalyzeDocgenQualityWorkerEvalOptions extends S.Class<AnalyzeDocgen
     baseUrl: S.optional(S.String),
     codexSdkVersion: S.optional(S.String),
     model: S.String,
-    packetLimit: S.optional(S.Number),
+    packetLimit: S.optional(S.Finite),
     provider: DocgenQualityWorkerEvalProvider,
     reasoningEffort: S.optional(DocgenQualityWorkerEvalReasoningEffort),
     report: DocgenQualityReport,

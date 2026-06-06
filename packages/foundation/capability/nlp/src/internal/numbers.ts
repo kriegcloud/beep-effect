@@ -42,7 +42,7 @@ const UnitIntervalChecks = S.makeFilterGroup(
  * @since 0.0.0
  * @category validation
  */
-export const UnitInterval = S.Number.check(UnitIntervalChecks).pipe(
+export const UnitInterval = S.Finite.check(UnitIntervalChecks).pipe(
   $I.annoteSchema("UnitInterval", {
     description: "A numeric value between 0 and 1 inclusive.",
   })
@@ -76,7 +76,7 @@ export type UnitInterval = typeof UnitInterval.Type;
  * @since 0.0.0
  * @category validation
  */
-export const PositiveNumber = S.Number.check(
+export const PositiveNumber = S.Finite.check(
   isPositive.annotate({
     description: "A number greater than 0.",
     message: "Expected a number greater than 0",

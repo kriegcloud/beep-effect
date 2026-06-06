@@ -40,8 +40,8 @@ class RankByRelevanceParameters extends S.Class<RankByRelevanceParameters>($I`Ra
 
 const RankByRelevanceSuccess = S.Struct({
   ranked: S.Array(AiRankedText),
-  returned: S.Number,
-  totalTexts: S.Number,
+  returned: S.Finite,
+  totalTexts: S.Finite,
 }).pipe(
   $I.annoteSchema("RankByRelevanceSuccess", {
     description: "Ranked relevance results and source-text count metadata.",

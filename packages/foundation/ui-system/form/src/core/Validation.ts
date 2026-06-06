@@ -135,7 +135,7 @@ const getIssueMessage = (issue: SchemaIssue.Issue): string | undefined => {
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
- * const error = Effect.runSync(Effect.flip(S.decodeUnknownEffect(S.Number)("nope")))
+ * const error = Effect.runSync(Effect.flip(S.decodeUnknownEffect(S.Finite)("nope")))
  * const message = extractFirstError(error)
  * console.log(O.isSome(message)) // true
  * ```
@@ -157,7 +157,7 @@ export const extractFirstError = (error: S.SchemaError): O.Option<string> => {
  * import { Effect, HashMap } from "effect"
  * import * as S from "effect/Schema"
  *
- * const error = Effect.runSync(Effect.flip(S.decodeUnknownEffect(S.Struct({ age: S.Number }))({ age: "x" })))
+ * const error = Effect.runSync(Effect.flip(S.decodeUnknownEffect(S.Struct({ age: S.Finite }))({ age: "x" })))
  * const errors = routeErrors(error)
  * console.log(HashMap.has(errors, "age")) // true
  * ```

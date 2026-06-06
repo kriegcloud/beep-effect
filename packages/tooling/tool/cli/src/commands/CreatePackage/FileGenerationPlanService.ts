@@ -269,11 +269,11 @@ export class FileGenerationExecutionResult extends S.Class<FileGenerationExecuti
   $I`FileGenerationExecutionResult`
 )(
   {
-    createdDirectories: S.Number,
-    writtenFiles: S.Number,
-    skippedFileWrites: S.Number,
-    createdSymlinks: S.Number,
-    skippedSymlinks: S.Number,
+    createdDirectories: S.Finite,
+    writtenFiles: S.Finite,
+    skippedFileWrites: S.Finite,
+    createdSymlinks: S.Finite,
+    skippedSymlinks: S.Finite,
   },
   $I.annote("FileGenerationExecutionResult", {
     description: "Execution report for a plan run.",

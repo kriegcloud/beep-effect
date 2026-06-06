@@ -15,7 +15,7 @@ import type { TaggedErrorClassFromFields } from "../TaggedErrorClass/index.ts";
 const $I = $SchemaId.create("CsvError");
 const CsvErrorFields = {
   message: S.String,
-  offset: S.optionalKey(S.Number),
+  offset: S.optionalKey(S.Finite),
 } satisfies S.Struct.Fields;
 const CsvErrorBase: TaggedErrorClassFromFields<CsvError, "CsvError", typeof CsvErrorFields> =
   TaggedErrorClass<CsvError>($I`CsvError`)(

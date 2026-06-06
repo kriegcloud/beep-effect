@@ -110,7 +110,7 @@ export type BuiltInPromptArgKey = typeof BuiltInPromptArgKey.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const PromptArgValue = S.Union([S.String, S.Number, S.Boolean]).pipe(
+export const PromptArgValue = S.Union([S.String, S.Finite, S.Boolean]).pipe(
   $I.annoteSchema("PromptArgValue", {
     description: "Primitive prompt argument value.",
   })

@@ -141,7 +141,7 @@ class DocgenQualityWorkerRunpodEvalPod extends S.Class<DocgenQualityWorkerRunpod
     gpuDisplayName: S.NullOr(S.String),
     gpuTypeIds: S.Array(S.String),
     imageName: S.String,
-    minRamPerGpuGb: S.Number,
+    minRamPerGpuGb: S.Finite,
     podId: S.String,
     podName: S.String,
     templateId: S.NullOr(S.String),
@@ -170,7 +170,7 @@ class DocgenQualityWorkerRunpodEvalCleanup extends S.Class<DocgenQualityWorkerRu
 )(
   {
     deleteStatus: DocgenQualityWorkerRunpodEvalCleanupStatus,
-    durationMs: S.Number,
+    durationMs: S.Finite,
     error: S.NullOr(S.String),
     keepPod: S.Boolean,
     stopStatus: DocgenQualityWorkerRunpodEvalCleanupStatus,
@@ -186,7 +186,7 @@ class DocgenQualityWorkerRunpodEvalOtlp extends S.Class<DocgenQualityWorkerRunpo
   {
     baseUrl: S.NullOr(S.String),
     error: S.NullOr(S.String),
-    exportedSpans: S.Number,
+    exportedSpans: S.Finite,
     project: S.String,
     serviceName: S.String,
     status: DocgenQualityWorkerRunpodEvalOtlpStatus,
@@ -200,10 +200,10 @@ class DocgenQualityWorkerRunpodEvalRuntime extends S.Class<DocgenQualityWorkerRu
   $I`DocgenQualityWorkerRunpodEvalRuntime`
 )(
   {
-    cleanupDurationMs: S.Number,
-    provisionDurationMs: S.Number,
-    totalDurationMs: S.Number,
-    workerDurationMs: S.Number,
+    cleanupDurationMs: S.Finite,
+    provisionDurationMs: S.Finite,
+    totalDurationMs: S.Finite,
+    workerDurationMs: S.Finite,
   },
   $I.annote("DocgenQualityWorkerRunpodEvalRuntime", {
     description: "Runtime measurements for Runpod worker eval orchestration.",
@@ -271,9 +271,9 @@ export class RunDocgenQualityWorkerRunpodEvalOptions extends S.Class<RunDocgenQu
     otlpBaseUrl: S.optional(S.String),
     otlpEnabled: S.optional(S.Boolean),
     otlpProject: S.optional(S.String),
-    packetLimit: S.optional(S.Number),
+    packetLimit: S.optional(S.Finite),
     provider: DocgenQualityWorkerEvalProvider,
-    readinessTimeoutMs: S.optional(S.Number),
+    readinessTimeoutMs: S.optional(S.Finite),
     report: DocgenQualityReport,
     scope: DocgenQualityWorkerEvalScope,
     sourceQualityReport: S.String,

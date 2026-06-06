@@ -146,7 +146,7 @@ describe("StatusCauseTaggedErrorClass", () => {
     StatusCauseTaggedErrorClass<never>()("BadMessageError", { message: S.String });
 
     // @ts-expect-error!
-    StatusCauseTaggedErrorClass<never>()("BadStatusError", { status: S.Number });
+    StatusCauseTaggedErrorClass<never>()("BadStatusError", { status: S.Finite });
 
     // @ts-expect-error!
     StatusCauseTaggedErrorClass<never>()("BadCauseError", { cause: S.Defect({ includeStack: true }) });

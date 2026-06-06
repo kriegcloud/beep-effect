@@ -36,7 +36,7 @@ export class BoxError extends CauseTaggedError<BoxError>($I`BoxError`)(
   "BoxError",
   {
     type: S.String,
-    status: S.Number,
+    status: S.Finite,
     code: S.String,
     context_info: BoxErrorContextInfo,
     help_url: S.URLFromString,

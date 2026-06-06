@@ -365,7 +365,7 @@ export class CopyToWorktreeTimeoutError extends CauseTaggedError<CopyToWorktreeT
 export class CopyToWorktreeError extends CauseTaggedError<CopyToWorktreeError>($I`CopyToWorktreeError`)(
   "CopyToWorktreeError",
   {
-    exitCode: S.NullOr(S.Number),
+    exitCode: S.NullOr(S.Finite),
     path: S.String,
     stderr: S.String,
   },

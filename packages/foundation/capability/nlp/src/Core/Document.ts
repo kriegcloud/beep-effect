@@ -196,7 +196,7 @@ export class Document extends S.Class<Document>($I`Document`)(
     text: S.String,
     tokens: S.Chunk(Token),
     sentences: S.Chunk(Sentence),
-    sentiment: S.OptionFromOptionalKey(S.Number),
+    sentiment: S.OptionFromOptionalKey(S.Finite),
   },
   $I.annote("Document", {
     description: "Immutable NLP document with token and sentence structure.",

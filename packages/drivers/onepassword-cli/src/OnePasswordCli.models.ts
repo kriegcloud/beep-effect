@@ -53,7 +53,7 @@ export type OnePasswordReferenceProbeStatus = typeof OnePasswordReferenceProbeSt
  */
 export class OnePasswordCliProcessResult extends S.Class<OnePasswordCliProcessResult>($I`OnePasswordCliProcessResult`)(
   {
-    exitCode: S.Number,
+    exitCode: S.Finite,
     stderr: S.String,
     stdout: S.String,
   },
@@ -100,7 +100,7 @@ export class OnePasswordCliAccount extends S.Class<OnePasswordCliAccount>($I`One
  */
 export class OnePasswordReferenceProbe extends S.Class<OnePasswordReferenceProbe>($I`OnePasswordReferenceProbe`)(
   {
-    byteLength: S.Number,
+    byteLength: S.Finite,
     reference: S.String,
     status: OnePasswordReferenceProbeStatus,
   },

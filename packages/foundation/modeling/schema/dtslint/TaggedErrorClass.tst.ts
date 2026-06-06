@@ -10,7 +10,7 @@ class BeepError extends TaggedErrorClass<BeepError>("BeepError")("BeepError", {
 
 const BeepPayload = S.Struct({
   beep: S.String,
-  count: S.Number,
+  count: S.Finite,
 });
 
 class StructuredBeepError extends TaggedErrorClass<StructuredBeepError>("StructuredBeepError")(
@@ -26,12 +26,12 @@ class OptionalCauseError extends TaggedErrorClass<OptionalCauseError>("OptionalC
 }) {}
 
 class ExtendedBeepError extends BeepError.extend<ExtendedBeepError>("ExtendedBeepError")({
-  count: S.Number,
+  count: S.Finite,
 }) {}
 
 class ExtendedCauseError extends BeepError.extend<ExtendedCauseError>("ExtendedCauseError")({
   cause: S.Defect({ includeStack: true }),
-  count: S.Number,
+  count: S.Finite,
 }) {}
 
 describe("TaggedErrorClass", () => {

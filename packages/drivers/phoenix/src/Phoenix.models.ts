@@ -134,7 +134,7 @@ export type PhoenixAnnotatorKind = typeof PhoenixAnnotatorKind.Type;
  * @category models
  * @since 0.0.0
  */
-export const PhoenixAnnotationValue = S.Union([S.Boolean, S.Number, S.String]).pipe(
+export const PhoenixAnnotationValue = S.Union([S.Boolean, S.Finite, S.String]).pipe(
   $I.annoteSchema("PhoenixAnnotationValue", {
     description: "Primitive annotation value accepted by repo-owned Phoenix annotations.",
   })
@@ -652,7 +652,7 @@ export class PhoenixExperimentCreateInput extends S.Class<PhoenixExperimentCreat
     experimentDescription: S.optionalKey(S.String),
     experimentMetadata: S.Record(S.String, S.Unknown).pipe(SchemaUtils.withKeyDefaults(R.empty())),
     experimentName: S.optionalKey(S.String),
-    repetitions: S.Number.pipe(SchemaUtils.withKeyDefaults(1)),
+    repetitions: S.Finite.pipe(SchemaUtils.withKeyDefaults(1)),
     splits: S.Array(S.String).pipe(S.optionalKey),
   },
   $I.annote("PhoenixExperimentCreateInput", {
@@ -687,14 +687,14 @@ export class PhoenixExperimentInfoResult extends S.Class<PhoenixExperimentInfoRe
   {
     datasetId: S.String,
     datasetVersionId: S.String,
-    exampleCount: S.Number,
+    exampleCount: S.Finite,
     experimentId: S.String,
-    failedRunCount: S.Number,
+    failedRunCount: S.Finite,
     metadata: S.Record(S.String, S.Unknown).pipe(SchemaUtils.withKeyDefaults(R.empty())),
-    missingRunCount: S.Number,
+    missingRunCount: S.Finite,
     projectName: S.NullOr(S.String).pipe(SchemaUtils.withKeyDefaults(null)),
-    repetitions: S.Number,
-    successfulRunCount: S.Number,
+    repetitions: S.Finite,
+    successfulRunCount: S.Finite,
   },
   $I.annote("PhoenixExperimentInfoResult", {
     description: "Readback summary for a Phoenix experiment record.",
@@ -728,7 +728,7 @@ export class PhoenixAnnotationInput extends S.Class<PhoenixAnnotationInput>($I`P
     label: S.optionalKey(S.String),
     metadata: S.Record(S.String, S.Unknown).pipe(SchemaUtils.withKeyDefaults(R.empty())),
     name: S.String,
-    score: S.optionalKey(S.Number),
+    score: S.optionalKey(S.Finite),
     sync: S.Boolean.pipe(SchemaUtils.withKeyDefaults(true)),
     targetId: S.String,
     targetKind: PhoenixAnnotationTargetKind,

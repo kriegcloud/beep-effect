@@ -27,10 +27,10 @@ const $I = $XaiId.create("XAi.models");
  * @since 0.0.0
  */
 export const XAiQueryValue = S.Union([
-  S.Array(S.Union([S.Boolean, S.Null, S.Number, S.String])),
+  S.Array(S.Union([S.Boolean, S.Null, S.Finite, S.String])),
   S.Boolean,
   S.Null,
-  S.Number,
+  S.Finite,
   S.String,
 ]).pipe(
   $I.annoteSchema("XAiQueryValue", {
@@ -116,7 +116,7 @@ export class XAiJsonResponse extends S.TaggedClass<XAiJsonResponse>($I`XAiJsonRe
     body: S.Unknown,
     contentType: S.optionalKey(S.String),
     headers: S.Record(S.String, S.String),
-    status: S.Number,
+    status: S.Finite,
   },
   $I.annote("XAiJsonResponse", {
     description: "JSON response returned by the xAI driver.",
@@ -147,7 +147,7 @@ export class XAiTextResponse extends S.TaggedClass<XAiTextResponse>($I`XAiTextRe
   {
     contentType: S.optionalKey(S.String),
     headers: S.Record(S.String, S.String),
-    status: S.Number,
+    status: S.Finite,
     text: S.String,
   },
   $I.annote("XAiTextResponse", {
@@ -180,7 +180,7 @@ export class XAiBinaryResponse extends S.TaggedClass<XAiBinaryResponse>($I`XAiBi
     bytes: S.Uint8Array,
     contentType: S.optionalKey(S.String),
     headers: S.Record(S.String, S.String),
-    status: S.Number,
+    status: S.Finite,
   },
   $I.annote("XAiBinaryResponse", {
     description: "Binary response returned by the xAI driver.",
@@ -210,7 +210,7 @@ export class XAiNoBodyResponse extends S.TaggedClass<XAiNoBodyResponse>($I`XAiNo
   {
     contentType: S.optionalKey(S.String),
     headers: S.Record(S.String, S.String),
-    status: S.Number,
+    status: S.Finite,
   },
   $I.annote("XAiNoBodyResponse", {
     description: "Empty response returned by xAI endpoints that have no body.",
@@ -283,7 +283,7 @@ export class XAiServerSentEvent extends S.Class<XAiServerSentEvent>($I`XAiServer
   {
     data: S.optionalKey(S.Unknown),
     done: S.Boolean,
-    index: S.Number,
+    index: S.Finite,
   },
   $I.annote("XAiServerSentEvent", {
     description: "Parsed server-sent event emitted by streaming xAI endpoints.",
@@ -357,7 +357,7 @@ type XAiWebSocketEventMember<T extends XAiWebSocketEventKind> = {
 export const XAiWebSocketEvent = XAiWebSocketEventKind.mapMembers((members) => {
   const fields = <T extends XAiWebSocketEventKind>(literal: S.Literal<T>) => ({
     bytes: S.optionalKey(S.Uint8Array),
-    code: S.optionalKey(S.Number),
+    code: S.optionalKey(S.Finite),
     data: S.optionalKey(S.Unknown),
     isBinary: S.optionalKey(S.Boolean),
     kind: S.tag(literal.literal),

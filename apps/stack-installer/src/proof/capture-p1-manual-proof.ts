@@ -68,8 +68,8 @@ const provideScopedLayer =
 
 class ProcessOutputLimits extends S.Class<ProcessOutputLimits>($I`ProcessOutputLimits`)(
   {
-    maxStderrChars: S.optionalKey(S.Number),
-    maxStdoutChars: S.optionalKey(S.Number),
+    maxStderrChars: S.optionalKey(S.Finite),
+    maxStdoutChars: S.optionalKey(S.Finite),
   },
   $I.annote("ProcessOutputLimits", {
     description: "Configuration for limiting the amount of output captured from a process",
@@ -82,7 +82,7 @@ export class ProcessOutputLimitExceeded extends TaggedErrorClass<ProcessOutputLi
   "ProcessOutputLimitExceeded",
   {
     label: S.String,
-    maxChars: S.Number,
+    maxChars: S.Finite,
     message: S.String,
   },
   $I.annote("ProcessOutputLimitExceeded", {

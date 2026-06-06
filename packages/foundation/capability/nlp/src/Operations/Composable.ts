@@ -118,7 +118,7 @@ export class OperationBuilder<A, B, R = never, E = never> {
    * import { makePureOperation } from "@beep/nlp/Operations/Composable"
    *
    * const words = makePureOperation("words", S.String, S.Array(S.String), (input) => input.split(" "))
-   * const count = words.map((tokens) => tokens.length, S.Number)
+   * const count = words.map((tokens) => tokens.length, S.Finite)
    * Effect.runPromise(count.run("typed effects compose")).then(console.log) // 3
    * ```
    *
@@ -140,7 +140,7 @@ export class OperationBuilder<A, B, R = never, E = never> {
    * import { makePureOperation } from "@beep/nlp/Operations/Composable"
    *
    * const trim = makePureOperation("trim", S.String, S.String, (input) => input.trim())
-   * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+   * const length = makePureOperation("length", S.String, S.Finite, (input) => input.length)
    * const pipeline = trim.flatMap(length)
    * Effect.runPromise(pipeline.run(" Effect ")).then(console.log) // 6
    * ```
@@ -166,9 +166,9 @@ export class OperationBuilder<A, B, R = never, E = never> {
    * import * as S from "effect/Schema"
    * import { makePureOperation } from "@beep/nlp/Operations/Composable"
    *
-   * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+   * const length = makePureOperation("length", S.String, S.Finite, (input) => input.length)
    * const upper = makePureOperation("upper", S.String, S.String, (input) => input.toUpperCase())
-   * const summary = length.product(upper, S.Tuple([S.Number, S.String]))
+   * const summary = length.product(upper, S.Tuple([S.Finite, S.String]))
    * Effect.runPromise(summary.run("nlp")).then(console.log) // [3, "NLP"]
    * ```
    *
@@ -191,7 +191,7 @@ export class OperationBuilder<A, B, R = never, E = never> {
    * import * as S from "effect/Schema"
    * import { makePureOperation } from "@beep/nlp/Operations/Composable"
    *
-   * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+   * const length = makePureOperation("length", S.String, S.Finite, (input) => input.length)
    * const upper = makePureOperation("upper", S.String, S.String, (input) => input.toUpperCase())
    * const label = length.zipWith(upper, (size, text) => `${text}:${size}`, S.String)
    * Effect.runPromise(label.run("nlp")).then(console.log) // "NLP:3"
@@ -255,7 +255,7 @@ const zipWithOperationBuilder = <A, B, C, D, R1, E1, R2, E2>(
  * import * as S from "effect/Schema"
  * import { Effect } from "effect"
  *
- * const length = makeOperation("len", S.String, S.Number, (s) => Effect.succeed(s.length))
+ * const length = makeOperation("len", S.String, S.Finite, (s) => Effect.succeed(s.length))
  * Effect.runPromise(length.run("Effect")).then(console.log) // 6
  * ```
  *
@@ -327,10 +327,10 @@ export const makePureOperation = <A, B>(
  * import * as S from "effect/Schema"
  * import { makePureOperation, map } from "@beep/nlp/Operations/Composable"
  *
- * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+ * const length = makePureOperation("length", S.String, S.Finite, (input) => input.length)
  *
- * const dataFirst = map(length, (n) => n + 1, S.Number)
- * const dataLast = pipe(length, map((n) => n * 2, S.Number))
+ * const dataFirst = map(length, (n) => n + 1, S.Finite)
+ * const dataLast = pipe(length, map((n) => n * 2, S.Finite))
  *
  * Effect.runPromise(dataFirst.run("nlp")).then(console.log) // 4
  * Effect.runPromise(dataLast.run("nlp")).then(console.log) // 6
@@ -368,11 +368,11 @@ export const map: {
  * import * as S from "effect/Schema"
  * import { makePureOperation, product } from "@beep/nlp/Operations/Composable"
  *
- * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+ * const length = makePureOperation("length", S.String, S.Finite, (input) => input.length)
  * const upper = makePureOperation("upper", S.String, S.String, (input) => input.toUpperCase())
  *
- * const dataFirst = product(length, upper, S.Tuple([S.Number, S.String]))
- * const dataLast = pipe(length, product(upper, S.Tuple([S.Number, S.String])))
+ * const dataFirst = product(length, upper, S.Tuple([S.Finite, S.String]))
+ * const dataLast = pipe(length, product(upper, S.Tuple([S.Finite, S.String])))
  *
  * Effect.runPromise(dataFirst.run("nlp")).then(console.log) // [3, "NLP"]
  * Effect.runPromise(dataLast.run("nlp")).then(console.log) // [3, "NLP"]
@@ -410,7 +410,7 @@ export const product: {
  * import * as S from "effect/Schema"
  * import { makePureOperation, zipWith } from "@beep/nlp/Operations/Composable"
  *
- * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+ * const length = makePureOperation("length", S.String, S.Finite, (input) => input.length)
  * const upper = makePureOperation("upper", S.String, S.String, (input) => input.toUpperCase())
  *
  * const dataFirst = zipWith(length, upper, (size, text) => `${text}:${size}`, S.String)
@@ -455,7 +455,7 @@ export const zipWith: {
  * import { compose, makePureOperation } from "@beep/nlp/Operations/Composable"
  *
  * const trim = makePureOperation("trim", S.String, S.String, (input) => input.trim())
- * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+ * const length = makePureOperation("length", S.String, S.Finite, (input) => input.length)
  * const pipeline = compose(trim, length)
  *
  * Effect.runPromise(pipeline.run(" Effect ")).then(console.log) // 6
@@ -496,7 +496,7 @@ export const identity = <A>(schema: S.Schema<A>): OperationBuilder<A, A> =>
  * import * as S from "effect/Schema"
  * import { makePureOperation, traverse } from "@beep/nlp/Operations/Composable"
  *
- * const length = makePureOperation("length", S.String, S.Number, (input) => input.length)
+ * const length = makePureOperation("length", S.String, S.Finite, (input) => input.length)
  * const program = traverse(length)(["typed", "nlp"])
  *
  * Effect.runPromise(program).then(console.log) // [5, 3]

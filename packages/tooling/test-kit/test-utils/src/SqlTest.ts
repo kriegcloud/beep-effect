@@ -866,6 +866,7 @@ const buildPgExternalLayer: (
                 const client = new PgNative.Client({
                   connectionString: config.connectionUri,
                   connectionTimeoutMillis: config.connectTimeoutMs,
+                  query_timeout: config.connectTimeoutMs,
                   ssl: config.ssl,
                 });
                 return client

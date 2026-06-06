@@ -25,7 +25,7 @@ const $I = $SchemaId.create("Primitive");
  * @category validation
  * @since 0.0.0
  */
-export const Primitive = S.Union([S.String, S.Number, S.Boolean, S.BigInt, S.Null, S.Undefined]).pipe(
+export const Primitive = S.Union([S.String, S.Finite, S.Boolean, S.BigInt, S.Null, S.Undefined]).pipe(
   $I.annoteSchema("Primitive", {
     description: "A primitive data type, (string | number | boolean | bigint | null | undefined )",
   })

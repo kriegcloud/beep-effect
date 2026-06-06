@@ -100,7 +100,7 @@ export class HubSpotSubmitFormRequest extends S.Class<HubSpotSubmitFormRequest>(
     context: S.optionalKey(HubSpotFormContext),
     fields: S.Array(HubSpotFormField),
     formGuid: S.String,
-    submittedAt: S.optionalKey(S.Number),
+    submittedAt: S.optionalKey(S.Finite),
   },
   $I.annote("HubSpotSubmitFormRequest", {
     description: "HubSpot form submission request.",

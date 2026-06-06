@@ -204,10 +204,10 @@ describe("FormReact.make", () => {
       const submitHandler = vi.fn();
 
       const NameField = Field.makeField("name", S.String);
-      const AgeField = Field.makeField("age", S.NumberFromString);
+      const AgeField = Field.makeField("age", S.FiniteFromString);
       const formBuilder = FormBuilder.empty.addField(NameField).addField(AgeField);
 
-      const NumberFromStringInput: FormReact.FieldComponent<typeof S.NumberFromString> = ({ field }) => (
+      const NumberFromStringInput: FormReact.FieldComponent<typeof S.FiniteFromString> = ({ field }) => (
         <input
           type="text"
           value={field.value}

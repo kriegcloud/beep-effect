@@ -631,7 +631,7 @@ const queryScalarToString = (value: XAiQueryScalar): string =>
     Match.exhaustive
   )(value);
 
-const decodeQueryScalarOption = S.decodeUnknownOption(S.Union([S.Boolean, S.Null, S.Number, S.String]));
+const decodeQueryScalarOption = S.decodeUnknownOption(S.Union([S.Boolean, S.Null, S.Finite, S.String]));
 
 const queryValueToStrings = (value: XAiQueryValue): ReadonlyArray<string> => {
   if (A.isArray(value)) {

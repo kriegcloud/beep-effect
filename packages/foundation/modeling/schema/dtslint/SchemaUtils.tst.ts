@@ -9,7 +9,7 @@ import type { Effect } from "effect";
 
 describe("pluck", () => {
   const RecordSchema = S.Struct({
-    column1: S.NumberFromString,
+    column1: S.FiniteFromString,
     column2: S.String,
   });
   const Column1 = RecordSchema.pipe(pluck("column1"));
@@ -46,7 +46,7 @@ describe("split", () => {
 });
 
 describe("toEquivalence", () => {
-  const NumberEquivalence = toEquivalence(S.NumberFromString);
+  const NumberEquivalence = toEquivalence(S.FiniteFromString);
   const TagsEquivalence = SchemaUtils.toEquivalence(S.Array(S.String));
 
   it("derives data-first and data-last signatures from the decoded schema type", () => {

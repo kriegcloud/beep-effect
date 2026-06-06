@@ -28,7 +28,7 @@ export class AiProviderCliError extends TaggedErrorClass<AiProviderCliError>($I`
   "AiProviderCliError",
   {
     command: S.optionalKey(S.String),
-    exitCode: S.optionalKey(S.Number),
+    exitCode: S.optionalKey(S.Finite),
     message: S.String,
     operation: S.String,
     provider: S.String,

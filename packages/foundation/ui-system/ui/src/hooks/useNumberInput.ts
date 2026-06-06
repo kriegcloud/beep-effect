@@ -92,7 +92,7 @@ const isNumberInputEventKey = S.is(NumberInputEventKey);
 const isCoarseStepModifier = P.Tuple([P.isTruthy, P.isUnknown]);
 const isFineStepModifier = P.Tuple([P.isUnknown, P.isTruthy]);
 
-const NonNegativePrecision = S.Number.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
+const NonNegativePrecision = S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
   $I.annoteSchema("NonNegativePrecision", {
     description: "A non-negative integer precision used for fixed-point formatting.",
   })
@@ -244,10 +244,10 @@ export const maxSafeInteger = Number.MAX_SAFE_INTEGER ?? 9007199254740991;
  */
 export class BoundaryParams extends S.Class<BoundaryParams>($I`BoundaryParams`)(
   {
-    defaultValue: S.optionalKey(S.Number),
-    value: S.optionalKey(S.Number),
-    min: S.optionalKey(S.Number),
-    max: S.optionalKey(S.Number),
+    defaultValue: S.optionalKey(S.Finite),
+    value: S.optionalKey(S.Finite),
+    min: S.optionalKey(S.Finite),
+    max: S.optionalKey(S.Finite),
   },
   $I.annote("BoundaryParams", {
     description: "Optional numeric boundary settings accepted by number input hooks.",
@@ -271,7 +271,7 @@ export class BoundaryParams extends S.Class<BoundaryParams>($I`BoundaryParams`)(
 export class SpinParams extends S.Class<SpinParams>($I`SpinParams`)(
   {
     precision: S.optionalKey(NonNegativePrecision),
-    step: S.optionalKey(S.Number),
+    step: S.optionalKey(S.Finite),
   },
   $I.annote("SpinParams", {
     description: "Precision and step overrides accepted by number input increment and decrement actions.",

@@ -249,7 +249,7 @@ export class DocgenLocalPlan extends S.Class<DocgenLocalPlan>($I`DocgenLocalPlan
     fullReasons: S.Array(DocgenLocalFullReason),
     head: S.String,
     mode: DocgenLocalMode,
-    parallel: S.Number,
+    parallel: S.Finite,
     selectedPackages: S.Array(DocgenLocalSelectedPackage),
     turboArgs: S.Array(S.String),
   },

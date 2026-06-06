@@ -31,7 +31,7 @@ export class OnePasswordCliErrorOptions extends S.Class<OnePasswordCliErrorOptio
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
     command: S.optionalKey(S.String),
-    exitCode: S.optionalKey(S.Number),
+    exitCode: S.optionalKey(S.Finite),
     stderr: S.optionalKey(S.String),
     stdout: S.optionalKey(S.String),
   },
@@ -58,7 +58,7 @@ export class OnePasswordCliError extends TaggedErrorClass<OnePasswordCliError>($
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
     command: S.optionalKey(S.String),
-    exitCode: S.optionalKey(S.Number),
+    exitCode: S.optionalKey(S.Finite),
     message: S.String,
     operation: S.String,
     stderr: S.optionalKey(S.String),

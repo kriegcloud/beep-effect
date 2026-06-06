@@ -236,10 +236,10 @@ export type ExtractFramesDirOutcome = typeof ExtractFramesDirOutcome.Type;
  */
 export class ExtractFramesDirResult extends S.Class<ExtractFramesDirResult>($I`ExtractFramesDirResult`)(
   {
-    completedCount: S.Number,
-    failedCount: S.Number,
+    completedCount: S.Finite,
+    failedCount: S.Finite,
     outcomes: S.Array(ExtractFramesDirOutcome),
-    totalCount: S.Number,
+    totalCount: S.Finite,
   },
   $I.annote("ExtractFramesDirResult", {
     description: "Batch result for extracting frames from direct video files in a directory.",

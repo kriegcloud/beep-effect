@@ -533,7 +533,7 @@ const TSConfigPaths = S.Record(S.String, TSConfigPathTargets).pipe(
   })
 );
 
-const TSNodeIgnoreDiagnostic = S.Union([S.String, S.Number]).pipe(
+const TSNodeIgnoreDiagnostic = S.Union([S.String, S.Finite]).pipe(
   $I.annoteSchema("TSNodeIgnoreDiagnostic", {
     description: "A single ts-node ignored diagnostic identifier represented as a string or numeric code.",
   })
@@ -1002,7 +1002,7 @@ const tsConfigCompilerOptionsFields = {
     "When type checking, take into account `null` and `undefined`."
   ),
   maxNodeModuleJsDepth: nullableOptionalField(
-    S.Number,
+    S.Finite,
     "CompilerOptionsMaxNodeModuleJsDepth",
     "Specify the maximum folder depth used for checking JavaScript files from `node_modules`."
   ),

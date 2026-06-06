@@ -69,7 +69,7 @@ export const AI_METRICS_OTLP_ATTRIBUTE_ALLOWLIST = [
  * @category schemas
  * @since 0.0.0
  */
-export const AiMetricsOtlpAttributeValue = S.Union([S.String, S.Number, S.Boolean]).pipe(
+export const AiMetricsOtlpAttributeValue = S.Union([S.String, S.Finite, S.Boolean]).pipe(
   $I.annoteSchema("AiMetricsOtlpAttributeValue", {
     description: "Low-cardinality or hashed attribute value emitted on AI metrics OTLP spans.",
   })
@@ -184,8 +184,8 @@ export class AiMetricsOtlpSpanProjectionBatch extends S.Class<AiMetricsOtlpSpanP
   {
     ingestRunId: S.String,
     projections: S.Array(AiMetricsOtlpSpanProjection),
-    sessionSpanCount: S.Number,
-    turnSpanCount: S.Number,
+    sessionSpanCount: S.Finite,
+    turnSpanCount: S.Finite,
   },
   $I.annote("AiMetricsOtlpSpanProjectionBatch", {
     description: "Redacted OTLP span projections grouped by one AI metrics ingest run.",
@@ -207,10 +207,10 @@ export class AiMetricsOtlpExportResult extends S.Class<AiMetricsOtlpExportResult
   {
     endpointTraceUrl: S.String,
     ingestRunId: S.String,
-    sessionSpanCount: S.Number,
-    spanCount: S.Number,
+    sessionSpanCount: S.Finite,
+    spanCount: S.Finite,
     target: AiMetricsDeployTarget,
-    turnSpanCount: S.Number,
+    turnSpanCount: S.Finite,
   },
   $I.annote("AiMetricsOtlpExportResult", {
     description: "Safe counts returned after emitting redacted AI metrics spans to the active tracer.",
@@ -235,7 +235,7 @@ class AiMetricsOtlpTurnExportRow extends S.Class<AiMetricsOtlpTurnExportRow>($I`
     eventName: S.String,
     forkedFromIdHash: S.NullOr(S.String),
     ingestRunId: S.String,
-    lineNumber: S.Number,
+    lineNumber: S.Finite,
     parentSessionIdHash: S.NullOr(S.String),
     parentThreadIdHash: S.NullOr(S.String),
     rawEventHash: S.String,

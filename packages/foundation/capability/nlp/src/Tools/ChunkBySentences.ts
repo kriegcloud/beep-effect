@@ -31,9 +31,9 @@ class ChunkBySentencesParameters extends S.Class<ChunkBySentencesParameters>($I`
 ) {}
 
 const ChunkBySentencesSuccess = S.Struct({
-  chunkCount: S.Number,
+  chunkCount: S.Finite,
   chunks: S.Array(AiSentenceChunk),
-  originalSentenceCount: S.Number,
+  originalSentenceCount: S.Finite,
 }).pipe(
   $I.annoteSchema("ChunkBySentencesSuccess", {
     description: "Sentence-aligned text chunks and their source sentence counts.",

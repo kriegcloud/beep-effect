@@ -35,7 +35,7 @@ export class QualityArtifactGeneratorError extends TaggedErrorClass<QualityArtif
   {
     message: S.String,
     command: S.optionalKey(S.String),
-    exitCode: S.optionalKey(S.Number),
+    exitCode: S.optionalKey(S.Finite),
     filePath: S.optionalKey(S.String),
     cause: S.optionalKey(S.Defect({ includeStack: true })),
   },

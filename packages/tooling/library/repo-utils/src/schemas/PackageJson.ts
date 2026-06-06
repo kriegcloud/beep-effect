@@ -200,7 +200,7 @@ const PackageTypeField = S.String.check(S.isPattern(packageTypePattern)).pipe(
 type Json = string | number | boolean | null | ReadonlyArray<Json> | { readonly [key: string]: Json };
 
 const Json: S.Codec<Json, Json> = S.suspend(() =>
-  S.Union([S.String, S.Number, S.Boolean, S.Null, S.Array(Json), S.Record(S.String, Json)])
+  S.Union([S.String, S.Finite, S.Boolean, S.Null, S.Array(Json), S.Record(S.String, Json)])
 ).pipe(
   $I.annoteSchema("Json", {
     title: "JSON Value",

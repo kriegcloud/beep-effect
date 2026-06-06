@@ -103,7 +103,7 @@ export class AiMetricsConfigSnapshotFile extends S.Class<AiMetricsConfigSnapshot
   {
     contentHash: S.String,
     relativePath: S.String,
-    sizeBytes: S.Number,
+    sizeBytes: S.Finite,
   },
   $I.annote("AiMetricsConfigSnapshotFile", {
     description: "Repo-relative agent-facing configuration file and its deterministic content hash.",
@@ -127,7 +127,7 @@ export class AiMetricsConfigSnapshotResult extends S.Class<AiMetricsConfigSnapsh
   {
     excludedDirectoryNames: S.Array(S.String),
     diff: AiMetricsConfigSnapshotDiff.pipe(S.withDecodingDefaultKey(Effect.succeed(emptyConfigSnapshotDiff))),
-    fileCount: S.Number,
+    fileCount: S.Finite,
     files: S.Array(AiMetricsConfigSnapshotFile),
     previousSnapshotId: S.optionalKey(S.String),
     snapshot: ConfigSnapshot,

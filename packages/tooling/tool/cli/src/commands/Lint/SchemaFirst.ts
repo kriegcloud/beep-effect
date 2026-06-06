@@ -122,12 +122,12 @@ class SchemaFirstLintOptions extends S.Class<SchemaFirstLintOptions>($I`SchemaFi
 
 class SchemaFirstLintSummary extends S.Class<SchemaFirstLintSummary>($I`SchemaFirstLintSummary`)(
   {
-    liveEntries: S.Number,
-    trackedEntries: S.Number,
-    missingEntries: S.Number,
-    staleEntries: S.Number,
-    enforcedCandidates: S.Number,
-    literalKitConstAssertions: S.Number,
+    liveEntries: S.Finite,
+    trackedEntries: S.Finite,
+    missingEntries: S.Finite,
+    staleEntries: S.Finite,
+    enforcedCandidates: S.Finite,
+    literalKitConstAssertions: S.Finite,
     wroteInventory: S.Boolean,
   },
   $I.annote("SchemaFirstLintSummary", {
@@ -140,8 +140,8 @@ class LiteralKitConstAssertionViolation extends S.Class<LiteralKitConstAssertion
 )(
   {
     file: S.String,
-    line: S.Number,
-    argument: S.Number,
+    line: S.Finite,
+    argument: S.Finite,
   },
   $I.annote("LiteralKitConstAssertionViolation", {
     description: "Direct LiteralKit call argument that redundantly asserts an inline array as const.",

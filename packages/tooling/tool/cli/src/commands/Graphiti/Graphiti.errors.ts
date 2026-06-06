@@ -80,7 +80,7 @@ export class GraphitiProxyOpsError extends TaggedErrorClass<GraphitiProxyOpsErro
   {
     message: S.String,
     command: S.optionalKey(S.String),
-    exitCode: S.optionalKey(S.Number),
+    exitCode: S.optionalKey(S.Finite),
     cause: S.optionalKey(S.Defect({ includeStack: true })),
   },
   $I.annote("GraphitiProxyOpsError", {

@@ -83,7 +83,7 @@ const textNodeFields = <T extends TextNodeKind>(literal: S.Literal<T>) => ({
   text: S.String,
   type: S.tag(literal.literal),
   operation: S.optionalKey(S.String),
-  timestamp: S.Number,
+  timestamp: S.Finite,
   metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
 });
 
@@ -161,7 +161,7 @@ export type TextNode = typeof TextNode.Type;
 const textEdgeFields = <T extends TextEdgeRelationKind>(literal: S.Literal<T>) => ({
   relation: S.tag(literal.literal),
   label: S.optionalKey(S.String),
-  weight: S.optionalKey(S.Number),
+  weight: S.optionalKey(S.Finite),
 });
 
 const textEdgeMember =
@@ -236,8 +236,8 @@ export class NLPAnalysis extends S.Class<NLPAnalysis>($I`NLPAnalysis`)(
     text: S.String,
     sentences: S.Array(S.String),
     tokens: S.Array(S.String),
-    wordCount: S.Number,
-    stats: S.optionalKey(S.Record(S.String, S.Number)),
+    wordCount: S.Finite,
+    stats: S.optionalKey(S.Record(S.String, S.Finite)),
   },
   $I.annote("NLPAnalysis", {
     description: "Summary analysis of a text: detected sentences, tokens, word count, and optional stats.",
@@ -262,8 +262,8 @@ export class POSNode extends S.Class<POSNode>($I`POSNode`)(
     text: S.String,
     tag: S.String,
     description: S.optionalKey(S.String),
-    position: S.Number,
-    timestamp: S.Number,
+    position: S.Finite,
+    timestamp: S.Finite,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
   },
   $I.annote("POSNode", {
@@ -288,10 +288,10 @@ export class EntityNode extends S.Class<EntityNode>($I`EntityNode`)(
   {
     text: S.String,
     entityType: S.String,
-    confidence: S.optionalKey(S.Number),
-    span: S.Struct({ start: S.Number, end: S.Number }),
+    confidence: S.optionalKey(S.Finite),
+    span: S.Struct({ start: S.Finite, end: S.Finite }),
     normalizedForm: S.optionalKey(S.String),
-    timestamp: S.Number,
+    timestamp: S.Finite,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
   },
   $I.annote("EntityNode", {
@@ -317,8 +317,8 @@ export class LemmaNode extends S.Class<LemmaNode>($I`LemmaNode`)(
     token: S.String,
     lemma: S.String,
     pos: S.optionalKey(S.String),
-    position: S.Number,
-    timestamp: S.Number,
+    position: S.Finite,
+    timestamp: S.Finite,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
   },
   $I.annote("LemmaNode", {
@@ -342,10 +342,10 @@ export class LemmaNode extends S.Class<LemmaNode>($I`LemmaNode`)(
 export class DependencyNode extends S.Class<DependencyNode>($I`DependencyNode`)(
   {
     relation: S.String,
-    head: S.Struct({ text: S.String, position: S.Number }),
-    dependent: S.Struct({ text: S.String, position: S.Number }),
-    distance: S.Number,
-    timestamp: S.Number,
+    head: S.Struct({ text: S.String, position: S.Finite }),
+    dependent: S.Struct({ text: S.String, position: S.Finite }),
+    distance: S.Finite,
+    timestamp: S.Finite,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
   },
   $I.annote("DependencyNode", {
@@ -372,16 +372,16 @@ export class RelationNode extends S.Class<RelationNode>($I`RelationNode`)(
     subject: S.Struct({
       text: S.String,
       entityType: S.String,
-      span: S.Struct({ start: S.Number, end: S.Number }),
+      span: S.Struct({ start: S.Finite, end: S.Finite }),
     }),
     object: S.Struct({
       text: S.String,
       entityType: S.String,
-      span: S.Struct({ start: S.Number, end: S.Number }),
+      span: S.Struct({ start: S.Finite, end: S.Finite }),
     }),
     trigger: S.optionalKey(S.String),
-    confidence: S.optionalKey(S.Number),
-    timestamp: S.Number,
+    confidence: S.optionalKey(S.Finite),
+    timestamp: S.Finite,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
   },
   $I.annote("RelationNode", {

@@ -569,7 +569,7 @@ export type ArchivePoorCandidatesSkippedReason = typeof ArchivePoorCandidatesSki
  * @category schemas
  * @since 0.0.0
  */
-export const CandidateRatioThreshold = S.Number.check(
+export const CandidateRatioThreshold = S.Finite.check(
   S.isGreaterThanOrEqualTo(1, {
     identifier: $I`CandidateRatioThresholdGreaterThanOrEqualToOneCheck`,
     title: "Candidate Ratio Threshold",
@@ -601,7 +601,7 @@ export type CandidateRatioThreshold = typeof CandidateRatioThreshold.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const BorderDetectionPercentage = S.Number.check(
+export const BorderDetectionPercentage = S.Finite.check(
   S.makeFilterGroup(
     [
       S.isGreaterThan(0, {
@@ -648,7 +648,7 @@ export type BorderDetectionPercentage = typeof BorderDetectionPercentage.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const BorderDetectionMaxScanPercentage = S.Number.check(
+export const BorderDetectionMaxScanPercentage = S.Finite.check(
   S.makeFilterGroup(
     [
       S.isGreaterThan(0, {
@@ -695,7 +695,7 @@ export type BorderDetectionMaxScanPercentage = typeof BorderDetectionMaxScanPerc
  * @category schemas
  * @since 0.0.0
  */
-export const BorderDetectionTolerance = S.Number.check(
+export const BorderDetectionTolerance = S.Finite.check(
   S.makeFilterGroup(
     [
       S.isGreaterThanOrEqualTo(0, {
@@ -813,7 +813,7 @@ export class ImageSizeMetadata extends S.Class<ImageSizeMetadata>($I`ImageSizeMe
  */
 export class FfprobeSideData extends S.Class<FfprobeSideData>($I`FfprobeSideData`)(
   {
-    rotation: S.optionalKey(S.Union([S.Number, S.NumberFromString])),
+    rotation: S.optionalKey(S.Union([S.Finite, S.FiniteFromString])),
   },
   $I.annote("FfprobeSideData", {
     description: "Side-data entry returned by ffprobe for a video stream.",
@@ -973,7 +973,7 @@ export class RenamePlanEntry extends S.Class<RenamePlanEntry>($I`RenamePlanEntry
       S.withConstructorDefault(Effect.succeed(O.none<MediaDimensions>()))
     ),
     extension: S.String,
-    index: S.Number,
+    index: S.Finite,
     size: S.BigInt,
     sourceName: S.String,
     sourcePath: S.String,
@@ -1000,9 +1000,9 @@ export class SortAndRenameSummary extends S.Class<SortAndRenameSummary>($I`SortA
   {
     directory: S.String,
     dryRun: S.Boolean,
-    plannedCount: S.Number,
-    renamedCount: S.Number,
-    skippedCount: S.Number,
+    plannedCount: S.Finite,
+    renamedCount: S.Finite,
+    skippedCount: S.Finite,
     withDimensions: S.Boolean,
   },
   $I.annote("SortAndRenameSummary", {
@@ -1057,11 +1057,11 @@ export class StripMetadataSummary extends S.Class<StripMetadataSummary>($I`Strip
   {
     directory: S.String,
     dryRun: S.Boolean,
-    imageCount: S.Number,
-    plannedCount: S.Number,
-    skippedCount: S.Number,
-    strippedCount: S.Number,
-    videoCount: S.Number,
+    imageCount: S.Finite,
+    plannedCount: S.Finite,
+    skippedCount: S.Finite,
+    strippedCount: S.Finite,
+    videoCount: S.Finite,
   },
   $I.annote("StripMetadataSummary", {
     description: "Summary counts for an image and video metadata stripping run.",
@@ -1205,12 +1205,12 @@ export class CreateCaptionFilesPlan extends S.Class<CreateCaptionFilesPlan>($I`C
  */
 export class CreateCaptionFilesSummary extends S.Class<CreateCaptionFilesSummary>($I`CreateCaptionFilesSummary`)(
   {
-    createdCount: S.Number,
+    createdCount: S.Finite,
     directory: S.String,
     dryRun: S.Boolean,
-    overwrittenCount: S.Number,
-    plannedCount: S.Number,
-    skippedCount: S.Number,
+    overwrittenCount: S.Finite,
+    plannedCount: S.Finite,
+    skippedCount: S.Finite,
   },
   $I.annote("CreateCaptionFilesSummary", {
     description: "Summary counts returned by files create-captions.",
@@ -1373,7 +1373,7 @@ export class NormalizePlan extends S.Class<NormalizePlan>($I`NormalizePlan`)(
 export class NormalizeSummary extends S.Class<NormalizeSummary>($I`NormalizeSummary`)(
   {
     directory: S.String,
-    duplicateCount: S.Number,
+    duplicateCount: S.Finite,
     dryRun: S.Boolean,
     format: NormalizeImageFormat,
     manifestPath: S.String,
@@ -1381,12 +1381,12 @@ export class NormalizeSummary extends S.Class<NormalizeSummary>($I`NormalizeSumm
     maxLongEdge: S.Option(PositiveMediaDimension).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<PositiveMediaDimension>()))
     ),
-    movedDuplicateCount: S.Number,
-    normalizedCount: S.Number,
+    movedDuplicateCount: S.Finite,
+    normalizedCount: S.Finite,
     outputDirectory: S.String,
-    plannedCount: S.Number,
-    resizedCount: S.Number,
-    skippedCount: S.Number,
+    plannedCount: S.Finite,
+    resizedCount: S.Finite,
+    skippedCount: S.Finite,
   },
   $I.annote("NormalizeSummary", {
     description: "Summary counts returned by files normalize.",
@@ -1406,12 +1406,12 @@ export class NormalizeSummary extends S.Class<NormalizeSummary>($I`NormalizeSumm
  */
 export class NormalizeManifestSummary extends S.Class<NormalizeManifestSummary>($I`NormalizeManifestSummary`)(
   {
-    duplicateCount: S.Number,
-    movedDuplicateCount: S.Number,
-    normalizedCount: S.Number,
-    plannedCount: S.Number,
-    resizedCount: S.Number,
-    skippedCount: S.Number,
+    duplicateCount: S.Finite,
+    movedDuplicateCount: S.Finite,
+    normalizedCount: S.Finite,
+    plannedCount: S.Finite,
+    resizedCount: S.Finite,
+    skippedCount: S.Finite,
   },
   $I.annote("NormalizeManifestSummary", {
     description: "JSON-safe summary counts recorded by files normalize.",
@@ -1518,10 +1518,10 @@ export class ArchivePoorCandidatesManifestOptions extends S.Class<ArchivePoorCan
  */
 export class CandidateAssessmentMetrics extends S.Class<CandidateAssessmentMetrics>($I`CandidateAssessmentMetrics`)(
   {
-    aspectRatio: S.Number,
+    aspectRatio: S.Finite,
     pixelArea: S.Int,
     shortEdge: PositiveMediaDimension,
-    upscaleToTarget: S.Number,
+    upscaleToTarget: S.Finite,
   },
   $I.annote("CandidateAssessmentMetrics", {
     description: "Resolution-derived metrics used to classify image training-data candidates.",
@@ -1650,16 +1650,16 @@ export class ArchivePoorCandidatesSummary extends S.Class<ArchivePoorCandidatesS
   $I`ArchivePoorCandidatesSummary`
 )(
   {
-    archivedCount: S.Number,
+    archivedCount: S.Finite,
     archiveDirectory: S.String,
-    assessedCount: S.Number,
+    assessedCount: S.Finite,
     directory: S.String,
     dryRun: S.Boolean,
-    keptCount: S.Number,
+    keptCount: S.Finite,
     manifestPath: S.String,
     manifestWritten: S.Boolean,
-    movedSidecarCount: S.Number,
-    skippedCount: S.Number,
+    movedSidecarCount: S.Finite,
+    skippedCount: S.Finite,
   },
   $I.annote("ArchivePoorCandidatesSummary", {
     description: "Summary counts returned by files archive-poor-candidates.",
@@ -1681,11 +1681,11 @@ export class ArchivePoorCandidatesManifestSummary extends S.Class<ArchivePoorCan
   $I`ArchivePoorCandidatesManifestSummary`
 )(
   {
-    archivedCount: S.Number,
-    assessedCount: S.Number,
-    keptCount: S.Number,
-    movedSidecarCount: S.Number,
-    skippedCount: S.Number,
+    archivedCount: S.Finite,
+    assessedCount: S.Finite,
+    keptCount: S.Finite,
+    movedSidecarCount: S.Finite,
+    skippedCount: S.Finite,
   },
   $I.annote("ArchivePoorCandidatesManifestSummary", {
     description: "JSON-safe summary counts recorded by files archive-poor-candidates.",
@@ -1862,9 +1862,9 @@ export class DetectBorderSideMeasurement extends S.Class<DetectBorderSideMeasure
     color: RgbColor,
     colorHex: S.String,
     matched: S.Boolean,
-    score: S.Number,
+    score: S.Finite,
     side: BorderSide,
-    widthPct: S.Number,
+    widthPct: S.Finite,
     widthPx: S.Int,
   },
   $I.annote("DetectBorderSideMeasurement", {
@@ -1937,11 +1937,11 @@ export class DetectBordersSkippedEntry extends S.Class<DetectBordersSkippedEntry
  */
 export class DetectBordersSummary extends S.Class<DetectBordersSummary>($I`DetectBordersSummary`)(
   {
-    analyzedCount: S.Number,
-    borderedCount: S.Number,
+    analyzedCount: S.Finite,
+    borderedCount: S.Finite,
     directory: S.String,
-    skippedCount: S.Number,
-    totalCount: S.Number,
+    skippedCount: S.Finite,
+    totalCount: S.Finite,
   },
   $I.annote("DetectBordersSummary", {
     description: "Summary counts returned by files detect-borders.",
@@ -1996,7 +1996,7 @@ export class DetectFacesEntry extends S.Class<DetectFacesEntry>($I`DetectFacesEn
     movedNoFacePath: S.optionalKey(S.String),
     movedNoFaceRelativePath: S.optionalKey(S.String),
     primaryFace: S.optionalKey(FaceDetection),
-    primaryFaceAreaPct: S.optionalKey(S.Number),
+    primaryFaceAreaPct: S.optionalKey(S.Finite),
     sourceName: S.String,
     sourcePath: S.String,
     width: PositiveMediaDimension,
@@ -2043,14 +2043,14 @@ export class DetectFacesSkippedEntry extends S.Class<DetectFacesSkippedEntry>($I
  */
 export class DetectFacesSummary extends S.Class<DetectFacesSummary>($I`DetectFacesSummary`)(
   {
-    analyzedCount: S.Number,
+    analyzedCount: S.Finite,
     directory: S.String,
-    faceImageCount: S.Number,
-    movedNoFaceCount: S.Number,
-    noFaceImageCount: S.Number,
-    reviewImageCount: S.Number,
-    skippedCount: S.Number,
-    totalCount: S.Number,
+    faceImageCount: S.Finite,
+    movedNoFaceCount: S.Finite,
+    noFaceImageCount: S.Finite,
+    reviewImageCount: S.Finite,
+    skippedCount: S.Finite,
+    totalCount: S.Finite,
   },
   $I.annote("DetectFacesSummary", {
     description: "Summary counts returned by files detect-faces.",
@@ -2128,11 +2128,11 @@ export class CropBordersPlanEntry extends S.Class<CropBordersPlanEntry>($I`CropB
  */
 export class CropBordersPlan extends S.Class<CropBordersPlan>($I`CropBordersPlan`)(
   {
-    analyzedCount: S.Number,
-    borderedCount: S.Number,
+    analyzedCount: S.Finite,
+    borderedCount: S.Finite,
     directory: S.String,
     entries: S.Array(CropBordersPlanEntry),
-    skippedCount: S.Number,
+    skippedCount: S.Finite,
   },
   $I.annote("CropBordersPlan", {
     description: "Planned in-place crops for image files with detected near-solid borders.",
@@ -2152,13 +2152,13 @@ export class CropBordersPlan extends S.Class<CropBordersPlan>($I`CropBordersPlan
  */
 export class CropBordersSummary extends S.Class<CropBordersSummary>($I`CropBordersSummary`)(
   {
-    analyzedCount: S.Number,
-    borderedCount: S.Number,
-    croppedCount: S.Number,
+    analyzedCount: S.Finite,
+    borderedCount: S.Finite,
+    croppedCount: S.Finite,
     directory: S.String,
     dryRun: S.Boolean,
-    plannedCount: S.Number,
-    skippedCount: S.Number,
+    plannedCount: S.Finite,
+    skippedCount: S.Finite,
   },
   $I.annote("CropBordersSummary", {
     description: "Summary counts returned by files crop-borders.",
@@ -2179,7 +2179,7 @@ export class CropBordersSummary extends S.Class<CropBordersSummary>($I`CropBorde
 export class SortableFileCollection extends S.Class<SortableFileCollection>($I`SortableFileCollection`)(
   {
     files: S.Array(SortableFile),
-    skippedCount: S.Number,
+    skippedCount: S.Finite,
   },
   $I.annote("SortableFileCollection", {
     description: "Files selected for rename planning plus direct regular files skipped by media filtering.",
@@ -2200,7 +2200,7 @@ export class SortableFileCollection extends S.Class<SortableFileCollection>($I`S
 export class RenamePlan extends S.Class<RenamePlan>($I`RenamePlan`)(
   {
     entries: S.Array(RenamePlanEntry),
-    skippedCount: S.Number,
+    skippedCount: S.Finite,
   },
   $I.annote("RenamePlan", {
     description: "Planned rename entries plus direct regular files skipped before planning.",
@@ -2221,9 +2221,9 @@ export class RenamePlan extends S.Class<RenamePlan>($I`RenamePlan`)(
 export class StripMetadataPlan extends S.Class<StripMetadataPlan>($I`StripMetadataPlan`)(
   {
     entries: S.Array(StripMetadataPlanEntry),
-    imageCount: S.Number,
-    skippedCount: S.Number,
-    videoCount: S.Number,
+    imageCount: S.Finite,
+    skippedCount: S.Finite,
+    videoCount: S.Finite,
   },
   $I.annote("StripMetadataPlan", {
     description: "Planned metadata stripping entries plus direct media files skipped before processing.",
@@ -2272,7 +2272,7 @@ export class ProcessFilesOptions extends S.Class<ProcessFilesOptions>($I`Process
     exportChildren: S.Boolean,
     failurePolicy: ProcessFilesFailurePolicy,
     input: S.String,
-    maxMaterializedBytes: S.optionalKey(S.Number),
+    maxMaterializedBytes: S.optionalKey(S.Finite),
     outDir: S.String,
     overwrite: S.Boolean,
   },
@@ -2342,7 +2342,7 @@ export const decodeFfprobeOutputJson = S.decodeUnknownEffect(S.fromJsonString(Ff
  * @category decoding
  * @since 0.0.0
  */
-export const decodeRotationNumber = S.decodeUnknownOption(S.Union([S.Number, S.NumberFromString]));
+export const decodeRotationNumber = S.decodeUnknownOption(S.Union([S.Finite, S.FiniteFromString]));
 
 /**
  * Decode an unknown safe filename prefix.

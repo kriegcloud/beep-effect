@@ -263,7 +263,7 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
     wasDerivedFrom: ObjectRef.pipe(S.Array, S.OptionFromOptionalKey),
     generatedAtTime: S.OptionFromOptionalKey(ProvDateTime),
     invalidatedAtTime: S.OptionFromOptionalKey(ProvDateTime),
-    value: S.OptionFromOptionalKey(S.Union([S.String, S.Number, S.Boolean])),
+    value: S.OptionFromOptionalKey(S.Union([S.String, S.Finite, S.Boolean])),
   },
   $I.annote("Entity", {
     description: "PROV entity.",

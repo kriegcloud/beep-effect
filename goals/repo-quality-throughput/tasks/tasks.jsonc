@@ -1,0 +1,907 @@
+{
+  "schemaVersion": "repo-quality-throughput/tasks/v1",
+  "updated": "2026-06-06",
+  "rankingMethod": "Rank by End-to-End Green wall-clock impact, workflow frequency, correctness risk, implementation cost, resource risk, proof burden, rollback simplicity, and whether Batch 1 evidence already satisfies the substantial benefit bar.",
+  "tasks": [
+    {
+      "id": "rqt-001",
+      "rank": 1,
+      "status": "done",
+      "lane": "yeet-orchestration",
+      "title": "Remove duplicated Yeet affected feedback when full pre-push proof immediately follows",
+      "commandsOrChecks": [
+        "bun run beep yeet verify --plan --json",
+        "bun run beep yeet publish --message <message>",
+        "bun run audit:github pre-push"
+      ],
+      "baseline": {
+        "status": "measured",
+        "evidence": "Batch 1 and Batch 2 showed Yeet verify/publish plan affected feedback for build/check/lint/test and then runs full pre-push. On the current branch this plans 348 affected feedback tasks because root/global inputs changed."
+      },
+      "expectedImpact": "High for root/global-config branches because affected feedback can become near-full work immediately before the canonical full proof repeats the same lanes.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "medium",
+      "benefitGate": "Remove a duplicated wait from the common local-to-PR path while keeping full pre-push as fallback proof.",
+      "expectedDelta": {
+        "status": "direct-speedup",
+        "summary": "Expected to remove one affected build/check/lint/test feedback phase from Yeet verify/publish when full pre-push is guaranteed next.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-push",
+      "implementationCost": "medium",
+      "proofBurden": "high",
+      "confidence": "high",
+      "selectionRationale": "This is the clearest current-PR speedup: it removes duplicate local waiting without weakening the authoritative proof.",
+      "implementationScope": [
+        "packages/tooling/tool/cli/src/commands/Yeet",
+        "packages/tooling/tool/cli/src/test",
+        "goals/repo-quality-throughput/history/outputs/before-after-matrix.md"
+      ],
+      "proofCommands": [
+        "bun run beep yeet verify --plan --json",
+        "bun run beep yeet repair",
+        "bun run beep yeet verify",
+        "bun run audit:github pre-push"
+      ],
+      "acceptanceCommands": [
+        "bun run beep yeet verify --plan --json",
+        "bun run test -- --filter=@beep/repo-cli",
+        "bun run audit:github quality",
+        "gh pr checks --watch"
+      ],
+      "rollbackPlan": "Revert the Yeet planner/handler change and restore affected feedback before full proof.",
+      "rollbackCommands": [
+        "git revert <task-commit>",
+        "bun run beep yeet verify --plan --json",
+        "bun run test -- --filter=@beep/repo-cli"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/research/batch-01-duplicate-proof-work.md",
+        "goals/repo-quality-throughput/research/batch-01-quality-command-map.md",
+        "goals/repo-quality-throughput/research/batch-01-turbo-dag-cache.md",
+        "goals/repo-quality-throughput/research/batch-02-repo-cli-orchestration.md",
+        "goals/repo-quality-throughput/history/outputs/before-after-matrix.md"
+      ],
+      "selected": {
+        "selectionEvidence": [
+          "Batch 1 duplicate-proof-work found Yeet affected feedback plus full pre-push duplication.",
+          "Batch 2 repo-cli orchestration confirmed this is the top current-PR implementation win.",
+          "Batch 1 Turbo evidence showed current branch affected feedback expands to all packages from GlobalDepsChanged.",
+          "Focused implementation proof now shows verify/publish plans have zero affected feedback tasks while repair keeps 348 affected feedback tasks.",
+          "Local `audit:github quality` exited 0 after the implementation; two PackageVerify JSDoc warnings were fixed with targeted ESLint and scoped repo-cli docgen proof."
+        ],
+        "substantialBenefitGate": "removes a duplicated command, wait, setup phase, or scan from the common local-to-PR path",
+        "currentPrCandidate": true,
+        "fallbackProof": "Full local `bun run audit:github pre-push` and PR GitHub Actions remain authoritative."
+      },
+      "done": {
+        "beforeAfterRows": [
+          "Yeet verify/publish local portion",
+          "Canonical full proof"
+        ],
+        "proofEvidence": [
+          "`bun run beep yeet repair --plan --json` preserves affected feedback for repair with `taskCount=348`.",
+          "`bun run beep yeet verify --plan --json` now plans only `full:pre-push` with `taskCount=0`.",
+          "`bun run beep yeet publish --message \"fix(repo-cli): internalize quality helpers\" --plan --json` now plans only commit, full pre-push, and push with `taskCount=0`.",
+          "`bun run audit:github quality` exited 0 after the implementation and targeted JSDoc repair.",
+          "PR Check run `27064446802` is green on commit `a7be8dc1e1119d095be0239b39cd812e5650ebec`."
+        ],
+        "finalProofCommands": [
+          "bun run beep yeet repair --plan --json",
+          "bun run beep yeet verify --plan --json",
+          "bun run beep yeet publish --message \"fix(repo-cli): internalize quality helpers\" --plan --json",
+          "bun run audit:github quality",
+          "gh pr checks 214"
+        ],
+        "commitOrRunId": "32a95c2665; PR Check run 27064446802",
+        "confidence": "medium",
+        "qualityReviewStatus": "No unresolved actionable PR review threads; PR checks green; full Yeet execution speed remains guarded by full pre-push/CI proof."
+      },
+      "notes": "Do not promote Yeet beyond proof mode until the dedicated Yeet proof PR is green and the Yeet agent skill exists."
+    },
+    {
+      "id": "rqt-002",
+      "rank": 2,
+      "status": "done",
+      "lane": "lint-fix",
+      "title": "Keep lint:fix on the fast repo-cli changed-file path",
+      "commandsOrChecks": ["bun run lint:fix", "beep-cli lint --fix"],
+      "baseline": {
+        "status": "already-fast",
+        "evidence": "Current clean-tree probe: `bash -lc 'time -p bun run lint:fix'` printed `[beep-cli] lint:fix: no changed files` and completed in `real 0.04`."
+      },
+      "expectedImpact": "High regression guard for the user's original issue; this keeps clean-tree and small changed-file lint fixing from falling back to repo-wide Turbo fan-out.",
+      "correctnessRisk": "low",
+      "resourceRisk": "low",
+      "benefitGate": "Prevent regression of an every-edit/every-commit fast repair command.",
+      "expectedDelta": {
+        "status": "regression-guard",
+        "summary": "No new speedup is needed for clean-tree no-op; selected work must prove and guard clean-tree plus small changed-file behavior.",
+        "seconds": 0.04,
+        "percent": null
+      },
+      "frequency": "every-edit",
+      "implementationCost": "low",
+      "proofBurden": "medium",
+      "confidence": "high",
+      "selectionRationale": "The original problem was a lint:fix regression. The packet should keep this lane explicit even after the fast path is restored.",
+      "implementationScope": [
+        "packages/tooling/tool/cli/src/bin.ts",
+        "packages/tooling/tool/cli/src/bin-main.ts",
+        "packages/tooling/tool/cli/src/commands/Quality",
+        "packages/tooling/tool/cli/src/test",
+        "goals/repo-quality-throughput/history/outputs/before-after-matrix.md"
+      ],
+      "proofCommands": [
+        "bash -lc 'time -p bun run lint:fix'",
+        "small changed-file lint:fix probe through repo-cli",
+        "bun run test -- --filter=@beep/repo-cli"
+      ],
+      "acceptanceCommands": [
+        "bash -lc 'for i in 1 2 3 4 5; do time -p bun run lint:fix; done'",
+        "bun run test -- --filter=@beep/repo-cli",
+        "bun run audit:github quality"
+      ],
+      "rollbackPlan": "Revert any lint:fix fast-path change that regresses no-op or changed-file behavior.",
+      "rollbackCommands": [
+        "git revert <task-commit>",
+        "bash -lc 'time -p bun run lint:fix'",
+        "bun run test -- --filter=@beep/repo-cli"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/research/known-findings.md",
+        "goals/repo-quality-throughput/history/outputs/before-after-matrix.md",
+        "goals/repo-quality-throughput/research/batch-01-quality-command-map.md",
+        "goals/repo-quality-throughput/research/batch-02-lint-fix-biome-eslint.md"
+      ],
+      "selected": {
+        "selectionEvidence": [
+          "Current clean-tree lint:fix proof is fast and must be protected.",
+          "Known findings explain why Turbo cache cannot be the lint:fix solution.",
+          "Batch 2 lint review found the fast path is healthy but fragile because no-op and changed-file behavior span multiple entrypoints."
+        ],
+        "substantialBenefitGate": "prevents workstation-hostile or repo-wide behavior on a common fast repair command",
+        "currentPrCandidate": true,
+        "fallbackProof": "`bun run audit:github quality` remains the full quality proof."
+      },
+      "done": {
+        "beforeAfterRows": [
+          "lint:fix clean tree",
+          "lint:fix small changed-file set"
+        ],
+        "proofEvidence": [
+          "Five warm clean-tree samples of `bun run lint:fix` exited 0 in 43-44 ms and printed `[beep-cli] lint:fix: no changed files`.",
+          "`packages/tooling/tool/cli/test/quality-tasks.test.ts` proves the changed-file fast path uses `biome check --write --files-ignore-unknown=true` rather than format-only behavior.",
+          "The fast-path dedupe in `bin-main.ts` no longer uses `Array.from(new Set(...))`, removing the native-runtime warning in the touched entrypoint surface.",
+          "Dirty small-file probes recorded in `before-after-matrix.md` stayed on the changed-file Biome path and out of Turbo.",
+          "`bun run test -- --filter=@beep/repo-cli` and `bun run audit:github quality` passed after the repo-cli fast-path work."
+        ],
+        "finalProofCommands": [
+          "bun run lint:fix",
+          "bun run test -- --filter=@beep/repo-cli",
+          "bun run audit:github quality",
+          "gh pr checks 214"
+        ],
+        "commitOrRunId": "1553e021bb; ea8759bb84; PR Check run 27064446802",
+        "confidence": "high",
+        "qualityReviewStatus": "Original lint:fix regression lane is protected by a sub-50 ms clean-tree proof, changed-file unit coverage, and green PR checks."
+      }
+    },
+    {
+      "id": "rqt-003",
+      "rank": 3,
+      "status": "deferred",
+      "lane": "ci-setup-cache",
+      "title": "Instrument and tune GitHub Actions setup/cache overhead only with comparable CI evidence",
+      "commandsOrChecks": [
+        ".github/actions/setup-monorepo-ci/action.yml",
+        ".github/workflows/check.yml",
+        "gh run view <run-id> --json jobs"
+      ],
+      "baseline": {
+        "status": "measured",
+        "evidence": "Batch 1 timing found setup frequently costs 140-270s. Batch 2 CI/Nix review found sampled Check/Release/Storybook setup costs about 153-271s and a Bun install cache restore of about 7GB."
+      },
+      "expectedImpact": "High if broad cache restore is slower than exact-key restore or cold install; otherwise still unlocks safe measurement for later tuning.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "low",
+      "benefitGate": "Remove or shorten repeated GitHub Actions setup/cache wait on critical PR lanes, or add missing timing needed to prove that safely.",
+      "expectedDelta": {
+        "status": "measurement-unlocking",
+        "summary": "Direct speedup requires three comparable before and after run ids. Instrumentation alone is selected as a safety gate because every CI lane pays setup cost.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-pr",
+      "implementationCost": "low",
+      "proofBurden": "medium",
+      "confidence": "medium",
+      "selectionRationale": "CI setup/cache is a repeated critical-path cost and must be visible before risky cache-policy changes.",
+      "implementationScope": [
+        ".github/actions/setup-monorepo-ci/action.yml",
+        ".github/workflows/check.yml",
+        "goals/repo-quality-throughput/history/outputs/ci-proof.md"
+      ],
+      "proofCommands": [
+        "gh run list --workflow check.yml --limit 20 --json databaseId,headBranch,headSha,event,conclusion",
+        "gh run view <run-id> --json jobs"
+      ],
+      "acceptanceCommands": [
+        "gh run view <before-run-id> --json jobs",
+        "gh run view <after-run-id> --json jobs",
+        "rg -n \"Setup monorepo CI|cache|install|timing\" .github/actions/setup-monorepo-ci/action.yml .github/workflows/check.yml"
+      ],
+      "rollbackPlan": "Restore previous setup action cache restore/save behavior.",
+      "rollbackCommands": [
+        "git revert <task-commit>",
+        "gh run view <rollback-run-id> --json jobs"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/research/batch-01-timing-baseline.md",
+        "goals/repo-quality-throughput/research/batch-01-config-inventory.md",
+        "goals/repo-quality-throughput/research/batch-02-ci-nix-storybook-data-sync.md",
+        "goals/repo-quality-throughput/research/batch-03-tooling-candidates.md",
+        "goals/repo-quality-throughput/research/batch-03-synthesis.md"
+      ],
+      "selected": {
+        "selectionEvidence": [
+          "Batch 1 timing found setup dominates multiple critical jobs.",
+          "Batch 2 CI review confirmed Nix Shell and Release PR pay full setup before smaller proof/skip work.",
+          "The shared setup action is reused by Check, release, Storybook, and data-sync lanes."
+        ],
+        "substantialBenefitGate": "unlocks a larger measured speedup by adding timing, cache, or proof metadata that was previously missing",
+        "currentPrCandidate": true,
+        "fallbackProof": "No cache-policy speedup is marked done until comparable CI runs prove it; existing workflow behavior remains fallback."
+      },
+      "deferred": {
+        "reason": "Latest PR run already exposes step timings through GitHub job metadata, and changing setup/cache behavior in this broad green PR would restart every expensive lane without the required three-run before/after proof.",
+        "ownerOrSurface": ".github/actions/setup-monorepo-ci/action.yml and .github/workflows/check.yml",
+        "residualRisk": "Critical PR lanes still spend about 2m17s to 2m42s in `Setup monorepo CI`; every PR continues to pay this until a focused setup/cache PR proves a smaller policy safely.",
+        "nextProofStep": "Open a focused setup/cache throughput PR with three comparable before run ids, one targeted cache/instrumentation change, and three after run ids before marking a direct CI speedup done."
+      }
+    },
+    {
+      "id": "rqt-004",
+      "rank": 4,
+      "status": "done",
+      "lane": "proof-safety",
+      "title": "Maintain proof parity, check-name, and Yeet proof-mode guardrails while optimizing",
+      "commandsOrChecks": [
+        "history/outputs/proof-parity-map.md",
+        "history/outputs/check-name-baseline.md",
+        "bun run audit:github quality",
+        "bun run audit:github pre-push",
+        "gh pr checks --watch"
+      ],
+      "baseline": {
+        "status": "measured",
+        "evidence": "Batch 1 and quality-review found local `quality`, local `pre-push`, PR checks, push-only build, security, Nix, SAST, and hooks are not identical proof surfaces."
+      },
+      "expectedImpact": "Medium as a safety enabler: it prevents speedups from becoming proof regressions and lets duplicate waits be removed only when fallback proof is explicit.",
+      "correctnessRisk": "high",
+      "resourceRisk": "low",
+      "benefitGate": "Unlock larger measured wins by adding proof metadata and preventing hidden proof weakening.",
+      "expectedDelta": {
+        "status": "safety-resource",
+        "summary": "This task may not reduce wall clock directly, but it is required before relaxing local waits or workflow gates.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-pr",
+      "implementationCost": "low",
+      "proofBurden": "medium",
+      "confidence": "high",
+      "selectionRationale": "The packet needs explicit safety rails so performance work can be aggressive without becoming ambiguous.",
+      "implementationScope": [
+        "goals/repo-quality-throughput/history/outputs/proof-parity-map.md",
+        "goals/repo-quality-throughput/history/outputs/check-name-baseline.md",
+        "goals/repo-quality-throughput/history/outputs/quality-review-inventory.md",
+        "goals/repo-quality-throughput/tasks/tasks.jsonc"
+      ],
+      "proofCommands": [
+        "bun run audit:github quality",
+        "bun run audit:github pre-push",
+        "gh pr checks --watch",
+        "gh pr checks ontology_builder_refinement --json name,workflow,event,state,bucket"
+      ],
+      "acceptanceCommands": [
+        "rg -n \"dedicated Yeet proof PR|Yeet agent skill|manual quality lanes\" goals/repo-quality-throughput",
+        "rg -n \"Coverage.*(green-lane|full-only|scheduled|out-of-scope|deferred)\" goals/repo-quality-throughput",
+        "jq . goals/repo-quality-throughput/tasks/tasks.schema.json"
+      ],
+      "rollbackPlan": "Restore previous packet safety wording only if it is replaced by an equivalent stricter proof map.",
+      "rollbackCommands": [
+        "git revert <task-commit>",
+        "jq . goals/repo-quality-throughput/tasks/tasks.schema.json",
+        "rg -n \"manual quality lanes\" goals/repo-quality-throughput"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/history/outputs/quality-review-inventory.md",
+        "goals/repo-quality-throughput/research/batch-01-quality-command-map.md",
+        "goals/repo-quality-throughput/research/batch-01-duplicate-proof-work.md"
+      ],
+      "selected": {
+        "selectionEvidence": [
+          "Proof-safety reviewer found local/CI parity and check-name guardrails were missing.",
+          "AGENTS.md keeps Yeet in proof mode until dedicated proof gates pass."
+        ],
+        "substantialBenefitGate": "unlocks a larger measured speedup by adding timing, cache, or proof metadata that was previously missing",
+        "currentPrCandidate": true,
+        "fallbackProof": "Manual quality lanes remain canonical and every relaxed wait names a full fallback proof."
+      },
+      "done": {
+        "beforeAfterRows": [
+          "Check names and rulesets",
+          "Local/CI proof parity",
+          "Security/Nix/SAST",
+          "Coverage"
+        ],
+        "proofEvidence": [
+          "`proof-parity-map.md` records local quality, local pre-push, Yeet, PR, push/main, side workflow, and fallback coverage by lane.",
+          "`check-name-baseline.md` records the current PR check names and latest statuses from run `27064446802`.",
+          "`gh pr checks 214 --required` reported no required checks on the branch; `gh api repos/kriegcloud/beep-effect/rulesets` reported the active `main` ruleset without returned rule entries.",
+          "Thread-aware PR comment sweep found zero unresolved actionable review threads before the next push.",
+          "AGENTS/CLAUDE guardrails still keep manual quality lanes canonical until the dedicated Yeet proof PR and Yeet agent skill exist."
+        ],
+        "finalProofCommands": [
+          "gh pr checks 214 --json name,state,bucket,workflow,link,description",
+          "gh pr checks 214 --required",
+          "gh api repos/kriegcloud/beep-effect/rulesets",
+          "python /home/elpresidank/.codex/plugins/cache/openai-curated/github/2cb26e7b/skills/gh-address-comments/scripts/fetch_comments.py --repo . --pr 214 --json"
+        ],
+        "commitOrRunId": "a7be8dc1e1; PR Check run 27064446802",
+        "confidence": "high",
+        "qualityReviewStatus": "Proof-safety packet records are current, PR checks are green, and no unresolved actionable comments are present."
+      }
+    },
+    {
+      "id": "rqt-005",
+      "rank": 5,
+      "status": "deferred",
+      "lane": "docgen",
+      "title": "Add safe package-level docgen fingerprint reuse before symbol-level selectivity",
+      "commandsOrChecks": [
+        "bun run docgen:local",
+        "bun run docgen",
+        "bun run audit:github quality"
+      ],
+      "baseline": {
+        "status": "measured",
+        "evidence": "Batch 1 found 87 docgen task nodes, 82 real docgen configs, 81 local hits, and 6 misses; current affected docgen expands to all packages because root/global inputs changed."
+      },
+      "expectedImpact": "High for docgen-heavy PRs if unchanged packages and example typechecks can safely reuse proof.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "medium",
+      "benefitGate": "Reduce repeated unchanged-package docgen/example/aggregation work while retaining full docgen fallback.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected to reduce full docgen and affected docgen time after Batch 2/3 designs a safe fingerprint and shadow proof.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-pr",
+      "implementationCost": "medium",
+      "proofBurden": "high",
+      "confidence": "medium",
+      "selectionRationale": "Docgen is a known hotspot, but correctness risk keeps fingerprint reuse behind a shadow/full-proof design until Batch 3.",
+      "implementationScope": [
+        "packages/tooling/tool/docgen",
+        "packages/tooling/tool/cli/src/commands/Docgen",
+        "turbo.json",
+        ".github/workflows/check.yml"
+      ],
+      "proofCommands": [
+        "bun run docgen:local -- --plan --json",
+        "./node_modules/.bin/turbo run docgen --affected --dry-run=json",
+        "bun run docgen",
+        "bun run audit:github quality"
+      ],
+      "acceptanceCommands": [
+        "bun run docgen:local",
+        "bun run docgen",
+        "git diff --check -- packages tooling goals"
+      ],
+      "rollbackPlan": "Disable fingerprint reuse and fall back to current full package docgen behavior.",
+      "rollbackCommands": [
+        "git revert <task-commit>",
+        "bun run docgen",
+        "bun run audit:github quality"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/research/batch-01-docgen-cost-model.md",
+        "goals/repo-quality-acceleration/research/docgen-selective-checking.md",
+        "goals/repo-quality-throughput/research/batch-03-docgen-selectivity-shadow.md",
+        "goals/repo-quality-throughput/research/batch-03-synthesis.md"
+      ],
+      "deferred": {
+        "reason": "Batch 3 found package-level fingerprinting is the safe boundary, but current docgen content hashes are too narrow and symbol/example selectivity needs shadow proof before it can affect the authoritative lane.",
+        "ownerOrSurface": "packages/tooling/tool/docgen, packages/tooling/tool/cli/src/commands/Docgen, Turbo docgen tasks, and GitHub Check Docgen lane",
+        "residualRisk": "Full docgen and example typechecking remain expensive on docgen/global-input branches, but preserving full fallback avoids stale generated docs or missed example failures.",
+        "nextProofStep": "Open a focused docgen fingerprint-shadow PR that records package input fingerprints, compares planned reuse against full docgen output, and only enables reuse after multiple full-fallback runs match.",
+        "followUpTrigger": "Start when docgen is again the slowest local or PR proof lane, or before attempting symbol/example-level selectivity."
+      },
+      "notes": "Symbol/example selectivity remains shadow-only until soundness is proven."
+    },
+    {
+      "id": "rqt-006",
+      "rank": 6,
+      "status": "deferred",
+      "lane": "turbo-config",
+      "title": "Reduce root config blast radius with measured Turbo/package configuration changes",
+      "commandsOrChecks": [
+        "turbo.json",
+        "package-local turbo.json",
+        "package-local config files"
+      ],
+      "baseline": {
+        "status": "measured",
+        "evidence": "Batch 1 found the current branch is all-packages affected because root/global inputs changed: `package.json`, `bun.lock`, and `tsconfig.base.json`."
+      },
+      "expectedImpact": "High for root metadata/config churn if global invalidation can be narrowed without cache correctness risk.",
+      "correctnessRisk": "high",
+      "resourceRisk": "low",
+      "benefitGate": "Reduce unnecessary affected-package invalidation from root config churn with measured blast-radius proof.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected to reduce affected task fan-out after localized config changes; requires scoped design and cache-safety proof.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-commit",
+      "implementationCost": "high",
+      "proofBurden": "high",
+      "confidence": "medium",
+      "selectionRationale": "This is potentially large but risky, so it stays candidate until scoped-config design proves a small safe change.",
+      "implementationScope": [
+        "turbo.json",
+        "package-local config files",
+        "packages/tooling/tool/cli",
+        "goals/repo-quality-throughput/history/outputs/before-after-matrix.md"
+      ],
+      "proofCommands": [
+        "./node_modules/.bin/turbo query affected --packages --base=origin/main --head=HEAD",
+        "./node_modules/.bin/turbo run build check lint --affected --dry-run=json",
+        "bun run audit:github quality"
+      ],
+      "acceptanceCommands": [
+        "./node_modules/.bin/turbo run lint --affected --dry-run=json",
+        "./node_modules/.bin/turbo run check --affected --dry-run=json",
+        "bun run audit:github quality"
+      ],
+      "rollbackPlan": "Remove package-local config split and return to root defaults.",
+      "rollbackCommands": [
+        "git revert <task-commit>",
+        "./node_modules/.bin/turbo run lint --affected --dry-run=json",
+        "bun run audit:github quality"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/research/batch-01-turbo-dag-cache.md",
+        "goals/repo-quality-throughput/research/batch-01-config-inventory.md",
+        "goals/repo-quality-throughput/research/batch-03-scoped-config-design.md",
+        "goals/repo-quality-throughput/research/batch-03-synthesis.md"
+      ],
+      "deferred": {
+        "reason": "Batch 3 rejected blanket package-local config splits. Root `globalDependencies`, root package metadata, lockfile, and root Turbo config still dominate invalidation, so the safe first step is a proof harness and task-specific inputs.",
+        "ownerOrSurface": "turbo.json, package-local turbo.json pilots, root and package Biome configs, config-sync policy, and repo-cli affected planning",
+        "residualRisk": "Root/global config edits can still expand affected work to the whole workspace until task inputs and package-local overrides are proven in a narrow pilot.",
+        "nextProofStep": "Build a scoped-config dry-run harness that compares affected package/task counts before and after classifying config inputs, then pilot package-local overrides only where resolved task definitions shrink safely.",
+        "followUpTrigger": "Start when a config-only PR again invalidates all packages or before editing shared root task definitions."
+      }
+    },
+    {
+      "id": "rqt-007",
+      "rank": 7,
+      "status": "deferred",
+      "lane": "repo-sanity-and-metadata",
+      "title": "Shard repo-export catalogs per package, then aggregate like docgen docs",
+      "commandsOrChecks": [
+        "bun run audit:github repo-sanity",
+        "bun run audit:github quality",
+        "repo-exports:catalog",
+        "config-sync",
+        "version-sync",
+        "syncpack",
+        "sherif",
+        "changeset status"
+      ],
+      "baseline": {
+        "status": "measured",
+        "evidence": "Batch 2 metadata review found `repo-exports:catalog:check` red and slow: `real 100.70`, `user 130.06`, with a 377,073-line JSONC catalog, 15,637-line Markdown catalog, 15,094 public export entries, sequential per-package ts-morph projects, and both JSONC/Markdown rendered even in check mode."
+      },
+      "expectedImpact": "High if package-local catalog shards make export discovery cacheable and reduce root catalog churn, merge conflicts, and all-package catalog rebuilds. The root aggregate remains the full proof surface.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "low",
+      "benefitGate": "Move semantic export discovery to package-owned generated shards and keep root aggregation deterministic, schema-validated, and full-proof compatible.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected to reduce repeated repo-export catalog rebuild cost and conflict surface by making package catalog generation cacheable and aggregating precomputed shards.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-pr",
+      "implementationCost": "medium",
+      "proofBurden": "medium",
+      "confidence": "medium",
+      "selectionRationale": "Repo-export catalog is a measured 100s red metadata gate, and package-local shards mirror the already-successful docgen `./docs` ownership pattern.",
+      "implementationScope": [
+        "packages/tooling/tool/cli/src/commands/Quality",
+        "packages/tooling/tool/cli/src/commands/Quality/internal",
+        "packages/**/.beep/repo-exports/catalog.shard.jsonc",
+        "packages/**/package.json",
+        "packages/tooling/library/repo-codegraph",
+        "turbo.json",
+        "lefthook.yml",
+        "generated-file ignore policy"
+      ],
+      "proofCommands": [
+        "bun run repo-exports:catalog",
+        "bun run repo-exports:catalog:check",
+        "bun run audit:github repo-sanity",
+        "bun run audit:github quality"
+      ],
+      "acceptanceCommands": [
+        "bun run repo-exports:catalog",
+        "bun run repo-exports:catalog:check",
+        "bun run audit:github repo-sanity",
+        "bun run audit:github quality",
+        "git diff --check -- packages/tooling/tool/cli goals/repo-quality-throughput"
+      ],
+      "rollbackPlan": "Restore single root repo-export catalog generation and previous repo-sanity sequencing.",
+      "rollbackCommands": [
+        "git revert <task-commit>",
+        "bun run repo-exports:catalog:check",
+        "bun run audit:github repo-sanity"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/research/batch-01-config-inventory.md",
+        "goals/repo-quality-throughput/research/batch-01-quality-command-map.md",
+        "goals/repo-quality-throughput/research/batch-02-metadata-release-sidecars.md",
+        "goals/repo-quality-throughput/research/batch-03-effect-v4-tools.md",
+        "goals/repo-quality-throughput/research/batch-03-scoped-config-design.md",
+        "goals/repo-quality-throughput/research/batch-03-synthesis.md"
+      ],
+      "selected": {
+        "selectionEvidence": [
+          "Batch 2 measured repo-export catalog check at `real 100.70` and found it stale on the current branch.",
+          "The current root catalog is a very large single merge surface: 377,073 JSONC lines and 15,637 Markdown lines.",
+          "The user proposed the docgen-style package-local generated artifact pattern, which aligns with package ownership and Turbo cache boundaries.",
+          "Current design review found that hash-only shard reuse would weaken the authoritative proof; the safe speedup needs Turbo-backed package shard tasks plus shard-aware repo-codegraph lookup."
+        ],
+        "substantialBenefitGate": "reduces root generated-artifact churn and turns a measured slow metadata gate into package-cacheable work plus deterministic aggregation",
+        "currentPrCandidate": false,
+        "fallbackProof": "The root aggregate catalog check remains the authoritative proof until shard generation and aggregation are green."
+      },
+      "deferred": {
+        "reason": "A correct sharding implementation is broader than this green PR: it must add package-local generator tasks, Turbo cache boundaries, package scripts, shard-aware repo-codegraph reading, hook updates, and generated artifacts without weakening the full catalog proof.",
+        "ownerOrSurface": "@beep/repo-cli, @beep/repo-codegraph, turbo.json, lefthook.yml, workspace package manifests, and generated repo-export artifacts",
+        "residualRisk": "Leaving the current root-only catalog in place preserves correctness but keeps the ~100s metadata gate and root merge surface until the shard-v2 migration lands.",
+        "nextProofStep": "Open a dedicated repo-exports shard-v2 PR that first keeps the root catalog compatibility shape, measures Turbo cache hits for package shards, then migrates lookup/docs if the root artifact is reduced to an index.",
+        "followUpTrigger": "Start after PR #214 lands or when repo-export catalog churn blocks another End-to-End Green lane."
+      },
+      "notes": "Design target recorded in `goals/repo-quality-throughput/research/repo-exports-sharding-design.md`; current PR should not trust hash-only package shards or shrink the root catalog without consumer migration."
+    },
+    {
+      "id": "rqt-008",
+      "rank": 8,
+      "status": "deferred",
+      "lane": "build-test-coverage-integration",
+      "title": "Classify and optimize build, coverage, type-test, and integration participation",
+      "commandsOrChecks": [
+        "bun run build",
+        "bun run test",
+        "bun run coverage",
+        "bun run test -- --integration",
+        "turbo run type-test"
+      ],
+      "baseline": {
+        "status": "measured",
+        "evidence": "Batch 1 found build, coverage, integration, and audit dry-runs are all misses on the current branch. Batch 2 found coverage is absent from PR Check and canonical quality proof, root coverage is non-cacheable/report-only, `type-test` dry-run has 87 tasks with only 13 real commands, and unfiltered `test:integration` has 141 tasks versus 76 when filtered to real owners."
+      },
+      "expectedImpact": "Medium to high if repeated build/test setup or non-cacheable integration/coverage work is in the wrong part of End-to-End Green.",
+      "correctnessRisk": "medium",
+      "resourceRisk": "medium",
+      "benefitGate": "Clarify green-lane participation and reduce repeated build/test/resource setup while preserving exclusive integration semantics.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected to reduce redundant test/type-test/integration graph work and explicitly keep coverage full-only or scheduled/report-only.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-pr",
+      "implementationCost": "medium",
+      "proofBurden": "high",
+      "confidence": "medium",
+      "selectionRationale": "Coverage classification is required before closure; integration and coverage are resource-sensitive and must not contaminate the fast path accidentally.",
+      "implementationScope": [
+        "turbo.json",
+        "packages/tooling/tool/cli/src/commands/Quality",
+        ".github/workflows/check.yml",
+        "vitest.config.ts",
+        "vitest.shared.ts"
+      ],
+      "proofCommands": [
+        "./node_modules/.bin/turbo run build type-test test:integration coverage --affected --dry-run=json",
+        "./node_modules/.bin/turbo run type-test --affected --dry-run=json",
+        "./node_modules/.bin/turbo run test:integration --affected --dry-run=json",
+        "bun run test",
+        "bun run coverage"
+      ],
+      "acceptanceCommands": [
+        "rg -n \"Coverage.*(green-lane|full-only|scheduled|out-of-scope|deferred)\" goals/repo-quality-throughput",
+        "bun run test",
+        "bun run audit:github quality"
+      ],
+      "rollbackPlan": "Restore previous build/test/coverage/integration task graph and CI participation.",
+      "rollbackCommands": [
+        "git revert <task-commit>",
+        "bun run test",
+        "bun run audit:github quality"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/research/batch-01-turbo-dag-cache.md",
+        "goals/repo-quality-throughput/research/batch-01-quality-command-map.md",
+        "goals/repo-quality-throughput/research/batch-02-check-test-coverage.md",
+        "goals/repo-quality-throughput/history/outputs/before-after-matrix.md",
+        "goals/repo-quality-throughput/research/batch-03-tooling-candidates.md",
+        "goals/repo-quality-throughput/research/batch-03-synthesis.md"
+      ],
+      "deferred": {
+        "reason": "Batch 3 kept this out of the current PR because coverage is not canonical End-to-End Green, integration remains an authoritative lane, and type-test/integration participation filtering needs controlled dry-run and execution proof.",
+        "ownerOrSurface": "turbo.json, packages/tooling/tool/cli/src/commands/Quality, test/type-test package scripts, Vitest config, and GitHub Check workflow",
+        "residualRisk": "Current integration/type-test graphs still pay no-op or root-suite work for packages that do not participate directly, but removing tasks without proof could hide failures.",
+        "nextProofStep": "Open a focused test-participation PR comparing Turbo dry-runs with script-owner filters, then run controlled unit/type-test/integration proof before changing the common lane.",
+        "followUpTrigger": "Start when Test Unit or Test Integration is the slowest PR check, as in run `27064446802`."
+      },
+      "notes": "Coverage is classified as full-only or scheduled/report-only until policy changes. Focused proof also found `bun run test -- --filter=@beep/repo-cli` took 2m40s for unit tests and then ran root TSTyche from the repo-cli `type-test` script; optimize this without removing integration from End-to-End Green."
+    },
+    {
+      "id": "rqt-009",
+      "rank": 9,
+      "status": "deferred",
+      "lane": "security-hooks-workflows",
+      "title": "Map security, hooks, release, data-sync, Storybook, and Vercel side lanes before removing waits",
+      "commandsOrChecks": [
+        "bun run audit:github pre-push",
+        "lefthook pre-commit",
+        "lefthook pre-push",
+        ".github/workflows/release.yml",
+        ".github/workflows/data-sync.yml"
+      ],
+      "baseline": {
+        "status": "measured",
+        "evidence": "Batch 1 found local pre-push, PR security jobs, hooks, release, and data-sync are not identical and share setup/cache surfaces. Batch 2 confirmed local SAST is changed-file scoped, CI SAST is broader, dependency review is CI-only, and secrets/security/Nix/SAST check names must be preserved."
+      },
+      "expectedImpact": "Medium if fast guards replace duplicate expensive local scans while CI/pre-push full proof remains authoritative.",
+      "correctnessRisk": "high",
+      "resourceRisk": "medium",
+      "benefitGate": "Replace duplicate expensive local scans with fast guards while preserving security and full pre-push/CI fallback proof.",
+      "expectedDelta": {
+        "status": "safety-resource",
+        "summary": "Expected to prevent duplicate expensive local scans and avoid side-workflow regressions from setup/cache changes.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-push",
+      "implementationCost": "medium",
+      "proofBurden": "high",
+      "confidence": "medium",
+      "selectionRationale": "Security proof changes are sensitive; this stays candidate until Batch 2 parity evidence identifies safe duplicate waits.",
+      "implementationScope": [
+        "lefthook.yml",
+        ".github/workflows",
+        ".github/actions/setup-monorepo-ci",
+        "packages/tooling/tool/cli/src/commands/Quality"
+      ],
+      "proofCommands": [
+        "bun run audit:github pre-push",
+        "gh run view <run-id> --json jobs"
+      ],
+      "acceptanceCommands": [
+        "bun run audit:github pre-push",
+        "gh pr checks --watch"
+      ],
+      "rollbackPlan": "Restore previous hook/workflow/security behavior.",
+      "rollbackCommands": [
+        "git revert <task-commit>",
+        "bun run audit:github pre-push"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/research/batch-01-quality-command-map.md",
+        "goals/repo-quality-throughput/research/batch-01-config-inventory.md",
+        "goals/repo-quality-throughput/research/batch-02-security-audit-sast.md",
+        "goals/repo-quality-throughput/research/batch-02-ci-nix-storybook-data-sync.md",
+        "goals/repo-quality-throughput/research/batch-03-yeet-fast-monitor.md",
+        "goals/repo-quality-throughput/research/batch-03-synthesis.md"
+      ],
+      "deferred": {
+        "reason": "Security, Nix, SAST, hooks, release, data-sync, Storybook, and Vercel lanes are not exact duplicates. Batch 3 recommends an opt-in monitor path only after known check baselines and fallback proof are implemented.",
+        "ownerOrSurface": "lefthook.yml, .github/workflows, .github/actions/setup-monorepo-ci, packages/tooling/tool/cli/src/commands/Quality, and Yeet monitor UX",
+        "residualRisk": "Local pre-push remains slower than a fast guard, but removing it or replacing it with CI monitoring too early could hide CI-only dependency, security, or environment failures.",
+        "nextProofStep": "Prototype `yeet publish --fast --monitor` or `yeet monitor` as opt-in on PR branches only, with known check-name baselines and explicit `audit:github pre-push` fallback.",
+        "followUpTrigger": "Start after Yeet proof-mode gates are green and before changing hook/security waits."
+      },
+      "notes": "Do not weaken secrets, SAST, dependency, or Nix proof without explicit full fallback."
+    },
+    {
+      "id": "rqt-010",
+      "rank": 10,
+      "status": "deferred",
+      "lane": "external-tooling-candidates",
+      "title": "Evaluate Effect v4 tooling, Rollup, Rspack, OXC, Bun, tsgo, and Vitest candidates",
+      "commandsOrChecks": [
+        ".repos/effect-v4/packages/tools",
+        "Rollup",
+        "Rspack",
+        "OXC",
+        "Bun",
+        "tsgo",
+        "Vitest"
+      ],
+      "baseline": {
+        "status": "measured",
+        "evidence": "Batch 3 compared Effect v4 tools and external tooling candidates. No wholesale replacement belongs in this PR; only bounded prototypes cleared the safety bar."
+      },
+      "expectedImpact": "Unknown until Batch 3; candidates may produce large wins for bundling, docgen parsing, lint/check, or test orchestration.",
+      "correctnessRisk": "high",
+      "resourceRisk": "medium",
+      "benefitGate": "Adopt new tooling only after a prototype shows clear speed win, isolated integration, and no proof weakening.",
+      "expectedDelta": {
+        "status": "pending-measurement",
+        "summary": "Expected benefit is intentionally unknown until prior-art and prototype evidence exists.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "unknown",
+      "implementationCost": "high",
+      "proofBurden": "high",
+      "confidence": "low",
+      "selectionRationale": "The user explicitly asked for Effect v4 tools and external tooling exploration; keeping this as a task prevents it from being lost in prose.",
+      "implementationScope": [
+        "goals/repo-quality-throughput/research",
+        "packages/tooling/tool/cli",
+        "packages/tooling/tool/docgen",
+        "turbo.json"
+      ],
+      "proofCommands": [
+        "read-only official docs and source inspection",
+        "bounded prototype command chosen by Batch 3 synthesis",
+        "bun run audit:github quality"
+      ],
+      "acceptanceCommands": [
+        "test -f goals/repo-quality-throughput/research/batch-03-effect-v4-tools.md",
+        "test -f goals/repo-quality-throughput/research/batch-03-tooling-candidates.md",
+        "jq . goals/repo-quality-throughput/tasks/tasks.schema.json"
+      ],
+      "rollbackPlan": "Reject or defer any tooling adoption that lacks a measured isolated speedup and fallback proof.",
+      "rollbackCommands": [
+        "git revert <task-commit>",
+        "bun run audit:github quality"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/ops/prompts/batch-03-external-and-synthesis.md",
+        "goals/repo-quality-throughput/SPEC.md",
+        "goals/repo-quality-throughput/research/batch-03-effect-v4-tools.md",
+        "goals/repo-quality-throughput/research/batch-03-tooling-candidates.md",
+        "goals/repo-quality-throughput/research/batch-03-synthesis.md"
+      ],
+      "deferred": {
+        "reason": "Batch 3 found no credible drop-in tooling swap for the current PR. Promising work is prototype-only and must prove speed, fallback, and no check-name/proof weakening before adoption.",
+        "ownerOrSurface": "packages/tooling/tool/docgen, packages/tooling/tool/cli, Turbo task configuration, CI setup/cache action, and focused benchmark fixtures",
+        "residualRisk": "The repo may leave future speed on the table until OXC shadow scanning, tsgo timing, Bun cache behavior, and small bundling/reporting prototypes are measured.",
+        "nextProofStep": "Run bounded prototype PRs for OXC metadata scanning, tsgo timing, CI Bun cache A/B, and small Rollup-style reporting only; reject broad tool replacement unless a prototype beats the current lane with full fallback.",
+        "followUpTrigger": "Start after current packet lands or when a specific lane needs parser, typecheck, cache, or bundle-measurement proof."
+      },
+      "rejected": {
+        "reason": "Batch 3 rejected wholesale replacements because they are high-risk, unmeasured, or would duplicate existing authoritative tooling.",
+        "evidence": [
+          "Do not replace Biome/ESLint with Oxlint in the current proof lane.",
+          "Do not replace Vitest with Bun test.",
+          "Do not replace root build with Rollup or migrate to Rspack for this packet.",
+          "Do not blindly upgrade to tsgo/native-preview tooling without timing and correctness proof.",
+          "Do not replace Turbo as the task graph and cache authority."
+        ]
+      }
+    },
+    {
+      "id": "rqt-011",
+      "rank": 11,
+      "status": "rejected",
+      "lane": "turbo-cache",
+      "title": "Remove TURBO_TOKEN and TURBO_TEAM from task hashes",
+      "commandsOrChecks": ["turbo.json"],
+      "baseline": {
+        "status": "not-applicable",
+        "evidence": "Current `turbo.json` already uses `globalPassThroughEnv` for Turbo credentials."
+      },
+      "expectedImpact": "None as a fresh task; keep as regression guard only.",
+      "correctnessRisk": "low",
+      "resourceRisk": "low",
+      "benefitGate": "Reject stale work already satisfied in current source.",
+      "expectedDelta": {
+        "status": "not-applicable",
+        "summary": "Already implemented before this packet.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "unknown",
+      "implementationCost": "low",
+      "proofBurden": "low",
+      "confidence": "high",
+      "selectionRationale": "Batch 1 verified this predecessor finding is stale.",
+      "implementationScope": ["turbo.json"],
+      "proofCommands": [
+        "rg -n \"globalPassThroughEnv|TURBO_TOKEN|TURBO_TEAM\" turbo.json"
+      ],
+      "acceptanceCommands": [
+        "rg -n \"globalPassThroughEnv|TURBO_TOKEN|TURBO_TEAM\" turbo.json"
+      ],
+      "rollbackPlan": "No rollback; this is a rejected stale task.",
+      "rollbackCommands": [
+        "rg -n \"globalPassThroughEnv|TURBO_TOKEN|TURBO_TEAM\" turbo.json"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/research/batch-01-turbo-dag-cache.md",
+        "goals/repo-quality-throughput/research/known-findings.md"
+      ],
+      "rejected": {
+        "reason": "Already satisfied in current source; do not spend implementation time here.",
+        "evidence": [
+          "turbo.json contains `globalPassThroughEnv` for Turbo credentials.",
+          "Batch 1 agents independently avoided filing this as fresh work."
+        ]
+      }
+    },
+    {
+      "id": "rqt-012",
+      "rank": 12,
+      "status": "rejected",
+      "lane": "lint-policy-sidecars",
+      "title": "Add initial bounded lint policy grouping",
+      "commandsOrChecks": [
+        "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts"
+      ],
+      "baseline": {
+        "status": "not-applicable",
+        "evidence": "Current repo-cli already groups lint policy sidecars with bounded concurrency."
+      },
+      "expectedImpact": "None as a fresh task; later work may tune grouping from timing data.",
+      "correctnessRisk": "low",
+      "resourceRisk": "low",
+      "benefitGate": "Reject stale work already satisfied in current source.",
+      "expectedDelta": {
+        "status": "not-applicable",
+        "summary": "Already implemented before this packet.",
+        "seconds": null,
+        "percent": null
+      },
+      "frequency": "every-pr",
+      "implementationCost": "low",
+      "proofBurden": "low",
+      "confidence": "high",
+      "selectionRationale": "Batch 1 verified the initial grouping exists; future tuning belongs under Batch 2 lint sidecar timing.",
+      "implementationScope": ["packages/tooling/tool/cli/src/commands/Quality"],
+      "proofCommands": [
+        "rg -n \"LINT_POLICY_GROUP_CONCURRENCY|concurrency\" packages/tooling/tool/cli/src/commands/Quality/Tasks.ts"
+      ],
+      "acceptanceCommands": [
+        "rg -n \"LINT_POLICY_GROUP_CONCURRENCY|concurrency\" packages/tooling/tool/cli/src/commands/Quality/Tasks.ts"
+      ],
+      "rollbackPlan": "No rollback; this is a rejected stale task.",
+      "rollbackCommands": [
+        "rg -n \"LINT_POLICY_GROUP_CONCURRENCY|concurrency\" packages/tooling/tool/cli/src/commands/Quality/Tasks.ts"
+      ],
+      "evidence": [
+        "goals/repo-quality-throughput/research/batch-01-quality-command-map.md",
+        "goals/repo-quality-throughput/research/known-findings.md"
+      ],
+      "rejected": {
+        "reason": "Already satisfied in current source; only timing/tuning remains as candidate work.",
+        "evidence": [
+          "Quality task code already has bounded lint policy grouping.",
+          "Batch 1 agents identified grouping as already implemented."
+        ]
+      }
+    }
+  ]
+}

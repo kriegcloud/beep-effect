@@ -3,11 +3,14 @@
   "initiative": {
     "id": "repo-quality-acceleration",
     "title": "Repo Quality Acceleration",
-    "status": "research-bootstrap-active",
+    "status": "superseded-reference",
     "created": "2026-05-16",
-    "updated": "2026-05-16",
-    "packetAnchorDocument": "SPEC.md"
+    "updated": "2026-06-06",
+    "packetAnchorDocument": "SPEC.md",
+    "supersededBy": "goals/repo-quality-throughput"
   },
+  "lifecycle": "reference",
+  "executionCapable": false,
   "mission": "Reduce quality feedback wall-clock time while preserving canonical repo quality guarantees.",
   "priority": {
     "firstOptimizationTarget": "GitHub pull request feedback wall-clock time",
@@ -57,5 +60,5 @@
     "moving repo-operational quality ownership outside tooling",
     "committing to symbol-level docgen selectivity before feasibility proof"
   ],
-  "nextAction": "Run the five read-only explorer tracks, then synthesize a ranked implementation roadmap."
+  "nextAction": "Use goals/repo-quality-throughput for active execution. Retain this packet as prior research evidence."
 }

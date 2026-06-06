@@ -90,9 +90,14 @@ export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`Y
   })
 ) {}
 
-const sharedFeedbackTurboArgs = ["--continue=dependencies-successful", "--summarize", "--ui=stream"] as const;
+const YEET_TURBO_CONCURRENCY = "3" as const;
 
-const affectedArgs = (): ReadonlyArray<string> => ["--affected", ...sharedFeedbackTurboArgs];
+const sharedFeedbackTurboArgs = [
+  `--concurrency=${YEET_TURBO_CONCURRENCY}`,
+  "--continue=dependencies-successful",
+  "--summarize",
+  "--ui=stream",
+] as const;
 
 const bunRunStep = (
   context: RepoRunContext,
@@ -162,34 +167,9 @@ export const emptyTurboPlanSnapshot = (warnings: ReadonlyArray<string>): TurboPl
     tasks: [],
   });
 
-const affectedEnv = (context: RepoRunContext): Record<string, string | undefined> => ({
-  TURBO_SCM_BASE: context.base,
-  TURBO_SCM_HEAD: context.head,
-});
-
 const repairSteps = (context: RepoRunContext): ReadonlyArray<RepoPlanStep> => [
-  bunRunStep(
-    context,
-    "prepare:01-lint-fix",
-    "prepare:lint:fix",
-    "prepare",
-    "lint:fix",
-    ["--", ...affectedArgs()],
-    "write",
-    "repo",
-    O.none(),
-    O.some(affectedEnv(context))
-  ),
-  bunRunStep(
-    context,
-    "prepare:02-docgen-local",
-    "prepare:docgen:local",
-    "prepare",
-    "docgen:local",
-    [],
-    "write",
-    "repo"
-  ),
+  bunRunStep(context, "prepare:01-lint-fix", "prepare:lint:fix", "prepare", "lint:fix", [], "write", "repo"),
+  bunRunStep(context, "prepare:02-docgen", "prepare:docgen", "prepare", "docgen", [], "write", "repo"),
   bunRunStep(
     context,
     "prepare:03-repo-exports-catalog",
@@ -221,7 +201,7 @@ const feedbackFilterArgs = (context: RepoRunContext, feedbackTask: YeetFeedbackT
   );
 
 const feedbackRunArgs = (feedbackTask: YeetFeedbackTask, filters: ReadonlyArray<string>): ReadonlyArray<string> =>
-  // Feedback tests stay on unit/type lanes; repair is generator-only, and verify/publish run integration in full proof.
+  // Repair feedback stays on unit/type lanes; verify/publish use only the full pre-push proof.
   feedbackTask === "test"
     ? ["--unit", "--types", ...filters, ...sharedFeedbackTurboArgs]
     : [...filters, ...sharedFeedbackTurboArgs];
@@ -283,8 +263,8 @@ const stepsForMode = (
 ): ReadonlyArray<RepoPlanStep> =>
   YeetRunMode.$match(mode, {
     repair: () => [...repairSteps(context), ...feedbackSteps(context)],
-    verify: () => [...feedbackSteps(context), proofStep(context)],
-    publish: () => [...feedbackSteps(context), commitStep(context, message), proofStep(context), pushStep(context)],
+    verify: () => [proofStep(context)],
+    publish: () => [commitStep(context, message), proofStep(context), pushStep(context)],
   });
 
 /**

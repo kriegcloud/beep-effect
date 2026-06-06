@@ -101,9 +101,9 @@ export class ChangesetGraphPackageReference extends S.Class<ChangesetGraphPackag
  */
 export class ChangesetGraphSummary extends S.Class<ChangesetGraphSummary>($I`ChangesetGraphSummary`)(
   {
-    workspacePackages: S.Number,
-    changesetFiles: S.Number,
-    references: S.Number,
+    workspacePackages: S.Finite,
+    changesetFiles: S.Finite,
+    references: S.Finite,
     missingReferences: S.Array(ChangesetGraphPackageReference),
   },
   $I.annote("ChangesetGraphSummary", {

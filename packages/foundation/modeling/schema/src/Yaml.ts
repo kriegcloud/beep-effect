@@ -109,7 +109,7 @@ export const YamlTextToUnknown = S.String.pipe(
  * import * as S from "effect/Schema"
  * import { decodeYamlTextAs } from "@beep/schema/Yaml"
  *
- * const Config = S.Struct({ name: S.String, age: S.Number })
+ * const Config = S.Struct({ name: S.String, age: S.Finite })
  * const decodeConfig = decodeYamlTextAs(Config)
  *
  * const program = decodeConfig("name: Beep\nage: 1")

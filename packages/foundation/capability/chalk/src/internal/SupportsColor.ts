@@ -93,8 +93,8 @@ type ColorLevelHeuristic = (input: ColorHeuristicInput) => O.Option<ColorSupport
 
 class WindowsReleaseModel extends S.Class<WindowsReleaseModel>($I`WindowsRelease`)(
   {
-    build: S.Number,
-    major: S.Number,
+    build: S.Finite,
+    major: S.Finite,
   },
   $I.annote("WindowsRelease", {
     description: "Parsed Windows release metadata used to infer terminal color support.",
@@ -105,7 +105,7 @@ type WindowsRelease = typeof WindowsReleaseModel.Encoded;
 
 class TermProgramInfoModel extends S.Class<TermProgramInfoModel>($I`TermProgramInfo`)(
   {
-    majorVersion: S.Number,
+    majorVersion: S.Finite,
     program: S.String,
   },
   $I.annote("TermProgramInfo", {

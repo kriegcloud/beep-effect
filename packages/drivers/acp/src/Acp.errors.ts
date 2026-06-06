@@ -64,7 +64,7 @@ export class AcpProcessExitedError extends TaggedErrorClass<AcpProcessExitedErro
   "AcpProcessExitedError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
-    code: S.optionalKey(S.Number),
+    code: S.optionalKey(S.Finite),
   },
   $I.annote("AcpProcessExitedError", {
     description: "Failure raised when an ACP process exits before the protocol completes.",
