@@ -99,8 +99,6 @@ const sharedFeedbackTurboArgs = [
   "--ui=stream",
 ] as const;
 
-const affectedArgs = (): ReadonlyArray<string> => ["--affected", ...sharedFeedbackTurboArgs];
-
 const bunRunStep = (
   context: RepoRunContext,
   id: string,
@@ -169,34 +167,9 @@ export const emptyTurboPlanSnapshot = (warnings: ReadonlyArray<string>): TurboPl
     tasks: [],
   });
 
-const affectedEnv = (context: RepoRunContext): Record<string, string | undefined> => ({
-  TURBO_SCM_BASE: context.base,
-  TURBO_SCM_HEAD: context.head,
-});
-
 const repairSteps = (context: RepoRunContext): ReadonlyArray<RepoPlanStep> => [
-  bunRunStep(
-    context,
-    "prepare:01-lint-fix",
-    "prepare:lint:fix",
-    "prepare",
-    "lint:fix",
-    ["--", ...affectedArgs()],
-    "write",
-    "repo",
-    O.none(),
-    O.some(affectedEnv(context))
-  ),
-  bunRunStep(
-    context,
-    "prepare:02-docgen-local",
-    "prepare:docgen:local",
-    "prepare",
-    "docgen:local",
-    [],
-    "write",
-    "repo"
-  ),
+  bunRunStep(context, "prepare:01-lint-fix", "prepare:lint:fix", "prepare", "lint:fix", [], "write", "repo"),
+  bunRunStep(context, "prepare:02-docgen", "prepare:docgen", "prepare", "docgen", [], "write", "repo"),
   bunRunStep(
     context,
     "prepare:03-repo-exports-catalog",

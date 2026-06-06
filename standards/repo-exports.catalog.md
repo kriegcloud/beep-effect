@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1078 |
-| publicExportEntries | 15081 |
-| uniquePackageSymbols | 6519 |
+| publicExportEntries | 15094 |
+| uniquePackageSymbols | 6531 |
 
 ## Seed Discovery Proof
 
@@ -53,7 +53,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 14 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 15 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 16 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1687 | 610 |
+| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1700 | 622 |
 | 18 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 19 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 20 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 90 | 65 |
@@ -835,7 +835,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
+| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:46` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
@@ -1866,7 +1866,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Purge/Purge.command` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge/Purge.command` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:127` | Summary statistics returned after a purge run. |
 | `@beep/repo-cli/commands/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/commands/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
@@ -1880,52 +1880,52 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
 | `@beep/repo-cli/commands/Quality/index` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
 | `@beep/repo-cli/commands/Quality/index` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:865` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:141` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:154` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:866` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:142` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/commands/Quality/Quality.command` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:357` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1202` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:617` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1522` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1445` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1613` | Run the repo-wide JSDoc quality gate. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1557` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1248` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1011` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1344` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:358` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1203` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:618` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1523` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1446` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1614` | Run the repo-wide JSDoc quality gate. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1558` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1249` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1012` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1345` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1307` | Collect existing changed files for the root lint fix fast path. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1276` | Run a subprocess and capture all output. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `lintFixChangedStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1322` | Build the root lint fix changed-file step. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:106` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1170` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1336` | Collect existing changed files for the root lint fix fast path. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1305` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `lintFixChangedStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1351` | Build the root lint fix changed-file step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Package-local script profile used by the quality task adapter. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1199` | Parse a raw argv vector into a quality task invocation when the first token is |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:162` | Result of parsing a quality command invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:72` | Canonical quality task name. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:89` | Canonical quality task name. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:133` | Planned subprocess invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1067` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1214` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1244` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1293` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:879` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:893` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:860` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:165` | Result of parsing a quality command invocation. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:75` | Canonical quality task name. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:92` | Canonical quality task name. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:136` | Planned subprocess invocation. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1096` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1243` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1273` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1322` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:903` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:917` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:884` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/commands/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/commands/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
@@ -2327,47 +2327,59 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:72` | A package name referenced by a changeset file. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:102` | Summary emitted by the changeset package graph guard. |
 | `@beep/repo-cli/test/Quality` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:309` | Parse package references from one changeset Markdown document. |
-| `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:865` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
-| `@beep/repo-cli/test/Quality` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1307` | Collect existing changed files for the root lint fix fast path. |
-| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1276` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:866` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
+| `@beep/repo-cli/test/Quality` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1336` | Collect existing changed files for the root lint fix fast path. |
+| `@beep/repo-cli/test/Quality` | `collectPackageVerifyChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:651` | Collect changed paths used for package verification auto-detection. |
+| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1305` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:402` | Find changeset package references that are not in the workspace graph. |
-| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:141` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:154` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:142` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:140` | Options for building or writing the JSDoc documentation inventory. |
 | `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:160` | Result returned after writing JSDoc inventory artifacts. |
-| `@beep/repo-cli/test/Quality` | `lintFixChangedStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1322` | Build the root lint fix changed-file step. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `lintFixChangedStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1351` | Build the root lint fix changed-file step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
-| `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:106` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1170` | Parse a raw argv vector into a quality task invocation when the first token is |
-| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1725` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Package-local script profile used by the quality task adapter. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyReport` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:171` | Package verification report. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyStepName` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:41` | Verification step names run by `quality package-verify`. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyStepName` | type | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:60` | Verification step names run by `quality package-verify`. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyStepResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:138` | Package verification subprocess result. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyStepSpec` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:106` | Package verification step specification. |
+| `@beep/repo-cli/test/Quality` | `packageVerifyStepSpecsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:636` | Build package verification step specs. Exposed for focused tests. |
+| `@beep/repo-cli/test/Quality` | `PackageVerifyWorkspace` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:79` | Workspace package candidate used by package verification. |
+| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1199` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:162` | Result of parsing a quality command invocation. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:72` | Canonical quality task name. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:89` | Canonical quality task name. |
-| `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:133` | Planned subprocess invocation. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskInvocation` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:165` | Result of parsing a quality command invocation. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:75` | Canonical quality task name. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:92` | Canonical quality task name. |
+| `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:136` | Planned subprocess invocation. |
+| `@beep/repo-cli/test/Quality` | `renderPackageVerifyReportForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:555` | Render a package verification report for terminal output. |
 | `@beep/repo-cli/test/Quality` | `RepoExportsCatalogOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:119` | Options for building, writing, or checking the repo export catalog. |
 | `@beep/repo-cli/test/Quality` | `RepoExportsCatalogWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:137` | Result returned after writing or checking repo export catalog artifacts. |
-| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1067` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:357` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1096` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:358` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
 | `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
-| `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1202` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/test/Quality` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:617` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1522` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1445` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/test/Quality` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1613` | Run the repo-wide JSDoc quality gate. |
-| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1214` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1244` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1293` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1557` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:879` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1248` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1011` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1344` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:893` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:860` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1203` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/test/Quality` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:618` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1523` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1446` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/test/Quality` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1614` | Run the repo-wide JSDoc quality gate. |
+| `@beep/repo-cli/test/Quality` | `runPackageVerify` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:499` | Run package-local verification for a workspace package. |
+| `@beep/repo-cli/test/Quality` | `runPackageVerifyCli` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:595` | Run package verification and render the CLI result. |
+| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1243` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1273` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1322` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1558` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:903` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1249` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1012` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1345` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/test/Quality` | `selectPackageVerifyTargetForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:321` | Resolve the package target for package verification. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:917` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:884` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/test/Quality` | `writeJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:995` | Write JSDoc inventory JSONC and Markdown artifacts. |
 | `@beep/repo-cli/test/Quality` | `writeOrCheckRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:698` | Write or freshness-check repo export catalog JSONC and Markdown artifacts. |
@@ -2443,26 +2455,27 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:382` | Resolver output consumed by reporting and write-mode services. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:366` | YAML location to update in write mode. |
 | `@beep/repo-cli/test/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:716` | Build a schema-first issue index from normalized issues. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:367` | Build the publish-mode yeet run plan. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1025` | Build a plan for tests without reading repository state. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanWithMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:329` | Build a yeet run plan for a specific mode. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:340` | Build the publish-mode yeet run plan. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1068` | Build a plan for tests without reading repository state. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanWithMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:302` | Build a yeet run plan for a specific mode. |
 | `@beep/repo-cli/test/Yeet` | `byRepoPlanStepAscending` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:375` | Order repository plan steps by phase, then identifier. |
 | `@beep/repo-cli/test/Yeet` | `commandTextForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:417` | Render a planned step as a shell-like command string. |
-| `@beep/repo-cli/test/Yeet` | `decodeTurboPlanTasksFromQueryJsonForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:613` | Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests. |
+| `@beep/repo-cli/test/Yeet` | `decodeTurboPlanTasksFromQueryJsonForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:656` | Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests. |
 | `@beep/repo-cli/test/Yeet` | `DEFAULT_YEET_PACKET_DIR` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:34` | Default ignored directory for yeet run artifacts. |
-| `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1044` | Construct baseline yeet options for focused tests. |
-| `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:165` | Create an empty Turbo metadata snapshot. |
+| `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1087` | Construct baseline yeet options for focused tests. |
+| `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:163` | Create an empty Turbo metadata snapshot. |
 | `@beep/repo-cli/test/Yeet` | `enforceConservativeResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:456` | Ensure a step's resume field follows v1 safety rules. |
 | `@beep/repo-cli/test/Yeet` | `executeRepoPlanStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:162` | Execute a planned repository step and optionally persist its raw output. |
 | `@beep/repo-cli/test/Yeet` | `GITHUB_CHECK_MODE_VALUES` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts:26` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Yeet` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts:42` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Yeet` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts:54` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/test/Yeet` | `gitPathListFromNulOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:250` | Parse NUL-delimited Git path output for Yeet publish-safety tests. |
-| `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:662` | Hydrate a shared yeet run context from repository state. |
+| `@beep/repo-cli/test/Yeet` | `gitPathListFromNulOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:260` | Parse NUL-delimited Git path output for Yeet publish-safety tests. |
+| `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:705` | Hydrate a shared yeet run context from repository state. |
 | `@beep/repo-cli/test/Yeet` | `isConservativeResumeCandidate` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:445` | Determine whether a planned step may use conservative resume metadata. |
-| `@beep/repo-cli/test/Yeet` | `jsonObjectTextFromMixedOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:494` | Extract the last decodable JSON object from mixed command output for tests. |
+| `@beep/repo-cli/test/Yeet` | `jsonObjectTextFromMixedOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:537` | Extract the last decodable JSON object from mixed command output for tests. |
 | `@beep/repo-cli/test/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
-| `@beep/repo-cli/test/Yeet` | `publishPathsOutsideIntentForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:258` | Return observed paths that are not part of the reviewed Yeet publish intent. |
+| `@beep/repo-cli/test/Yeet` | `publishPathsOutsideIntentForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:268` | Return observed paths that are not part of the reviewed Yeet publish intent. |
+| `@beep/repo-cli/test/Yeet` | `publishRestagePathsForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:277` | Return reviewed paths that can be passed to `git add` without failing on |
 | `@beep/repo-cli/test/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
 | `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
 | `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:71` | Type-level union of normalized yeet quality finding categories. |
@@ -2495,7 +2508,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Yeet` | `RepoStepRunResult` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:346` | Captured subprocess result for a planned step. |
 | `@beep/repo-cli/test/Yeet` | `resolveLocalRepoBinary` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:203` | Resolve a local node_modules binary when present. |
 | `@beep/repo-cli/test/Yeet` | `runRepoCommandCapture` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:92` | Execute a command and capture combined output. |
-| `@beep/repo-cli/test/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:999` | Run yeet with the provided options. |
+| `@beep/repo-cli/test/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1042` | Run yeet with the provided options. |
 | `@beep/repo-cli/test/Yeet` | `TurboPlanSnapshot` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:214` | Turbo snapshot stored in the shared run context. |
 | `@beep/repo-cli/test/Yeet` | `TurboPlanTask` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:162` | Turbo task metadata captured from dry-runs or summaries. |
 | `@beep/repo-cli/test/Yeet` | `turboTaskForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:473` | Lookup Turbo metadata for a planned step, if available. |
@@ -2503,7 +2516,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Yeet` | `YEET_FEEDBACK_TASKS` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:42` | Turbo tasks used by the Yeet feedback phase. |
 | `@beep/repo-cli/test/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:91` | Command that repairs, verifies, or publishes repository work through Yeet. |
 | `@beep/repo-cli/test/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
-| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:384` | Return plan phases in execution order. |
+| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:357` | Return plan phases in execution order. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:58` | Yeet execution modes. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunMode` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:70` | Yeet execution modes. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:150` | Runtime options accepted by the yeet handler. |

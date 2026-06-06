@@ -1,122 +1,47 @@
 #!/usr/bin/env bun
 
 /**
- * CLI entry point - assembles runtime layers and executes the root command.
+ * Lightweight CLI entry point for the repo command suite.
+ *
+ * The root `lint --fix` no-op path intentionally stays in this tiny module so
+ * clean worktrees do not pay the startup cost of loading the full Effect CLI.
  *
  * @internal
  * @packageDocumentation
  * @since 0.0.0
  */
 
-import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
-import { A } from "@beep/utils";
-import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
-import { Cause, Effect, Exit, Layer, Runtime } from "effect";
-import * as O from "effect/Option";
-import * as P from "effect/Predicate";
-import { Command } from "effect/unstable/cli";
-import { parseQualityTaskInvocation, runQualityTask } from "./commands/Quality/Tasks.js";
-import { rootCommand } from "./commands/Root.js";
+const CHANGED_PATH_DIFF_FILTER = ["A", "C", "M", "R", "T", "U", "X", "B"].join("");
+const rawArgv = Bun.argv.slice(2);
 
-/**
- * Foundation layer providing Node.js implementations of FileSystem, Path, and Terminal.
- *
- * These three services are leaf dependencies required by virtually every CLI
- * command and are combined here so they can be shared by all derived layers.
- *
- * @internal
- * @category configuration
- * @since 0.0.0
- */
-const BaseLayers = Layer.mergeAll(BunServices.layer, BunHttpClient.layer);
+if (rawArgv.length === 2 && rawArgv[0] === "lint" && rawArgv[1] === "--fix") {
+  const runGit = (args: ReadonlyArray<string>) =>
+    Bun.spawnSync({
+      cmd: ["git", ...args],
+      stderr: "ignore",
+      stdout: "pipe",
+    });
+  const outputs = [
+    runGit(["diff", "--name-only", `--diff-filter=${CHANGED_PATH_DIFF_FILTER}`, "HEAD", "--"]),
+    runGit(["diff", "--cached", "--name-only", `--diff-filter=${CHANGED_PATH_DIFF_FILTER}`, "--"]),
+    runGit(["ls-files", "--others", "--exclude-standard"]),
+  ];
 
-/**
- * Minimal runtime required for quality-task fast path.
- *
- * Keeps startup lean when dispatching build/check/test/lint/audit adapters.
- *
- * @internal
- * @category configuration
- * @since 0.0.0
- */
-const QualityLayers = Layer.mergeAll(BunChildProcessSpawner.layer).pipe(Layer.provideMerge(BaseLayers));
+  if (outputs.every((output) => output.success)) {
+    const changedFiles = outputs.flatMap((output) =>
+      output.stdout
+        .toString()
+        .trim()
+        .split(/\r?\n/)
+        .filter((line) => line.length > 0)
+    );
 
-/**
- * Fully assembled runtime layer that merges higher-level services
- * (ChildProcessSpawner, FsUtils) on top of the {@link BaseLayers}.
- *
- * This layer satisfies all `Command.Environment` requirements plus
- * the repo-utils `FsUtils` service used by commands like `codegen`.
- *
- * @internal
- * @category configuration
- * @since 0.0.0
- */
-const DerivedLayers = Layer.mergeAll(BunChildProcessSpawner.layer, FsUtilsLive, TSMorphServiceLive).pipe(
-  Layer.provideMerge(BaseLayers)
-);
-
-const argv = A.slice(process.argv, 2);
-const qualityTaskInvocation = parseQualityTaskInvocation(argv);
-
-const renderCliFailure = (exit: Exit.Exit<unknown, unknown>) => {
-  if (Exit.isSuccess(exit)) {
-    return;
+    if (changedFiles.length === 0) {
+      process.stdout.write("[beep-cli] lint:fix: no changed files\n");
+      process.exit(0);
+    }
   }
-
-  const error = Cause.squash(exit.cause);
-  if (!Runtime.getErrorReported(error)) {
-    return;
-  }
-
-  if (P.hasProperty(error, "message") && P.isString(error.message)) {
-    process.stderr.write(`${error.message}\n`);
-    return;
-  }
-
-  process.stderr.write(`${Cause.pretty(exit.cause)}\n`);
-};
-
-const runRepoCliMain = <E, A>(effect: Effect.Effect<A, E>) =>
-  BunRuntime.runMain(effect, {
-    disableErrorReporting: true,
-    teardown: (exit, onExit) => {
-      renderCliFailure(exit);
-      Runtime.defaultTeardown(exit, onExit);
-    },
-  });
-
-/**
- * Top-level CLI program effect produced by running the root command tree
- * with the fully-resolved {@link DerivedLayers}.
- *
- * This is the value handed to `Effect.runPromise` to execute the CLI.
- *
- * @internal
- * @category use-cases
- * @since 0.0.0
- */
-if (O.isSome(qualityTaskInvocation)) {
-  const qualityProgram = Effect.scoped(
-    Layer.build(QualityLayers).pipe(
-      Effect.flatMap(
-        Effect.fnUntraced(function* (context) {
-          return yield* runQualityTask(qualityTaskInvocation.value).pipe(Effect.provide(context));
-        })
-      )
-    )
-  );
-  runRepoCliMain(qualityProgram);
-} else {
-  const commandProgram = Effect.scoped(
-    Layer.build(DerivedLayers).pipe(
-      Effect.flatMap(
-        Effect.fnUntraced(function* (context) {
-          return yield* Command.run(rootCommand, { version: "0.0.0" }).pipe(Effect.provide(context));
-        })
-      )
-    )
-  );
-  runRepoCliMain(commandProgram);
 }
-// bench
+
+const fullCliModule = new URL("./bin-main.js", import.meta.url).href;
+await import(fullCliModule);

@@ -226,6 +226,16 @@ const publishPathsOutsideIntent = (
     sortedUniquePaths
   );
 
+const publishRestagePaths = (
+  intendedPaths: ReadonlyArray<string>,
+  existingPaths: ReadonlyArray<string>
+): ReadonlyArray<string> =>
+  pipe(
+    intendedPaths,
+    A.filter((filePath) => A.contains(existingPaths, filePath)),
+    sortedUniquePaths
+  );
+
 const formatPublishPaths = (paths: ReadonlyArray<string>): string =>
   pipe(
     paths,
@@ -256,6 +266,15 @@ export const gitPathListFromNulOutputForTesting = gitPathListFromNulOutput;
  * @since 0.0.0
  */
 export const publishPathsOutsideIntentForTesting = publishPathsOutsideIntent;
+
+/**
+ * Return reviewed paths that can be passed to `git add` without failing on
+ * reviewed deletions.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const publishRestagePathsForTesting = publishRestagePaths;
 
 const renderJson = Effect.fn("Yeet.renderJson")(function* (value: unknown): Effect.fn.Return<string, YeetCommandError> {
   return yield* encodeJson(value).pipe(Effect.mapError(YeetCommandError.new("Failed to encode yeet JSON output.")));
@@ -398,12 +417,36 @@ const validatePublishIntentStillSafe = Effect.fn("Yeet.validatePublishIntentStil
   }
 });
 
+const collectExistingPublishIntentPaths = Effect.fn("Yeet.collectExistingPublishIntentPaths")(function* (
+  context: RepoRunContext,
+  intent: YeetPublishIntent
+): Effect.fn.Return<ReadonlyArray<string>, never, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const existingPaths = yield* Effect.forEach(intent.paths, (filePath) =>
+    pipe(
+      fs.exists(path.join(context.repoRoot, filePath)),
+      Effect.orElseSucceed(() => false),
+      Effect.map((exists) => (exists ? O.some(filePath) : O.none()))
+    )
+  );
+  return pipe(existingPaths, A.getSomes, sortedUniquePaths);
+});
+
 const stageReviewedPublishIntent = Effect.fn("Yeet.stageReviewedPublishIntent")(function* (
   context: RepoRunContext,
   intent: YeetPublishIntent
-): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  void,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   yield* validatePublishIntentStillSafe(context, intent);
-  yield* runGitOutput(context.repoRoot, ["add", "--", ...intent.paths]);
+  const existingPaths = yield* collectExistingPublishIntentPaths(context, intent);
+  const restagePaths = publishRestagePaths(intent.paths, existingPaths);
+  if (!A.isReadonlyArrayEmpty(restagePaths)) {
+    yield* runGitOutput(context.repoRoot, ["add", "--", ...restagePaths]);
+  }
   yield* validatePublishIntentStillSafe(context, intent);
 
   const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);

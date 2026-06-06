@@ -93,6 +93,9 @@ const isTurboCacheControlArg = (arg: string): boolean =>
   Str.startsWith("--remote-cache-read-only=")(arg) ||
   Str.startsWith("--cache=")(arg);
 
+const isTurboConcurrencyArg = (arg: string): boolean =>
+  arg === "--concurrency" || Str.startsWith("--concurrency=")(arg);
+
 const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyArray<string> => [
   "turbo",
   "run",
@@ -100,6 +103,11 @@ const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyA
   ...(Bun.env.CI === "true" || A.some(args, isTurboCacheControlArg) ? [] : ["--cache=local:rw"]),
   ...args,
 ];
+const expectedRootTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyArray<string> =>
+  expectedTurboArgs(
+    task,
+    Bun.env.CI === "true" || A.some(args, isTurboConcurrencyArg) ? args : ["--concurrency=3", ...args]
+  );
 const bunScriptStep = (label: string, source: string) =>
   QualityTaskStep.make({
     label,
@@ -155,7 +163,7 @@ describe("quality task adapter", () => {
       expect(steps[0]).toMatchObject({
         label: "audit:packages",
         command: "bunx",
-        args: expectedTurboArgs("audit", ["--filter=@beep/schema", "--summarize"]),
+        args: expectedRootTurboArgs("audit", ["--filter=@beep/schema", "--summarize"]),
         cwd: "/repo",
       });
     }));
@@ -165,7 +173,7 @@ describe("quality task adapter", () => {
       const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "--filter=@beep/schema"]));
 
       expect(steps).toHaveLength(1);
-      expect(steps[0]?.args).toEqual(expectedTurboArgs("audit", ["--filter=@beep/schema"]));
+      expect(steps[0]?.args).toEqual(expectedRootTurboArgs("audit", ["--filter=@beep/schema"]));
     }));
 
   it("forces package audit execution in CI unless cache behavior is explicit", () =>
@@ -223,7 +231,7 @@ describe("quality task adapter", () => {
       "turbo",
       "run",
       "check",
-      ...(Bun.env.CI === "true" ? [] : ["--cache=local:rw"]),
+      ...(Bun.env.CI === "true" ? [] : ["--cache=local:rw", "--concurrency=3"]),
       "--affected",
       "--summarize",
     ]);
@@ -263,7 +271,7 @@ describe("quality task adapter", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["check", "--filter=@beep/schema"]));
 
     expect(steps).toHaveLength(1);
-    expect(steps[0]?.args).toEqual(expectedTurboArgs("check", ["--filter=@beep/schema"]));
+    expect(steps[0]?.args).toEqual(expectedRootTurboArgs("check", ["--filter=@beep/schema"]));
   });
 
   it("keeps scope args in the aggregate lint --fix step", () => {
@@ -276,8 +284,25 @@ describe("quality task adapter", () => {
     expect(steps[0]).toMatchObject({
       label: "lint:fix",
       command: "bunx",
-      args: expectedTurboArgs("lint:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
+      args: expectedRootTurboArgs("lint:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
     });
+  });
+
+  it("strips lint --fix aggregate aliases before delegating to Turbo", () => {
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--fix", "--full", "--repo"]));
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0]).toMatchObject({
+      label: "lint:fix",
+      command: "bunx",
+      args: expectedRootTurboArgs("lint:fix", []),
+    });
+  });
+
+  it("preserves explicit lint Turbo concurrency", () => {
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--fix", "--full", "--concurrency=1"]));
+
+    expect(steps[0]?.args).toEqual(expectedTurboArgs("lint:fix", ["--concurrency=1"]));
   });
 
   it("applies Biome lint fixes in the changed-file lint fix fast path", () => {
@@ -298,7 +323,7 @@ describe("quality task adapter", () => {
     expect(steps[0]).toMatchObject({
       label: "lint:fix",
       command: "bunx",
-      args: expectedTurboArgs("lint:fix", passthroughTasks),
+      args: expectedRootTurboArgs("lint:fix", passthroughTasks),
       env: {
         VITEST_COVERAGE_REPORT_ONLY: "1",
       },
@@ -315,12 +340,12 @@ describe("quality task adapter", () => {
     expect(steps[0]).toMatchObject({
       label: "test:unit",
       command: "bunx",
-      args: expectedTurboArgs("test", ["--filter=@beep/schema", "--summarize"]),
+      args: expectedRootTurboArgs("test", ["--filter=@beep/schema", "--summarize"]),
     });
     expect(steps[1]).toMatchObject({
       label: "test:types",
       command: "bunx",
-      args: expectedTurboArgs("type-test", ["--filter=@beep/schema", "--summarize"]),
+      args: expectedRootTurboArgs("type-test", ["--filter=@beep/schema", "--summarize"]),
     });
   });
 
@@ -512,18 +537,25 @@ describe("quality task adapter", () => {
     expect(O.isNone(parseQualityTaskInvocation(["lint", "schema-first"]))).toBe(true);
   });
 
+  it("leaves root CLI help and metadata flags on the existing command tree", () => {
+    expect(O.isNone(parseQualityTaskInvocation(["lint", "--help"]))).toBe(true);
+    expect(O.isNone(parseQualityTaskInvocation(["check", "-h"]))).toBe(true);
+    expect(O.isNone(parseQualityTaskInvocation(["build", "--version"]))).toBe(true);
+    expect(O.isNone(parseQualityTaskInvocation(["test", "--log-level=debug"]))).toBe(true);
+  });
+
   it("delegates affected root lint only to the affected aggregate repo lint lane", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--affected", "--summarize"]));
 
     expect(steps).toHaveLength(1);
-    expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--affected", "--summarize"]));
+    expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", ["--affected", "--summarize"]));
   });
 
   it("skips repo-wide lint policy checks for explicit package filters", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--filter=@beep/schema"]));
 
     expect(steps).toHaveLength(1);
-    expect(steps[0]?.args).toEqual(expectedTurboArgs("lint", ["--filter=@beep/schema"]));
+    expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", ["--filter=@beep/schema"]));
   });
 
   it("treats unsupported package tasks as explicit no-ops", () =>
