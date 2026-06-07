@@ -45,7 +45,7 @@ const LINT_POLICY_GROUP_CONCURRENCY = 3;
 const GROUPED_STEP_OUTPUT_MAX_CHARS = 256 * 1024;
 const CHANGED_PATH_DIFF_FILTER = ["A", "C", "M", "R", "T", "U", "X", "B"].join("");
 const LOCAL_BIOME_BIN = "./node_modules/.bin/biome";
-const BIOME_FIX_CHANGED_ARGS = ["check", "--write", "--files-ignore-unknown=true"] as const;
+const BIOME_FIX_CHANGED_ARGS = ["check", "--write", "--files-ignore-unknown=true", "--no-errors-on-unmatched"] as const;
 const LINT_FIX_AGGREGATE_ARGS = ["--full", "--repo"] as const;
 const ROOT_TURBO_CONCURRENCY_ARG = "--concurrency=3";
 const QUALITY_TASK_BYPASS_ARG_NAMES = ["--completions", "--help", "--log-level", "--version", "-h", "-v"] as const;

@@ -312,9 +312,33 @@ describe("quality task adapter", () => {
     expect(step).toMatchObject({
       label: "lint:fix:changed",
       command: "./node_modules/.bin/biome",
-      args: ["check", "--write", "--files-ignore-unknown=true", "packages/example/src/index.ts"],
+      args: [
+        "check",
+        "--write",
+        "--files-ignore-unknown=true",
+        "--no-errors-on-unmatched",
+        "packages/example/src/index.ts",
+      ],
       cwd: "/repo",
     });
+  });
+
+  it("lets Biome own changed-file matching in the lint fix fast path", () => {
+    const step = lintFixChangedStepForTesting("/repo", [
+      ".claude/skills/yeet/SKILL.md",
+      "packages/example/src/index.ts",
+      "schema/example.graphql",
+    ]);
+
+    expect(step.args).toEqual([
+      "check",
+      "--write",
+      "--files-ignore-unknown=true",
+      "--no-errors-on-unmatched",
+      ".claude/skills/yeet/SKILL.md",
+      "packages/example/src/index.ts",
+      "schema/example.graphql",
+    ]);
   });
 
   it("runs combined root coverage tasks in report-only mode", () => {
