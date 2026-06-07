@@ -21,7 +21,8 @@
     "goals/langextract-capability/README.md",
     "goals/langextract-capability/SPEC.md",
     "goals/langextract-capability/PLAN.md",
-    "goals/langextract-capability/GOAL.md"
+    "goals/langextract-capability/GOAL.md",
+    "goals/langextract-capability/research/synthesis.md"
   ],
   "targetSurfaces": [
     "goals/langextract-capability/**",
@@ -60,22 +61,22 @@
     {
       "id": "P1",
       "name": "Parallel Research",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P2",
       "name": "Research Synthesis",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P3",
       "name": "Packet Finalization",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P4",
       "name": "Implement",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P5",
@@ -97,6 +98,7 @@
     "research/reports/extraction-alignment.md",
     "research/reports/testing-quality.md"
   ],
+  "proposalReviewReports": ["research/reports/proposal-review-round-1.md"],
   "proposalReviewLoop": {
     "zeroGate": "zero required improvement items",
     "loopBudget": 3,

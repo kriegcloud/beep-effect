@@ -68,15 +68,35 @@ Higher sources outrank lower sources when they conflict.
 - The final code closure must run the actual `$quality-review-fix-loop` until
   zero required blockers remain or explicit waiver records exist.
 
+## Accepted Proposal Contract
+
+The accepted proposal is stored in [`research/synthesis.md`](./research/synthesis.md).
+Implementation must follow these decisions unless a later review records an
+explicit change:
+
+- `@beep/langextract` owns schema-first extraction targets, examples, requests,
+  options, results, diagnostics, prompt/output contracts, response parsing,
+  deterministic alignment, typed errors, service orchestration, and handoff
+  adapters.
+- Generic NLP primitives are reused from or promoted into `@beep/nlp`. In V1,
+  span and provenance invariants are the expected near-fit promotions.
+- Concrete provider drivers, provider SDKs, provider env/config, live provider
+  smoke tests, CLI, rendering, and visualization remain out of scope.
+- The service consumes injected `effect/unstable/ai/LanguageModel.LanguageModel`
+  and translates AI/schema/alignment failures into package typed errors.
+- V1 public source offsets are JavaScript string indices.
+- Streaming is deferred unless exposed as schema-backed LangExtract domain
+  events; raw AI stream chunks are not public API.
+
 ## Acceptance Criteria
 
-- [ ] `goals/langextract-capability/` exists with `README.md`, `SPEC.md`,
+- [x] `goals/langextract-capability/` exists with `README.md`, `SPEC.md`,
       `PLAN.md`, `GOAL.md`, `ops/manifest.json`, `research/`, and `history/`.
-- [ ] Parallel research reports exist under `research/reports/` for repo reuse,
+- [x] Parallel research reports exist under `research/reports/` for repo reuse,
       `@beep/nlp` fit, Effect v3 reference inventory, Effect v4 migration,
       architecture boundaries, extraction/alignment algorithms, and
       testing/quality.
-- [ ] `research/synthesis.md` contains an implementation proposal that has
+- [x] `research/synthesis.md` contains an implementation proposal that has
       completed a QRFL-style proposal review loop with zero required findings.
 - [ ] `@beep/langextract` is implemented as a foundation capability package and
       remains provider-neutral.

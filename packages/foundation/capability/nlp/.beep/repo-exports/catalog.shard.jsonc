@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "7d9d81fd97a681f3d04ab40ece9f6f9aedb611320e2f0ac654081ebd4525bb5b",
+    "digest": "ca50028da1c4bdc47d6e2bdaa47a6dd97026ae26a8e3e6bf2bf0ce692d8f939c",
     "inputs": [
       {
         "path": "packages/foundation/capability/nlp/package.json",
@@ -177,8 +177,8 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sha256": "21d28bd89e6be6333607eae0b2aaac3775011549a2107a0f0d1cfcbfa1a38fc0",
-        "bytes": 9730
+        "sha256": "74e2dd51341e8fb5db27cff4f0f502cfdf02726b45aa1c9bd2d6bfd4bf999523",
+        "bytes": 10473
       },
       {
         "path": "packages/foundation/capability/nlp/src/Handoff/index.ts",
@@ -507,7 +507,7 @@
       "@beep/nlp/VariantText"
     ],
     "counts": {
-      "publicExportEntries": 892,
+      "publicExportEntries": 893,
       "uniqueSymbols": 458,
       "sourceFiles": 75
     },
@@ -16790,7 +16790,7 @@
         "symbolName": "AnnotatedDocument",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 332,
+        "sourceLine": 357,
         "summary": "The top-level handoff envelope: a fully annotated document — its chunks,",
         "categories": [
           "models"
@@ -16815,7 +16815,7 @@
         "symbolName": "ChunkId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 43,
+        "sourceLine": 44,
         "summary": "Stable identifier for a {@link TextChunk}.",
         "categories": [
           "identifiers"
@@ -16840,7 +16840,7 @@
         "symbolName": "ChunkId",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 54,
+        "sourceLine": 55,
         "summary": "Runtime type of {@link ChunkId}.",
         "categories": [
           "identifiers"
@@ -16864,7 +16864,7 @@
         "symbolName": "ChunkKind",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 147,
+        "sourceLine": 148,
         "summary": "Closed vocabulary of {@link TextChunk} granularities.",
         "categories": [
           "schemas"
@@ -16889,7 +16889,7 @@
         "symbolName": "Entity",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 272,
+        "sourceLine": 297,
         "summary": "An entity: a canonical thing referred to by one or more {@link Mention}s. Its",
         "categories": [
           "models"
@@ -16914,7 +16914,7 @@
         "symbolName": "EntityId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 95,
+        "sourceLine": 96,
         "summary": "Stable identifier for an {@link Entity}.",
         "categories": [
           "identifiers"
@@ -16939,7 +16939,7 @@
         "symbolName": "EntityId",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 106,
+        "sourceLine": 107,
         "summary": "Runtime type of {@link EntityId}.",
         "categories": [
           "identifiers"
@@ -16963,7 +16963,7 @@
         "symbolName": "makeProvenance",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 359,
+        "sourceLine": 384,
         "summary": "Build a {@link Provenance} stamped with the current time (effectful: reads",
         "categories": [
           "constructors"
@@ -16988,7 +16988,7 @@
         "symbolName": "Mention",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 244,
+        "sourceLine": 269,
         "summary": "A surface mention occurrence: where a span of text within a chunk refers to",
         "categories": [
           "models"
@@ -17013,7 +17013,7 @@
         "symbolName": "MentionId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 69,
+        "sourceLine": 70,
         "summary": "Stable identifier for a {@link Mention}.",
         "categories": [
           "identifiers"
@@ -17038,7 +17038,7 @@
         "symbolName": "MentionId",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 80,
+        "sourceLine": 81,
         "summary": "Runtime type of {@link MentionId}.",
         "categories": [
           "identifiers"
@@ -17062,7 +17062,7 @@
         "symbolName": "Provenance",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 190,
+        "sourceLine": 215,
         "summary": "PROV-O-aligned provenance for a piece of derived annotation: where it came",
         "categories": [
           "models"
@@ -17087,7 +17087,7 @@
         "symbolName": "Relation",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 301,
+        "sourceLine": 326,
         "summary": "A directed relation between two {@link Entity}s. Its `type` is a GENERIC",
         "categories": [
           "models"
@@ -17112,7 +17112,7 @@
         "symbolName": "RelationId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 121,
+        "sourceLine": 122,
         "summary": "Stable identifier for a {@link Relation}.",
         "categories": [
           "identifiers"
@@ -17137,7 +17137,7 @@
         "symbolName": "RelationId",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 132,
+        "sourceLine": 133,
         "summary": "Runtime type of {@link RelationId}.",
         "categories": [
           "identifiers"
@@ -17159,9 +17159,9 @@
         "exportSubpath": "./Handoff/Contract",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
         "symbolName": "Span",
-        "exportKind": "class",
+        "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 164,
+        "sourceLine": 176,
         "summary": "A half-open character span `[start, end)` into the source text.",
         "categories": [
           "models"
@@ -17174,7 +17174,31 @@
           "@since",
           "@category"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/handoff/contract ./handoff/contract span class a half-open character span `[start, end)` into the source text. models packages/foundation/capability/nlp/src/handoff/contract.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/handoff/contract ./handoff/contract span const a half-open character span `[start, end)` into the source text. models packages/foundation/capability/nlp/src/handoff/contract.ts"
+      },
+      {
+        "packageName": "@beep/nlp",
+        "packagePath": "packages/foundation/capability/nlp",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/nlp/Handoff/Contract",
+        "exportSubpath": "./Handoff/Contract",
+        "exportedFromPath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
+        "symbolName": "Span",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
+        "sourceLine": 197,
+        "summary": "Runtime type of {@link Span}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/handoff/contract ./handoff/contract span type runtime type of {@link span}. models packages/foundation/capability/nlp/src/handoff/contract.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -17186,7 +17210,7 @@
         "symbolName": "TextChunk",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 217,
+        "sourceLine": 242,
         "summary": "A contiguous chunk of source text at a given granularity, with its span and",
         "categories": [
           "models"

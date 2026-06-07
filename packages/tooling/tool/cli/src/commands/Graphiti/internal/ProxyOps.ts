@@ -5,6 +5,8 @@
  * @since 0.0.0
  */
 
+// cspell:ignore gsub
+
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
@@ -237,20 +239,25 @@ const containerName = (projectName: string, serviceName: string): string => `${p
  * import { resolveGraphitiStackDirForTesting } from "@beep/repo-cli/commands/Graphiti/internal/ProxyOps"
  * import * as O from "effect/Option"
  * console.log(resolveGraphitiStackDirForTesting(O.some("/tmp/stack"), O.none()))
+ * console.log(resolveGraphitiStackDirForTesting(O.none())(O.some("/tmp/stack")))
  * ```
  * @category testing
  * @since 0.0.0
  */
-export const resolveGraphitiStackDirForTesting = (
-  cliStackDir: O.Option<string>,
-  envStackDir: O.Option<string>
-): string =>
-  pipe(
-    cliStackDir,
-    O.filter(Str.isNonEmpty),
-    O.orElse(() => pipe(envStackDir, O.filter(Str.isNonEmpty))),
-    O.getOrElse(() => DEFAULT_GRAPHITI_STACK_DIR)
-  );
+export const resolveGraphitiStackDirForTesting: {
+  (cliStackDir: O.Option<string>, envStackDir: O.Option<string>): string;
+  (envStackDir: O.Option<string>): (cliStackDir: O.Option<string>) => string;
+} = dual(
+  2,
+  function resolveGraphitiStackDirForTestingImpl(cliStackDir: O.Option<string>, envStackDir: O.Option<string>): string {
+    return pipe(
+      cliStackDir,
+      O.filter(Str.isNonEmpty),
+      O.orElse(() => pipe(envStackDir, O.filter(Str.isNonEmpty))),
+      O.getOrElse(() => DEFAULT_GRAPHITI_STACK_DIR)
+    );
+  }
+);
 
 const graphitiRestoreConfig = (path: Path.Path, options: GraphitiRestoreOptions = {}): GraphitiRestoreConfig => {
   const stackDir = path.resolve(

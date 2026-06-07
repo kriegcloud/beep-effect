@@ -69,6 +69,7 @@ Verification:
 ```sh
 test "$(wc -m < goals/langextract-capability/GOAL.md)" -le 4000
 jq . goals/langextract-capability/ops/manifest.json
+rg -n "langextract-capability|GOAL.md|agentLaunchers|packetAnchorDocument" goals/langextract-capability
 git diff --check -- goals/langextract-capability
 ```
 

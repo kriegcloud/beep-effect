@@ -48,6 +48,7 @@ const composers = $I.compose(
   "colors",
   "data",
   "identity",
+  "langextract",
   "md",
   "messages",
   "nlp",
@@ -489,6 +490,21 @@ export const $SemanticWebId: Identity.IdentityComposer<"@beep/semantic-web"> = c
  * @category configuration
  */
 export const $NlpId: Identity.IdentityComposer<"@beep/nlp"> = composers.$NlpId;
+
+/**
+ * Identity composer for the `@beep/langextract` package.
+ *
+ * @example
+ * ```typescript
+ * import { $LangExtractId } from "@beep/identity"
+ *
+ * const id = $LangExtractId.make("Extraction")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $LangExtractId: Identity.IdentityComposer<"@beep/langextract"> = composers.$LangextractId;
 
 /**
  * Identity composer for the `@beep/observability` package.

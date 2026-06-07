@@ -9,10 +9,10 @@ Status: `active`
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
 | P0 Packet Bootstrap | completed | Create the canonical packet from `goals/_template` and verify launcher/manifest basics. | Packet checks pass and P1 can launch. |
-| P1 Parallel Research | pending | Run bounded read-only research agents and store reports in `research/reports/`. | All required reports exist with facts, evidence, inferences, recommendations, and do-not-do notes. |
-| P2 Research Synthesis | pending | Synthesize reports into a decision-complete implementation proposal. | `research/synthesis.md` exists and proposal review returns zero required findings. |
-| P3 Packet Finalization | pending | Rewrite packet docs around the accepted proposal. | `SPEC.md`, `PLAN.md`, `GOAL.md`, and manifest align with the proposal. |
-| P4 Implement | pending | Implement provider-neutral `@beep/langextract` and any required `@beep/nlp` primitive promotions. | Package acceptance criteria and focused tests pass. |
+| P1 Parallel Research | completed | Run bounded read-only research agents and store reports in `research/reports/`. | All required reports exist with facts, evidence, inferences, recommendations, and do-not-do notes. |
+| P2 Research Synthesis | completed | Synthesize reports into a decision-complete implementation proposal. | `research/synthesis.md` exists and proposal review returns zero required findings. |
+| P3 Packet Finalization | completed | Rewrite packet docs around the accepted proposal. | `SPEC.md`, `PLAN.md`, `GOAL.md`, and manifest align with the proposal. |
+| P4 Implement | in-progress | Implement provider-neutral `@beep/langextract` and any required `@beep/nlp` primitive promotions. | Package acceptance criteria and focused tests pass. |
 | P5 Quality Review Fix Loop | pending | Run baseline quality, commit, reviewer/fixer rounds, and final verification. | Zero required blockers or explicit waivers. |
 | P6 Yeet And PR Babysitting | pending | Publish the reviewed branch, open the PR, and close CI/review feedback. | PR has green checks and actionable feedback is closed. |
 
@@ -40,6 +40,23 @@ Each lane is read-only and writes one report under `research/reports/`.
    `research/reports/proposal-review-round-<n>.md`.
 4. Fix the proposal and repeat until zero required findings remain.
 5. Escalate if the same blocker survives three rounds.
+
+Result: `research/synthesis.md` is accepted for implementation. Round 1 is
+stored at `research/reports/proposal-review-round-1.md` and reports zero
+required findings.
+
+## Accepted Implementation Direction
+
+- Keep `@beep/langextract` provider-neutral and consume only injected
+  `effect/unstable/ai/LanguageModel` services.
+- Promote near-fit generic span/provenance primitives into `@beep/nlp` before
+  exposing LangExtract output.
+- Keep extraction targets, prompt/output contracts, parser state, alignment
+  scoring, and orchestration local to `@beep/langextract`.
+- Defer provider adapters, provider env/config, live smoke tests, CLI,
+  rendering, visualization, and raw AI streaming.
+- Document V1 offsets as JavaScript string indices unless a later standards
+  decision changes the character offset contract.
 
 ## Execution Notes
 

@@ -38,15 +38,21 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Research.
+P4 Implement.
 
-Next action: launch the read-only research agents named in `PLAN.md` and write
-their reports under `research/reports/`.
+Next action: implement the accepted proposal in
+[`research/synthesis.md`](./research/synthesis.md), starting with required
+`@beep/nlp` primitive promotions before scaffolding `@beep/langextract`.
 
 ## Latest Evidence
 
 [`history/2026-06-07-packet-bootstrap.md`](./history/2026-06-07-packet-bootstrap.md)
 records the packet creation verification.
+
+[`research/synthesis.md`](./research/synthesis.md) records the accepted
+implementation proposal. The proposal review inventory is stored in
+[`research/reports/proposal-review-round-1.md`](./research/reports/proposal-review-round-1.md)
+with zero required findings.
 
 ## Notes
 
