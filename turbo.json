@@ -255,6 +255,7 @@
     },
     "test:storybook": {
       "cache": false,
+      "dependsOn": ["^build"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/apps/storybook/.storybook/**",

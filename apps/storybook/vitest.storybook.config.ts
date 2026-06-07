@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
@@ -5,12 +6,12 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [
     storybookTest({
-      configDir: new URL(".storybook", import.meta.url).pathname,
+      configDir: fileURLToPath(new URL(".storybook", import.meta.url)),
     }),
   ],
   test: {
     name: "storybook",
-    setupFiles: [new URL("vitest.storybook.setup.ts", import.meta.url).pathname],
+    setupFiles: [fileURLToPath(new URL("vitest.storybook.setup.ts", import.meta.url))],
     browser: {
       enabled: true,
       headless: true,

@@ -211,14 +211,12 @@ export const WithLegend: Story = {
       </BarChart>
     </ChartContainer>
   ),
-  play: ({ canvasElement }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    return canvas.findByText("Desktop").then((desktop) => {
-      expect(desktop).toBeVisible();
-      return canvas.findByText("Mobile").then((mobile) => {
-        expect(mobile).toBeVisible();
-      });
-    });
+    const desktop = await canvas.findByText("Desktop");
+    expect(desktop).toBeVisible();
+    const mobile = await canvas.findByText("Mobile");
+    expect(mobile).toBeVisible();
   },
 };
 
@@ -301,14 +299,12 @@ export const Pie: Story = {
       </PieChart>
     </ChartContainer>
   ),
-  play: ({ canvasElement }) => {
+  play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    return canvas.findByText("Chrome").then((chrome) => {
-      expect(chrome).toBeVisible();
-      return canvas.findByText("Safari").then((safari) => {
-        expect(safari).toBeVisible();
-      });
-    });
+    const chrome = await canvas.findByText("Chrome");
+    expect(chrome).toBeVisible();
+    const safari = await canvas.findByText("Safari");
+    expect(safari).toBeVisible();
   },
 };
 

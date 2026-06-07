@@ -86,7 +86,7 @@ Higher sources outrank lower sources when they conflict.
 | --- | --- | --- |
 | Packet launcher size | `test "$(wc -m < goals/storybook-app/GOAL.md)" -le 4000` | Passes |
 | Manifest JSON | `jq . goals/storybook-app/ops/manifest.json` | Passes |
-| Packet grep | `rg -n "storybook-app|@beep/storybook|apps/storybook|agentLaunchers|packetAnchorDocument" goals/storybook-app` | Finds expected anchors |
+| Packet grep | `rg -n "storybook-app\|@beep/storybook\|apps/storybook\|agentLaunchers\|packetAnchorDocument" goals/storybook-app` | Finds expected anchors |
 | Packet whitespace | `git diff --check -- goals/storybook-app` | Passes |
 | Workspace config | `bun run config-sync:check` | Passes |
 | Version sync | `bun run version-sync` | Passes |
