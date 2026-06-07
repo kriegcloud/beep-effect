@@ -445,14 +445,15 @@ bun run beep yeet publish --message "feat(repo-cli): harden yeet proof"
 ```
 
 `repair` is the only mode that runs deterministic write steps. It currently
-runs affected lint fixes, local docgen, `repo-exports:catalog`, and then affected
+runs changed-file lint fixes, local docgen, `repo-exports:catalog`, and then affected
 feedback. Affected test feedback is scoped to unit and type-test lanes; the
 integration lane is reserved for the full proof. `verify` is read-only and runs
-affected feedback followed by `quality github-checks pre-push`, the shared proof
-surface that mirrors the all-up local GitHub Actions proof. `publish` does not run repair steps: it
-requires reviewed staged changes, commits them, runs the same `pre-push` proof
-against the new local commit, and pushes only after that proof passes. Bare
-`yeet --message ...` remains a publish alias.
+`quality github-checks pre-push`, the shared proof surface that mirrors the
+all-up local GitHub Actions proof, without duplicate affected feedback first.
+`publish` does not run repair steps: it requires reviewed staged changes,
+commits them, runs the same `pre-push` proof against the new local commit, and
+pushes only after that proof passes. Bare `yeet --message ...` remains a publish
+alias.
 
 If `yeet verify` or `yeet publish` passes locally but the proof PR fails in
 GitHub Actions, treat that as a Yeet/quality parity bug or environment drift

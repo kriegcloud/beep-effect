@@ -1,0 +1,117 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "a3043a4c58dc1935be21972fa9207cc0aac8f9bc9ba895a474406af114b481ee",
+    "inputs": [
+      {
+        "path": "packages/shared/use-cases/package.json",
+        "sha256": "a196c06525ec170b81ac416ab09ab391c3551bd2ba52e4288235f865a1822894",
+        "bytes": 2041
+      },
+      {
+        "path": "packages/shared/use-cases/src/index.ts",
+        "sha256": "fa8c542575054820549e379683250a13c469776f2dd43b71d4b4e368462a7254",
+        "bytes": 328
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/shared-use-cases",
+    "packagePath": "packages/shared/use-cases",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/shared-use-cases",
+      "@beep/shared-use-cases/index"
+    ],
+    "counts": {
+      "publicExportEntries": 2,
+      "uniqueSymbols": 1,
+      "sourceFiles": 1
+    },
+    "exports": [
+      {
+        "packageName": "@beep/shared-use-cases",
+        "packagePath": "packages/shared/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/shared-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/shared/use-cases/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/shared/use-cases/src/index.ts",
+        "sourceLine": 21,
+        "summary": "Shared use-cases package version.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/shared-use-cases packages/shared/use-cases @beep/shared-use-cases . version const shared use-cases package version. configuration packages/shared/use-cases/src/index.ts"
+      },
+      {
+        "packageName": "@beep/shared-use-cases",
+        "packagePath": "packages/shared/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/shared-use-cases/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/shared/use-cases/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/shared/use-cases/src/index.ts",
+        "sourceLine": 21,
+        "summary": "Shared use-cases package version.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/shared-use-cases packages/shared/use-cases @beep/shared-use-cases/index ./index version const shared use-cases package version. configuration packages/shared/use-cases/src/index.ts"
+      }
+    ]
+  }
+}

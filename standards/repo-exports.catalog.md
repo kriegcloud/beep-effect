@@ -20,9 +20,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithPublicExports | 82 |
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
-| importSpecifiers | 1078 |
-| publicExportEntries | 15094 |
-| uniquePackageSymbols | 6531 |
+| importSpecifiers | 1079 |
+| publicExportEntries | 15197 |
+| uniquePackageSymbols | 6565 |
 
 ## Seed Discovery Proof
 
@@ -48,17 +48,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 9 | `@beep/canvas-domain` | `packages/canvas/domain` | has-public-exports | 5 | 35 | 24 |
 | 10 | `@beep/workspace-tables` | `packages/workspace/tables` | has-public-exports | 4 | 7 | 5 |
 | 11 | `@beep/db-admin` | `packages/_internal/db-admin` | has-public-exports | 5 | 13 | 5 |
-| 12 | `@beep/repo-codegraph` | `packages/tooling/library/repo-codegraph` | has-public-exports | 6 | 108 | 31 |
+| 12 | `@beep/repo-codegraph` | `packages/tooling/library/repo-codegraph` | has-public-exports | 6 | 153 | 42 |
 | 13 | `@beep/shared-domain` | `packages/shared/domain` | has-public-exports | 41 | 297 | 113 |
 | 14 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 15 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 16 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1700 | 622 |
+| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1744 | 635 |
 | 18 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 19 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 20 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 90 | 65 |
 | 21 | `@beep/law-practice-domain` | `packages/law-practice/domain` | has-public-exports | 6 | 36 | 8 |
-| 22 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 9 | 72 | 64 |
+| 22 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | has-public-exports | 10 | 86 | 74 |
 | 23 | `@beep/canvas-server` | `packages/canvas/server` | has-public-exports | 4 | 19 | 15 |
 | 24 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | has-public-exports | 13 | 166 | 67 |
 | 25 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | has-public-exports | 4 | 114 | 30 |
@@ -287,18 +287,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
-| `@beep/repo-codegraph` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:324` | Decode unknown input into a generated repo export catalog. |
+| `@beep/repo-codegraph` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:639` | Decode unknown input into a generated repo export catalog. |
+| `@beep/repo-codegraph` | `decodeRepoExportsCatalogIndex` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:652` | Decode unknown input into a compact repo export catalog index. |
+| `@beep/repo-codegraph` | `decodeRepoExportsCatalogShard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:665` | Decode unknown input into a package-local repo export catalog shard. |
 | `@beep/repo-codegraph` | `encodeRepoCodegraphLookupResult` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:389` | Encode a lookup result into its JSON-safe representation. |
 | `@beep/repo-codegraph` | `FromPackageResolution` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:61` | Resolved package and selector details for a lookup request. |
 | `@beep/repo-codegraph` | `LookupOptions` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:82` | Optional freshness and import-policy inputs for repo codegraph lookup. |
 | `@beep/repo-codegraph` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:607` | Lookup public repo exports by symbol name or free-text intent. |
 | `@beep/repo-codegraph` | `NormalizedPathLikeSelector` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:103` | Normalized path-like selector tokens used for catalog matching. |
-| `@beep/repo-codegraph` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:233` | Read package-local import policies from package.json metadata. |
-| `@beep/repo-codegraph` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:209` | Read and decode the generated repo export catalog from a repo root. |
+| `@beep/repo-codegraph` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:390` | Read package-local import policies from package.json metadata. |
+| `@beep/repo-codegraph` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:360` | Read and decode the generated repo export catalog from a repo root. |
 | `@beep/repo-codegraph` | `RepoCodegraphBoundaryAdvice` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:218` | Advisory architecture boundary note for a match. |
 | `@beep/repo-codegraph` | `RepoCodegraphBoundaryStatus` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:89` | Advisory boundary status for a candidate import. |
 | `@beep/repo-codegraph` | `RepoCodegraphBoundaryStatus` | type | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:107` | Runtime type for {@link RepoCodegraphBoundaryStatus}. |
-| `@beep/repo-codegraph` | `RepoCodegraphCatalogReadError` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:40` | Typed failure raised while reading repo-codegraph inputs. |
+| `@beep/repo-codegraph` | `RepoCodegraphCatalogReadError` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:51` | Typed failure raised while reading repo-codegraph inputs. |
 | `@beep/repo-codegraph` | `RepoCodegraphFreshnessStatus` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:58` | Freshness state for the export catalog used by a lookup. |
 | `@beep/repo-codegraph` | `RepoCodegraphFreshnessStatus` | type | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:76` | Runtime type for {@link RepoCodegraphFreshnessStatus}. |
 | `@beep/repo-codegraph` | `RepoCodegraphImportCandidate` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:188` | One legal import option for a matched symbol. |
@@ -311,30 +313,45 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph` | `RepoCodegraphLookupTotals` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:278` | Aggregate match counts for a lookup result. |
 | `@beep/repo-codegraph` | `RepoCodegraphPackageImportPolicy` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:365` | Package-local import policy consumed by lookup. |
 | `@beep/repo-codegraph` | `RepoCodegraphPreferredImport` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:333` | Preferred import rule recorded in package-local repo-codegraph policy. |
-| `@beep/repo-codegraph` | `RepoExportsCatalog` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:298` | Generated repo export catalog. |
+| `@beep/repo-codegraph` | `RepoExportsCatalog` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:613` | Generated repo export catalog. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogAuthority` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:93` | Current authority posture recorded by the export catalog. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogEntry` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:224` | One legal public export fact from the generated catalog. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogIndex` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:587` | Compact root index for package-local repo export catalog shards. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogIndexPackage` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:534` | One package entry in the compact root repo export catalog index. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogIndexSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:496` | Generated export catalog index schema version. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogIndexSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:514` | Runtime type for {@link RepoExportsCatalogIndexSchemaVersion}. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogIndexStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:465` | Generated export catalog index standard identifier. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogIndexStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:483` | Runtime type for {@link RepoExportsCatalogIndexStandard}. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogPackage` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:272` | Per-package export catalog entry. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogPackageCounts` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:183` | Per-package counts in the generated export catalog. |
-| `@beep/repo-codegraph` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:191` | Resolve the generated export catalog path for a repo root. |
+| `@beep/repo-codegraph` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:342` | Resolve the generated export catalog path for a repo root. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:56` | Generated export catalog schema version. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:74` | Runtime type for {@link RepoExportsCatalogSchemaVersion}. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogShard` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:440` | Package-local generated repo export catalog shard. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogShardFingerprint` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:394` | Deterministic content fingerprint for a repo export catalog shard. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogShardFingerprintInput` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:365` | One content input recorded in a repo export catalog shard fingerprint. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogShardSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:329` | Generated export catalog shard schema version. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogShardSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:347` | Runtime type for {@link RepoExportsCatalogShardSchemaVersion}. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogShardStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:298` | Generated export catalog shard standard identifier. |
+| `@beep/repo-codegraph` | `RepoExportsCatalogShardStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:316` | Runtime type for {@link RepoExportsCatalogShardStandard}. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogSource` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:121` | Source metadata for the generated export catalog. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:25` | Generated export catalog standard identifier. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:43` | Runtime type for {@link RepoExportsCatalogStandard}. |
 | `@beep/repo-codegraph` | `RepoExportsCatalogTotals` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:152` | Count metadata recorded in the generated export catalog. |
-| `@beep/repo-codegraph/index` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:324` | Decode unknown input into a generated repo export catalog. |
+| `@beep/repo-codegraph/index` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:639` | Decode unknown input into a generated repo export catalog. |
+| `@beep/repo-codegraph/index` | `decodeRepoExportsCatalogIndex` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:652` | Decode unknown input into a compact repo export catalog index. |
+| `@beep/repo-codegraph/index` | `decodeRepoExportsCatalogShard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:665` | Decode unknown input into a package-local repo export catalog shard. |
 | `@beep/repo-codegraph/index` | `encodeRepoCodegraphLookupResult` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:389` | Encode a lookup result into its JSON-safe representation. |
 | `@beep/repo-codegraph/index` | `FromPackageResolution` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:61` | Resolved package and selector details for a lookup request. |
 | `@beep/repo-codegraph/index` | `LookupOptions` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:82` | Optional freshness and import-policy inputs for repo codegraph lookup. |
 | `@beep/repo-codegraph/index` | `lookupRepoExports` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:607` | Lookup public repo exports by symbol name or free-text intent. |
 | `@beep/repo-codegraph/index` | `NormalizedPathLikeSelector` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts:103` | Normalized path-like selector tokens used for catalog matching. |
-| `@beep/repo-codegraph/index` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:233` | Read package-local import policies from package.json metadata. |
-| `@beep/repo-codegraph/index` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:209` | Read and decode the generated repo export catalog from a repo root. |
+| `@beep/repo-codegraph/index` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:390` | Read package-local import policies from package.json metadata. |
+| `@beep/repo-codegraph/index` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:360` | Read and decode the generated repo export catalog from a repo root. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphBoundaryAdvice` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:218` | Advisory architecture boundary note for a match. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphBoundaryStatus` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:89` | Advisory boundary status for a candidate import. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphBoundaryStatus` | type | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:107` | Runtime type for {@link RepoCodegraphBoundaryStatus}. |
-| `@beep/repo-codegraph/index` | `RepoCodegraphCatalogReadError` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:40` | Typed failure raised while reading repo-codegraph inputs. |
+| `@beep/repo-codegraph/index` | `RepoCodegraphCatalogReadError` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:51` | Typed failure raised while reading repo-codegraph inputs. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphFreshnessStatus` | const | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:58` | Freshness state for the export catalog used by a lookup. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphFreshnessStatus` | type | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:76` | Runtime type for {@link RepoCodegraphFreshnessStatus}. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphImportCandidate` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:188` | One legal import option for a matched symbol. |
@@ -347,14 +364,27 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph/index` | `RepoCodegraphLookupTotals` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:278` | Aggregate match counts for a lookup result. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphPackageImportPolicy` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:365` | Package-local import policy consumed by lookup. |
 | `@beep/repo-codegraph/index` | `RepoCodegraphPreferredImport` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:333` | Preferred import rule recorded in package-local repo-codegraph policy. |
-| `@beep/repo-codegraph/index` | `RepoExportsCatalog` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:298` | Generated repo export catalog. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalog` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:613` | Generated repo export catalog. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogAuthority` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:93` | Current authority posture recorded by the export catalog. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogEntry` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:224` | One legal public export fact from the generated catalog. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogIndex` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:587` | Compact root index for package-local repo export catalog shards. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogIndexPackage` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:534` | One package entry in the compact root repo export catalog index. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogIndexSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:496` | Generated export catalog index schema version. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogIndexSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:514` | Runtime type for {@link RepoExportsCatalogIndexSchemaVersion}. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogIndexStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:465` | Generated export catalog index standard identifier. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogIndexStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:483` | Runtime type for {@link RepoExportsCatalogIndexStandard}. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogPackage` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:272` | Per-package export catalog entry. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogPackageCounts` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:183` | Per-package counts in the generated export catalog. |
-| `@beep/repo-codegraph/index` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:191` | Resolve the generated export catalog path for a repo root. |
+| `@beep/repo-codegraph/index` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:342` | Resolve the generated export catalog path for a repo root. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:56` | Generated export catalog schema version. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:74` | Runtime type for {@link RepoExportsCatalogSchemaVersion}. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogShard` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:440` | Package-local generated repo export catalog shard. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogShardFingerprint` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:394` | Deterministic content fingerprint for a repo export catalog shard. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogShardFingerprintInput` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:365` | One content input recorded in a repo export catalog shard fingerprint. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogShardSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:329` | Generated export catalog shard schema version. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogShardSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:347` | Runtime type for {@link RepoExportsCatalogShardSchemaVersion}. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogShardStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:298` | Generated export catalog shard standard identifier. |
+| `@beep/repo-codegraph/index` | `RepoExportsCatalogShardStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:316` | Runtime type for {@link RepoExportsCatalogShardStandard}. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogSource` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:121` | Source metadata for the generated export catalog. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:25` | Generated export catalog standard identifier. |
 | `@beep/repo-codegraph/index` | `RepoExportsCatalogStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:43` | Runtime type for {@link RepoExportsCatalogStandard}. |
@@ -379,18 +409,33 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphLookupTotals` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:278` | Aggregate match counts for a lookup result. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphPackageImportPolicy` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:365` | Package-local import policy consumed by lookup. |
 | `@beep/repo-codegraph/RepoCodegraphLookup.model` | `RepoCodegraphPreferredImport` | class | `packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts:333` | Preferred import rule recorded in package-local repo-codegraph policy. |
-| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:233` | Read package-local import policies from package.json metadata. |
-| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:209` | Read and decode the generated repo export catalog from a repo root. |
-| `@beep/repo-codegraph/RepoExportsCatalog` | `RepoCodegraphCatalogReadError` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:40` | Typed failure raised while reading repo-codegraph inputs. |
-| `@beep/repo-codegraph/RepoExportsCatalog` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:191` | Resolve the generated export catalog path for a repo root. |
-| `@beep/repo-codegraph/RepoExportsCatalog.model` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:324` | Decode unknown input into a generated repo export catalog. |
-| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalog` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:298` | Generated repo export catalog. |
+| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoCodegraphImportPolicies` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:390` | Read package-local import policies from package.json metadata. |
+| `@beep/repo-codegraph/RepoExportsCatalog` | `readRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:360` | Read and decode the generated repo export catalog from a repo root. |
+| `@beep/repo-codegraph/RepoExportsCatalog` | `RepoCodegraphCatalogReadError` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:51` | Typed failure raised while reading repo-codegraph inputs. |
+| `@beep/repo-codegraph/RepoExportsCatalog` | `repoExportsCatalogPath` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts:342` | Resolve the generated export catalog path for a repo root. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `decodeRepoExportsCatalog` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:639` | Decode unknown input into a generated repo export catalog. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `decodeRepoExportsCatalogIndex` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:652` | Decode unknown input into a compact repo export catalog index. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `decodeRepoExportsCatalogShard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:665` | Decode unknown input into a package-local repo export catalog shard. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalog` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:613` | Generated repo export catalog. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogAuthority` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:93` | Current authority posture recorded by the export catalog. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogEntry` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:224` | One legal public export fact from the generated catalog. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogIndex` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:587` | Compact root index for package-local repo export catalog shards. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogIndexPackage` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:534` | One package entry in the compact root repo export catalog index. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogIndexSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:496` | Generated export catalog index schema version. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogIndexSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:514` | Runtime type for {@link RepoExportsCatalogIndexSchemaVersion}. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogIndexStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:465` | Generated export catalog index standard identifier. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogIndexStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:483` | Runtime type for {@link RepoExportsCatalogIndexStandard}. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogPackage` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:272` | Per-package export catalog entry. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogPackageCounts` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:183` | Per-package counts in the generated export catalog. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:56` | Generated export catalog schema version. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:74` | Runtime type for {@link RepoExportsCatalogSchemaVersion}. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogShard` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:440` | Package-local generated repo export catalog shard. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogShardFingerprint` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:394` | Deterministic content fingerprint for a repo export catalog shard. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogShardFingerprintInput` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:365` | One content input recorded in a repo export catalog shard fingerprint. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogShardSchemaVersion` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:329` | Generated export catalog shard schema version. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogShardSchemaVersion` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:347` | Runtime type for {@link RepoExportsCatalogShardSchemaVersion}. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogShardStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:298` | Generated export catalog shard standard identifier. |
+| `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogShardStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:316` | Runtime type for {@link RepoExportsCatalogShardStandard}. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogSource` | class | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:121` | Source metadata for the generated export catalog. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogStandard` | const | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:25` | Generated export catalog standard identifier. |
 | `@beep/repo-codegraph/RepoExportsCatalog.model` | `RepoExportsCatalogStandard` | type | `packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts:43` | Runtime type for {@link RepoExportsCatalogStandard}. |
@@ -835,14 +880,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
 | `@beep/repo-cli` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
-| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
+| `@beep/repo-cli` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1842` | Quality command group for repo operational checks. |
 | `@beep/repo-cli` | `reuseCommand` | const | `packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts:672` | Reuse-discovery command group. |
 | `@beep/repo-cli` | `rootCommand` | const | `packages/tooling/tool/cli/src/commands/Root.ts:46` | Top-level CLI command that registers all subcommands. |
 | `@beep/repo-cli` | `syncDataToTsCommand` | const | `packages/tooling/tool/cli/src/commands/SyncDataToTs/SyncDataToTs.command.ts:446` | CLI command for syncing official upstream datasets into checked-in TypeScript modules. |
 | `@beep/repo-cli` | `topoSortCommand` | const | `packages/tooling/tool/cli/src/commands/TopoSort/TopoSort.command.ts:33` | CLI command that builds the workspace dependency graph and prints package names |
 | `@beep/repo-cli` | `tsconfigSyncCommand` | const | `packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts:1846` | CLI command for synchronizing root and workspace tsconfig state. |
 | `@beep/repo-cli` | `versionSyncCommand` | const | `packages/tooling/tool/cli/src/commands/VersionSync/VersionSync.command.ts:54` | CLI command for synchronizing version pins across the monorepo. |
-| `@beep/repo-cli` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:91` | Command that repairs, verifies, or publishes repository work through Yeet. |
+| `@beep/repo-cli` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:109` | Command that repairs, verifies, or publishes repository work through Yeet. |
 | `@beep/repo-cli/commands/AgentEffectiveness` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/AgentEffectiveness.command` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
 | `@beep/repo-cli/commands/AgentEffectiveness/index` | `agentEffectivenessCommand` | const | `packages/tooling/tool/cli/src/commands/AgentEffectiveness/AgentEffectiveness.command.ts:657` | Agent-effectiveness root command. |
@@ -1048,17 +1093,17 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Docgen` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1112` | Human-first docgen command suite. |
 | `@beep/repo-cli/commands/Docgen/Docgen.command` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1112` | Human-first docgen command suite. |
 | `@beep/repo-cli/commands/Docgen/index` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1112` | Human-first docgen command suite. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `buildDocgenLocalPlan` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:850` | Build a local docgen plan from repository state and command options. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalFullReason` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:211` | Reason local docgen must escalate to the full proof. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `docgenLocalFullReasonsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:813` | Resolve changed files that require the full docgen proof. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:146` | Local docgen execution mode selected by the planner. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:165` | Local docgen execution mode selected by the planner. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalPlan` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:244` | Planned local docgen proof. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalSelectedPackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:184` | Package selected for a local docgen run. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `docgenLocalTurboArgsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:791` | Build Turbo argv for local docgen targets. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalTurboTask` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:279` | Turbo dry-run package summary used by local docgen. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `runDocgenLocal` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:884` | Run the bounded local docgen proof. |
-| `@beep/repo-cli/commands/Docgen/internal/Local` | `selectDocgenLocalPackagesForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:756` | Select package-local docgen targets for changed files. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `buildDocgenLocalPlan` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:884` | Build a local docgen plan from repository state and command options. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalFullReason` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:213` | Reason local docgen must escalate to the full proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `docgenLocalFullReasonsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:847` | Resolve changed files that require the full docgen proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:148` | Local docgen execution mode selected by the planner. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:167` | Local docgen execution mode selected by the planner. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalPlan` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:246` | Planned local docgen proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalSelectedPackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:186` | Package selected for a local docgen run. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `docgenLocalTurboArgsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:825` | Build Turbo argv for local docgen targets. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `DocgenLocalTurboTask` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:281` | Turbo dry-run package summary used by local docgen. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `runDocgenLocal` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:918` | Run the bounded local docgen proof. |
+| `@beep/repo-cli/commands/Docgen/internal/Local` | `selectDocgenLocalPackagesForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:790` | Select package-local docgen targets for changed files. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `aggregateGeneratedDocs` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1451` | Aggregate generated package docs into the current root docs layout. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1279` | Analyze a package for missing docgen-required JSDoc. |
 | `@beep/repo-cli/commands/Docgen/internal/Operations` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:464` | Fail when stale package-local docgen configs exist outside current workspaces. |
@@ -1866,11 +1911,25 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Purge/Purge.command` | `purgeCommand` | const | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:249` | CLI command to purge workspace/root build artifacts. |
 | `@beep/repo-cli/commands/Purge/Purge.command` | `PurgeSummary` | class | `packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts:127` | Summary statistics returned after a purge run. |
 | `@beep/repo-cli/commands/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1842` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/commands/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality` | `renderTurboConfigProofReport` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:534` | Render a scoped-config proof report as a compact human-readable summary. |
+| `@beep/repo-cli/commands/Quality` | `renderTurboConfigProofReportJson` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:509` | Render a scoped-config proof report as JSON. |
+| `@beep/repo-cli/commands/Quality` | `runTurboConfigProof` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:465` | Collect a Turbo scoped-config proof report. |
+| `@beep/repo-cli/commands/Quality` | `summarizeTurboDryRunOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:377` | Summarize `turbo run --dry-run=json` output. |
+| `@beep/repo-cli/commands/Quality` | `summarizeTurboQueryAffectedOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:343` | Convert `turbo query affected` JSON into package, task, and reason counts. |
+| `@beep/repo-cli/commands/Quality` | `TurboConfigProofCountSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:145` | Count summary for a Turbo proof probe. |
+| `@beep/repo-cli/commands/Quality` | `TurboConfigProofDryRunSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:166` | Per-task dry-run proof summary. |
+| `@beep/repo-cli/commands/Quality` | `TurboConfigProofError` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:91` | Typed error raised while collecting Turbo scoped-config proof data. |
+| `@beep/repo-cli/commands/Quality` | `TurboConfigProofOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:207` | Options for collecting a scoped-config proof report. |
+| `@beep/repo-cli/commands/Quality` | `TurboConfigProofReport` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:186` | Complete scoped-config proof report. |
+| `@beep/repo-cli/commands/Quality` | `TurboConfigProofSelectorMode` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:66` | Selector mode used for Turbo dry-run proof. |
+| `@beep/repo-cli/commands/Quality` | `TurboConfigProofSelectorMode` | type | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:83` | Selector mode used for Turbo dry-run proof. |
+| `@beep/repo-cli/commands/Quality` | `TurboConfigProofTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:36` | Turbo task names supported by the scoped-config proof harness. |
+| `@beep/repo-cli/commands/Quality` | `TurboConfigProofTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:53` | Turbo task name supported by the scoped-config proof harness. |
 | `@beep/repo-cli/commands/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:72` | A package name referenced by a changeset file. |
@@ -1880,38 +1939,52 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
 | `@beep/repo-cli/commands/Quality/ChangesetGraph` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
 | `@beep/repo-cli/commands/Quality/index` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
-| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/index` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1842` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/index` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
+| `@beep/repo-cli/commands/Quality/index` | `renderTurboConfigProofReport` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:534` | Render a scoped-config proof report as a compact human-readable summary. |
+| `@beep/repo-cli/commands/Quality/index` | `renderTurboConfigProofReportJson` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:509` | Render a scoped-config proof report as JSON. |
+| `@beep/repo-cli/commands/Quality/index` | `runTurboConfigProof` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:465` | Collect a Turbo scoped-config proof report. |
+| `@beep/repo-cli/commands/Quality/index` | `summarizeTurboDryRunOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:377` | Summarize `turbo run --dry-run=json` output. |
+| `@beep/repo-cli/commands/Quality/index` | `summarizeTurboQueryAffectedOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:343` | Convert `turbo query affected` JSON into package, task, and reason counts. |
+| `@beep/repo-cli/commands/Quality/index` | `TurboConfigProofCountSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:145` | Count summary for a Turbo proof probe. |
+| `@beep/repo-cli/commands/Quality/index` | `TurboConfigProofDryRunSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:166` | Per-task dry-run proof summary. |
+| `@beep/repo-cli/commands/Quality/index` | `TurboConfigProofError` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:91` | Typed error raised while collecting Turbo scoped-config proof data. |
+| `@beep/repo-cli/commands/Quality/index` | `TurboConfigProofOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:207` | Options for collecting a scoped-config proof report. |
+| `@beep/repo-cli/commands/Quality/index` | `TurboConfigProofReport` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:186` | Complete scoped-config proof report. |
+| `@beep/repo-cli/commands/Quality/index` | `TurboConfigProofSelectorMode` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:66` | Selector mode used for Turbo dry-run proof. |
+| `@beep/repo-cli/commands/Quality/index` | `TurboConfigProofSelectorMode` | type | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:83` | Selector mode used for Turbo dry-run proof. |
+| `@beep/repo-cli/commands/Quality/index` | `TurboConfigProofTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:36` | Turbo task names supported by the scoped-config proof harness. |
+| `@beep/repo-cli/commands/Quality/index` | `TurboConfigProofTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:53` | Turbo task name supported by the scoped-config proof harness. |
 | `@beep/repo-cli/commands/Quality/index` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:866` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:142` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:876` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:152` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:165` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1842` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/commands/Quality/Quality.command` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:358` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1203` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:618` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1523` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1446` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1614` | Run the repo-wide JSDoc quality gate. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1558` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1249` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1012` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1345` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:368` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1213` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:628` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1533` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1456` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1643` | Run the repo-wide JSDoc quality gate. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1568` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1259` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1022` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/commands/Quality/Quality.command` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1355` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
 | `@beep/repo-cli/commands/Quality/Quality.errors` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1336` | Collect existing changed files for the root lint fix fast path. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1305` | Run a subprocess and capture all output. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `lintFixChangedStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1351` | Build the root lint fix changed-file step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1507` | Collect existing changed files for the root lint fix fast path. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1476` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `lintFixChangedStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1522` | Build the root lint fix changed-file step. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Package-local script profile used by the quality task adapter. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1199` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/commands/Quality/Tasks` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1370` | Parse a raw argv vector into a quality task invocation when the first token is |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskGroupFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:198` | Error raised when a bounded quality task group completes with failed steps. |
@@ -1919,14 +1992,15 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:75` | Canonical quality task name. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:92` | Canonical quality task name. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:136` | Planned subprocess invocation. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1096` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1243` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1273` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1322` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:903` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:917` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:884` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1256` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1414` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1444` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1493` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1063` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1077` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1044` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
 | `@beep/repo-cli/commands/Quality/Tasks` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/commands/Quality/Tasks` | `workspaceTaskFiltersForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:522` | Resolve Turbo filters for workspace packages that define a script. |
 | `@beep/repo-cli/commands/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/commands/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
 | `@beep/repo-cli/commands/Reuse` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
@@ -2129,12 +2203,12 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Yeet` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:138` | Specialist routing hint for one issue. |
 | `@beep/repo-cli/commands/Yeet` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:85` | Blocking level assigned to a normalized yeet quality finding. |
 | `@beep/repo-cli/commands/Yeet` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:97` | Type-level union of yeet quality severity literals. |
-| `@beep/repo-cli/commands/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:91` | Command that repairs, verifies, or publishes repository work through Yeet. |
+| `@beep/repo-cli/commands/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:109` | Command that repairs, verifies, or publishes repository work through Yeet. |
 | `@beep/repo-cli/commands/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
 | `@beep/repo-cli/commands/Yeet` | `YeetRunMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:58` | Yeet execution modes. |
 | `@beep/repo-cli/commands/Yeet` | `YeetRunMode` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:70` | Yeet execution modes. |
-| `@beep/repo-cli/commands/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:150` | Runtime options accepted by the yeet handler. |
-| `@beep/repo-cli/commands/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:178` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/commands/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:171` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/commands/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:201` | Result returned by a yeet execution attempt. |
 | `@beep/repo-cli/commands/Yeet/index` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
 | `@beep/repo-cli/commands/Yeet/index` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
 | `@beep/repo-cli/commands/Yeet/index` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
@@ -2145,13 +2219,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Yeet/index` | `QualityIssueRouting` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:138` | Specialist routing hint for one issue. |
 | `@beep/repo-cli/commands/Yeet/index` | `QualityIssueSeverity` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:85` | Blocking level assigned to a normalized yeet quality finding. |
 | `@beep/repo-cli/commands/Yeet/index` | `QualityIssueSeverity` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:97` | Type-level union of yeet quality severity literals. |
-| `@beep/repo-cli/commands/Yeet/index` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:91` | Command that repairs, verifies, or publishes repository work through Yeet. |
+| `@beep/repo-cli/commands/Yeet/index` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:109` | Command that repairs, verifies, or publishes repository work through Yeet. |
 | `@beep/repo-cli/commands/Yeet/index` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
 | `@beep/repo-cli/commands/Yeet/index` | `YeetRunMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:58` | Yeet execution modes. |
 | `@beep/repo-cli/commands/Yeet/index` | `YeetRunMode` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:70` | Yeet execution modes. |
-| `@beep/repo-cli/commands/Yeet/index` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:150` | Runtime options accepted by the yeet handler. |
-| `@beep/repo-cli/commands/Yeet/index` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:178` | Result returned by a yeet execution attempt. |
-| `@beep/repo-cli/commands/Yeet/Yeet.command` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:91` | Command that repairs, verifies, or publishes repository work through Yeet. |
+| `@beep/repo-cli/commands/Yeet/index` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:171` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/commands/Yeet/index` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:201` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/commands/Yeet/Yeet.command` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:109` | Command that repairs, verifies, or publishes repository work through Yeet. |
 | `@beep/repo-cli/commands/Yeet/Yeet.errors` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdate` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:671` | Check whether config entries already exist (for dry-run output). |
 | `@beep/repo-cli/test/CreatePackage` | `checkConfigNeedsUpdateForTargets` | const | `packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts:589` | Batch read-only drift checker for root config updates. |
@@ -2184,7 +2258,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Docgen` | `analyzePackageDocumentation` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1279` | Analyze a package for missing docgen-required JSDoc. |
 | `@beep/repo-cli/test/Docgen` | `analyzePackageQuality` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:1922` | Builds a package-local quality report from ts-morph-enriched subjects. |
 | `@beep/repo-cli/test/Docgen` | `assertNoOrphanDocgenConfigPaths` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:464` | Fail when stale package-local docgen configs exist outside current workspaces. |
-| `@beep/repo-cli/test/Docgen` | `buildDocgenLocalPlan` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:850` | Build a local docgen plan from repository state and command options. |
+| `@beep/repo-cli/test/Docgen` | `buildDocgenLocalPlan` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:884` | Build a local docgen plan from repository state and command options. |
 | `@beep/repo-cli/test/Docgen` | `createDocgenConfigDocument` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1142` | Build the repo-standard `docgen.json` document for a package. |
 | `@beep/repo-cli/test/Docgen` | `decodeDocgenQualityReportForWorkerEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1122` | Decode a saved `docgen quality` JSON report for worker eval. |
 | `@beep/repo-cli/test/Docgen` | `defaultQualityWorkerEvalPacketLimit` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:1159` | Default packet cap for `docgen quality-worker-eval`. |
@@ -2205,14 +2279,14 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Docgen` | `DocgenGenerationResult` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:294` | Per-package docgen generation result. |
 | `@beep/repo-cli/test/Docgen` | `DocgenIssuePriority` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:180` | Issue priority used by analysis findings. |
 | `@beep/repo-cli/test/Docgen` | `DocgenIssuePriority` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:191` | Issue priority used by analysis findings. |
-| `@beep/repo-cli/test/Docgen` | `DocgenLocalFullReason` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:211` | Reason local docgen must escalate to the full proof. |
-| `@beep/repo-cli/test/Docgen` | `docgenLocalFullReasonsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:813` | Resolve changed files that require the full docgen proof. |
-| `@beep/repo-cli/test/Docgen` | `DocgenLocalMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:146` | Local docgen execution mode selected by the planner. |
-| `@beep/repo-cli/test/Docgen` | `DocgenLocalMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:165` | Local docgen execution mode selected by the planner. |
-| `@beep/repo-cli/test/Docgen` | `DocgenLocalPlan` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:244` | Planned local docgen proof. |
-| `@beep/repo-cli/test/Docgen` | `DocgenLocalSelectedPackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:184` | Package selected for a local docgen run. |
-| `@beep/repo-cli/test/Docgen` | `docgenLocalTurboArgsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:791` | Build Turbo argv for local docgen targets. |
-| `@beep/repo-cli/test/Docgen` | `DocgenLocalTurboTask` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:279` | Turbo dry-run package summary used by local docgen. |
+| `@beep/repo-cli/test/Docgen` | `DocgenLocalFullReason` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:213` | Reason local docgen must escalate to the full proof. |
+| `@beep/repo-cli/test/Docgen` | `docgenLocalFullReasonsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:847` | Resolve changed files that require the full docgen proof. |
+| `@beep/repo-cli/test/Docgen` | `DocgenLocalMode` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:148` | Local docgen execution mode selected by the planner. |
+| `@beep/repo-cli/test/Docgen` | `DocgenLocalMode` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:167` | Local docgen execution mode selected by the planner. |
+| `@beep/repo-cli/test/Docgen` | `DocgenLocalPlan` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:246` | Planned local docgen proof. |
+| `@beep/repo-cli/test/Docgen` | `DocgenLocalSelectedPackage` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:186` | Package selected for a local docgen run. |
+| `@beep/repo-cli/test/Docgen` | `docgenLocalTurboArgsForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:825` | Build Turbo argv for local docgen targets. |
+| `@beep/repo-cli/test/Docgen` | `DocgenLocalTurboTask` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:281` | Turbo dry-run package summary used by local docgen. |
 | `@beep/repo-cli/test/Docgen` | `DocgenPackageAnalysis` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:275` | Package-level analysis document written by `docgen analyze`. |
 | `@beep/repo-cli/test/Docgen` | `DocgenPackageStatus` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:101` | Workspace docgen status derived from config and generated output presence. |
 | `@beep/repo-cli/test/Docgen` | `DocgenPackageStatus` | type | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:116` | Workspace docgen status derived from config and generated output presence. |
@@ -2259,10 +2333,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Docgen` | `resolveDocgenQualityTargets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts:598` | Resolves `docgen quality` targets using the v1 scope policy. |
 | `@beep/repo-cli/test/Docgen` | `resolveDocgenWorkspacePackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1227` | Resolve a workspace package by package name, repo-relative path, absolute path, or current docs output path. |
 | `@beep/repo-cli/test/Docgen` | `runDocgenForPackage` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts:1596` | Run the repo-local `@beep/repo-docgen` implementation for a single workspace package. |
-| `@beep/repo-cli/test/Docgen` | `runDocgenLocal` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:884` | Run the bounded local docgen proof. |
+| `@beep/repo-cli/test/Docgen` | `runDocgenLocal` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:918` | Run the bounded local docgen proof. |
 | `@beep/repo-cli/test/Docgen` | `runDocgenQualityWorkerRunpodEval` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:1060` | Run a read-only JSDoc quality worker eval on an ephemeral Runpod pod. |
 | `@beep/repo-cli/test/Docgen` | `RunDocgenQualityWorkerRunpodEvalOptions` | class | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:262` | Options for a Runpod-backed quality worker eval run. |
-| `@beep/repo-cli/test/Docgen` | `selectDocgenLocalPackagesForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:756` | Select package-local docgen targets for changed files. |
+| `@beep/repo-cli/test/Docgen` | `selectDocgenLocalPackagesForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:790` | Select package-local docgen targets for changed files. |
 | `@beep/repo-cli/test/Docgen` | `selectQualityWorkerEvalPackets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:723` | Select remediation packets for a capped worker eval run. |
 | `@beep/repo-cli/test/Docgen` | `selectQualityWorkerRunpodTemplate` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:394` | Select the first suitable Ollama template from live Runpod templates. |
 | `@beep/repo-cli/test/Graphiti` | `ContainerHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:55` | Container health literal union. |
@@ -2322,21 +2396,21 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesPersistenceError` | class | `packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts:126` | Failure raised when terse Effect rule updates cannot be written. |
 | `@beep/repo-cli/test/Laws` | `TerseEffectRulesSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts:61` | Summary of terse Effect style migration results. |
 | `@beep/repo-cli/test/Quality` | `buildJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:947` | Build the deterministic JSDoc documentation inventory for a repository. |
-| `@beep/repo-cli/test/Quality` | `buildRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:634` | Build the deterministic repo export catalog for a repository. |
+| `@beep/repo-cli/test/Quality` | `buildRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:786` | Build the deterministic repo export catalog for a repository. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:43` | Failure raised while validating changeset package references. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphPackageReference` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:72` | A package name referenced by a changeset file. |
 | `@beep/repo-cli/test/Quality` | `ChangesetGraphSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:102` | Summary emitted by the changeset package graph guard. |
 | `@beep/repo-cli/test/Quality` | `changesetPackageReferencesFromText` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:309` | Parse package references from one changeset Markdown document. |
-| `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:866` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
-| `@beep/repo-cli/test/Quality` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1336` | Collect existing changed files for the root lint fix fast path. |
-| `@beep/repo-cli/test/Quality` | `collectPackageVerifyChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:651` | Collect changed paths used for package verification auto-detection. |
-| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1305` | Run a subprocess and capture all output. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `collectEffectTsgoDiagnosticLines` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:876` | Collect Effect tsgo diagnostics from command output regardless of process exit code. |
+| `@beep/repo-cli/test/Quality` | `collectLintFixChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1507` | Collect existing changed files for the root lint fix fast path. |
+| `@beep/repo-cli/test/Quality` | `collectPackageVerifyChangedFilesForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:653` | Collect changed paths used for package verification auto-detection. |
+| `@beep/repo-cli/test/Quality` | `collectStepOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1476` | Run a subprocess and capture all output. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `findMissingChangesetPackageReferences` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:402` | Find changeset package references that are not in the workspace graph. |
-| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:142` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:155` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:152` | GitHub check mode handled by `beep quality github-checks`. |
+| `@beep/repo-cli/test/Quality` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:165` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:140` | Options for building or writing the JSDoc documentation inventory. |
 | `@beep/repo-cli/test/Quality` | `JSDocDocumentationInventoryWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:160` | Result returned after writing JSDoc inventory artifacts. |
-| `@beep/repo-cli/test/Quality` | `lintFixChangedStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1351` | Build the root lint fix changed-file step. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `lintFixChangedStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1522` | Build the root lint fix changed-file step. Exposed for focused unit tests. |
 | `@beep/repo-cli/test/Quality` | `makeChangesetGraphSummary` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:449` | Build a changeset graph summary from already-collected inputs. |
 | `@beep/repo-cli/test/Quality` | `PackageTaskProfile` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:109` | Package-local script profile used by the quality task adapter. |
 | `@beep/repo-cli/test/Quality` | `PackageVerifyReport` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:171` | Package verification report. |
@@ -2344,10 +2418,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `PackageVerifyStepName` | type | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:60` | Verification step names run by `quality package-verify`. |
 | `@beep/repo-cli/test/Quality` | `PackageVerifyStepResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:138` | Package verification subprocess result. |
 | `@beep/repo-cli/test/Quality` | `PackageVerifyStepSpec` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:106` | Package verification step specification. |
-| `@beep/repo-cli/test/Quality` | `packageVerifyStepSpecsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:636` | Build package verification step specs. Exposed for focused tests. |
+| `@beep/repo-cli/test/Quality` | `packageVerifyStepSpecsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:638` | Build package verification step specs. Exposed for focused tests. |
 | `@beep/repo-cli/test/Quality` | `PackageVerifyWorkspace` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:79` | Workspace package candidate used by package verification. |
-| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1199` | Parse a raw argv vector into a quality task invocation when the first token is |
-| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1741` | Quality command group for repo operational checks. |
+| `@beep/repo-cli/test/Quality` | `parseQualityTaskInvocation` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1370` | Parse a raw argv vector into a quality task invocation when the first token is |
+| `@beep/repo-cli/test/Quality` | `qualityCommand` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1842` | Quality command group for repo operational checks. |
 | `@beep/repo-cli/test/Quality` | `QualityScriptCommandError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:88` | Typed failure for repo operational commands. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskConfigurationError` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:245` | Error raised when a quality task cannot resolve its required configuration. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskFailed` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:144` | Error raised when a quality task subprocess exits unsuccessfully. |
@@ -2356,33 +2430,48 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Quality` | `QualityTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:75` | Canonical quality task name. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:92` | Canonical quality task name. |
 | `@beep/repo-cli/test/Quality` | `QualityTaskStep` | class | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:136` | Planned subprocess invocation. |
-| `@beep/repo-cli/test/Quality` | `renderPackageVerifyReportForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:555` | Render a package verification report for terminal output. |
-| `@beep/repo-cli/test/Quality` | `RepoExportsCatalogOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:119` | Options for building, writing, or checking the repo export catalog. |
-| `@beep/repo-cli/test/Quality` | `RepoExportsCatalogWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:137` | Result returned after writing or checking repo export catalog artifacts. |
-| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1096` | Build root quality task subprocess steps. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:358` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
+| `@beep/repo-cli/test/Quality` | `renderPackageVerifyReportForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:557` | Render a package verification report for terminal output. |
+| `@beep/repo-cli/test/Quality` | `renderTurboConfigProofReport` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:534` | Render a scoped-config proof report as a compact human-readable summary. |
+| `@beep/repo-cli/test/Quality` | `renderTurboConfigProofReportJson` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:509` | Render a scoped-config proof report as JSON. |
+| `@beep/repo-cli/test/Quality` | `RepoExportsCatalogOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:175` | Options for building, writing, or checking the repo export catalog. |
+| `@beep/repo-cli/test/Quality` | `RepoExportsCatalogWriteResult` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:197` | Result returned after writing or checking repo export catalog artifacts. |
+| `@beep/repo-cli/test/Quality` | `rootQualityStepsForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1256` | Build root quality task subprocess steps. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runBunAudit` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:368` | Run Bun's high-severity package audit with OSV ignores mirrored from config. |
 | `@beep/repo-cli/test/Quality` | `runChangesetGraphCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts:464` | Run the non-mutating changeset package graph guard. |
-| `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1203` | Run repo-wide tsgo diagnostics for dtslint files. |
-| `@beep/repo-cli/test/Quality` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:618` | Run a GitHub checks mode from the repository root. |
-| `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1523` | Run the JSDoc inventory generator now owned by repo-cli. |
-| `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1446` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
-| `@beep/repo-cli/test/Quality` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1614` | Run the repo-wide JSDoc quality gate. |
+| `@beep/repo-cli/test/Quality` | `runDtslintTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1213` | Run repo-wide tsgo diagnostics for dtslint files. |
+| `@beep/repo-cli/test/Quality` | `runGithubChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:628` | Run a GitHub checks mode from the repository root. |
+| `@beep/repo-cli/test/Quality` | `runJSDocInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1533` | Run the JSDoc inventory generator now owned by repo-cli. |
+| `@beep/repo-cli/test/Quality` | `runJSDocModuleTagsCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1456` | Verify tracked fileoverview comments do not use the legacy `@module` tag. |
+| `@beep/repo-cli/test/Quality` | `runJSDocQuality` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1643` | Run the repo-wide JSDoc quality gate. |
 | `@beep/repo-cli/test/Quality` | `runPackageVerify` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:499` | Run package-local verification for a workspace package. |
-| `@beep/repo-cli/test/Quality` | `runPackageVerifyCli` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:595` | Run package verification and render the CLI result. |
-| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1243` | Run a parsed quality task in either repo-root or package-local mode. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1273` | Run a quality task directly from a raw argv vector. |
-| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1322` | Run a bounded quality task group. Exposed for focused unit tests. |
-| `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1558` | Run the repo export catalog generator now owned by repo-cli. |
-| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:903` | Run the SQL integration lane with an injected resource and child command. |
-| `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1249` | Run repo-wide Effect diagnostics for test files. |
-| `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1012` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
-| `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1345` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/test/Quality` | `runPackageVerifyCli` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:597` | Run package verification and render the CLI result. |
+| `@beep/repo-cli/test/Quality` | `runQualityTask` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1414` | Run a parsed quality task in either repo-root or package-local mode. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskIfRequested` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1444` | Run a quality task directly from a raw argv vector. |
+| `@beep/repo-cli/test/Quality` | `runQualityTaskStepGroupForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1493` | Run a bounded quality task group. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `runRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1568` | Run the repo export catalog generator now owned by repo-cli. |
+| `@beep/repo-cli/test/Quality` | `runSqlIntegrationTestLaneForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1063` | Run the SQL integration lane with an injected resource and child command. |
+| `@beep/repo-cli/test/Quality` | `runTestTsgoChecks` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1259` | Run repo-wide Effect diagnostics for test files. |
+| `@beep/repo-cli/test/Quality` | `runTsgoRulesCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1022` | Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error. |
+| `@beep/repo-cli/test/Quality` | `runTsgoSmokeCheck` | const | `packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts:1355` | Verify that tsgo reports the Effect diagnostic expected by this repo. |
+| `@beep/repo-cli/test/Quality` | `runTurboConfigProof` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:465` | Collect a Turbo scoped-config proof report. |
 | `@beep/repo-cli/test/Quality` | `selectPackageVerifyTargetForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/PackageVerify.ts:321` | Resolve the package target for package verification. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:917` | Resolve the SQL integration database connection URI from environment variables. |
-| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:884` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationConnectionUriFromEnvForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1077` | Resolve the SQL integration database connection URI from environment variables. |
+| `@beep/repo-cli/test/Quality` | `sqlIntegrationStepForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:1044` | Build the SQL integration test subprocess step. Exposed for focused unit tests. |
+| `@beep/repo-cli/test/Quality` | `summarizeTurboDryRunOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:377` | Summarize `turbo run --dry-run=json` output. |
+| `@beep/repo-cli/test/Quality` | `summarizeTurboQueryAffectedOutput` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:343` | Convert `turbo query affected` JSON into package, task, and reason counts. |
+| `@beep/repo-cli/test/Quality` | `TurboConfigProofCountSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:145` | Count summary for a Turbo proof probe. |
+| `@beep/repo-cli/test/Quality` | `TurboConfigProofDryRunSummary` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:166` | Per-task dry-run proof summary. |
+| `@beep/repo-cli/test/Quality` | `TurboConfigProofError` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:91` | Typed error raised while collecting Turbo scoped-config proof data. |
+| `@beep/repo-cli/test/Quality` | `TurboConfigProofOptions` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:207` | Options for collecting a scoped-config proof report. |
+| `@beep/repo-cli/test/Quality` | `TurboConfigProofReport` | class | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:186` | Complete scoped-config proof report. |
+| `@beep/repo-cli/test/Quality` | `TurboConfigProofSelectorMode` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:66` | Selector mode used for Turbo dry-run proof. |
+| `@beep/repo-cli/test/Quality` | `TurboConfigProofSelectorMode` | type | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:83` | Selector mode used for Turbo dry-run proof. |
+| `@beep/repo-cli/test/Quality` | `TurboConfigProofTaskName` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:36` | Turbo task names supported by the scoped-config proof harness. |
+| `@beep/repo-cli/test/Quality` | `TurboConfigProofTaskName` | type | `packages/tooling/tool/cli/src/commands/Quality/internal/TurboConfigProof.ts:53` | Turbo task name supported by the scoped-config proof harness. |
 | `@beep/repo-cli/test/Quality` | `UnexpectedQualityTaskFailure` | class | `packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts:277` | Error raised when an unexpected quality task cause reaches the command boundary. |
+| `@beep/repo-cli/test/Quality` | `workspaceTaskFiltersForTesting` | const | `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts:522` | Resolve Turbo filters for workspace packages that define a script. |
 | `@beep/repo-cli/test/Quality` | `writeJSDocDocumentationInventory` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts:995` | Write JSDoc inventory JSONC and Markdown artifacts. |
-| `@beep/repo-cli/test/Quality` | `writeOrCheckRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:698` | Write or freshness-check repo export catalog JSONC and Markdown artifacts. |
+| `@beep/repo-cli/test/Quality` | `writeOrCheckRepoExportsCatalog` | const | `packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts:1080` | Write or freshness-check repo export catalog JSONC and Markdown artifacts. |
 | `@beep/repo-cli/test/Reuse` | `buildCloneDocument` | const | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:116` | Build a sorted, deterministic baseline document from clone candidates. |
 | `@beep/repo-cli/test/Reuse` | `CloneBaselineDocument` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:67` | Committed baseline of acknowledged structural-clone clusters for the ratchet. |
 | `@beep/repo-cli/test/Reuse` | `CloneBaselineEntry` | class | `packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts:39` | One acknowledged structural-clone cluster recorded in the committed baseline. |
@@ -2455,27 +2544,27 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncResolution` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:382` | Resolver output consumed by reporting and write-mode services. |
 | `@beep/repo-cli/test/VersionSync` | `VersionSyncUpdateLocation` | class | `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts:366` | YAML location to update in write mode. |
 | `@beep/repo-cli/test/Yeet` | `buildQualityIssueIndex` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:716` | Build a schema-first issue index from normalized issues. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:340` | Build the publish-mode yeet run plan. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1068` | Build a plan for tests without reading repository state. |
-| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanWithMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:302` | Build a yeet run plan for a specific mode. |
-| `@beep/repo-cli/test/Yeet` | `byRepoPlanStepAscending` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:375` | Order repository plan steps by phase, then identifier. |
-| `@beep/repo-cli/test/Yeet` | `commandTextForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:417` | Render a planned step as a shell-like command string. |
-| `@beep/repo-cli/test/Yeet` | `decodeTurboPlanTasksFromQueryJsonForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:656` | Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlan` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:387` | Build the publish-mode yeet run plan. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1238` | Build a plan for tests without reading repository state. |
+| `@beep/repo-cli/test/Yeet` | `buildYeetRunPlanWithMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:349` | Build a yeet run plan for a specific mode. |
+| `@beep/repo-cli/test/Yeet` | `byRepoPlanStepAscending` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:376` | Order repository plan steps by phase, then identifier. |
+| `@beep/repo-cli/test/Yeet` | `commandTextForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:418` | Render a planned step as a shell-like command string. |
+| `@beep/repo-cli/test/Yeet` | `decodeTurboPlanTasksFromQueryJsonForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:801` | Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests. |
 | `@beep/repo-cli/test/Yeet` | `DEFAULT_YEET_PACKET_DIR` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:34` | Default ignored directory for yeet run artifacts. |
-| `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1087` | Construct baseline yeet options for focused tests. |
-| `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:163` | Create an empty Turbo metadata snapshot. |
-| `@beep/repo-cli/test/Yeet` | `enforceConservativeResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:456` | Ensure a step's resume field follows v1 safety rules. |
+| `@beep/repo-cli/test/Yeet` | `defaultYeetRunOptions` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1263` | Construct baseline yeet options for focused tests. |
+| `@beep/repo-cli/test/Yeet` | `emptyTurboPlanSnapshot` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:165` | Create an empty Turbo metadata snapshot. |
+| `@beep/repo-cli/test/Yeet` | `enforceConservativeResume` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:457` | Ensure a step's resume field follows v1 safety rules. |
 | `@beep/repo-cli/test/Yeet` | `executeRepoPlanStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:162` | Execute a planned repository step and optionally persist its raw output. |
 | `@beep/repo-cli/test/Yeet` | `GITHUB_CHECK_MODE_VALUES` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts:26` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Yeet` | `GithubCheckMode` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts:42` | GitHub check mode handled by `beep quality github-checks`. |
 | `@beep/repo-cli/test/Yeet` | `GithubCheckMode` | type | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts:54` | GitHub check mode handled by `beep quality github-checks`. |
-| `@beep/repo-cli/test/Yeet` | `gitPathListFromNulOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:260` | Parse NUL-delimited Git path output for Yeet publish-safety tests. |
-| `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:705` | Hydrate a shared yeet run context from repository state. |
-| `@beep/repo-cli/test/Yeet` | `isConservativeResumeCandidate` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:445` | Determine whether a planned step may use conservative resume metadata. |
-| `@beep/repo-cli/test/Yeet` | `jsonObjectTextFromMixedOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:537` | Extract the last decodable JSON object from mixed command output for tests. |
+| `@beep/repo-cli/test/Yeet` | `gitPathListFromNulOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:283` | Parse NUL-delimited Git path output for Yeet publish-safety tests. |
+| `@beep/repo-cli/test/Yeet` | `hydrateYeetRunContext` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:842` | Hydrate a shared yeet run context from repository state. |
+| `@beep/repo-cli/test/Yeet` | `isConservativeResumeCandidate` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:446` | Determine whether a planned step may use conservative resume metadata. |
+| `@beep/repo-cli/test/Yeet` | `jsonObjectTextFromMixedOutputForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:658` | Extract the last decodable JSON object from mixed command output for tests. |
 | `@beep/repo-cli/test/Yeet` | `PackageQualityReport` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:224` | Package-level issue report rendered into a quality packet. |
-| `@beep/repo-cli/test/Yeet` | `publishPathsOutsideIntentForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:268` | Return observed paths that are not part of the reviewed Yeet publish intent. |
-| `@beep/repo-cli/test/Yeet` | `publishRestagePathsForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:277` | Return reviewed paths that can be passed to `git add` without failing on |
+| `@beep/repo-cli/test/Yeet` | `publishPathsOutsideIntentForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:291` | Return observed paths that are not part of the reviewed Yeet publish intent. |
+| `@beep/repo-cli/test/Yeet` | `publishRestagePathsForTesting` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:300` | Return reviewed paths that can be passed to `git add` without failing on |
 | `@beep/repo-cli/test/Yeet` | `QualityIssue` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:170` | One normalized quality issue. |
 | `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:44` | Classification domain for normalized yeet quality findings. |
 | `@beep/repo-cli/test/Yeet` | `QualityIssueCategory` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts:71` | Type-level union of normalized yeet quality finding categories. |
@@ -2508,20 +2597,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Yeet` | `RepoStepRunResult` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:346` | Captured subprocess result for a planned step. |
 | `@beep/repo-cli/test/Yeet` | `resolveLocalRepoBinary` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:203` | Resolve a local node_modules binary when present. |
 | `@beep/repo-cli/test/Yeet` | `runRepoCommandCapture` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts:92` | Execute a command and capture combined output. |
-| `@beep/repo-cli/test/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1042` | Run yeet with the provided options. |
+| `@beep/repo-cli/test/Yeet` | `runYeet` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:1207` | Run yeet with the provided options. |
 | `@beep/repo-cli/test/Yeet` | `TurboPlanSnapshot` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:214` | Turbo snapshot stored in the shared run context. |
 | `@beep/repo-cli/test/Yeet` | `TurboPlanTask` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:162` | Turbo task metadata captured from dry-runs or summaries. |
-| `@beep/repo-cli/test/Yeet` | `turboTaskForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:473` | Lookup Turbo metadata for a planned step, if available. |
+| `@beep/repo-cli/test/Yeet` | `turboTaskForStep` | const | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:474` | Lookup Turbo metadata for a planned step, if available. |
 | `@beep/repo-cli/test/Yeet` | `TurboWorkspacePackage` | class | `packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts:191` | Workspace package metadata captured from Turbo graph queries. |
 | `@beep/repo-cli/test/Yeet` | `YEET_FEEDBACK_TASKS` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:42` | Turbo tasks used by the Yeet feedback phase. |
-| `@beep/repo-cli/test/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:91` | Command that repairs, verifies, or publishes repository work through Yeet. |
+| `@beep/repo-cli/test/Yeet` | `yeetCommand` | const | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts:109` | Command that repairs, verifies, or publishes repository work through Yeet. |
 | `@beep/repo-cli/test/Yeet` | `YeetCommandError` | class | `packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts:40` | Operational error raised by the yeet command. |
-| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:357` | Return plan phases in execution order. |
+| `@beep/repo-cli/test/Yeet` | `yeetPlanPhases` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:408` | Return plan phases in execution order. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunMode` | const | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:58` | Yeet execution modes. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunMode` | type | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:70` | Yeet execution modes. |
-| `@beep/repo-cli/test/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:150` | Runtime options accepted by the yeet handler. |
+| `@beep/repo-cli/test/Yeet` | `YeetRunOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:171` | Runtime options accepted by the yeet handler. |
 | `@beep/repo-cli/test/Yeet` | `YeetRunPlanModeOptions` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts:84` | Options for building a Yeet run plan in a specific mode. |
-| `@beep/repo-cli/test/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:178` | Result returned by a yeet execution attempt. |
+| `@beep/repo-cli/test/Yeet` | `YeetRunResult` | class | `packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts:201` | Result returned by a yeet execution attempt. |
 
 ### @beep/ai-sync
 
@@ -2861,6 +2950,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-docgen` | `Domain` | SourceFile | `packages/tooling/tool/docgen/src/Domain.ts:8` |  |
 | `@beep/repo-docgen` | `Parser` | SourceFile | `packages/tooling/tool/docgen/src/Parser.ts:8` |  |
 | `@beep/repo-docgen` | `Printer` | SourceFile | `packages/tooling/tool/docgen/src/Printer.ts:8` |  |
+| `@beep/repo-docgen` | `ProofManifest` | SourceFile | `packages/tooling/tool/docgen/src/ProofManifest.ts:8` |  |
 | `@beep/repo-docgen/Checker` | `checkClasses` | function | `packages/tooling/tool/docgen/src/Checker.ts:125` | Checks documented classes and their members for required docgen annotations. |
 | `@beep/repo-docgen/Checker` | `checkConstants` | function | `packages/tooling/tool/docgen/src/Checker.ts:147` | Checks documented constants for required docgen annotations. |
 | `@beep/repo-docgen/Checker` | `checkExports` | function | `packages/tooling/tool/docgen/src/Checker.ts:241` | Checks documented manual exports for required docgen annotations. |
@@ -2881,9 +2971,9 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-docgen/Configuration` | `DEFAULT_THEME` | const | `packages/tooling/tool/docgen/src/Configuration.ts:32` | Default Jekyll theme used when docgen does not receive an explicit theme override. |
 | `@beep/repo-docgen/Configuration` | `defaultCompilerOptions` | const | `packages/tooling/tool/docgen/src/Configuration.ts:182` | Default compiler options used when no explicit parse configuration is provided. |
 | `@beep/repo-docgen/Configuration` | `load` | const | `packages/tooling/tool/docgen/src/Configuration.ts:331` | Loads and resolves the effective docgen configuration from CLI input and repo files. |
-| `@beep/repo-docgen/Core` | `extractFencedCode` | const | `packages/tooling/tool/docgen/src/Core.ts:177` | Extracts fenced code blocks and their metadata from markdown content. |
-| `@beep/repo-docgen/Core` | `program` | const | `packages/tooling/tool/docgen/src/Core.ts:600` | Runs the full docgen workflow from source parsing through markdown emission. |
-| `@beep/repo-docgen/Core` | `SKIP_TYPE_CHECKING_FENCE_METADATA` | const | `packages/tooling/tool/docgen/src/Core.ts:160` | The metadata key for skipping type-checking. |
+| `@beep/repo-docgen/Core` | `extractFencedCode` | const | `packages/tooling/tool/docgen/src/Core.ts:178` | Extracts fenced code blocks and their metadata from markdown content. |
+| `@beep/repo-docgen/Core` | `program` | const | `packages/tooling/tool/docgen/src/Core.ts:601` | Runs the full docgen workflow from source parsing through markdown emission. |
+| `@beep/repo-docgen/Core` | `SKIP_TYPE_CHECKING_FENCE_METADATA` | const | `packages/tooling/tool/docgen/src/Core.ts:161` | The metadata key for skipping type-checking. |
 | `@beep/repo-docgen/Domain` | `ByPath` | const | `packages/tooling/tool/docgen/src/Domain.ts:675` | A comparator function for sorting `Module` objects by their file path, |
 | `@beep/repo-docgen/Domain` | `Class` | class | `packages/tooling/tool/docgen/src/Domain.ts:244` | Represents a documented class and its emitted member structure. |
 | `@beep/repo-docgen/Domain` | `Constant` | class | `packages/tooling/tool/docgen/src/Domain.ts:451` | Represents a documented exported constant declaration. |
@@ -2907,6 +2997,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-docgen/index` | `Domain` | SourceFile | `packages/tooling/tool/docgen/src/Domain.ts:8` |  |
 | `@beep/repo-docgen/index` | `Parser` | SourceFile | `packages/tooling/tool/docgen/src/Parser.ts:8` |  |
 | `@beep/repo-docgen/index` | `Printer` | SourceFile | `packages/tooling/tool/docgen/src/Printer.ts:8` |  |
+| `@beep/repo-docgen/index` | `ProofManifest` | SourceFile | `packages/tooling/tool/docgen/src/ProofManifest.ts:8` |  |
 | `@beep/repo-docgen/Parser` | `getConstructorDeclarationSignature` | const | `packages/tooling/tool/docgen/src/Parser.ts:587` | Computes a printable constructor signature without including the implementation body. |
 | `@beep/repo-docgen/Parser` | `parseClasses` | const | `packages/tooling/tool/docgen/src/Parser.ts:650` | Parses exported class declarations from the active source file. |
 | `@beep/repo-docgen/Parser` | `parseComment` | const | `packages/tooling/tool/docgen/src/Parser.ts:125` | Parses a raw JSDoc block into a normalized description and grouped tag map. |
@@ -2927,6 +3018,18 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-docgen/Printer` | `Printable` | type | `packages/tooling/tool/docgen/src/Printer.ts:30` | Union of documented entities that the markdown printer can render. |
 | `@beep/repo-docgen/Printer` | `printFrontMatter` | const | `packages/tooling/tool/docgen/src/Printer.ts:471` | Builds the front matter used for a generated module documentation page. |
 | `@beep/repo-docgen/Printer` | `printModule` | const | `packages/tooling/tool/docgen/src/Printer.ts:424` | Renders a parsed module into markdown grouped by documentation category. |
+| `@beep/repo-docgen/ProofManifest` | `DocgenProofManifest` | class | `packages/tooling/tool/docgen/src/ProofManifest.ts:128` | Package-local docgen proof manifest written after successful generation. |
+| `@beep/repo-docgen/ProofManifest` | `DocgenProofManifestFile` | class | `packages/tooling/tool/docgen/src/ProofManifest.ts:89` | File-level SHA-256 digest included in a docgen proof manifest. |
+| `@beep/repo-docgen/ProofManifest` | `DocgenProofManifestFingerprint` | class | `packages/tooling/tool/docgen/src/ProofManifest.ts:106` | Package input and generated-docs fingerprint for docgen reuse. |
+| `@beep/repo-docgen/ProofManifest` | `DocgenProofManifestSchemaVersion` | const | `packages/tooling/tool/docgen/src/ProofManifest.ts:49` | Literal schema version written into proof manifests. |
+| `@beep/repo-docgen/ProofManifest` | `DocgenProofManifestSchemaVersion` | type | `packages/tooling/tool/docgen/src/ProofManifest.ts:61` | Type-level representation of the proof manifest schema version. |
+| `@beep/repo-docgen/ProofManifest` | `DocgenProofManifestStandard` | const | `packages/tooling/tool/docgen/src/ProofManifest.ts:29` | Literal marker written into proof manifests to identify the document format. |
+| `@beep/repo-docgen/ProofManifest` | `DocgenProofManifestStandard` | type | `packages/tooling/tool/docgen/src/ProofManifest.ts:41` | Type-level representation of the proof manifest format marker. |
+| `@beep/repo-docgen/ProofManifest` | `DocgenProofManifestStatus` | const | `packages/tooling/tool/docgen/src/ProofManifest.ts:69` | Verification status for a package-local docgen proof manifest. |
+| `@beep/repo-docgen/ProofManifest` | `DocgenProofManifestStatus` | type | `packages/tooling/tool/docgen/src/ProofManifest.ts:81` | Verification status for a package-local docgen proof manifest. |
+| `@beep/repo-docgen/ProofManifest` | `DocgenProofManifestVerification` | class | `packages/tooling/tool/docgen/src/ProofManifest.ts:151` | Result of checking a package-local docgen proof manifest. |
+| `@beep/repo-docgen/ProofManifest` | `verifyDocgenProofManifest` | const | `packages/tooling/tool/docgen/src/ProofManifest.ts:350` | Verify whether a package-local docgen proof manifest matches current inputs and outputs. |
+| `@beep/repo-docgen/ProofManifest` | `writeDocgenProofManifest` | const | `packages/tooling/tool/docgen/src/ProofManifest.ts:296` | Write the current package's docgen proof manifest after successful generation. |
 
 ### @beep/canvas-server
 

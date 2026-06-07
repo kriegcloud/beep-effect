@@ -1,0 +1,4156 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "e9d3ce74faa316b8ed1697ba41e703785e0b218512f790953f8ad0992beebd7d",
+    "inputs": [
+      {
+        "path": "packages/foundation/capability/file-processing/package.json",
+        "sha256": "b29aa6297c9b1e8c047ad29c2c4fdf9760c8757d7092515f8510d952355b33fd",
+        "bytes": 3107
+      },
+      {
+        "path": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sha256": "fa949f61581d859067f1f28e40b9fa16403631c67b8c1fd8b1d06b1feaea92ac",
+        "bytes": 7922
+      },
+      {
+        "path": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sha256": "7ec6e95626a7ae5684a60f7df022102b7743602c9ae1fb87d9c5dc62014c8e02",
+        "bytes": 31325
+      },
+      {
+        "path": "packages/foundation/capability/file-processing/src/index.ts",
+        "sha256": "1503bb663615db09c24ac2c0368d1a9dfdec607a027ca391f1ed7c6680e44f27",
+        "bytes": 834
+      },
+      {
+        "path": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sha256": "d80bba57e6dc52a31c498668ae1521d977e8809071374a137a629493fd62ca6f",
+        "bytes": 6468
+      },
+      {
+        "path": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sha256": "3e7954ef3933ee01be2b385e78e48eebb66312bb577ebbc0ffef3b69b931ae60",
+        "bytes": 19626
+      },
+      {
+        "path": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sha256": "e5c91f281c25b266f6a55346a4086666171f51e61bb057a96839b722564a03fc",
+        "bytes": 9369
+      },
+      {
+        "path": "packages/foundation/capability/file-processing/src/test.ts",
+        "sha256": "8050b388da614e0066f2d10ff99ae3d88100483051c94e04ee50cf7c0659f1b3",
+        "bytes": 6134
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/file-processing",
+    "packagePath": "packages/foundation/capability/file-processing",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/file-processing",
+      "@beep/file-processing/Artifact",
+      "@beep/file-processing/Artifact/index",
+      "@beep/file-processing/Extraction",
+      "@beep/file-processing/Extraction/index",
+      "@beep/file-processing/index",
+      "@beep/file-processing/Operation",
+      "@beep/file-processing/Operation/index",
+      "@beep/file-processing/Service",
+      "@beep/file-processing/Service/index",
+      "@beep/file-processing/Strategy",
+      "@beep/file-processing/Strategy/index",
+      "@beep/file-processing/test"
+    ],
+    "counts": {
+      "publicExportEntries": 166,
+      "uniqueSymbols": 67,
+      "sourceFiles": 7
+    },
+    "exports": [
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "Artifact",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing . artifact sourcefile packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "Extraction",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing . extraction sourcefile packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "Operation",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing . operation sourcefile packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "Service",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing . service sourcefile packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "Strategy",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing . strategy sourcefile packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 70,
+        "summary": "Stable artifact identifier derived from a content digest.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact artifactid const stable artifact identifier derived from a content digest. schemas packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactId",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 83,
+        "summary": "Type for {@link ArtifactId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact artifactid type type for {@link artifactid}. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactLocator",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 217,
+        "summary": "Runtime-neutral artifact locator.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact artifactlocator class runtime-neutral artifact locator. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactLocatorKind",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 182,
+        "summary": "Origin kind for a source artifact locator.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact artifactlocatorkind const origin kind for a source artifact locator. schemas packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactLocatorKind",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 194,
+        "summary": "Type for {@link ArtifactLocatorKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact artifactlocatorkind type type for {@link artifactlocatorkind}. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactReference",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 271,
+        "summary": "Lightweight reference to a materialized artifact.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact artifactreference class lightweight reference to a materialized artifact. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ContentDigest",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 126,
+        "summary": "SHA-256 content digest recorded with the source or emitted artifact.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact contentdigest const sha-256 content digest recorded with the source or emitted artifact. schemas packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ContentDigest",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 139,
+        "summary": "Type for {@link ContentDigest}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact contentdigest type type for {@link contentdigest}. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "deriveArtifactId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 164,
+        "summary": "Derive a stable artifact identifier from deterministic artifact parts.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact deriveartifactid const derive a stable artifact identifier from deterministic artifact parts. constructors packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "OperationId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 98,
+        "summary": "Stable operation identifier derived from source, operation kind, and strategy.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact operationid const stable operation identifier derived from source, operation kind, and strategy. schemas packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "OperationId",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 111,
+        "summary": "Type for {@link OperationId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact operationid type type for {@link operationid}. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact",
+        "exportSubpath": "./Artifact",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "SourceArtifact",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 240,
+        "summary": "Source artifact supplied to a file-processing operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact ./artifact sourceartifact class source artifact supplied to a file-processing operation. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 70,
+        "summary": "Stable artifact identifier derived from a content digest.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index artifactid const stable artifact identifier derived from a content digest. schemas packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactId",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 83,
+        "summary": "Type for {@link ArtifactId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index artifactid type type for {@link artifactid}. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactLocator",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 217,
+        "summary": "Runtime-neutral artifact locator.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index artifactlocator class runtime-neutral artifact locator. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactLocatorKind",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 182,
+        "summary": "Origin kind for a source artifact locator.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index artifactlocatorkind const origin kind for a source artifact locator. schemas packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactLocatorKind",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 194,
+        "summary": "Type for {@link ArtifactLocatorKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index artifactlocatorkind type type for {@link artifactlocatorkind}. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ArtifactReference",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 271,
+        "summary": "Lightweight reference to a materialized artifact.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index artifactreference class lightweight reference to a materialized artifact. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ContentDigest",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 126,
+        "summary": "SHA-256 content digest recorded with the source or emitted artifact.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index contentdigest const sha-256 content digest recorded with the source or emitted artifact. schemas packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "ContentDigest",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 139,
+        "summary": "Type for {@link ContentDigest}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index contentdigest type type for {@link contentdigest}. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "deriveArtifactId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 164,
+        "summary": "Derive a stable artifact identifier from deterministic artifact parts.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index deriveartifactid const derive a stable artifact identifier from deterministic artifact parts. constructors packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "OperationId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 98,
+        "summary": "Stable operation identifier derived from source, operation kind, and strategy.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index operationid const stable operation identifier derived from source, operation kind, and strategy. schemas packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "OperationId",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 111,
+        "summary": "Type for {@link OperationId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index operationid type type for {@link operationid}. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Artifact/index",
+        "exportSubpath": "./Artifact/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "symbolName": "SourceArtifact",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 240,
+        "summary": "Source artifact supplied to a file-processing operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/artifact/index ./artifact/index sourceartifact class source artifact supplied to a file-processing operation. models packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ArchiveExportProcessFileResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 240,
+        "summary": "Successful archive export result of a full source processing operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction archiveexportprocessfileresult class successful archive export result of a full source processing operation. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ArchiveExportResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 134,
+        "summary": "Archive export result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction archiveexportresult class archive export result. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ChildArtifactRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 728,
+        "summary": "Child artifact row written to children/<source-artifact-id>/artifacts.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction childartifactrecord class child artifact row written to children/<source-artifact-id>/artifacts.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "encodeChildArtifactRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 984,
+        "summary": "JSONL encoder for {@link ChildArtifactRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction encodechildartifactrecordjson const jsonl encoder for {@link childartifactrecord}. codecs packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "encodeFileProcessingCoverageSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 875,
+        "summary": "JSON encoder for {@link FileProcessingCoverageSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction encodefileprocessingcoveragesummaryjson const json encoder for {@link fileprocessingcoveragesummary}. codecs packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "encodeFileProcessingFailureRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 949,
+        "summary": "JSONL encoder for {@link FileProcessingFailureRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction encodefileprocessingfailurerecordjson const jsonl encoder for {@link fileprocessingfailurerecord}. codecs packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "encodeProcessRunManifestJson",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 839,
+        "summary": "JSON encoder for {@link ProcessRunManifest}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction encodeprocessrunmanifestjson const json encoder for {@link processrunmanifest}. codecs packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "encodeSourceProcessingRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 914,
+        "summary": "JSONL encoder for {@link SourceProcessingRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction encodesourceprocessingrecordjson const jsonl encoder for {@link sourceprocessingrecord}. codecs packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ExtractedProcessFileResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 187,
+        "summary": "Successful extraction result of a full source processing operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction extractedprocessfileresult class successful extraction result of a full source processing operation. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ExtractionResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 105,
+        "summary": "Text and metadata extraction result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction extractionresult class text and metadata extraction result. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FailedFileProcessingFailureRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 666,
+        "summary": "Hard failure row written to failures.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction failedfileprocessingfailurerecord class hard failure row written to failures.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FailedSourceProcessingRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 502,
+        "summary": "Failed source row written to sources.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction failedsourceprocessingrecord class failed source row written to sources.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FileProcessingCoverageSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 751,
+        "summary": "Coverage summary written to coverage.json.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction fileprocessingcoveragesummary class coverage summary written to coverage.json. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FileProcessingFailureReason",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 588,
+        "summary": "Machine-readable failure row reason.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction fileprocessingfailurereason const machine-readable failure row reason. schemas packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FileProcessingFailureReason",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 600,
+        "summary": "Type for {@link FileProcessingFailureReason}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction fileprocessingfailurereason type type for {@link fileprocessingfailurereason}. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FileProcessingFailureRecord",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 697,
+        "summary": "Failure row written to failures.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction fileprocessingfailurerecord const failure row written to failures.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FileProcessingFailureRecord",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 713,
+        "summary": "Type for {@link FileProcessingFailureRecord}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction fileprocessingfailurerecord type type for {@link fileprocessingfailurerecord}. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ProcessFileResult",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 335,
+        "summary": "Result of a full source processing operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction processfileresult const result of a full source processing operation. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ProcessFileResult",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 352,
+        "summary": "Type for {@link ProcessFileResult}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction processfileresult type type for {@link processfileresult}. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ProcessRunManifest",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 780,
+        "summary": "Top-level run manifest written to run.json.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction processrunmanifest class top-level run manifest written to run.json. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SkippedFileProcessingFailureRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 615,
+        "summary": "Skipped row written to failures.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction skippedfileprocessingfailurerecord class skipped row written to failures.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SkippedProcessFileResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 289,
+        "summary": "Intentional skip result of a full source processing operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction skippedprocessfileresult class intentional skip result of a full source processing operation. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SkippedSourceProcessingRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 448,
+        "summary": "Skipped source row written to sources.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction skippedsourceprocessingrecord class skipped source row written to sources.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SourceProcessingRecord",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 552,
+        "summary": "Source row written to sources.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction sourceprocessingrecord const source row written to sources.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SourceProcessingRecord",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 569,
+        "summary": "Type for {@link SourceProcessingRecord}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction sourceprocessingrecord type type for {@link sourceprocessingrecord}. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SourceProcessingStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 31,
+        "summary": "Processing status emitted for each source row.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction sourceprocessingstatus const processing status emitted for each source row. schemas packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SourceProcessingStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 43,
+        "summary": "Type for {@link SourceProcessingStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction sourceprocessingstatus type type for {@link sourceprocessingstatus}. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SucceededSourceProcessingRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 392,
+        "summary": "Succeeded source row written to sources.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction succeededsourceprocessingrecord class succeeded source row written to sources.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "TextArtifactReference",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 58,
+        "summary": "Materialized text artifact reference.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction textartifactreference class materialized text artifact reference. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "TextSpan",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 81,
+        "summary": "Text span emitted by a text extraction operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction ./extraction textspan class text span emitted by a text extraction operation. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ArchiveExportProcessFileResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 240,
+        "summary": "Successful archive export result of a full source processing operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index archiveexportprocessfileresult class successful archive export result of a full source processing operation. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ArchiveExportResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 134,
+        "summary": "Archive export result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index archiveexportresult class archive export result. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ChildArtifactRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 728,
+        "summary": "Child artifact row written to children/<source-artifact-id>/artifacts.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index childartifactrecord class child artifact row written to children/<source-artifact-id>/artifacts.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "encodeChildArtifactRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 984,
+        "summary": "JSONL encoder for {@link ChildArtifactRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index encodechildartifactrecordjson const jsonl encoder for {@link childartifactrecord}. codecs packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "encodeFileProcessingCoverageSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 875,
+        "summary": "JSON encoder for {@link FileProcessingCoverageSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index encodefileprocessingcoveragesummaryjson const json encoder for {@link fileprocessingcoveragesummary}. codecs packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "encodeFileProcessingFailureRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 949,
+        "summary": "JSONL encoder for {@link FileProcessingFailureRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index encodefileprocessingfailurerecordjson const jsonl encoder for {@link fileprocessingfailurerecord}. codecs packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "encodeProcessRunManifestJson",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 839,
+        "summary": "JSON encoder for {@link ProcessRunManifest}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index encodeprocessrunmanifestjson const json encoder for {@link processrunmanifest}. codecs packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "encodeSourceProcessingRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 914,
+        "summary": "JSONL encoder for {@link SourceProcessingRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index encodesourceprocessingrecordjson const jsonl encoder for {@link sourceprocessingrecord}. codecs packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ExtractedProcessFileResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 187,
+        "summary": "Successful extraction result of a full source processing operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index extractedprocessfileresult class successful extraction result of a full source processing operation. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ExtractionResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 105,
+        "summary": "Text and metadata extraction result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index extractionresult class text and metadata extraction result. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FailedFileProcessingFailureRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 666,
+        "summary": "Hard failure row written to failures.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index failedfileprocessingfailurerecord class hard failure row written to failures.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FailedSourceProcessingRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 502,
+        "summary": "Failed source row written to sources.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index failedsourceprocessingrecord class failed source row written to sources.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FileProcessingCoverageSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 751,
+        "summary": "Coverage summary written to coverage.json.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index fileprocessingcoveragesummary class coverage summary written to coverage.json. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FileProcessingFailureReason",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 588,
+        "summary": "Machine-readable failure row reason.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index fileprocessingfailurereason const machine-readable failure row reason. schemas packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FileProcessingFailureReason",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 600,
+        "summary": "Type for {@link FileProcessingFailureReason}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index fileprocessingfailurereason type type for {@link fileprocessingfailurereason}. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FileProcessingFailureRecord",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 697,
+        "summary": "Failure row written to failures.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index fileprocessingfailurerecord const failure row written to failures.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "FileProcessingFailureRecord",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 713,
+        "summary": "Type for {@link FileProcessingFailureRecord}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index fileprocessingfailurerecord type type for {@link fileprocessingfailurerecord}. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ProcessFileResult",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 335,
+        "summary": "Result of a full source processing operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index processfileresult const result of a full source processing operation. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ProcessFileResult",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 352,
+        "summary": "Type for {@link ProcessFileResult}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index processfileresult type type for {@link processfileresult}. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "ProcessRunManifest",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 780,
+        "summary": "Top-level run manifest written to run.json.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index processrunmanifest class top-level run manifest written to run.json. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SkippedFileProcessingFailureRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 615,
+        "summary": "Skipped row written to failures.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index skippedfileprocessingfailurerecord class skipped row written to failures.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SkippedProcessFileResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 289,
+        "summary": "Intentional skip result of a full source processing operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index skippedprocessfileresult class intentional skip result of a full source processing operation. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SkippedSourceProcessingRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 448,
+        "summary": "Skipped source row written to sources.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index skippedsourceprocessingrecord class skipped source row written to sources.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SourceProcessingRecord",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 552,
+        "summary": "Source row written to sources.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index sourceprocessingrecord const source row written to sources.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SourceProcessingRecord",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 569,
+        "summary": "Type for {@link SourceProcessingRecord}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index sourceprocessingrecord type type for {@link sourceprocessingrecord}. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SourceProcessingStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 31,
+        "summary": "Processing status emitted for each source row.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index sourceprocessingstatus const processing status emitted for each source row. schemas packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SourceProcessingStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 43,
+        "summary": "Type for {@link SourceProcessingStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index sourceprocessingstatus type type for {@link sourceprocessingstatus}. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "SucceededSourceProcessingRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 392,
+        "summary": "Succeeded source row written to sources.jsonl.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index succeededsourceprocessingrecord class succeeded source row written to sources.jsonl. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "TextArtifactReference",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 58,
+        "summary": "Materialized text artifact reference.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index textartifactreference class materialized text artifact reference. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "symbolName": "TextSpan",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 81,
+        "summary": "Text span emitted by a text extraction operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/extraction/index ./extraction/index textspan class text span emitted by a text extraction operation. models packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "Artifact",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/index ./index artifact sourcefile packages/foundation/capability/file-processing/src/artifact/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "Extraction",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/index ./index extraction sourcefile packages/foundation/capability/file-processing/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "Operation",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/index ./index operation sourcefile packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "Service",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/index ./index service sourcefile packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "Strategy",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/index ./index strategy sourcefile packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation",
+        "exportSubpath": "./Operation",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "DetectFileOperation",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 118,
+        "summary": "Operation request for format detection.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation ./operation detectfileoperation class operation request for format detection. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation",
+        "exportSubpath": "./Operation",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "DetectionResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 143,
+        "summary": "Result emitted by format detection.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation ./operation detectionresult class result emitted by format detection. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation",
+        "exportSubpath": "./Operation",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "ExportArchiveOperation",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 197,
+        "summary": "Operation request for archive child export.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation ./operation exportarchiveoperation class operation request for archive child export. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation",
+        "exportSubpath": "./Operation",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "ExtractFileOperation",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 170,
+        "summary": "Operation request for text and metadata extraction.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation ./operation extractfileoperation class operation request for text and metadata extraction. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation",
+        "exportSubpath": "./Operation",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "FileProcessingOperationError",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 69,
+        "summary": "Sanitized file-processing operation error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation ./operation fileprocessingoperationerror class sanitized file-processing operation error. errors packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation",
+        "exportSubpath": "./Operation",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "FileProcessingOperationErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 30,
+        "summary": "Machine-readable file-processing operation failure reasons.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation ./operation fileprocessingoperationerrorreason const machine-readable file-processing operation failure reasons. errors packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation",
+        "exportSubpath": "./Operation",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "FileProcessingOperationErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 51,
+        "summary": "Type for {@link FileProcessingOperationErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation ./operation fileprocessingoperationerrorreason type type for {@link fileprocessingoperationerrorreason}. errors packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation",
+        "exportSubpath": "./Operation",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "ProcessFileOperation",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 224,
+        "summary": "Operation request for a full source processing pass.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation ./operation processfileoperation class operation request for a full source processing pass. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation/index",
+        "exportSubpath": "./Operation/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "DetectFileOperation",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 118,
+        "summary": "Operation request for format detection.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation/index ./operation/index detectfileoperation class operation request for format detection. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation/index",
+        "exportSubpath": "./Operation/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "DetectionResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 143,
+        "summary": "Result emitted by format detection.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation/index ./operation/index detectionresult class result emitted by format detection. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation/index",
+        "exportSubpath": "./Operation/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "ExportArchiveOperation",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 197,
+        "summary": "Operation request for archive child export.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation/index ./operation/index exportarchiveoperation class operation request for archive child export. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation/index",
+        "exportSubpath": "./Operation/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "ExtractFileOperation",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 170,
+        "summary": "Operation request for text and metadata extraction.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation/index ./operation/index extractfileoperation class operation request for text and metadata extraction. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation/index",
+        "exportSubpath": "./Operation/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "FileProcessingOperationError",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 69,
+        "summary": "Sanitized file-processing operation error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation/index ./operation/index fileprocessingoperationerror class sanitized file-processing operation error. errors packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation/index",
+        "exportSubpath": "./Operation/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "FileProcessingOperationErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 30,
+        "summary": "Machine-readable file-processing operation failure reasons.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation/index ./operation/index fileprocessingoperationerrorreason const machine-readable file-processing operation failure reasons. errors packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation/index",
+        "exportSubpath": "./Operation/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "FileProcessingOperationErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 51,
+        "summary": "Type for {@link FileProcessingOperationErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation/index ./operation/index fileprocessingoperationerrorreason type type for {@link fileprocessingoperationerrorreason}. errors packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Operation/index",
+        "exportSubpath": "./Operation/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "symbolName": "ProcessFileOperation",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Operation/index.ts",
+        "sourceLine": 224,
+        "summary": "Operation request for a full source processing pass.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation/index ./operation/index processfileoperation class operation request for a full source processing pass. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "detectFile",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 333,
+        "summary": "Detect a source artifact with the configured service.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service ./service detectfile const detect a source artifact with the configured service. use-cases packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "exportArchive",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 438,
+        "summary": "Export child artifacts from an archive source with the configured service.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service ./service exportarchive const export child artifacts from an archive source with the configured service. use-cases packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "extractFile",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 386,
+        "summary": "Extract text and metadata from a source artifact with the configured service.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service ./service extractfile const extract text and metadata from a source artifact with the configured service. use-cases packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "FileProcessingEngineShape",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 51,
+        "summary": "Runtime-neutral file-processing engine shape implemented by drivers.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service ./service fileprocessingengineshape type runtime-neutral file-processing engine shape implemented by drivers. services packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "FileProcessingService",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 96,
+        "summary": "File-processing service tag.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service ./service fileprocessingservice class file-processing service tag. services packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "FileProcessingServiceShape",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 74,
+        "summary": "Service contract exposed by the file-processing capability.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service ./service fileprocessingserviceshape type service contract exposed by the file-processing capability. services packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "makeFileProcessingServiceLayer",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 196,
+        "summary": "Build a runtime-neutral file-processing service layer from concrete drivers.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service ./service makefileprocessingservicelayer const build a runtime-neutral file-processing service layer from concrete drivers. layers packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "processFile",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 491,
+        "summary": "Process a source artifact with the configured service.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service ./service processfile const process a source artifact with the configured service. use-cases packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "detectFile",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 333,
+        "summary": "Detect a source artifact with the configured service.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service/index ./service/index detectfile const detect a source artifact with the configured service. use-cases packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "exportArchive",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 438,
+        "summary": "Export child artifacts from an archive source with the configured service.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service/index ./service/index exportarchive const export child artifacts from an archive source with the configured service. use-cases packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "extractFile",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 386,
+        "summary": "Extract text and metadata from a source artifact with the configured service.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service/index ./service/index extractfile const extract text and metadata from a source artifact with the configured service. use-cases packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "FileProcessingEngineShape",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 51,
+        "summary": "Runtime-neutral file-processing engine shape implemented by drivers.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service/index ./service/index fileprocessingengineshape type runtime-neutral file-processing engine shape implemented by drivers. services packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "FileProcessingService",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 96,
+        "summary": "File-processing service tag.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service/index ./service/index fileprocessingservice class file-processing service tag. services packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "FileProcessingServiceShape",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 74,
+        "summary": "Service contract exposed by the file-processing capability.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service/index ./service/index fileprocessingserviceshape type service contract exposed by the file-processing capability. services packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "makeFileProcessingServiceLayer",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 196,
+        "summary": "Build a runtime-neutral file-processing service layer from concrete drivers.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service/index ./service/index makefileprocessingservicelayer const build a runtime-neutral file-processing service layer from concrete drivers. layers packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "processFile",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 491,
+        "summary": "Process a source artifact with the configured service.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service/index ./service/index processfile const process a source artifact with the configured service. use-cases packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "DeferredSelectedStrategy",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 281,
+        "summary": "Strategy selected when an operation is intentionally deferred.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy deferredselectedstrategy class strategy selected when an operation is intentionally deferred. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileFormatFamily",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 81,
+        "summary": "V1 file format families recognized by the capability.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileformatfamily const v1 file format families recognized by the capability. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileFormatFamily",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 108,
+        "summary": "Type for {@link FileFormatFamily}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileformatfamily type type for {@link fileformatfamily}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingCapability",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 123,
+        "summary": "Processing capability advertised by an engine.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingcapability const processing capability advertised by an engine. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingCapability",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 140,
+        "summary": "Type for {@link FileProcessingCapability}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingcapability type type for {@link fileprocessingcapability}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingEngineDescriptor",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 373,
+        "summary": "Runtime-neutral engine descriptor.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingenginedescriptor class runtime-neutral engine descriptor. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingEngineFamily",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 54,
+        "summary": "Concrete engine families known to P1.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingenginefamily const concrete engine families known to p1. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingEngineFamily",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 66,
+        "summary": "Type for {@link FileProcessingEngineFamily}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingenginefamily type type for {@link fileprocessingenginefamily}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingOperationKind",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 27,
+        "summary": "Operation kinds supported by the capability contract.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingoperationkind const operation kinds supported by the capability contract. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingOperationKind",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 39,
+        "summary": "Type for {@link FileProcessingOperationKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingoperationkind type type for {@link fileprocessingoperationkind}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingSkipReason",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 182,
+        "summary": "Reason a source was skipped or deferred.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingskipreason const reason a source was skipped or deferred. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingSkipReason",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 203,
+        "summary": "Type for {@link FileProcessingSkipReason}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingskipreason type type for {@link fileprocessingskipreason}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingSupportDisposition",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 155,
+        "summary": "Support disposition selected for a source artifact.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingsupportdisposition const support disposition selected for a source artifact. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingSupportDisposition",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 167,
+        "summary": "Type for {@link FileProcessingSupportDisposition}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy fileprocessingsupportdisposition type type for {@link fileprocessingsupportdisposition}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "SelectedStrategy",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 341,
+        "summary": "Strategy selected for a concrete operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy selectedstrategy const strategy selected for a concrete operation. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "SelectedStrategy",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 358,
+        "summary": "Type for {@link SelectedStrategy}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy selectedstrategy type type for {@link selectedstrategy}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "StrategyPreference",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 219,
+        "summary": "Preferred engine selection for an operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy strategypreference class preferred engine selection for an operation. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "SupportedSelectedStrategy",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 248,
+        "summary": "Strategy selected when an operation is supported.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy supportedselectedstrategy class strategy selected when an operation is supported. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "UnsupportedSelectedStrategy",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 315,
+        "summary": "Strategy selected when an operation is unsupported.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy unsupportedselectedstrategy class strategy selected when an operation is unsupported. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "DeferredSelectedStrategy",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 281,
+        "summary": "Strategy selected when an operation is intentionally deferred.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index deferredselectedstrategy class strategy selected when an operation is intentionally deferred. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileFormatFamily",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 81,
+        "summary": "V1 file format families recognized by the capability.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileformatfamily const v1 file format families recognized by the capability. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileFormatFamily",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 108,
+        "summary": "Type for {@link FileFormatFamily}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileformatfamily type type for {@link fileformatfamily}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingCapability",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 123,
+        "summary": "Processing capability advertised by an engine.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingcapability const processing capability advertised by an engine. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingCapability",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 140,
+        "summary": "Type for {@link FileProcessingCapability}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingcapability type type for {@link fileprocessingcapability}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingEngineDescriptor",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 373,
+        "summary": "Runtime-neutral engine descriptor.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingenginedescriptor class runtime-neutral engine descriptor. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingEngineFamily",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 54,
+        "summary": "Concrete engine families known to P1.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingenginefamily const concrete engine families known to p1. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingEngineFamily",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 66,
+        "summary": "Type for {@link FileProcessingEngineFamily}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingenginefamily type type for {@link fileprocessingenginefamily}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingOperationKind",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 27,
+        "summary": "Operation kinds supported by the capability contract.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingoperationkind const operation kinds supported by the capability contract. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingOperationKind",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 39,
+        "summary": "Type for {@link FileProcessingOperationKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingoperationkind type type for {@link fileprocessingoperationkind}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingSkipReason",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 182,
+        "summary": "Reason a source was skipped or deferred.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingskipreason const reason a source was skipped or deferred. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingSkipReason",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 203,
+        "summary": "Type for {@link FileProcessingSkipReason}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingskipreason type type for {@link fileprocessingskipreason}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingSupportDisposition",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 155,
+        "summary": "Support disposition selected for a source artifact.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingsupportdisposition const support disposition selected for a source artifact. schemas packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "FileProcessingSupportDisposition",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 167,
+        "summary": "Type for {@link FileProcessingSupportDisposition}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index fileprocessingsupportdisposition type type for {@link fileprocessingsupportdisposition}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "SelectedStrategy",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 341,
+        "summary": "Strategy selected for a concrete operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index selectedstrategy const strategy selected for a concrete operation. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "SelectedStrategy",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 358,
+        "summary": "Type for {@link SelectedStrategy}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index selectedstrategy type type for {@link selectedstrategy}. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "StrategyPreference",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 219,
+        "summary": "Preferred engine selection for an operation.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index strategypreference class preferred engine selection for an operation. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "SupportedSelectedStrategy",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 248,
+        "summary": "Strategy selected when an operation is supported.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index supportedselectedstrategy class strategy selected when an operation is supported. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "UnsupportedSelectedStrategy",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 315,
+        "summary": "Strategy selected when an operation is unsupported.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index unsupportedselectedstrategy class strategy selected when an operation is unsupported. models packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/test.ts",
+        "symbolName": "TestFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/test.ts",
+        "sourceLine": 105,
+        "summary": "Synthetic file-processing engine for generated fixtures.",
+        "categories": [
+          "fixtures"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/test ./test testfileprocessingengine const synthetic file-processing engine for generated fixtures. fixtures packages/foundation/capability/file-processing/src/test.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/test.ts",
+        "symbolName": "TestFileProcessingEngineDescriptor",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/test.ts",
+        "sourceLine": 37,
+        "summary": "Synthetic engine descriptor used by tests and proof fixtures.",
+        "categories": [
+          "fixtures"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/test ./test testfileprocessingenginedescriptor const synthetic engine descriptor used by tests and proof fixtures. fixtures packages/foundation/capability/file-processing/src/test.ts"
+      }
+    ]
+  }
+}

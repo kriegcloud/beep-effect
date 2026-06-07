@@ -1,0 +1,729 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "2ad709a8d8ff5c88dd8d3cc6c6efa9b5fdc39b5faad0d75939aa5ef9ef458094",
+    "inputs": [
+      {
+        "path": "packages/drivers/libpff/package.json",
+        "sha256": "43fe8b10fb54bbd1785e8ec0e0589c0209dba9925f0d1a3bebf671a6f1a66681",
+        "bytes": 2493
+      },
+      {
+        "path": "packages/drivers/libpff/src/index.ts",
+        "sha256": "f7b788af9f8ac2e5ed159c9a472a764bf9a0ed03cacfb59a532301863e9d3182",
+        "bytes": 558
+      },
+      {
+        "path": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sha256": "73d079851975013d416c45d26a70ec4d1ba8a52c91bd36268a8a4e70155d692f",
+        "bytes": 2763
+      },
+      {
+        "path": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sha256": "dfe5da85697f3f446c8ce065cd275fbbefabd0453438fe905409e104c55dd612",
+        "bytes": 8079
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/libpff",
+    "packagePath": "packages/drivers/libpff",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/libpff",
+      "@beep/libpff/index",
+      "@beep/libpff/Libpff.errors",
+      "@beep/libpff/Libpff.service"
+    ],
+    "counts": {
+      "publicExportEntries": 26,
+      "uniqueSymbols": 8,
+      "sourceFiles": 3
+    },
+    "exports": [
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 71,
+        "summary": "Technical failure raised inside the libpff driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . libpfferror class technical failure raised inside the libpff driver boundary. errors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 29,
+        "summary": "Technical libpff failure reasons.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . libpfferrorreason const technical libpff failure reasons. errors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 55,
+        "summary": "Type for {@link LibpffErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . libpfferrorreason type type for {@link libpfferrorreason}. errors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 231,
+        "summary": "P1 libpff file-processing engine value with typed unavailable deferrals.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . libpfffileprocessingengine const p1 libpff file-processing engine value with typed unavailable deferrals. services packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffFileProcessingEngineDescriptor",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 41,
+        "summary": "libpff file-processing engine descriptor.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . libpfffileprocessingenginedescriptor const libpff file-processing engine descriptor. services packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffFileProcessingEngineOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 137,
+        "summary": "Options for the P1 libpff engine scaffold.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . libpfffileprocessingengineoptions class options for the p1 libpff engine scaffold. configuration packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "makeLibpffError",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 113,
+        "summary": "Create a libpff technical error with a typed reason.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . makelibpfferror const create a libpff technical error with a typed reason. constructors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "makeLibpffFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 162,
+        "summary": "Create the P1 libpff file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . makelibpfffileprocessingengine const create the p1 libpff file-processing engine. constructors packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/index.ts",
+        "sourceLine": 36,
+        "summary": "Package version.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . version const package version. constants packages/drivers/libpff/src/index.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 71,
+        "summary": "Technical failure raised inside the libpff driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index libpfferror class technical failure raised inside the libpff driver boundary. errors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 29,
+        "summary": "Technical libpff failure reasons.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index libpfferrorreason const technical libpff failure reasons. errors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 55,
+        "summary": "Type for {@link LibpffErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index libpfferrorreason type type for {@link libpfferrorreason}. errors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 231,
+        "summary": "P1 libpff file-processing engine value with typed unavailable deferrals.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index libpfffileprocessingengine const p1 libpff file-processing engine value with typed unavailable deferrals. services packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffFileProcessingEngineDescriptor",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 41,
+        "summary": "libpff file-processing engine descriptor.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index libpfffileprocessingenginedescriptor const libpff file-processing engine descriptor. services packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "LibpffFileProcessingEngineOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 137,
+        "summary": "Options for the P1 libpff engine scaffold.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index libpfffileprocessingengineoptions class options for the p1 libpff engine scaffold. configuration packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "makeLibpffError",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 113,
+        "summary": "Create a libpff technical error with a typed reason.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index makelibpfferror const create a libpff technical error with a typed reason. constructors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "makeLibpffFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 162,
+        "summary": "Create the P1 libpff file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index makelibpfffileprocessingengine const create the p1 libpff file-processing engine. constructors packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/index.ts",
+        "sourceLine": 36,
+        "summary": "Package version.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index version const package version. constants packages/drivers/libpff/src/index.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.errors",
+        "exportSubpath": "./Libpff.errors",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "symbolName": "LibpffError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 71,
+        "summary": "Technical failure raised inside the libpff driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.errors ./libpff.errors libpfferror class technical failure raised inside the libpff driver boundary. errors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.errors",
+        "exportSubpath": "./Libpff.errors",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "symbolName": "LibpffErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 29,
+        "summary": "Technical libpff failure reasons.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.errors ./libpff.errors libpfferrorreason const technical libpff failure reasons. errors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.errors",
+        "exportSubpath": "./Libpff.errors",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "symbolName": "LibpffErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 55,
+        "summary": "Type for {@link LibpffErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.errors ./libpff.errors libpfferrorreason type type for {@link libpfferrorreason}. errors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.errors",
+        "exportSubpath": "./Libpff.errors",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "symbolName": "makeLibpffError",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.errors.ts",
+        "sourceLine": 113,
+        "summary": "Create a libpff technical error with a typed reason.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.errors ./libpff.errors makelibpfferror const create a libpff technical error with a typed reason. constructors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.service",
+        "exportSubpath": "./Libpff.service",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "symbolName": "LibpffFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 231,
+        "summary": "P1 libpff file-processing engine value with typed unavailable deferrals.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.service ./libpff.service libpfffileprocessingengine const p1 libpff file-processing engine value with typed unavailable deferrals. services packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.service",
+        "exportSubpath": "./Libpff.service",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "symbolName": "LibpffFileProcessingEngineDescriptor",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 41,
+        "summary": "libpff file-processing engine descriptor.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.service ./libpff.service libpfffileprocessingenginedescriptor const libpff file-processing engine descriptor. services packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.service",
+        "exportSubpath": "./Libpff.service",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "symbolName": "LibpffFileProcessingEngineOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 137,
+        "summary": "Options for the P1 libpff engine scaffold.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.service ./libpff.service libpfffileprocessingengineoptions class options for the p1 libpff engine scaffold. configuration packages/drivers/libpff/src/libpff.service.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.service",
+        "exportSubpath": "./Libpff.service",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "symbolName": "makeLibpffFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.service.ts",
+        "sourceLine": 162,
+        "summary": "Create the P1 libpff file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.service ./libpff.service makelibpfffileprocessingengine const create the p1 libpff file-processing engine. constructors packages/drivers/libpff/src/libpff.service.ts"
+      }
+    ]
+  }
+}

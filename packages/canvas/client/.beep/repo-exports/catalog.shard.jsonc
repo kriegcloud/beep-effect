@@ -1,0 +1,91 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "a22e11210812b61b08e3d637597e284673130453c1fa1eaa6cebc9884723648e",
+    "inputs": [
+      {
+        "path": "packages/canvas/client/package.json",
+        "sha256": "cb5e37054036b888c211f87a80842a25d16a30c1e314c3f3ab3f4eb5f26b0dec",
+        "bytes": 2265
+      },
+      {
+        "path": "packages/canvas/client/src/index.ts",
+        "sha256": "6aafbed9bc049ff786b6300cf581e7c7612f393af8cace22ac41d09f06e2165d",
+        "bytes": 366
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/canvas-client",
+    "packagePath": "packages/canvas/client",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/canvas-client"
+    ],
+    "counts": {
+      "publicExportEntries": 1,
+      "uniqueSymbols": 1,
+      "sourceFiles": 1
+    },
+    "exports": [
+      {
+        "packageName": "@beep/canvas-client",
+        "packagePath": "packages/canvas/client",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-client",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/canvas/client/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/client/src/index.ts",
+        "sourceLine": 22,
+        "summary": "Package version for `@beep/canvas-client`.",
+        "categories": [
+          "clients"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-client packages/canvas/client @beep/canvas-client . version const package version for `@beep/canvas-client`. clients packages/canvas/client/src/index.ts"
+      }
+    ]
+  }
+}

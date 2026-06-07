@@ -1,0 +1,837 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "68e798cb61ab76ba39baee35cf50b918202a1de6840af5f568c20597d8833301",
+    "inputs": [
+      {
+        "path": "packages/architecture-lab/config/package.json",
+        "sha256": "93a4b35c34d1dca5331b9af70ffc17ae97507154f1987b843fcd5864177d4e73",
+        "bytes": 2745
+      },
+      {
+        "path": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "sha256": "f0d050b0e2a4a64f28dc90bce370c613dbc5a09a46197a8f9baaed7a0ffe1291",
+        "bytes": 252
+      },
+      {
+        "path": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sha256": "b669b265808cdc579cd0627b797ae428deb44aaf5701b2cdac54b84c2ac4b6bc",
+        "bytes": 3321
+      },
+      {
+        "path": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sha256": "0bf2487e3793c489b60ce3823e7f543cdc67b4380df805033a5de7306356be98",
+        "bytes": 4303
+      },
+      {
+        "path": "packages/architecture-lab/config/src/index.ts",
+        "sha256": "4fcb201608272558c2a70748fb7569ae09048cb15bc585ecb76bf56c363d126c",
+        "bytes": 956
+      },
+      {
+        "path": "packages/architecture-lab/config/src/layer.ts",
+        "sha256": "76c060485265dab0aa62a0894b24203a9b3328d2c2bd16c6bc558d16c57a785f",
+        "bytes": 221
+      },
+      {
+        "path": "packages/architecture-lab/config/src/public.ts",
+        "sha256": "4be4102380603d9afb1dd99f952ceaf126ce58f2b9623cdaa654b4ac7d39271d",
+        "bytes": 204
+      },
+      {
+        "path": "packages/architecture-lab/config/src/secrets.ts",
+        "sha256": "2834e0ab4417b018a7c396dc10b7d24025af342b983af97a0fc774e625e23eb2",
+        "bytes": 204
+      },
+      {
+        "path": "packages/architecture-lab/config/src/server.ts",
+        "sha256": "52a1a8f320bd7becf82356248083b9f7507d4cead5de03faa521ec7c5389bca0",
+        "bytes": 220
+      },
+      {
+        "path": "packages/architecture-lab/config/src/test.ts",
+        "sha256": "d0916b2b04c8d463f21a7d118b185e8b3e28ec29370c2cf8f3414580abaca7c0",
+        "bytes": 243
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/architecture-lab-config",
+    "packagePath": "packages/architecture-lab/config",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/architecture-lab-config",
+      "@beep/architecture-lab-config/aggregates/WorkItem",
+      "@beep/architecture-lab-config/layer",
+      "@beep/architecture-lab-config/public",
+      "@beep/architecture-lab-config/secrets",
+      "@beep/architecture-lab-config/server",
+      "@beep/architecture-lab-config/test"
+    ],
+    "counts": {
+      "publicExportEntries": 29,
+      "uniqueSymbols": 13,
+      "sourceFiles": 9
+    },
+    "exports": [
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/architecture-lab/config/src/index.ts",
+        "symbolName": "defaultWorkItemPublicConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 98,
+        "summary": "Default client-safe WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config . defaultworkitempublicconfig const default client-safe workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/architecture-lab/config/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/index.ts",
+        "sourceLine": 22,
+        "summary": "Package version for the architecture lab config role.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config . version const package version for the architecture lab config role. configuration packages/architecture-lab/config/src/index.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/architecture-lab/config/src/index.ts",
+        "symbolName": "WorkItemPublicConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 27,
+        "summary": "Client-safe WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config . workitempublicconfig class client-safe workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "ArchitectureLabConfigLive",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 135,
+        "summary": "Live WorkItem configuration layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem architecturelabconfiglive const live workitem configuration layer. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "ArchitectureLabConfigTest",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 150,
+        "summary": "Test WorkItem configuration layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem architecturelabconfigtest const test workitem configuration layer. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "defaultWorkItemPublicConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 98,
+        "summary": "Default client-safe WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem defaultworkitempublicconfig const default client-safe workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "defaultWorkItemSecretConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 134,
+        "summary": "Default secret WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem defaultworkitemsecretconfig const default secret workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "defaultWorkItemServerConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 116,
+        "summary": "Default server WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem defaultworkitemserverconfig const default server workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "testWorkItemConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 116,
+        "summary": "Test WorkItem configuration value.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem testworkitemconfig const test workitem configuration value. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 77,
+        "summary": "WorkItem configuration service.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem workitemconfig class workitem configuration service. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemConfigShape",
+        "exportKind": "type",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 62,
+        "summary": "WorkItem configuration service contract.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem workitemconfigshape type workitem configuration service contract. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemConfigValue",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 36,
+        "summary": "WorkItem configuration value.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem workitemconfigvalue class workitem configuration value. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemPublicConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 27,
+        "summary": "Client-safe WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem workitempublicconfig class client-safe workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemSecretConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 75,
+        "summary": "Secret WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem workitemsecretconfig class secret workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/config/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemServerConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 51,
+        "summary": "Server-only WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/aggregates/workitem ./aggregates/workitem workitemserverconfig class server-only workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/architecture-lab/config/src/layer.ts",
+        "symbolName": "ArchitectureLabConfigLive",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 135,
+        "summary": "Live WorkItem configuration layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/layer ./layer architecturelabconfiglive const live workitem configuration layer. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/architecture-lab/config/src/layer.ts",
+        "symbolName": "WorkItemConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 77,
+        "summary": "WorkItem configuration service.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/layer ./layer workitemconfig class workitem configuration service. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/architecture-lab/config/src/layer.ts",
+        "symbolName": "WorkItemConfigShape",
+        "exportKind": "type",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 62,
+        "summary": "WorkItem configuration service contract.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/layer ./layer workitemconfigshape type workitem configuration service contract. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/architecture-lab/config/src/public.ts",
+        "symbolName": "defaultWorkItemPublicConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 98,
+        "summary": "Default client-safe WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/public ./public defaultworkitempublicconfig const default client-safe workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/architecture-lab/config/src/public.ts",
+        "symbolName": "WorkItemPublicConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 27,
+        "summary": "Client-safe WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/public ./public workitempublicconfig class client-safe workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/secrets",
+        "exportSubpath": "./secrets",
+        "exportedFromPath": "packages/architecture-lab/config/src/secrets.ts",
+        "symbolName": "defaultWorkItemSecretConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 134,
+        "summary": "Default secret WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/secrets ./secrets defaultworkitemsecretconfig const default secret workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/secrets",
+        "exportSubpath": "./secrets",
+        "exportedFromPath": "packages/architecture-lab/config/src/secrets.ts",
+        "symbolName": "WorkItemSecretConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 75,
+        "summary": "Secret WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/secrets ./secrets workitemsecretconfig class secret workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/server",
+        "exportSubpath": "./server",
+        "exportedFromPath": "packages/architecture-lab/config/src/server.ts",
+        "symbolName": "defaultWorkItemServerConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 116,
+        "summary": "Default server WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/server ./server defaultworkitemserverconfig const default server workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/server",
+        "exportSubpath": "./server",
+        "exportedFromPath": "packages/architecture-lab/config/src/server.ts",
+        "symbolName": "WorkItemConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 77,
+        "summary": "WorkItem configuration service.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/server ./server workitemconfig class workitem configuration service. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/server",
+        "exportSubpath": "./server",
+        "exportedFromPath": "packages/architecture-lab/config/src/server.ts",
+        "symbolName": "WorkItemServerConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.config.ts",
+        "sourceLine": 51,
+        "summary": "Server-only WorkItem configuration.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/server ./server workitemserverconfig class server-only workitem configuration. configuration packages/architecture-lab/config/src/aggregates/workitem/workitem.config.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/architecture-lab/config/src/test.ts",
+        "symbolName": "ArchitectureLabConfigTest",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 150,
+        "summary": "Test WorkItem configuration layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/test ./test architecturelabconfigtest const test workitem configuration layer. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/architecture-lab/config/src/test.ts",
+        "symbolName": "testWorkItemConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 116,
+        "summary": "Test WorkItem configuration value.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/test ./test testworkitemconfig const test workitem configuration value. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/architecture-lab/config/src/test.ts",
+        "symbolName": "WorkItemConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 77,
+        "summary": "WorkItem configuration service.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/test ./test workitemconfig class workitem configuration service. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-config",
+        "packagePath": "packages/architecture-lab/config",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-config/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/architecture-lab/config/src/test.ts",
+        "symbolName": "WorkItemConfigShape",
+        "exportKind": "type",
+        "sourcePath": "packages/architecture-lab/config/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 62,
+        "summary": "WorkItem configuration service contract.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-config packages/architecture-lab/config @beep/architecture-lab-config/test ./test workitemconfigshape type workitem configuration service contract. layers packages/architecture-lab/config/src/aggregates/workitem/workitem.layer.ts"
+      }
+    ]
+  }
+}

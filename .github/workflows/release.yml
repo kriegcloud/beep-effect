@@ -32,11 +32,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup monorepo CI
-        uses: ./.github/actions/setup-monorepo-ci
-        with:
-          cache-turbo: false
-
       - name: Detect pending changesets
         id: pending-changesets
         shell: bash
@@ -47,6 +42,12 @@ jobs:
             echo "No pending changesets; skipping release PR creation."
             echo "has_changesets=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Setup monorepo CI
+        if: steps.pending-changesets.outputs.has_changesets == 'true'
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: false
 
       - name: Validate changeset package graph
         if: steps.pending-changesets.outputs.has_changesets == 'true'

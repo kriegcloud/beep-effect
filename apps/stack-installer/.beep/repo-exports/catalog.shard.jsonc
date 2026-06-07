@@ -1,0 +1,98 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "1347979073171dc1f84caad7f4983fe50a75d63e8068aebdba642fcd8e9197ac",
+    "inputs": [
+      {
+        "path": "apps/stack-installer/package.json",
+        "sha256": "5f461327e52efc4a40e9c93607b8fa34db257f0f442583be32d2452be3161e43",
+        "bytes": 2881
+      },
+      {
+        "path": "apps/stack-installer/src/App.tsx",
+        "sha256": "84007c121097601d01a6f9eeb4f8154f14f3d1a25f6204656cd445678a8ba687",
+        "bytes": 15986
+      },
+      {
+        "path": "apps/stack-installer/src/dry-run-registry.ts",
+        "sha256": "e57b69df447e2d43960993eb9d5b7c8f22193126548043897a46bdcc74220526",
+        "bytes": 577
+      },
+      {
+        "path": "apps/stack-installer/src/main.tsx",
+        "sha256": "0677ac0f3d13bc26ed43d5802ccdb70d3af89facab0eae8ab21e025a227464a3",
+        "bytes": 456
+      },
+      {
+        "path": "apps/stack-installer/src/proof/capture-p1-manual-proof.ts",
+        "sha256": "48023ad7d27c509707d78fdd7e6cf1e4024f83561b5e7c6c3f30adfe55ab58a3",
+        "bytes": 30016
+      },
+      {
+        "path": "apps/stack-installer/src/proof/P1ManualProof.ts",
+        "sha256": "ac857cddec1843432f62586c382b0d6738cd6fbacddc50e1b051adcdf6851d1e",
+        "bytes": 256
+      },
+      {
+        "path": "apps/stack-installer/src/proof/P1ProofArtifacts.ts",
+        "sha256": "0777a5adeae0b8d752cdb562747a79f84c38124f32b01fbcf0be06c15cd312db",
+        "bytes": 6206
+      },
+      {
+        "path": "apps/stack-installer/src/proof/P1ProofCommands.ts",
+        "sha256": "36cc02f2722674e189f362f35c6ed9cc4b8aa27108eb971d5f0217081b80cc18",
+        "bytes": 6209
+      },
+      {
+        "path": "apps/stack-installer/src/proof/run-p1-manual-proof.ts",
+        "sha256": "c6621779a5c3bf3db9e7855d21d25d84d84e6f252e7fecdc8315b072ee69c8f9",
+        "bytes": 2426
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/stack-installer",
+    "packagePath": "apps/stack-installer",
+    "topoOrder": 0,
+    "status": "no-public-exports",
+    "importSpecifiers": [],
+    "counts": {
+      "publicExportEntries": 0,
+      "uniqueSymbols": 0,
+      "sourceFiles": 8
+    },
+    "exports": []
+  }
+}

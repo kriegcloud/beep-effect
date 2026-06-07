@@ -125,7 +125,7 @@ jobs:
               should_run=false
             elif ! printf "%s\n" "$changed_files" | grep -Eq '(^apps/|^packages/|^infra/|^docs/|/docgen\.json$|\.(ts|tsx|mts|cts|md)$)'; then
               should_run=false
-            elif printf "%s\n" "$changed_files" | grep -Eq '(^packages/tooling/tool/docgen/|^packages/tooling/tool/cli/src/commands/Docgen/)'; then
+            elif printf "%s\n" "$changed_files" | grep -Eq '(^docs/|^packages/tooling/tool/docgen/|^packages/tooling/tool/cli/src/commands/Docgen/|^(\.bun-version|bun\.lock|package\.json|turbo\.json|tsconfig(\..*)?\.json)$)'; then
               docgen_mode=full
             fi
           fi
@@ -201,8 +201,7 @@ jobs:
                 if [[ "${{ steps.lane-gate.outputs.docgen_mode }}" == "full" ]]; then
                   bun run docgen
                 else
-                  bunx turbo run docgen --affected --summarize
-                  bun run docs:aggregate
+                  bun run docgen:local -- --base "origin/${GITHUB_BASE_REF:-main}" --head HEAD --parallel=3
                 fi
               else
                 bun run docgen
@@ -349,6 +348,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup monorepo CI
+        if: github.event_name == 'push'
         uses: ./.github/actions/setup-monorepo-ci
         with:
           cache-turbo: "false"
@@ -374,7 +374,16 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
         continue-on-error: true
 
-      - name: Run Nix checks
+      - name: Run Nix checks (direct PR proof)
+        if: github.event_name != 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          nix --option warn-dirty false flake check --all-systems
+          nix --option warn-dirty false develop --command echo "Dev shell OK"
+
+      - name: Run Nix checks (repo-cli fallback)
+        if: github.event_name == 'push'
         run: bun run audit:github nix
 
   sast:

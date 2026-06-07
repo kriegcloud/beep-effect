@@ -1,0 +1,399 @@
+/**
+ * Package-level proof manifests for docgen generation.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { createHash } from "node:crypto";
+import { $RepoDocgenId } from "@beep/identity/packages";
+import { FsUtils } from "@beep/repo-utils";
+import { LiteralKit } from "@beep/schema";
+import { A, Str, thunkFalse } from "@beep/utils";
+import { DateTime, Effect, FileSystem, Order, Path } from "effect";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Configuration from "./Configuration.js";
+import * as Domain from "./Domain.js";
+import * as InternalVersion from "./internal/version.js";
+
+const $I = $RepoDocgenId.create("ProofManifest");
+
+/**
+ * Literal marker written into proof manifests to identify the document format.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const DocgenProofManifestStandard = LiteralKit(["docgen-proof-manifest"]).pipe(
+  $I.annoteSchema("DocgenProofManifestStandard", {
+    description: "Literal marker written into proof manifests to identify the document format.",
+  })
+);
+
+/**
+ * Type-level representation of the proof manifest format marker.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type DocgenProofManifestStandard = typeof DocgenProofManifestStandard.Type;
+
+/**
+ * Literal schema version written into proof manifests.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const DocgenProofManifestSchemaVersion = LiteralKit(["1"]).pipe(
+  $I.annoteSchema("DocgenProofManifestSchemaVersion", {
+    description: "Literal schema version written into proof manifests.",
+  })
+);
+
+/**
+ * Type-level representation of the proof manifest schema version.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type DocgenProofManifestSchemaVersion = typeof DocgenProofManifestSchemaVersion.Type;
+
+/**
+ * Verification status for a package-local docgen proof manifest.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const DocgenProofManifestStatus = LiteralKit(["current", "missing", "stale"]).pipe(
+  $I.annoteSchema("DocgenProofManifestStatus", {
+    description: "Verification status for a package-local docgen proof manifest.",
+  })
+);
+
+/**
+ * Verification status for a package-local docgen proof manifest.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type DocgenProofManifestStatus = typeof DocgenProofManifestStatus.Type;
+
+/**
+ * File-level SHA-256 digest included in a docgen proof manifest.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DocgenProofManifestFile extends S.Class<DocgenProofManifestFile>($I`DocgenProofManifestFile`)(
+  {
+    path: S.String,
+    sha256: S.String,
+    bytes: S.Finite,
+  },
+  $I.annote("DocgenProofManifestFile", {
+    description: "File-level SHA-256 digest included in a docgen proof manifest.",
+  })
+) {}
+
+/**
+ * Package input and generated-docs fingerprint for docgen reuse.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DocgenProofManifestFingerprint extends S.Class<DocgenProofManifestFingerprint>(
+  $I`DocgenProofManifestFingerprint`
+)(
+  {
+    sha256: S.String,
+    inputSha256: S.String,
+    outputSha256: S.String,
+    inputFileCount: S.Finite,
+    outputFileCount: S.Finite,
+    toolVersion: S.String,
+  },
+  $I.annote("DocgenProofManifestFingerprint", {
+    description: "Package input and generated-docs fingerprint for docgen reuse.",
+  })
+) {}
+
+/**
+ * Package-local docgen proof manifest written after successful generation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DocgenProofManifest extends S.Class<DocgenProofManifest>($I`DocgenProofManifest`)(
+  {
+    standard: DocgenProofManifestStandard,
+    schemaVersion: DocgenProofManifestSchemaVersion,
+    packageName: S.String,
+    generatedAt: S.String,
+    manifestPath: S.String,
+    docsOutputPath: S.String,
+    fingerprint: DocgenProofManifestFingerprint,
+    inputs: S.Array(DocgenProofManifestFile),
+    outputs: S.Array(DocgenProofManifestFile),
+  },
+  $I.annote("DocgenProofManifest", {
+    description: "Package-local docgen proof manifest written after successful generation.",
+  })
+) {}
+
+/**
+ * Result of checking a package-local docgen proof manifest.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DocgenProofManifestVerification extends S.Class<DocgenProofManifestVerification>(
+  $I`DocgenProofManifestVerification`
+)(
+  {
+    packageName: S.String,
+    packagePath: S.String,
+    manifestPath: S.String,
+    status: DocgenProofManifestStatus,
+    reason: S.optionalKey(S.String),
+  },
+  $I.annote("DocgenProofManifestVerification", {
+    description: "Result of checking a package-local docgen proof manifest.",
+  })
+) {}
+
+const decodeDocgenProofManifest = S.decodeUnknownEffect(S.fromJsonString(DocgenProofManifest));
+const encodeUnknownJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const DOCGEN_PROOF_MANIFEST_PATH = ".beep/docgen/proof.json" as const;
+const DOCGEN_PROOF_INPUT_GLOBS = [
+  "src/**/*.{ts,tsx,mts,cts,md,mdx}",
+  "dtslint/**/*.{ts,tsx,mts,cts,md,mdx}",
+  "docgen.json",
+  "package.json",
+  "README.md",
+  "tsconfig*.json",
+] as const;
+const DOCGEN_PROOF_OUTPUT_GLOBS = ["docs/**/*"] as const;
+const DOCGEN_PROOF_GLOB_IGNORES = ["**/.beep/**", "**/.turbo/**", "**/node_modules/**"] as const;
+
+const sha256Text = (value: string): string => createHash("sha256").update(value).digest("hex");
+
+const jsonText = (value: unknown): string => encodeUnknownJson(value);
+
+const sha256Json = (value: unknown): string => sha256Text(jsonText(value));
+
+const byFilePathAscending: Order.Order<DocgenProofManifestFile> = Order.mapInput(
+  Order.String,
+  (file: DocgenProofManifestFile) => file.path
+);
+
+const sortedFileDigests = (files: ReadonlyArray<DocgenProofManifestFile>): ReadonlyArray<DocgenProofManifestFile> =>
+  A.sort(files, byFilePathAscending);
+
+const manifestPathForPackage = (packagePath: string, path: Path.Path): string =>
+  path.join(packagePath, DOCGEN_PROOF_MANIFEST_PATH);
+
+const readFileDigest = Effect.fn("DocgenProofManifest.readFileDigest")(function* (
+  packagePath: string,
+  filePath: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const content = yield* fs.readFileString(filePath).pipe(
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[ProofManifest.readFileDigest] Failed to read '${filePath}'\n${String(cause)}`,
+      })
+    )
+  );
+
+  return DocgenProofManifestFile.make({
+    path: Str.replace(/\\/g, "/")(path.relative(packagePath, filePath)),
+    sha256: sha256Text(content),
+    bytes: content.length,
+  });
+});
+
+const collectFileDigests = Effect.fn("DocgenProofManifest.collectFileDigests")(function* (
+  packagePath: string,
+  patterns: ReadonlyArray<string>
+) {
+  const fsUtils = yield* FsUtils;
+  const files = yield* fsUtils
+    .globFiles(patterns, {
+      absolute: true,
+      cwd: packagePath,
+      ignore: DOCGEN_PROOF_GLOB_IGNORES,
+    })
+    .pipe(
+      Effect.mapError((cause) =>
+        Domain.DocgenError.make({
+          message: `[ProofManifest.collectFileDigests] Failed to glob docgen proof files\n${String(cause)}`,
+        })
+      )
+    );
+  const digests = yield* Effect.forEach(files, (filePath) => readFileDigest(packagePath, filePath), {
+    concurrency: "unbounded",
+  });
+
+  return sortedFileDigests(digests);
+});
+
+const fingerprintForFiles = (options: {
+  readonly inputs: ReadonlyArray<DocgenProofManifestFile>;
+  readonly outputs: ReadonlyArray<DocgenProofManifestFile>;
+}): DocgenProofManifestFingerprint => {
+  const inputSha256 = sha256Json(options.inputs);
+  const outputSha256 = sha256Json(options.outputs);
+  const toolVersion = InternalVersion.moduleVersion;
+
+  return DocgenProofManifestFingerprint.make({
+    sha256: sha256Json({ inputSha256, outputSha256, toolVersion }),
+    inputSha256,
+    outputSha256,
+    inputFileCount: options.inputs.length,
+    outputFileCount: options.outputs.length,
+    toolVersion,
+  });
+};
+
+const computeDocgenProofPayload = Effect.fn("DocgenProofManifest.computeDocgenProofPayload")(function* (
+  packagePath: string
+) {
+  const inputs = yield* collectFileDigests(packagePath, DOCGEN_PROOF_INPUT_GLOBS);
+  const outputs = yield* collectFileDigests(packagePath, DOCGEN_PROOF_OUTPUT_GLOBS);
+
+  return {
+    inputs,
+    outputs,
+    fingerprint: fingerprintForFiles({ inputs, outputs }),
+  } as const;
+});
+
+const makeVerification = (options: {
+  readonly packageName: string;
+  readonly packagePath: string;
+  readonly manifestPath: string;
+  readonly status: DocgenProofManifestStatus;
+  readonly reason?: string | undefined;
+}): DocgenProofManifestVerification =>
+  DocgenProofManifestVerification.make({
+    packageName: options.packageName,
+    packagePath: options.packagePath,
+    manifestPath: options.manifestPath,
+    status: options.status,
+    ...R.getSomes({ reason: O.fromUndefinedOr(options.reason) }),
+  });
+
+/**
+ * Write the current package's docgen proof manifest after successful generation.
+ *
+ * @returns The written package-local proof manifest.
+ * @category workflows
+ * @since 0.0.0
+ */
+export const writeDocgenProofManifest = Effect.fn("DocgenProofManifest.writeDocgenProofManifest")(
+  function* (): Effect.fn.Return<
+    DocgenProofManifest,
+    Domain.DocgenError,
+    Configuration.Configuration | Domain.Process | FileSystem.FileSystem | Path.Path | FsUtils
+  > {
+    const config = yield* Configuration.Configuration;
+    const process = yield* Domain.Process;
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const packagePath = yield* process.cwd;
+    const manifestPath = manifestPathForPackage(packagePath, path);
+    const generatedAt = yield* DateTime.now.pipe(Effect.map(DateTime.formatIso));
+    const payload = yield* computeDocgenProofPayload(packagePath);
+    const manifest = DocgenProofManifest.make({
+      standard: "docgen-proof-manifest",
+      schemaVersion: "1",
+      packageName: config.projectName,
+      generatedAt,
+      manifestPath: DOCGEN_PROOF_MANIFEST_PATH,
+      docsOutputPath: config.outDir,
+      fingerprint: payload.fingerprint,
+      inputs: [...payload.inputs],
+      outputs: [...payload.outputs],
+    });
+
+    yield* fs.makeDirectory(path.dirname(manifestPath), { recursive: true }).pipe(
+      Effect.mapError((cause) =>
+        Domain.DocgenError.make({
+          message: `[ProofManifest.writeDocgenProofManifest] Failed to create manifest directory\n${String(cause)}`,
+        })
+      )
+    );
+    yield* fs.writeFileString(manifestPath, `${jsonText(manifest)}\n`).pipe(
+      Effect.mapError((cause) =>
+        Domain.DocgenError.make({
+          message: `[ProofManifest.writeDocgenProofManifest] Failed to write '${manifestPath}'\n${String(cause)}`,
+        })
+      )
+    );
+
+    return manifest;
+  }
+);
+
+/**
+ * Verify whether a package-local docgen proof manifest matches current inputs and outputs.
+ *
+ * @param packagePath - Absolute package directory.
+ * @param packageName - Expected workspace package name.
+ * @returns Manifest verification status for reuse decisions.
+ * @category workflows
+ * @since 0.0.0
+ */
+export const verifyDocgenProofManifest = Effect.fn("DocgenProofManifest.verifyDocgenProofManifest")(function* (
+  packagePath: string,
+  packageName: string
+): Effect.fn.Return<DocgenProofManifestVerification, Domain.DocgenError, FileSystem.FileSystem | Path.Path | FsUtils> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const manifestPath = manifestPathForPackage(packagePath, path);
+  const base = {
+    packageName,
+    packagePath,
+    manifestPath,
+  } as const;
+  const exists = yield* fs.exists(manifestPath).pipe(Effect.orElseSucceed(thunkFalse));
+
+  if (!exists) {
+    return makeVerification({ ...base, status: "missing", reason: "proof manifest is missing" });
+  }
+
+  const content = yield* fs.readFileString(manifestPath).pipe(
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[ProofManifest.verifyDocgenProofManifest] Failed to read '${manifestPath}'\n${String(cause)}`,
+      })
+    )
+  );
+  const manifest = yield* decodeDocgenProofManifest(content).pipe(
+    Effect.mapError((cause) =>
+      Domain.DocgenError.make({
+        message: `[ProofManifest.verifyDocgenProofManifest] Failed to decode '${manifestPath}'\n${String(cause)}`,
+      })
+    )
+  );
+
+  if (manifest.packageName !== packageName) {
+    return makeVerification({ ...base, status: "stale", reason: "manifest package name does not match" });
+  }
+
+  const current = yield* computeDocgenProofPayload(packagePath);
+  if (manifest.fingerprint.inputSha256 !== current.fingerprint.inputSha256) {
+    return makeVerification({ ...base, status: "stale", reason: "package docgen inputs changed" });
+  }
+  if (manifest.fingerprint.outputSha256 !== current.fingerprint.outputSha256) {
+    return makeVerification({ ...base, status: "stale", reason: "generated docs output changed" });
+  }
+  if (manifest.fingerprint.toolVersion !== current.fingerprint.toolVersion) {
+    return makeVerification({ ...base, status: "stale", reason: "docgen tool version changed" });
+  }
+
+  return makeVerification({ ...base, status: "current" });
+});

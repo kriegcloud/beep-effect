@@ -1,47 +1,15 @@
 import { fileURLToPath } from "node:url";
-import { Str } from "@beep/utils";
-import { Effect } from "effect";
-import * as jsonc from "jsonc-parser";
+import { readRepoExportsCatalog } from "@beep/repo-codegraph";
+import { provideScopedLayer } from "@beep/test-utils";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = fileURLToPath(new URL("../../../../..", import.meta.url));
-const joinPath = (base: string, ...segments: ReadonlyArray<string>): string =>
-  [Str.replace(/\/+$/u, "")(base), ...segments.map((segment) => Str.replace(/^\/+|\/+$/gu, "")(segment))]
-    .filter((segment) => segment.length > 0)
-    .join("/");
-const catalogPath = joinPath(repoRoot, "standards/repo-exports.catalog.jsonc");
-type CatalogExportEntry = {
-  readonly exportKind: string;
-  readonly importSpecifier: string;
-  readonly searchText: string;
-  readonly sourcePath: string;
-  readonly summary: string;
-  readonly symbolName: string;
-};
-type CatalogPackageEntry = {
-  readonly exports: ReadonlyArray<CatalogExportEntry>;
-  readonly packageName: string;
-};
-type RepoExportsCatalog = {
-  readonly authority: {
-    readonly boundaryDoctrine: ReadonlyArray<string>;
-    readonly canonicalStatus: string;
-    readonly posture: string;
-  };
-  readonly packages: ReadonlyArray<CatalogPackageEntry>;
-};
+const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 
-const readCatalog = Effect.gen(function* () {
-  const errors: Array<jsonc.ParseError> = [];
-  const text = yield* Effect.promise(() => Bun.file(catalogPath).text());
-  const parsed = jsonc.parse(text, errors, {
-    allowTrailingComma: true,
-    disallowComments: false,
-  });
-
-  expect(errors).toEqual([]);
-  return parsed as RepoExportsCatalog;
-});
+const readCatalog = readRepoExportsCatalog(repoRoot).pipe(provideScopedLayer(PlatformLayer));
 
 describe("repo export catalog", () => {
   it("marks the catalog as descriptive export metadata instead of architecture authority", () =>

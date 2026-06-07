@@ -31,6 +31,7 @@
     "dtslint": "bunx tstyche dtslint/Sandbox.tst.ts",
     "dtslint:exports": "bunx tstyche --tsconfig dtslint/tsconfig.exports.json dtslint/exports.tst.ts",
     "docgen": "bun run ../../../../packages/tooling/tool/docgen/src/bin.ts",
+    "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard",
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
     "test": "bun run beep:test",

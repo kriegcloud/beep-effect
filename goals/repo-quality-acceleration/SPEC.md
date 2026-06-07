@@ -2,7 +2,12 @@
 
 ## Status
 
-**Research bootstrap active**
+**Superseded reference**
+
+This packet is retained as Phase 0 research evidence. Active execution moved to
+[`goals/repo-quality-throughput`](../repo-quality-throughput), which expands the
+scope from research and local docgen relief into research, task synthesis,
+implementation, benchmark proof, and End-to-End Green PR readiness.
 
 ## Owner
 

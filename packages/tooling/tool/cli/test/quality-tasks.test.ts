@@ -11,6 +11,7 @@ import {
   runSqlIntegrationTestLaneForTesting,
   sqlIntegrationConnectionUriFromEnvForTesting,
   sqlIntegrationStepForTesting,
+  workspaceTaskFiltersForTesting,
 } from "@beep/repo-cli/test/Quality";
 import { provideScopedLayer } from "@beep/test-utils";
 import { A, Str } from "@beep/utils";
@@ -557,6 +558,70 @@ describe("quality task adapter", () => {
     expect(steps).toHaveLength(1);
     expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", ["--filter=@beep/schema"]));
   });
+
+  it("limits root type and integration test filters to script-owning workspaces", () =>
+    Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          const plainPackageDir = path.join(tmpDir, "packages", "plain");
+          const typePackageDir = path.join(tmpDir, "packages", "typed");
+          const integrationPackageDir = path.join(tmpDir, "apps", "integration");
+
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: {
+                packages: ["packages/*", "apps/*"],
+              },
+            })
+          );
+          yield* fs.makeDirectory(plainPackageDir, { recursive: true });
+          yield* fs.writeFileString(
+            path.join(plainPackageDir, "package.json"),
+            encodeJson({
+              name: "@beep/plain",
+              private: true,
+              scripts: {
+                test: "vitest",
+              },
+            })
+          );
+          yield* fs.makeDirectory(typePackageDir, { recursive: true });
+          yield* fs.writeFileString(
+            path.join(typePackageDir, "package.json"),
+            encodeJson({
+              name: "@beep/typed",
+              private: true,
+              scripts: {
+                "type-test": "tstyche",
+              },
+            })
+          );
+          yield* fs.makeDirectory(integrationPackageDir, { recursive: true });
+          yield* fs.writeFileString(
+            path.join(integrationPackageDir, "package.json"),
+            encodeJson({
+              name: "@beep/integration",
+              private: true,
+              scripts: {
+                "test:integration": "vitest run test/integration",
+              },
+            })
+          );
+
+          const typeFilters = yield* workspaceTaskFiltersForTesting(tmpDir, "type-test");
+          const integrationFilters = yield* workspaceTaskFiltersForTesting(tmpDir, "test:integration");
+
+          expect(typeFilters).toEqual(["--filter=@beep/typed"]);
+          expect(integrationFilters).toEqual(["--filter=@beep/integration"]);
+        })
+      )
+    ));
 
   it("treats unsupported package tasks as explicit no-ops", () =>
     Effect.runPromise(

@@ -1,0 +1,561 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "9213c4a629e616c5eed93120b2a3aff919f701f5a5eabc3059f9bde08aa41170",
+    "inputs": [
+      {
+        "path": "infra/package.json",
+        "sha256": "39c7fb255e0726f94aaabad11fb7d858acfa2e9cc522384fbbec84f1d3fe1134",
+        "bytes": 1732
+      },
+      {
+        "path": "infra/src/AIMetrics.ts",
+        "sha256": "50d69fd2382ad80be2cfbd111fcab8354f935f8e3bf55e0a19cd7075d8d78d38",
+        "bytes": 23477
+      },
+      {
+        "path": "infra/src/index.ts",
+        "sha256": "3af4ad6ca67ff1efbac000ed8a6e29dc7449a5bc20387a4bd03228aec6fac392",
+        "bytes": 984
+      },
+      {
+        "path": "infra/src/internal/ai-metrics-entry.ts",
+        "sha256": "b02bda3bb840d749e1a73a9a15c356b1a2b131320a2006879e1940126b043eec",
+        "bytes": 946
+      },
+      {
+        "path": "infra/src/internal/oip-web-entry.ts",
+        "sha256": "ac81a0cd1e1fd88a8831230e746eeb91ffaaecdb8212960a4700caf66f393ad5",
+        "bytes": 1029
+      },
+      {
+        "path": "infra/src/OipWeb.ts",
+        "sha256": "d873a607dfe4ae6a318b20e5b34ac575a31c1341e952aee52c6dcf27b927285a",
+        "bytes": 32683
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/infra",
+    "packagePath": "infra",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/infra"
+    ],
+    "counts": {
+      "publicExportEntries": 19,
+      "uniqueSymbols": 19,
+      "sourceFiles": 5
+    },
+    "exports": [
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "AIMetricsPulumiConfigValues",
+        "exportKind": "const",
+        "sourcePath": "infra/src/AIMetrics.ts",
+        "sourceLine": 233,
+        "summary": "Raw optional Pulumi config values before target-aware defaults are applied.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . aimetricspulumiconfigvalues const raw optional pulumi config values before target-aware defaults are applied. models infra/src/aimetrics.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "AIMetricsRemoteDeploymentConfig",
+        "exportKind": "class",
+        "sourcePath": "infra/src/AIMetrics.ts",
+        "sourceLine": 290,
+        "summary": "Remote deployment inputs for the dankserver AI metrics Phoenix backend.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . aimetricsremotedeploymentconfig class remote deployment inputs for the dankserver ai metrics phoenix backend. models infra/src/aimetrics.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "AIMetricsRemoteSshConfig",
+        "exportKind": "class",
+        "sourcePath": "infra/src/AIMetrics.ts",
+        "sourceLine": 266,
+        "summary": "SSH connection inputs for native Pulumi command resources.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . aimetricsremotesshconfig class ssh connection inputs for native pulumi command resources. models infra/src/aimetrics.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "AIMetricsStack",
+        "exportKind": "class",
+        "sourcePath": "infra/src/AIMetrics.ts",
+        "sourceLine": 462,
+        "summary": "Import-safe Pulumi component for the AI metrics target contract.",
+        "categories": [
+          "resources"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . aimetricsstack class import-safe pulumi component for the ai metrics target contract. resources infra/src/aimetrics.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "AIMetricsStackArgs",
+        "exportKind": "class",
+        "sourcePath": "infra/src/AIMetrics.ts",
+        "sourceLine": 318,
+        "summary": "Pulumi-facing args for the AI metrics component.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . aimetricsstackargs class pulumi-facing args for the ai metrics component. models infra/src/aimetrics.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "infraProjectName",
+        "exportKind": "const",
+        "sourcePath": "infra/src/index.ts",
+        "sourceLine": 28,
+        "summary": "Canonical project name for this repository's infrastructure workspace.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . infraprojectname const canonical project name for this repository's infrastructure workspace. constants infra/src/index.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "loadAIMetricsStackArgs",
+        "exportKind": "const",
+        "sourcePath": "infra/src/AIMetrics.ts",
+        "sourceLine": 427,
+        "summary": "Load AI metrics args from Pulumi config.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . loadaimetricsstackargs const load ai metrics args from pulumi config. constructors infra/src/aimetrics.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "loadOipWebRuntimeSecrets",
+        "exportKind": "const",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 509,
+        "summary": "Load OIP web runtime secrets from Pulumi secret config.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . loadoipwebruntimesecrets const load oip web runtime secrets from pulumi secret config. constructors infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "loadOipWebStackArgs",
+        "exportKind": "const",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 455,
+        "summary": "Load OIP web stack args from Pulumi config.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . loadoipwebstackargs const load oip web stack args from pulumi config. constructors infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "makeAIMetricsStackArgsFromConfigValues",
+        "exportKind": "const",
+        "sourcePath": "infra/src/AIMetrics.ts",
+        "sourceLine": 366,
+        "summary": "Build AI metrics stack args from decoded Pulumi config values.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . makeaimetricsstackargsfromconfigvalues const build ai metrics stack args from decoded pulumi config values. constructors infra/src/aimetrics.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "makeOipWebStackArgsFromConfigValues",
+        "exportKind": "const",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 354,
+        "summary": "Build OIP web stack args from decoded Pulumi config values.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . makeoipwebstackargsfromconfigvalues const build oip web stack args from decoded pulumi config values. constructors infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "OipAssetsBucketConfig",
+        "exportKind": "class",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 204,
+        "summary": "S3 asset bucket resources for OIP-controlled media.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . oipassetsbucketconfig class s3 asset bucket resources for oip-controlled media. models infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "OipDnsConfig",
+        "exportKind": "class",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 228,
+        "summary": "DNS configuration for Cloudflare-managed OIP records.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . oipdnsconfig class dns configuration for cloudflare-managed oip records. models infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "OipPulumiStateBackendConfig",
+        "exportKind": "class",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 153,
+        "summary": "Pulumi DIY state backend settings for OIP.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . oippulumistatebackendconfig class pulumi diy state backend settings for oip. models infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "OipVercelProjectConfig",
+        "exportKind": "class",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 264,
+        "summary": "Vercel project configuration for `@beep/oip-web`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . oipvercelprojectconfig class vercel project configuration for `@beep/oip-web`. models infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "OipWebPulumiConfigValues",
+        "exportKind": "const",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 102,
+        "summary": "Optional Pulumi config values before OIP deploy defaults are applied.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . oipwebpulumiconfigvalues const optional pulumi config values before oip deploy defaults are applied. models infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "OipWebRuntimeSecrets",
+        "exportKind": "type",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 304,
+        "summary": "Secret runtime values for OIP deploy targets.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . oipwebruntimesecrets type secret runtime values for oip deploy targets. models infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "OipWebStack",
+        "exportKind": "class",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 681,
+        "summary": "Import-safe Pulumi component for OIP production web infrastructure.",
+        "categories": [
+          "resources"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . oipwebstack class import-safe pulumi component for oip production web infrastructure. resources infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "OipWebStackArgs",
+        "exportKind": "class",
+        "sourcePath": "infra/src/OipWeb.ts",
+        "sourceLine": 322,
+        "summary": "Pulumi-facing args for the OIP web stack.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . oipwebstackargs class pulumi-facing args for the oip web stack. models infra/src/oipweb.ts"
+      }
+    ]
+  }
+}

@@ -1,0 +1,763 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "e65f565cf8bdd84363c7757cf1a7d5891d66c6477f9ebd2eab5169e2b8a4ca50",
+    "inputs": [
+      {
+        "path": "packages/architecture-lab/server/package.json",
+        "sha256": "7cdd3d321274acad9851627b01d4a22701779a806b539cd334ee859b2544b8f2",
+        "bytes": 3045
+      },
+      {
+        "path": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "sha256": "8e3cf44174a5aea21154811f65a43d0ed1eb82aa6748ba10529f83e878bd3b3a",
+        "bytes": 594
+      },
+      {
+        "path": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.http.ts",
+        "sha256": "2ce22cb925ac273f4753d0416f1813aaee2c23c3889a5861fa879bac01fb9ba3",
+        "bytes": 3858
+      },
+      {
+        "path": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sha256": "a452669ccacbe6117fb4b30c957a357080d64c0cccd0d9455d766e4beca396ab",
+        "bytes": 1719
+      },
+      {
+        "path": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.repo.ts",
+        "sha256": "319e9f17cf2238fc789f213b082fc164d80ffd72e7be49ea9da08e13640a9303",
+        "bytes": 7124
+      },
+      {
+        "path": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.rpc.ts",
+        "sha256": "2ef49da89d565e89425c07bbe33b2545d628d77f6694de21b018994c7a4cea6f",
+        "bytes": 825
+      },
+      {
+        "path": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.tools.ts",
+        "sha256": "364145df12651b2dc077bf3f0e4817e57d8da7b8a1fbebd7db468a34b11dc487",
+        "bytes": 1545
+      },
+      {
+        "path": "packages/architecture-lab/server/src/entities/index.ts",
+        "sha256": "fec7153963f21dc74320f0d9c7008e655770cab3816100954b2fb620aae56533",
+        "bytes": 240
+      },
+      {
+        "path": "packages/architecture-lab/server/src/entities/Worker/index.ts",
+        "sha256": "1ff766e84a39613ac056b2e48efe1c13191a98e4478ac5afab4af40b9a3b183a",
+        "bytes": 239
+      },
+      {
+        "path": "packages/architecture-lab/server/src/entities/Worker/Worker.layer.ts",
+        "sha256": "42f2aa2bd11b70ebc9110fa4c4d3db7863f8ff47aade72f2c1398eba8c6a56ea",
+        "bytes": 1626
+      },
+      {
+        "path": "packages/architecture-lab/server/src/entities/Worker/Worker.repo.ts",
+        "sha256": "71b54f72b94a6e6cc526f17785d9198d133bd5e25269a1e0ad7d9783455f8464",
+        "bytes": 5902
+      },
+      {
+        "path": "packages/architecture-lab/server/src/index.ts",
+        "sha256": "a847b05739bb5c92e6d0cfa7304182b4b86897a8f5bdf879e9b0d2f25ba2d34e",
+        "bytes": 814
+      },
+      {
+        "path": "packages/architecture-lab/server/src/Layer.ts",
+        "sha256": "8b9a6a157cc03116fb3f92b5019dcc5c1cb123bb34a641090c98a5d1af2496e1",
+        "bytes": 748
+      },
+      {
+        "path": "packages/architecture-lab/server/src/test.ts",
+        "sha256": "27967762e4b1e6b0c0047d9d43aca80e9c3b804e94a96213b1003e1f1af3c433",
+        "bytes": 753
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/architecture-lab-server",
+    "packagePath": "packages/architecture-lab/server",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/architecture-lab-server",
+      "@beep/architecture-lab-server/aggregates/WorkItem",
+      "@beep/architecture-lab-server/entities/Worker",
+      "@beep/architecture-lab-server/layer",
+      "@beep/architecture-lab-server/test"
+    ],
+    "counts": {
+      "publicExportEntries": 26,
+      "uniqueSymbols": 24,
+      "sourceFiles": 13
+    },
+    "exports": [
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/architecture-lab/server/src/index.ts",
+        "symbolName": "ArchitectureLabServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/Layer.ts",
+        "sourceLine": 27,
+        "summary": "Live architecture lab server layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server . architecturelabserverlive const live architecture lab server layer. layers packages/architecture-lab/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/architecture-lab/server/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/index.ts",
+        "sourceLine": 22,
+        "summary": "Package version for the architecture lab server role.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server . version const package version for the architecture lab server role. handlers packages/architecture-lab/server/src/index.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/architecture-lab/server/src/index.ts",
+        "symbolName": "Worker",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/architecture-lab/server/src/entities/Worker/index.ts",
+        "sourceLine": 7,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server . worker sourcefile packages/architecture-lab/server/src/entities/worker/index.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/architecture-lab/server/src/index.ts",
+        "symbolName": "WorkItem",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "sourceLine": 7,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server . workitem sourcefile packages/architecture-lab/server/src/aggregates/workitem/index.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "makeDrizzleWorkItemRepository",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.repo.ts",
+        "sourceLine": 141,
+        "summary": "Build a Drizzle-backed WorkItem repository used by live persistence tests.",
+        "categories": [
+          "repositories"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem makedrizzleworkitemrepository const build a drizzle-backed workitem repository used by live persistence tests. repositories packages/architecture-lab/server/src/aggregates/workitem/workitem.repo.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "makeInMemoryWorkItemRepository",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.repo.ts",
+        "sourceLine": 52,
+        "summary": "Build the in-memory WorkItem repository used by the fast architecture lab proof.",
+        "categories": [
+          "repositories"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem makeinmemoryworkitemrepository const build the in-memory workitem repository used by the fast architecture lab proof. repositories packages/architecture-lab/server/src/aggregates/workitem/workitem.repo.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "makeWorkItemHttpHandlers",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.http.ts",
+        "sourceLine": 120,
+        "summary": "Build HTTP-style WorkItem handlers from the public use-case facade.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem makeworkitemhttphandlers const build http-style workitem handlers from the public use-case facade. handlers packages/architecture-lab/server/src/aggregates/workitem/workitem.http.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "makeWorkItemRepository",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.repo.ts",
+        "sourceLine": 206,
+        "summary": "Build the default WorkItem repository for normal slice tests.",
+        "categories": [
+          "repositories"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem makeworkitemrepository const build the default workitem repository for normal slice tests. repositories packages/architecture-lab/server/src/aggregates/workitem/workitem.repo.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "makeWorkItemRpcHandlers",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.rpc.ts",
+        "sourceLine": 24,
+        "summary": "Build RPC-style WorkItem handlers from the public use-case facade.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem makeworkitemrpchandlers const build rpc-style workitem handlers from the public use-case facade. handlers packages/architecture-lab/server/src/aggregates/workitem/workitem.rpc.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "makeWorkItemServer",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 30,
+        "summary": "Build the WorkItem server facade.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem makeworkitemserver const build the workitem server facade. layers packages/architecture-lab/server/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "makeWorkItemToolHandlers",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.tools.ts",
+        "sourceLine": 47,
+        "summary": "Build tool-style WorkItem handlers from the public use-case facade.",
+        "categories": [
+          "tools"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem makeworkitemtoolhandlers const build tool-style workitem handlers from the public use-case facade. tools packages/architecture-lab/server/src/aggregates/workitem/workitem.tools.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "toWorkItemHttpError",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.http.ts",
+        "sourceLine": 89,
+        "summary": "Convert a public WorkItem failure to an HTTP response envelope.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem toworkitemhttperror const convert a public workitem failure to an http response envelope. handlers packages/architecture-lab/server/src/aggregates/workitem/workitem.http.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemHttpResponse",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.http.ts",
+        "sourceLine": 65,
+        "summary": "Minimal HTTP response envelope used by the architecture lab proof.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem workitemhttpresponse class minimal http response envelope used by the architecture lab proof. handlers packages/architecture-lab/server/src/aggregates/workitem/workitem.http.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemHttpStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.http.ts",
+        "sourceLine": 37,
+        "summary": "HTTP status values emitted by the WorkItem proof protocol adapter.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem workitemhttpstatus const http status values emitted by the workitem proof protocol adapter. handlers packages/architecture-lab/server/src/aggregates/workitem/workitem.http.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemHttpStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.http.ts",
+        "sourceLine": 50,
+        "summary": "Runtime type for {@link WorkItemHttpStatus}.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem workitemhttpstatus type runtime type for {@link workitemhttpstatus}. handlers packages/architecture-lab/server/src/aggregates/workitem/workitem.http.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemServer",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 48,
+        "summary": "WorkItem server facade service.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem workitemserver class workitem server facade service. layers packages/architecture-lab/server/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemServerLayer",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.layer.ts",
+        "sourceLine": 65,
+        "summary": "Config-dependent WorkItem server layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem workitemserverlayer const config-dependent workitem server layer. layers packages/architecture-lab/server/src/aggregates/workitem/workitem.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/aggregates/WorkItem",
+        "exportSubpath": "./aggregates/WorkItem",
+        "exportedFromPath": "packages/architecture-lab/server/src/aggregates/WorkItem/index.ts",
+        "symbolName": "WorkItemToolNames",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.tools.ts",
+        "sourceLine": 24,
+        "summary": "WorkItem tool names exposed by the architecture lab proof.",
+        "categories": [
+          "tools"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/aggregates/workitem ./aggregates/workitem workitemtoolnames const workitem tool names exposed by the architecture lab proof. tools packages/architecture-lab/server/src/aggregates/workitem/workitem.tools.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/entities/Worker",
+        "exportSubpath": "./entities/Worker",
+        "exportedFromPath": "packages/architecture-lab/server/src/entities/Worker/index.ts",
+        "symbolName": "makeDrizzleWorkerRepository",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/entities/Worker/Worker.repo.ts",
+        "sourceLine": 132,
+        "summary": "Build a Drizzle-backed Worker repository used by live persistence tests.",
+        "categories": [
+          "repositories"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/entities/worker ./entities/worker makedrizzleworkerrepository const build a drizzle-backed worker repository used by live persistence tests. repositories packages/architecture-lab/server/src/entities/worker/worker.repo.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/entities/Worker",
+        "exportSubpath": "./entities/Worker",
+        "exportedFromPath": "packages/architecture-lab/server/src/entities/Worker/index.ts",
+        "symbolName": "makeInMemoryWorkerRepository",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/entities/Worker/Worker.repo.ts",
+        "sourceLine": 51,
+        "summary": "Build the in-memory Worker repository used by the fast architecture lab proof.",
+        "categories": [
+          "repositories"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/entities/worker ./entities/worker makeinmemoryworkerrepository const build the in-memory worker repository used by the fast architecture lab proof. repositories packages/architecture-lab/server/src/entities/worker/worker.repo.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/entities/Worker",
+        "exportSubpath": "./entities/Worker",
+        "exportedFromPath": "packages/architecture-lab/server/src/entities/Worker/index.ts",
+        "symbolName": "makeWorkerRepository",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/entities/Worker/Worker.repo.ts",
+        "sourceLine": 181,
+        "summary": "Build the default Worker repository for normal slice tests.",
+        "categories": [
+          "repositories"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/entities/worker ./entities/worker makeworkerrepository const build the default worker repository for normal slice tests. repositories packages/architecture-lab/server/src/entities/worker/worker.repo.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/entities/Worker",
+        "exportSubpath": "./entities/Worker",
+        "exportedFromPath": "packages/architecture-lab/server/src/entities/Worker/index.ts",
+        "symbolName": "makeWorkerServer",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/entities/Worker/Worker.layer.ts",
+        "sourceLine": 30,
+        "summary": "Build the Worker server facade.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/entities/worker ./entities/worker makeworkerserver const build the worker server facade. layers packages/architecture-lab/server/src/entities/worker/worker.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/entities/Worker",
+        "exportSubpath": "./entities/Worker",
+        "exportedFromPath": "packages/architecture-lab/server/src/entities/Worker/index.ts",
+        "symbolName": "WorkerServer",
+        "exportKind": "class",
+        "sourcePath": "packages/architecture-lab/server/src/entities/Worker/Worker.layer.ts",
+        "sourceLine": 48,
+        "summary": "Worker server facade service.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/entities/worker ./entities/worker workerserver class worker server facade service. layers packages/architecture-lab/server/src/entities/worker/worker.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/entities/Worker",
+        "exportSubpath": "./entities/Worker",
+        "exportedFromPath": "packages/architecture-lab/server/src/entities/Worker/index.ts",
+        "symbolName": "WorkerServerLayer",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/entities/Worker/Worker.layer.ts",
+        "sourceLine": 65,
+        "summary": "Worker server layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/entities/worker ./entities/worker workerserverlayer const worker server layer. layers packages/architecture-lab/server/src/entities/worker/worker.layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/architecture-lab/server/src/Layer.ts",
+        "symbolName": "ArchitectureLabServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/Layer.ts",
+        "sourceLine": 27,
+        "summary": "Live architecture lab server layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/layer ./layer architecturelabserverlive const live architecture lab server layer. layers packages/architecture-lab/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/architecture-lab-server",
+        "packagePath": "packages/architecture-lab/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/architecture-lab-server/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/architecture-lab/server/src/test.ts",
+        "symbolName": "ArchitectureLabServerTest",
+        "exportKind": "const",
+        "sourcePath": "packages/architecture-lab/server/src/test.ts",
+        "sourceLine": 27,
+        "summary": "Test architecture lab server layer.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/architecture-lab-server packages/architecture-lab/server @beep/architecture-lab-server/test ./test architecturelabservertest const test architecture lab server layer. testing packages/architecture-lab/server/src/test.ts"
+      }
+    ]
+  }
+}

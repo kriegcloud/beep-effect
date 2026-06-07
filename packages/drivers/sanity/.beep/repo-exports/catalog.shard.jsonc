@@ -1,0 +1,1035 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "0b973b89851709381edc79e432009f6fee3955ba85c63553c6ec598b25efdfe7",
+    "inputs": [
+      {
+        "path": "packages/drivers/sanity/package.json",
+        "sha256": "1bee4dc7e12444d4e3697bbe4745a6f32c962b406857d64c5b276a17bac14087",
+        "bytes": 2491
+      },
+      {
+        "path": "packages/drivers/sanity/src/index.ts",
+        "sha256": "270bd837c0f9a80f06e754e84cf63f40c6b2b68ad9f7af36ee602332c20bd4cb",
+        "bytes": 674
+      },
+      {
+        "path": "packages/drivers/sanity/src/Sanity.config.ts",
+        "sha256": "52c0e63bde1ac21642fb08e0d73f0a1bed7bf36b20e4e7af8aa3a76295040171",
+        "bytes": 2092
+      },
+      {
+        "path": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sha256": "f6cd4cd9cadb4c932fac735df0c429b3257844eb4c96b20859b77761930ec054",
+        "bytes": 4792
+      },
+      {
+        "path": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sha256": "60664df4cf7a6368f2a30711b4b41aa8a24c7af35b0ea0fb93089fe08c86fe29",
+        "bytes": 11750
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/sanity",
+    "packagePath": "packages/drivers/sanity",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/sanity",
+      "@beep/sanity/index",
+      "@beep/sanity/Sanity.config",
+      "@beep/sanity/Sanity.errors",
+      "@beep/sanity/Sanity.service"
+    ],
+    "counts": {
+      "publicExportEntries": 38,
+      "uniqueSymbols": 11,
+      "sourceFiles": 4
+    },
+    "exports": [
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "Sanity",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 337,
+        "summary": "Effect service for Sanity content API requests.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanity class effect service for sanity content api requests. services packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SANITY_API_VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.config.ts",
+        "sourceLine": 44,
+        "summary": "Default Sanity API version used when callers do not provide one.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanity_api_version const default sanity api version used when callers do not provide one. constants packages/drivers/sanity/src/sanity.config.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityConfigInput",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.config.ts",
+        "sourceLine": 65,
+        "summary": "Runtime configuration accepted by {@link Sanity.makeLayer}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanityconfiginput class runtime configuration accepted by {@link sanity.makelayer}. models packages/drivers/sanity/src/sanity.config.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 82,
+        "summary": "Technical failure raised by the Sanity driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanityerror class technical failure raised by the sanity driver boundary. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityErrorOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 140,
+        "summary": "Options used when constructing Sanity driver errors.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanityerroroptions class options used when constructing sanity driver errors. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 35,
+        "summary": "Technical error reasons emitted by the Sanity driver.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanityerrorreason const technical error reasons emitted by the sanity driver. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 62,
+        "summary": "Type for {@link SanityErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanityerrorreason type type for {@link sanityerrorreason}. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityQueryParamValue",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 43,
+        "summary": "Scalar JSON value accepted in Sanity query params.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanityqueryparamvalue const scalar json value accepted in sanity query params. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityQueryParamValue",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 68,
+        "summary": "Type for {@link SanityQueryParamValue}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanityqueryparamvalue type type for {@link sanityqueryparamvalue}. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityQueryRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 88,
+        "summary": "Sanity GROQ query request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanityqueryrequest class sanity groq query request. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityQueryResponse",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 116,
+        "summary": "Sanity query response.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanityqueryresponse class sanity query response. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityShape",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 146,
+        "summary": "Public Sanity service shape.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . sanityshape type public sanity service shape. services packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/index.ts",
+        "sourceLine": 43,
+        "summary": "Package version.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity . version const package version. constants packages/drivers/sanity/src/index.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "Sanity",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 337,
+        "summary": "Effect service for Sanity content API requests.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanity class effect service for sanity content api requests. services packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SANITY_API_VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.config.ts",
+        "sourceLine": 44,
+        "summary": "Default Sanity API version used when callers do not provide one.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanity_api_version const default sanity api version used when callers do not provide one. constants packages/drivers/sanity/src/sanity.config.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityConfigInput",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.config.ts",
+        "sourceLine": 65,
+        "summary": "Runtime configuration accepted by {@link Sanity.makeLayer}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanityconfiginput class runtime configuration accepted by {@link sanity.makelayer}. models packages/drivers/sanity/src/sanity.config.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 82,
+        "summary": "Technical failure raised by the Sanity driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanityerror class technical failure raised by the sanity driver boundary. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityErrorOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 140,
+        "summary": "Options used when constructing Sanity driver errors.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanityerroroptions class options used when constructing sanity driver errors. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 35,
+        "summary": "Technical error reasons emitted by the Sanity driver.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanityerrorreason const technical error reasons emitted by the sanity driver. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 62,
+        "summary": "Type for {@link SanityErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanityerrorreason type type for {@link sanityerrorreason}. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityQueryParamValue",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 43,
+        "summary": "Scalar JSON value accepted in Sanity query params.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanityqueryparamvalue const scalar json value accepted in sanity query params. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityQueryParamValue",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 68,
+        "summary": "Type for {@link SanityQueryParamValue}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanityqueryparamvalue type type for {@link sanityqueryparamvalue}. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityQueryRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 88,
+        "summary": "Sanity GROQ query request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanityqueryrequest class sanity groq query request. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityQueryResponse",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 116,
+        "summary": "Sanity query response.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanityqueryresponse class sanity query response. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "SanityShape",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 146,
+        "summary": "Public Sanity service shape.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index sanityshape type public sanity service shape. services packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/sanity/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/index.ts",
+        "sourceLine": 43,
+        "summary": "Package version.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/index ./index version const package version. constants packages/drivers/sanity/src/index.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.config",
+        "exportSubpath": "./Sanity.config",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.config.ts",
+        "symbolName": "SANITY_API_VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.config.ts",
+        "sourceLine": 44,
+        "summary": "Default Sanity API version used when callers do not provide one.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.config ./sanity.config sanity_api_version const default sanity api version used when callers do not provide one. constants packages/drivers/sanity/src/sanity.config.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.config",
+        "exportSubpath": "./Sanity.config",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.config.ts",
+        "symbolName": "SanityConfigInput",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.config.ts",
+        "sourceLine": 65,
+        "summary": "Runtime configuration accepted by {@link Sanity.makeLayer}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.config ./sanity.config sanityconfiginput class runtime configuration accepted by {@link sanity.makelayer}. models packages/drivers/sanity/src/sanity.config.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.errors",
+        "exportSubpath": "./Sanity.errors",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "symbolName": "SanityError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 82,
+        "summary": "Technical failure raised by the Sanity driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.errors ./sanity.errors sanityerror class technical failure raised by the sanity driver boundary. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.errors",
+        "exportSubpath": "./Sanity.errors",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "symbolName": "SanityErrorOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 140,
+        "summary": "Options used when constructing Sanity driver errors.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.errors ./sanity.errors sanityerroroptions class options used when constructing sanity driver errors. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.errors",
+        "exportSubpath": "./Sanity.errors",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "symbolName": "SanityErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 35,
+        "summary": "Technical error reasons emitted by the Sanity driver.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.errors ./sanity.errors sanityerrorreason const technical error reasons emitted by the sanity driver. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.errors",
+        "exportSubpath": "./Sanity.errors",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "symbolName": "SanityErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.errors.ts",
+        "sourceLine": 62,
+        "summary": "Type for {@link SanityErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.errors ./sanity.errors sanityerrorreason type type for {@link sanityerrorreason}. errors packages/drivers/sanity/src/sanity.errors.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.service",
+        "exportSubpath": "./Sanity.service",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "symbolName": "Sanity",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 337,
+        "summary": "Effect service for Sanity content API requests.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.service ./sanity.service sanity class effect service for sanity content api requests. services packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.service",
+        "exportSubpath": "./Sanity.service",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "symbolName": "SanityQueryParamValue",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 43,
+        "summary": "Scalar JSON value accepted in Sanity query params.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.service ./sanity.service sanityqueryparamvalue const scalar json value accepted in sanity query params. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.service",
+        "exportSubpath": "./Sanity.service",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "symbolName": "SanityQueryParamValue",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 68,
+        "summary": "Type for {@link SanityQueryParamValue}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.service ./sanity.service sanityqueryparamvalue type type for {@link sanityqueryparamvalue}. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.service",
+        "exportSubpath": "./Sanity.service",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "symbolName": "SanityQueryRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 88,
+        "summary": "Sanity GROQ query request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.service ./sanity.service sanityqueryrequest class sanity groq query request. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.service",
+        "exportSubpath": "./Sanity.service",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "symbolName": "SanityQueryResponse",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 116,
+        "summary": "Sanity query response.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.service ./sanity.service sanityqueryresponse class sanity query response. models packages/drivers/sanity/src/sanity.service.ts"
+      },
+      {
+        "packageName": "@beep/sanity",
+        "packagePath": "packages/drivers/sanity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/sanity/Sanity.service",
+        "exportSubpath": "./Sanity.service",
+        "exportedFromPath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "symbolName": "SanityShape",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/sanity/src/Sanity.service.ts",
+        "sourceLine": 146,
+        "summary": "Public Sanity service shape.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/sanity packages/drivers/sanity @beep/sanity/sanity.service ./sanity.service sanityshape type public sanity service shape. services packages/drivers/sanity/src/sanity.service.ts"
+      }
+    ]
+  }
+}

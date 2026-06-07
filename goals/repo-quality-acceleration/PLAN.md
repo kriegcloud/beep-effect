@@ -1,5 +1,9 @@
 # Repo Quality Acceleration Plan
 
+> Superseded by
+> [`goals/repo-quality-throughput`](../repo-quality-throughput). This plan is
+> retained as historical research context only.
+
 ## Phase 0 - Baseline And Parallel Exploration
 
 - Capture recent GitHub Actions Check workflow timing with `gh run list` and
