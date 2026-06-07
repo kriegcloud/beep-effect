@@ -477,6 +477,9 @@ Run and manage the local Graphiti MCP queue proxy.
 bun run beep graphiti proxy
 bun run beep graphiti proxy ensure
 bun run beep graphiti proxy service install
+bun run beep graphiti restore --dry-run
+bun run beep graphiti restore
+bun run beep graphiti verify
 bun run beep graphiti recover --dry-run
 ```
 

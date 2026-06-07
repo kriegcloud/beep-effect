@@ -1,7 +1,10 @@
 import {
+  backupDirectoryNameFromEpochMillisForTesting,
   GraphitiProxyConfig,
   isFastMcpRequestBody,
   makeGraphitiProxyForwarderService,
+  resolveGraphitiStackDirForTesting,
+  shouldInstallProxyServiceForTesting,
   shouldRecoverGraphitiStackForTesting,
 } from "@beep/repo-cli/test/Graphiti";
 import { NodeServices } from "@effect/platform-node";
@@ -263,6 +266,49 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
         force: true,
         graphiti: "healthy",
         recoverOnUnhealthy: false,
+      })
+    ).toBe(true);
+  });
+
+  it("resolves restore stack directory with CLI precedence over environment and default", () => {
+    expect(resolveGraphitiStackDirForTesting(O.some("/tmp/cli"), O.some("/tmp/env"))).toBe("/tmp/cli");
+    expect(resolveGraphitiStackDirForTesting(O.none(), O.some("/tmp/env"))).toBe("/tmp/env");
+    expect(resolveGraphitiStackDirForTesting(O.none(), O.none())).toBe("/home/elpresidank/graphiti-mcp");
+  });
+
+  it("uses a stable timestamped backup directory name", () => {
+    expect(backupDirectoryNameFromEpochMillisForTesting(0)).toBe("data-1970-01-01T000000000Z");
+  });
+
+  it("reinstalls the proxy service when the unit points at a stale checkout or upstream", () => {
+    const currentUnit = [
+      "[Service]",
+      "WorkingDirectory=/repo",
+      "ExecStart=/home/elpresidank/.bun/bin/bun run beep graphiti proxy",
+      "Environment=GRAPHITI_PROXY_HOST=127.0.0.1",
+      "Environment=GRAPHITI_PROXY_PORT=8123",
+      "Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:8000/mcp",
+    ].join("\n");
+
+    expect(
+      shouldInstallProxyServiceForTesting({
+        repoRoot: "/repo",
+        unitText: currentUnit,
+        upstream: "http://127.0.0.1:8000/mcp",
+      })
+    ).toBe(false);
+    expect(
+      shouldInstallProxyServiceForTesting({
+        repoRoot: "/new-repo",
+        unitText: currentUnit,
+        upstream: "http://127.0.0.1:8000/mcp",
+      })
+    ).toBe(true);
+    expect(
+      shouldInstallProxyServiceForTesting({
+        repoRoot: "/repo",
+        unitText: currentUnit,
+        upstream: "http://127.0.0.1:9000/mcp",
       })
     ).toBe(true);
   });
