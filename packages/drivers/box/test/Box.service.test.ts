@@ -161,6 +161,16 @@ describe("@beep/box", () => {
     })
   );
 
+  it("drops non-finite SDK status codes from sanitized errors", () => {
+    const error = B.BoxError.fromUnknown("users.getUserMe", {
+      responseInfo: {
+        statusCode: Number.NaN,
+      },
+    });
+
+    expect(error.status).toBeUndefined();
+  });
+
   layer(B.Box.makeLayerFromClient(makeFakeClient()))((it) => {
     it.effect(
       "wraps SDK JSON operations in decoded success schemas",

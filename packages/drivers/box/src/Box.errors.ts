@@ -233,10 +233,12 @@ const readString =
   (value: unknown): O.Option<string> =>
     pipe(readProperty(key)(value), O.filter(P.isString));
 
+const isFiniteNumber = (value: unknown): value is number => P.isNumber(value) && Number.isFinite(value);
+
 const readNumber =
   (key: PropertyKey) =>
   (value: unknown): O.Option<number> =>
-    pipe(readProperty(key)(value), O.filter(P.isNumber));
+    pipe(readProperty(key)(value), O.filter(isFiniteNumber));
 
 const responseInfoFromUnknown = (cause: unknown): O.Option<unknown> => readProperty("responseInfo")(cause);
 

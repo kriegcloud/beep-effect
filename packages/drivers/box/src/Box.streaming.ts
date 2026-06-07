@@ -13,6 +13,7 @@ import * as S from "effect/Schema";
 import * as M from "./_generated/Box.models.gen.ts";
 import { BoxError } from "./Box.errors.ts";
 import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
+import { decodeWith, logDriverFailure } from "./internal/Box.runtime.ts";
 import type { BoxMethodName } from "./_generated/Box.models.gen.ts";
 
 /**
@@ -476,34 +477,6 @@ const BoxDownloadZipPayloadSchema = S.Struct({
   optionalsInput: M.DownloadZipOptionalsInput.pipe(S.optionalKey),
   requestBody: M.ZipDownloadRequest,
 });
-
-const diagnosticsFor = (event: string, error: BoxError): Readonly<Record<string, unknown>> => ({
-  event,
-  method: error.method,
-  provider: "box",
-  reason: error.reason,
-  status: error.status,
-});
-
-const logDriverFailure =
-  (event: string) =>
-  (error: BoxError): Effect.Effect<void> =>
-    Effect.logDebug(diagnosticsFor(event, error));
-
-const decodeWith = <A>(
-  method: BoxMethodName,
-  schema: S.Decoder<A>,
-  value: unknown,
-  reason: "request encoding" | "response decoding"
-): Effect.Effect<A, BoxError> =>
-  S.decodeUnknownEffect(schema)(value).pipe(
-    Effect.mapError((cause) =>
-      BoxError.fromReason(reason, {
-        cause,
-        method,
-      })
-    )
-  );
 
 const readProperty = (value: unknown, key: PropertyKey): unknown =>
   P.isObject(value)
