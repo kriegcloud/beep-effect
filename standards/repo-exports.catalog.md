@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 7 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1079 |
-| publicExportEntries | 15206 |
-| uniquePackageSymbols | 6572 |
+| publicExportEntries | 15216 |
+| uniquePackageSymbols | 6577 |
 
 ## Seed Discovery Proof
 
@@ -53,7 +53,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 14 | `@beep/discord` | `packages/drivers/discord` | has-public-exports | 5 | 27 | 8 |
 | 15 | `@beep/face-detection` | `packages/drivers/face-detection` | has-public-exports | 5 | 72 | 20 |
 | 16 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | has-public-exports | 2 | 6 | 6 |
-| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1744 | 635 |
+| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | has-public-exports | 147 | 1754 | 640 |
 | 18 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | has-public-exports | 11 | 180 | 57 |
 | 19 | `@beep/shared-server` | `packages/shared/server` | has-public-exports | 2 | 2 | 1 |
 | 20 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | has-public-exports | 10 | 90 | 65 |
@@ -876,7 +876,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli` | `docgenCommand` | const | `packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts:1112` | Human-first docgen command suite. |
 | `@beep/repo-cli` | `docsCommand` | const | `packages/tooling/tool/cli/src/commands/Docs/Docs.command.ts:244` | Command-first docs discovery entrypoint used by agent config surfaces. |
 | `@beep/repo-cli` | `filesCommand` | const | `packages/tooling/tool/cli/src/commands/Files/Files.command.ts:501` | File curation command group. |
-| `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
+| `@beep/repo-cli` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:129` | Graphiti command group. |
 | `@beep/repo-cli` | `imageCommand` | const | `packages/tooling/tool/cli/src/commands/Image/Image.command.ts:135` | Image and video curation command group. |
 | `@beep/repo-cli` | `lawsCommand` | const | `packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts:439` | Laws command group. |
 | `@beep/repo-cli` | `lintCommand` | const | `packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts:651` | Lint command group. |
@@ -1737,24 +1737,29 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/commands/Files/index` | `SupportedMetadataImageExtension` | const | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:170` | Image extension schema supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files/index` | `SupportedMetadataImageExtension` | type | `packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts:182` | Image extension supported by metadata stripping. |
 | `@beep/repo-cli/commands/Files/index` | `targetNameForEntry` | const | `packages/tooling/tool/cli/src/commands/Files/Files.media.ts:526` | Build a generated filename for a planned rename. |
-| `@beep/repo-cli/commands/Graphiti` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
+| `@beep/repo-cli/commands/Graphiti` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:129` | Graphiti command group. |
 | `@beep/repo-cli/commands/Graphiti` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:35` | Raised when graphiti proxy configuration cannot be loaded. |
 | `@beep/repo-cli/commands/Graphiti` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
-| `@beep/repo-cli/commands/Graphiti/Graphiti.command` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
+| `@beep/repo-cli/commands/Graphiti/Graphiti.command` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:129` | Graphiti command group. |
 | `@beep/repo-cli/commands/Graphiti/Graphiti.errors` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:35` | Raised when graphiti proxy configuration cannot be loaded. |
 | `@beep/repo-cli/commands/Graphiti/Graphiti.errors` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
-| `@beep/repo-cli/commands/Graphiti/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
+| `@beep/repo-cli/commands/Graphiti/index` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:129` | Graphiti command group. |
 | `@beep/repo-cli/commands/Graphiti/index` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:35` | Raised when graphiti proxy configuration cannot be loaded. |
 | `@beep/repo-cli/commands/Graphiti/index` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `GraphitiProxyConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:106` | Runtime configuration schema for graphiti proxy. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyConfig` | `loadGraphitiProxyConfig` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:187` | Load graphiti proxy config from Effect Config environment values. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:546` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `backupDirectoryNameFromEpochMillisForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:297` | Build the backup directory name used by `graphiti restore --backup`. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1022` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:717` | Install and start the user-level systemd unit for the Graphiti proxy. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:64` | Configuration for installing and managing the Graphiti proxy user service. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:639` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:607` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
-| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:668` | Decide whether Graphiti recovery should restart the backing containers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `GraphitiRestoreConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:80` | Configuration for restoring and verifying the local Graphiti stack. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1237` | Install and start the user-level systemd unit for the Graphiti proxy. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:117` | Configuration for installing and managing the Graphiti proxy user service. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1159` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `resolveGraphitiStackDirForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:244` | Resolve the Graphiti stack directory from CLI and environment inputs. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `restoreGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1110` | Restore the local Graphiti backing stack and repair the agent-facing proxy. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `shouldInstallProxyServiceForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:334` | Decide whether the live proxy systemd unit should be reinstalled. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1188` | Decide whether Graphiti recovery should restart the backing containers. |
+| `@beep/repo-cli/commands/Graphiti/internal/ProxyOps` | `verifyGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1083` | Verify the local Graphiti stack, persisted `beep_dev` graph, and proxy MCP endpoint. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyRuntime` | `runGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts:38` | Run the graphiti queue proxy runtime with graceful shutdown. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `ContainerHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:55` | Container health literal union. |
 | `@beep/repo-cli/commands/Graphiti/internal/ProxyServices` | `DependencyHealthSnapshot` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:137` | Cached dependency health snapshot payload. |
@@ -2340,18 +2345,20 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Docgen` | `selectDocgenLocalPackagesForTesting` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts:790` | Select package-local docgen targets for changed files. |
 | `@beep/repo-cli/test/Docgen` | `selectQualityWorkerEvalPackets` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts:723` | Select remediation packets for a capped worker eval run. |
 | `@beep/repo-cli/test/Docgen` | `selectQualityWorkerRunpodTemplate` | const | `packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts:394` | Select the first suitable Ollama template from live Runpod templates. |
+| `@beep/repo-cli/test/Graphiti` | `backupDirectoryNameFromEpochMillisForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:297` | Build the backup directory name used by `graphiti restore --backup`. |
 | `@beep/repo-cli/test/Graphiti` | `ContainerHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:55` | Container health literal union. |
 | `@beep/repo-cli/test/Graphiti` | `DependencyHealthSnapshot` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:137` | Cached dependency health snapshot payload. |
 | `@beep/repo-cli/test/Graphiti` | `DependencyHealthState` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:71` | Dependency health literal union. |
-| `@beep/repo-cli/test/Graphiti` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:546` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
-| `@beep/repo-cli/test/Graphiti` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:94` | Graphiti command group. |
+| `@beep/repo-cli/test/Graphiti` | `ensureGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1022` | Ensure the local Graphiti proxy is healthy, starting it in the background when needed. |
+| `@beep/repo-cli/test/Graphiti` | `graphitiCommand` | const | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.command.ts:129` | Graphiti command group. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiDependencyHealthService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:382` | Service tag for dependency health snapshots. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:106` | Runtime configuration schema for graphiti proxy. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyConfigLoadError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:35` | Raised when graphiti proxy configuration cannot be loaded. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyForwarderService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:397` | Service tag for forwarding requests to upstream graphiti. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyOpsError` | class | `packages/tooling/tool/cli/src/commands/Graphiti/Graphiti.errors.ts:78` | Typed failure for Graphiti proxy operational helpers. |
 | `@beep/repo-cli/test/Graphiti` | `GraphitiProxyQueueService` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:412` | Service tag for queueing and draining proxy traffic. |
-| `@beep/repo-cli/test/Graphiti` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:717` | Install and start the user-level systemd unit for the Graphiti proxy. |
+| `@beep/repo-cli/test/Graphiti` | `GraphitiRestoreConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:80` | Configuration for restoring and verifying the local Graphiti stack. |
+| `@beep/repo-cli/test/Graphiti` | `installGraphitiProxyService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1237` | Install and start the user-level systemd unit for the Graphiti proxy. |
 | `@beep/repo-cli/test/Graphiti` | `isFastMcpRequestBody` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:474` | Determine whether an MCP request body is cheap enough to bypass the serialized memory-work queue. |
 | `@beep/repo-cli/test/Graphiti` | `loadGraphitiProxyConfig` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts:187` | Load graphiti proxy config from Effect Config environment values. |
 | `@beep/repo-cli/test/Graphiti` | `makeGraphitiDependencyHealthService` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:535` | Construct dependency health service implementation. |
@@ -2361,10 +2368,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/repo-cli/test/Graphiti` | `ProxyHealthPayload` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:184` | Structured JSON payload for health endpoints. |
 | `@beep/repo-cli/test/Graphiti` | `proxyHealthResponse` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:343` | Build a structured proxy health HTTP response. |
 | `@beep/repo-cli/test/Graphiti` | `ProxyQueueStats` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts:157` | Queue and processing counters for proxy introspection. |
-| `@beep/repo-cli/test/Graphiti` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:64` | Configuration for installing and managing the Graphiti proxy user service. |
-| `@beep/repo-cli/test/Graphiti` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:639` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
-| `@beep/repo-cli/test/Graphiti` | `runKgWithGraphitiProxy` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:607` | Run a knowledge-graph CLI command with the local Graphiti proxy ensured first. |
-| `@beep/repo-cli/test/Graphiti` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:668` | Decide whether Graphiti recovery should restart the backing containers. |
+| `@beep/repo-cli/test/Graphiti` | `ProxyServiceConfig` | class | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:117` | Configuration for installing and managing the Graphiti proxy user service. |
+| `@beep/repo-cli/test/Graphiti` | `recoverGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1159` | Recover the local Graphiti backing stack by restarting unhealthy containers. |
+| `@beep/repo-cli/test/Graphiti` | `resolveGraphitiStackDirForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:244` | Resolve the Graphiti stack directory from CLI and environment inputs. |
+| `@beep/repo-cli/test/Graphiti` | `restoreGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1110` | Restore the local Graphiti backing stack and repair the agent-facing proxy. |
+| `@beep/repo-cli/test/Graphiti` | `shouldInstallProxyServiceForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:334` | Decide whether the live proxy systemd unit should be reinstalled. |
+| `@beep/repo-cli/test/Graphiti` | `shouldRecoverGraphitiStackForTesting` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1188` | Decide whether Graphiti recovery should restart the backing containers. |
+| `@beep/repo-cli/test/Graphiti` | `verifyGraphitiStack` | const | `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts:1083` | Verify the local Graphiti stack, persisted `beep_dev` graph, and proxy MCP endpoint. |
 | `@beep/repo-cli/test/Laws` | `ALLOWLIST_PATH` | const | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:35` | Relative path to the effect laws allowlist. |
 | `@beep/repo-cli/test/Laws` | `AllowlistCheckOptions` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:119` | Runtime options for allowlist integrity checks. |
 | `@beep/repo-cli/test/Laws` | `AllowlistCheckSummary` | class | `packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts:138` | Result of an allowlist integrity check. |
