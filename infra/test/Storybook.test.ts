@@ -41,6 +41,14 @@ describe("@beep/infra Storybook", () => {
     expect(args.vercel.vercelAuthenticationDeploymentType).toBe("onlyPreviewDeployments");
   });
 
+  it("rejects invalid Vercel authentication deployment config values", () => {
+    expect(() =>
+      makeStorybookStackArgsFromConfigValues({
+        vercelAuthenticationDeploymentType: "invalid",
+      })
+    ).toThrow(/Invalid storybook:vercelAuthenticationDeploymentType/u);
+  });
+
   it("keeps stack args import-safe", () => {
     const args = StorybookStackArgs.make({});
 

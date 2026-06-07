@@ -11,6 +11,7 @@ import { Struct } from "@beep/utils";
 import * as O from "@beep/utils/Option";
 import * as pulumi from "@pulumi/pulumi";
 import * as vercel from "@pulumiverse/vercel";
+import { Result } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $InfraId.create("Storybook");
@@ -24,7 +25,7 @@ const defaultRepository = "kriegcloud/beep-effect";
 const defaultRootDirectory = "apps/storybook";
 const defaultVercelAuthenticationDeploymentType: StorybookVercelAuthenticationDeploymentType = "none";
 
-type StorybookPulumiConfigValues = {
+type StorybookPulumiConfigValuesFields = {
   readonly buildCommand?: string | undefined;
   readonly installCommand?: string | undefined;
   readonly outputDirectory?: string | undefined;
@@ -36,14 +37,72 @@ type StorybookPulumiConfigValues = {
   readonly vercelTeamId?: string | undefined;
 };
 
-const StorybookVercelAuthenticationDeploymentType = LiteralKit([
+type StorybookPulumiConfigInputValues = Omit<
+  StorybookPulumiConfigValuesFields,
+  "vercelAuthenticationDeploymentType"
+> & {
+  readonly vercelAuthenticationDeploymentType?: string | undefined;
+};
+
+/**
+ * Vercel deployment authentication modes accepted by the Storybook project.
+ *
+ * @example
+ * ```ts
+ * import { StorybookVercelAuthenticationDeploymentType } from "@beep/infra"
+ *
+ * console.log(StorybookVercelAuthenticationDeploymentType.Enum.none)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const StorybookVercelAuthenticationDeploymentType = LiteralKit([
   "standardProtectionNew",
   "standardProtection",
   "allDeployments",
   "onlyPreviewDeployments",
   "none",
-]);
-type StorybookVercelAuthenticationDeploymentType = typeof StorybookVercelAuthenticationDeploymentType.Type;
+]).pipe(
+  $I.annoteSchema("StorybookVercelAuthenticationDeploymentType", {
+    description: "Vercel deployment authentication modes accepted by the Storybook project.",
+  })
+);
+
+/**
+ * Runtime type for {@link StorybookVercelAuthenticationDeploymentType}.
+ *
+ * @example
+ * ```ts
+ * import type { StorybookVercelAuthenticationDeploymentType } from "@beep/infra"
+ *
+ * const deploymentType: StorybookVercelAuthenticationDeploymentType = "none"
+ * console.log(deploymentType)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type StorybookVercelAuthenticationDeploymentType = typeof StorybookVercelAuthenticationDeploymentType.Type;
+
+const schemaIssueToPulumiConfigError =
+  (key: string, value: string) =>
+  (cause: S.SchemaError): pulumi.RunError =>
+    new pulumi.RunError(`Invalid storybook:${key} Pulumi config value "${value}": ${cause.message}`);
+
+const decodeStorybookVercelAuthenticationDeploymentType = S.decodeUnknownResult(
+  StorybookVercelAuthenticationDeploymentType
+);
+
+const storybookVercelAuthenticationDeploymentTypeFromPulumiConfig = (
+  value: string | undefined
+): StorybookVercelAuthenticationDeploymentType | undefined =>
+  value === undefined
+    ? undefined
+    : Result.getOrThrowWith(
+        decodeStorybookVercelAuthenticationDeploymentType(value),
+        schemaIssueToPulumiConfigError("vercelAuthenticationDeploymentType", value)
+      );
 
 /**
  * Optional Pulumi config values before Storybook deploy defaults are applied.
@@ -58,7 +117,7 @@ type StorybookVercelAuthenticationDeploymentType = typeof StorybookVercelAuthent
  * @category models
  * @since 0.0.0
  */
-export const StorybookPulumiConfigValues = S.Class<StorybookPulumiConfigValues>($I`StorybookPulumiConfigValues`)(
+export const StorybookPulumiConfigValues = S.Class<StorybookPulumiConfigValuesFields>($I`StorybookPulumiConfigValues`)(
   {
     buildCommand: S.String,
     installCommand: S.String,
@@ -74,6 +133,22 @@ export const StorybookPulumiConfigValues = S.Class<StorybookPulumiConfigValues>(
     description: "Optional Pulumi config values before Storybook deploy defaults are applied.",
   })
 ).mapFields(Struct.map(S.optionalKey));
+
+/**
+ * Runtime type for {@link StorybookPulumiConfigValues}.
+ *
+ * @example
+ * ```ts
+ * import type { StorybookPulumiConfigValues } from "@beep/infra"
+ *
+ * const values: StorybookPulumiConfigValues = {}
+ * console.log(values)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type StorybookPulumiConfigValues = typeof StorybookPulumiConfigValues.Type;
 
 /**
  * Vercel project configuration for `@beep/storybook`.
@@ -158,8 +233,12 @@ export const makeStorybookStackArgsFromConfigValues = ({
   rootDirectory,
   vercelAuthenticationDeploymentType,
   vercelTeamId,
-}: StorybookPulumiConfigValues = {}): StorybookStackArgs =>
-  StorybookStackArgs.make({
+}: StorybookPulumiConfigInputValues = {}): StorybookStackArgs => {
+  const resolvedVercelAuthenticationDeploymentType = storybookVercelAuthenticationDeploymentTypeFromPulumiConfig(
+    vercelAuthenticationDeploymentType
+  );
+
+  return StorybookStackArgs.make({
     vercel: StorybookVercelProjectConfig.make(
       O.getSomesStruct({
         buildCommand: O.fromUndefinedOr(buildCommand),
@@ -170,10 +249,11 @@ export const makeStorybookStackArgsFromConfigValues = ({
         repository: O.fromUndefinedOr(repository),
         rootDirectory: O.fromUndefinedOr(rootDirectory),
         teamId: O.fromUndefinedOr(vercelTeamId),
-        vercelAuthenticationDeploymentType: O.fromUndefinedOr(vercelAuthenticationDeploymentType),
+        vercelAuthenticationDeploymentType: O.fromUndefinedOr(resolvedVercelAuthenticationDeploymentType),
       })
     ),
   });
+};
 
 /**
  * Load Storybook stack args from Pulumi config.
@@ -199,9 +279,7 @@ export const loadStorybookStackArgs = (): StorybookStackArgs => {
     projectName: config.get("projectName"),
     repository: config.get("repository"),
     rootDirectory: config.get("rootDirectory"),
-    vercelAuthenticationDeploymentType: config.get("vercelAuthenticationDeploymentType") as
-      | StorybookVercelAuthenticationDeploymentType
-      | undefined,
+    vercelAuthenticationDeploymentType: config.get("vercelAuthenticationDeploymentType"),
     vercelTeamId: config.get("vercelTeamId"),
   });
 };
