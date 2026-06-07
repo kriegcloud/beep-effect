@@ -7,15 +7,15 @@
 
 import { $BoxId } from "@beep/identity";
 import { BoxCcgAuth, BoxClient, BoxDeveloperTokenAuth, CcgConfig } from "box-node-sdk";
-import { Config, Context, Effect, Layer, Redacted } from "effect";
+import { Context, Effect, Layer, Redacted } from "effect";
 import { makeGeneratedOperations } from "./_generated/Box.operations.gen.ts";
-import { BoxDeveloperTokenConfig } from "./Box.config.ts";
+import { BoxConfig, BoxConfigLayer } from "./Box.config.ts";
 import { BoxError } from "./Box.errors.ts";
 import { makeStreamingOperations } from "./Box.streaming.ts";
 import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
 import { decodeWith, logDriverFailure } from "./internal/Box.runtime.ts";
 import type { BoxGeneratedOperations, BoxRunSdkCall } from "./_generated/Box.operations.gen.ts";
-import type { BoxCcgConfig } from "./Box.config.ts";
+import type { BoxCcgConfig, BoxDeveloperTokenConfig } from "./Box.config.ts";
 import type { BoxStreamingOperations } from "./Box.streaming.ts";
 
 const $I = $BoxId.create("Box.service");
@@ -182,16 +182,6 @@ export class Box extends Context.Service<Box, BoxShape>()($I`Box`) {
    */
   static readonly layer: Layer.Layer<Box, BoxError> = Layer.effect(
     Box,
-    Effect.gen(function* () {
-      const token = yield* Config.redacted("CLOUD_BOX_TOKEN").pipe(
-        Effect.mapError((cause) =>
-          BoxError.fromReason("config", {
-            cause,
-          })
-        )
-      );
-      const config = BoxDeveloperTokenConfig.make({ token });
-      return Box.of(makeService(makeDeveloperTokenClient(config)));
-    })
-  );
+    BoxConfig.pipe(Effect.map((config) => Box.of(makeService(makeDeveloperTokenClient(config)))))
+  ).pipe(Layer.provide(BoxConfigLayer));
 }

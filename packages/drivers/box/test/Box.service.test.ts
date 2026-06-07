@@ -376,11 +376,18 @@ describe("@beep/box", () => {
     );
   });
 
-  const invalidEventStream = new FakeEventStream([{ createdAt: 123 }]);
+  const invalidEventStream = new FakeEventStream([
+    { createdAt: 123 },
+    {
+      eventId: "event-id-after-invalid-payload",
+      eventType: "FUTURE_BOX_EVENT",
+      type: "event",
+    },
+  ]);
 
   layer(B.Box.makeLayerFromClient(makeFakeClient({ events: { getEventStream: () => invalidEventStream } })))((it) => {
     it.effect(
-      "fails event streams when SDK event payloads cannot decode",
+      "fails event streams and closes the SDK readable when payloads cannot decode",
       Effect.fnUntraced(function* () {
         const box = yield* B.Box;
         const exit = yield* Effect.exit(box.events.getEventStream({}).pipe(Stream.runCollect));

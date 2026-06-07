@@ -675,30 +675,6 @@ const runByteStreamSdkCall = <Payload>(
     })
   );
 
-const emitEvent = (
-  queue: Queue.Queue<M.Event, BoxError | Cause.Done>,
-  method: BoxMethodName,
-  value: unknown
-): boolean => {
-  const result = S.decodeUnknownResult(M.Event)(value);
-
-  if (Result.isSuccess(result)) {
-    Queue.offerUnsafe(queue, result.success);
-    return true;
-  }
-
-  Queue.failCauseUnsafe(
-    queue,
-    Cause.fail(
-      BoxError.fromReason("response decoding", {
-        cause: result.failure,
-        method,
-      })
-    )
-  );
-  return false;
-};
-
 const eventStreamFromSdkValue = (method: BoxMethodName, value: unknown): Stream.Stream<M.Event, BoxError> => {
   if (!(value instanceof Readable)) {
     return Stream.fail(
@@ -709,36 +685,72 @@ const eventStreamFromSdkValue = (method: BoxMethodName, value: unknown): Stream.
     );
   }
 
+  const readable = value;
+
   return Stream.callback<M.Event, BoxError>((queue) =>
     Effect.acquireRelease(
       Effect.sync(() => {
         let ended = false;
-        const onData = (payload: unknown) => emitEvent(queue, method, payload);
-        const onError = (cause: unknown) => {
-          Queue.failCauseUnsafe(queue, Cause.fail(BoxError.fromUnknown(method, cause)));
-        };
-        const onEnd = () => {
+
+        function removeListeners(): void {
+          readable.off("data", onData);
+          readable.off("error", onError);
+          readable.off("end", onEnd);
+          readable.off("close", onEnd);
+        }
+
+        function closeReadable(): void {
+          removeListeners();
+          destroyReadable(readable);
+        }
+
+        function fail(error: BoxError): void {
           if (!ended) {
             ended = true;
+            closeReadable();
+            Queue.failCauseUnsafe(queue, Cause.fail(error));
+          }
+        }
+
+        function onData(payload: unknown): void {
+          if (ended) {
+            return;
+          }
+
+          const result = S.decodeUnknownResult(M.Event)(payload);
+          if (Result.isSuccess(result)) {
+            Queue.offerUnsafe(queue, result.success);
+            return;
+          }
+
+          fail(
+            BoxError.fromReason("response decoding", {
+              cause: result.failure,
+              method,
+            })
+          );
+        }
+
+        function onError(cause: unknown): void {
+          fail(BoxError.fromUnknown(method, cause));
+        }
+
+        function onEnd(): void {
+          if (!ended) {
+            ended = true;
+            removeListeners();
             Queue.endUnsafe(queue);
           }
-        };
+        }
 
-        value.on("data", onData);
-        value.on("error", onError);
-        value.on("end", onEnd);
-        value.on("close", onEnd);
+        readable.on("data", onData);
+        readable.on("error", onError);
+        readable.on("end", onEnd);
+        readable.on("close", onEnd);
 
-        return { onData, onEnd, onError };
+        return closeReadable;
       }),
-      ({ onData, onEnd, onError }) =>
-        Effect.sync(() => {
-          value.off("data", onData);
-          value.off("error", onError);
-          value.off("end", onEnd);
-          value.off("close", onEnd);
-          destroyReadable(value);
-        })
+      (closeReadable) => Effect.sync(closeReadable)
     )
   ).pipe(
     Stream.withSpan(`box.${method}.stream`, {
