@@ -7,11 +7,12 @@
 
 import { Buffer } from "node:buffer";
 import { Readable } from "node:stream";
-import { Cause, Effect, Queue, Result, Stream } from "effect";
+import { Cause, Effect, Exit, Queue, Result, Stream } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as M from "./_generated/Box.models.gen.ts";
 import { BoxError } from "./Box.errors.ts";
+import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
 import type { BoxMethodName } from "./_generated/Box.models.gen.ts";
 
 /**
@@ -662,7 +663,7 @@ const runJsonSdkCall = <Payload, Success>(
         Effect.withSpan(`box.${methodName}`, {
           attributes: {
             "box.method": methodName,
-            "box.sdk.version": "10.11.1",
+            "box.sdk.version": BOX_SDK_VERSION,
           },
         })
       ),
@@ -676,30 +677,27 @@ const runByteStreamSdkCall = <Payload>(
   invoke: (decoded: Payload, signal: AbortSignal) => Effect.Effect<unknown, BoxError>
 ): BoxByteStream =>
   Stream.unwrap(
-    Effect.sync(() => new AbortController()).pipe(
-      Effect.flatMap((controller) =>
+    Effect.acquireUseRelease(
+      Effect.sync(() => new AbortController()),
+      (controller) =>
         decodeWith(methodName, payloadSchema, payload, "request encoding").pipe(
           Effect.flatMap((decoded) => invoke(decoded, controller.signal)),
           Effect.map((result) => byteStreamFromSdkValue(methodName, result, controller)),
-          Effect.tapError((error) =>
-            logDriverFailure("box.streaming_byte_failure")(error).pipe(
-              Effect.andThen(Effect.sync(() => controller.abort()))
-            )
-          ),
+          Effect.tapError(logDriverFailure("box.streaming_byte_failure")),
           Effect.withSpan(`box.${methodName}`, {
             attributes: {
               "box.method": methodName,
-              "box.sdk.version": "10.11.1",
+              "box.sdk.version": BOX_SDK_VERSION,
             },
           })
-        )
-      )
+        ),
+      (controller, exit) => (Exit.isSuccess(exit) ? Effect.void : Effect.sync(() => controller.abort()))
     )
   ).pipe(
     Stream.withSpan(`box.${methodName}.stream`, {
       attributes: {
         "box.method": methodName,
-        "box.sdk.version": "10.11.1",
+        "box.sdk.version": BOX_SDK_VERSION,
       },
     })
   );
@@ -741,11 +739,17 @@ const eventStreamFromSdkValue = (method: BoxMethodName, value: unknown): Stream.
   return Stream.callback<M.Event, BoxError>((queue) =>
     Effect.acquireRelease(
       Effect.sync(() => {
+        let ended = false;
         const onData = (payload: unknown) => emitEvent(queue, method, payload);
         const onError = (cause: unknown) => {
           Queue.failCauseUnsafe(queue, Cause.fail(BoxError.fromUnknown(method, cause)));
         };
-        const onEnd = () => Queue.endUnsafe(queue);
+        const onEnd = () => {
+          if (!ended) {
+            ended = true;
+            Queue.endUnsafe(queue);
+          }
+        };
 
         value.on("data", onData);
         value.on("error", onError);
@@ -767,7 +771,7 @@ const eventStreamFromSdkValue = (method: BoxMethodName, value: unknown): Stream.
     Stream.withSpan(`box.${method}.stream`, {
       attributes: {
         "box.method": method,
-        "box.sdk.version": "10.11.1",
+        "box.sdk.version": BOX_SDK_VERSION,
       },
     })
   );
@@ -787,7 +791,7 @@ const runEventStreamSdkCall = <Payload>(
       Effect.withSpan(`box.${methodName}`, {
         attributes: {
           "box.method": methodName,
-          "box.sdk.version": "10.11.1",
+          "box.sdk.version": BOX_SDK_VERSION,
         },
       })
     )

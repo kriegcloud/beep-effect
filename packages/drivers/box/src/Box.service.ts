@@ -13,6 +13,7 @@ import { makeGeneratedOperations } from "./_generated/Box.operations.gen.ts";
 import { BoxDeveloperTokenConfig } from "./Box.config.ts";
 import { BoxError } from "./Box.errors.ts";
 import { makeStreamingOperations } from "./Box.streaming.ts";
+import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
 import type { BoxMethodName } from "./_generated/Box.models.gen.ts";
 import type { BoxGeneratedOperations, BoxRunSdkCall } from "./_generated/Box.operations.gen.ts";
 import type { BoxCcgConfig } from "./Box.config.ts";
@@ -80,7 +81,7 @@ const runSdkCall: BoxRunSdkCall = (manager, method, methodName, payloadSchema, s
           attributes: {
             "box.manager": manager,
             "box.method": methodName,
-            "box.sdk.version": "10.11.1",
+            "box.sdk.version": BOX_SDK_VERSION,
           },
         })
       ),

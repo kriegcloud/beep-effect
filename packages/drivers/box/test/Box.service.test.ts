@@ -3,7 +3,7 @@ import { Readable } from "node:stream";
 import { text as readableText } from "node:stream/consumers";
 import * as B from "@beep/box";
 import { describe, expect, it, layer } from "@effect/vitest";
-import { Cause, Effect, Exit, Stream } from "effect";
+import { Cause, Effect, Exit, Fiber, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -50,6 +50,12 @@ type FakeBoxClient = {
 
 type FakeBoxClientOverrides = {
   readonly [K in keyof FakeBoxClient]?: Partial<FakeBoxClient[K]>;
+};
+
+type PromiseController<A> = {
+  readonly promise: Promise<A>;
+  readonly reject: (reason?: unknown) => void;
+  readonly resolve: (value: A | PromiseLike<A>) => void;
 };
 
 class FakeEventStream extends Readable {
@@ -133,6 +139,18 @@ const makeFakeClient = (overrides: FakeBoxClientOverrides = {}): FakeBoxClient =
 const chunksToText = (chunks: Iterable<Uint8Array>): string =>
   Buffer.concat(A.map(A.fromIterable(chunks), (chunk) => Buffer.from(chunk))).toString("utf8");
 
+const byteAbortProbe: {
+  aborted: PromiseController<void> | undefined;
+  cancellationToken: AbortSignal | undefined;
+  entered: PromiseController<void> | undefined;
+  pending: PromiseController<unknown> | undefined;
+} = {
+  aborted: undefined,
+  cancellationToken: undefined,
+  entered: undefined,
+  pending: undefined,
+};
+
 describe("@beep/box", () => {
   it.effect(
     "accepts future Box enum values generated as open unions",
@@ -176,6 +194,46 @@ describe("@beep/box", () => {
         const chunks = yield* box.downloads.downloadFile({ fileId: "file-id" }).pipe(Stream.runCollect);
 
         expect(chunksToText(chunks)).toBe("downloaded");
+      })
+    );
+  });
+
+  layer(
+    B.Box.makeLayerFromClient(
+      makeFakeClient({
+        downloads: {
+          downloadFile: (_fileId, optionalsInput) => {
+            byteAbortProbe.cancellationToken = (
+              optionalsInput as { readonly cancellationToken?: AbortSignal }
+            ).cancellationToken;
+            byteAbortProbe.cancellationToken?.addEventListener(
+              "abort",
+              () => byteAbortProbe.aborted?.resolve(undefined),
+              { once: true }
+            );
+            byteAbortProbe.entered?.resolve(undefined);
+            byteAbortProbe.pending = Promise.withResolvers<unknown>();
+            return byteAbortProbe.pending.promise;
+          },
+        },
+      })
+    )
+  )((it) => {
+    it.effect(
+      "aborts byte download setup when interrupted before the SDK returns",
+      Effect.fnUntraced(function* () {
+        byteAbortProbe.aborted = Promise.withResolvers<void>();
+        byteAbortProbe.cancellationToken = undefined;
+        byteAbortProbe.entered = Promise.withResolvers<void>();
+        byteAbortProbe.pending = undefined;
+
+        const box = yield* B.Box;
+        const fiber = yield* box.downloads.downloadFile({ fileId: "file-id" }).pipe(Stream.runDrain, Effect.forkChild);
+
+        yield* Effect.promise(() => byteAbortProbe.entered?.promise ?? Promise.reject("download did not start"));
+        expect(byteAbortProbe.cancellationToken).toBeInstanceOf(AbortSignal);
+        yield* Fiber.interrupt(fiber);
+        yield* Effect.promise(() => byteAbortProbe.aborted?.promise ?? Promise.reject("download did not abort"));
       })
     );
   });
