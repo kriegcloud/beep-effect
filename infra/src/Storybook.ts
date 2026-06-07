@@ -304,12 +304,28 @@ export class StorybookStack extends pulumi.ComponentResource {
   /**
    * Vercel project identifier.
    *
+   * @example
+   * ```ts
+   * import type { StorybookStack } from "@beep/infra"
+   *
+   * const readProjectId = (stack: StorybookStack) => stack.vercelProjectId
+   * console.log(readProjectId)
+   * ```
+   *
    * @since 0.0.0
    */
   public readonly vercelProjectId: pulumi.Output<string>;
 
   /**
    * Vercel project name.
+   *
+   * @example
+   * ```ts
+   * import type { StorybookStack } from "@beep/infra"
+   *
+   * const readProjectName = (stack: StorybookStack) => stack.projectName
+   * console.log(readProjectName)
+   * ```
    *
    * @since 0.0.0
    */
@@ -318,12 +334,28 @@ export class StorybookStack extends pulumi.ComponentResource {
   /**
    * Vercel root directory for the Storybook app.
    *
+   * @example
+   * ```ts
+   * import type { StorybookStack } from "@beep/infra"
+   *
+   * const readRootDirectory = (stack: StorybookStack) => stack.rootDirectory
+   * console.log(readRootDirectory)
+   * ```
+   *
    * @since 0.0.0
    */
   public readonly rootDirectory: pulumi.Output<string>;
 
   /**
    * Static output directory served by Vercel.
+   *
+   * @example
+   * ```ts
+   * import type { StorybookStack } from "@beep/infra"
+   *
+   * const readOutputDirectory = (stack: StorybookStack) => stack.outputDirectory
+   * console.log(readOutputDirectory)
+   * ```
    *
    * @since 0.0.0
    */
