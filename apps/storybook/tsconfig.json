@@ -4,6 +4,7 @@
   "include": [
     ".storybook/**/*.ts",
     ".storybook/**/*.tsx",
+    "vitest.config.ts",
     "vitest.storybook.config.ts",
     "vitest.storybook.setup.ts"
   ],
