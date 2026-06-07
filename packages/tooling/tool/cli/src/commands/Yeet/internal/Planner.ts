@@ -55,7 +55,7 @@ type YeetFeedbackTask = (typeof YEET_FEEDBACK_TASKS)[number];
  * @category models
  * @since 0.0.0
  */
-export const YeetRunMode = LiteralKit(["repair", "verify", "publish"]).pipe(
+export const YeetRunMode = LiteralKit(["repair", "verify", "publish", "monitor"]).pipe(
   $I.annoteSchema("YeetRunMode", {
     description: "Execution mode selected for a yeet repository run.",
   })
@@ -76,14 +76,16 @@ export type YeetRunMode = typeof YeetRunMode.Type;
  * ```ts
  * import { YeetRunPlanModeOptions } from "@beep/repo-cli/test/Yeet"
  *
- * console.log(YeetRunPlanModeOptions.make({ mode: "verify" }).mode)
+ * console.log(YeetRunPlanModeOptions.make({ fast: false, mode: "verify", monitor: false }).mode)
  * ```
  * @category models
  * @since 0.0.0
  */
 export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`YeetRunPlanModeOptions`)(
   {
+    fast: S.Boolean,
     mode: YeetRunMode,
+    monitor: S.Boolean,
   },
   $I.annote("YeetRunPlanModeOptions", {
     description: "Options for building a Yeet run plan in a specific mode.",
@@ -201,7 +203,7 @@ const feedbackFilterArgs = (context: RepoRunContext, feedbackTask: YeetFeedbackT
   );
 
 const feedbackRunArgs = (feedbackTask: YeetFeedbackTask, filters: ReadonlyArray<string>): ReadonlyArray<string> =>
-  // Feedback tests stay on unit/type lanes; repair is generator-only, and verify/publish run integration in full proof.
+  // Repair feedback stays on unit/type lanes; verify/publish use only the full pre-push proof.
   feedbackTask === "test"
     ? ["--unit", "--types", ...filters, ...sharedFeedbackTurboArgs]
     : [...filters, ...sharedFeedbackTurboArgs];
@@ -256,15 +258,60 @@ const commitStep = (context: RepoRunContext, message: O.Option<string>): RepoPla
 const pushStep = (context: RepoRunContext): RepoPlanStep =>
   gitStep(context, "publish:01-git-push", "publish:git:push", "publish", ["push"]);
 
+const monitorContextStep = (context: RepoRunContext): RepoPlanStep =>
+  RepoPlanStep.make({
+    id: "monitor:01-pr-context",
+    label: "monitor:pr-context",
+    phase: "monitor",
+    command: "gh",
+    args: ["pr", "view", "--json", "number,headRefName,state"],
+    cwd: context.repoRoot,
+    scope: "repo",
+    mutability: "readonly",
+    resume: "never",
+    verification: "current-branch-open-pr",
+  });
+
+const monitorChecksStep = (context: RepoRunContext): RepoPlanStep =>
+  RepoPlanStep.make({
+    id: "monitor:02-pr-checks-watch",
+    label: "monitor:pr-checks:watch",
+    phase: "monitor",
+    command: "gh",
+    args: ["pr", "checks", "--watch"],
+    cwd: context.repoRoot,
+    scope: "repo",
+    mutability: "readonly",
+    resume: "never",
+    verification: "all-current-pr-checks",
+  });
+
+const monitorSteps = (context: RepoRunContext): ReadonlyArray<RepoPlanStep> => [
+  monitorContextStep(context),
+  monitorChecksStep(context),
+];
+
+const publishSteps = (
+  context: RepoRunContext,
+  message: O.Option<string>,
+  options: YeetRunPlanModeOptions
+): ReadonlyArray<RepoPlanStep> => [
+  commitStep(context, message),
+  ...(options.fast && options.monitor ? [] : [proofStep(context)]),
+  pushStep(context),
+  ...(options.monitor ? monitorSteps(context) : []),
+];
+
 const stepsForMode = (
   context: RepoRunContext,
   message: O.Option<string>,
-  mode: YeetRunMode
+  options: YeetRunPlanModeOptions
 ): ReadonlyArray<RepoPlanStep> =>
-  YeetRunMode.$match(mode, {
+  YeetRunMode.$match(options.mode, {
     repair: () => [...repairSteps(context), ...feedbackSteps(context)],
-    verify: () => [...feedbackSteps(context), proofStep(context)],
-    publish: () => [...feedbackSteps(context), commitStep(context, message), proofStep(context), pushStep(context)],
+    verify: () => [proofStep(context)],
+    publish: () => publishSteps(context, message, options),
+    monitor: () => monitorSteps(context),
   });
 
 /**
@@ -294,7 +341,7 @@ const stepsForMode = (
  *   repoRoot: "/repo",
  *   turbo: TurboPlanSnapshot.make({ graphHealthStatus: "ok", graphHealthWarnings: [], tasks: [] })
  * })
- * console.log(buildYeetRunPlanWithMode(context, O.none(), YeetRunPlanModeOptions.make({ mode: "verify" })).steps)
+ * console.log(buildYeetRunPlanWithMode(context, O.none(), YeetRunPlanModeOptions.make({ fast: false, mode: "verify", monitor: false })).steps)
  * ```
  * @category workflows
  * @since 0.0.0
@@ -307,7 +354,7 @@ export const buildYeetRunPlanWithMode: {
   (context: RepoRunContext, message: O.Option<string>, options: YeetRunPlanModeOptions): RepoRunPlan =>
     RepoRunPlan.make({
       context,
-      steps: pipe(stepsForMode(context, message, options.mode), A.sort(byRepoPlanStepAscending)),
+      steps: pipe(stepsForMode(context, message, options), A.sort(byRepoPlanStepAscending)),
     })
 );
 
@@ -343,7 +390,11 @@ export const buildYeetRunPlan: {
 } = dual(
   2,
   (context: RepoRunContext, message: O.Option<string>): RepoRunPlan =>
-    buildYeetRunPlanWithMode(context, message, YeetRunPlanModeOptions.make({ mode: "publish" }))
+    buildYeetRunPlanWithMode(
+      context,
+      message,
+      YeetRunPlanModeOptions.make({ fast: false, mode: "publish", monitor: false })
+    )
 );
 
 /**
@@ -367,6 +418,7 @@ export const yeetPlanPhases = (plan: RepoRunPlan): ReadonlyArray<RepoPlanStep["p
           commit: () => 2,
           full: () => 3,
           publish: () => 4,
+          monitor: () => 5,
         })
       )
     )

@@ -1,0 +1,583 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "0730b73ae3336b875c228a28c51309360a3b33fb4f3305471ec34422abfa0150",
+    "inputs": [
+      {
+        "path": "packages/epistemic/domain/package.json",
+        "sha256": "476115a724c027ea32bad5f9bb4643e23bb0381e640df74b669135e77c9bc5d8",
+        "bytes": 2129
+      },
+      {
+        "path": "packages/epistemic/domain/src/entities/Activity/Activity.model.ts",
+        "sha256": "81f70179d63512d85a0befa264bfec35cb0fe50e31eeeb55dad30b79b43293f2",
+        "bytes": 1232
+      },
+      {
+        "path": "packages/epistemic/domain/src/entities/Activity/index.ts",
+        "sha256": "cf2fd339927abafc8df72b4e139f5160b10fd0ae6254d043713c640aa5799d18",
+        "bytes": 306
+      },
+      {
+        "path": "packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts",
+        "sha256": "b062d5e34181c35a5e8b91d0d99a056c24cada6ba2dd03e4e1dd1c8462d41b1c",
+        "bytes": 1497
+      },
+      {
+        "path": "packages/epistemic/domain/src/entities/CandidateClaim/index.ts",
+        "sha256": "a97344764e70c8762ba9fbd5c5b60a4cb27cdbbb7a25b97fb52615c1481c69af",
+        "bytes": 318
+      },
+      {
+        "path": "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts",
+        "sha256": "aced944d33001d1e5848ce1633427ef32899138b66b5f01dae31a6d8bed0d1cc",
+        "bytes": 1185
+      },
+      {
+        "path": "packages/epistemic/domain/src/entities/Evidence/index.ts",
+        "sha256": "bb0620a19158a38aa69af3828f76213daf264eac94abd263b40b0e7aff184815",
+        "bytes": 306
+      },
+      {
+        "path": "packages/epistemic/domain/src/entities/index.ts",
+        "sha256": "893fda90ef05900e498eb04004d69986b3985cbc3a3dea5f725b2d5c43eb0b5e",
+        "bytes": 1016
+      },
+      {
+        "path": "packages/epistemic/domain/src/entities/UsageRecord/index.ts",
+        "sha256": "f925aaf8a06b8dacfa6b71978246f855c615e43903da3ed03883c1f71b8c8617",
+        "bytes": 312
+      },
+      {
+        "path": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
+        "sha256": "e67b94cfa94cb3dd80f13076db877ffb75f848a6bd19c39984c53c3fc1cb5402",
+        "bytes": 1260
+      },
+      {
+        "path": "packages/epistemic/domain/src/index.ts",
+        "sha256": "cbdd82a35126eda042ca6be59fb8d21c6981d506daae8ba6daf462a065f0e023",
+        "bytes": 576
+      },
+      {
+        "path": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sha256": "b66e0adf6ad558eaf94e92f02af5e49b29b25663a2d2d7f43973e7024d452049",
+        "bytes": 1038
+      },
+      {
+        "path": "packages/epistemic/domain/src/values/ClaimLifecycle/index.ts",
+        "sha256": "a687f235e3b703abbb4feed0fb5f91c78063ff8a677150a452d626518cb29b46",
+        "bytes": 329
+      },
+      {
+        "path": "packages/epistemic/domain/src/values/index.ts",
+        "sha256": "5ec2a44dcd4eff0c85faa700890af1f1c99b937ada40d4413dd0e1bfdc542ba3",
+        "bytes": 321
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/epistemic-domain",
+    "packagePath": "packages/epistemic/domain",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/epistemic-domain",
+      "@beep/epistemic-domain/entities",
+      "@beep/epistemic-domain/entities/Activity",
+      "@beep/epistemic-domain/entities/CandidateClaim",
+      "@beep/epistemic-domain/entities/Evidence",
+      "@beep/epistemic-domain/entities/UsageRecord",
+      "@beep/epistemic-domain/values",
+      "@beep/epistemic-domain/values/ClaimLifecycle"
+    ],
+    "counts": {
+      "publicExportEntries": 18,
+      "uniqueSymbols": 5,
+      "sourceFiles": 13
+    },
+    "exports": [
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "Activity",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/Activity/Activity.model.ts",
+        "sourceLine": 29,
+        "summary": "Provenance activity produced by the runtime proof.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . activity class provenance activity produced by the runtime proof. models packages/epistemic/domain/src/entities/activity/activity.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "CandidateClaim",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts",
+        "sourceLine": 31,
+        "summary": "Candidate claim proposed by an agent with source evidence.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . candidateclaim class candidate claim proposed by an agent with source evidence. models packages/epistemic/domain/src/entities/candidateclaim/candidateclaim.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimLifecycle",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 25,
+        "summary": "Candidate lifecycle vocabulary for claim outputs.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimlifecycle const candidate lifecycle vocabulary for claim outputs. schemas packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimLifecycle",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 45,
+        "summary": "Runtime type for {@link ClaimLifecycle}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimlifecycle type runtime type for {@link claimlifecycle}. models packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "Evidence",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts",
+        "sourceLine": 28,
+        "summary": "Source span evidence reference.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . evidence class source span evidence reference. models packages/epistemic/domain/src/entities/evidence/evidence.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "UsageRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
+        "sourceLine": 29,
+        "summary": "Usage attribution record for a fixture agent run.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . usagerecord class usage attribution record for a fixture agent run. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/index.ts",
+        "symbolName": "Activity",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/Activity/Activity.model.ts",
+        "sourceLine": 29,
+        "summary": "Provenance activity produced by the runtime proof.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities activity class provenance activity produced by the runtime proof. models packages/epistemic/domain/src/entities/activity/activity.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/index.ts",
+        "symbolName": "CandidateClaim",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts",
+        "sourceLine": 31,
+        "summary": "Candidate claim proposed by an agent with source evidence.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities candidateclaim class candidate claim proposed by an agent with source evidence. models packages/epistemic/domain/src/entities/candidateclaim/candidateclaim.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/index.ts",
+        "symbolName": "Evidence",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts",
+        "sourceLine": 28,
+        "summary": "Source span evidence reference.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities evidence class source span evidence reference. models packages/epistemic/domain/src/entities/evidence/evidence.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/index.ts",
+        "symbolName": "UsageRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
+        "sourceLine": 29,
+        "summary": "Usage attribution record for a fixture agent run.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities usagerecord class usage attribution record for a fixture agent run. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities/Activity",
+        "exportSubpath": "./entities/Activity",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/Activity/index.ts",
+        "symbolName": "Activity",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/Activity/Activity.model.ts",
+        "sourceLine": 29,
+        "summary": "Provenance activity produced by the runtime proof.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities/activity ./entities/activity activity class provenance activity produced by the runtime proof. models packages/epistemic/domain/src/entities/activity/activity.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities/CandidateClaim",
+        "exportSubpath": "./entities/CandidateClaim",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/CandidateClaim/index.ts",
+        "symbolName": "CandidateClaim",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/CandidateClaim/CandidateClaim.model.ts",
+        "sourceLine": 31,
+        "summary": "Candidate claim proposed by an agent with source evidence.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities/candidateclaim ./entities/candidateclaim candidateclaim class candidate claim proposed by an agent with source evidence. models packages/epistemic/domain/src/entities/candidateclaim/candidateclaim.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities/Evidence",
+        "exportSubpath": "./entities/Evidence",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/Evidence/index.ts",
+        "symbolName": "Evidence",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts",
+        "sourceLine": 28,
+        "summary": "Source span evidence reference.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities/evidence ./entities/evidence evidence class source span evidence reference. models packages/epistemic/domain/src/entities/evidence/evidence.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities/UsageRecord",
+        "exportSubpath": "./entities/UsageRecord",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/UsageRecord/index.ts",
+        "symbolName": "UsageRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
+        "sourceLine": 29,
+        "summary": "Usage attribution record for a fixture agent run.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities/usagerecord ./entities/usagerecord usagerecord class usage attribution record for a fixture agent run. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimLifecycle",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 25,
+        "summary": "Candidate lifecycle vocabulary for claim outputs.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimlifecycle const candidate lifecycle vocabulary for claim outputs. schemas packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimLifecycle",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 45,
+        "summary": "Runtime type for {@link ClaimLifecycle}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimlifecycle type runtime type for {@link claimlifecycle}. models packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimLifecycle",
+        "exportSubpath": "./values/ClaimLifecycle",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimLifecycle/index.ts",
+        "symbolName": "ClaimLifecycle",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 25,
+        "summary": "Candidate lifecycle vocabulary for claim outputs.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimlifecycle ./values/claimlifecycle claimlifecycle const candidate lifecycle vocabulary for claim outputs. schemas packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimLifecycle",
+        "exportSubpath": "./values/ClaimLifecycle",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimLifecycle/index.ts",
+        "symbolName": "ClaimLifecycle",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 45,
+        "summary": "Runtime type for {@link ClaimLifecycle}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimlifecycle ./values/claimlifecycle claimlifecycle type runtime type for {@link claimlifecycle}. models packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+      }
+    ]
+  }
+}

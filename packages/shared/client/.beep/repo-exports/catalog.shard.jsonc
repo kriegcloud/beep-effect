@@ -1,0 +1,117 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "585a4ab339a5bfb088724b7250d911d2c310bc50b8f8469b0add5296da6b46a9",
+    "inputs": [
+      {
+        "path": "packages/shared/client/package.json",
+        "sha256": "ffb626b9a991360c2d48933bf9b55aea5e1fe945f0ef841770c10b1b5692b5a0",
+        "bytes": 2032
+      },
+      {
+        "path": "packages/shared/client/src/index.ts",
+        "sha256": "c47c9ee9d43a36f0bcb78fd0fbc0cadb7a507c3a555f08a7ae5d1c6c5733678a",
+        "bytes": 320
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/shared-client",
+    "packagePath": "packages/shared/client",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/shared-client",
+      "@beep/shared-client/index"
+    ],
+    "counts": {
+      "publicExportEntries": 2,
+      "uniqueSymbols": 1,
+      "sourceFiles": 1
+    },
+    "exports": [
+      {
+        "packageName": "@beep/shared-client",
+        "packagePath": "packages/shared/client",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/shared-client",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/shared/client/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/shared/client/src/index.ts",
+        "sourceLine": 21,
+        "summary": "Shared client package version.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/shared-client packages/shared/client @beep/shared-client . version const shared client package version. configuration packages/shared/client/src/index.ts"
+      },
+      {
+        "packageName": "@beep/shared-client",
+        "packagePath": "packages/shared/client",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/shared-client/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/shared/client/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/shared/client/src/index.ts",
+        "sourceLine": 21,
+        "summary": "Shared client package version.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/shared-client packages/shared/client @beep/shared-client/index ./index version const shared client package version. configuration packages/shared/client/src/index.ts"
+      }
+    ]
+  }
+}

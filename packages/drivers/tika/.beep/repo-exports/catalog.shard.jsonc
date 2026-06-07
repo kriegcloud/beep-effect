@@ -1,0 +1,654 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "fe929190e0c10a363a33c3b20fa0f3c82a439c178bc99ce79649ff0d20a3bc6a",
+    "inputs": [
+      {
+        "path": "packages/drivers/tika/package.json",
+        "sha256": "cb18e6ae0c61d9b8460dc3b396b5c02a849457e55b2770a1db798e319d85a054",
+        "bytes": 2530
+      },
+      {
+        "path": "packages/drivers/tika/src/index.ts",
+        "sha256": "e4dc2c7661205280fba38b4d7c20459e9a67266bf5aba350ecaf9942d6f152b2",
+        "bytes": 553
+      },
+      {
+        "path": "packages/drivers/tika/src/Tika.errors.ts",
+        "sha256": "e6927833a066dbd6ba88bdd95816f6aa9bb6cfb53fe3145ee627e44919b32cc0",
+        "bytes": 2721
+      },
+      {
+        "path": "packages/drivers/tika/src/Tika.service.ts",
+        "sha256": "e07d389e338b29fd4c7f42a512d146b5763b318ef61216e2b9a94108b2476a53",
+        "bytes": 8056
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/tika",
+    "packagePath": "packages/drivers/tika",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/tika",
+      "@beep/tika/index",
+      "@beep/tika/Tika.errors",
+      "@beep/tika/Tika.service"
+    ],
+    "counts": {
+      "publicExportEntries": 23,
+      "uniqueSymbols": 7,
+      "sourceFiles": 3
+    },
+    "exports": [
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "makeTikaError",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 114,
+        "summary": "Create a Tika technical error with a typed reason.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika . maketikaerror const create a tika technical error with a typed reason. constructors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "makeTikaFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
+        "sourceLine": 141,
+        "summary": "Create the P1 Tika file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika . maketikafileprocessingengine const create the p1 tika file-processing engine. constructors packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 72,
+        "summary": "Technical failure raised inside the Tika driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika . tikaerror class technical failure raised inside the tika driver boundary. errors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 29,
+        "summary": "Technical Tika failure reasons.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika . tikaerrorreason const technical tika failure reasons. errors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 56,
+        "summary": "Type for {@link TikaErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika . tikaerrorreason type type for {@link tikaerrorreason}. errors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
+        "sourceLine": 231,
+        "summary": "P1 Tika file-processing engine value.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika . tikafileprocessingengine const p1 tika file-processing engine value. services packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaFileProcessingEngineDescriptor",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
+        "sourceLine": 38,
+        "summary": "Tika file-processing engine descriptor.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika . tikafileprocessingenginedescriptor const tika file-processing engine descriptor. services packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/index.ts",
+        "sourceLine": 36,
+        "summary": "Package version.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika . version const package version. constants packages/drivers/tika/src/index.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "makeTikaError",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 114,
+        "summary": "Create a Tika technical error with a typed reason.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index maketikaerror const create a tika technical error with a typed reason. constructors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "makeTikaFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
+        "sourceLine": 141,
+        "summary": "Create the P1 Tika file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index maketikafileprocessingengine const create the p1 tika file-processing engine. constructors packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 72,
+        "summary": "Technical failure raised inside the Tika driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index tikaerror class technical failure raised inside the tika driver boundary. errors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 29,
+        "summary": "Technical Tika failure reasons.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index tikaerrorreason const technical tika failure reasons. errors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 56,
+        "summary": "Type for {@link TikaErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index tikaerrorreason type type for {@link tikaerrorreason}. errors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
+        "sourceLine": 231,
+        "summary": "P1 Tika file-processing engine value.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index tikafileprocessingengine const p1 tika file-processing engine value. services packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaFileProcessingEngineDescriptor",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
+        "sourceLine": 38,
+        "summary": "Tika file-processing engine descriptor.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index tikafileprocessingenginedescriptor const tika file-processing engine descriptor. services packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/index.ts",
+        "sourceLine": 36,
+        "summary": "Package version.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index version const package version. constants packages/drivers/tika/src/index.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/Tika.errors",
+        "exportSubpath": "./Tika.errors",
+        "exportedFromPath": "packages/drivers/tika/src/Tika.errors.ts",
+        "symbolName": "makeTikaError",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 114,
+        "summary": "Create a Tika technical error with a typed reason.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/tika.errors ./tika.errors maketikaerror const create a tika technical error with a typed reason. constructors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/Tika.errors",
+        "exportSubpath": "./Tika.errors",
+        "exportedFromPath": "packages/drivers/tika/src/Tika.errors.ts",
+        "symbolName": "TikaError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 72,
+        "summary": "Technical failure raised inside the Tika driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/tika.errors ./tika.errors tikaerror class technical failure raised inside the tika driver boundary. errors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/Tika.errors",
+        "exportSubpath": "./Tika.errors",
+        "exportedFromPath": "packages/drivers/tika/src/Tika.errors.ts",
+        "symbolName": "TikaErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 29,
+        "summary": "Technical Tika failure reasons.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/tika.errors ./tika.errors tikaerrorreason const technical tika failure reasons. errors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/Tika.errors",
+        "exportSubpath": "./Tika.errors",
+        "exportedFromPath": "packages/drivers/tika/src/Tika.errors.ts",
+        "symbolName": "TikaErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/tika/src/Tika.errors.ts",
+        "sourceLine": 56,
+        "summary": "Type for {@link TikaErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/tika.errors ./tika.errors tikaerrorreason type type for {@link tikaerrorreason}. errors packages/drivers/tika/src/tika.errors.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/Tika.service",
+        "exportSubpath": "./Tika.service",
+        "exportedFromPath": "packages/drivers/tika/src/Tika.service.ts",
+        "symbolName": "makeTikaFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
+        "sourceLine": 141,
+        "summary": "Create the P1 Tika file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/tika.service ./tika.service maketikafileprocessingengine const create the p1 tika file-processing engine. constructors packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/Tika.service",
+        "exportSubpath": "./Tika.service",
+        "exportedFromPath": "packages/drivers/tika/src/Tika.service.ts",
+        "symbolName": "TikaFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
+        "sourceLine": 231,
+        "summary": "P1 Tika file-processing engine value.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/tika.service ./tika.service tikafileprocessingengine const p1 tika file-processing engine value. services packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/Tika.service",
+        "exportSubpath": "./Tika.service",
+        "exportedFromPath": "packages/drivers/tika/src/Tika.service.ts",
+        "symbolName": "TikaFileProcessingEngineDescriptor",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
+        "sourceLine": 38,
+        "summary": "Tika file-processing engine descriptor.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/tika.service ./tika.service tikafileprocessingenginedescriptor const tika file-processing engine descriptor. services packages/drivers/tika/src/tika.service.ts"
+      }
+    ]
+  }
+}

@@ -26,6 +26,11 @@ import { writeJSDocDocumentationInventory } from "./internal/JSDocDocumentationI
 import { runPackageVerifyCli } from "./internal/PackageVerify.js";
 import { repoRelative } from "./internal/QualityArtifactSupport.js";
 import { writeOrCheckRepoExportsCatalog } from "./internal/RepoExportsCatalog.js";
+import {
+  renderTurboConfigProofReport,
+  renderTurboConfigProofReportJson,
+  runTurboConfigProof,
+} from "./internal/TurboConfigProof.js";
 import { QualityScriptCommandError } from "./Quality.errors.js";
 import { QualityTaskStep } from "./Tasks.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
@@ -124,6 +129,11 @@ const decodeEffectTsgoRuleRowOption = S.decodeUnknownOption(EffectTsgoRuleRow);
 const decodeEffectTsgoDiagnosticsTableOption = S.decodeUnknownOption(EffectTsgoDiagnosticsTable);
 
 type QualityScriptEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
+type RepoExportsCatalogRunOptions = {
+  readonly fromShards?: boolean;
+  readonly packageShard?: boolean;
+  readonly packageName?: string;
+};
 type TsgoDiagnosticOutput = {
   readonly output: string;
 };
@@ -1556,7 +1566,8 @@ export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInvent
  * @since 0.0.0
  */
 export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExportsCatalog")(function* (
-  check: boolean
+  check: boolean,
+  options: RepoExportsCatalogRunOptions = {}
 ): Effect.fn.Return<
   void,
   QualityScriptCommandError,
@@ -1564,12 +1575,22 @@ export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExp
 > {
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
+  const catalogOptions = {
+    rootDir: repoRoot,
+    check,
+    ...R.getSomes({ fromShards: O.fromUndefinedOr(options.fromShards) }),
+    ...R.getSomes({ packageName: O.fromUndefinedOr(options.packageName) }),
+    ...R.getSomes({ packageShard: O.fromUndefinedOr(options.packageShard) }),
+  };
 
-  const result = yield* writeOrCheckRepoExportsCatalog({ rootDir: repoRoot, check }).pipe(
+  const result = yield* writeOrCheckRepoExportsCatalog(catalogOptions).pipe(
     QualityScriptCommandError.mapError("Failed to generate repo export catalog.", {
-      command: check
-        ? "bun run beep quality repo-exports-catalog --check"
-        : "bun run beep quality repo-exports-catalog",
+      command: commandText("bun run beep quality repo-exports-catalog", [
+        ...(check ? ["--check"] : []),
+        ...(options.fromShards === true ? ["--from-shards"] : []),
+        ...(options.packageShard === true ? ["--package-shard"] : []),
+        ...(options.packageName === undefined ? [] : ["--package", options.packageName]),
+      ]),
       exitCode: 1,
     })
   );
@@ -1589,13 +1610,21 @@ export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExp
 
   if (result.checked) {
     yield* Console.log("[repo-exports-catalog] generated artifacts are current");
+  } else if (result.outputShardPath !== undefined) {
+    yield* Console.log(`wrote ${repoRelative(result.outputShardPath, repoRoot, path)}`);
   } else {
     yield* Console.log(`wrote ${repoRelative(result.outputJsonPath, repoRoot, path)}`);
     yield* Console.log(`wrote ${repoRelative(result.outputMarkdownPath, repoRoot, path)}`);
   }
-  yield* Console.log(
-    `packages=${result.totals.packages} importSpecifiers=${result.totals.importSpecifiers} publicExportEntries=${result.totals.publicExportEntries}`
-  );
+  if (result.outputShardPath !== undefined) {
+    yield* Console.log(
+      `sourceFiles=${result.totals.sourceFiles} publicExportEntries=${result.totals.publicExportEntries} uniqueSymbols=${result.totals.uniqueSymbols}`
+    );
+  } else {
+    yield* Console.log(
+      `packages=${result.totals.packages} importSpecifiers=${result.totals.importSpecifiers} publicExportEntries=${result.totals.publicExportEntries}`
+    );
+  }
 });
 
 /**
@@ -1693,9 +1722,81 @@ const repoExportsCatalogCommand = Command.make(
   "repo-exports-catalog",
   {
     check: Flag.boolean("check").pipe(Flag.withDescription("Fail when the tracked repo export catalog is stale")),
+    fromShards: Flag.boolean("from-shards").pipe(
+      Flag.withDescription("Aggregate the tracked root catalog from package-local repo-export shards")
+    ),
+    packageShard: Flag.boolean("package-shard").pipe(
+      Flag.withDescription("Write or check the current package's repo-export shard")
+    ),
+    packageName: Flag.string("package").pipe(
+      Flag.withDescription("Workspace package name to shard instead of inferring it from the current directory"),
+      Flag.optional
+    ),
   },
-  ({ check }) => runQualityProgram(runRepoExportsCatalog(check))
+  ({ check, fromShards, packageName, packageShard }) =>
+    runQualityProgram(
+      runRepoExportsCatalog(check, {
+        fromShards,
+        packageShard,
+        ...R.getSomes({ packageName }),
+      })
+    )
 ).pipe(Command.withDescription("Generate or check the tracked repo export catalog"));
+
+const turboConfigProofCommand = Command.make(
+  "turbo-config-proof",
+  {
+    base: Flag.string("base").pipe(
+      Flag.withDefault("origin/main"),
+      Flag.withDescription("Base git ref for Turbo affected query proof")
+    ),
+    head: Flag.string("head").pipe(Flag.withDefault("HEAD"), Flag.withDescription("Head git ref for proof")),
+    selector: Flag.choiceWithValue("selector", [
+      ["affected", "affected"],
+      ["filter-range", "filter-range"],
+    ]).pipe(
+      Flag.withDefault("affected"),
+      Flag.withDescription("Dry-run selector: affected for CI shape, filter-range for deterministic base/head probes")
+    ),
+    json: Flag.boolean("json").pipe(Flag.withDescription("Print the proof report as JSON")),
+    taskArgs: Argument.string("task").pipe(
+      Argument.variadic,
+      Argument.withDescription("Optional Turbo tasks to prove; defaults to lint check test type-test docgen")
+    ),
+  },
+  ({ base, head, json, selector, taskArgs }) =>
+    runQualityProgram(
+      findRepoRoot().pipe(
+        QualityScriptCommandError.mapError("Failed to locate repository root."),
+        Effect.flatMap((repoRoot) =>
+          runTurboConfigProof(repoRoot, {
+            base,
+            head,
+            selector,
+            tasks: variadicStrings(taskArgs),
+          }).pipe(
+            Effect.mapError((error) =>
+              QualityScriptCommandError.new(error, error.message, {
+                command: "bun run beep quality turbo-config-proof",
+                exitCode: 1,
+              })
+            )
+          )
+        ),
+        Effect.flatMap((report) =>
+          (json ? renderTurboConfigProofReportJson(report) : Effect.succeed(renderTurboConfigProofReport(report))).pipe(
+            Effect.mapError((error) =>
+              QualityScriptCommandError.new(error, error.message, {
+                command: "bun run beep quality turbo-config-proof",
+                exitCode: 1,
+              })
+            ),
+            Effect.flatMap(Console.log)
+          )
+        )
+      )
+    )
+).pipe(Command.withDescription("Summarize Turbo affected and dry-run task-input blast radius"));
 
 const packageVerifyCommand = Command.make(
   "package-verify",
@@ -1752,6 +1853,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality jsdoc-inventory",
     "- bun run beep quality jsdoc-quality",
     "- bun run beep quality repo-exports-catalog",
+    "- bun run beep quality turbo-config-proof --base origin/main --head HEAD",
     "- bun run beep quality package-verify @beep/repo-cli",
     "- bun run beep quality changeset-graph",
   ])
@@ -1768,6 +1870,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     jsdocInventoryCommand,
     jsdocQualityCommand,
     repoExportsCatalogCommand,
+    turboConfigProofCommand,
     packageVerifyCommand,
     changesetGraphCommand,
   ])

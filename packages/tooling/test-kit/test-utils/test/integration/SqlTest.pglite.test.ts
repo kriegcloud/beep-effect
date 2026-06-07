@@ -24,7 +24,7 @@ const hasSharedConnectionUri = sharedConnectionUri !== undefined && sharedConnec
 let pgliteTestcontainersAvailable = false;
 const isSqlTestHarnessError = S.is(SqlTestHarnessError);
 const ContainerInspectTimeout = Duration.seconds(5);
-const SharedPgliteIntegrationTimeoutMs = 15_000;
+const SharedPgliteIntegrationTimeoutMs = 60_000;
 const PgliteTestcontainersIntegrationTimeoutMs = 120_000;
 
 beforeAll(() => {

@@ -1,0 +1,73 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "67b64b587da78a6cff2e1cbe35860285f51c415c6fe5ee50c718e14b4f5f1cbb",
+    "inputs": [
+      {
+        "path": "apps/canvas/package.json",
+        "sha256": "e0dcdc58243d1c24c495239edf55cf910a9bea88ebb99d4a660de7035c3ac88a",
+        "bytes": 2616
+      },
+      {
+        "path": "apps/canvas/src/App.tsx",
+        "sha256": "24605ecda7e615b37ab9fd1a72718f93ddc1f34e0236a5f00c3f8526f5dd8cb8",
+        "bytes": 21153
+      },
+      {
+        "path": "apps/canvas/src/commandBridge.ts",
+        "sha256": "11c68c8c4e96d92f9ac8d5d134dc1c2c8d2e16d1c24a63fe2944d87d62edb9f6",
+        "bytes": 21191
+      },
+      {
+        "path": "apps/canvas/src/main.tsx",
+        "sha256": "0677ac0f3d13bc26ed43d5802ccdb70d3af89facab0eae8ab21e025a227464a3",
+        "bytes": 456
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/canvas",
+    "packagePath": "apps/canvas",
+    "topoOrder": 0,
+    "status": "no-public-exports",
+    "importSpecifiers": [],
+    "counts": {
+      "publicExportEntries": 0,
+      "uniqueSymbols": 0,
+      "sourceFiles": 3
+    },
+    "exports": []
+  }
+}

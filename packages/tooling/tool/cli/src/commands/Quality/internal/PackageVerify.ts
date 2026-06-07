@@ -535,6 +535,8 @@ const fmtSecs = (ms: number): string => `${(ms / 1000).toFixed(1)}s`;
 /**
  * Render a package verification report for terminal output.
  *
+ * @param report - Verification results to summarize in the same order they ran.
+ * @returns Terminal-ready lines with the header, step summary, and failed output blocks.
  * @example
  * ```ts
  * import { PackageVerifyReport, renderPackageVerifyReportForTesting } from "@beep/repo-cli/test/Quality"

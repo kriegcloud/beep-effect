@@ -1,0 +1,78 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "222be807846d55ec4a23df29dce4c84a0c7aa8d452ed3c293865b788440c092e",
+    "inputs": [
+      {
+        "path": "apps/codedank-web/package.json",
+        "sha256": "199f2a724be2040e8612de2e5e5ef29c650614507a4d5c469b4f8379d9758576",
+        "bytes": 2247
+      },
+      {
+        "path": "apps/codedank-web/src/app/layout.tsx",
+        "sha256": "33576f890a841dc2e25abf1ccd527184d86a3e633ec727bc1342da08f9724670",
+        "bytes": 1081
+      },
+      {
+        "path": "apps/codedank-web/src/app/manifest.ts",
+        "sha256": "ea48f16ec71785dcede69c1ada4499d5ae94b57c6f94128e06954dd1381df0c4",
+        "bytes": 667
+      },
+      {
+        "path": "apps/codedank-web/src/app/page.tsx",
+        "sha256": "5d6d1cb3a62bb3bf33c3189088612b48e03b145232ac879ea6821043da3d2b03",
+        "bytes": 3110
+      },
+      {
+        "path": "apps/codedank-web/src/mdx-components.tsx",
+        "sha256": "9506deba569a3108dbea75d0911e902af7b1b5867852c8bdb5e18285340746df",
+        "bytes": 374
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/codedank-web",
+    "packagePath": "apps/codedank-web",
+    "topoOrder": 0,
+    "status": "no-public-exports",
+    "importSpecifiers": [],
+    "counts": {
+      "publicExportEntries": 0,
+      "uniqueSymbols": 0,
+      "sourceFiles": 4
+    },
+    "exports": []
+  }
+}

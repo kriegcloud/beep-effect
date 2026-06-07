@@ -1,0 +1,308 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "a697e993ed4d4dee6b24dd0412e9fb44acd05c67d782d454e02ffb4ca301ede2",
+    "inputs": [
+      {
+        "path": "packages/drivers/box/package.json",
+        "sha256": "13b81d08bc3f04c2a1abd6fe3c5897d7c5d74ad2507fa582ea4db200cf9228ec",
+        "bytes": 2404
+      },
+      {
+        "path": "packages/drivers/box/src/Box.config.ts",
+        "sha256": "c84cb4ffa316f3439a0e8133552757017ae6033998cebcbe7c35748c5439b911",
+        "bytes": 1520
+      },
+      {
+        "path": "packages/drivers/box/src/Box.errors.ts",
+        "sha256": "3d59decc785ad2eaae8db3a4658af11dc8908ed6d32150f82dc3c5e0dbcca81d",
+        "bytes": 1369
+      },
+      {
+        "path": "packages/drivers/box/src/Box.models.ts",
+        "sha256": "92d378c5c516edd3e0843f8467ad526ba69b4c381c782f1612c29c068f211e53",
+        "bytes": 184
+      },
+      {
+        "path": "packages/drivers/box/src/Box.service.ts",
+        "sha256": "65eb43d5a73f6a04a2b2d2c5c56f53c4ffea47a621b5a14225ae06e4125cf273",
+        "bytes": 478
+      },
+      {
+        "path": "packages/drivers/box/src/index.ts",
+        "sha256": "fc115b92511554888b7649e6bec6f04fc46825057f28b02d68de1947171ef067",
+        "bytes": 240
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/box",
+    "packagePath": "packages/drivers/box",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/box",
+      "@beep/box/Box.config",
+      "@beep/box/Box.errors",
+      "@beep/box/Box.service",
+      "@beep/box/index"
+    ],
+    "counts": {
+      "publicExportEntries": 9,
+      "uniqueSymbols": 8,
+      "sourceFiles": 5
+    },
+    "exports": [
+      {
+        "packageName": "@beep/box",
+        "packagePath": "packages/drivers/box",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/box",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/box/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/box/src/index.ts",
+        "sourceLine": 14,
+        "summary": "Current package version for the Box driver.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/box packages/drivers/box @beep/box . version const current package version for the box driver. constants packages/drivers/box/src/index.ts"
+      },
+      {
+        "packageName": "@beep/box",
+        "packagePath": "packages/drivers/box",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/box/Box.config",
+        "exportSubpath": "./Box.config",
+        "exportedFromPath": "packages/drivers/box/src/Box.config.ts",
+        "symbolName": "BoxConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/box/src/Box.config.ts",
+        "sourceLine": 35,
+        "summary": "Box driver configuration service.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/box packages/drivers/box @beep/box/box.config ./box.config boxconfig class box driver configuration service. services packages/drivers/box/src/box.config.ts"
+      },
+      {
+        "packageName": "@beep/box",
+        "packagePath": "packages/drivers/box",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/box/Box.config",
+        "exportSubpath": "./Box.config",
+        "exportedFromPath": "packages/drivers/box/src/Box.config.ts",
+        "symbolName": "BoxConfigShape",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/box/src/Box.config.ts",
+        "sourceLine": 20,
+        "summary": "Runtime configuration required by the Box driver.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/box packages/drivers/box @beep/box/box.config ./box.config boxconfigshape class runtime configuration required by the box driver. models packages/drivers/box/src/box.config.ts"
+      },
+      {
+        "packageName": "@beep/box",
+        "packagePath": "packages/drivers/box",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/box/Box.config",
+        "exportSubpath": "./Box.config",
+        "exportedFromPath": "packages/drivers/box/src/Box.config.ts",
+        "symbolName": "layer",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/box/src/Box.config.ts",
+        "sourceLine": 43,
+        "summary": "Live Box configuration layer backed by process configuration.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/box packages/drivers/box @beep/box/box.config ./box.config layer const live box configuration layer backed by process configuration. layers packages/drivers/box/src/box.config.ts"
+      },
+      {
+        "packageName": "@beep/box",
+        "packagePath": "packages/drivers/box",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/box/Box.config",
+        "exportSubpath": "./Box.config",
+        "exportedFromPath": "packages/drivers/box/src/Box.config.ts",
+        "symbolName": "layerConfig",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/box/src/Box.config.ts",
+        "sourceLine": 62,
+        "summary": "Construct a Box configuration layer from an explicit token.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/box packages/drivers/box @beep/box/box.config ./box.config layerconfig const construct a box configuration layer from an explicit token. layers packages/drivers/box/src/box.config.ts"
+      },
+      {
+        "packageName": "@beep/box",
+        "packagePath": "packages/drivers/box",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/box/Box.errors",
+        "exportSubpath": "./Box.errors",
+        "exportedFromPath": "packages/drivers/box/src/Box.errors.ts",
+        "symbolName": "BoxError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/box/src/Box.errors.ts",
+        "sourceLine": 35,
+        "summary": "Typed Box driver error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/box packages/drivers/box @beep/box/box.errors ./box.errors boxerror class typed box driver error. errors packages/drivers/box/src/box.errors.ts"
+      },
+      {
+        "packageName": "@beep/box",
+        "packagePath": "packages/drivers/box",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/box/Box.errors",
+        "exportSubpath": "./Box.errors",
+        "exportedFromPath": "packages/drivers/box/src/Box.errors.ts",
+        "symbolName": "BoxErrorContextInfo",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/box/src/Box.errors.ts",
+        "sourceLine": 20,
+        "summary": "Additional context supplied by Box API error payloads.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/box packages/drivers/box @beep/box/box.errors ./box.errors boxerrorcontextinfo class additional context supplied by box api error payloads. errors packages/drivers/box/src/box.errors.ts"
+      },
+      {
+        "packageName": "@beep/box",
+        "packagePath": "packages/drivers/box",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/box/Box.service",
+        "exportSubpath": "./Box.service",
+        "exportedFromPath": "packages/drivers/box/src/Box.service.ts",
+        "symbolName": "BOX_SERVICE_IMPLEMENTATION_STATUS",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/box/src/Box.service.ts",
+        "sourceLine": 18,
+        "summary": "Implementation status for the deferred Box service adapter.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/box packages/drivers/box @beep/box/box.service ./box.service box_service_implementation_status const implementation status for the deferred box service adapter. services packages/drivers/box/src/box.service.ts"
+      },
+      {
+        "packageName": "@beep/box",
+        "packagePath": "packages/drivers/box",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/box/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/box/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/box/src/index.ts",
+        "sourceLine": 14,
+        "summary": "Current package version for the Box driver.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/box packages/drivers/box @beep/box/index ./index version const current package version for the box driver. constants packages/drivers/box/src/index.ts"
+      }
+    ]
+  }
+}

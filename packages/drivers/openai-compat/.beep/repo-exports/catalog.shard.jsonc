@@ -1,0 +1,1256 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "c0b1bb5fb7d6d102375ba7eafeb01ad86b81030411d0ad7086ff89e851e01028",
+    "inputs": [
+      {
+        "path": "packages/drivers/openai-compat/package.json",
+        "sha256": "b3aae252711536b2f6faf3055773292d0f0f630f4b4dc239449436fa363f7107",
+        "bytes": 2597
+      },
+      {
+        "path": "packages/drivers/openai-compat/src/index.ts",
+        "sha256": "e667a9e8ebf85dd22095cc86845385b1b6b4cc9735150fe8f0ef5308a9806fbe",
+        "bytes": 1433
+      },
+      {
+        "path": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sha256": "bdf03cc4c62c9c369f1b9b5ea100c52464fec3a6141ebe1785e7c58df0860281",
+        "bytes": 26920
+      },
+      {
+        "path": "packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts",
+        "sha256": "e9e114b69a2146126b5e1ab976a2bd7897dee4da1cb8ad2a84c47aa639b6ca5d",
+        "bytes": 12876
+      },
+      {
+        "path": "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
+        "sha256": "f33f111454d261b303c3fcce542064ea3d3617fe13fdb63190865bcb0a087be5",
+        "bytes": 33087
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/openai-compat",
+    "packagePath": "packages/drivers/openai-compat",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/openai-compat"
+    ],
+    "counts": {
+      "publicExportEntries": 47,
+      "uniqueSymbols": 42,
+      "sourceFiles": 4
+    },
+    "exports": [
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "decodeChatCompletionChunk",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 1003,
+        "summary": "Decodes an unknown value into an OpenAI-compatible chat completion stream chunk.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . decodechatcompletionchunk const decodes an unknown value into an openai-compatible chat completion stream chunk. codecs packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "decodeChatCompletionResponse",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 985,
+        "summary": "Decodes an unknown value into an OpenAI-compatible chat completion response.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . decodechatcompletionresponse const decodes an unknown value into an openai-compatible chat completion response. codecs packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "layer",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
+        "sourceLine": 1000,
+        "summary": "Builds a language-model layer backed by {@link OpenAiCompatClient}.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . layer const builds a language-model layer backed by {@link openaicompatclient}. layers packages/drivers/openai-compat/src/openaicompatlanguagemodel.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "layerFromProvider",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
+        "sourceLine": 949,
+        "summary": "Builds a layer for an OpenAI-compatible language model from provider callbacks.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . layerfromprovider const builds a layer for an openai-compatible language model from provider callbacks. layers packages/drivers/openai-compat/src/openaicompatlanguagemodel.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "make",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
+        "sourceLine": 968,
+        "summary": "Builds an OpenAI-compatible language-model service backed by {@link OpenAiCompatClient}.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . make const builds an openai-compatible language-model service backed by {@link openaicompatclient}. constructors packages/drivers/openai-compat/src/openaicompatlanguagemodel.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "makeFromProvider",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
+        "sourceLine": 901,
+        "summary": "Builds an Effect AI language-model service from OpenAI-compatible provider callbacks.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . makefromprovider const builds an effect ai language-model service from openai-compatible provider callbacks. constructors packages/drivers/openai-compat/src/openaicompatlanguagemodel.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "model",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
+        "sourceLine": 1020,
+        "summary": "Builds an Effect AI model value for a generic OpenAI-compatible provider.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . model const builds an effect ai model value for a generic openai-compatible provider. constructors packages/drivers/openai-compat/src/openaicompatlanguagemodel.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatAssistantChatMessage",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 372,
+        "summary": "Assistant chat message accepted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatassistantchatmessage class assistant chat message accepted by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatAssistantDelta",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 766,
+        "summary": "Delta message returned by OpenAI-compatible chat completion streams.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatassistantdelta class delta message returned by openai-compatible chat completion streams. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatAssistantMessage",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 730,
+        "summary": "Assistant message returned by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatassistantmessage class assistant message returned by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatChatCompletionChoice",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 833,
+        "summary": "Chat completion choice returned by OpenAI-compatible endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatchatcompletionchoice class chat completion choice returned by openai-compatible endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatChatCompletionChunk",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 953,
+        "summary": "Stream chunk returned by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatchatcompletionchunk class stream chunk returned by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatChatCompletionChunkChoice",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 911,
+        "summary": "Stream chunk choice returned by OpenAI-compatible endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatchatcompletionchunkchoice class stream chunk choice returned by openai-compatible endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatChatCompletionRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 685,
+        "summary": "Chat completion request sent to OpenAI-compatible providers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatchatcompletionrequest class chat completion request sent to openai-compatible providers. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatChatCompletionResponse",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 876,
+        "summary": "Chat completion response returned by OpenAI-compatible endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatchatcompletionresponse class chat completion response returned by openai-compatible endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatChatMessage",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 435,
+        "summary": "Chat message accepted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatchatmessage const chat message accepted by openai-compatible chat completion endpoints. schemas packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatChatMessage",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 467,
+        "summary": "Chat message accepted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatchatmessage type chat message accepted by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatChatRole",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 41,
+        "summary": "Chat roles accepted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatchatrole const chat roles accepted by openai-compatible chat completion endpoints. schemas packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatChatRole",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 62,
+        "summary": "Chat roles accepted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatchatrole type chat roles accepted by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatClient",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts",
+        "sourceLine": 341,
+        "summary": "OpenAI-compatible HTTP client service.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatclient class openai-compatible http client service. services packages/drivers/openai-compat/src/openaicompatclient.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatClientOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts",
+        "sourceLine": 53,
+        "summary": "Runtime configuration accepted by {@link OpenAiCompatClient.makeLayer}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatclientoptions class runtime configuration accepted by {@link openaicompatclient.makelayer}. models packages/drivers/openai-compat/src/openaicompatclient.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatClientShape",
+        "exportKind": "interface",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts",
+        "sourceLine": 87,
+        "summary": "OpenAI-compatible HTTP client service shape.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatclientshape interface openai-compatible http client service shape. services packages/drivers/openai-compat/src/openaicompatclient.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatFinishReason",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 79,
+        "summary": "Finish reasons emitted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatfinishreason const finish reasons emitted by openai-compatible chat completion endpoints. schemas packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatFinishReason",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 106,
+        "summary": "Finish reasons emitted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatfinishreason type finish reasons emitted by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatFunctionTool",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 278,
+        "summary": "Function declaration sent to OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatfunctiontool class function declaration sent to openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatFunctionToolDefinition",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 246,
+        "summary": "Function details sent to OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatfunctiontooldefinition class function details sent to openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatJsonObjectResponseFormat",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 611,
+        "summary": "JSON object response format configuration.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatjsonobjectresponseformat class json object response format configuration. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatJsonSchemaDefinition",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 488,
+        "summary": "JSON schema response-format details for chat completion requests.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatjsonschemadefinition class json schema response-format details for chat completion requests. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatJsonSchemaResponseFormat",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 520,
+        "summary": "Structured response format configuration for chat completion requests.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatjsonschemaresponseformat class structured response format configuration for chat completion requests. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatLanguageModelClientOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
+        "sourceLine": 152,
+        "summary": "Options accepted by the default OpenAI-compatible language-model constructor.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatlanguagemodelclientoptions class options accepted by the default openai-compatible language-model constructor. models packages/drivers/openai-compat/src/openaicompatlanguagemodel.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatLanguageModelConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
+        "sourceLine": 65,
+        "summary": "Request-time tuning options shared by OpenAI-compatible language-model adapters.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatlanguagemodelconfig class request-time tuning options shared by openai-compatible language-model adapters. models packages/drivers/openai-compat/src/openaicompatlanguagemodel.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatLanguageModelOptions",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
+        "sourceLine": 129,
+        "summary": "Options accepted by {@link makeFromProvider}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatlanguagemodeloptions type options accepted by {@link makefromprovider}. models packages/drivers/openai-compat/src/openaicompatlanguagemodel.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatProvider",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts",
+        "sourceLine": 102,
+        "summary": "Provider callbacks used by the OpenAI-compatible language-model factory.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatprovider type provider callbacks used by the openai-compatible language-model factory. models packages/drivers/openai-compat/src/openaicompatlanguagemodel.service.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatResponseFormat",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 637,
+        "summary": "Response format configuration accepted by OpenAI-compatible chat completion requests.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatresponseformat const response format configuration accepted by openai-compatible chat completion requests. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatResponseFormat",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 665,
+        "summary": "Response format configuration accepted by OpenAI-compatible chat completion requests.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatresponseformat type response format configuration accepted by openai-compatible chat completion requests. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatResponseFormatKind",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 547,
+        "summary": "Response format discriminator accepted by OpenAI-compatible chat completion requests.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatresponseformatkind const response format discriminator accepted by openai-compatible chat completion requests. schemas packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatResponseFormatKind",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 568,
+        "summary": "Type for {@link OpenAiCompatResponseFormatKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatresponseformatkind type type for {@link openaicompatresponseformatkind}. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatSystemChatMessage",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 312,
+        "summary": "System chat message accepted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatsystemchatmessage class system chat message accepted by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatTextResponseFormat",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 585,
+        "summary": "Text response format configuration.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompattextresponseformat class text response format configuration. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatToolCall",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 157,
+        "summary": "Tool call payload emitted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompattoolcall class tool call payload emitted by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatToolCallDelta",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 216,
+        "summary": "Incremental tool-call payload emitted by OpenAI-compatible chat completion streams.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompattoolcalldelta class incremental tool-call payload emitted by openai-compatible chat completion streams. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatToolCallFunction",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 126,
+        "summary": "Function payload inside an OpenAI-compatible tool call.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompattoolcallfunction class function payload inside an openai-compatible tool call. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatToolCallFunctionDelta",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 186,
+        "summary": "Incremental function payload inside an OpenAI-compatible streaming tool-call delta.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompattoolcallfunctiondelta class incremental function payload inside an openai-compatible streaming tool-call delta. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatToolChatMessage",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 405,
+        "summary": "Tool chat message accepted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompattoolchatmessage class tool chat message accepted by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatUsage",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 801,
+        "summary": "Token usage returned by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatusage class token usage returned by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "OpenAiCompatUserChatMessage",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/openai-compat/src/OpenAiCompat.models.ts",
+        "sourceLine": 343,
+        "summary": "User chat message accepted by OpenAI-compatible chat completion endpoints.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . openaicompatuserchatmessage class user chat message accepted by openai-compatible chat completion endpoints. models packages/drivers/openai-compat/src/openaicompat.models.ts"
+      },
+      {
+        "packageName": "@beep/openai-compat",
+        "packagePath": "packages/drivers/openai-compat",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/openai-compat",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/openai-compat/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/openai-compat/src/index.ts",
+        "sourceLine": 23,
+        "summary": "OpenAI-compatible driver package version.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/openai-compat packages/drivers/openai-compat @beep/openai-compat . version const openai-compatible driver package version. configuration packages/drivers/openai-compat/src/index.ts"
+      }
+    ]
+  }
+}

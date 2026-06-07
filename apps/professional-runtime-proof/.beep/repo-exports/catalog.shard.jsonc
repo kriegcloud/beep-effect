@@ -1,0 +1,141 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "5ea8667f87c33129d4e9a0c50fadf927a81de2bbba34b8db8012c60243c81b33",
+    "inputs": [
+      {
+        "path": "apps/professional-runtime-proof/package.json",
+        "sha256": "c4147244983b6fe2bc86ae4dd711f5e4935bb092b382f451d6968330b82ebb81",
+        "bytes": 1941
+      },
+      {
+        "path": "apps/professional-runtime-proof/src/index.ts",
+        "sha256": "f922cebced51da8d5621a680fb36a5bfbb1dfa62f2cd76b4c804c42b9bd8bb61",
+        "bytes": 19149
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/professional-runtime-proof",
+    "packagePath": "apps/professional-runtime-proof",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/professional-runtime-proof"
+    ],
+    "counts": {
+      "publicExportEntries": 3,
+      "uniqueSymbols": 3,
+      "sourceFiles": 1
+    },
+    "exports": [
+      {
+        "packageName": "@beep/professional-runtime-proof",
+        "packagePath": "apps/professional-runtime-proof",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/professional-runtime-proof",
+        "exportSubpath": ".",
+        "exportedFromPath": "apps/professional-runtime-proof/src/index.ts",
+        "symbolName": "runProfessionalRuntimeScenario",
+        "exportKind": "const",
+        "sourcePath": "apps/professional-runtime-proof/src/index.ts",
+        "sourceLine": 517,
+        "summary": "Run one deterministic professional-runtime proof scenario end to end.",
+        "categories": [
+          "workflows"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/professional-runtime-proof apps/professional-runtime-proof @beep/professional-runtime-proof . runprofessionalruntimescenario const run one deterministic professional-runtime proof scenario end to end. workflows apps/professional-runtime-proof/src/index.ts"
+      },
+      {
+        "packageName": "@beep/professional-runtime-proof",
+        "packagePath": "apps/professional-runtime-proof",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/professional-runtime-proof",
+        "exportSubpath": ".",
+        "exportedFromPath": "apps/professional-runtime-proof/src/index.ts",
+        "symbolName": "ScenarioId",
+        "exportKind": "type",
+        "sourcePath": "apps/professional-runtime-proof/src/index.ts",
+        "sourceLine": 152,
+        "summary": "Deterministic proof scenario identifiers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/professional-runtime-proof apps/professional-runtime-proof @beep/professional-runtime-proof . scenarioid type deterministic proof scenario identifiers. models apps/professional-runtime-proof/src/index.ts"
+      },
+      {
+        "packageName": "@beep/professional-runtime-proof",
+        "packagePath": "apps/professional-runtime-proof",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/professional-runtime-proof",
+        "exportSubpath": ".",
+        "exportedFromPath": "apps/professional-runtime-proof/src/index.ts",
+        "symbolName": "toPlain",
+        "exportKind": "const",
+        "sourcePath": "apps/professional-runtime-proof/src/index.ts",
+        "sourceLine": 185,
+        "summary": "Convert decoded Schema class instances into JSON-comparable plain data.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/professional-runtime-proof apps/professional-runtime-proof @beep/professional-runtime-proof . toplain const convert decoded schema class instances into json-comparable plain data. utilities apps/professional-runtime-proof/src/index.ts"
+      }
+    ]
+  }
+}

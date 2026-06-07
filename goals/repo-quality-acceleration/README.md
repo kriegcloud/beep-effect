@@ -2,12 +2,21 @@
 
 ## Status
 
-Research bootstrap active
+Lifecycle: `reference`
+
+Status: `superseded`
+
+Superseded by:
+[`goals/repo-quality-throughput`](../repo-quality-throughput)
 
 ## Mission
 
 Reduce the wall-clock cost of this repo's quality feedback loops without
 weakening the canonical quality proof.
+
+This packet is retained as source evidence. It is no longer the execution
+packet for quality performance work because its scope was research-first and
+did not include implementation through current-PR proof.
 
 The first priority is GitHub pull request feedback speed. Local canonical
 quality commands remain important, but CI and local commands do not need to
@@ -46,6 +55,8 @@ inputs require an explicit `--full` run.
 
 ## Reading Order
 
+- [../repo-quality-throughput](../repo-quality-throughput) - active execution
+  packet that supersedes this research packet
 - [SPEC.md](./SPEC.md) - research contract and quality semantics
 - [PLAN.md](./PLAN.md) - current phased plan
 - [ops/manifest.json](./ops/manifest.json) - machine-readable routing metadata

@@ -1,30 +1,35 @@
 {
   "$schema": "https://v2-9-6.turborepo.dev/schema.json",
-  "ui": "tui",
-  "globalDependencies": [
-    ".bun-version",
-    ".nvmrc",
-    "tsconfig.json",
-    "tsconfig.base.json",
-    "tsconfig.packages.json",
-    "package.json",
-    "tstyche.json",
-    "vitest.shared.ts"
-  ],
-  "globalPassThroughEnv": [
-    "TURBO_TOKEN",
-    "TURBO_TEAM",
-    "NODE_TLS_REJECT_UNAUTHORIZED",
-    "PORTLESS_*",
-    "AWS_*",
-    "SST_*"
-  ],
+  "futureFlags": {
+    "affectedUsingTaskInputs": true,
+    "filterUsingTasks": true,
+    "globalConfiguration": true
+  },
+  "global": {
+    "ui": "tui",
+    "inputs": [".bun-version", ".nvmrc", "package.json"],
+    "passThroughEnv": [
+      "TURBO_TOKEN",
+      "TURBO_TEAM",
+      "NODE_TLS_REJECT_UNAUTHORIZED",
+      "PORTLESS_*",
+      "AWS_*",
+      "SST_*"
+    ]
+  },
   "tasks": {
     "build": {
       "persistent": false,
       "cache": true,
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*", "!.beep/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tsconfig.packages.json",
+        "$TURBO_ROOT$/.env*",
+        "!.beep/**"
+      ],
       "env": [
         "APP_ADMINS_EMAILS",
         "ALLOWED_EMAILS",
@@ -58,16 +63,22 @@
     "lint": {
       "cache": true,
       "dependsOn": ["^lint"],
-      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.jsonc", "!.beep/**"]
     },
     "lint:fix": {
       "cache": false,
       "dependsOn": ["^lint:fix"],
-      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.jsonc", "!.beep/**"]
     },
     "check": {
       "dependsOn": ["^check"],
-      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tsconfig.packages.json",
+        "!.beep/**"
+      ],
       "outputs": [
         "dist/**",
         "**/node_modules/.tmp/*.tsbuildinfo",
@@ -75,35 +86,79 @@
       ]
     },
     "test": {
-      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tsconfig.packages.json",
+        "$TURBO_ROOT$/vitest.shared.ts",
+        "!.beep/**"
+      ]
     },
     "test:integration": {
       "cache": false,
       "dependsOn": ["^build"],
       "env": ["BEEP_TEST_*"],
-      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tsconfig.packages.json",
+        "$TURBO_ROOT$/vitest.shared.ts",
+        "!.beep/**"
+      ]
     },
     "type-test": {
       "cache": true,
       "dependsOn": ["^type-test"],
-      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tsconfig.packages.json",
+        "$TURBO_ROOT$/tstyche.json",
+        "!.beep/**"
+      ]
     },
     "coverage": {
       "cache": false,
       "dependsOn": ["^build"],
       "env": ["VITEST_COVERAGE_REPORT_ONLY"],
-      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tsconfig.packages.json",
+        "$TURBO_ROOT$/vitest.shared.ts",
+        "!.beep/**"
+      ],
       "outputs": ["coverage/**"]
     },
     "codegen": {
       "cache": false,
       "dependsOn": ["^codegen"],
-      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tsconfig.packages.json",
+        "!.beep/**"
+      ]
     },
     "audit": {
       "cache": true,
       "dependsOn": ["^audit"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*", "!.beep/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/biome.jsonc",
+        "$TURBO_ROOT$/tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tsconfig.packages.json",
+        "$TURBO_ROOT$/tstyche.json",
+        "$TURBO_ROOT$/vitest.shared.ts",
+        "$TURBO_ROOT$/.env*",
+        "!.beep/**"
+      ],
       "env": [
         "APP_ADMINS_EMAILS",
         "ALLOWED_EMAILS",
@@ -142,8 +197,28 @@
     "docgen": {
       "cache": true,
       "dependsOn": ["^docgen"],
-      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"],
-      "outputs": ["docs/**", "dtslint/**"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tsconfig.json",
+        "$TURBO_ROOT$/tsconfig.base.json",
+        "$TURBO_ROOT$/tsconfig.packages.json",
+        "!.beep/**"
+      ],
+      "outputs": ["docs/**", "dtslint/**", ".beep/docgen/**"]
+    },
+    "repo-exports:shard": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!.beep/**",
+        "!docs/**",
+        "$TURBO_ROOT$/packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "$TURBO_ROOT$/packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "$TURBO_ROOT$/packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "$TURBO_ROOT$/packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts"
+      ],
+      "outputs": [".beep/repo-exports/**"],
+      "outputLogs": "new-only"
     },
     "dev": {
       "persistent": true,
