@@ -5,8 +5,8 @@
 // `ReferenceError: process is not defined`. Defining a minimal stub before any
 // story module is imported lets those imports succeed (the Next-specific code
 // paths are never exercised by the stories themselves).
-const globalWithProcess = globalThis as typeof globalThis & {
-  process?: { env: Record<string, string | undefined> };
+const globalWithProcess = globalThis as unknown as {
+  process?: unknown;
 };
 
 if (globalWithProcess.process === undefined) {

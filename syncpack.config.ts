@@ -22,6 +22,7 @@ const config = {
     "apps/codedank-web/package.json",
     "apps/oip-web/package.json",
     "apps/professional-desktop/package.json",
+    "apps/storybook/package.json",
     "apps/stack-installer/package.json",
     "apps/professional-runtime-proof/package.json",
     "packages/agent-capability/domain/package.json",

@@ -20,6 +20,8 @@ singlestore
 Solv
 Solana
 Toggl
+Vercel
+vercel
 zepai
 Zock
 Zocks
