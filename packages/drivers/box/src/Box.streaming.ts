@@ -537,14 +537,27 @@ const invokeSdkSync = (
   });
 };
 
+const combineCancellationToken = (callerSignal: AbortSignal | undefined, driverSignal: AbortSignal): AbortSignal => {
+  if (callerSignal === undefined || callerSignal === driverSignal) {
+    return driverSignal;
+  }
+  return AbortSignal.any([callerSignal, driverSignal]);
+};
+
+const readCancellationToken = (value: unknown): AbortSignal | undefined => {
+  const token = readProperty(value, "cancellationToken");
+  return token instanceof AbortSignal ? token : undefined;
+};
+
 const mergeCancellation = <A>(
   input: A | undefined,
   signal: AbortSignal
 ): A | { readonly cancellationToken: AbortSignal } => {
+  const cancellationToken = combineCancellationToken(readCancellationToken(input), signal);
   if (P.isObject(input)) {
-    return { ...input, cancellationToken: signal };
+    return { ...input, cancellationToken };
   }
-  return { cancellationToken: signal };
+  return { cancellationToken };
 };
 
 const byteInputToReadable = (method: BoxMethodName, value: unknown): Effect.Effect<Readable, BoxError> => {

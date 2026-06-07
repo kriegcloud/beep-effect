@@ -94,6 +94,15 @@ const makeCcgClient = (config: BoxCcgConfig): BoxClient =>
     }),
   });
 
+const validateCcgConfig = (config: BoxCcgConfig): Effect.Effect<BoxCcgConfig, BoxError> =>
+  config.enterpriseId === undefined && config.userId === undefined
+    ? Effect.fail(
+        BoxError.fromReason("config", {
+          cause: "Missing enterpriseId or userId for Box CCG auth",
+        })
+      )
+    : Effect.succeed(config);
+
 /**
  * Effect service for the Box Node SDK.
  *
@@ -147,8 +156,11 @@ export class Box extends Context.Service<Box, BoxShape>()($I`Box`) {
    * @category layers
    * @since 0.0.0
    */
-  static readonly makeCcgLayer = (config: BoxCcgConfig): Layer.Layer<Box> =>
-    Layer.succeed(Box, Box.of(makeService(makeCcgClient(config))));
+  static readonly makeCcgLayer = (config: BoxCcgConfig): Layer.Layer<Box, BoxError> =>
+    Layer.effect(
+      Box,
+      validateCcgConfig(config).pipe(Effect.map((validConfig) => Box.of(makeService(makeCcgClient(validConfig)))))
+    );
 
   /**
    * Build a Box layer from a pre-authenticated SDK client.

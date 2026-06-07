@@ -1094,7 +1094,7 @@ const renderOperationShape = (managerName: string, methods: readonly ManagerMeth
 
 const argumentExpression = (parameter: MethodParameter): string => {
   if (parameter.name === "cancellationToken") {
-    return `signal ?? decoded.${parameter.name}`;
+    return `combineCancellationToken(decoded.${parameter.name}, signal)`;
   }
   if (parameter.name === "optionalsInput") {
     return `mergeCancellation(decoded.${parameter.name}, signal)`;
@@ -1181,17 +1181,39 @@ export type BoxGeneratedOperations = {
   ${sortedManagers.map((managerName) => renderOperationShape(managerName, byManager.get(managerName) ?? [])).join("\n  ")}
 };
 
-const mergeCancellation = <A>(input: A | undefined, signal: AbortSignal | undefined): A | { readonly cancellationToken: AbortSignal } | undefined => {
-  if (signal === undefined) {
+const readProperty = (value: unknown, key: PropertyKey): unknown => (P.isObject(value) ? Reflect.get(value, key) : undefined);
+
+const readCancellationToken = (value: unknown): AbortSignal | undefined => {
+  const token = readProperty(value, "cancellationToken");
+  return token instanceof AbortSignal ? token : undefined;
+};
+
+const combineCancellationToken = (
+  callerSignal: AbortSignal | undefined,
+  driverSignal: AbortSignal | undefined
+): AbortSignal | undefined => {
+  if (callerSignal === undefined) {
+    return driverSignal;
+  }
+  if (driverSignal === undefined || callerSignal === driverSignal) {
+    return callerSignal;
+  }
+  return AbortSignal.any([callerSignal, driverSignal]);
+};
+
+const mergeCancellation = <A>(
+  input: A | undefined,
+  signal: AbortSignal | undefined
+): A | { readonly cancellationToken: AbortSignal } | undefined => {
+  const cancellationToken = combineCancellationToken(readCancellationToken(input), signal);
+  if (cancellationToken === undefined) {
     return input;
   }
   if (P.isObject(input)) {
-    return { ...input, cancellationToken: signal };
+    return { ...input, cancellationToken };
   }
-  return { cancellationToken: signal };
+  return { cancellationToken };
 };
-
-const readProperty = (value: unknown, key: PropertyKey): unknown => (P.isObject(value) ? Reflect.get(value, key) : undefined);
 
 const sdkShapeFailure = (manager: string, method: string): Promise<never> =>
   Promise.reject({

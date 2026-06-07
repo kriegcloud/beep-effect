@@ -3,7 +3,7 @@ import { Readable } from "node:stream";
 import { text as readableText } from "node:stream/consumers";
 import * as B from "@beep/box";
 import { describe, expect, it, layer } from "@effect/vitest";
-import { Cause, ConfigProvider, Effect, Layer as EffectLayer, Exit, Fiber, Stream } from "effect";
+import { Cause, ConfigProvider, Effect, Layer as EffectLayer, Exit, Fiber, Redacted, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -196,6 +196,20 @@ describe("@beep/box", () => {
     })
   );
 
+  it.effect(
+    "rejects CCG config without an enterprise or user subject",
+    Effect.fnUntraced(function* () {
+      const exit = yield* Effect.exit(
+        S.decodeUnknownEffect(B.BoxCcgConfig)({
+          clientId: "client-id",
+          clientSecret: Redacted.make("client-secret"),
+        })
+      );
+
+      expect(Exit.isFailure(exit)).toBe(true);
+    })
+  );
+
   layer(B.Box.makeLayerFromClient(makeFakeClient()))((it) => {
     it.effect(
       "wraps SDK JSON operations in decoded success schemas",
@@ -350,6 +364,111 @@ describe("@beep/box", () => {
 
         expect(response).toBeInstanceOf(B.Files);
         expect(uploaded.content).toBe("uploaded");
+      })
+    );
+  });
+
+  const generatedDirectCancellationProbe: {
+    readonly aborted: PromiseController<void>;
+    readonly entered: PromiseController<void>;
+    readonly pending: PromiseController<unknown>;
+    received: AbortSignal | undefined;
+  } = {
+    aborted: Promise.withResolvers<void>(),
+    entered: Promise.withResolvers<void>(),
+    pending: Promise.withResolvers<unknown>(),
+    received: undefined,
+  };
+
+  layer(
+    B.Box.makeLayerFromClient(
+      makeFakeClient({
+        users: {
+          getUserMe: (_queryParams, _headersInput, cancellationToken) => {
+            generatedDirectCancellationProbe.received = cancellationToken;
+            cancellationToken?.addEventListener("abort", () => generatedDirectCancellationProbe.aborted.resolve(), {
+              once: true,
+            });
+            generatedDirectCancellationProbe.entered.resolve();
+            return generatedDirectCancellationProbe.pending.promise;
+          },
+        },
+      })
+    )
+  )((it) => {
+    it.effect(
+      "preserves direct caller cancellation tokens for generated methods",
+      Effect.fnUntraced(function* () {
+        const callerController = new AbortController();
+        const box = yield* B.Box;
+        const fiber = yield* box.users
+          .getUserMe(B.UsersGetUserMePayload.make({ cancellationToken: callerController.signal }))
+          .pipe(Effect.forkChild);
+
+        yield* Effect.promise(() => generatedDirectCancellationProbe.entered.promise);
+        expect(generatedDirectCancellationProbe.received).toBeInstanceOf(AbortSignal);
+        callerController.abort();
+        yield* Effect.promise(() => generatedDirectCancellationProbe.aborted.promise);
+        generatedDirectCancellationProbe.pending.resolve(userFull);
+        yield* Fiber.join(fiber);
+      })
+    );
+  });
+
+  const generatedOptionalsCancellationProbe: {
+    readonly aborted: PromiseController<void>;
+    readonly entered: PromiseController<void>;
+    readonly pending: PromiseController<unknown>;
+    received: AbortSignal | undefined;
+  } = {
+    aborted: Promise.withResolvers<void>(),
+    entered: Promise.withResolvers<void>(),
+    pending: Promise.withResolvers<unknown>(),
+    received: undefined,
+  };
+
+  layer(
+    B.Box.makeLayerFromClient(
+      makeFakeClient({
+        downloads: {
+          getDownloadFileUrl: (fileId, optionalsInput) => {
+            generatedOptionalsCancellationProbe.received = (
+              optionalsInput as { readonly cancellationToken?: AbortSignal }
+            ).cancellationToken;
+            generatedOptionalsCancellationProbe.received?.addEventListener(
+              "abort",
+              () => generatedOptionalsCancellationProbe.aborted.resolve(),
+              {
+                once: true,
+              }
+            );
+            generatedOptionalsCancellationProbe.entered.resolve();
+            return generatedOptionalsCancellationProbe.pending.promise.then(() => `https://box.example/${fileId}`);
+          },
+        },
+      })
+    )
+  )((it) => {
+    it.effect(
+      "preserves optionalsInput caller cancellation tokens for generated methods",
+      Effect.fnUntraced(function* () {
+        const callerController = new AbortController();
+        const box = yield* B.Box;
+        const fiber = yield* box.downloads
+          .getDownloadFileUrl(
+            B.DownloadsGetDownloadFileUrlPayload.make({
+              fileId: "file-id",
+              optionalsInput: { cancellationToken: callerController.signal },
+            })
+          )
+          .pipe(Effect.forkChild);
+
+        yield* Effect.promise(() => generatedOptionalsCancellationProbe.entered.promise);
+        expect(generatedOptionalsCancellationProbe.received).toBeInstanceOf(AbortSignal);
+        callerController.abort();
+        yield* Effect.promise(() => generatedOptionalsCancellationProbe.aborted.promise);
+        generatedOptionalsCancellationProbe.pending.resolve(undefined);
+        expect(yield* Fiber.join(fiber)).toBe("https://box.example/file-id");
       })
     );
   });

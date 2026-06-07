@@ -555,17 +555,39 @@ export type BoxGeneratedOperations = {
   };
 };
 
-const mergeCancellation = <A>(input: A | undefined, signal: AbortSignal | undefined): A | { readonly cancellationToken: AbortSignal } | undefined => {
-  if (signal === undefined) {
+const readProperty = (value: unknown, key: PropertyKey): unknown => (P.isObject(value) ? Reflect.get(value, key) : undefined);
+
+const readCancellationToken = (value: unknown): AbortSignal | undefined => {
+  const token = readProperty(value, "cancellationToken");
+  return token instanceof AbortSignal ? token : undefined;
+};
+
+const combineCancellationToken = (
+  callerSignal: AbortSignal | undefined,
+  driverSignal: AbortSignal | undefined
+): AbortSignal | undefined => {
+  if (callerSignal === undefined) {
+    return driverSignal;
+  }
+  if (driverSignal === undefined || callerSignal === driverSignal) {
+    return callerSignal;
+  }
+  return AbortSignal.any([callerSignal, driverSignal]);
+};
+
+const mergeCancellation = <A>(
+  input: A | undefined,
+  signal: AbortSignal | undefined
+): A | { readonly cancellationToken: AbortSignal } | undefined => {
+  const cancellationToken = combineCancellationToken(readCancellationToken(input), signal);
+  if (cancellationToken === undefined) {
     return input;
   }
   if (P.isObject(input)) {
-    return { ...input, cancellationToken: signal };
+    return { ...input, cancellationToken };
   }
-  return { cancellationToken: signal };
+  return { cancellationToken };
 };
-
-const readProperty = (value: unknown, key: PropertyKey): unknown => (P.isObject(value) ? Reflect.get(value, key) : undefined);
 
 const sdkShapeFailure = (manager: string, method: string): Promise<never> =>
   Promise.reject({
@@ -735,7 +757,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "aiStudio", "getAiAgents", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     updateAiAgentById: (payload) =>
@@ -825,7 +847,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "archives", "getArchivesV2025R0", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     updateArchiveByIdV2025R0: (payload) =>
@@ -1135,7 +1157,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
         (decoded, signal) =>
           invokeSdkMethod(client, "classifications", "getClassificationTemplate", [
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     updateClassification: (payload) =>
@@ -1194,7 +1216,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "collaborationAllowlistEntries", "getCollaborationWhitelistEntries", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getCollaborationWhitelistEntryById: (payload) =>
@@ -1267,7 +1289,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "collaborationAllowlistExemptTargets", "getCollaborationWhitelistExemptTargets", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
   },
@@ -1312,7 +1334,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "collections", "getCollections", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
   },
@@ -1487,7 +1509,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "docgen", "getDocgenJobsV2025R0", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
   },
@@ -1560,7 +1582,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "docgenTemplate", "getDocgenTemplatesV2025R0", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getDocgenTemplateTagsV2025R0: (payload) =>
@@ -1670,7 +1692,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "events", "getEvents", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getEventsWithLongPolling: (payload) =>
@@ -1684,7 +1706,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
         (decoded, signal) =>
           invokeSdkMethod(client, "events", "getEventsWithLongPolling", [
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
   },
@@ -2036,7 +2058,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "fileVersionRetentions", "getFileVersionRetentions", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
   },
@@ -2532,7 +2554,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "groups", "getGroups", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     updateGroupById: (payload) =>
@@ -2740,7 +2762,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "hubs", "getEnterpriseHubsV2025R0", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getHubByIdV2025R0: (payload) =>
@@ -2769,7 +2791,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "hubs", "getHubsV2025R0", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     updateHubByIdV2025R0: (payload) =>
@@ -2857,7 +2879,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "integrationMappings", "getSlackIntegrationMapping", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getTeamsIntegrationMapping: (payload) =>
@@ -2872,7 +2894,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "integrationMappings", "getTeamsIntegrationMapping", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     updateSlackIntegrationMappingById: (payload) =>
@@ -2975,7 +2997,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "legalHoldPolicies", "getLegalHoldPolicies", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getLegalHoldPolicyById: (payload) =>
@@ -3573,7 +3595,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "metadataTemplates", "getEnterpriseMetadataTemplates", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getGlobalMetadataTemplates: (payload) =>
@@ -3588,7 +3610,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "metadataTemplates", "getGlobalMetadataTemplates", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getMetadataTemplate: (payload) =>
@@ -3680,7 +3702,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "recentItems", "getRecentItems", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
   },
@@ -3725,7 +3747,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "retentionPolicies", "getRetentionPolicies", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getRetentionPolicyById: (payload) =>
@@ -3856,7 +3878,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "search", "searchForContent", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
   },
@@ -4231,7 +4253,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "shieldInformationBarriers", "getShieldInformationBarriers", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     updateShieldInformationBarrierStatus: (payload) =>
@@ -4491,7 +4513,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
         (decoded, signal) =>
           invokeSdkMethod(client, "shieldLists", "getShieldListsV2025R0", [
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     updateShieldListByIdV2025R0: (payload) =>
@@ -4565,7 +4587,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "signRequests", "getSignRequests", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     resendSignRequest: (payload) =>
@@ -4610,7 +4632,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "signTemplates", "getSignTemplates", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
   },
@@ -4702,7 +4724,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "storagePolicies", "getStoragePolicies", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getStoragePolicyById: (payload) =>
@@ -4964,7 +4986,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "termsOfServices", "getTermsOfService", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getTermsOfServiceById: (payload) =>
@@ -5160,7 +5182,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "trashedItems", "getTrashedItems", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
   },
@@ -5221,7 +5243,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "uploads", "preflightFileUploadCheck", [
             decoded.requestBody,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
   },
@@ -5338,7 +5360,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "users", "getUserMe", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     getUsers: (payload) =>
@@ -5353,7 +5375,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "users", "getUsers", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     updateUserById: (payload) =>
@@ -5426,7 +5448,7 @@ export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCa
           invokeSdkMethod(client, "webhooks", "getWebhooks", [
             decoded.queryParams,
             decoded.headersInput,
-            signal ?? decoded.cancellationToken
+            combineCancellationToken(decoded.cancellationToken, signal)
           ])
       ),
     updateWebhookById: (payload) =>
