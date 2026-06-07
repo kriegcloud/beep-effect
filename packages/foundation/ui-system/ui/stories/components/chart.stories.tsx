@@ -6,7 +6,7 @@ import {
   ChartTooltipContent,
 } from "@beep/ui/components/chart";
 import { A, Str } from "@beep/utils";
-import { pipe } from "effect";
+import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import {
   AreaChart,
@@ -211,13 +211,16 @@ export const WithLegend: Story = {
       </BarChart>
     </ChartContainer>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const desktop = await canvas.findByText("Desktop");
-    expect(desktop).toBeVisible();
-    const mobile = await canvas.findByText("Mobile");
-    expect(mobile).toBeVisible();
-  },
+  play: ({ canvasElement }) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const canvas = within(canvasElement);
+        const desktop = yield* Effect.promise(() => canvas.findByText("Desktop"));
+        expect(desktop).toBeVisible();
+        const mobile = yield* Effect.promise(() => canvas.findByText("Mobile"));
+        expect(mobile).toBeVisible();
+      })
+    ),
 };
 
 /** A line chart driven by the same config, ideal for showing trends over time. */
@@ -299,13 +302,16 @@ export const Pie: Story = {
       </PieChart>
     </ChartContainer>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const chrome = await canvas.findByText("Chrome");
-    expect(chrome).toBeVisible();
-    const safari = await canvas.findByText("Safari");
-    expect(safari).toBeVisible();
-  },
+  play: ({ canvasElement }) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const canvas = within(canvasElement);
+        const chrome = yield* Effect.promise(() => canvas.findByText("Chrome"));
+        expect(chrome).toBeVisible();
+        const safari = yield* Effect.promise(() => canvas.findByText("Safari"));
+        expect(safari).toBeVisible();
+      })
+    ),
 };
 
 /**
