@@ -1,9 +1,10 @@
 /**
- * Box driver configuration module.
+ * Box driver configuration models and Layers.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $BoxId } from "@beep/identity";
 import { Config, Context, Effect, Layer } from "effect";
 import * as S from "effect/Schema";
@@ -12,59 +13,125 @@ import type { Redacted } from "effect";
 const $I = $BoxId.create("Box.config");
 
 /**
- * Runtime configuration required by the Box driver.
+ * Developer-token configuration for local Box access.
+ *
+ * @example
+ * ```ts
+ * import { BoxDeveloperTokenConfig } from "@beep/box"
+ * import { Redacted } from "effect"
+ *
+ * const config = BoxDeveloperTokenConfig.make({ token: Redacted.make("box-token") })
+ * console.log(config)
+ * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class BoxConfigShape extends S.Class<BoxConfigShape>($I`BoxConfigShape`)(
+export class BoxDeveloperTokenConfig extends S.Class<BoxDeveloperTokenConfig>($I`BoxDeveloperTokenConfig`)(
   {
     token: S.Redacted(S.String),
   },
-  $I.annote("BoxConfigShape", {
-    description: "Configuration schema for Box driver",
+  $I.annote("BoxDeveloperTokenConfig", {
+    description: "Developer-token configuration for the Box technical driver.",
   })
 ) {}
 
 /**
- * Box driver configuration service.
+ * Client Credentials Grant configuration for enterprise Box access.
+ *
+ * @example
+ * ```ts
+ * import { BoxCcgConfig } from "@beep/box"
+ * import { Redacted } from "effect"
+ *
+ * const config = BoxCcgConfig.make({
+ *   clientId: "client-id",
+ *   clientSecret: Redacted.make("client-secret"),
+ *   enterpriseId: "enterprise-id"
+ * })
+ * console.log(config.enterpriseId)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BoxCcgConfig extends S.Class<BoxCcgConfig>($I`BoxCcgConfig`)(
+  {
+    clientId: S.String,
+    clientSecret: S.Redacted(S.String),
+    enterpriseId: S.String.pipe(S.optionalKey),
+    userId: S.String.pipe(S.optionalKey),
+  },
+  $I.annote("BoxCcgConfig", {
+    description: "Client Credentials Grant configuration for the Box technical driver.",
+  })
+) {}
+
+/**
+ * Box developer-token configuration service.
+ *
+ * @example
+ * ```ts
+ * import { BoxConfig } from "@beep/box"
+ *
+ * console.log(BoxConfig)
+ * ```
  *
  * @category services
  * @since 0.0.0
  */
-export class BoxConfig extends Context.Service<BoxConfig, BoxConfigShape>()($I`BoxConfig`) {}
+export class BoxConfig extends Context.Service<BoxConfig, BoxDeveloperTokenConfig>()($I`BoxConfig`) {}
 
 /**
- * Live Box configuration layer backed by process configuration.
+ * Live developer-token configuration layer backed by `CLOUD_BOX_TOKEN`.
+ *
+ * @example
+ * ```ts
+ * import { BoxConfigLayer } from "@beep/box"
+ *
+ * console.log(BoxConfigLayer)
+ * ```
  *
  * @category layers
  * @since 0.0.0
  */
-export const layer = Layer.effect(
+export const BoxConfigLayer = Layer.effect(
   BoxConfig,
   Effect.gen(function* () {
     const token = yield* Config.redacted("CLOUD_BOX_TOKEN");
-
-    return BoxConfigShape.make({
-      token,
-    });
+    return BoxDeveloperTokenConfig.make({ token });
   })
 );
 
 /**
- * Construct a Box configuration layer from an explicit token.
+ * Backward-compatible alias for {@link BoxConfigLayer}.
  *
- * @param token - Box API token.
- * @returns Layer providing the Box configuration service.
+ * @example
+ * ```ts
+ * import { layer } from "@beep/box"
+ *
+ * console.log(layer)
+ * ```
+ *
  * @category layers
  * @since 0.0.0
  */
-export const layerConfig = (token: Redacted.Redacted<string>) =>
-  Layer.effect(
-    BoxConfig,
-    Effect.gen(function* () {
-      return BoxConfigShape.make({
-        token,
-      });
-    })
-  );
+export const layer = BoxConfigLayer;
+
+/**
+ * Construct a developer-token configuration layer from an explicit token.
+ *
+ * @example
+ * ```ts
+ * import { layerConfig } from "@beep/box"
+ * import { Redacted } from "effect"
+ *
+ * const layer = layerConfig(Redacted.make("box-token"))
+ * console.log(layer)
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const layerConfig = (token: Redacted.Redacted<string>): Layer.Layer<BoxConfig> =>
+  Layer.succeed(BoxConfig, BoxDeveloperTokenConfig.make({ token }));

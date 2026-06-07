@@ -13,11 +13,11 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "94f05fa635f172a348ef1628884bb7ec98c12ebf138d62c8ce43eeae7fbf6c90",
+    "digest": "9a05984a206b0a0b7f9d1af8e95266860af4c880013ed6a38d62d5a55c3bf4a8",
     "inputs": [
       {
         "path": "package.json",
-        "sha256": "1fc23de069588aca6890bef9b30e27b01ac90bcb8d08804f08edba4b4d793203",
+        "sha256": "e2c96ee998fb6d44adb8d678eb1029e2bacb26fb785b05b0db36d5eb47a1a9cd",
         "bytes": 15962
       },
       {

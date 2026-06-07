@@ -8,6 +8,22 @@ network/docs fetch was performed during authoring; counts are from the installed
 `.d.ts`. The implementation agent must re-verify at implementation time (P1) and
 record drift.
 
+P1 refresh on 2026-06-07 confirmed the installed SDK is still `10.11.1`, but
+the exact generated type surface has drifted from the authoring estimates:
+`BoxClient` has 85 manager properties, the manager classes expose 347 public
+methods (346 `Promise` methods plus synchronous `events.getEventStream`), and
+`lib/schemas` contains 299 schema `.d.ts` files. The local source clone at
+`/home/elpresidank/YeeBois/dev/box-node-sdk` is on commit
+`2e5fbf7c97635b1fe80817361615f8e6eb977ce0`, branch `main...origin/main`, and
+also reports package version `10.11.1`.
+
+Implementation refresh later on 2026-06-07 found that a direct method-signature
+scan undercounted non-JSON methods: several upload methods reference request
+body DTOs that contain `ByteStream` fields. The generator now recursively checks
+referenced DTO declarations for `ByteStream` / `EventStream`. Resulting surface:
+333 generated JSON operations plus 14 hand-written byte/event operations, for
+the full 347 non-deprecated method surface.
+
 ## Sources
 
 ### Installed SDK
@@ -16,6 +32,10 @@ record drift.
 - Installed version: `10.11.1` (`node_modules/box-node-sdk/package.json`)
 - Declared in `packages/drivers/box/package.json` as `box-node-sdk: catalog:`
   (root catalog pins `^10.11.1`).
+- Local source clone: `/home/elpresidank/YeeBois/dev/box-node-sdk`
+  (`2e5fbf7c97635b1fe80817361615f8e6eb977ce0`, clean
+  `main...origin/main`, version `10.11.1`). Use this clone as the primary
+  source-code reference when the installed `.d.ts` needs implementation context.
 - The SDK is itself generated (`sdk-gen`) from the Box OpenAPI spec. It ships
   camelCase TypeScript interfaces with `serialize`/`deserialize` helpers and a
   `rawData?: SerializedData` passthrough on every object. There is **no runtime
@@ -39,8 +59,9 @@ record drift.
 ## Surface Counts (observed)
 
 - Manager properties on `BoxClient`: **85**.
-- Async (`Promise<...>`) manager methods: **~305**.
-- Schema files: **301**.
+- Public manager methods: **347** (`346` async `Promise<...>` methods plus
+  synchronous `events.getEventStream`).
+- Schema files: **299**.
 - `@deprecated` manager methods: **0** (the exclude-deprecated rule applies but
   currently drops nothing; re-check at P1).
 
@@ -73,8 +94,11 @@ Generated payload schemas must capture the positional id(s) + the `requestBody`/
 
 ## In-Scope Surface
 
-**Full non-deprecated surface**: all ~305 async methods across all 85 managers,
-generated per-method and grouped by manager. Manager groups (from
+**Full non-deprecated surface**: all 347 public methods across all 85 managers,
+generated per-method and grouped by manager except for methods that involve
+`ByteStream`/`EventStream` directly or through a referenced DTO and therefore
+need hand-written streaming adapters.
+Manager groups (from
 `lib/client.d.ts`), by domain:
 
 - Files/versions/metadata: `files`, `trashedFiles`, `fileVersions`,
@@ -112,13 +136,21 @@ generated per-method and grouped by manager. Manager groups (from
 
 ## Non-JSON / Streaming Methods (hand-written in Box.streaming.ts)
 
-The generator must skip any method whose return OR a parameter involves
-`ByteStream` / `EventStream` / `undefined`-only returns, and log them. Observed:
+The generator must skip any method whose return OR parameter involves
+`ByteStream` / `EventStream`, and log them. Ordinary JSON/API methods returning
+`Promise<undefined>` (delete, revoke, apply, start, and similar operations)
+remain in the generated full surface as decoded void/undefined operations;
+otherwise the driver would fail the full-surface requirement. Observed
+byte/event methods:
 
 - `downloads.downloadFile(fileId, ...) => Promise<undefined | ByteStream>` →
   Effect `Stream<Uint8Array>`.
-- `downloads.getDownloadFileUrl(...) => Promise<string>` (JSON-ish; can be
-  generated as a string-returning op).
+- `files.getFileThumbnailById(...) => Promise<undefined | ByteStream>` →
+  Effect `Stream<Uint8Array>`.
+- `avatars.getUserAvatar(...) => Promise<ByteStream>` →
+  Effect `Stream<Uint8Array>`.
+- `downloads.getDownloadFileUrl(...) => Promise<string>` is generated as a
+  string-returning operation.
 - `zipDownloads.getZipDownloadContent(...) => Promise<ByteStream>` and
   `zipDownloads.downloadZip(...) => Promise<ByteStream>` → `Stream<Uint8Array>`.
   `createZipDownload`/`getZipDownloadStatus` return JSON (generate normally).
@@ -126,12 +158,29 @@ The generator must skip any method whose return OR a parameter involves
   `uploadFilePart`, `uploadFile`, `uploadFileVersion`, `uploadBigFile`,
   `uploadFilePartByUrl`) need byte input; they return JSON envelopes
   (`UploadSession`, `Files`, `UploadedPart`, `FileFull`). Hand-write the byte
-  input, decode the JSON envelope. Pure-JSON session methods
+  input and decode the JSON envelope. Pure-JSON session methods
   (`getFileUploadSession*`, `delete*`) can be generated.
 - `events.getEventStream(...) => EventStream` (synchronous, long-polling Node
   `Readable`) → finalizer-backed Effect `Stream` of decoded events
   (`Stream.callback` + `Effect.acquireRelease` closing the `EventStream`).
   `events.getEvents`/`getEventsWithLongPolling` return JSON (generate normally).
+
+Exact byte/event skip list from the 2026-06-07 implementation refresh:
+
+- `avatars.createUserAvatar`
+- `avatars.getUserAvatar`
+- `chunkedUploads.uploadFilePartByUrl`
+- `chunkedUploads.uploadFilePart`
+- `chunkedUploads.reducer`
+- `chunkedUploads.uploadBigFile`
+- `downloads.downloadFile`
+- `events.getEventStream`
+- `files.getFileThumbnailById`
+- `uploads.uploadFile`
+- `uploads.uploadFileVersion`
+- `uploads.uploadWithPreflightCheck`
+- `zipDownloads.getZipDownloadContent`
+- `zipDownloads.downloadZip`
 
 ## Excluded / Deferred
 
@@ -176,8 +225,11 @@ No create/update/delete in CI.
 
 ## Drift To Re-Check (P1)
 
-- Installed `box-node-sdk` version vs `10.11.1`.
-- Manager count (85), async method count (~305), schema count (301).
-- `@deprecated` method list (0 today).
-- Auth class names/fields and `BoxApiError` field shape.
-- Non-JSON method return/param types across the five streaming managers.
+- Installed `box-node-sdk` version vs `10.11.1`: confirmed on 2026-06-07.
+- Manager count (85), public method count (347), schema count (299):
+  confirmed on 2026-06-07.
+- `@deprecated` method list (0 today): confirmed on 2026-06-07.
+- Auth class names/fields and `BoxApiError` field shape: confirmed on
+  2026-06-07.
+- Non-JSON method return/param types: confirmed as the byte/event skip list
+  above on 2026-06-07.
