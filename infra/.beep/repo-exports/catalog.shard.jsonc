@@ -13,12 +13,12 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "9213c4a629e616c5eed93120b2a3aff919f701f5a5eabc3059f9bde08aa41170",
+    "digest": "6450fe1df06bd08ffc73fa41320f3a558838ef0ed95aec75fafabeab07e3329c",
     "inputs": [
       {
         "path": "infra/package.json",
-        "sha256": "39c7fb255e0726f94aaabad11fb7d858acfa2e9cc522384fbbec84f1d3fe1134",
-        "bytes": 1732
+        "sha256": "c843f6dd5e22a601522d0a8da569bcb92b8f69534e88be01b86d8ea419851a0a",
+        "bytes": 1767
       },
       {
         "path": "infra/src/AIMetrics.ts",
@@ -27,8 +27,8 @@
       },
       {
         "path": "infra/src/index.ts",
-        "sha256": "3af4ad6ca67ff1efbac000ed8a6e29dc7449a5bc20387a4bd03228aec6fac392",
-        "bytes": 984
+        "sha256": "d08cdbac54afefa727448820f0632eac22f4c880dd90ba9cb3cfe70cf8906d6e",
+        "bytes": 1222
       },
       {
         "path": "infra/src/internal/ai-metrics-entry.ts",
@@ -41,9 +41,19 @@
         "bytes": 1029
       },
       {
+        "path": "infra/src/internal/storybook-entry.ts",
+        "sha256": "dc4b6f540db96cd4132d0ee085fae829fd9e64a751db165ee205b9c0dcb3d5e9",
+        "bytes": 846
+      },
+      {
         "path": "infra/src/OipWeb.ts",
         "sha256": "d873a607dfe4ae6a318b20e5b34ac575a31c1341e952aee52c6dcf27b927285a",
         "bytes": 32683
+      },
+      {
+        "path": "infra/src/Storybook.ts",
+        "sha256": "5cc194d9181337f1eb0f69b6491dc985949f5c15e36b2f6864c99142b06c0c54",
+        "bytes": 12421
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -76,9 +86,9 @@
       "@beep/infra"
     ],
     "counts": {
-      "publicExportEntries": 19,
-      "uniqueSymbols": 19,
-      "sourceFiles": 5
+      "publicExportEntries": 28,
+      "uniqueSymbols": 26,
+      "sourceFiles": 7
     },
     "exports": [
       {
@@ -313,6 +323,31 @@
         "importSpecifier": "@beep/infra",
         "exportSubpath": ".",
         "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "loadStorybookStackArgs",
+        "exportKind": "const",
+        "sourcePath": "infra/src/Storybook.ts",
+        "sourceLine": 271,
+        "summary": "Load Storybook stack args from Pulumi config.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . loadstorybookstackargs const load storybook stack args from pulumi config. constructors infra/src/storybook.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
         "symbolName": "makeAIMetricsStackArgsFromConfigValues",
         "exportKind": "const",
         "sourcePath": "infra/src/AIMetrics.ts",
@@ -355,6 +390,31 @@
           "@since"
         ],
         "searchText": "@beep/infra infra @beep/infra . makeoipwebstackargsfromconfigvalues const build oip web stack args from decoded pulumi config values. constructors infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "makeStorybookStackArgsFromConfigValues",
+        "exportKind": "const",
+        "sourcePath": "infra/src/Storybook.ts",
+        "sourceLine": 226,
+        "summary": "Build Storybook stack args from decoded Pulumi config values.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . makestorybookstackargsfromconfigvalues const build storybook stack args from decoded pulumi config values. constructors infra/src/storybook.ts"
       },
       {
         "packageName": "@beep/infra",
@@ -555,6 +615,181 @@
           "@since"
         ],
         "searchText": "@beep/infra infra @beep/infra . oipwebstackargs class pulumi-facing args for the oip web stack. models infra/src/oipweb.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "StorybookPulumiConfigValues",
+        "exportKind": "const",
+        "sourcePath": "infra/src/Storybook.ts",
+        "sourceLine": 120,
+        "summary": "Optional Pulumi config values before Storybook deploy defaults are applied.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . storybookpulumiconfigvalues const optional pulumi config values before storybook deploy defaults are applied. models infra/src/storybook.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "StorybookPulumiConfigValues",
+        "exportKind": "type",
+        "sourcePath": "infra/src/Storybook.ts",
+        "sourceLine": 151,
+        "summary": "Runtime type for {@link StorybookPulumiConfigValues}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . storybookpulumiconfigvalues type runtime type for {@link storybookpulumiconfigvalues}. models infra/src/storybook.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "StorybookStack",
+        "exportKind": "class",
+        "sourcePath": "infra/src/Storybook.ts",
+        "sourceLine": 303,
+        "summary": "Import-safe Pulumi component for the public Storybook Vercel project.",
+        "categories": [
+          "resources"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . storybookstack class import-safe pulumi component for the public storybook vercel project. resources infra/src/storybook.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "StorybookStackArgs",
+        "exportKind": "class",
+        "sourcePath": "infra/src/Storybook.ts",
+        "sourceLine": 200,
+        "summary": "Pulumi-facing args for the Storybook Vercel stack.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . storybookstackargs class pulumi-facing args for the storybook vercel stack. models infra/src/storybook.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "StorybookVercelAuthenticationDeploymentType",
+        "exportKind": "const",
+        "sourcePath": "infra/src/Storybook.ts",
+        "sourceLine": 60,
+        "summary": "Vercel deployment authentication modes accepted by the Storybook project.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . storybookvercelauthenticationdeploymenttype const vercel deployment authentication modes accepted by the storybook project. models infra/src/storybook.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "StorybookVercelAuthenticationDeploymentType",
+        "exportKind": "type",
+        "sourcePath": "infra/src/Storybook.ts",
+        "sourceLine": 86,
+        "summary": "Runtime type for {@link StorybookVercelAuthenticationDeploymentType}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . storybookvercelauthenticationdeploymenttype type runtime type for {@link storybookvercelauthenticationdeploymenttype}. models infra/src/storybook.ts"
+      },
+      {
+        "packageName": "@beep/infra",
+        "packagePath": "infra",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/infra",
+        "exportSubpath": ".",
+        "exportedFromPath": "infra/src/index.ts",
+        "symbolName": "StorybookVercelProjectConfig",
+        "exportKind": "class",
+        "sourcePath": "infra/src/Storybook.ts",
+        "sourceLine": 166,
+        "summary": "Vercel project configuration for `@beep/storybook`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/infra infra @beep/infra . storybookvercelprojectconfig class vercel project configuration for `@beep/storybook`. models infra/src/storybook.ts"
       }
     ]
   }

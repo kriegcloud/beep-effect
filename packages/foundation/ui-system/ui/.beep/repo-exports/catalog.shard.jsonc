@@ -13,12 +13,12 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "307c9e297ef9444bd5530870f320a359167bb0b2fa2648098cc2c33abe805b6c",
+    "digest": "94c6fc7deedfc1121af6dff8189a4c4926f646659319913c6847d7815c976a5d",
     "inputs": [
       {
         "path": "packages/foundation/ui-system/ui/package.json",
-        "sha256": "aac3834c51e63d3ce45064571c7aac9ba070af9eef5e5d83d93a47401a0bb671",
-        "bytes": 4780
+        "sha256": "8593f55980d20bb452d632d06197adec7771ec3e601fa9948ef084271787406a",
+        "bytes": 4051
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/accordion.tsx",
