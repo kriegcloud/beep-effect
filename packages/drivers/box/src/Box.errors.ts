@@ -12,6 +12,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { BoxMethodName } from "./_generated/Box.models.gen.ts";
+import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
 import type { BoxMethodName as BoxMethodNameType } from "./_generated/Box.models.gen.ts";
 
 const $I = $BoxId.create("Box.errors");
@@ -178,7 +179,7 @@ export class BoxError extends TaggedErrorClass<BoxError>($I`BoxError`)(
       ...(options.helpUrl === undefined ? {} : { helpUrl: options.helpUrl }),
       ...(options.method === undefined ? {} : { method: options.method }),
       ...(options.requestId === undefined ? {} : { requestId: options.requestId }),
-      ...(options.sdkVersion === undefined ? {} : { sdkVersion: options.sdkVersion }),
+      sdkVersion: options.sdkVersion ?? BOX_SDK_VERSION,
       ...(options.status === undefined ? {} : { status: options.status }),
     });
 

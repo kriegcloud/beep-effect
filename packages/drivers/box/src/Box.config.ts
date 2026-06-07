@@ -8,6 +8,7 @@
 import { $BoxId } from "@beep/identity";
 import { Config, Context, Effect, Layer } from "effect";
 import * as S from "effect/Schema";
+import { BoxError } from "./Box.errors.ts";
 import type { Redacted } from "effect";
 
 const $I = $BoxId.create("Box.config");
@@ -98,7 +99,13 @@ export class BoxConfig extends Context.Service<BoxConfig, BoxDeveloperTokenConfi
 export const BoxConfigLayer = Layer.effect(
   BoxConfig,
   Effect.gen(function* () {
-    const token = yield* Config.redacted("CLOUD_BOX_TOKEN");
+    const token = yield* Config.redacted("CLOUD_BOX_TOKEN").pipe(
+      Effect.mapError((cause) =>
+        BoxError.fromReason("config", {
+          cause,
+        })
+      )
+    );
     return BoxDeveloperTokenConfig.make({ token });
   })
 );

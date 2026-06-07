@@ -3,7 +3,7 @@ import { Readable } from "node:stream";
 import { text as readableText } from "node:stream/consumers";
 import * as B from "@beep/box";
 import { describe, expect, it, layer } from "@effect/vitest";
-import { Cause, Effect, Exit, Fiber, Stream } from "effect";
+import { Cause, ConfigProvider, Effect, Layer as EffectLayer, Exit, Fiber, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -169,7 +169,32 @@ describe("@beep/box", () => {
     });
 
     expect(error.status).toBeUndefined();
+    expect(error.sdkVersion).toBe("10.11.1");
   });
+
+  it.effect(
+    "maps developer-token config failures into BoxError",
+    Effect.fnUntraced(function* () {
+      const exit = yield* Effect.exit(
+        Effect.scoped(
+          EffectLayer.build(
+            B.BoxConfigLayer.pipe(EffectLayer.provide(ConfigProvider.layer(ConfigProvider.fromUnknown({}))))
+          ).pipe(Effect.flatMap((context) => B.BoxConfig.pipe(Effect.provide(context))))
+        )
+      );
+
+      expect(Exit.isFailure(exit)).toBe(true);
+      if (Exit.isFailure(exit)) {
+        const error = Cause.findErrorOption(exit.cause);
+        expect(O.isSome(error)).toBe(true);
+        if (O.isSome(error)) {
+          expect(error.value).toBeInstanceOf(B.BoxError);
+          expect(error.value.reason).toBe("config");
+          expect(error.value.sdkVersion).toBe("10.11.1");
+        }
+      }
+    })
+  );
 
   layer(B.Box.makeLayerFromClient(makeFakeClient()))((it) => {
     it.effect(
@@ -286,6 +311,7 @@ describe("@beep/box", () => {
             expect(error.value.status).toBe(429);
             expect(error.value.code).toBe("rate_limit");
             expect(error.value.requestId).toBe("request-id");
+            expect(error.value.sdkVersion).toBe("10.11.1");
             expect(error.value.cause).toBe("Unknown");
           }
         }
