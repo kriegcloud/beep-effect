@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd ../.. && npx --yes bun@1.3.14 install",
+  "buildCommand": "cd ../.. && npx --yes bun@1.3.14 run storybook:build",
+  "outputDirectory": "storybook-static"
+}

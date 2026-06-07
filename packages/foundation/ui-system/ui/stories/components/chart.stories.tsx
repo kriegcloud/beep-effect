@@ -132,6 +132,7 @@ const meta = {
     config: chartConfig,
     className: "min-h-[200px] w-full max-w-xl",
     children: defaultChartChildren,
+    style: { width: 576, height: 324 },
   },
 } satisfies Meta<typeof ChartContainer>;
 
@@ -212,8 +213,12 @@ export const WithLegend: Story = {
   ),
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(canvas.getByText("Desktop")).toBeVisible();
-    expect(canvas.getByText("Mobile")).toBeVisible();
+    return canvas.findByText("Desktop").then((desktop) => {
+      expect(desktop).toBeVisible();
+      return canvas.findByText("Mobile").then((mobile) => {
+        expect(mobile).toBeVisible();
+      });
+    });
   },
 };
 
@@ -280,7 +285,7 @@ export const Area: Story = {
  * mapping slices to their configured labels via `nameKey`.
  */
 export const Pie: Story = {
-  args: { config: pieConfig, className: "mx-auto aspect-square max-h-[260px]" },
+  args: { config: pieConfig, className: "mx-auto", style: { width: 260, height: 260 } },
   render: (args) => (
     <ChartContainer {...args}>
       <PieChart>
@@ -298,8 +303,12 @@ export const Pie: Story = {
   ),
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(canvas.getByText("Chrome")).toBeVisible();
-    expect(canvas.getByText("Safari")).toBeVisible();
+    return canvas.findByText("Chrome").then((chrome) => {
+      expect(chrome).toBeVisible();
+      return canvas.findByText("Safari").then((safari) => {
+        expect(safari).toBeVisible();
+      });
+    });
   },
 };
 

@@ -5,7 +5,11 @@
 // config module body evaluates before any story module is loaded, so the shim is in
 // place in time. (The ES imports below are hoisted and run before this line, which is
 // fine: none of them reference `process` at eval time. `??=` never clobbers a real one.)
-globalThis.process ??= { env: { NODE_ENV: "development" } } as never;
+const globalWithProcess = globalThis as unknown as {
+  process?: unknown;
+};
+
+globalWithProcess.process ??= { env: { NODE_ENV: "development" } };
 
 import { AppThemeProvider, ThemeMode, useThemeMode } from "@beep/ui/themes";
 import { DecoratorHelpers } from "@storybook/addon-themes";

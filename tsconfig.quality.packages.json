@@ -25,6 +25,9 @@
       "path": "apps/stack-installer"
     },
     {
+      "path": "apps/storybook"
+    },
+    {
       "path": "infra"
     },
     {

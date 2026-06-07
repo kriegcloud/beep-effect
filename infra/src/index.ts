@@ -55,3 +55,17 @@ export * from "./AIMetrics.js";
  * @since 0.0.0
  */
 export * from "./OipWeb.js";
+/**
+ * Storybook Pulumi orchestration exports.
+ *
+ * @example
+ * ```ts
+ * import { StorybookStack } from "@beep/infra"
+ *
+ * console.log(StorybookStack)
+ * ```
+ *
+ * @category resources
+ * @since 0.0.0
+ */
+export * from "./Storybook.js";

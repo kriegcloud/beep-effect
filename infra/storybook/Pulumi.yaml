@@ -1,0 +1,14 @@
+name: beep-storybook
+runtime:
+  name: nodejs
+description: Public Storybook Vercel project for foundation UI-system stories.
+main: ../src/internal/storybook-entry.ts
+config:
+  storybook:buildCommand: cd ../.. && bun run storybook:build
+  storybook:installCommand: cd ../.. && bun install
+  storybook:outputDirectory: storybook-static
+  storybook:productionBranch: main
+  storybook:projectName: beep-storybook
+  storybook:repository: kriegcloud/beep-effect
+  storybook:rootDirectory: apps/storybook
+  storybook:vercelAuthenticationDeploymentType: none

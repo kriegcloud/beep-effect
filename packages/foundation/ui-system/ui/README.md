@@ -1,6 +1,6 @@
 # @beep/ui
 
-Shared UI component library: shadcn primitives (Base UI, not Radix), a Tailwind v4 theme, and Storybook.
+Shared UI component library: shadcn primitives (Base UI, not Radix) and a Tailwind v4 theme.
 
 ## Installation
 
@@ -45,12 +45,10 @@ Stories live in `stories/` (NOT under `src/`), mirroring `src/components/`
 (`stories/components/<name>.stories.tsx`). They import components via the
 `@beep/ui/components/<name>` alias.
 
-- Discovered by `.storybook/main.ts` (`../stories/**/*.stories.@(ts|tsx)`).
-- Type-checked by `tsconfig.stories.json`, which is wired into `bun run check`.
-- Linted by Biome (the `stories/` glob is part of `bun run lint`).
-- Story files are subject to the same `@effect/language-service` rules as `src`
-  (no `async`, no wall-clock `Date`/random/timers, strict boolean expressions);
-  `play` functions are synchronous and return a promise chain.
+The story files stay package-local, but the Storybook runtime and validation
+live in `@beep/storybook` (`apps/storybook`). Run the root Storybook commands to
+serve, build, lint, type-check, and browser-test stories across foundation
+UI-system packages.
 
 ## Development
 
@@ -58,7 +56,7 @@ Stories live in `stories/` (NOT under `src/`), mirroring `src/components/`
 # Build
 bun run build
 
-# Type check (src + stories)
+# Type check source
 bun run check
 
 # Unit tests
@@ -67,11 +65,11 @@ bun run test
 # Lint / autofix
 bun run lint:fix
 
-# Storybook dev server (port 6006)
-bun run storybook
+# Storybook dev server for package-local stories
+bun run --cwd ../../../.. storybook
 
 # Run stories as browser tests (Playwright Chromium)
-bun run test:storybook
+bun run --cwd ../../../.. test:storybook
 ```
 
 ## License
