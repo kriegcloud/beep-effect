@@ -9,12 +9,13 @@ import { Config, Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import { headers } from "next/headers";
 import { connection } from "next/server";
-import { use } from "react";
 import { oipSiteContent, oipTwitterHandle } from "@/content";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { dual, thunkTrue } from "@beep/utils";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const { metadata: siteMetadata } = oipSiteContent;
 const twitterHandle = oipTwitterHandle(oipSiteContent);
@@ -119,10 +120,6 @@ function VercelInsights() {
   if (!shouldLoadVercelInsights) {
     return null;
   }
-
-  const [{ Analytics }, { SpeedInsights }] = use(
-    Promise.all([import("@vercel/analytics/next"), import("@vercel/speed-insights/next")])
-  );
 
   return (
     <>
