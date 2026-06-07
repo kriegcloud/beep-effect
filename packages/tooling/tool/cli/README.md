@@ -434,31 +434,34 @@ bun run beep quality changeset-graph
 
 ### `yeet`
 
-Run the repo-native agent workflow candidate for repair, verification, and
-publishing. Yeet is not considered the canonical replacement for manual quality
-lanes until the dedicated proof PR passes GitHub Actions end to end.
+Run the canonical End-to-End Green operator path: deterministic repair, full
+local proof, reviewed commit, push, hosted PR check monitoring, and merge
+readiness.
 
 ```bash
 bun run beep yeet repair
 bun run beep yeet verify
-bun run beep yeet publish --message "feat(repo-cli): harden yeet proof"
+bun run beep yeet publish --message "type(scope): summary"
+bun run beep yeet monitor
 ```
 
-`repair` is the only mode that runs deterministic write steps. It currently
-runs changed-file lint fixes, local docgen, `repo-exports:catalog`, and then affected
-feedback. Affected test feedback is scoped to unit and type-test lanes; the
-integration lane is reserved for the full proof. `verify` is read-only and runs
-`quality github-checks pre-push`, the shared proof surface that mirrors the
-all-up local GitHub Actions proof, without duplicate affected feedback first.
-`publish` does not run repair steps: it requires reviewed staged changes,
+`repair` runs deterministic write steps: changed-file lint fixes, local docgen,
+`repo-exports:catalog`, and affected feedback. Affected test feedback is scoped
+to unit and type-test lanes; integration stays in the full proof. `verify` runs
+the canonical full local `quality github-checks pre-push` proof without
+duplicate affected feedback first. `publish` requires reviewed staged changes,
 commits them, runs the same `pre-push` proof against the new local commit, and
-pushes only after that proof passes. Bare `yeet --message ...` remains a publish
-alias.
+pushes only after that proof passes. `monitor` watches hosted PR checks for the
+current branch. Bare `yeet --message ...` remains a publish alias.
 
-If `yeet verify` or `yeet publish` passes locally but the proof PR fails in
-GitHub Actions, treat that as a Yeet/quality parity bug or environment drift
-unless the failure is clearly an external outage. The custom Yeet agent skill
-should be added only after this proof loop is green.
+Use `--plan --json` on any mode to inspect the planned steps without running
+them. `publish --fast --monitor` is an explicit PR-branch-only exception for
+cases where hosted PR checks replace the local full pre-push wait; the normal
+`publish --message` path remains the default. `bun run audit:github pre-push`
+remains the named full local fallback for secrets, security, SAST, Nix, and
+manual proof outside Yeet. If Yeet passes locally but the PR fails in GitHub
+Actions, treat that as a Yeet/quality parity bug or environment drift unless
+the failure is clearly an external outage.
 
 ### `ci`
 
