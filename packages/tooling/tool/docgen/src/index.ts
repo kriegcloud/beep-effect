@@ -35,3 +35,8 @@ export * as Parser from "./Parser.js";
  * @since 0.0.0
  */
 export * as Printer from "./Printer.js";
+/**
+ * @category workflows
+ * @since 0.0.0
+ */
+export * as ProofManifest from "./ProofManifest.js";

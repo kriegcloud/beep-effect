@@ -3,21 +3,29 @@
   "initiative": {
     "id": "repo-quality-throughput",
     "title": "Repo Quality Throughput",
-    "status": "current-pr-proof-green",
+    "status": "complete",
     "created": "2026-06-06",
     "updated": "2026-06-06",
     "packetAnchorDocument": "SPEC.md",
     "supersedes": ["repo-quality-acceleration"]
   },
   "packetPath": "goals/repo-quality-throughput",
-  "lifecycle": "current-pr-proof-green",
+  "lifecycle": "complete",
   "executionCapable": true,
-  "mission": "Make the repo's End-to-End Green lane materially faster while preserving the authoritative quality proof.",
+  "mission": "Implement the selected End-to-End Green performance tasks and publish a mergeable PR.",
   "optimizationTarget": "End-to-End Green: edit, local repair, local blockers, commit, push, PR checks, review comments, and merge readiness.",
   "ownership": {
     "family": "tooling",
-    "primaryPackages": ["@beep/repo-cli", "@beep/repo-utils"],
-    "primaryPaths": ["packages/tooling/tool/cli", "packages/tooling/library"],
+    "primaryPackages": [
+      "@beep/repo-cli",
+      "@beep/repo-utils",
+      "@beep/repo-codegraph"
+    ],
+    "primaryPaths": [
+      "packages/tooling/tool/cli",
+      "packages/tooling/library/repo-utils",
+      "packages/tooling/library/repo-codegraph"
+    ],
     "workflowPaths": [".github/workflows", ".github/actions"],
     "configPaths": ["turbo.json", "biome.jsonc", "lefthook.yml", "package.json"]
   },
@@ -27,13 +35,12 @@
     "standards/ARCHITECTURE.md",
     "standards/architecture/07-non-slice-families.md",
     "standards/architecture/08-testing.md",
-    "standards/architecture/11-evolution-and-deprecation.md",
-    "standards/architecture/12-observability.md",
     ".patterns/jsdoc-documentation.md",
     "goals/repo-quality-throughput/README.md",
     "goals/repo-quality-throughput/SPEC.md",
     "goals/repo-quality-throughput/PLAN.md",
-    "goals/repo-quality-throughput/GOAL.md"
+    "goals/repo-quality-throughput/GOAL.md",
+    "goals/repo-quality-throughput/tasks/tasks.jsonc"
   ],
   "agentLaunchers": [
     {
@@ -44,178 +51,95 @@
       "command": "/goal follow the instructions in goals/repo-quality-throughput/GOAL.md"
     }
   ],
-  "agentBatches": [
+  "archivedResearchBatches": [
     {
       "id": "batch-01",
       "name": "Baseline And Graph",
-      "prompt": "ops/prompts/batch-01-baseline-and-dag.md",
-      "agentCount": 6,
-      "status": "complete",
-      "writePolicy": "Agents return reports; orchestrator writes reportPath.",
-      "lanes": [
-        {
-          "laneId": "quality-command-map",
-          "reportPath": "research/batch-01-quality-command-map.md"
-        },
-        {
-          "laneId": "timing-baseline",
-          "reportPath": "research/batch-01-timing-baseline.md"
-        },
-        {
-          "laneId": "turbo-dag-cache",
-          "reportPath": "research/batch-01-turbo-dag-cache.md"
-        },
-        {
-          "laneId": "duplicate-proof-work",
-          "reportPath": "research/batch-01-duplicate-proof-work.md"
-        },
-        {
-          "laneId": "docgen-cost-model",
-          "reportPath": "research/batch-01-docgen-cost-model.md"
-        },
-        {
-          "laneId": "config-inventory",
-          "reportPath": "research/batch-01-config-inventory.md"
-        }
-      ],
-      "closeout": [
-        "Persist six reports.",
-        "Update history/outputs/research-synthesis.md.",
-        "Update tasks/tasks.jsonc before launching batch-02."
-      ]
+      "status": "complete-archived",
+      "prompt": "ops/prompts/batch-01-baseline-and-dag.md"
     },
     {
       "id": "batch-02",
       "name": "Implementation Hotspots",
-      "prompt": "ops/prompts/batch-02-hotspots.md",
-      "agentCount": 6,
-      "status": "complete",
-      "writePolicy": "Agents return reports; orchestrator writes reportPath.",
-      "dependsOn": ["batch-01 closeout"],
-      "lanes": [
-        {
-          "laneId": "repo-cli-orchestration",
-          "reportPath": "research/batch-02-repo-cli-orchestration.md"
-        },
-        {
-          "laneId": "lint-fix-biome-eslint",
-          "reportPath": "research/batch-02-lint-fix-biome-eslint.md"
-        },
-        {
-          "laneId": "check-test-coverage",
-          "reportPath": "research/batch-02-check-test-coverage.md"
-        },
-        {
-          "laneId": "security-audit-sast",
-          "reportPath": "research/batch-02-security-audit-sast.md"
-        },
-        {
-          "laneId": "metadata-release-sidecars",
-          "reportPath": "research/batch-02-metadata-release-sidecars.md"
-        },
-        {
-          "laneId": "ci-nix-storybook-data-sync",
-          "reportPath": "research/batch-02-ci-nix-storybook-data-sync.md"
-        }
-      ],
-      "closeout": [
-        "Persist six reports.",
-        "Update history/outputs/research-synthesis.md.",
-        "Update tasks/tasks.jsonc before launching batch-03."
-      ]
+      "status": "complete-archived",
+      "prompt": "ops/prompts/batch-02-hotspots.md"
     },
     {
       "id": "batch-03",
       "name": "External Prior Art And Synthesis",
-      "prompt": "ops/prompts/batch-03-external-and-synthesis.md",
-      "agentCount": 6,
-      "status": "complete",
-      "writePolicy": "All agents return reports; orchestrator owns synthesis writes after reports are collected.",
-      "dependsOn": ["batch-02 closeout"],
-      "lanes": [
-        {
-          "laneId": "effect-v4-tools",
-          "reportPath": "research/batch-03-effect-v4-tools.md"
-        },
-        {
-          "laneId": "tooling-candidates",
-          "reportPath": "research/batch-03-tooling-candidates.md"
-        },
-        {
-          "laneId": "docgen-selectivity-shadow",
-          "reportPath": "research/batch-03-docgen-selectivity-shadow.md"
-        },
-        {
-          "laneId": "scoped-config-design",
-          "reportPath": "research/batch-03-scoped-config-design.md"
-        },
-        {
-          "laneId": "yeet-fast-monitor",
-          "reportPath": "research/batch-03-yeet-fast-monitor.md"
-        },
-        {
-          "laneId": "synthesis",
-          "reportPath": "research/batch-03-synthesis.md"
-        }
-      ],
-      "closeout": [
-        "Persist six reports.",
-        "Update tasks/tasks.jsonc so no task remains only a seeded hypothesis.",
-        "Select, defer, or reject each task before P4."
-      ]
+      "status": "complete-archived",
+      "prompt": "ops/prompts/batch-03-external-and-synthesis.md"
     }
   ],
+  "activeTaskOrder": [],
+  "completedGuardrails": [
+    "rqt-001",
+    "rqt-002",
+    "rqt-003",
+    "rqt-004",
+    "rqt-005",
+    "rqt-006",
+    "rqt-007",
+    "rqt-008",
+    "rqt-009",
+    "rqt-010"
+  ],
+  "rejectedTasks": ["rqt-011", "rqt-012"],
   "phases": [
     {
       "id": "P0",
-      "name": "Bootstrap",
+      "name": "Research Archive",
       "status": "complete"
     },
     {
       "id": "P1",
-      "name": "Research Batch 1",
+      "name": "Packet Conversion",
       "status": "complete"
     },
     {
       "id": "P2",
-      "name": "Research Batch 2",
+      "name": "Repo-Exports Shards",
       "status": "complete"
     },
     {
       "id": "P3",
-      "name": "Research Batch 3 And Synthesis",
+      "name": "Test Participation",
       "status": "complete"
     },
     {
       "id": "P4",
-      "name": "Implement Current-PR Wins",
+      "name": "Docgen Reuse",
       "status": "complete"
     },
     {
       "id": "P5",
-      "name": "Prove End-to-End Green",
+      "name": "Scoped Config",
       "status": "complete"
     },
     {
       "id": "P6",
-      "name": "Close",
+      "name": "CI Yeet And Prototypes",
+      "status": "complete"
+    },
+    {
+      "id": "P7",
+      "name": "PR Closeout",
       "status": "complete"
     }
   ],
   "taskInventory": {
     "path": "tasks/tasks.jsonc",
-    "schema": "tasks/tasks.schema.json",
-    "humanBriefs": "tasks/*.md"
+    "schema": "tasks/tasks.schema.json"
   },
   "evidenceTemplates": [
     "history/outputs/baseline-methodology.md",
     "history/outputs/before-after-matrix.md",
-    "history/outputs/research-synthesis.md",
     "history/outputs/implementation-closeout.md",
     "history/outputs/ci-proof.md",
     "history/outputs/quality-review-inventory.md",
     "history/outputs/check-name-baseline.md",
     "history/outputs/proof-parity-map.md",
+    "history/outputs/external-tooling-prototype-gates.md",
     "history/outputs/process-snapshots.md",
     "history/outputs/final-acceptance-audit.md"
   ],
@@ -223,23 +147,26 @@
     "test \"$(wc -m < goals/repo-quality-throughput/GOAL.md)\" -le 4000",
     "jq . goals/repo-quality-throughput/ops/manifest.json",
     "jq . goals/repo-quality-throughput/tasks/tasks.schema.json",
-    "rg -n \"repo-quality-throughput|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/repo-quality-throughput goals/repo-quality-acceleration",
-    "git diff --check -- goals/repo-quality-throughput goals/repo-quality-acceleration"
+    "git diff --check -- goals/repo-quality-throughput"
   ],
   "finalProofCommands": [
     "bun run lint:fix",
-    "bun run beep yeet repair",
-    "bun run beep yeet verify",
+    "bun run repo-exports:catalog",
+    "bun run repo-exports:catalog:check",
+    "bun run test",
+    "bun run docgen",
     "bun run audit:github quality",
-    "bun run audit:github pre-push",
+    "bun run beep yeet verify --plan --json",
     "gh pr checks --watch"
   ],
   "closeoutGates": [
-    "At least one selected current-PR task is done with before/after evidence, or the packet is explicitly deferred with waiver-quality evidence.",
+    "Selected tasks are done or have blocker-quality waiver records.",
+    "At least one major measured bottleneck is structurally improved.",
     "No completed task has TBD matrix evidence.",
-    "Manual quality lanes remain canonical until the dedicated Yeet proof PR is green and the Yeet agent skill exists.",
-    "Coverage is classified as green-lane, full-only, scheduled, out-of-scope, or deferred.",
-    "Final quality-review-fix-loop has zero blocking findings or explicit waiver records."
+    "Manual quality lanes remain canonical until Yeet proof gates and guidance exist.",
+    "Coverage remains full-only or scheduled/report-only unless a later policy decision changes it.",
+    "Final quality-review-fix-loop has zero blocking findings or explicit waiver records.",
+    "The PR is mergeable with no unresolved actionable review comments."
   ],
   "stopConditions": [
     "A proposed speedup weakens proof without a named full fallback.",

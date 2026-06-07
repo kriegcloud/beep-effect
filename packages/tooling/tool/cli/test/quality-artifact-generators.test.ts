@@ -1,4 +1,9 @@
-import { writeJSDocDocumentationInventory, writeOrCheckRepoExportsCatalog } from "@beep/repo-cli/test/Quality";
+import {
+  summarizeTurboDryRunOutput,
+  summarizeTurboQueryAffectedOutput,
+  writeJSDocDocumentationInventory,
+  writeOrCheckRepoExportsCatalog,
+} from "@beep/repo-cli/test/Quality";
 import { provideScopedLayer } from "@beep/test-utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -169,5 +174,133 @@ describe("quality artifact generators", () => {
           expect(staleResult.findings).toEqual(["out/repo-exports.catalog.md is stale"]);
         })
       )
+    ));
+
+  it("aggregates the repo export catalog from package-local shards", () =>
+    Effect.runPromise(
+      withFixtureRepo(
+        Effect.fnUntraced(function* (repoRoot) {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const fullJsonPath = path.join(repoRoot, "out", "repo-exports.full.jsonc");
+          const fullMarkdownPath = path.join(repoRoot, "out", "repo-exports.full.md");
+          const shardJsonPath = path.join(repoRoot, "out", "repo-exports.from-shards.jsonc");
+          const shardMarkdownPath = path.join(repoRoot, "out", "repo-exports.from-shards.md");
+          const expectedShardPath = path.join(
+            repoRoot,
+            "packages",
+            "demo",
+            ".beep",
+            "repo-exports",
+            "catalog.shard.jsonc"
+          );
+
+          yield* writeOrCheckRepoExportsCatalog({
+            rootDir: repoRoot,
+            outputJsonPath: fullJsonPath,
+            outputMarkdownPath: fullMarkdownPath,
+          });
+          const shardResult = yield* writeOrCheckRepoExportsCatalog({
+            rootDir: repoRoot,
+            packageShard: true,
+            packageName: "@beep/demo",
+          });
+          const aggregateResult = yield* writeOrCheckRepoExportsCatalog({
+            rootDir: repoRoot,
+            outputJsonPath: shardJsonPath,
+            outputMarkdownPath: shardMarkdownPath,
+            fromShards: true,
+          });
+
+          const fullCatalog = parseJsoncText(yield* fs.readFileString(fullJsonPath)) as {
+            readonly packages: ReadonlyArray<unknown>;
+            readonly totals: unknown;
+          };
+          const shardCatalog = parseJsoncText(yield* fs.readFileString(shardJsonPath)) as {
+            readonly packages: ReadonlyArray<unknown>;
+            readonly totals: unknown;
+          };
+          const shard = parseJsoncText(yield* fs.readFileString(expectedShardPath)) as {
+            readonly fingerprint: { readonly digest: string; readonly inputs: ReadonlyArray<unknown> };
+            readonly package: { readonly packageName: string };
+          };
+
+          expect(shardResult.outputShardPath).toBe(expectedShardPath);
+          expect(aggregateResult.written).toBe(true);
+          expect(shard.fingerprint.digest).toMatch(/^[0-9a-f]{64}$/);
+          expect(shard.fingerprint.inputs.length).toBeGreaterThan(0);
+          expect(shard.package.packageName).toBe("@beep/demo");
+          expect(shardCatalog.totals).toEqual(fullCatalog.totals);
+          expect(shardCatalog.packages).toEqual(fullCatalog.packages);
+        })
+      )
+    ));
+
+  it("summarizes Turbo affected query output with banner text", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const summary = yield* summarizeTurboQueryAffectedOutput(`• turbo 2.9.16
+{
+  "data": {
+    "affectedTasks": {
+      "items": [
+        {
+          "name": "lint",
+          "package": { "name": "@beep/demo" },
+          "reason": { "__typename": "TaskFileChanged" }
+        },
+        {
+          "name": "check",
+          "package": { "name": "@beep/demo" },
+          "reason": { "__typename": "TaskGlobalDepsChanged" }
+        },
+        {
+          "name": "lint",
+          "package": { "name": "@beep/other" },
+          "reason": { "__typename": "TaskFileChanged" }
+        }
+      ]
+    }
+  }
+}
+`);
+
+        expect(summary.total).toBe(3);
+        expect(summary.byTask).toEqual({ check: 1, lint: 2 });
+        expect(summary.byReason).toEqual({ TaskFileChanged: 2, TaskGlobalDepsChanged: 1 });
+      })
+    ));
+
+  it("summarizes Turbo dry-run output by task and cache status", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const summary = yield* summarizeTurboDryRunOutput(`• turbo 2.9.16
+{
+  "packages": ["@beep/demo", "@beep/other"],
+  "tasks": [
+    {
+      "task": "lint",
+      "package": "@beep/demo",
+      "cache": { "status": "HIT" }
+    },
+    {
+      "task": "lint",
+      "package": "@beep/other",
+      "cache": { "status": "MISS" }
+    },
+    {
+      "taskId": "@beep/demo#check",
+      "package": "@beep/demo",
+      "cacheStatus": "MISS"
+    }
+  ]
+}
+`);
+
+        expect(summary.total).toBe(3);
+        expect(summary.packages).toBe(2);
+        expect(summary.byTask).toEqual({ check: 1, lint: 2 });
+        expect(summary.byStatus).toEqual({ HIT: 1, MISS: 2 });
+      })
     ));
 });

@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `current-pr-proof-green`
+Lifecycle: `complete`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -12,12 +12,12 @@ Supersedes: [`goals/repo-quality-acceleration`](../repo-quality-acceleration)
 
 Make the repo's End-to-End Green lane materially faster without weakening the
 authoritative proof. End-to-End Green means the path from a developer edit to a
-mergeable pull request: local repair, local blocker checks, commit/push,
-GitHub Actions feedback, review comments, and final merge readiness.
+mergeable pull request: local repair, blocker checks, commit/push, GitHub
+Actions feedback, review comments, and final merge readiness.
 
-The packet must run wide research, synthesize ranked implementation tasks, and
-then implement the highest-impact current-PR wins until additional changes show
-diminishing returns or require a separate risky design gate.
+This packet is now implementation-only. Batch 1, Batch 2, and Batch 3 research
+are complete and archived as evidence. A new agent should not relaunch those
+research batches or satisfy this goal by adding more analysis.
 
 ## Launch
 
@@ -27,63 +27,61 @@ Use this command for execution-capable sessions:
 /goal follow the instructions in goals/repo-quality-throughput/GOAL.md
 ```
 
-`GOAL.md` is the compact launcher. `SPEC.md` remains the normative contract.
+`GOAL.md` is the compact launcher. `SPEC.md` is the normative implementation
+contract. `tasks/tasks.jsonc` is the active work queue.
 
 ## Read This First
 
-1. [`GOAL.md`](./GOAL.md) - compact `/goal` launcher.
+1. [`GOAL.md`](./GOAL.md) - compact implementation launcher.
 2. [`SPEC.md`](./SPEC.md) - normative source of truth.
-3. [`PLAN.md`](./PLAN.md) - active execution plan.
-4. [`research/known-findings.md`](./research/known-findings.md) - seed facts
-   agents must not rediscover.
-5. [`ops/manifest.json`](./ops/manifest.json) - machine-readable routing.
-6. [`ops/prompts/`](./ops/prompts/) - reusable parallel-agent prompts.
-7. [`tasks/`](./tasks/) - synthesized task inventory and schema.
-8. [`history/outputs/baseline-methodology.md`](./history/outputs/baseline-methodology.md) -
-   benchmark protocol.
-9. [`history/`](./history/) - evidence, benchmark notes, and closeouts.
+3. [`PLAN.md`](./PLAN.md) - active implementation sequence.
+4. [`tasks/tasks.jsonc`](./tasks/tasks.jsonc) - selected, done, and rejected tasks.
+5. [`research/repo-exports-sharding-design.md`](./research/repo-exports-sharding-design.md) -
+   first implementation design target.
+6. [`research/`](./research) and [`history/`](./history) - historical evidence only.
 
-## Current Phase
+## Active Work
 
-Phase `P6` closeout is complete through the latest live PR proof available
-before this packet-only follow-up commit. Batch 1, Batch 2, and Batch 3 reports
-are persisted, selected current-PR tasks are either done or explicitly
-deferred, and the final local packet verification should run before pushing any
-additional evidence changes.
+No selected implementation tasks remain. Source-change proof, publish, PR
+monitoring, and review closeout are complete on PR #215; any later packet-only
+evidence commit is verified by live PR checks instead of re-recording another
+proof row.
 
-## Latest Evidence
+Completed guardrails and implementation tasks:
 
-Batch 3 reports now live under [`research/`](./research), including
-[`research/batch-03-synthesis.md`](./research/batch-03-synthesis.md). The
-latest recorded live PR proof before this follow-up commit is Check run
-`27064446802` on commit `a7be8dc1e1119d095be0239b39cd812e5650ebec`; PR #214
-was mergeable and all current checks were green or intentionally skipped.
-
-Implemented current-PR wins:
-
-- `rqt-001`: Yeet verify/publish no longer duplicate affected feedback before
+- `rqt-010`: external tooling candidates are closed through bounded prototype
+  gates and waiver evidence; no broad external tool replacement was adopted.
+- `rqt-009`: Yeet now has an opt-in PR check monitor and guarded
+  `publish --fast --monitor` plan; default verify/publish still use the full
+  local proof path.
+- `rqt-003`: shared CI setup now emits timing/cache metadata, PR Nix jobs skip
+  Bun setup while preserving the repo-cli push fallback, and release no-op
+  detection runs before setup.
+- `rqt-006`: Turbo root config inputs are task-owned, task-input affected
+  filtering is enabled, and `beep quality turbo-config-proof` records scoped
+  affected/dry-run proof.
+- `rqt-005`: docgen now writes package proof manifests and `docgen:local`
+  reuses current package proofs before aggregating selected docs.
+- `rqt-008`: root type-test/integration lanes now filter to real script owners
+  for unscoped runs, preserve explicit caller scopes, and include missed
+  Postgres/Drizzle participation plus db-admin unit/integration separation.
+- `rqt-007`: repo-export catalog now uses tracked package-local shards, a
+  compact root index, shard-aware repo-codegraph lookup, and full-scan fallback.
+- `rqt-001`: Yeet verify/publish no longer duplicates affected feedback before
   the full proof.
-- `rqt-002`: `lint:fix` keeps its sub-50 ms clean-tree no-op path and
-  changed-file Biome fixing path.
+- `rqt-002`: `lint:fix` keeps its fast no-op and changed-file fixing path.
 - `rqt-004`: proof parity and check-name guardrails are recorded.
 
-Deferred high-value follow-ups:
+Rejected stale work:
 
-- setup/cache comparable-run tuning;
-- docgen package fingerprint shadow proof;
-- scoped Turbo/config blast-radius proof;
-- repo-export package shards plus root aggregation;
-- type-test/integration participation filtering;
-- opt-in Yeet fast-plus-monitor with full fallback.
+- `rqt-011`: Turbo credential hash pollution is already handled.
+- `rqt-012`: initial bounded lint policy grouping already exists.
 
 ## Notes
 
-- This packet is deliberately broader than the older acceleration packet. It
-  covers local commands, Yeet, Turbo, docgen, hooks, GitHub Actions, setup/cache
-  behavior, security gates, release/storybook/data-sync side lanes, and config
-  blast radius.
-- Research is not enough. Completion requires implementation of the ranked
-  current-PR wins and before/after evidence.
-- Keep repo-owned quality behavior inside `@beep/repo-cli`,
-  `@beep/repo-utils`, or package/workflow configuration. Do not reintroduce
-  one-off root scripts for durable quality semantics.
+- Keep implementation in `@beep/repo-cli`, `@beep/repo-utils`,
+  `@beep/repo-codegraph`, Turbo/workflow config, Lefthook, and package
+  manifests.
+- Do not reintroduce one-off root scripts for durable quality semantics.
+- Use focused local proof and GitHub Actions for repeated full-lane proof so the
+  workstation stays usable.

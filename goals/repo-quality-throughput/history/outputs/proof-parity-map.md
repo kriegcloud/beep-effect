@@ -1,6 +1,6 @@
 # Proof Parity Map
 
-Status: `current-through-a7be8dc1`
+Status: `source-proof-current-through-380a2dc796`
 
 This map prevents speedups from weakening proof by making local, Yeet, PR, push,
 and side-workflow coverage explicit.
@@ -20,19 +20,24 @@ and side-workflow coverage explicit.
 | Nix | no | `audit:github pre-push` | no | full proof path | Nix Shell | Check | Release if configured | `bun run audit:github nix` |
 | Coverage | not canonical today | not canonical today | no | no | absent today | absent today | scheduled/full-only report-only lane | `bun run coverage` for explicit full/scheduled proof |
 
+`yeet publish --fast --monitor` is an opt-in exception to the full-proof local
+publish path. It is PR-branch guarded, monitors all current-branch PR checks via
+`gh pr checks --watch`, and leaves `bun run audit:github pre-push` as the named
+full local fallback for every lane above.
+
 Any lane moved out of the common path must name a fallback proof in this table
 and a task inventory record with residual risk.
 
-## Current Evidence
+## Current Source-Change Evidence
 
 - Local `bun run audit:github quality` passed after the Yeet and lint fast-path
   work; targeted ESLint and scoped repo-cli docgen passed after the follow-up
   JSDoc repair.
-- PR Check run `27064446802` is green on commit
-  `a7be8dc1e1119d095be0239b39cd812e5650ebec`; `Build` remains present and
+- PR Check run `27073900626` is green on commit
+  `380a2dc79627cddbbcffe94bdfff6358b1672680`; `Build` remains present and
   intentionally skipped by workflow policy.
-- `gh pr checks 214 --required` reported no required checks on
-  `ontology_builder_refinement`, so preservation is tracked by live check-name
+- `gh pr checks 215 --required` reported no required checks on
+  `repo-quality-throughput-implementation`, so preservation is tracked by live check-name
   evidence rather than a branch-ruleset requirement.
 - Thread-aware PR review inspection found zero unresolved actionable threads
-  before the packet-only follow-up push.
+  after the PR #215 shard-check review fix.

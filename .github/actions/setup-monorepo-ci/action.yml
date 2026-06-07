@@ -18,6 +18,11 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Record setup start
+      shell: bash
+      run: |
+        echo "BEEP_SETUP_STARTED_AT=$(date +%s)" >> "$GITHUB_ENV"
+
     - name: Setup Bun
       uses: oven-sh/setup-bun@v2
       with:
@@ -52,7 +57,12 @@ runs:
 
     - name: Install dependencies
       shell: bash
-      run: bun install --frozen-lockfile
+      run: |
+        install_started_at="$(date +%s)"
+        echo "BEEP_SETUP_INSTALL_STARTED_AT=$install_started_at" >> "$GITHUB_ENV"
+        bun install --frozen-lockfile
+        install_finished_at="$(date +%s)"
+        echo "BEEP_SETUP_INSTALL_SECONDS=$((install_finished_at - install_started_at))" >> "$GITHUB_ENV"
 
     - name: Save Bun dependencies cache
       if: ${{ inputs.cache-write == 'true' && steps.bun-cache-restore.outputs.cache-hit != 'true' }}
@@ -69,3 +79,48 @@ runs:
       with:
         path: .turbo/cache
         key: turbo-${{ runner.os }}-${{ github.job }}-${{ hashFiles('turbo.json', 'package.json', 'bun.lock') }}
+
+    - name: Report setup timing and cache metadata
+      if: ${{ always() }}
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        finished_at="$(date +%s)"
+        setup_seconds="n/a"
+        if [[ "${BEEP_SETUP_STARTED_AT:-}" =~ ^[0-9]+$ ]]; then
+          setup_seconds="$((finished_at - BEEP_SETUP_STARTED_AT))"
+        fi
+
+        install_seconds="${BEEP_SETUP_INSTALL_SECONDS:-n/a}"
+        bun_cache_hit="${{ steps.bun-cache-restore.outputs.cache-hit }}"
+        turbo_cache_hit="${{ steps.turbo-cache-restore.outputs.cache-hit }}"
+        bun_cache_hit="${bun_cache_hit:-unknown}"
+        turbo_cache_hit="${turbo_cache_hit:-skipped}"
+        bun_cache_size="$(du -sh ~/.bun/install/cache 2>/dev/null | awk '{ print $1 }' || true)"
+        turbo_cache_size="$(du -sh .turbo/cache 2>/dev/null | awk '{ print $1 }' || true)"
+        bun_cache_size="${bun_cache_size:-missing}"
+        turbo_cache_size="${turbo_cache_size:-missing}"
+        node_version="not requested"
+        if command -v node >/dev/null 2>&1; then
+          node_version="$(node --version)"
+        fi
+
+        {
+          echo "### Setup monorepo CI timing"
+          echo
+          echo "| Metric | Value |"
+          echo "| --- | --- |"
+          echo "| Setup total seconds | \`${setup_seconds}\` |"
+          echo "| Install seconds | \`${install_seconds}\` |"
+          echo "| Bun version | \`$(bun --version)\` |"
+          echo "| Node version | \`${node_version}\` |"
+          echo "| Bun cache key | \`bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}\` |"
+          echo "| Bun cache hit | \`${bun_cache_hit}\` |"
+          echo "| Bun cache size | \`${bun_cache_size}\` |"
+          echo "| Turbo cache enabled | \`${{ inputs.cache-turbo }}\` |"
+          echo "| Turbo cache key | \`turbo-${{ runner.os }}-${{ github.job }}-${{ hashFiles('turbo.json', 'package.json', 'bun.lock') }}\` |"
+          echo "| Turbo cache hit | \`${turbo_cache_hit}\` |"
+          echo "| Turbo cache size | \`${turbo_cache_size}\` |"
+          echo "| Cache write enabled | \`${{ inputs.cache-write }}\` |"
+        } >> "${GITHUB_STEP_SUMMARY:-/dev/stdout}"

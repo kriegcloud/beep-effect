@@ -1,0 +1,757 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "dd4bf656fe95f23e49c66c4912c837c66a447b4af90f96287e0b1e5d7111c138",
+    "inputs": [
+      {
+        "path": "packages/drivers/onepassword-cli/package.json",
+        "sha256": "ea1be004a8e7d93339c26601120175d590e03e33dcaa9e9076f18c43125789d5",
+        "bytes": 2423
+      },
+      {
+        "path": "packages/drivers/onepassword-cli/src/index.ts",
+        "sha256": "d47cb654a29610312b41e014a155a505b287d9c57d3b044da43f21cd05140620",
+        "bytes": 509
+      },
+      {
+        "path": "packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts",
+        "sha256": "97f06550fa6e8f5c504591e3d679e5088d7c273d40ed1aca271ceae355f53e0b",
+        "bytes": 2822
+      },
+      {
+        "path": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sha256": "a1617f2f592fd44084baf92a07d5b4ebfc4b8ca3d6e2ffed6817a9aceca6fe75",
+        "bytes": 2779
+      },
+      {
+        "path": "packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts",
+        "sha256": "c44477c8834764a426be15fd1f5a659e78b2d1f6a86cd4d93a9c4047974d777f",
+        "bytes": 5536
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/onepassword-cli",
+    "packagePath": "packages/drivers/onepassword-cli",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/onepassword-cli",
+      "@beep/onepassword-cli/index",
+      "@beep/onepassword-cli/OnePasswordCli.errors",
+      "@beep/onepassword-cli/OnePasswordCli.models",
+      "@beep/onepassword-cli/OnePasswordCli.service"
+    ],
+    "counts": {
+      "publicExportEntries": 27,
+      "uniqueSymbols": 8,
+      "sourceFiles": 4
+    },
+    "exports": [
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCli",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts",
+        "sourceLine": 156,
+        "summary": "Effect service for native `op` execution.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli . onepasswordcli class effect service for native `op` execution. services packages/drivers/onepassword-cli/src/onepasswordcli.service.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCliAccount",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 78,
+        "summary": "1Password account/session probe result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli . onepasswordcliaccount class 1password account/session probe result. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCliError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts",
+        "sourceLine": 56,
+        "summary": "Technical failure raised by the `@beep/onepassword-cli` driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli . onepasswordclierror class technical failure raised by the `@beep/onepassword-cli` driver boundary. errors packages/drivers/onepassword-cli/src/onepasswordcli.errors.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCliErrorOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts",
+        "sourceLine": 30,
+        "summary": "Options captured while normalizing unknown 1Password CLI failures.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli . onepasswordclierroroptions class options captured while normalizing unknown 1password cli failures. errors packages/drivers/onepassword-cli/src/onepasswordcli.errors.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCliProcessResult",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 54,
+        "summary": "Process output captured by a 1Password CLI command.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli . onepasswordcliprocessresult class process output captured by a 1password cli command. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCliRunner",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts",
+        "sourceLine": 43,
+        "summary": "Product-neutral process runner used by the 1Password CLI driver.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli . onepasswordclirunner type product-neutral process runner used by the 1password cli driver. services packages/drivers/onepassword-cli/src/onepasswordcli.service.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordReferenceProbe",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 101,
+        "summary": "Secret-reference validation result that does not expose the secret.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli . onepasswordreferenceprobe class secret-reference validation result that does not expose the secret. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordReferenceProbeStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 27,
+        "summary": "1Password reference probe status.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli . onepasswordreferenceprobestatus const 1password reference probe status. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordReferenceProbeStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 39,
+        "summary": "Runtime type for {@link OnePasswordReferenceProbeStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli . onepasswordreferenceprobestatus type runtime type for {@link onepasswordreferenceprobestatus}. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCli",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts",
+        "sourceLine": 156,
+        "summary": "Effect service for native `op` execution.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/index ./index onepasswordcli class effect service for native `op` execution. services packages/drivers/onepassword-cli/src/onepasswordcli.service.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCliAccount",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 78,
+        "summary": "1Password account/session probe result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/index ./index onepasswordcliaccount class 1password account/session probe result. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCliError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts",
+        "sourceLine": 56,
+        "summary": "Technical failure raised by the `@beep/onepassword-cli` driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/index ./index onepasswordclierror class technical failure raised by the `@beep/onepassword-cli` driver boundary. errors packages/drivers/onepassword-cli/src/onepasswordcli.errors.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCliErrorOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts",
+        "sourceLine": 30,
+        "summary": "Options captured while normalizing unknown 1Password CLI failures.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/index ./index onepasswordclierroroptions class options captured while normalizing unknown 1password cli failures. errors packages/drivers/onepassword-cli/src/onepasswordcli.errors.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCliProcessResult",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 54,
+        "summary": "Process output captured by a 1Password CLI command.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/index ./index onepasswordcliprocessresult class process output captured by a 1password cli command. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordCliRunner",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts",
+        "sourceLine": 43,
+        "summary": "Product-neutral process runner used by the 1Password CLI driver.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/index ./index onepasswordclirunner type product-neutral process runner used by the 1password cli driver. services packages/drivers/onepassword-cli/src/onepasswordcli.service.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordReferenceProbe",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 101,
+        "summary": "Secret-reference validation result that does not expose the secret.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/index ./index onepasswordreferenceprobe class secret-reference validation result that does not expose the secret. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordReferenceProbeStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 27,
+        "summary": "1Password reference probe status.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/index ./index onepasswordreferenceprobestatus const 1password reference probe status. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/index.ts",
+        "symbolName": "OnePasswordReferenceProbeStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 39,
+        "summary": "Runtime type for {@link OnePasswordReferenceProbeStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/index ./index onepasswordreferenceprobestatus type runtime type for {@link onepasswordreferenceprobestatus}. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/OnePasswordCli.errors",
+        "exportSubpath": "./OnePasswordCli.errors",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts",
+        "symbolName": "OnePasswordCliError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts",
+        "sourceLine": 56,
+        "summary": "Technical failure raised by the `@beep/onepassword-cli` driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/onepasswordcli.errors ./onepasswordcli.errors onepasswordclierror class technical failure raised by the `@beep/onepassword-cli` driver boundary. errors packages/drivers/onepassword-cli/src/onepasswordcli.errors.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/OnePasswordCli.errors",
+        "exportSubpath": "./OnePasswordCli.errors",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts",
+        "symbolName": "OnePasswordCliErrorOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.errors.ts",
+        "sourceLine": 30,
+        "summary": "Options captured while normalizing unknown 1Password CLI failures.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/onepasswordcli.errors ./onepasswordcli.errors onepasswordclierroroptions class options captured while normalizing unknown 1password cli failures. errors packages/drivers/onepassword-cli/src/onepasswordcli.errors.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/OnePasswordCli.models",
+        "exportSubpath": "./OnePasswordCli.models",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "symbolName": "OnePasswordCliAccount",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 78,
+        "summary": "1Password account/session probe result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/onepasswordcli.models ./onepasswordcli.models onepasswordcliaccount class 1password account/session probe result. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/OnePasswordCli.models",
+        "exportSubpath": "./OnePasswordCli.models",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "symbolName": "OnePasswordCliProcessResult",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 54,
+        "summary": "Process output captured by a 1Password CLI command.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/onepasswordcli.models ./onepasswordcli.models onepasswordcliprocessresult class process output captured by a 1password cli command. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/OnePasswordCli.models",
+        "exportSubpath": "./OnePasswordCli.models",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "symbolName": "OnePasswordReferenceProbe",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 101,
+        "summary": "Secret-reference validation result that does not expose the secret.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/onepasswordcli.models ./onepasswordcli.models onepasswordreferenceprobe class secret-reference validation result that does not expose the secret. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/OnePasswordCli.models",
+        "exportSubpath": "./OnePasswordCli.models",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "symbolName": "OnePasswordReferenceProbeStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 27,
+        "summary": "1Password reference probe status.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/onepasswordcli.models ./onepasswordcli.models onepasswordreferenceprobestatus const 1password reference probe status. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/OnePasswordCli.models",
+        "exportSubpath": "./OnePasswordCli.models",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "symbolName": "OnePasswordReferenceProbeStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.models.ts",
+        "sourceLine": 39,
+        "summary": "Runtime type for {@link OnePasswordReferenceProbeStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/onepasswordcli.models ./onepasswordcli.models onepasswordreferenceprobestatus type runtime type for {@link onepasswordreferenceprobestatus}. models packages/drivers/onepassword-cli/src/onepasswordcli.models.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/OnePasswordCli.service",
+        "exportSubpath": "./OnePasswordCli.service",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts",
+        "symbolName": "OnePasswordCli",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts",
+        "sourceLine": 156,
+        "summary": "Effect service for native `op` execution.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/onepasswordcli.service ./onepasswordcli.service onepasswordcli class effect service for native `op` execution. services packages/drivers/onepassword-cli/src/onepasswordcli.service.ts"
+      },
+      {
+        "packageName": "@beep/onepassword-cli",
+        "packagePath": "packages/drivers/onepassword-cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/onepassword-cli/OnePasswordCli.service",
+        "exportSubpath": "./OnePasswordCli.service",
+        "exportedFromPath": "packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts",
+        "symbolName": "OnePasswordCliRunner",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/onepassword-cli/src/OnePasswordCli.service.ts",
+        "sourceLine": 43,
+        "summary": "Product-neutral process runner used by the 1Password CLI driver.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/onepassword-cli packages/drivers/onepassword-cli @beep/onepassword-cli/onepasswordcli.service ./onepasswordcli.service onepasswordclirunner type product-neutral process runner used by the 1password cli driver. services packages/drivers/onepassword-cli/src/onepasswordcli.service.ts"
+      }
+    ]
+  }
+}

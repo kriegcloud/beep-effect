@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { verifyDocgenProofManifest } from "@beep/repo-docgen/ProofManifest";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
@@ -24,6 +25,7 @@ import {
   discoverDocgenWorkspacePackages,
   resolveDocgenWorkspacePackage,
 } from "./Operations.js";
+import type { DocgenProofManifestVerification } from "@beep/repo-docgen/ProofManifest";
 import type { FsUtils, NoSuchFileError } from "@beep/repo-utils";
 import type { FileSystem, Path } from "effect";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
@@ -631,6 +633,18 @@ const renderTurboTaskList = (tasks: ReadonlyArray<DocgenLocalTurboTask>): string
         ", "
       );
 
+const renderProofStatusList = (statuses: ReadonlyArray<DocgenProofManifestVerification>): string =>
+  A.isReadonlyArrayEmpty(statuses)
+    ? "(none)"
+    : A.join(
+        A.map(
+          statuses,
+          (status) =>
+            `${status.packageName} [${status.status}${P.isUndefined(status.reason) ? "" : `: ${status.reason}`}]`
+        ),
+        ", "
+      );
+
 const renderFullReasons = (reasons: ReadonlyArray<DocgenLocalFullReason>): string =>
   A.join(
     A.map(reasons, (reason) => `- ${reason.filePath}: ${reason.message}`),
@@ -709,6 +723,16 @@ const aggregatePackages = Effect.fn("DocgenLocal.aggregatePackages")(function* (
   }
 });
 
+const verifyPackageProofManifest = (pkg: DocgenWorkspacePackage) =>
+  verifyDocgenProofManifest(pkg.absolutePath, pkg.name).pipe(
+    Effect.mapError((cause) =>
+      DomainError.make({
+        message: `Failed to verify docgen proof manifest for ${pkg.name}.`,
+        cause,
+      })
+    )
+  );
+
 const runFullDocgen = Effect.fn("DocgenLocal.runFullDocgen")(function* (repoRoot: string) {
   yield* runStep("full docgen", "bun", ["run", "docgen"], repoRoot);
 });
@@ -730,8 +754,18 @@ const runScopedDocgen = Effect.fn("DocgenLocal.runScopedDocgen")(function* (plan
     return;
   }
 
-  yield* checkPackageDocumentation(packages, plan.parallel);
-  yield* runStep("turbo docgen", "bunx", plan.turboArgs, repoRoot);
+  const proofStatuses = yield* Effect.forEach(packages, verifyPackageProofManifest, {
+    concurrency: localParallel(plan.parallel),
+  });
+  yield* Console.log(`docgen:local: proof manifests: ${renderProofStatusList(proofStatuses)}`);
+
+  if (A.every(proofStatuses, (status) => status.status === "current")) {
+    yield* Console.log(`docgen:local: reused ${A.length(proofStatuses)} current package proof manifest(s)`);
+  } else {
+    yield* checkPackageDocumentation(packages, plan.parallel);
+    yield* runStep("turbo docgen", "bunx", plan.turboArgs, repoRoot);
+  }
+
   yield* aggregatePackages(packages);
 });
 

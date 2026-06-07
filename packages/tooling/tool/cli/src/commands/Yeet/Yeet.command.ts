@@ -34,6 +34,14 @@ const messageFlag = Flag.string("message").pipe(
   Flag.withDefault("")
 );
 
+const fastFlag = Flag.boolean("fast").pipe(
+  Flag.withDescription("Skip local full pre-push proof only when paired with --monitor on a PR branch")
+);
+
+const monitorFlag = Flag.boolean("monitor").pipe(
+  Flag.withDescription("Monitor hosted PR checks after publish instead of stopping at push")
+);
+
 const sharedFlags = {
   base: baseFlag,
   head: headFlag,
@@ -44,23 +52,29 @@ const sharedFlags = {
 
 const publishFlags = {
   ...sharedFlags,
+  fast: fastFlag,
   message: messageFlag,
+  monitor: monitorFlag,
 } as const;
 
 type SharedOptions = {
   readonly base: string;
+  readonly fast?: boolean;
   readonly head: string;
   readonly json: boolean;
   readonly packetDir: string;
   readonly plan: boolean;
+  readonly monitor?: boolean;
 };
 
 const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly message?: string }) =>
   runYeet(
     YeetRunOptions.make({
       ...options,
+      fast: options.fast ?? false,
       message: options.message ?? "",
       mode,
+      monitor: options.monitor ?? false,
     })
   );
 
@@ -74,6 +88,10 @@ const yeetRepairCommand = Command.make("repair", sharedFlags, (options) => runYe
 
 const yeetPublishCommand = Command.make("publish", publishFlags, (options) => runYeetMode("publish", options)).pipe(
   Command.withDescription("Commit reviewed staged changes, prove the commit, then push")
+);
+
+const yeetMonitorCommand = Command.make("monitor", sharedFlags, (options) => runYeetMode("monitor", options)).pipe(
+  Command.withDescription("Monitor hosted PR checks for the current branch")
 );
 
 /**
@@ -90,5 +108,5 @@ const yeetPublishCommand = Command.make("publish", publishFlags, (options) => ru
  */
 export const yeetCommand = Command.make("yeet", publishFlags, (options) => runYeetMode("publish", options)).pipe(
   Command.withDescription("Repair, verify, or publish repository work with canonical quality proof"),
-  Command.withSubcommands([yeetVerifyCommand, yeetRepairCommand, yeetPublishCommand])
+  Command.withSubcommands([yeetVerifyCommand, yeetRepairCommand, yeetPublishCommand, yeetMonitorCommand])
 );

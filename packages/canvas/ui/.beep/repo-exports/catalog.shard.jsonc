@@ -1,0 +1,91 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "ebffae3434bcc9818346b4328491c09d63feda62d64318a38000abd15f6333f0",
+    "inputs": [
+      {
+        "path": "packages/canvas/ui/package.json",
+        "sha256": "19d0e1ec26a5ad723d2cbc703157b82a862bcbe1981eb08ef316f330d65e5aad",
+        "bytes": 2265
+      },
+      {
+        "path": "packages/canvas/ui/src/index.ts",
+        "sha256": "9306e94dd07af18dcb3c54d1ac6702b893ad1ff9985e71c71eb703987574da97",
+        "bytes": 352
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/canvas-ui",
+    "packagePath": "packages/canvas/ui",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/canvas-ui"
+    ],
+    "counts": {
+      "publicExportEntries": 1,
+      "uniqueSymbols": 1,
+      "sourceFiles": 1
+    },
+    "exports": [
+      {
+        "packageName": "@beep/canvas-ui",
+        "packagePath": "packages/canvas/ui",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-ui",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/canvas/ui/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/ui/src/index.ts",
+        "sourceLine": 22,
+        "summary": "Package version for `@beep/canvas-ui`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-ui packages/canvas/ui @beep/canvas-ui . version const package version for `@beep/canvas-ui`. models packages/canvas/ui/src/index.ts"
+      }
+    ]
+  }
+}

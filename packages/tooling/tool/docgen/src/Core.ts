@@ -18,6 +18,7 @@ import * as Configuration from "./Configuration.js";
 import * as Domain from "./Domain.js";
 import * as Parser from "./Parser.js";
 import * as Printer from "./Printer.js";
+import { writeDocgenProofManifest } from "./ProofManifest.js";
 
 const globFiles = (pattern: string, exclude: ReadonlyArray<string> = []) =>
   Effect.gen(function* () {
@@ -624,5 +625,6 @@ export const program = Effect.gen(function* () {
     ],
     { concurrency: "unbounded", discard: true }
   );
+  yield* writeDocgenProofManifest();
   yield* Effect.logInfo(chalk.bold.green("✓ Docs generation succeeded!"));
 });

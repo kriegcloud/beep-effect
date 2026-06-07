@@ -24,11 +24,20 @@ Build and maintain features with effect first development.
   `rg -i "<symbol-or-intent>" standards/repo-exports.catalog.{md,jsonc}`.
 - Refresh the repo export catalog with `bun run repo-exports:catalog`; verify it
   is current with `bun run repo-exports:catalog:check`.
+- Repo export catalog generation is shard-backed: package-local
+  `.beep/repo-exports/catalog.shard.jsonc` files are tracked generated
+  artifacts, and the root `standards/repo-exports.catalog.{jsonc,md}` remains
+  the compatibility index for agent lookup. Use
+  `bun run repo-exports:catalog:full` only when a non-sharded fallback proof is
+  explicitly required.
 - Yeet workflow hardening is in proof mode: use `bun run beep yeet repair`,
   `bun run beep yeet verify`, and `bun run beep yeet publish --message "..."`
   for proving the path, but do not treat Yeet as the canonical replacement for
   manual quality lanes until its dedicated proof PR is green in GitHub Actions
   and the Yeet agent skill is added.
+- Yeet fast-plus-monitor is opt-in only: `bun run beep yeet publish --fast
+  --monitor --message "..."` is PR-branch guarded, and
+  `bun run audit:github pre-push` remains the explicit full local fallback.
 - Use `bun run beep architecture` for canonical slice, concept, role, and
   architecture proof generation instead of hand-authoring boilerplate.
 - For architecture concepts, use the canonical `--domain-kind` archetypes:

@@ -1,0 +1,576 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "e67d99fb6536badfe34e257f9b42f39a882cae4569534570135da4230c9940cf",
+    "inputs": [
+      {
+        "path": "packages/canvas/server/package.json",
+        "sha256": "9371441ad1ba58069a01a3fbec8c9a35bc5dca308aafbf8a97c35df8ad1cb82c",
+        "bytes": 2709
+      },
+      {
+        "path": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts",
+        "sha256": "bd0421cef5db145a19d0b85bb66afee58fe7785825d89f235dfb6f5ffc056696",
+        "bytes": 5757
+      },
+      {
+        "path": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts",
+        "sha256": "8ab94436ba82525c5f0394c904eb520c6af95013074ebc5068bfe52a487fac8f",
+        "bytes": 1814
+      },
+      {
+        "path": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.repo.ts",
+        "sha256": "293c73bf5a9be1da795c62cbefe131b59993140d4283bc8f97111ec7c693d77f",
+        "bytes": 3546
+      },
+      {
+        "path": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.rpc.ts",
+        "sha256": "fccd5c6c82381166a04d57754cdc1d4268bec1b4f25ffbd1204ad37349f1bc51",
+        "bytes": 1089
+      },
+      {
+        "path": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts",
+        "sha256": "d8ce75b3654b5b1d6410adab35261a0f289b197cf13869ccd38647771e4f0ec0",
+        "bytes": 1776
+      },
+      {
+        "path": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "sha256": "0569364d707ae1430499a96100ca9ab5370d9d02470822dec9b49f3aafc16e05",
+        "bytes": 644
+      },
+      {
+        "path": "packages/canvas/server/src/index.ts",
+        "sha256": "283eb881a8bca28a9c0601f5250685612acc713d635431027defe975015c6e69",
+        "bytes": 399
+      },
+      {
+        "path": "packages/canvas/server/src/Layer.ts",
+        "sha256": "c46c6e0aa2c0a9fafe23f9a397ea51435a38962a87a5c22d9479923392fb73e6",
+        "bytes": 755
+      },
+      {
+        "path": "packages/canvas/server/src/test.ts",
+        "sha256": "086270a982eb98bf0434054cc536663de7a928ae9073590c764fb2c11f3ba9cf",
+        "bytes": 449
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/canvas-server",
+    "packagePath": "packages/canvas/server",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/canvas-server",
+      "@beep/canvas-server/aggregates/CanvasProject",
+      "@beep/canvas-server/layer",
+      "@beep/canvas-server/test"
+    ],
+    "counts": {
+      "publicExportEntries": 19,
+      "uniqueSymbols": 15,
+      "sourceFiles": 9
+    },
+    "exports": [
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/canvas/server/src/index.ts",
+        "symbolName": "CanvasProject",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "sourceLine": 7,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server . canvasproject sourcefile packages/canvas/server/src/aggregates/canvasproject/index.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/canvas/server/src/index.ts",
+        "symbolName": "CanvasProjectServer",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts",
+        "sourceLine": 48,
+        "summary": "CanvasProject server facade service.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server . canvasprojectserver class canvasproject server facade service. layers packages/canvas/server/src/aggregates/canvasproject/canvasproject.layer.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/canvas/server/src/index.ts",
+        "symbolName": "CanvasServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/Layer.ts",
+        "sourceLine": 39,
+        "summary": "Live canvas server layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server . canvasserverlive const live canvas server layer. layers packages/canvas/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectHttpResponse",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts",
+        "sourceLine": 69,
+        "summary": "Minimal HTTP response envelope used by the canvas bootstrap proof.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject canvasprojecthttpresponse class minimal http response envelope used by the canvas bootstrap proof. handlers packages/canvas/server/src/aggregates/canvasproject/canvasproject.http.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectHttpStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts",
+        "sourceLine": 32,
+        "summary": "HTTP status values emitted by the CanvasProject bootstrap adapter.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject canvasprojecthttpstatus const http status values emitted by the canvasproject bootstrap adapter. handlers packages/canvas/server/src/aggregates/canvasproject/canvasproject.http.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectHttpStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts",
+        "sourceLine": 53,
+        "summary": "Runtime type for {@link CanvasProjectHttpStatus}.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject canvasprojecthttpstatus type runtime type for {@link canvasprojecthttpstatus}. handlers packages/canvas/server/src/aggregates/canvasproject/canvasproject.http.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectServer",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts",
+        "sourceLine": 48,
+        "summary": "CanvasProject server facade service.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject canvasprojectserver class canvasproject server facade service. layers packages/canvas/server/src/aggregates/canvasproject/canvasproject.layer.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectServerLayer",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts",
+        "sourceLine": 66,
+        "summary": "Config-dependent CanvasProject server layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject canvasprojectserverlayer const config-dependent canvasproject server layer. layers packages/canvas/server/src/aggregates/canvasproject/canvasproject.layer.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectToolNames",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts",
+        "sourceLine": 24,
+        "summary": "CanvasProject tool names exposed by the canvas bootstrap proof.",
+        "categories": [
+          "tools"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject canvasprojecttoolnames const canvasproject tool names exposed by the canvas bootstrap proof. tools packages/canvas/server/src/aggregates/canvasproject/canvasproject.tools.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "makeCanvasProjectHttpHandlers",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts",
+        "sourceLine": 151,
+        "summary": "Build HTTP-style CanvasProject handlers from the public use-case facade.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject makecanvasprojecthttphandlers const build http-style canvasproject handlers from the public use-case facade. handlers packages/canvas/server/src/aggregates/canvasproject/canvasproject.http.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "makeCanvasProjectRepository",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.repo.ts",
+        "sourceLine": 97,
+        "summary": "Build the default CanvasProject repository for normal slice tests.",
+        "categories": [
+          "repositories"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject makecanvasprojectrepository const build the default canvasproject repository for normal slice tests. repositories packages/canvas/server/src/aggregates/canvasproject/canvasproject.repo.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "makeCanvasProjectRpcHandlers",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.rpc.ts",
+        "sourceLine": 27,
+        "summary": "Build RPC-style CanvasProject handlers from the public use-case facade.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject makecanvasprojectrpchandlers const build rpc-style canvasproject handlers from the public use-case facade. handlers packages/canvas/server/src/aggregates/canvasproject/canvasproject.rpc.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "makeCanvasProjectServer",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts",
+        "sourceLine": 30,
+        "summary": "Build the CanvasProject server facade.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject makecanvasprojectserver const build the canvasproject server facade. layers packages/canvas/server/src/aggregates/canvasproject/canvasproject.layer.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "makeCanvasProjectToolHandlers",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts",
+        "sourceLine": 50,
+        "summary": "Build tool-style CanvasProject handlers from the public use-case facade.",
+        "categories": [
+          "tools"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject makecanvasprojecttoolhandlers const build tool-style canvasproject handlers from the public use-case facade. tools packages/canvas/server/src/aggregates/canvasproject/canvasproject.tools.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "makeInMemoryCanvasProjectRepository",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.repo.ts",
+        "sourceLine": 46,
+        "summary": "Build the in-memory CanvasProject repository used by the fast canvas proof.",
+        "categories": [
+          "repositories"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject makeinmemorycanvasprojectrepository const build the in-memory canvasproject repository used by the fast canvas proof. repositories packages/canvas/server/src/aggregates/canvasproject/canvasproject.repo.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/server/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "toCanvasProjectHttpError",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.http.ts",
+        "sourceLine": 126,
+        "summary": "Convert a public CanvasProject failure to an HTTP response envelope.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/aggregates/canvasproject ./aggregates/canvasproject tocanvasprojecthttperror const convert a public canvasproject failure to an http response envelope. handlers packages/canvas/server/src/aggregates/canvasproject/canvasproject.http.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/canvas/server/src/Layer.ts",
+        "symbolName": "CanvasProjectServer",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.layer.ts",
+        "sourceLine": 48,
+        "summary": "CanvasProject server facade service.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/layer ./layer canvasprojectserver class canvasproject server facade service. layers packages/canvas/server/src/aggregates/canvasproject/canvasproject.layer.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/canvas/server/src/Layer.ts",
+        "symbolName": "CanvasServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/Layer.ts",
+        "sourceLine": 39,
+        "summary": "Live canvas server layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/layer ./layer canvasserverlive const live canvas server layer. layers packages/canvas/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/canvas-server",
+        "packagePath": "packages/canvas/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-server/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/canvas/server/src/test.ts",
+        "symbolName": "CanvasServerTest",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/server/src/test.ts",
+        "sourceLine": 24,
+        "summary": "Test canvas server layer.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-server packages/canvas/server @beep/canvas-server/test ./test canvasservertest const test canvas server layer. testing packages/canvas/server/src/test.ts"
+      }
+    ]
+  }
+}

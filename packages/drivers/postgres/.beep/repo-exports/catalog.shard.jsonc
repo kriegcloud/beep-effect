@@ -1,0 +1,1653 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "e5b313f12d0ace9a17ac9d922fae08f180456cb9372f5fb15913f9e80982a806",
+    "inputs": [
+      {
+        "path": "packages/drivers/postgres/package.json",
+        "sha256": "064c7fad2460ffaf908ebb453d6f285084f9cff6fe40e5a146794104369591ce",
+        "bytes": 3397
+      },
+      {
+        "path": "packages/drivers/postgres/src/index.ts",
+        "sha256": "4bd6aa366d47e4536be852a1e85e2c809f982475ac54a8a2e2fe89ec77f35f54",
+        "bytes": 1156
+      },
+      {
+        "path": "packages/drivers/postgres/src/Postgres.errors.ts",
+        "sha256": "e1e5adeea6d4d3e7d1900c5b00283cd6cbf1b1e911b1905f5f943ab778d0cd65",
+        "bytes": 13026
+      },
+      {
+        "path": "packages/drivers/postgres/src/PostgresClient.service.ts",
+        "sha256": "bdde47834ef640736fd638d564a14158a12e4cfc6fb62ee670e34c309709e464",
+        "bytes": 3342
+      },
+      {
+        "path": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
+        "sha256": "8cf0811fda65981f0c26f8511e8fb8354d2d14e7b27d4caf5e1a82e0089c9983",
+        "bytes": 10889
+      },
+      {
+        "path": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sha256": "028379488af2d29fca91c99af799dfe29fadc48c7a7da6e9a50a8c3f16ca81ef",
+        "bytes": 5468
+      },
+      {
+        "path": "packages/drivers/postgres/src/PostgresInterop.models.ts",
+        "sha256": "96f78b9c8ba6820c97ba8d99b72b85a88850e147b8f307c81131bd96051c8398",
+        "bytes": 1638
+      },
+      {
+        "path": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sha256": "2de85943687d777fbd4332ef1aad846e6c995fb798bc66cad8183379328a81f4",
+        "bytes": 46948
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/postgres",
+    "packagePath": "packages/drivers/postgres",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/postgres",
+      "@beep/postgres/client",
+      "@beep/postgres/drizzle",
+      "@beep/postgres/errors",
+      "@beep/postgres/format",
+      "@beep/postgres/interop",
+      "@beep/postgres/sqlstate"
+    ],
+    "counts": {
+      "publicExportEntries": 65,
+      "uniqueSymbols": 31,
+      "sourceFiles": 7
+    },
+    "exports": [
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "EffectDrizzleConfig",
+        "exportKind": "type",
+        "sourcePath": "node_modules/drizzle-orm/effect-postgres/driver.d.ts",
+        "sourceLine": 16,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . effectdrizzleconfig type node_modules/drizzle-orm/effect-postgres/driver.d.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "EffectDrizzlePgConfig",
+        "exportKind": "type",
+        "sourcePath": "node_modules/drizzle-orm/effect-postgres/driver.d.ts",
+        "sourceLine": 16,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . effectdrizzlepgconfig type node_modules/drizzle-orm/effect-postgres/driver.d.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "EffectLogger",
+        "exportKind": "class",
+        "sourcePath": "node_modules/drizzle-orm/effect-core/logger.d.ts",
+        "sourceLine": 41,
+        "summary": "Effect service for logging SQL queries in Drizzle ORM.",
+        "categories": [],
+        "since": [],
+        "tags": [
+          "@example"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . effectlogger class effect service for logging sql queries in drizzle orm. node_modules/drizzle-orm/effect-core/logger.d.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "EffectPgDatabase",
+        "exportKind": "class",
+        "sourcePath": "node_modules/drizzle-orm/effect-postgres/driver.d.ts",
+        "sourceLine": 13,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . effectpgdatabase class node_modules/drizzle-orm/effect-postgres/driver.d.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "extractPostgresDiagnostics",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/Postgres.errors.ts",
+        "sourceLine": 392,
+        "summary": "Normalize unknown Postgres-adjacent failures into structured diagnostics.",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . extractpostgresdiagnostics const normalize unknown postgres-adjacent failures into structured diagnostics. error-handling packages/drivers/postgres/src/postgres.errors.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "formatPostgresError",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
+        "sourceLine": 343,
+        "summary": "Render a Postgres failure with diagnostics and formatted SQL.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . formatpostgreserror const render a postgres failure with diagnostics and formatted sql. utilities packages/drivers/postgres/src/postgresdiagnostics.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "formatSql",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
+        "sourceLine": 312,
+        "summary": "Format and highlight PostgreSQL SQL for terminal output.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . formatsql const format and highlight postgresql sql for terminal output. utilities packages/drivers/postgres/src/postgresdiagnostics.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "getPgErrorAliases",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1536,
+        "summary": "Resolve every SQLSTATE alias name for a code.",
+        "categories": [
+          "getters"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . getpgerroraliases const resolve every sqlstate alias name for a code. getters packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "getPgErrorName",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1519,
+        "summary": "Resolve the canonical SQLSTATE name for a code.",
+        "categories": [
+          "getters"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . getpgerrorname const resolve the canonical sqlstate name for a code. getters packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "isPgErrorCode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1503,
+        "summary": "Predicate for known PostgreSQL SQLSTATE codes.",
+        "categories": [
+          "predicates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . ispgerrorcode const predicate for known postgresql sqlstate codes. predicates packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "logPostgresError",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
+        "sourceLine": 394,
+        "summary": "Log a formatted Postgres failure to stderr.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . logpostgreserror const log a formatted postgres failure to stderr. utilities packages/drivers/postgres/src/postgresdiagnostics.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "makeDrizzle",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 98,
+        "summary": "Create a Postgres-backed Drizzle Effect database from a provided PgClient.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . makedrizzle const create a postgres-backed drizzle effect database from a provided pgclient. constructors packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "makeDrizzleLayer",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 123,
+        "summary": "Build a Layer for a default-typed Postgres-backed Drizzle database.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . makedrizzlelayer const build a layer for a default-typed postgres-backed drizzle database. layers packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "migrate",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 146,
+        "summary": "Run Drizzle Effect Postgres migrations and normalize failures.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . migrate const run drizzle effect postgres migrations and normalize failures. constructors packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "NativeMigrationError",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresInterop.models.ts",
+        "sourceLine": 25,
+        "summary": "Error union emitted by native Drizzle Effect Postgres migrations.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . nativemigrationerror type error union emitted by native drizzle effect postgres migrations. errors packages/drivers/postgres/src/postgresinterop.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "NativePgClient",
+        "exportKind": "SourceFile",
+        "sourcePath": "node_modules/@effect/sql-pg/dist/PgClient.d.ts",
+        "sourceLine": 1,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . nativepgclient sourcefile node_modules/@effect/sql-pg/dist/pgclient.d.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PgErrorAliasesByCode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 896,
+        "summary": "All SQLSTATE names that map to each SQLSTATE code.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . pgerroraliasesbycode const all sqlstate names that map to each sqlstate code. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PgErrorCanonicalNameByCode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1178,
+        "summary": "Canonical SQLSTATE name for each SQLSTATE code.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@remarks",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . pgerrorcanonicalnamebycode const canonical sqlstate name for each sqlstate code. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PgErrorCode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1461,
+        "summary": "Schema for PostgreSQL SQLSTATE codes.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . pgerrorcode const schema for postgresql sqlstate codes. schemas packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PgErrorCode",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 862,
+        "summary": "PostgreSQL SQLSTATE code.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . pgerrorcode type postgresql sqlstate code. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "pgErrorEntries",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 878,
+        "summary": "Non-empty SQLSTATE entry array preserving the canonical source order.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . pgerrorentries const non-empty sqlstate entry array preserving the canonical source order. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PgErrorName",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1483,
+        "summary": "Schema for PostgreSQL SQLSTATE names.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . pgerrorname const schema for postgresql sqlstate names. schemas packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PgErrorName",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 846,
+        "summary": "PostgreSQL SQLSTATE name.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . pgerrorname type postgresql sqlstate name. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PostgresClient",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/postgres/src/PostgresClient.service.ts",
+        "sourceLine": 66,
+        "summary": "Beep service key for a native Effect Postgres client.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . postgresclient class beep service key for a native effect postgres client. services packages/drivers/postgres/src/postgresclient.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PostgresClientValue",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresClient.service.ts",
+        "sourceLine": 50,
+        "summary": "Native Effect Postgres client value.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . postgresclientvalue type native effect postgres client value. models packages/drivers/postgres/src/postgresclient.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PostgresDrizzle",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 82,
+        "summary": "Service key for a default-typed Postgres-backed Drizzle database.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . postgresdrizzle class service key for a default-typed postgres-backed drizzle database. services packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PostgresDrizzleConfig",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 63,
+        "summary": "Configuration accepted by {@link makeDrizzle}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . postgresdrizzleconfig type configuration accepted by {@link makedrizzle}. models packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PostgresDrizzleDatabase",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 41,
+        "summary": "Native Drizzle Effect Postgres database value.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . postgresdrizzledatabase type native drizzle effect postgres database value. models packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PostgresError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/postgres/src/Postgres.errors.ts",
+        "sourceLine": 298,
+        "summary": "Technical failure raised by the `@beep/postgres` driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . postgreserror class technical failure raised by the `@beep/postgres` driver boundary. errors packages/drivers/postgres/src/postgres.errors.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PostgresErrorCodeByName",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 31,
+        "summary": "PostgreSQL SQLSTATE names mapped to five-character SQLSTATE codes.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . postgreserrorcodebyname const postgresql sqlstate names mapped to five-character sqlstate codes. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PostgresErrorContext",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/postgres/src/Postgres.errors.ts",
+        "sourceLine": 36,
+        "summary": "Optional diagnostic context captured while normalizing Postgres-adjacent failures.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . postgreserrorcontext class optional diagnostic context captured while normalizing postgres-adjacent failures. errors packages/drivers/postgres/src/postgres.errors.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "PostgresPoolConfig",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresClient.service.ts",
+        "sourceLine": 34,
+        "summary": "Native Effect Postgres pool configuration.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . postgrespoolconfig type native effect postgres pool configuration. models packages/drivers/postgres/src/postgresclient.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/postgres/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/index.ts",
+        "sourceLine": 64,
+        "summary": "Package version.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres . version const package version. configuration packages/drivers/postgres/src/index.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/client",
+        "exportSubpath": "./client",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresClient.service.ts",
+        "symbolName": "PostgresClient",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/postgres/src/PostgresClient.service.ts",
+        "sourceLine": 66,
+        "summary": "Beep service key for a native Effect Postgres client.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/client ./client postgresclient class beep service key for a native effect postgres client. services packages/drivers/postgres/src/postgresclient.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/client",
+        "exportSubpath": "./client",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresClient.service.ts",
+        "symbolName": "PostgresClientValue",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresClient.service.ts",
+        "sourceLine": 50,
+        "summary": "Native Effect Postgres client value.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/client ./client postgresclientvalue type native effect postgres client value. models packages/drivers/postgres/src/postgresclient.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/client",
+        "exportSubpath": "./client",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresClient.service.ts",
+        "symbolName": "PostgresPoolConfig",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresClient.service.ts",
+        "sourceLine": 34,
+        "summary": "Native Effect Postgres pool configuration.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/client ./client postgrespoolconfig type native effect postgres pool configuration. models packages/drivers/postgres/src/postgresclient.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/drizzle",
+        "exportSubpath": "./drizzle",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "symbolName": "makeDrizzle",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 98,
+        "summary": "Create a Postgres-backed Drizzle Effect database from a provided PgClient.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/drizzle ./drizzle makedrizzle const create a postgres-backed drizzle effect database from a provided pgclient. constructors packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/drizzle",
+        "exportSubpath": "./drizzle",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "symbolName": "makeDrizzleLayer",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 123,
+        "summary": "Build a Layer for a default-typed Postgres-backed Drizzle database.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/drizzle ./drizzle makedrizzlelayer const build a layer for a default-typed postgres-backed drizzle database. layers packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/drizzle",
+        "exportSubpath": "./drizzle",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "symbolName": "migrate",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 146,
+        "summary": "Run Drizzle Effect Postgres migrations and normalize failures.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/drizzle ./drizzle migrate const run drizzle effect postgres migrations and normalize failures. constructors packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/drizzle",
+        "exportSubpath": "./drizzle",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "symbolName": "PostgresDrizzle",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 82,
+        "summary": "Service key for a default-typed Postgres-backed Drizzle database.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/drizzle ./drizzle postgresdrizzle class service key for a default-typed postgres-backed drizzle database. services packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/drizzle",
+        "exportSubpath": "./drizzle",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "symbolName": "PostgresDrizzleConfig",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 63,
+        "summary": "Configuration accepted by {@link makeDrizzle}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/drizzle ./drizzle postgresdrizzleconfig type configuration accepted by {@link makedrizzle}. models packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/drizzle",
+        "exportSubpath": "./drizzle",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "symbolName": "PostgresDrizzleDatabase",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
+        "sourceLine": 41,
+        "summary": "Native Drizzle Effect Postgres database value.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/drizzle ./drizzle postgresdrizzledatabase type native drizzle effect postgres database value. models packages/drivers/postgres/src/postgresdrizzle.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/errors",
+        "exportSubpath": "./errors",
+        "exportedFromPath": "packages/drivers/postgres/src/Postgres.errors.ts",
+        "symbolName": "extractPostgresDiagnostics",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/Postgres.errors.ts",
+        "sourceLine": 392,
+        "summary": "Normalize unknown Postgres-adjacent failures into structured diagnostics.",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/errors ./errors extractpostgresdiagnostics const normalize unknown postgres-adjacent failures into structured diagnostics. error-handling packages/drivers/postgres/src/postgres.errors.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/errors",
+        "exportSubpath": "./errors",
+        "exportedFromPath": "packages/drivers/postgres/src/Postgres.errors.ts",
+        "symbolName": "PostgresError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/postgres/src/Postgres.errors.ts",
+        "sourceLine": 298,
+        "summary": "Technical failure raised by the `@beep/postgres` driver boundary.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/errors ./errors postgreserror class technical failure raised by the `@beep/postgres` driver boundary. errors packages/drivers/postgres/src/postgres.errors.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/errors",
+        "exportSubpath": "./errors",
+        "exportedFromPath": "packages/drivers/postgres/src/Postgres.errors.ts",
+        "symbolName": "PostgresErrorContext",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/postgres/src/Postgres.errors.ts",
+        "sourceLine": 36,
+        "summary": "Optional diagnostic context captured while normalizing Postgres-adjacent failures.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/errors ./errors postgreserrorcontext class optional diagnostic context captured while normalizing postgres-adjacent failures. errors packages/drivers/postgres/src/postgres.errors.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/format",
+        "exportSubpath": "./format",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
+        "symbolName": "formatPostgresError",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
+        "sourceLine": 343,
+        "summary": "Render a Postgres failure with diagnostics and formatted SQL.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/format ./format formatpostgreserror const render a postgres failure with diagnostics and formatted sql. utilities packages/drivers/postgres/src/postgresdiagnostics.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/format",
+        "exportSubpath": "./format",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
+        "symbolName": "formatSql",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
+        "sourceLine": 312,
+        "summary": "Format and highlight PostgreSQL SQL for terminal output.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/format ./format formatsql const format and highlight postgresql sql for terminal output. utilities packages/drivers/postgres/src/postgresdiagnostics.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/format",
+        "exportSubpath": "./format",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
+        "symbolName": "logPostgresError",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
+        "sourceLine": 394,
+        "summary": "Log a formatted Postgres failure to stderr.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/format ./format logpostgreserror const log a formatted postgres failure to stderr. utilities packages/drivers/postgres/src/postgresdiagnostics.service.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/interop",
+        "exportSubpath": "./interop",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresInterop.models.ts",
+        "symbolName": "EffectDrizzleConfig",
+        "exportKind": "type",
+        "sourcePath": "node_modules/drizzle-orm/effect-postgres/driver.d.ts",
+        "sourceLine": 16,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/interop ./interop effectdrizzleconfig type node_modules/drizzle-orm/effect-postgres/driver.d.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/interop",
+        "exportSubpath": "./interop",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresInterop.models.ts",
+        "symbolName": "EffectDrizzlePgConfig",
+        "exportKind": "type",
+        "sourcePath": "node_modules/drizzle-orm/effect-postgres/driver.d.ts",
+        "sourceLine": 16,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/interop ./interop effectdrizzlepgconfig type node_modules/drizzle-orm/effect-postgres/driver.d.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/interop",
+        "exportSubpath": "./interop",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresInterop.models.ts",
+        "symbolName": "EffectLogger",
+        "exportKind": "class",
+        "sourcePath": "node_modules/drizzle-orm/effect-core/logger.d.ts",
+        "sourceLine": 41,
+        "summary": "Effect service for logging SQL queries in Drizzle ORM.",
+        "categories": [],
+        "since": [],
+        "tags": [
+          "@example"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/interop ./interop effectlogger class effect service for logging sql queries in drizzle orm. node_modules/drizzle-orm/effect-core/logger.d.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/interop",
+        "exportSubpath": "./interop",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresInterop.models.ts",
+        "symbolName": "EffectPgDatabase",
+        "exportKind": "class",
+        "sourcePath": "node_modules/drizzle-orm/effect-postgres/driver.d.ts",
+        "sourceLine": 13,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/interop ./interop effectpgdatabase class node_modules/drizzle-orm/effect-postgres/driver.d.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/interop",
+        "exportSubpath": "./interop",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresInterop.models.ts",
+        "symbolName": "NativeMigrationError",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresInterop.models.ts",
+        "sourceLine": 25,
+        "summary": "Error union emitted by native Drizzle Effect Postgres migrations.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/interop ./interop nativemigrationerror type error union emitted by native drizzle effect postgres migrations. errors packages/drivers/postgres/src/postgresinterop.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/interop",
+        "exportSubpath": "./interop",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresInterop.models.ts",
+        "symbolName": "NativePgClient",
+        "exportKind": "SourceFile",
+        "sourcePath": "node_modules/@effect/sql-pg/dist/PgClient.d.ts",
+        "sourceLine": 1,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/interop ./interop nativepgclient sourcefile node_modules/@effect/sql-pg/dist/pgclient.d.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "getPgErrorAliases",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1536,
+        "summary": "Resolve every SQLSTATE alias name for a code.",
+        "categories": [
+          "getters"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate getpgerroraliases const resolve every sqlstate alias name for a code. getters packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "getPgErrorName",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1519,
+        "summary": "Resolve the canonical SQLSTATE name for a code.",
+        "categories": [
+          "getters"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate getpgerrorname const resolve the canonical sqlstate name for a code. getters packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "isPgErrorCode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1503,
+        "summary": "Predicate for known PostgreSQL SQLSTATE codes.",
+        "categories": [
+          "predicates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate ispgerrorcode const predicate for known postgresql sqlstate codes. predicates packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "PgErrorAliasesByCode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 896,
+        "summary": "All SQLSTATE names that map to each SQLSTATE code.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate pgerroraliasesbycode const all sqlstate names that map to each sqlstate code. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "PgErrorCanonicalNameByCode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1178,
+        "summary": "Canonical SQLSTATE name for each SQLSTATE code.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@remarks",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate pgerrorcanonicalnamebycode const canonical sqlstate name for each sqlstate code. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "PgErrorCode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1461,
+        "summary": "Schema for PostgreSQL SQLSTATE codes.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate pgerrorcode const schema for postgresql sqlstate codes. schemas packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "PgErrorCode",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 862,
+        "summary": "PostgreSQL SQLSTATE code.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate pgerrorcode type postgresql sqlstate code. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "pgErrorEntries",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 878,
+        "summary": "Non-empty SQLSTATE entry array preserving the canonical source order.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate pgerrorentries const non-empty sqlstate entry array preserving the canonical source order. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "PgErrorName",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 1483,
+        "summary": "Schema for PostgreSQL SQLSTATE names.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate pgerrorname const schema for postgresql sqlstate names. schemas packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "PgErrorName",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 846,
+        "summary": "PostgreSQL SQLSTATE name.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate pgerrorname type postgresql sqlstate name. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      },
+      {
+        "packageName": "@beep/postgres",
+        "packagePath": "packages/drivers/postgres",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/postgres/sqlstate",
+        "exportSubpath": "./sqlstate",
+        "exportedFromPath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "symbolName": "PostgresErrorCodeByName",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/postgres/src/PostgresSqlState.models.ts",
+        "sourceLine": 31,
+        "summary": "PostgreSQL SQLSTATE names mapped to five-character SQLSTATE codes.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/postgres packages/drivers/postgres @beep/postgres/sqlstate ./sqlstate postgreserrorcodebyname const postgresql sqlstate names mapped to five-character sqlstate codes. models packages/drivers/postgres/src/postgressqlstate.models.ts"
+      }
+    ]
+  }
+}

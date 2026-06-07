@@ -1,0 +1,1232 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "edb4cf9ba3f5bd318c60583ea9aa63d6b063a76177f995eff7c44d3fa7a76d65",
+    "inputs": [
+      {
+        "path": "packages/installer/domain/package.json",
+        "sha256": "d6a653c34f6af986732d8fbc654124635cc477d690bbc8044b696a40ab4b635a",
+        "bytes": 2934
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts",
+        "sha256": "f7d23b74252b9cefafda61c35ae99e90379bae0adb714df59d02cbafadc0c29f",
+        "bytes": 2441
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/DiscordChannel/index.ts",
+        "sha256": "eb5adecd06276ac4acfaa7f061268026e00ff8f1733ed2e887b2f53396c8ff84",
+        "bytes": 132
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/HostDependency/HostDependency.model.ts",
+        "sha256": "ebfe0bc60af5beb367c61a6ecebd59e030dc31a69230a8254c717e208cc57a91",
+        "bytes": 2486
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/HostDependency/index.ts",
+        "sha256": "267e2d9bcb543007a2f35729455479d8fcb9cc1af48ecc2f6660f241c907ac2b",
+        "bytes": 132
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/index.ts",
+        "sha256": "4986dc1a459b38f09e54e181d1da27dab0bba70a1d7effa4b8075d3af634e80f",
+        "bytes": 872
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/ProviderAccount/index.ts",
+        "sha256": "b6bfb5bc62cba7ed6320cf2930fec87ef808de6d16c948e42d85903fd294620f",
+        "bytes": 134
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts",
+        "sha256": "3be523873df638f485f6325c7f070126ace35a31fd3b3955142f46416a7d447b",
+        "bytes": 3127
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/SecretReference/index.ts",
+        "sha256": "24cabb04ceb75a120054e8e08e155b37859c722e9987381966e1842e3b9045ef",
+        "bytes": 134
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/SecretReference/SecretReference.model.ts",
+        "sha256": "411c65e00f3350578db9e8e62c7998372ef68d1defb02a66d02a0daa75fe1d67",
+        "bytes": 2588
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "sha256": "ceb8a930bcc78a23fc47e717c8dc9bf5e33e614d14d09d3d65c4a31ccb02d419",
+        "bytes": 130
+      },
+      {
+        "path": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sha256": "791edd3844ba9878da5e1794bfe3e539bbf3ce28a98175e2df5485795e33e4ac",
+        "bytes": 7638
+      },
+      {
+        "path": "packages/installer/domain/src/entities/index.ts",
+        "sha256": "0ad7f1dc52a13ee1c2fe4119707e087d608a8db9beb5fd564e88f17bbbf056fa",
+        "bytes": 125
+      },
+      {
+        "path": "packages/installer/domain/src/identity/index.ts",
+        "sha256": "1e7e77531c63079c619c32bd9e6e6fdb80287a8749ff92fbe44cafc0b3c5eb85",
+        "bytes": 129
+      },
+      {
+        "path": "packages/installer/domain/src/index.ts",
+        "sha256": "59bf14aef2ffd387cf7cdf14e55b67b08e31ff0ce251db38fb3b319621aab4ea",
+        "bytes": 910
+      },
+      {
+        "path": "packages/installer/domain/src/values/index.ts",
+        "sha256": "9d05a33277d0a03d647639da41e4dcdbe6fb53cf76a3e5cf26ebe6469670edbb",
+        "bytes": 136
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/installer-domain",
+    "packagePath": "packages/installer/domain",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/installer-domain",
+      "@beep/installer-domain/aggregates",
+      "@beep/installer-domain/aggregates/DiscordChannel",
+      "@beep/installer-domain/aggregates/HostDependency",
+      "@beep/installer-domain/aggregates/ProviderAccount",
+      "@beep/installer-domain/aggregates/SecretReference",
+      "@beep/installer-domain/aggregates/StackManifest"
+    ],
+    "counts": {
+      "publicExportEntries": 47,
+      "uniqueSymbols": 30,
+      "sourceFiles": 15
+    },
+    "exports": [
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/domain/src/index.ts",
+        "symbolName": "Aggregates",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/installer/domain/src/aggregates/index.ts",
+        "sourceLine": 15,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain . aggregates sourcefile packages/installer/domain/src/aggregates/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/domain/src/index.ts",
+        "symbolName": "Entities",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/installer/domain/src/entities/index.ts",
+        "sourceLine": 9,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain . entities sourcefile packages/installer/domain/src/entities/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/domain/src/index.ts",
+        "symbolName": "Identity",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/installer/domain/src/identity/index.ts",
+        "sourceLine": 9,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain . identity sourcefile packages/installer/domain/src/identity/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/domain/src/index.ts",
+        "symbolName": "Values",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/installer/domain/src/values/index.ts",
+        "sourceLine": 9,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain . values sourcefile packages/installer/domain/src/values/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/domain/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/index.ts",
+        "sourceLine": 22,
+        "summary": "Package version for `@beep/installer-domain`.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain . version const package version for `@beep/installer-domain`. aggregates packages/installer/domain/src/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates",
+        "exportSubpath": "./aggregates",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/index.ts",
+        "symbolName": "DiscordChannel",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/installer/domain/src/aggregates/DiscordChannel/index.ts",
+        "sourceLine": 7,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates ./aggregates discordchannel sourcefile packages/installer/domain/src/aggregates/discordchannel/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates",
+        "exportSubpath": "./aggregates",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/index.ts",
+        "symbolName": "HostDependency",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/installer/domain/src/aggregates/HostDependency/index.ts",
+        "sourceLine": 7,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates ./aggregates hostdependency sourcefile packages/installer/domain/src/aggregates/hostdependency/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates",
+        "exportSubpath": "./aggregates",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/index.ts",
+        "symbolName": "ProviderAccount",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/installer/domain/src/aggregates/ProviderAccount/index.ts",
+        "sourceLine": 7,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates ./aggregates provideraccount sourcefile packages/installer/domain/src/aggregates/provideraccount/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates",
+        "exportSubpath": "./aggregates",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/index.ts",
+        "symbolName": "SecretReference",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/installer/domain/src/aggregates/SecretReference/index.ts",
+        "sourceLine": 7,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates ./aggregates secretreference sourcefile packages/installer/domain/src/aggregates/secretreference/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates",
+        "exportSubpath": "./aggregates",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/index.ts",
+        "symbolName": "StackManifest",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "sourceLine": 7,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates ./aggregates stackmanifest sourcefile packages/installer/domain/src/aggregates/stackmanifest/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/DiscordChannel",
+        "exportSubpath": "./aggregates/DiscordChannel",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/DiscordChannel/index.ts",
+        "symbolName": "DiscordChannel",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts",
+        "sourceLine": 83,
+        "summary": "Discord channel target for v1 installer notifications.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/discordchannel ./aggregates/discordchannel discordchannel class discord channel target for v1 installer notifications. aggregates packages/installer/domain/src/aggregates/discordchannel/discordchannel.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/DiscordChannel",
+        "exportSubpath": "./aggregates/DiscordChannel",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/DiscordChannel/index.ts",
+        "symbolName": "DiscordChannelKind",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts",
+        "sourceLine": 29,
+        "summary": "Discord channel family supported in v1.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/discordchannel ./aggregates/discordchannel discordchannelkind const discord channel family supported in v1. aggregates packages/installer/domain/src/aggregates/discordchannel/discordchannel.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/DiscordChannel",
+        "exportSubpath": "./aggregates/DiscordChannel",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/DiscordChannel/index.ts",
+        "symbolName": "DiscordChannelKind",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts",
+        "sourceLine": 41,
+        "summary": "Runtime type for {@link DiscordChannelKind}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/discordchannel ./aggregates/discordchannel discordchannelkind type runtime type for {@link discordchannelkind}. aggregates packages/installer/domain/src/aggregates/discordchannel/discordchannel.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/DiscordChannel",
+        "exportSubpath": "./aggregates/DiscordChannel",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/DiscordChannel/index.ts",
+        "symbolName": "DiscordChannelStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts",
+        "sourceLine": 56,
+        "summary": "Discord channel dry-run status.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/discordchannel ./aggregates/discordchannel discordchannelstatus const discord channel dry-run status. aggregates packages/installer/domain/src/aggregates/discordchannel/discordchannel.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/DiscordChannel",
+        "exportSubpath": "./aggregates/DiscordChannel",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/DiscordChannel/index.ts",
+        "symbolName": "DiscordChannelStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/DiscordChannel/DiscordChannel.model.ts",
+        "sourceLine": 68,
+        "summary": "Runtime type for {@link DiscordChannelStatus}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/discordchannel ./aggregates/discordchannel discordchannelstatus type runtime type for {@link discordchannelstatus}. aggregates packages/installer/domain/src/aggregates/discordchannel/discordchannel.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/HostDependency",
+        "exportSubpath": "./aggregates/HostDependency",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/HostDependency/index.ts",
+        "symbolName": "HostDependency",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/HostDependency/HostDependency.model.ts",
+        "sourceLine": 82,
+        "summary": "Host dependency required by the AI stack installer.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/hostdependency ./aggregates/hostdependency hostdependency class host dependency required by the ai stack installer. aggregates packages/installer/domain/src/aggregates/hostdependency/hostdependency.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/HostDependency",
+        "exportSubpath": "./aggregates/HostDependency",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/HostDependency/index.ts",
+        "symbolName": "HostDependencyKind",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/HostDependency/HostDependency.model.ts",
+        "sourceLine": 28,
+        "summary": "Host dependency family recognized by the dry-run installer.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/hostdependency ./aggregates/hostdependency hostdependencykind const host dependency family recognized by the dry-run installer. aggregates packages/installer/domain/src/aggregates/hostdependency/hostdependency.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/HostDependency",
+        "exportSubpath": "./aggregates/HostDependency",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/HostDependency/index.ts",
+        "symbolName": "HostDependencyKind",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/HostDependency/HostDependency.model.ts",
+        "sourceLine": 40,
+        "summary": "Runtime type for {@link HostDependencyKind}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/hostdependency ./aggregates/hostdependency hostdependencykind type runtime type for {@link hostdependencykind}. aggregates packages/installer/domain/src/aggregates/hostdependency/hostdependency.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/HostDependency",
+        "exportSubpath": "./aggregates/HostDependency",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/HostDependency/index.ts",
+        "symbolName": "HostDependencyStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/HostDependency/HostDependency.model.ts",
+        "sourceLine": 55,
+        "summary": "Validation status for a host dependency.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/hostdependency ./aggregates/hostdependency hostdependencystatus const validation status for a host dependency. aggregates packages/installer/domain/src/aggregates/hostdependency/hostdependency.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/HostDependency",
+        "exportSubpath": "./aggregates/HostDependency",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/HostDependency/index.ts",
+        "symbolName": "HostDependencyStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/HostDependency/HostDependency.model.ts",
+        "sourceLine": 67,
+        "summary": "Runtime type for {@link HostDependencyStatus}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/hostdependency ./aggregates/hostdependency hostdependencystatus type runtime type for {@link hostdependencystatus}. aggregates packages/installer/domain/src/aggregates/hostdependency/hostdependency.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/ProviderAccount",
+        "exportSubpath": "./aggregates/ProviderAccount",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/ProviderAccount/index.ts",
+        "symbolName": "ProviderAccount",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts",
+        "sourceLine": 110,
+        "summary": "Provider account requested by the installer.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/provideraccount ./aggregates/provideraccount provideraccount class provider account requested by the installer. aggregates packages/installer/domain/src/aggregates/provideraccount/provideraccount.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/ProviderAccount",
+        "exportSubpath": "./aggregates/ProviderAccount",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/ProviderAccount/index.ts",
+        "symbolName": "ProviderAccountStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts",
+        "sourceLine": 83,
+        "summary": "Dry-run status for a provider account.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/provideraccount ./aggregates/provideraccount provideraccountstatus const dry-run status for a provider account. aggregates packages/installer/domain/src/aggregates/provideraccount/provideraccount.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/ProviderAccount",
+        "exportSubpath": "./aggregates/ProviderAccount",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/ProviderAccount/index.ts",
+        "symbolName": "ProviderAccountStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts",
+        "sourceLine": 95,
+        "summary": "Runtime type for {@link ProviderAccountStatus}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/provideraccount ./aggregates/provideraccount provideraccountstatus type runtime type for {@link provideraccountstatus}. aggregates packages/installer/domain/src/aggregates/provideraccount/provideraccount.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/ProviderAccount",
+        "exportSubpath": "./aggregates/ProviderAccount",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/ProviderAccount/index.ts",
+        "symbolName": "ProviderAuthMode",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts",
+        "sourceLine": 56,
+        "summary": "Authentication shape for a provider account.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/provideraccount ./aggregates/provideraccount providerauthmode const authentication shape for a provider account. aggregates packages/installer/domain/src/aggregates/provideraccount/provideraccount.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/ProviderAccount",
+        "exportSubpath": "./aggregates/ProviderAccount",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/ProviderAccount/index.ts",
+        "symbolName": "ProviderAuthMode",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts",
+        "sourceLine": 68,
+        "summary": "Runtime type for {@link ProviderAuthMode}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/provideraccount ./aggregates/provideraccount providerauthmode type runtime type for {@link providerauthmode}. aggregates packages/installer/domain/src/aggregates/provideraccount/provideraccount.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/ProviderAccount",
+        "exportSubpath": "./aggregates/ProviderAccount",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/ProviderAccount/index.ts",
+        "symbolName": "ProviderKind",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts",
+        "sourceLine": 29,
+        "summary": "Provider supported by the v1 installer dry-run.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/provideraccount ./aggregates/provideraccount providerkind const provider supported by the v1 installer dry-run. aggregates packages/installer/domain/src/aggregates/provideraccount/provideraccount.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/ProviderAccount",
+        "exportSubpath": "./aggregates/ProviderAccount",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/ProviderAccount/index.ts",
+        "symbolName": "ProviderKind",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/ProviderAccount/ProviderAccount.model.ts",
+        "sourceLine": 41,
+        "summary": "Runtime type for {@link ProviderKind}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/provideraccount ./aggregates/provideraccount providerkind type runtime type for {@link providerkind}. aggregates packages/installer/domain/src/aggregates/provideraccount/provideraccount.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/SecretReference",
+        "exportSubpath": "./aggregates/SecretReference",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/SecretReference/index.ts",
+        "symbolName": "SecretReference",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/SecretReference/SecretReference.model.ts",
+        "sourceLine": 88,
+        "summary": "Secret reference consumed by stack installer workflows.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/secretreference ./aggregates/secretreference secretreference class secret reference consumed by stack installer workflows. aggregates packages/installer/domain/src/aggregates/secretreference/secretreference.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/SecretReference",
+        "exportSubpath": "./aggregates/SecretReference",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/SecretReference/index.ts",
+        "symbolName": "SecretReferencePurpose",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/SecretReference/SecretReference.model.ts",
+        "sourceLine": 29,
+        "summary": "Installer secret reference purpose.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/secretreference ./aggregates/secretreference secretreferencepurpose const installer secret reference purpose. aggregates packages/installer/domain/src/aggregates/secretreference/secretreference.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/SecretReference",
+        "exportSubpath": "./aggregates/SecretReference",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/SecretReference/index.ts",
+        "symbolName": "SecretReferencePurpose",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/SecretReference/SecretReference.model.ts",
+        "sourceLine": 46,
+        "summary": "Runtime type for {@link SecretReferencePurpose}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/secretreference ./aggregates/secretreference secretreferencepurpose type runtime type for {@link secretreferencepurpose}. aggregates packages/installer/domain/src/aggregates/secretreference/secretreference.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/SecretReference",
+        "exportSubpath": "./aggregates/SecretReference",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/SecretReference/index.ts",
+        "symbolName": "SecretReferenceStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/SecretReference/SecretReference.model.ts",
+        "sourceLine": 61,
+        "summary": "Dry-run status for a secret reference.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/secretreference ./aggregates/secretreference secretreferencestatus const dry-run status for a secret reference. aggregates packages/installer/domain/src/aggregates/secretreference/secretreference.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/SecretReference",
+        "exportSubpath": "./aggregates/SecretReference",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/SecretReference/index.ts",
+        "symbolName": "SecretReferenceStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/SecretReference/SecretReference.model.ts",
+        "sourceLine": 73,
+        "summary": "Runtime type for {@link SecretReferenceStatus}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/secretreference ./aggregates/secretreference secretreferencestatus type runtime type for {@link secretreferencestatus}. aggregates packages/installer/domain/src/aggregates/secretreference/secretreference.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "AIStackManifest",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 212,
+        "summary": "AI stack manifest assembled by the workspace slice.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest aistackmanifest class ai stack manifest assembled by the workspace slice. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "ManifestCapability",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 187,
+        "summary": "Manifest capability entry.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest manifestcapability class manifest capability entry. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "ManifestDiscordChannel",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 162,
+        "summary": "Manifest Discord channel target.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest manifestdiscordchannel class manifest discord channel target. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "ManifestProvider",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 137,
+        "summary": "Manifest provider entry.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest manifestprovider class manifest provider entry. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "P1aDryRunSnapshot",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 269,
+        "summary": "Deterministic P1A snapshot containing a manifest and validation feed.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest p1adryrunsnapshot class deterministic p1a snapshot containing a manifest and validation feed. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "P1LiveProofSnapshot",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 294,
+        "summary": "P1 live proof snapshot containing only sanitized validation evidence.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest p1liveproofsnapshot class p1 live proof snapshot containing only sanitized validation evidence. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "StackInstallerPlatform",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 29,
+        "summary": "Host platforms tracked by v1 installer manifests.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest stackinstallerplatform const host platforms tracked by v1 installer manifests. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "StackInstallerPlatform",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 41,
+        "summary": "Runtime type for {@link StackInstallerPlatform}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest stackinstallerplatform type runtime type for {@link stackinstallerplatform}. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "StackInstallerProvider",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 56,
+        "summary": "Provider names tracked by the stack manifest.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest stackinstallerprovider const provider names tracked by the stack manifest. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "StackInstallerProvider",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 68,
+        "summary": "Runtime type for {@link StackInstallerProvider}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest stackinstallerprovider type runtime type for {@link stackinstallerprovider}. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "ValidationEvent",
+        "exportKind": "class",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 242,
+        "summary": "Validation event emitted while proving an installer manifest.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest validationevent class validation event emitted while proving an installer manifest. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "ValidationStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 110,
+        "summary": "Validation status for installer evidence events.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest validationstatus const validation status for installer evidence events. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "ValidationStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 122,
+        "summary": "Runtime type for {@link ValidationStatus}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest validationstatus type runtime type for {@link validationstatus}. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "ValidationTier",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 83,
+        "summary": "Validation tier for installer evidence events.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest validationtier const validation tier for installer evidence events. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      },
+      {
+        "packageName": "@beep/installer-domain",
+        "packagePath": "packages/installer/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-domain/aggregates/StackManifest",
+        "exportSubpath": "./aggregates/StackManifest",
+        "exportedFromPath": "packages/installer/domain/src/aggregates/StackManifest/index.ts",
+        "symbolName": "ValidationTier",
+        "exportKind": "type",
+        "sourcePath": "packages/installer/domain/src/aggregates/StackManifest/StackManifest.model.ts",
+        "sourceLine": 95,
+        "summary": "Runtime type for {@link ValidationTier}.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-domain packages/installer/domain @beep/installer-domain/aggregates/stackmanifest ./aggregates/stackmanifest validationtier type runtime type for {@link validationtier}. aggregates packages/installer/domain/src/aggregates/stackmanifest/stackmanifest.model.ts"
+      }
+    ]
+  }
+}

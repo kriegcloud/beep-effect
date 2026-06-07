@@ -1,0 +1,928 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "b6b34a3896c11ec2d67b73abed317c5c8c75db0f04eba782fc46f54182900d39",
+    "inputs": [
+      {
+        "path": "packages/installer/server/package.json",
+        "sha256": "a03a2c1160d66c21ede00c35120bb4fd68dfcb3b4013c050e885cc328e749a87",
+        "bytes": 2756
+      },
+      {
+        "path": "packages/installer/server/src/index.ts",
+        "sha256": "539ec7882185f4ad3d52dd63168456787562480f37c074b31777b5b671e8483e",
+        "bytes": 478
+      },
+      {
+        "path": "packages/installer/server/src/Layer.ts",
+        "sha256": "86d24f1518363cf704712efd30d06099e20ff77e5f6ddfa174eb2f44a3b957c2",
+        "bytes": 29312
+      },
+      {
+        "path": "packages/installer/server/src/test.ts",
+        "sha256": "2331b24809b88243017c303aa9344d2815b5407ec5c79566a761b953c1550fe7",
+        "bytes": 453
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/installer-server",
+    "packagePath": "packages/installer/server",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/installer-server",
+      "@beep/installer-server/layer",
+      "@beep/installer-server/test"
+    ],
+    "counts": {
+      "publicExportEntries": 34,
+      "uniqueSymbols": 18,
+      "sourceFiles": 3
+    },
+    "exports": [
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "DiscordChannelServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 804,
+        "summary": "Discord-channel concept layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . discordchannelserverlive const discord-channel concept layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "HostDependencyServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 759,
+        "summary": "Host-dependency concept layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . hostdependencyserverlive const host-dependency concept layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "InstallerConceptServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 834,
+        "summary": "Concept-local installer services.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . installerconceptserverlive const concept-local installer services. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "InstallerServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 870,
+        "summary": "Complete installer server layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . installerserverlive const complete installer server layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "makeDiscordChannelServer",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 506,
+        "summary": "Build the Discord-channel concept server.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . makediscordchannelserver const build the discord-channel concept server. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "makeHostDependencyServer",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 343,
+        "summary": "Build the host-dependency concept server.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . makehostdependencyserver const build the host-dependency concept server. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "makeP1ManualProofWorkflow",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 591,
+        "summary": "Build the P1 Manual Mode proof workflow.",
+        "categories": [
+          "workflows"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . makep1manualproofworkflow const build the p1 manual mode proof workflow. workflows packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "makeProviderAccountServer",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 458,
+        "summary": "Build the provider-account concept server.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . makeprovideraccountserver const build the provider-account concept server. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "makeSecretReferenceServer",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 368,
+        "summary": "Build the secret-reference concept server.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . makesecretreferenceserver const build the secret-reference concept server. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "makeStackManifestServer",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 570,
+        "summary": "Build the stack-manifest concept server.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . makestackmanifestserver const build the stack-manifest concept server. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "P1ManualProofWorkflowLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 855,
+        "summary": "P1 Manual Mode proof workflow layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . p1manualproofworkflowlive const p1 manual mode proof workflow layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "previewP1ManualProof",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 905,
+        "summary": "Preview the P1 Manual Mode proof without sending a Discord message.",
+        "categories": [
+          "workflows"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . previewp1manualproof const preview the p1 manual mode proof without sending a discord message. workflows packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "ProviderAccountServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 789,
+        "summary": "Provider-account concept layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . provideraccountserverlive const provider-account concept layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "runP1ManualProof",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 885,
+        "summary": "Run the live P1 Manual Mode proof and return sanitized evidence.",
+        "categories": [
+          "workflows"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . runp1manualproof const run the live p1 manual mode proof and return sanitized evidence. workflows packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "SecretReferenceServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 774,
+        "summary": "Secret-reference concept layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . secretreferenceserverlive const secret-reference concept layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "StackManifestServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 819,
+        "summary": "Stack-manifest concept layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . stackmanifestserverlive const stack-manifest concept layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/installer/server/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/index.ts",
+        "sourceLine": 22,
+        "summary": "Package version for `@beep/installer-server`.",
+        "categories": [
+          "handlers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server . version const package version for `@beep/installer-server`. handlers packages/installer/server/src/index.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "DiscordChannelServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 804,
+        "summary": "Discord-channel concept layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer discordchannelserverlive const discord-channel concept layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "HostDependencyServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 759,
+        "summary": "Host-dependency concept layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer hostdependencyserverlive const host-dependency concept layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "InstallerConceptServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 834,
+        "summary": "Concept-local installer services.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer installerconceptserverlive const concept-local installer services. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "InstallerServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 870,
+        "summary": "Complete installer server layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer installerserverlive const complete installer server layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "makeDiscordChannelServer",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 506,
+        "summary": "Build the Discord-channel concept server.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer makediscordchannelserver const build the discord-channel concept server. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "makeHostDependencyServer",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 343,
+        "summary": "Build the host-dependency concept server.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer makehostdependencyserver const build the host-dependency concept server. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "makeP1ManualProofWorkflow",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 591,
+        "summary": "Build the P1 Manual Mode proof workflow.",
+        "categories": [
+          "workflows"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer makep1manualproofworkflow const build the p1 manual mode proof workflow. workflows packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "makeProviderAccountServer",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 458,
+        "summary": "Build the provider-account concept server.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer makeprovideraccountserver const build the provider-account concept server. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "makeSecretReferenceServer",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 368,
+        "summary": "Build the secret-reference concept server.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer makesecretreferenceserver const build the secret-reference concept server. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "makeStackManifestServer",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 570,
+        "summary": "Build the stack-manifest concept server.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer makestackmanifestserver const build the stack-manifest concept server. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "P1ManualProofWorkflowLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 855,
+        "summary": "P1 Manual Mode proof workflow layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer p1manualproofworkflowlive const p1 manual mode proof workflow layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "previewP1ManualProof",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 905,
+        "summary": "Preview the P1 Manual Mode proof without sending a Discord message.",
+        "categories": [
+          "workflows"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer previewp1manualproof const preview the p1 manual mode proof without sending a discord message. workflows packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "ProviderAccountServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 789,
+        "summary": "Provider-account concept layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer provideraccountserverlive const provider-account concept layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "runP1ManualProof",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 885,
+        "summary": "Run the live P1 Manual Mode proof and return sanitized evidence.",
+        "categories": [
+          "workflows"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer runp1manualproof const run the live p1 manual mode proof and return sanitized evidence. workflows packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "SecretReferenceServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 774,
+        "summary": "Secret-reference concept layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer secretreferenceserverlive const secret-reference concept layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/layer",
+        "exportSubpath": "./layer",
+        "exportedFromPath": "packages/installer/server/src/Layer.ts",
+        "symbolName": "StackManifestServerLive",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/Layer.ts",
+        "sourceLine": 819,
+        "summary": "Stack-manifest concept layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/layer ./layer stackmanifestserverlive const stack-manifest concept layer. layers packages/installer/server/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/installer-server",
+        "packagePath": "packages/installer/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/installer-server/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/installer/server/src/test.ts",
+        "symbolName": "InstallerServerTest",
+        "exportKind": "const",
+        "sourcePath": "packages/installer/server/src/test.ts",
+        "sourceLine": 24,
+        "summary": "Deterministic test layer for the installer slice.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/installer-server packages/installer/server @beep/installer-server/test ./test installerservertest const deterministic test layer for the installer slice. testing packages/installer/server/src/test.ts"
+      }
+    ]
+  }
+}

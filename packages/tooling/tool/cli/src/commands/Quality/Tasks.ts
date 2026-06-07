@@ -173,10 +173,20 @@ export class QualityTaskInvocation extends S.Class<QualityTaskInvocation>($I`Qua
   })
 ) {}
 
+class PackageJsonWorkspacesDocument extends S.Class<PackageJsonWorkspacesDocument>($I`PackageJsonWorkspacesDocument`)(
+  {
+    packages: S.Array(S.String),
+  },
+  $I.annote("PackageJsonWorkspacesDocument", {
+    description: "Object-form package.json workspaces entry used by quality task resolution.",
+  })
+) {}
+
 class PackageJsonDocument extends S.Class<PackageJsonDocument>($I`PackageJsonDocument`)(
   {
     name: S.optionalKey(S.String),
     scripts: S.optionalKey(S.Record(S.String, S.String)),
+    workspaces: S.optionalKey(S.Union([S.Array(S.String), PackageJsonWorkspacesDocument])),
   },
   $I.annote("PackageJsonDocument", {
     description: "Minimal package.json shape used by quality task resolution.",
@@ -185,6 +195,11 @@ class PackageJsonDocument extends S.Class<PackageJsonDocument>($I`PackageJsonDoc
 const decodePackageJsonDocument = S.decodeUnknownEffect(S.fromJsonString(PackageJsonDocument));
 
 type QualityTaskEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
+
+type PackageJsonWorkspaces = ReadonlyArray<string> | PackageJsonWorkspacesDocument;
+
+const isPackageJsonWorkspacePatternList = (workspaces: PackageJsonWorkspaces): workspaces is ReadonlyArray<string> =>
+  A.isArray(workspaces);
 
 type OptionalQualityTaskStep = {
   readonly enabled: boolean;
@@ -213,6 +228,12 @@ type TestLaneSelectionState = {
   readonly integration: boolean;
   readonly types: boolean;
   readonly args: ReadonlyArray<string>;
+};
+
+type WorkspaceTaskOwner = {
+  readonly packageName: string;
+  readonly packageDir: string;
+  readonly scripts: Readonly<Record<string, string>>;
 };
 
 type RootAuditMode = (typeof AUDIT_MODE_NAMES)[number];
@@ -318,6 +339,15 @@ const parseRootAuditSelection = (args: ReadonlyArray<string>): RootAuditSelectio
     },
   });
 
+const workspacePatternsFromPackageJson = (packageJson: PackageJsonDocument): ReadonlyArray<string> => {
+  const workspaces: PackageJsonWorkspaces | undefined = packageJson.workspaces;
+  if (workspaces === undefined) {
+    return A.empty();
+  }
+
+  return isPackageJsonWorkspacePatternList(workspaces) ? workspaces : (workspaces.packages ?? A.empty());
+};
+
 const readJsonFile = Effect.fn("QualityTasks.readJsonFile")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
   const content = yield* fs
@@ -360,6 +390,136 @@ const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* 
 
   return yield* findPackageDir(path.resolve(cwd));
 });
+
+const isSafeWorkspacePattern = (pattern: string): boolean =>
+  pattern.length > 0 && !pattern.startsWith("/") && !pattern.split("/").some((segment) => segment === "..");
+
+const workspaceCandidateDirsForPattern = Effect.fn("QualityTasks.workspaceCandidateDirsForPattern")(function* (
+  repoRoot: string,
+  pattern: string
+): Effect.fn.Return<ReadonlyArray<string>, QualityTaskConfigurationError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  if (!isSafeWorkspacePattern(pattern)) {
+    return yield* QualityTaskConfigurationError.new(
+      `Unsafe workspace pattern "${pattern}" escapes the repository root.`
+    );
+  }
+
+  if (pattern.endsWith("/*")) {
+    const base = path.join(repoRoot, pattern.slice(0, -2));
+    const entries = yield* fs
+      .readDirectory(base)
+      .pipe(
+        Effect.mapError(() =>
+          QualityTaskConfigurationError.make({ message: `Failed to read workspace directory ${base}` })
+        )
+      );
+
+    return A.map(entries, (entry) => path.join(base, entry));
+  }
+
+  return [path.join(repoRoot, pattern)];
+});
+
+const workspaceTaskOwners = Effect.fn("QualityTasks.workspaceTaskOwners")(function* (
+  repoRoot: string
+): Effect.fn.Return<
+  ReadonlyArray<WorkspaceTaskOwner>,
+  QualityTaskConfigurationError,
+  FileSystem.FileSystem | Path.Path
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const rootPackageJson = yield* readJsonFile(path.join(repoRoot, "package.json"));
+  const candidateDirs = yield* Effect.forEach(
+    workspacePatternsFromPackageJson(rootPackageJson),
+    (pattern) => workspaceCandidateDirsForPattern(repoRoot, pattern),
+    { concurrency: 4 }
+  );
+
+  const owners = yield* Effect.forEach(
+    pipe(A.flatten(candidateDirs), A.dedupe, A.sort(Order.String)),
+    Effect.fn(function* (packageDir) {
+      const packageJsonPath = path.join(packageDir, "package.json");
+      const exists = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
+      if (!exists) {
+        return O.none<WorkspaceTaskOwner>();
+      }
+
+      const packageJson = yield* readJsonFile(packageJsonPath);
+      if (packageJson.name === undefined) {
+        return O.none<WorkspaceTaskOwner>();
+      }
+
+      return O.some({
+        packageName: packageJson.name,
+        packageDir,
+        scripts: packageJson.scripts ?? {},
+      });
+    }),
+    { concurrency: 8 }
+  );
+
+  return pipe(
+    owners,
+    A.getSomes,
+    A.sort(Order.mapInput(Order.String, (owner: WorkspaceTaskOwner) => owner.packageName))
+  );
+});
+
+const workspaceTaskFilters = Effect.fn("QualityTasks.workspaceTaskFilters")(function* (
+  repoRoot: string,
+  script: string
+): Effect.fn.Return<ReadonlyArray<string>, QualityTaskConfigurationError, FileSystem.FileSystem | Path.Path> {
+  const owners = yield* workspaceTaskOwners(repoRoot);
+
+  return pipe(
+    owners,
+    A.filter((owner) => pipe(owner.scripts, R.get(script), O.isSome)),
+    A.map((owner) => `--filter=${owner.packageName}`)
+  );
+});
+
+const requireWorkspaceTaskFilters = Effect.fn("QualityTasks.requireWorkspaceTaskFilters")(function* (
+  repoRoot: string,
+  script: string
+): Effect.fn.Return<ReadonlyArray<string>, QualityTaskConfigurationError, FileSystem.FileSystem | Path.Path> {
+  const filters = yield* workspaceTaskFilters(repoRoot, script);
+  if (A.isReadonlyArrayEmpty(filters)) {
+    return yield* QualityTaskConfigurationError.new(`No workspace packages define ${script}.`);
+  }
+
+  return filters;
+});
+
+const workspaceTaskArgs = Effect.fn("QualityTasks.workspaceTaskArgs")(function* (
+  repoRoot: string,
+  script: string,
+  args: ReadonlyArray<string>
+): Effect.fn.Return<ReadonlyArray<string>, QualityTaskConfigurationError, FileSystem.FileSystem | Path.Path> {
+  if (A.some(args, isExplicitTurboAffectedOrScopeArg)) {
+    return args;
+  }
+
+  const filters = yield* requireWorkspaceTaskFilters(repoRoot, script);
+  return [...filters, ...args];
+});
+
+/**
+ * Resolve Turbo filters for workspace packages that define a script.
+ * Exposed for focused unit tests of root quality orchestration.
+ *
+ * @example
+ * ```ts
+ * import { workspaceTaskFiltersForTesting } from "@beep/repo-cli/test/Quality"
+ * console.log(workspaceTaskFiltersForTesting)
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const workspaceTaskFiltersForTesting = workspaceTaskFilters;
 
 const commandText = (command: string, args: ReadonlyArray<string>): string => A.join([command, ...args], " ");
 
@@ -1143,13 +1303,24 @@ const runRootTestTask = Effect.fn("QualityTasks.runRootTestTask")(function* (
   args: ReadonlyArray<string>
 ) {
   const lanes = parseTestLaneSelection(args);
-  const unitAndTypeSteps = rootUnitAndTypeTestSteps(repoRoot, lanes);
+  const typeArgs = lanes.types ? yield* workspaceTaskArgs(repoRoot, "type-test", lanes.args) : A.empty<string>();
+  const unitAndTypeSteps = [
+    ...optionalQualityTaskStep({
+      enabled: lanes.unit,
+      step: () => turboStep(repoRoot, "test:unit", ["test"], boundedRootTurboArgs(lanes.args)),
+    }),
+    ...optionalQualityTaskStep({
+      enabled: lanes.types,
+      step: () => turboStep(repoRoot, "test:types", ["type-test"], boundedRootTurboArgs(typeArgs)),
+    }),
+  ];
 
   yield* runSteps(unitAndTypeSteps);
   if (lanes.integration) {
+    const integrationArgs = yield* workspaceTaskArgs(repoRoot, "test:integration", lanes.args);
     yield* runSqlIntegrationTestLane({
       acquireResource: acquireDefaultSqlIntegrationResource,
-      args: lanes.args,
+      args: integrationArgs,
       repoRoot,
     });
   }

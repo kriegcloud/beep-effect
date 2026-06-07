@@ -1,14 +1,14 @@
 # Check Name Baseline
 
-Status: `current-through-a7be8dc1`
+Status: `source-proof-current-through-380a2dc796`
 
 Record this before workflow/job/matrix edits and again after CI proves the PR.
 
 ## Commands
 
 ```sh
-gh pr checks 214 --json name,state,bucket,workflow,link,description
-gh pr checks 214 --required
+gh pr checks 215 --json name,state,bucket,workflow,link,description
+gh pr checks 215 --required
 gh api repos/:owner/:repo/rulesets
 ```
 
@@ -37,6 +37,6 @@ gh api repos/:owner/:repo/rulesets
 
 | Check name | Status | Evidence |
 | --- | --- | --- |
-| All current PR check names | unchanged and green | `gh pr checks 214` on commit `a7be8dc1e1119d095be0239b39cd812e5650ebec` reported all non-skipped contexts passing; `Build` remains skipped by workflow policy. |
-| Required checks | not reported for branch | `gh pr checks 214 --required` exited with `no required checks reported on the 'ontology_builder_refinement' branch`. |
+| All source-change PR check names | unchanged and green | `gh pr checks 215` on commit `380a2dc79627cddbbcffe94bdfff6358b1672680` reported all non-skipped contexts passing; `Build` remains skipped by workflow policy. |
+| Required checks | not reported for branch | `gh pr checks 215 --required` exited with `no required checks reported on the 'repo-quality-throughput-implementation' branch`. |
 | Rulesets | no blocking rule details returned | `gh api repos/kriegcloud/beep-effect/rulesets` returned active `main` branch ruleset metadata and no returned rule entries. |

@@ -1,4 +1,6 @@
+import { createHash } from "node:crypto";
 import { $RepoCliId } from "@beep/identity/packages";
+import { RepoExportsCatalogPackage } from "@beep/repo-codegraph";
 import { A, O, Str, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, MutableHashMap, Path } from "effect";
 import * as P from "effect/Predicate";
@@ -16,6 +18,7 @@ import {
   listSourceFiles,
   normalizeSlashes,
   QualityArtifactGeneratorError,
+  readJsonc,
   readText,
   repoRelative,
   summaryFromComment,
@@ -29,6 +32,13 @@ import type { Node, SourceFile } from "ts-morph";
 import type { PackageJson, WorkspacePackageInfo } from "./QualityArtifactSupport.js";
 
 const $I = $RepoCliId.create("commands/Quality/internal/RepoExportsCatalog");
+const rootCatalogStandard = "repo-exports-catalog";
+const rootCatalogSchemaVersion = "repo-exports-catalog/v1";
+const rootCatalogIndexStandard = "repo-exports-catalog-index";
+const rootCatalogIndexSchemaVersion = "repo-exports-catalog-index/v1";
+const shardStandard = "repo-exports-catalog-shard";
+const shardSchemaVersion = "repo-exports-catalog-shard/v1";
+const fingerprintAlgorithm = "sha256";
 
 type ExportMapEntry = {
   readonly subpath: string;
@@ -93,8 +103,54 @@ type Catalog = {
   readonly packages: ReadonlyArray<PackageCatalog>;
 };
 
+type CatalogIndexPackage = {
+  readonly packageName: string;
+  readonly packagePath: string;
+  readonly topoOrder: number;
+  readonly status: PackageCatalog["status"];
+  readonly shardPath?: string;
+};
+
+type CatalogIndex = {
+  readonly standard: typeof rootCatalogIndexStandard;
+  readonly schemaVersion: typeof rootCatalogIndexSchemaVersion;
+  readonly deterministic: true;
+  readonly authority: JsonRecord;
+  readonly source: JsonRecord;
+  readonly totals: ReturnType<typeof catalogTotals>;
+  readonly packages: ReadonlyArray<CatalogIndexPackage>;
+};
+
+type FingerprintInput = {
+  readonly path: string;
+  readonly sha256: string;
+  readonly bytes: number;
+};
+
+type PackageCatalogFingerprint = {
+  readonly algorithm: typeof fingerprintAlgorithm;
+  readonly digest: string;
+  readonly inputs: ReadonlyArray<FingerprintInput>;
+};
+
+type PackageCatalogShard = {
+  readonly standard: typeof shardStandard;
+  readonly schemaVersion: typeof shardSchemaVersion;
+  readonly deterministic: true;
+  readonly source: JsonRecord;
+  readonly fingerprint: PackageCatalogFingerprint;
+  readonly package: PackageCatalog;
+};
+
 const outputJsonRelativePath = "standards/repo-exports.catalog.jsonc";
 const outputMarkdownRelativePath = "standards/repo-exports.catalog.md";
+const outputShardRelativePath = ".beep/repo-exports/catalog.shard.jsonc";
+const generatorInputRelativePaths = [
+  "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+  "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+  "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+  "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+];
 const conditionPreference = ["types", "import", "default", "require"];
 const conditionNames = new Set(conditionPreference);
 const compareText = (left: string, right: string): Ordering.Ordering => Str.localeCompare(right)(left);
@@ -121,7 +177,11 @@ export class RepoExportsCatalogOptions extends S.Class<RepoExportsCatalogOptions
     rootDir: S.optionalKey(S.String),
     outputJsonPath: S.optionalKey(S.String),
     outputMarkdownPath: S.optionalKey(S.String),
+    outputShardPath: S.optionalKey(S.String),
     check: S.optionalKey(S.Boolean),
+    fromShards: S.optionalKey(S.Boolean),
+    packageShard: S.optionalKey(S.Boolean),
+    packageName: S.optionalKey(S.String),
   },
   $I.annote("RepoExportsCatalogOptions", {
     description: "Options for building, writing, or checking the repo export catalog artifacts.",
@@ -140,6 +200,7 @@ export class RepoExportsCatalogWriteResult extends S.Class<RepoExportsCatalogWri
   {
     outputJsonPath: S.String,
     outputMarkdownPath: S.String,
+    outputShardPath: S.optionalKey(S.String),
     totals: JsonRecord,
     findings: S.Array(S.String),
     checked: S.Boolean,
@@ -147,6 +208,46 @@ export class RepoExportsCatalogWriteResult extends S.Class<RepoExportsCatalogWri
   },
   $I.annote("RepoExportsCatalogWriteResult", {
     description: "Output metadata returned after writing or checking repo export catalog artifacts.",
+  })
+) {}
+
+class RepoExportsCatalogShardFingerprintInput extends S.Class<RepoExportsCatalogShardFingerprintInput>(
+  $I`RepoExportsCatalogShardFingerprintInput`
+)(
+  {
+    path: S.String,
+    sha256: S.String,
+    bytes: S.Finite,
+  },
+  $I.annote("RepoExportsCatalogShardFingerprintInput", {
+    description: "One package-shard input file included in the deterministic repo-export fingerprint.",
+  })
+) {}
+
+class RepoExportsCatalogShardFingerprint extends S.Class<RepoExportsCatalogShardFingerprint>(
+  $I`RepoExportsCatalogShardFingerprint`
+)(
+  {
+    algorithm: S.Literal(fingerprintAlgorithm),
+    digest: S.String,
+    inputs: S.Array(RepoExportsCatalogShardFingerprintInput),
+  },
+  $I.annote("RepoExportsCatalogShardFingerprint", {
+    description: "Deterministic fingerprint metadata for a package-local repo-export shard.",
+  })
+) {}
+
+class RepoExportsCatalogShard extends S.Class<RepoExportsCatalogShard>($I`RepoExportsCatalogShard`)(
+  {
+    standard: S.Literal(shardStandard),
+    schemaVersion: S.Literal(shardSchemaVersion),
+    deterministic: S.Literal(true),
+    source: JsonRecord,
+    fingerprint: RepoExportsCatalogShardFingerprint,
+    package: RepoExportsCatalogPackage,
+  },
+  $I.annote("RepoExportsCatalogShard", {
+    description: "Package-local repo-export shard consumed by root catalog aggregation.",
   })
 ) {}
 
@@ -160,7 +261,11 @@ const resolveRepoExportsCatalogOptions = Effect.fn("RepoExportsCatalog.resolveOp
     repoRoot,
     outputJsonPath: options.outputJsonPath ?? path.join(repoRoot, outputJsonRelativePath),
     outputMarkdownPath: options.outputMarkdownPath ?? path.join(repoRoot, outputMarkdownRelativePath),
+    outputShardPath: options.outputShardPath,
     check: options.check ?? false,
+    fromShards: options.fromShards ?? false,
+    packageShard: options.packageShard ?? false,
+    packageName: options.packageName,
   };
 });
 
@@ -424,6 +529,9 @@ const catalogEntryFor = (
 const packageStatusFor = (exportCount: number): PackageCatalog["status"] =>
   exportCount === 0 ? "no-public-exports" : "has-public-exports";
 
+const isPackageCatalogStatus = (status: string): status is PackageCatalog["status"] =>
+  status === "has-public-exports" || status === "no-public-exports" || status === "missing-workspace-metadata";
+
 const analyzePackage = Effect.fn("RepoExportsCatalog.analyzePackage")(function* (
   packageInfo: WorkspacePackageInfo,
   topoOrder: number,
@@ -523,6 +631,19 @@ const analyzeMissingPackage = (packageName: string, topoOrder: number): PackageC
   exports: [],
 });
 
+const repoExportsCatalogAuthority = {
+  posture: "descriptive-current-state",
+  canonicalStatus: "not-evaluated",
+  boundaryDoctrine: ["standards/ARCHITECTURE.md", "standards/architecture/README.md", "package-local policy"],
+  note: "This catalog lists legal public export facts. It does not decide whether an import path, package root, wildcard export, or symbol is the canonical architecture surface for new code.",
+};
+
+const repoExportsCatalogSource = (generator: string): JsonRecord => ({
+  packageUniverseCommand: "bun run topo-sort",
+  generator,
+  inputs: ["package.json exports", "TypeScript exported declarations", "JSDoc comments"],
+});
+
 const catalogTotals = (packages: ReadonlyArray<PackageCatalog>) => ({
   packages: packages.length,
   packagesWithPublicExports: packages.filter((entry) => entry.status === "has-public-exports").length,
@@ -531,6 +652,37 @@ const catalogTotals = (packages: ReadonlyArray<PackageCatalog>) => ({
   importSpecifiers: packages.reduce((total, entry) => total + entry.importSpecifiers.length, 0),
   publicExportEntries: packages.reduce((total, entry) => total + entry.counts.publicExportEntries, 0),
   uniquePackageSymbols: packages.reduce((total, entry) => total + entry.counts.uniqueSymbols, 0),
+});
+
+const catalogFromPackages = (packages: ReadonlyArray<PackageCatalog>, generator: string): Catalog => ({
+  standard: rootCatalogStandard,
+  schemaVersion: rootCatalogSchemaVersion,
+  deterministic: true,
+  authority: repoExportsCatalogAuthority,
+  source: repoExportsCatalogSource(generator),
+  totals: catalogTotals(packages),
+  packages,
+});
+
+const shardRelativePathForPackage = (pkg: PackageCatalog): string =>
+  normalizeSlashes(pkg.packagePath === "." ? outputShardRelativePath : `${pkg.packagePath}/${outputShardRelativePath}`);
+
+const catalogIndexPackageFromPackage = (pkg: PackageCatalog): CatalogIndexPackage => ({
+  packageName: pkg.packageName,
+  packagePath: pkg.packagePath,
+  topoOrder: pkg.topoOrder,
+  status: pkg.status,
+  ...(pkg.status === "missing-workspace-metadata" ? {} : { shardPath: shardRelativePathForPackage(pkg) }),
+});
+
+const catalogIndexFromCatalog = (catalog: Catalog): CatalogIndex => ({
+  standard: rootCatalogIndexStandard,
+  schemaVersion: rootCatalogIndexSchemaVersion,
+  deterministic: true,
+  authority: catalog.authority,
+  source: catalog.source,
+  totals: catalog.totals,
+  packages: A.map(catalog.packages, catalogIndexPackageFromPackage),
 });
 
 const allExports = (catalog: Catalog): ReadonlyArray<CatalogEntry> => catalog.packages.flatMap((pkg) => pkg.exports);
@@ -653,24 +805,204 @@ export const buildRepoExportsCatalog = Effect.fn("RepoExportsCatalog.build")(fun
     { concurrency: 1 }
   );
 
+  return catalogFromPackages(packages, "bun run beep quality repo-exports-catalog");
+});
+
+const isInsideDirectory = (candidate: string, directory: string, path: Path.Path): boolean => {
+  const relativePath = normalizeSlashes(path.relative(directory, candidate));
+  return relativePath === "" || (!Str.startsWith("../")(relativePath) && relativePath !== "..");
+};
+
+const currentWorkspacePackage = Effect.fn("RepoExportsCatalog.currentWorkspacePackage")(function* (
+  repoRoot: string,
+  path: Path.Path,
+  packageName?: string
+): Effect.fn.Return<WorkspacePackageInfo, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const packageByName = yield* discoverWorkspacePackages(repoRoot, path);
+
+  if (packageName !== undefined) {
+    const namedPackage = MutableHashMap.get(packageByName, packageName);
+    if (O.isSome(namedPackage)) {
+      return namedPackage.value;
+    }
+
+    return yield* QualityArtifactGeneratorError.make({
+      filePath: repoRoot,
+      message: `Workspace package ${packageName} was not found.`,
+    });
+  }
+
+  const cwd = path.resolve(process.cwd());
+  const matchingPackages: ReadonlyArray<WorkspacePackageInfo> = A.filter(
+    A.fromIterable(MutableHashMap.values(packageByName)),
+    (packageInfo) => isInsideDirectory(cwd, packageInfo.absolutePath, path)
+  );
+  const matches = A.sort(matchingPackages, (left: WorkspacePackageInfo, right: WorkspacePackageInfo) =>
+    compareNumber(right.absolutePath.length, left.absolutePath.length)
+  );
+  const match = A.head(matches);
+
+  if (O.isSome(match)) {
+    return match.value;
+  }
+
+  return yield* QualityArtifactGeneratorError.make({
+    filePath: cwd,
+    message: `Could not resolve the current workspace package from ${cwd}.`,
+  });
+});
+
+const sha256Hex = (content: string): string => createHash(fingerprintAlgorithm).update(content).digest("hex");
+
+const fingerprintInputFor = Effect.fn("RepoExportsCatalog.fingerprintInputFor")(function* (
+  filePath: string,
+  repoRoot: string,
+  path: Path.Path
+): Effect.fn.Return<FingerprintInput, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const content = yield* readText(filePath);
   return {
-    standard: "repo-exports-catalog",
-    schemaVersion: "repo-exports-catalog/v1",
-    deterministic: true,
-    authority: {
-      posture: "descriptive-current-state",
-      canonicalStatus: "not-evaluated",
-      boundaryDoctrine: ["standards/ARCHITECTURE.md", "standards/architecture/README.md", "package-local policy"],
-      note: "This catalog lists legal public export facts. It does not decide whether an import path, package root, wildcard export, or symbol is the canonical architecture surface for new code.",
-    },
-    source: {
-      packageUniverseCommand: "bun run topo-sort",
-      generator: "bun run beep quality repo-exports-catalog",
-      inputs: ["package.json exports", "TypeScript exported declarations", "JSDoc comments"],
-    },
-    totals: catalogTotals(packages),
-    packages,
+    path: repoRelative(filePath, repoRoot, path),
+    sha256: sha256Hex(content),
+    bytes: new TextEncoder().encode(content).byteLength,
   };
+});
+
+const packageFingerprint = Effect.fn("RepoExportsCatalog.packageFingerprint")(function* (
+  packageInfo: WorkspacePackageInfo,
+  repoRoot: string,
+  path: Path.Path
+): Effect.fn.Return<PackageCatalogFingerprint, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const packageJsonPath = path.join(packageInfo.absolutePath, "package.json");
+  const packageSourceFiles = yield* listSourceFiles(path.join(packageInfo.absolutePath, "src"), path);
+  const generatorInputPaths = A.map(generatorInputRelativePaths, (relativePath) => path.join(repoRoot, relativePath));
+  const generatorInputOptions = yield* Effect.forEach(
+    generatorInputPaths,
+    (inputPath) =>
+      fs.exists(inputPath).pipe(
+        Effect.orElseSucceed(thunkFalse),
+        Effect.map((exists) => (exists ? O.some(inputPath) : O.none<string>()))
+      ),
+    { concurrency: 4 }
+  );
+  const existingGeneratorInputPaths = A.getSomes(generatorInputOptions);
+  const inputPaths = A.sort([packageJsonPath, ...packageSourceFiles, ...existingGeneratorInputPaths], compareText);
+  const inputs = yield* Effect.forEach(inputPaths, (inputPath) => fingerprintInputFor(inputPath, repoRoot, path), {
+    concurrency: 8,
+  });
+  const digest = sha256Hex(
+    A.join(
+      A.map(inputs, (input) => `${input.path}\u0000${input.sha256}\u0000${input.bytes}`),
+      "\u0000"
+    )
+  );
+
+  return {
+    algorithm: fingerprintAlgorithm,
+    digest,
+    inputs,
+  };
+});
+
+const shardPathForPackage = (repoRoot: string, packageInfo: WorkspacePackageInfo, path: Path.Path): string =>
+  path.join(repoRoot, packageInfo.path, outputShardRelativePath);
+
+const buildPackageCatalogShard = Effect.fn("RepoExportsCatalog.buildPackageShard")(function* (
+  packageInfo: WorkspacePackageInfo,
+  topoOrder: number,
+  repoRoot: string,
+  path: Path.Path
+): Effect.fn.Return<PackageCatalogShard, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const packageCatalog = yield* analyzePackage(packageInfo, topoOrder, repoRoot, path);
+  const fingerprint = yield* packageFingerprint(packageInfo, repoRoot, path);
+
+  return {
+    standard: shardStandard,
+    schemaVersion: shardSchemaVersion,
+    deterministic: true,
+    source: repoExportsCatalogSource("bun run beep quality repo-exports-catalog --package-shard"),
+    fingerprint,
+    package: packageCatalog,
+  };
+});
+
+const decodeRepoExportsCatalogShard = S.decodeUnknownEffect(RepoExportsCatalogShard);
+
+const readPackageCatalogShard = Effect.fn("RepoExportsCatalog.readPackageShard")(function* (
+  shardPath: string
+): Effect.fn.Return<RepoExportsCatalogShard, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const parsed = yield* readJsonc(shardPath);
+  return yield* decodeRepoExportsCatalogShard(parsed).pipe(
+    QualityArtifactGeneratorError.mapError(`Failed to decode repo export shard ${shardPath}.`, {
+      filePath: shardPath,
+    })
+  );
+});
+
+const packageCatalogFromShard = Effect.fn("RepoExportsCatalog.packageCatalogFromShard")(function* (
+  shardPath: string,
+  packageInfo: WorkspacePackageInfo,
+  shard: RepoExportsCatalogShard,
+  topoOrder: number
+): Effect.fn.Return<PackageCatalog, QualityArtifactGeneratorError> {
+  if (shard.package.packageName !== packageInfo.name) {
+    return yield* QualityArtifactGeneratorError.make({
+      filePath: shardPath,
+      message: `Repo export shard package mismatch: expected ${packageInfo.name}, found ${shard.package.packageName}.`,
+    });
+  }
+  if (shard.package.packagePath !== packageInfo.path) {
+    return yield* QualityArtifactGeneratorError.make({
+      filePath: shardPath,
+      message: `Repo export shard path mismatch for ${packageInfo.name}: expected ${packageInfo.path}, found ${shard.package.packagePath}.`,
+    });
+  }
+  if (!isPackageCatalogStatus(shard.package.status)) {
+    return yield* QualityArtifactGeneratorError.make({
+      filePath: shardPath,
+      message: `Repo export shard ${shardPath} has unsupported package status ${shard.package.status}.`,
+    });
+  }
+
+  return {
+    packageName: shard.package.packageName,
+    packagePath: shard.package.packagePath,
+    topoOrder,
+    status: shard.package.status,
+    importSpecifiers: shard.package.importSpecifiers,
+    counts: shard.package.counts,
+    exports: A.map(shard.package.exports, (entry) => ({ ...entry, topoOrder })),
+  };
+});
+
+const buildRepoExportsCatalogFromShards = Effect.fn("RepoExportsCatalog.buildFromShards")(function* (
+  options: RepoExportsCatalogOptions = {}
+): Effect.fn.Return<
+  Catalog,
+  QualityArtifactGeneratorError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const path = yield* Path.Path;
+  const { repoRoot } = yield* resolveRepoExportsCatalogOptions(options);
+  const packageByName = yield* discoverWorkspacePackages(repoRoot, path);
+  const topoNames = yield* topoSortPackageNames(repoRoot);
+  const packages = yield* Effect.forEach(
+    topoNames,
+    (packageName, index) => {
+      const packageInfo = MutableHashMap.get(packageByName, packageName);
+      if (O.isNone(packageInfo)) {
+        return Effect.succeed(analyzeMissingPackage(packageName, index + 1));
+      }
+
+      const shardPath = shardPathForPackage(repoRoot, packageInfo.value, path);
+      return readPackageCatalogShard(shardPath).pipe(
+        Effect.flatMap((shard) => packageCatalogFromShard(shardPath, packageInfo.value, shard, index + 1))
+      );
+    },
+    { concurrency: 8 }
+  );
+
+  return catalogFromPackages(packages, "bun run beep quality repo-exports-catalog");
 });
 
 const checkFile = Effect.fn("RepoExportsCatalog.checkFile")(function* (
@@ -689,6 +1021,56 @@ const checkFile = Effect.fn("RepoExportsCatalog.checkFile")(function* (
   return current === content ? [] : [`${repoRelative(filePath, repoRoot, path)} is stale`];
 });
 
+const writePackageCatalogShard = Effect.fn("RepoExportsCatalog.writePackageShard")(function* (
+  options: RepoExportsCatalogOptions = {}
+): Effect.fn.Return<
+  RepoExportsCatalogWriteResult,
+  QualityArtifactGeneratorError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const { check, outputJsonPath, outputMarkdownPath, outputShardPath, packageName, repoRoot } =
+    yield* resolveRepoExportsCatalogOptions(options);
+  const packageInfo = yield* currentWorkspacePackage(repoRoot, path, packageName);
+  const shard = yield* buildPackageCatalogShard(packageInfo, 0, repoRoot, path);
+  const shardPath = outputShardPath ?? shardPathForPackage(repoRoot, packageInfo, path);
+  const shardContent = yield* formatJsonc(shard);
+
+  if (check) {
+    const findings = yield* checkFile(shardPath, shardContent, repoRoot, path);
+
+    return {
+      outputJsonPath,
+      outputMarkdownPath,
+      outputShardPath: shardPath,
+      totals: shard.package.counts,
+      findings,
+      checked: true,
+      written: false,
+    };
+  }
+
+  yield* fs.makeDirectory(path.dirname(shardPath), { recursive: true }).pipe(
+    QualityArtifactGeneratorError.mapError(`Failed to create artifact directory for ${shardPath}.`, {
+      filePath: shardPath,
+    })
+  );
+  yield* fs
+    .writeFileString(shardPath, shardContent)
+    .pipe(QualityArtifactGeneratorError.mapError(`Failed to write ${shardPath}.`, { filePath: shardPath }));
+
+  return {
+    outputJsonPath,
+    outputMarkdownPath,
+    outputShardPath: shardPath,
+    totals: shard.package.counts,
+    findings: [],
+    checked: false,
+    written: true,
+  };
+});
+
 /**
  * Write or freshness-check repo export catalog JSONC and Markdown artifacts.
  *
@@ -704,9 +1086,15 @@ export const writeOrCheckRepoExportsCatalog = Effect.fn("RepoExportsCatalog.writ
 > {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const { check, outputJsonPath, outputMarkdownPath, repoRoot } = yield* resolveRepoExportsCatalogOptions(options);
-  const catalog = yield* buildRepoExportsCatalog(options);
-  const jsonContent = yield* formatJsonc(catalog);
+  const { check, fromShards, outputJsonPath, outputMarkdownPath, packageShard, repoRoot } =
+    yield* resolveRepoExportsCatalogOptions(options);
+
+  if (packageShard) {
+    return yield* writePackageCatalogShard(options);
+  }
+
+  const catalog = yield* fromShards ? buildRepoExportsCatalogFromShards(options) : buildRepoExportsCatalog(options);
+  const jsonContent = yield* formatJsonc(catalogIndexFromCatalog(catalog));
   const markdownContent = renderMarkdown(catalog);
 
   if (check) {

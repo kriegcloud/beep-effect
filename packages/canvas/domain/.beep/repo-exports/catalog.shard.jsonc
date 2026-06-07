@@ -1,0 +1,932 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "dea48de10de3937078b00ec8700ea1e4223a545db21270d83019e55b4faf5c27",
+    "inputs": [
+      {
+        "path": "packages/canvas/domain/package.json",
+        "sha256": "9aa65e94258a1315e55c2fbe287b34d8dc3e40c7760eecf85d2123b4b48e8314",
+        "bytes": 2751
+      },
+      {
+        "path": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.errors.ts",
+        "sha256": "fcc323881d0a87e2f6787830a87b88b9c64d4bcc8bf70e98e97a7254364dd48a",
+        "bytes": 4750
+      },
+      {
+        "path": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sha256": "8e8e4c2e569359815fcc2fc89a97084c688e03170b9c956d8e23ff7aea9ee9ba",
+        "bytes": 7194
+      },
+      {
+        "path": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sha256": "fbaae632ed4b33d7c074ecd47d2f1f976c059ff3072334e5fe3fa3e9c4751fd4",
+        "bytes": 4062
+      },
+      {
+        "path": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "sha256": "38ae8f505885eca305dad8f75d9c0ea83b76699d6090233e831638ab13574411",
+        "bytes": 411
+      },
+      {
+        "path": "packages/canvas/domain/src/aggregates/index.ts",
+        "sha256": "718415fc52ba0e70779ea03c22b80ea203e605b26fb2ebdd7188880bdf4f8b83",
+        "bytes": 245
+      },
+      {
+        "path": "packages/canvas/domain/src/identity/Canvas.ts",
+        "sha256": "f02521458eb32bf77662234b22c69d77309a16362ccc4643e743184fe3a02c7a",
+        "bytes": 864
+      },
+      {
+        "path": "packages/canvas/domain/src/identity/index.ts",
+        "sha256": "6b601b82870c606916f9208df6a6e7381c32054eb106bac81011903ee3bdc066",
+        "bytes": 236
+      },
+      {
+        "path": "packages/canvas/domain/src/index.ts",
+        "sha256": "c10db658cc56d555785f21bbe5c7baf4e8e6a5c7aba738c9869e1f2e0453292e",
+        "bytes": 874
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/canvas-domain",
+    "packagePath": "packages/canvas/domain",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/canvas-domain",
+      "@beep/canvas-domain/aggregates",
+      "@beep/canvas-domain/aggregates/CanvasProject",
+      "@beep/canvas-domain/identity",
+      "@beep/canvas-domain/identity/Canvas"
+    ],
+    "counts": {
+      "publicExportEntries": 35,
+      "uniqueSymbols": 24,
+      "sourceFiles": 8
+    },
+    "exports": [
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/canvas/domain/src/index.ts",
+        "symbolName": "Aggregates",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/canvas/domain/src/aggregates/index.ts",
+        "sourceLine": 13,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain . aggregates sourcefile packages/canvas/domain/src/aggregates/index.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/canvas/domain/src/index.ts",
+        "symbolName": "CanvasProject",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "sourceLine": 7,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain . canvasproject sourcefile packages/canvas/domain/src/aggregates/canvasproject/index.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/canvas/domain/src/index.ts",
+        "symbolName": "Identity",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/canvas/domain/src/identity/index.ts",
+        "sourceLine": 15,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain . identity sourcefile packages/canvas/domain/src/identity/index.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/canvas/domain/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/index.ts",
+        "sourceLine": 22,
+        "summary": "Package version for the canvas domain role.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain . version const package version for the canvas domain role. aggregates packages/canvas/domain/src/index.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates",
+        "exportSubpath": "./aggregates",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/index.ts",
+        "symbolName": "CanvasProject",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "sourceLine": 7,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates ./aggregates canvasproject sourcefile packages/canvas/domain/src/aggregates/canvasproject/index.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "addNode",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 190,
+        "summary": "Add lightweight node metadata to an open CanvasProject.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject addnode const add lightweight node metadata to an open canvasproject. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "archive",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 252,
+        "summary": "Archive any non-archived CanvasProject.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject archive const archive any non-archived canvasproject. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasNode",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 44,
+        "summary": "Lightweight node metadata stored inside a bootstrap canvas scene.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasnode class lightweight node metadata stored inside a bootstrap canvas scene. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasNodeAlreadyExists",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.errors.ts",
+        "sourceLine": 101,
+        "summary": "Failure raised when a CanvasNode id is already present in a CanvasProject.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasnodealreadyexists class failure raised when a canvasnode id is already present in a canvasproject. errors packages/canvas/domain/src/aggregates/canvasproject/canvasproject.errors.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasNodeId",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 115,
+        "summary": "CanvasNode identity.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasnodeid const canvasnode identity. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasNodeId",
+        "exportKind": "type",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 130,
+        "summary": "CanvasNode identity type.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasnodeid type canvasnode identity type. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasNodeKind",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 145,
+        "summary": "Bootstrap CanvasNode kinds.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasnodekind const bootstrap canvasnode kinds. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasNodeKind",
+        "exportKind": "type",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 158,
+        "summary": "Bootstrap CanvasNode kind.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasnodekind type bootstrap canvasnode kind. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasNodeLabel",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 173,
+        "summary": "CanvasNode label.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasnodelabel const canvasnode label. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasNodeLabel",
+        "exportKind": "type",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 187,
+        "summary": "CanvasNode label type.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasnodelabel type canvasnode label type. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasNodeNotFound",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.errors.ts",
+        "sourceLine": 126,
+        "summary": "Failure raised when a CanvasNode id is absent from a CanvasProject.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasnodenotfound class failure raised when a canvasnode id is absent from a canvasproject. errors packages/canvas/domain/src/aggregates/canvasproject/canvasproject.errors.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProject",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 95,
+        "summary": "CanvasProject aggregate.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasproject const canvasproject aggregate. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProject",
+        "exportKind": "type",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 111,
+        "summary": "CanvasProject aggregate type.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasproject type canvasproject aggregate type. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectAlreadyArchived",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.errors.ts",
+        "sourceLine": 29,
+        "summary": "Failure raised when a command attempts to mutate an archived CanvasProject.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasprojectalreadyarchived class failure raised when a command attempts to mutate an archived canvasproject. errors packages/canvas/domain/src/aggregates/canvasproject/canvasproject.errors.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectDomainError",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.errors.ts",
+        "sourceLine": 171,
+        "summary": "CanvasProject aggregate domain failure schema.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasprojectdomainerror const canvasproject aggregate domain failure schema. errors packages/canvas/domain/src/aggregates/canvasproject/canvasproject.errors.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectDomainError",
+        "exportKind": "type",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.errors.ts",
+        "sourceLine": 152,
+        "summary": "CanvasProject aggregate domain failure.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasprojectdomainerror type canvasproject aggregate domain failure. errors packages/canvas/domain/src/aggregates/canvasproject/canvasproject.errors.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectId",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 28,
+        "summary": "CanvasProject identity.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasprojectid const canvasproject identity. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectId",
+        "exportKind": "type",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 43,
+        "summary": "CanvasProject identity type.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasprojectid type canvasproject identity type. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectInvalidTransition",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.errors.ts",
+        "sourceLine": 55,
+        "summary": "Failure raised when a command attempts an unsupported lifecycle transition.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasprojectinvalidtransition class failure raised when a command attempts an unsupported lifecycle transition. errors packages/canvas/domain/src/aggregates/canvasproject/canvasproject.errors.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 87,
+        "summary": "CanvasProject lifecycle values.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasprojectstatus const canvasproject lifecycle values. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 100,
+        "summary": "CanvasProject lifecycle value.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasprojectstatus type canvasproject lifecycle value. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectTitle",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 58,
+        "summary": "CanvasProject title.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasprojecttitle const canvasproject title. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CanvasProjectTitle",
+        "exportKind": "type",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
+        "sourceLine": 72,
+        "summary": "CanvasProject title type.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject canvasprojecttitle type canvasproject title type. value-objects packages/canvas/domain/src/aggregates/canvasproject/canvasproject.values.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "create",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 158,
+        "summary": "Create a new open CanvasProject aggregate.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject create const create a new open canvasproject aggregate. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "CreateCanvasProjectInput",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 129,
+        "summary": "CanvasProject creation input.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject createcanvasprojectinput class canvasproject creation input. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "removeNode",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 221,
+        "summary": "Remove lightweight node metadata from an open CanvasProject.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject removenode const remove lightweight node metadata from an open canvasproject. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "reopen",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 273,
+        "summary": "Reopen an archived CanvasProject.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject reopen const reopen an archived canvasproject. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/identity",
+        "exportSubpath": "./identity",
+        "exportedFromPath": "packages/canvas/domain/src/identity/index.ts",
+        "symbolName": "Canvas",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/canvas/domain/src/identity/Canvas.ts",
+        "sourceLine": 9,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/identity ./identity canvas sourcefile packages/canvas/domain/src/identity/canvas.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/identity/Canvas",
+        "exportSubpath": "./identity/Canvas",
+        "exportedFromPath": "packages/canvas/domain/src/identity/Canvas.ts",
+        "symbolName": "CanvasOperatorId",
+        "exportKind": "const",
+        "sourcePath": "packages/canvas/domain/src/identity/Canvas.ts",
+        "sourceLine": 28,
+        "summary": "Canvas operator entity identifier.",
+        "categories": [
+          "entity-ids"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/identity/canvas ./identity/canvas canvasoperatorid const canvas operator entity identifier. entity-ids packages/canvas/domain/src/identity/canvas.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/identity/Canvas",
+        "exportSubpath": "./identity/Canvas",
+        "exportedFromPath": "packages/canvas/domain/src/identity/Canvas.ts",
+        "symbolName": "CanvasOperatorId",
+        "exportKind": "type",
+        "sourcePath": "packages/canvas/domain/src/identity/Canvas.ts",
+        "sourceLine": 38,
+        "summary": "Runtime type for {@link CanvasOperatorId}.",
+        "categories": [
+          "entity-ids"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/identity/canvas ./identity/canvas canvasoperatorid type runtime type for {@link canvasoperatorid}. entity-ids packages/canvas/domain/src/identity/canvas.ts"
+      }
+    ]
+  }
+}
