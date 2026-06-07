@@ -2,11 +2,12 @@ import * as B from "@beep/box";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 const boxToken = pipe(
   Bun.env.CLOUD_BOX_TOKEN,
   O.fromUndefinedOr,
-  O.filter((value) => value.length > 0)
+  O.filter((value) => Str.trim(value).length > 0)
 );
 
 pipe(

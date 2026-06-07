@@ -172,6 +172,13 @@ describe("@beep/box", () => {
     expect(error.sdkVersion).toBe("10.11.1");
   });
 
+  it("sanitizes raw string SDK throws", () => {
+    const error = B.BoxError.fromUnknown("users.getUserMe", "Bearer secret-token");
+
+    expect(error.reason).toBe("sdk thrown");
+    expect(error.cause).toBe("String");
+  });
+
   it.effect(
     "maps developer-token config failures into BoxError",
     Effect.fnUntraced(function* () {
@@ -246,6 +253,29 @@ describe("@beep/box", () => {
       })
     );
   });
+
+  layer(B.Box.makeLayerFromClient(makeFakeClient({ downloads: { downloadFile: () => Promise.resolve(undefined) } })))(
+    (it) => {
+      it.effect(
+        "fails byte downloads when the SDK returns no stream",
+        Effect.fnUntraced(function* () {
+          const box = yield* B.Box;
+          const exit = yield* Effect.exit(box.downloads.downloadFile({ fileId: "file-id" }).pipe(Stream.runCollect));
+
+          expect(Exit.isFailure(exit)).toBe(true);
+          if (Exit.isFailure(exit)) {
+            const error = Cause.findErrorOption(exit.cause);
+            expect(O.isSome(error)).toBe(true);
+            if (O.isSome(error)) {
+              expect(error.value).toBeInstanceOf(B.BoxError);
+              expect(error.value.reason).toBe("stream");
+              expect(error.value.method).toBe("downloads.downloadFile");
+            }
+          }
+        })
+      );
+    }
+  );
 
   layer(
     B.Box.makeLayerFromClient(

@@ -614,7 +614,12 @@ const byteStreamFromSdkValue = (method: BoxMethodName, value: unknown, controlle
   });
 
   if (value === undefined) {
-    return Stream.empty.pipe(Stream.ensuring(finalizer));
+    return Stream.fail(
+      BoxError.fromReason("stream", {
+        cause: "Box SDK did not return a readable byte stream",
+        method,
+      })
+    ).pipe(Stream.ensuring(finalizer));
   }
   if (!isAsyncIterable(value)) {
     return Stream.fail(

@@ -206,7 +206,7 @@ export class BoxError extends TaggedErrorClass<BoxError>($I`BoxError`)(
     const status = pipe(responseInfo, O.flatMap(readNumber("statusCode")), O.getOrUndefined);
 
     return BoxError.fromReason(reasonFromUnknown(cause), {
-      cause,
+      cause: causeLabel(cause),
       method,
       ...(code === undefined ? {} : { code }),
       ...(context === undefined ? {} : { context }),

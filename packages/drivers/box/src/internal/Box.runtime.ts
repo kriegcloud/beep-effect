@@ -36,7 +36,7 @@ export const diagnosticsFor = (event: string, error: BoxError): Readonly<Record<
   method: error.method,
   provider: "box",
   reason: error.reason,
-  sdkVersion: BOX_SDK_VERSION,
+  sdkVersion: error.sdkVersion ?? BOX_SDK_VERSION,
   status: error.status,
 });
 
