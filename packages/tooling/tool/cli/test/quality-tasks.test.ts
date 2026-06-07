@@ -1,4 +1,5 @@
 import {
+  biomeFixChangedFilesForTesting,
   collectEffectTsgoDiagnosticLines,
   lintFixChangedStepForTesting,
   parseQualityTaskInvocation,
@@ -315,6 +316,20 @@ describe("quality task adapter", () => {
       args: ["check", "--write", "--files-ignore-unknown=true", "packages/example/src/index.ts"],
       cwd: "/repo",
     });
+  });
+
+  it("drops non-Biome files from the changed-file lint fix fast path", () => {
+    expect(
+      biomeFixChangedFilesForTesting([
+        ".claude/skills/yeet/SKILL.md",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "package.json",
+        "packages/example/src/index.ts",
+        "packages/example/src/worker.mts",
+        "packages/tooling/tool/cli/README.md",
+      ])
+    ).toEqual(["package.json", "packages/example/src/index.ts", "packages/example/src/worker.mts"]);
   });
 
   it("runs combined root coverage tasks in report-only mode", () => {

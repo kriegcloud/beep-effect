@@ -46,6 +46,19 @@ const GROUPED_STEP_OUTPUT_MAX_CHARS = 256 * 1024;
 const CHANGED_PATH_DIFF_FILTER = ["A", "C", "M", "R", "T", "U", "X", "B"].join("");
 const LOCAL_BIOME_BIN = "./node_modules/.bin/biome";
 const BIOME_FIX_CHANGED_ARGS = ["check", "--write", "--files-ignore-unknown=true"] as const;
+const BIOME_FIX_CHANGED_FILE_SUFFIXES = [
+  ".cjs",
+  ".css",
+  ".cts",
+  ".js",
+  ".json",
+  ".jsonc",
+  ".jsx",
+  ".mjs",
+  ".mts",
+  ".ts",
+  ".tsx",
+] as const;
 const LINT_FIX_AGGREGATE_ARGS = ["--full", "--repo"] as const;
 const ROOT_TURBO_CONCURRENCY_ARG = "--concurrency=3";
 const QUALITY_TASK_BYPASS_ARG_NAMES = ["--completions", "--help", "--log-level", "--version", "-h", "-v"] as const;
@@ -644,6 +657,12 @@ const collectExistingWorkingTreeChangedFiles = Effect.fn("QualityTasks.collectEx
   }
 );
 
+const isBiomeFixChangedFile = (file: string): boolean =>
+  A.some(BIOME_FIX_CHANGED_FILE_SUFFIXES, (suffix) => Str.endsWith(suffix)(file));
+
+const biomeFixChangedFiles = (files: ReadonlyArray<string>): ReadonlyArray<string> =>
+  pipe(files, A.filter(isBiomeFixChangedFile));
+
 const lintFixChangedStep = (repoRoot: string, files: ReadonlyArray<string>) =>
   QualityTaskStep.make({
     label: "lint:fix:changed",
@@ -1181,9 +1200,9 @@ const runRootLintTask = Effect.fn("QualityTasks.runRootLintTask")(function* (
 ) {
   const strippedLintArgs = fix ? stripLintFixAggregateArgs(args) : args;
   if (fix && !shouldForceAggregateLintFix(args) && isUnscopedInvocation(strippedLintArgs)) {
-    const files = yield* collectExistingWorkingTreeChangedFiles(repoRoot);
+    const files = yield* collectExistingWorkingTreeChangedFiles(repoRoot).pipe(Effect.map(biomeFixChangedFiles));
     if (A.isReadonlyArrayEmpty(files)) {
-      yield* Console.log("[beep-cli] lint:fix: no changed files");
+      yield* Console.log("[beep-cli] lint:fix: no Biome-processable changed files");
       return;
     }
 
@@ -1505,6 +1524,22 @@ export const runQualityTaskStepGroupForTesting = runStepGroup;
  * @since 0.0.0
  */
 export const collectLintFixChangedFilesForTesting = collectExistingWorkingTreeChangedFiles;
+
+/**
+ * Filter changed files to the suffixes handled by the root Biome fix fast path.
+ *
+ * @param files - Changed file paths collected from Git.
+ * @returns Files that should be passed to Biome.
+ * @example
+ * ```ts
+ * import { biomeFixChangedFilesForTesting } from "@beep/repo-cli/test/Quality"
+ *
+ * console.log(biomeFixChangedFilesForTesting(["AGENTS.md", "src/index.ts"]))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const biomeFixChangedFilesForTesting = biomeFixChangedFiles;
 
 /**
  * Build the root lint fix changed-file step. Exposed for focused unit tests.
