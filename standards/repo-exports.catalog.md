@@ -16,13 +16,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Metric | Count |
 |---|---:|
-| packages | 92 |
+| packages | 93 |
 | packagesWithPublicExports | 82 |
-| packagesWithoutPublicExports | 6 |
+| packagesWithoutPublicExports | 7 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1079 |
-| publicExportEntries | 15197 |
-| uniquePackageSymbols | 6565 |
+| publicExportEntries | 15206 |
+| uniquePackageSymbols | 6572 |
 
 ## Seed Discovery Proof
 
@@ -73,62 +73,63 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 34 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | has-public-exports | 4 | 60 | 20 |
 | 35 | `@beep/types` | `packages/foundation/primitive/types` | has-public-exports | 6 | 14 | 10 |
 | 36 | `@beep/oip-web` | `apps/oip-web` | no-public-exports | 0 | 0 | 0 |
-| 37 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
-| 38 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
-| 39 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
-| 40 | `@beep/canvas` | `apps/canvas` | no-public-exports | 0 | 0 | 0 |
-| 41 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
-| 42 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 271 | 219 |
-| 43 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 782 | 581 |
-| 44 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 720 | 219 |
-| 45 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
-| 46 | `@beep/tika` | `packages/drivers/tika` | has-public-exports | 4 | 23 | 7 |
-| 47 | `@beep/libpff` | `packages/drivers/libpff` | has-public-exports | 4 | 26 | 8 |
-| 48 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 1 | 30 | 24 |
-| 49 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 12 | 97 | 63 |
-| 50 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 348 | 116 |
-| 51 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
-| 52 | `@beep/box` | `packages/drivers/box` | has-public-exports | 5 | 9 | 8 |
-| 53 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
-| 54 | `@beep/stack-installer` | `apps/stack-installer` | no-public-exports | 0 | 0 | 0 |
-| 55 | `@beep/professional-desktop` | `apps/professional-desktop` | no-public-exports | 0 | 0 | 0 |
-| 56 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
-| 57 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
-| 58 | `@beep/firecrawl` | `packages/drivers/firecrawl` | has-public-exports | 6 | 776 | 198 |
-| 59 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 3 | 3 |
-| 60 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
-| 61 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 82 | 892 | 458 |
-| 62 | `@beep/infra` | `infra` | has-public-exports | 1 | 19 | 19 |
-| 63 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
-| 64 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
-| 65 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 67 | 1751 | 512 |
-| 66 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
-| 67 | `@beep/rdf` | `packages/foundation/modeling/rdf` | has-public-exports | 14 | 301 | 110 |
-| 68 | `@beep/codedank-web` | `apps/codedank-web` | no-public-exports | 0 | 0 | 0 |
-| 69 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
-| 70 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
-| 71 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 10 | 98 | 65 |
-| 72 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
-| 73 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
-| 74 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
-| 75 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
-| 76 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
-| 77 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 2 | 2 |
-| 78 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
-| 79 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
-| 80 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
-| 81 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
-| 82 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 119 | 544 | 460 |
-| 83 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 31 | 418 | 119 |
-| 84 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
-| 85 | `@beep/wink` | `packages/drivers/wink` | has-public-exports | 15 | 149 | 43 |
-| 86 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
-| 87 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
-| 88 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
-| 89 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
-| 90 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
-| 91 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
-| 92 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
+| 37 | `@beep/storybook` | `apps/storybook` | no-public-exports | 0 | 0 | 0 |
+| 38 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | has-public-exports | 4 | 13 | 4 |
+| 39 | `@beep/shared-tables` | `packages/shared/tables` | has-public-exports | 14 | 19 | 7 |
+| 40 | `@beep/md` | `packages/foundation/capability/md` | has-public-exports | 5 | 253 | 97 |
+| 41 | `@beep/canvas` | `apps/canvas` | no-public-exports | 0 | 0 | 0 |
+| 42 | `@beep/workspace-domain` | `packages/workspace/domain` | has-public-exports | 12 | 35 | 11 |
+| 43 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | has-public-exports | 30 | 271 | 219 |
+| 44 | `@beep/utils` | `packages/foundation/modeling/utils` | has-public-exports | 24 | 782 | 581 |
+| 45 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | has-public-exports | 18 | 720 | 219 |
+| 46 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | has-public-exports | 4 | 19 | 16 |
+| 47 | `@beep/tika` | `packages/drivers/tika` | has-public-exports | 4 | 23 | 7 |
+| 48 | `@beep/libpff` | `packages/drivers/libpff` | has-public-exports | 4 | 26 | 8 |
+| 49 | `@beep/venice-ai` | `packages/drivers/venice-ai` | has-public-exports | 1 | 30 | 24 |
+| 50 | `@beep/form` | `packages/foundation/ui-system/form` | has-public-exports | 12 | 97 | 63 |
+| 51 | `@beep/identity` | `packages/foundation/modeling/identity` | has-public-exports | 4 | 348 | 116 |
+| 52 | `@beep/drizzle` | `packages/drivers/drizzle` | has-public-exports | 1 | 8 | 7 |
+| 53 | `@beep/box` | `packages/drivers/box` | has-public-exports | 5 | 9 | 8 |
+| 54 | `@beep/openai-compat` | `packages/drivers/openai-compat` | has-public-exports | 1 | 47 | 42 |
+| 55 | `@beep/stack-installer` | `apps/stack-installer` | no-public-exports | 0 | 0 | 0 |
+| 56 | `@beep/professional-desktop` | `apps/professional-desktop` | no-public-exports | 0 | 0 | 0 |
+| 57 | `@beep/epistemic-domain` | `packages/epistemic/domain` | has-public-exports | 8 | 18 | 5 |
+| 58 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | has-public-exports | 7 | 77 | 44 |
+| 59 | `@beep/firecrawl` | `packages/drivers/firecrawl` | has-public-exports | 6 | 776 | 198 |
+| 60 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | has-public-exports | 1 | 3 | 3 |
+| 61 | `@beep/acp` | `packages/drivers/acp` | has-public-exports | 8 | 404 | 228 |
+| 62 | `@beep/nlp` | `packages/foundation/capability/nlp` | has-public-exports | 82 | 892 | 458 |
+| 63 | `@beep/infra` | `infra` | has-public-exports | 1 | 28 | 26 |
+| 64 | `@beep/installer-use-cases` | `packages/installer/use-cases` | has-public-exports | 3 | 51 | 29 |
+| 65 | `@beep/runpod` | `packages/drivers/runpod` | has-public-exports | 1 | 169 | 149 |
+| 66 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | has-public-exports | 67 | 1751 | 512 |
+| 67 | `@beep/schema` | `packages/foundation/modeling/schema` | has-public-exports | 118 | 1748 | 719 |
+| 68 | `@beep/rdf` | `packages/foundation/modeling/rdf` | has-public-exports | 14 | 301 | 110 |
+| 69 | `@beep/codedank-web` | `apps/codedank-web` | no-public-exports | 0 | 0 | 0 |
+| 70 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | has-public-exports | 5 | 27 | 8 |
+| 71 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | has-public-exports | 7 | 29 | 13 |
+| 72 | `@beep/data` | `packages/foundation/primitive/data` | has-public-exports | 10 | 98 | 65 |
+| 73 | `@beep/xai` | `packages/drivers/xai` | has-public-exports | 1 | 53 | 40 |
+| 74 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | has-public-exports | 6 | 36 | 8 |
+| 75 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | has-public-exports | 5 | 26 | 24 |
+| 76 | `@beep/duckdb` | `packages/drivers/duckdb` | has-public-exports | 1 | 12 | 10 |
+| 77 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | has-public-exports | 5 | 105 | 31 |
+| 78 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | has-public-exports | 1 | 2 | 2 |
+| 79 | `@beep/installer-server` | `packages/installer/server` | has-public-exports | 3 | 34 | 18 |
+| 80 | `@beep/observability` | `packages/foundation/capability/observability` | has-public-exports | 4 | 115 | 98 |
+| 81 | `@beep/konva` | `packages/drivers/konva` | has-public-exports | 2 | 2 | 1 |
+| 82 | `@beep/shared-client` | `packages/shared/client` | has-public-exports | 2 | 2 | 1 |
+| 83 | `@beep/ui` | `packages/foundation/ui-system/ui` | has-public-exports | 119 | 544 | 460 |
+| 84 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | has-public-exports | 31 | 418 | 119 |
+| 85 | `@beep/canvas-client` | `packages/canvas/client` | has-public-exports | 1 | 1 | 1 |
+| 86 | `@beep/wink` | `packages/drivers/wink` | has-public-exports | 15 | 149 | 43 |
+| 87 | `@beep/postgres` | `packages/drivers/postgres` | has-public-exports | 7 | 65 | 31 |
+| 88 | `@beep/installer-domain` | `packages/installer/domain` | has-public-exports | 7 | 47 | 30 |
+| 89 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | has-public-exports | 9 | 46 | 29 |
+| 90 | `@beep/canvas-ui` | `packages/canvas/ui` | has-public-exports | 1 | 1 | 1 |
+| 91 | `@beep/messages` | `packages/foundation/modeling/messages` | has-public-exports | 3 | 15 | 5 |
+| 92 | `@beep/sanity` | `packages/drivers/sanity` | has-public-exports | 5 | 38 | 11 |
+| 93 | `@beep/shared-ui` | `packages/shared/ui` | has-public-exports | 7 | 15 | 6 |
 
 ## Public Exports
 
@@ -9683,8 +9684,10 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `loadAIMetricsStackArgs` | const | `infra/src/AIMetrics.ts:427` | Load AI metrics args from Pulumi config. |
 | `@beep/infra` | `loadOipWebRuntimeSecrets` | const | `infra/src/OipWeb.ts:509` | Load OIP web runtime secrets from Pulumi secret config. |
 | `@beep/infra` | `loadOipWebStackArgs` | const | `infra/src/OipWeb.ts:455` | Load OIP web stack args from Pulumi config. |
+| `@beep/infra` | `loadStorybookStackArgs` | const | `infra/src/Storybook.ts:271` | Load Storybook stack args from Pulumi config. |
 | `@beep/infra` | `makeAIMetricsStackArgsFromConfigValues` | const | `infra/src/AIMetrics.ts:366` | Build AI metrics stack args from decoded Pulumi config values. |
 | `@beep/infra` | `makeOipWebStackArgsFromConfigValues` | const | `infra/src/OipWeb.ts:354` | Build OIP web stack args from decoded Pulumi config values. |
+| `@beep/infra` | `makeStorybookStackArgsFromConfigValues` | const | `infra/src/Storybook.ts:226` | Build Storybook stack args from decoded Pulumi config values. |
 | `@beep/infra` | `OipAssetsBucketConfig` | class | `infra/src/OipWeb.ts:204` | S3 asset bucket resources for OIP-controlled media. |
 | `@beep/infra` | `OipDnsConfig` | class | `infra/src/OipWeb.ts:228` | DNS configuration for Cloudflare-managed OIP records. |
 | `@beep/infra` | `OipPulumiStateBackendConfig` | class | `infra/src/OipWeb.ts:153` | Pulumi DIY state backend settings for OIP. |
@@ -9693,6 +9696,13 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | `@beep/infra` | `OipWebRuntimeSecrets` | type | `infra/src/OipWeb.ts:304` | Secret runtime values for OIP deploy targets. |
 | `@beep/infra` | `OipWebStack` | class | `infra/src/OipWeb.ts:681` | Import-safe Pulumi component for OIP production web infrastructure. |
 | `@beep/infra` | `OipWebStackArgs` | class | `infra/src/OipWeb.ts:322` | Pulumi-facing args for the OIP web stack. |
+| `@beep/infra` | `StorybookPulumiConfigValues` | const | `infra/src/Storybook.ts:120` | Optional Pulumi config values before Storybook deploy defaults are applied. |
+| `@beep/infra` | `StorybookPulumiConfigValues` | type | `infra/src/Storybook.ts:151` | Runtime type for {@link StorybookPulumiConfigValues}. |
+| `@beep/infra` | `StorybookStack` | class | `infra/src/Storybook.ts:303` | Import-safe Pulumi component for the public Storybook Vercel project. |
+| `@beep/infra` | `StorybookStackArgs` | class | `infra/src/Storybook.ts:200` | Pulumi-facing args for the Storybook Vercel stack. |
+| `@beep/infra` | `StorybookVercelAuthenticationDeploymentType` | const | `infra/src/Storybook.ts:60` | Vercel deployment authentication modes accepted by the Storybook project. |
+| `@beep/infra` | `StorybookVercelAuthenticationDeploymentType` | type | `infra/src/Storybook.ts:86` | Runtime type for {@link StorybookVercelAuthenticationDeploymentType}. |
+| `@beep/infra` | `StorybookVercelProjectConfig` | class | `infra/src/Storybook.ts:166` | Vercel project configuration for `@beep/storybook`. |
 
 ### @beep/installer-use-cases
 

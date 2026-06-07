@@ -13,12 +13,12 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "94f05fa635f172a348ef1628884bb7ec98c12ebf138d62c8ce43eeae7fbf6c90",
+    "digest": "54e2a77f35648a072f3036263ee3b8e9755d16953ec50679d6f6152684847901",
     "inputs": [
       {
-        "path": "package.json",
-        "sha256": "1fc23de069588aca6890bef9b30e27b01ac90bcb8d08804f08edba4b4d793203",
-        "bytes": 15962
+        "path": "apps/storybook/package.json",
+        "sha256": "945988de2c2c58acf157aee47fb9a278e00dfd0674e444a9094b3de838294c53",
+        "bytes": 2881
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -43,8 +43,8 @@
     ]
   },
   "package": {
-    "packageName": "@beep/root",
-    "packagePath": ".",
+    "packageName": "@beep/storybook",
+    "packagePath": "apps/storybook",
     "topoOrder": 0,
     "status": "no-public-exports",
     "importSpecifiers": [],

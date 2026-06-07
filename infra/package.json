@@ -35,6 +35,7 @@
   "dependencies": {
     "@beep/identity": "workspace:^",
     "@beep/repo-ai-metrics": "workspace:^",
+    "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@pulumi/aws": "catalog:",
     "@pulumi/cloudflare": "catalog:",
