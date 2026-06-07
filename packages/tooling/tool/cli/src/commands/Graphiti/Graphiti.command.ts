@@ -6,13 +6,15 @@
  */
 
 import { Effect, flow, pipe } from "effect";
-import { Argument, Command, Flag } from "effect/unstable/cli";
+import * as O from "effect/Option";
+import { Command, Flag } from "effect/unstable/cli";
 import { printLines } from "../../internal/cli/Printer.js";
 import {
   ensureGraphitiProxy,
   installGraphitiProxyService,
   recoverGraphitiStack,
-  runKgWithGraphitiProxy,
+  restoreGraphitiStack,
+  verifyGraphitiStack,
 } from "./internal/ProxyOps.js";
 import { runGraphitiProxy } from "./internal/ProxyRuntime.js";
 import type { GraphitiProxyOpsError } from "./internal/ProxyOps.js";
@@ -37,17 +39,6 @@ const runProxyOpsProgram = <A, R>(program: Effect.Effect<A, GraphitiProxyOpsErro
 const graphitiProxyEnsureCommand = pipe(
   Command.make("ensure", {}, () => runProxyOpsProgram(ensureGraphitiProxy())),
   Command.withDescription("Ensure the Graphiti MCP queue proxy is healthy")
-);
-
-const graphitiProxyKgCommand = pipe(
-  Command.make(
-    "kg",
-    {
-      args: pipe(Argument.string("args"), Argument.variadic({ min: 1 })),
-    },
-    ({ args }) => pipe(args, runKgWithGraphitiProxy, runProxyOpsProgram)
-  ),
-  Command.withDescription("Run a knowledge-graph command through the Graphiti proxy")
 );
 
 const graphitiProxyServiceInstallCommand = pipe(
@@ -81,6 +72,50 @@ const graphitiRecoverCommand = pipe(
   Command.withDescription("Recover the local Graphiti backing stack")
 );
 
+const stackDirFlag = pipe(
+  Flag.string("stack-dir"),
+  Flag.withDescription("Graphiti Compose stack directory (default: /home/elpresidank/graphiti-mcp)"),
+  Flag.optional
+);
+
+const graphitiRestoreCommand = pipe(
+  Command.make(
+    "restore",
+    {
+      backup: pipe(Flag.boolean("backup"), Flag.withDescription("Copy persisted data before restoring containers")),
+      dryRun: pipe(Flag.boolean("dry-run"), Flag.withDescription("Print planned restore actions without side effects")),
+      force: pipe(Flag.boolean("force"), Flag.withDescription("Force recreate backing containers during restore")),
+      stackDir: stackDirFlag,
+    },
+    ({ backup, dryRun, force, stackDir }) =>
+      runProxyOpsProgram(
+        restoreGraphitiStack({
+          backup,
+          dryRun,
+          force,
+          stackDir: O.getOrUndefined(stackDir),
+        })
+      )
+  ),
+  Command.withDescription("Restore and verify the local Graphiti memory runtime")
+);
+
+const graphitiVerifyCommand = pipe(
+  Command.make(
+    "verify",
+    {
+      stackDir: stackDirFlag,
+    },
+    ({ stackDir }) =>
+      runProxyOpsProgram(
+        verifyGraphitiStack({
+          stackDir: O.getOrUndefined(stackDir),
+        })
+      )
+  ),
+  Command.withDescription("Verify the local Graphiti stack, persisted graph, and MCP proxy")
+);
+
 /**
  * Graphiti command group.
  *
@@ -97,17 +132,18 @@ export const graphitiCommand = pipe(
       "Graphiti commands:",
       "- bun run beep graphiti proxy",
       "- bun run beep graphiti proxy ensure",
-      "- bun run beep graphiti proxy kg -- verify --target both",
       "- bun run beep graphiti proxy service install",
+      "- bun run beep graphiti restore --dry-run",
+      "- bun run beep graphiti restore",
+      "- bun run beep graphiti verify",
       "- bun run beep graphiti recover --dry-run",
     ])
   ),
   Command.withDescription("Graphiti operational commands"),
   Command.withSubcommands([
-    pipe(
-      graphitiProxyCommand,
-      Command.withSubcommands([graphitiProxyEnsureCommand, graphitiProxyKgCommand, graphitiProxyServiceCommand])
-    ),
+    pipe(graphitiProxyCommand, Command.withSubcommands([graphitiProxyEnsureCommand, graphitiProxyServiceCommand])),
     graphitiRecoverCommand,
+    graphitiRestoreCommand,
+    graphitiVerifyCommand,
   ])
 );

@@ -2,36 +2,34 @@
 
 ## Status
 
-V1 complete; P6+ follow-ups deferred
+V1 complete; V2 active; V3 planned.
 
 ## Overview
 
-This initiative owns the schema layer for repo-facing AI coding agent
-configuration. It produces an Effect Schema package for Claude Code, Codex,
-Grok Build, JetBrains AI Assistant, and Junie, with native schemas,
-cross-agent transforms where the semantics are real, and drift detection
-against pinned upstream sources.
+This initiative owns the schema and sync layer for repo-facing AI coding agent
+configuration. V1 shipped the schema truth layer in `@beep/ai-sync`: native
+schemas, source metadata, drift checks, and proven transforms for Claude Code,
+Codex, Grok Build, JetBrains AI Assistant, and Junie.
 
-Production-complete V1 means `@beep/ai-sync` exists as a
-tooling library, covers the six configured domains for the five target agents
-with explicit N/A and unknown-schema cells, validates against pinned upstream
-sources in CI, and dogfoods the result by validating this repo's own agent
-configuration during `bun run check`.
+V2 turns that library into an operator-ready toolchain. It adds a root
+`beep ai-sync` command group, broadens repo dogfooding to every registered
+agent config file, emits schema-first reports, and creates a scheduled drift
+refresh PR workflow.
 
-The library is not a file fanout or distribution tool. `ruler`, `rulesync`, and
-similar tools may consume the schemas later, but V1 only ships canonical
-schemas, metadata, drift checks, and validated transforms.
-
-The `@beep/ai-sync` name reserves room for later sync workflows. In V1, sync
-means schema agreement and validated semantic transforms, not writing native
-agent files.
+V3 turns schema agreement into controlled sync. It introduces canonical
+per-domain config models, a committed `.ai-sync/project.jsonc` source file,
+dry-run emission plans, explicit apply workflows, and native file generation
+for the current agent matrix before any additional-agent expansion.
 
 ## Read This First
 
+- [GOAL.md](./GOAL.md) - compact `/goal` launcher
 - [SPEC.md](./SPEC.md) - authoritative contract
 - [PLAN.md](./PLAN.md) - phased execution plan and progress
-- [ops/manifest.json](./ops/manifest.json) - machine-readable phase and gate
-  tracking
+- [ops/manifest.json](./ops/manifest.json) - machine-readable routing, phases,
+  checks, and launcher metadata
+- [history/outputs/v2-v3-bootstrap.md](./history/outputs/v2-v3-bootstrap.md)
+  - decisions that reopened this V1-complete packet for V2/V3 execution
 - [history/outputs/p0-current-state.md](./history/outputs/p0-current-state.md)
   - current repo state, upstream source tiers, and open gaps
 - [research/sources-of-truth.md](./research/sources-of-truth.md) - per-agent
@@ -40,15 +38,13 @@ agent files.
   - codegen and drift-check architecture
 - [research/claude-web-source-map.md](./research/claude-web-source-map.md) -
   preserved prior research artifact
-- [ops/handoffs/HANDOFF_P0-P5.md](./ops/handoffs/HANDOFF_P0-P5.md) - execution
-  handoff for the implementation session
 
 ## Current Progress
 
-P0 through P5 are complete for V1. The implementation lives in
+V1 is complete and retained as evidence. The implementation lives in
 `packages/tooling/library/ai-sync` as the private package `@beep/ai-sync`.
 
-The package now owns:
+The V1 package owns:
 
 - Tier-1 source pins and committed generated metadata hashes
 - native V1 schema coverage metadata for Claude Code, Codex, Grok Build,
@@ -60,25 +56,68 @@ The package now owns:
 - mandatory dogfooding validation of this repo's `.codex/config.toml` during
   package and root checks
 
-P6+ remains intentionally out of scope for V1. Future work can add a dedicated
-operator CLI, `ruler`/`rulesync` interoperability, reverse-roundtrip emission,
-or additional agents without reopening the V1 schema-library gate.
+V2 is the active target. It does not replace the library or create a separate
+tool package. Operator behavior belongs in the existing root repo CLI as
+`bun run beep ai-sync ...`, backed by `@beep/ai-sync`.
+
+Known live drift as of the V2/V3 bootstrap:
+
+- `claude-code-settings`
+- `rulesync-config`
+- `rulesync-mcp`
+
+## Version Ladder
+
+### V1: Schema Truth Layer
+
+Done. V1 validates native agent config shapes, records source metadata, detects
+drift, and proves only evidence-backed transforms.
+
+### V2: Safe Operation And Automation
+
+Active. V2 is complete when:
+
+- `beep ai-sync audit`, `check`, `drift`, and `refresh-pr` exist in
+  `@beep/repo-cli`
+- normal checks validate `.codex/config.toml`, `.mcp.json`,
+  `.claude/settings.json`, `AGENTS.md`, and `CLAUDE.md`
+- command output supports schema-first JSON reports and human summaries
+- rulesync schema-backed config/MCP surfaces have import/audit evidence
+- ruler remains research/mapping evidence rather than a parser promise
+- a weekly plus manual-dispatch workflow refreshes upstream drift and
+  opens/updates an automation PR only when a diff exists
+
+### V3: Canonical Sync And Native Emission
+
+Planned. V3 is complete when:
+
+- `.ai-sync/project.jsonc` is the committed canonical source file
+- canonical per-domain models exist for rules, skills, commands, hooks,
+  plugins, MCP servers, and config/profile data
+- native file emission defaults to dry-run plans with diffs and loss reports
+- explicit apply writes only selected paths after validation
+- current-matrix emitters cover Claude Code, Codex, Grok Build,
+  JetBrains AI Assistant, and Junie without inventing unknown native shapes
+- V3b refreshes public sources and adds a bounded additional-agent batch only
+  after the core emitters are production-ready
 
 ## Completion Standard
 
-This initiative is done only when all are true:
+This initiative is not fully complete until V1, V2, and V3 are all closed.
+
+V1 remains closed when:
 
 - `@beep/ai-sync` exists under
   `packages/tooling/library/ai-sync`
-- native schemas exist for Skills, Rules, Commands, Hooks, Plugins, and MCP
-  servers across Claude Code, Codex, Grok Build, JetBrains AI Assistant, and
-  Junie
 - every unsupported or unknown cell is explicitly represented as N/A or
   `unknown_schema` with rationale
 - Tier-1 sources are pinned, generated, and drift-checked
-- Tier-2, Tier-3, and Tier-4 sources have documented drift mechanisms
 - supported cross-agent transforms have tests and lossy/lossless metadata
 - this repo validates at least one real on-disk agent config through the
   package during `bun run check`
-- V1 evidence records a deliberate invalid config failing with a typed Effect
-  Schema error that points at the offending field
+
+V2 closes when safe operation, reporting, broad dogfooding, drift automation,
+and rulesync audit/import evidence are implemented and verified.
+
+V3 closes when canonical source, plan/apply emission, native validation, and
+research-gated additional-agent expansion are implemented and verified.
