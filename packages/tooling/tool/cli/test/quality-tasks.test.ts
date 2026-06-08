@@ -3,6 +3,9 @@ import {
   collectEffectTsgoDiagnosticLines,
   fullRepoExportsCatalogEscalationCommandForTesting,
   GithubCheckMode,
+  githubCheckPrePushExternalLanesForTesting,
+  githubCheckQualityLanesForTesting,
+  githubCheckRepoSanityLanesForTesting,
   lintFixChangedStepForTesting,
   parseQualityTaskInvocation,
   QualityTaskFailed,
@@ -11,6 +14,7 @@ import {
   rootQualityStepsForTesting,
   runQualityTask,
   runQualityTaskStepGroupForTesting,
+  runQualityTaskStreamingStepGroupForTesting,
   runSqlIntegrationTestLaneForTesting,
   sqlIntegrationConnectionUriFromEnvForTesting,
   sqlIntegrationStepForTesting,
@@ -86,6 +90,32 @@ const withEnvVar = <A>(name: string, value: string | undefined, use: () => A): A
     }
   }
 };
+
+const withEnvVarEffect = <Out, E, R>(
+  name: string,
+  value: string | undefined,
+  use: Effect.Effect<Out, E, R>
+): Effect.Effect<Out, E, R> =>
+  Effect.acquireUseRelease(
+    Effect.sync(() => {
+      const previousValue = Bun.env[name];
+      if (value === undefined) {
+        delete Bun.env[name];
+      } else {
+        Bun.env[name] = value;
+      }
+      return previousValue;
+    }),
+    () => use,
+    (previousValue) =>
+      Effect.sync(() => {
+        if (previousValue === undefined) {
+          delete Bun.env[name];
+        } else {
+          Bun.env[name] = previousValue;
+        }
+      })
+  );
 
 const isTurboCacheControlArg = (arg: string): boolean =>
   arg === "--no-cache" ||
@@ -233,6 +263,58 @@ describe("quality task adapter", () => {
     expect(GithubCheckMode.is["review-fix"]("review-fix")).toBe(true);
   });
 
+  it("maps repo-quality github checks as independent collector lanes", () => {
+    const lanes = githubCheckQualityLanesForTesting("/repo");
+
+    expect(A.map(lanes, (lane) => lane.id)).toEqual([
+      "quality:build",
+      "quality:check",
+      "quality:lint",
+      "quality:docgen",
+      "quality:repo-exports-catalog-check",
+      "quality:test",
+    ]);
+    expect(A.every(lanes, (lane) => lane.stage === "repo-quality")).toBe(true);
+    expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
+    expect(lanes[1]?.step.args).toEqual(["run", "check"]);
+    expect(lanes[2]?.step.args).toEqual(["run", "lint"]);
+    expect(lanes[5]?.step.args).toEqual(["run", "test"]);
+  });
+
+  it("maps repo-sanity github checks as collector lanes", () => {
+    const lanes = githubCheckRepoSanityLanesForTesting("/repo");
+
+    expect(A.map(lanes, (lane) => lane.id)).toEqual([
+      "repo-sanity:changeset-graph",
+      "repo-sanity:tsconfig-sync",
+      "repo-sanity:versions",
+      "repo-sanity:syncpack",
+      "repo-sanity:sherif",
+      "repo-sanity:bun-audit",
+    ]);
+    expect(A.every(lanes, (lane) => lane.stage === "repo-sanity")).toBe(true);
+    expect(lanes[0]?.step.args).toEqual(["run", "beep", "quality", "changeset-graph"]);
+    expect(lanes[5]?.step.args).toEqual(["run", "beep", "quality", "bun-audit"]);
+  });
+
+  it("maps pre-push external gates after repo diagnostics", () => {
+    const lanes = githubCheckPrePushExternalLanesForTesting("/repo");
+
+    expect(A.map(lanes, (lane) => lane.id)).toEqual([
+      "pre-push:secrets",
+      "pre-push:security",
+      "pre-push:sast",
+      "pre-push:nix",
+    ]);
+    expect(A.map(lanes, (lane) => lane.stage)).toEqual([
+      "diff-security",
+      "diff-security",
+      "diff-security",
+      "environment",
+    ]);
+    expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
+  });
+
   it("plans affected repo export checks conservatively", () => {
     expect(
       affectedRepoExportsCatalogPlanForTesting(
@@ -352,6 +434,34 @@ describe("quality task adapter", () => {
     const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--fix", "--full", "--concurrency=1"]));
 
     expect(steps[0]?.args).toEqual(expectedTurboArgs("lint:fix", ["--concurrency=1"]));
+  });
+
+  it("plans repo-wide root lint as aggregate and policy sibling steps", () => {
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint"]));
+
+    expect(A.map(steps, (step) => step.label)).toEqual([
+      "lint",
+      "lint:effect-imports",
+      "lint:terse-effect",
+      "lint:effect-fn",
+      "lint:native-runtime",
+      "lint:dual-arity",
+      "lint:allowlist",
+      "lint:tsgo-rules",
+      "lint:package-test-imports",
+      "lint:schema-first",
+      "lint:deprecated-apis",
+      "lint:jsdoc",
+      "lint:jsdoc-module-tags",
+      "lint:docgen",
+      "lint:spell",
+      "lint:markdown",
+      "lint:circular",
+      "lint:tooling-tagged-errors",
+      "lint:clones",
+      "lint:typos",
+    ]);
+    expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", []));
   });
 
   it("applies Biome lint fixes in the changed-file lint fix fast path", () => {
@@ -599,6 +709,94 @@ describe("quality task adapter", () => {
             "[beep-cli] test:first output:\nfirst failed",
             "[beep-cli] test:second output:\nsecond failed"
           );
+        })
+      )
+    ));
+
+  it("streams grouped quality step failures and keeps running sibling steps", () =>
+    Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const markerPath = path.join(process.cwd(), "second-ran.txt");
+          const exit = yield* Effect.exit(
+            runQualityTaskStreamingStepGroupForTesting("test:stream", [
+              bunScriptStep("test:first", "process.exit(7)"),
+              bunScriptStep("test:second", "await Bun.write('second-ran.txt', 'yes')"),
+            ])
+          );
+
+          expect(yield* fs.exists(markerPath)).toBe(true);
+          expect(Exit.isFailure(exit)).toBe(true);
+          if (Exit.isFailure(exit)) {
+            const failure = Cause.squash(exit.cause);
+            expect(failure).toBeInstanceOf(QualityTaskGroupFailed);
+            if (isQualityTaskGroupFailed(failure)) {
+              expect(failure.exitCode).toBe(7);
+              expect(A.map(failure.failures, (step) => step.label)).toEqual(["test:first"]);
+            }
+          }
+
+          const logText = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
+          expect(logText).toContain("[beep-cli] test:stream: running 2 streaming step(s)");
+          expectSubstringBefore(logText, "[beep-cli] test:first:", "[beep-cli] test:second:");
+        })
+      )
+    ));
+
+  it("keeps running repo-wide root lint policy checks after aggregate lint fails", () =>
+    Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          const binDir = path.join(tmpDir, "bin");
+          const commandLogPath = path.join(tmpDir, "quality-commands.log");
+          const fakeBunxPath = path.join(binDir, "bunx");
+          const fakeBunPath = path.join(binDir, "bun");
+
+          yield* fs.makeDirectory(binDir, { recursive: true });
+          yield* fs.writeFileString(
+            fakeBunxPath,
+            [
+              "#!/usr/bin/env sh",
+              "printf 'bunx %s\\n' \"$*\" >> quality-commands.log",
+              'if [ "$1" = "turbo" ] && [ "$2" = "run" ] && [ "$3" = "lint" ]; then',
+              "  exit 7",
+              "fi",
+              "exit 0",
+              "",
+            ].join("\n")
+          );
+          yield* fs.writeFileString(
+            fakeBunPath,
+            ["#!/usr/bin/env sh", "printf 'bun %s\\n' \"$*\" >> quality-commands.log", "exit 0", ""].join("\n")
+          );
+          yield* fs.chmod(fakeBunxPath, 0o755);
+          yield* fs.chmod(fakeBunPath, 0o755);
+
+          const exit = yield* withEnvVarEffect(
+            "PATH",
+            `${binDir}:${Bun.env.PATH ?? ""}`,
+            Effect.exit(runQualityTask(getInvocation(["lint"])))
+          );
+
+          expect(Exit.isFailure(exit)).toBe(true);
+          if (Exit.isFailure(exit)) {
+            const failure = Cause.squash(exit.cause);
+            expect(failure).toBeInstanceOf(QualityTaskGroupFailed);
+            if (isQualityTaskGroupFailed(failure)) {
+              expect(failure.exitCode).toBe(7);
+              expect(A.map(failure.failures, (step) => step.label)).toEqual(["lint"]);
+            }
+          }
+
+          const commandLog = yield* fs.readFileString(commandLogPath);
+          expectSubstringBefore(commandLog, "bunx turbo run lint", "bun run beep laws effect-imports --check");
+          expect(commandLog).toContain("bun run beep docgen check");
+          expect(commandLog).toContain("bunx typos");
         })
       )
     ));

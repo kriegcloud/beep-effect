@@ -178,6 +178,10 @@ const yeetCloseoutCommand = Command.make("closeout", closeoutFlags, (options) =>
   Command.withDescription("Inspect PR review threads and bot gates for merge closeout")
 );
 
+const yeetPrePushHookCommand = Command.make("pre-push-hook", sharedFlags, (options) =>
+  runYeetMode("pre-push-hook", options)
+).pipe(Command.withDescription("Reuse exact Yeet full-proof state for git pre-push hooks when safe"));
+
 /**
  * Command that repairs, verifies, or publishes repository work through Yeet.
  *
@@ -198,5 +202,6 @@ export const yeetCommand = Command.make("yeet", publishFlags, (options) => runYe
     yeetPublishCommand,
     yeetMonitorCommand,
     yeetCloseoutCommand,
+    yeetPrePushHookCommand,
   ])
 );

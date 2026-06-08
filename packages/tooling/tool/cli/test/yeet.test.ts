@@ -9,6 +9,8 @@ import {
   inferGreptileIssueCountForTesting,
   jsonObjectTextFromMixedOutputForTesting,
   latestGreptileSummaryForTesting,
+  prePushLocalShasFromStdinForTesting,
+  prePushShaMismatchesForTesting,
   publishPathsOutsideIntentForTesting,
   publishRestagePathsForTesting,
   publishUpstreamMismatchWarningForTesting,
@@ -152,6 +154,7 @@ describe("yeet planner", () => {
     expect(proof.args).toEqual(["run", "beep", "quality", "github-checks", "pre-push"]);
     expect(proof.mutability).toBe("readonly");
     expect(push.args).toEqual(["push", "-u", "origin", "HEAD"]);
+    expect(push.env).toMatchObject({ BEEP_YEET_REUSE_PRE_PUSH_PROOF: "1" });
     expect(
       pipe(
         plan.steps,
@@ -215,6 +218,12 @@ describe("yeet planner", () => {
       "--json",
       "number,headRefName,state,url,headRefOid,isDraft",
     ]);
+  });
+
+  it("builds pre-push-hook as a lightweight proof-state check", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "pre-push-hook" });
+
+    expect(plan.steps).toEqual([]);
   });
 
   it("uses a Greptile retrigger body that requests review explicitly", () => {
@@ -543,6 +552,20 @@ describe("yeet planner", () => {
 
     expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
     expect(commandTextForStep(commit)).toBe("git commit -m 'feat(repo-cli): add yeet'");
+  });
+
+  it("parses pre-push stdin SHAs for proof reuse", () => {
+    const currentSha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const otherSha = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    const deleteSha = "0000000000000000000000000000000000000000";
+    const shas = prePushLocalShasFromStdinForTesting(
+      `refs/heads/feature ${currentSha} refs/heads/feature 1111111111111111111111111111111111111111\n` +
+        `refs/heads/old ${deleteSha} refs/heads/old 2222222222222222222222222222222222222222\n` +
+        `refs/heads/other ${otherSha} refs/heads/other 3333333333333333333333333333333333333333\n`
+    );
+
+    expect(shas).toEqual([currentSha, otherSha]);
+    expect(prePushShaMismatchesForTesting(shas, currentSha)).toEqual([otherSha]);
   });
 
   it("warns when publish push target differs from upstream tracking", () => {

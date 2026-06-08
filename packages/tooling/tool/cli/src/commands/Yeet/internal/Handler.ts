@@ -17,7 +17,7 @@ import * as Str from "effect/String";
 import { printCommandJson } from "../../../internal/cli/Json.js";
 import {
   commandTextForStep,
-  executeRepoPlanStep,
+  executeRepoPlanStepStreaming,
   RepoRunContext,
   resolveLocalRepoBinary,
   runRepoCommandCapture,
@@ -145,6 +145,7 @@ const shouldCollectAffectedFeedbackTasks = (mode: YeetRunMode): boolean =>
     repair: () => true,
     verify: () => false,
     monitor: () => false,
+    "pre-push-hook": () => false,
   });
 
 class GhPullRequestView extends S.Class<GhPullRequestView>($I`GhPullRequestView`)(
@@ -269,11 +270,30 @@ const safeArtifactName = (value: string): string =>
     Str.isNonEmpty(name) ? name : "repo"
   );
 
+const zeroGitSha = "0000000000000000000000000000000000000000" as const;
+
 const sortedUniquePaths = (paths: ReadonlyArray<string>): ReadonlyArray<string> =>
   pipe(paths, A.filter(Str.isNonEmpty), A.dedupe, A.sort(Order.String));
 
 const gitPathListFromNulOutput = (output: string): ReadonlyArray<string> =>
   pipe(output, Str.split("\0"), sortedUniquePaths);
+
+const prePushLocalShasFromStdin = (input: string): ReadonlyArray<string> =>
+  pipe(
+    Str.split(/\r?\n/u)(input),
+    A.map(Str.trim),
+    A.filter(Str.isNonEmpty),
+    A.map((line) => Str.split(/\s+/u)(line)[1] ?? ""),
+    A.filter((sha) => Str.isNonEmpty(sha) && sha !== zeroGitSha),
+    sortedUniquePaths
+  );
+
+const prePushShaMismatches = (localShas: ReadonlyArray<string>, expectedCommitSha: string): ReadonlyArray<string> =>
+  pipe(
+    localShas,
+    A.filter((sha) => sha !== expectedCommitSha),
+    sortedUniquePaths
+  );
 
 const publishPathsOutsideIntent = (
   intendedPaths: ReadonlyArray<string>,
@@ -326,6 +346,22 @@ const publishScopeError = (message: string, paths: ReadonlyArray<string>): YeetC
  * @since 0.0.0
  */
 export const gitPathListFromNulOutputForTesting = gitPathListFromNulOutput;
+
+/**
+ * Parse Git pre-push stdin and return non-delete local commit SHAs.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const prePushLocalShasFromStdinForTesting = prePushLocalShasFromStdin;
+
+/**
+ * Return pushed SHAs that do not match the reusable Yeet proof commit.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const prePushShaMismatchesForTesting = prePushShaMismatches;
 
 /**
  * Return observed paths that are not part of the reviewed Yeet publish intent.
@@ -975,6 +1011,19 @@ export const hydrateYeetRunContext = Effect.fn("Yeet.hydrateYeetRunContext")(fun
 > {
   const repoRoot = yield* findRepoRoot().pipe(Effect.mapError(YeetCommandError.new("Failed to locate repo root.")));
   const branch = yield* runGitOutput(repoRoot, ["rev-parse", "--abbrev-ref", "HEAD"]);
+  if (options.mode === "pre-push-hook") {
+    return RepoRunContext.make({
+      repoRoot,
+      cwd: process.cwd(),
+      base: options.base,
+      head: options.head,
+      branch,
+      packetDir: options.packetDir,
+      originalArgv: [],
+      turbo: emptyTurboPlanSnapshot([]),
+    });
+  }
+
   yield* refreshBaseRef(repoRoot, options.base);
   const turbo = yield* collectTurboPlanSnapshot(repoRoot, options);
 
@@ -1127,7 +1176,7 @@ const executeStepWithArtifacts = Effect.fn("Yeet.executeStepWithArtifacts")(func
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   const rawOutputPath = yield* rawOutputPathForStep(context, step);
-  return yield* executeRepoPlanStep(step, O.some(rawOutputPath)).pipe(
+  return yield* executeRepoPlanStepStreaming(step, O.some(rawOutputPath)).pipe(
     Effect.mapError(YeetCommandError.new(`Failed to execute ${step.label}.`))
   );
 });
@@ -1416,6 +1465,52 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   return yield* publishResult(plan.context, !skipCommit);
 });
 
+const readPrePushHookStdin = Effect.fn("Yeet.readPrePushHookStdin")(function* (): Effect.fn.Return<
+  string,
+  YeetCommandError
+> {
+  if (process.stdin.isTTY) {
+    return "";
+  }
+
+  return yield* Effect.tryPromise({
+    try: () => Bun.stdin.text(),
+    catch: (cause) =>
+      YeetCommandError.make({
+        message: `Failed to read git pre-push stdin: ${cause instanceof Error ? cause.message : String(cause)}`,
+        exitCode: 1,
+      }),
+  });
+});
+
+const runPrePushHookMode = Effect.fn("Yeet.runPrePushHookMode")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<
+  YeetRunResult,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const currentSha = yield* currentCommitSha(context);
+  const stdinText = yield* readPrePushHookStdin();
+  const pushedLocalShas = prePushLocalShasFromStdin(stdinText);
+  const localShas = A.isReadonlyArrayEmpty(pushedLocalShas) ? [currentSha] : pushedLocalShas;
+  const mismatchedShas = prePushShaMismatches(localShas, currentSha);
+
+  if (!A.isReadonlyArrayEmpty(mismatchedShas)) {
+    return yield* YeetCommandError.make({
+      message: `yeet pre-push-hook cannot reuse proof for pushed SHA(s) outside current HEAD:\n${formatPublishPaths(
+        mismatchedShas
+      )}`,
+      command: "git push",
+      exitCode: 1,
+    });
+  }
+
+  yield* assertReusableVerifiedState(context);
+  yield* Console.log(`[yeet] pre-push hook reused full proof for ${Str.slice(0, 12)(currentSha)}`);
+  return yield* emptyPlanResult(context);
+});
+
 const runMonitorMode = Effect.fn("Yeet.runMonitorMode")(function* (
   context: RepoRunContext,
   monitorSteps: ReadonlyArray<RepoPlanStep>
@@ -1504,6 +1599,7 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
     publish: () => runPublishMode(plan, message, options, commitSteps, fullSteps, publishSteps, monitorSteps),
     monitor: () => runMonitorMode(plan.context, monitorSteps),
     closeout: () => runCloseoutMode(plan.context, options),
+    "pre-push-hook": () => runPrePushHookMode(plan.context),
   });
 });
 

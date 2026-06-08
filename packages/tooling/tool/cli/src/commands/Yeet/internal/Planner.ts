@@ -55,7 +55,7 @@ type YeetFeedbackTask = (typeof YEET_FEEDBACK_TASKS)[number];
  * @category models
  * @since 0.0.0
  */
-export const YeetRunMode = LiteralKit(["repair", "verify", "publish", "monitor", "closeout"]).pipe(
+export const YeetRunMode = LiteralKit(["repair", "verify", "publish", "monitor", "closeout", "pre-push-hook"]).pipe(
   $I.annoteSchema("YeetRunMode", {
     description: "Execution mode selected for a yeet repository run.",
   })
@@ -164,7 +164,8 @@ const gitStep = (
   id: string,
   label: string,
   phase: RepoPlanStep["phase"],
-  args: ReadonlyArray<string>
+  args: ReadonlyArray<string>,
+  env: O.Option<Record<string, string | undefined>> = O.none()
 ): RepoPlanStep =>
   RepoPlanStep.make({
     id,
@@ -176,6 +177,7 @@ const gitStep = (
     scope: "git",
     mutability: "publish",
     resume: "never",
+    ...(O.isSome(env) ? { env: env.value } : {}),
   });
 
 /**
@@ -298,7 +300,14 @@ const commitStep = (
   );
 
 const pushStep = (context: RepoRunContext): RepoPlanStep =>
-  gitStep(context, "publish:01-git-push", "publish:git:push", "publish", ["push", "-u", "origin", "HEAD"]);
+  gitStep(
+    context,
+    "publish:01-git-push",
+    "publish:git:push",
+    "publish",
+    ["push", "-u", "origin", "HEAD"],
+    O.some({ BEEP_YEET_REUSE_PRE_PUSH_PROOF: "1" })
+  );
 
 const monitorContextStep = (context: RepoRunContext): RepoPlanStep =>
   RepoPlanStep.make({
@@ -391,6 +400,7 @@ const stepsForMode = (
     publish: () => publishSteps(context, message, options),
     monitor: () => monitorSteps(context),
     closeout: () => closeoutSteps(context),
+    "pre-push-hook": () => [],
   });
 
 /**

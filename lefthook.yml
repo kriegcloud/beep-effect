@@ -37,6 +37,17 @@ pre-push:
           changed_file="$(mktemp)"
           trap "rm -f \"${changed_file}\"" EXIT
 
+          if [ "${BEEP_YEET_REUSE_PRE_PUSH_PROOF:-}" = "1" ]; then
+            reuse_log="$(mktemp)"
+            trap "rm -f \"${changed_file}\" \"${reuse_log}\"" EXIT
+            if printf "%s\n" "${pushed_ref_lines}" | bun run beep yeet pre-push-hook >"${reuse_log}" 2>&1; then
+              cat "${reuse_log}"
+              echo "repo export catalog: reused exact Yeet full pre-push proof"
+              exit 0
+            fi
+            echo "repo export catalog: Yeet proof reuse unavailable; running catalog check"
+          fi
+
           if [ -n "${pushed_ref_lines}" ]; then
             while read -r local_ref local_sha remote_ref remote_sha; do
               remote_ref="${remote_ref:-}"

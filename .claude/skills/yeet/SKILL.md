@@ -137,8 +137,22 @@ secrets, security, SAST, Nix, and any lane that must be proven outside Yeet.
   Yeet still requires exact reusable proof state and a clean worktree, and it
   pushes with `git push -u origin HEAD` so upstream branch naming cannot block
   agent-created feature branches.
+- Yeet publish marks its `git push` with an exact-proof reuse hint for the
+  pre-push hook. The hook reuses only matching full-proof state for the pushed
+  SHA and falls back to its normal repo-export catalog validation when state is
+  absent, stale, dirty, or ambiguous. Treat this as duplicate-proof reuse, not a
+  hook bypass.
 - If Yeet refuses untracked, unstaged, or newly generated paths, inspect the
   paths and decide whether they belong in the reviewed publish intent.
+- Full pre-push proof streams a conservative collector for independent GitHub
+  check lanes. A failed proof may report multiple sibling failures at once
+  (for example check, lint, repo-export, tests, SAST, or Nix). Fix all reported
+  actionable lanes before retrying instead of assuming the first item is the
+  only blocker.
+- Root composite lanes prefer streaming accumulation where child commands are
+  independent. For example, root `lint` streams the Turbo/Biome aggregate and
+  then still runs repo-law policy lints, so one lint-family failure does not
+  hide sibling lint findings.
 - If there is no open PR for `yeet monitor`, create the draft PR first or run
   `bun run audit:github pre-push` as the full local fallback.
 - If `yeet closeout` reports Greptile score/issues as unknown, inspect the PR

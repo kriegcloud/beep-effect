@@ -41,7 +41,6 @@ export {
 const $I = $RepoCliId.create("commands/Quality/Tasks");
 
 const QUALITY_TASK_NAMES = ["build", "check", "test", "lint", "audit"] as const;
-const LINT_POLICY_GROUP_CONCURRENCY = 3;
 const GROUPED_STEP_OUTPUT_MAX_CHARS = 256 * 1024;
 const CHANGED_PATH_DIFF_FILTER = ["A", "C", "M", "R", "T", "U", "X", "B"].join("");
 const LOCAL_BIOME_BIN = "./node_modules/.bin/biome";
@@ -773,11 +772,49 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
   }
 });
 
-const runSteps = (steps: ReadonlyArray<QualityTaskStep>) => Effect.forEach(steps, runStep, { discard: true });
-
 const emptyBoundedStepOutputState = (): BoundedStepOutputState => ({
   text: "",
   truncated: false,
+});
+
+const failQualityTaskFailures = Effect.fn("QualityTasks.failQualityTaskFailures")(function* (
+  label: string,
+  failures: ReadonlyArray<QualityTaskFailed>
+) {
+  const firstFailure = A.head(failures);
+  if (O.isSome(firstFailure)) {
+    return yield* QualityTaskGroupFailed.new(failures, label, firstFailure.value.exitCode);
+  }
+});
+
+const collectStreamingStepFailures = Effect.fn("QualityTasks.collectStreamingStepFailures")(function* (
+  label: string,
+  steps: ReadonlyArray<QualityTaskStep>
+) {
+  if (A.isReadonlyArrayEmpty(steps)) {
+    return A.empty<QualityTaskFailed>();
+  }
+
+  yield* Console.log(`[beep-cli] ${label}: running ${A.length(steps)} streaming step(s)`);
+  const failures = yield* Effect.forEach(
+    steps,
+    (step) =>
+      runStep(step).pipe(
+        Effect.as(O.none<QualityTaskFailed>()),
+        Effect.catchTag("QualityTaskFailed", (failure) => Effect.succeed(O.some(failure)))
+      ),
+    { concurrency: 1 }
+  );
+
+  return A.getSomes(failures);
+});
+
+const runStreamingStepGroup = Effect.fn("QualityTasks.runStreamingStepGroup")(function* (
+  label: string,
+  steps: ReadonlyArray<QualityTaskStep>
+) {
+  const failures = yield* collectStreamingStepFailures(label, steps);
+  yield* failQualityTaskFailures(label, failures);
 });
 
 const appendBoundedStepOutput = (state: BoundedStepOutputState, chunk: string): BoundedStepOutputState => {
@@ -1192,15 +1229,15 @@ const runRootLintTask = Effect.fn("QualityTasks.runRootLintTask")(function* (
   }
 
   const lintArgs = boundedRootTurboArgs(strippedLintArgs);
-  yield* runStep(
-    fix ? turboStep(repoRoot, "lint:fix", ["lint:fix"], lintArgs) : turboStep(repoRoot, "lint", ["lint"], lintArgs)
-  );
-
+  const lintStep = fix
+    ? turboStep(repoRoot, "lint:fix", ["lint:fix"], lintArgs)
+    : turboStep(repoRoot, "lint", ["lint"], lintArgs);
   if (fix || !shouldRunLintRepoWideSteps(lintArgs)) {
+    yield* runStep(lintStep);
     return;
   }
 
-  yield* runStepGroup("lint:policies", rootRepoLintPolicySteps(repoRoot), LINT_POLICY_GROUP_CONCURRENCY);
+  yield* runStreamingStepGroup("lint", [lintStep, ...rootRepoLintPolicySteps(repoRoot)]);
 });
 
 const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
@@ -1314,16 +1351,20 @@ const runRootTestTask = Effect.fn("QualityTasks.runRootTestTask")(function* (
       step: () => turboStep(repoRoot, "test:types", ["type-test"], boundedRootTurboArgs(typeArgs)),
     }),
   ];
+  const unitAndTypeFailures = yield* collectStreamingStepFailures("test", unitAndTypeSteps);
+  const integrationFailures = lanes.integration
+    ? yield* Effect.scoped(
+        Effect.gen(function* () {
+          const integrationArgs = yield* workspaceTaskArgs(repoRoot, "test:integration", lanes.args);
+          const resource = yield* acquireDefaultSqlIntegrationResource;
+          return yield* collectStreamingStepFailures("test:integration", [
+            sqlIntegrationStep(repoRoot, integrationArgs, resource),
+          ]);
+        })
+      )
+    : A.empty<QualityTaskFailed>();
 
-  yield* runSteps(unitAndTypeSteps);
-  if (lanes.integration) {
-    const integrationArgs = yield* workspaceTaskArgs(repoRoot, "test:integration", lanes.args);
-    yield* runSqlIntegrationTestLane({
-      acquireResource: acquireDefaultSqlIntegrationResource,
-      args: integrationArgs,
-      repoRoot,
-    });
-  }
+  yield* failQualityTaskFailures("test", A.appendAll(unitAndTypeFailures, integrationFailures));
 });
 
 const runRootTask = Effect.fn("QualityTasks.runRootTask")(function* (
@@ -1340,7 +1381,14 @@ const runRootTask = Effect.fn("QualityTasks.runRootTask")(function* (
     return;
   }
 
-  yield* runSteps(rootStepsFor(repoRoot, invocation));
+  const steps = rootStepsFor(repoRoot, invocation);
+  const step = A.head(steps);
+  if (A.length(steps) === 1 && O.isSome(step)) {
+    yield* runStep(step.value);
+    return;
+  }
+
+  yield* runStreamingStepGroup(invocation.task, steps);
 });
 
 type QualityTaskError =
@@ -1484,13 +1532,61 @@ export const collectStepOutput = (step: QualityTaskStep) =>
  * @param concurrency - Maximum number of steps to run at once.
  * @example
  * ```ts
+ * import { runQualityTaskStepGroup } from "@beep/repo-cli/commands/Quality"
+ * console.log(runQualityTaskStepGroup)
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const runQualityTaskStepGroup = runStepGroup;
+
+/**
+ * Run independent quality task subprocess steps sequentially while streaming
+ * output, then fail with all subprocess failures.
+ *
+ * @param label - Group label rendered in CLI output.
+ * @param steps - Subprocess steps to execute.
+ * @example
+ * ```ts
+ * import { runQualityTaskStreamingStepGroup } from "@beep/repo-cli/commands/Quality"
+ * console.log(runQualityTaskStreamingStepGroup)
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const runQualityTaskStreamingStepGroup = runStreamingStepGroup;
+
+/**
+ * Run a bounded quality task group. Exposed for focused unit tests.
+ *
+ * @param label - Group label rendered in CLI output.
+ * @param steps - Subprocess steps to execute.
+ * @param concurrency - Maximum number of steps to run at once.
+ * @example
+ * ```ts
  * import { runQualityTaskStepGroupForTesting } from "@beep/repo-cli/commands/Quality"
  * console.log(runQualityTaskStepGroupForTesting)
  * ```
- * @category utilities
+ * @category testing
  * @since 0.0.0
  */
-export const runQualityTaskStepGroupForTesting = runStepGroup;
+export const runQualityTaskStepGroupForTesting = runQualityTaskStepGroup;
+
+/**
+ * Run independent quality task subprocess steps sequentially while streaming
+ * output. Exposed for focused unit tests.
+ *
+ * @param label - Group label rendered in CLI output.
+ * @param steps - Subprocess steps to execute.
+ * @example
+ * ```ts
+ * import { runQualityTaskStreamingStepGroupForTesting } from "@beep/repo-cli/commands/Quality"
+ * console.log(runQualityTaskStreamingStepGroupForTesting)
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const runQualityTaskStreamingStepGroupForTesting = runQualityTaskStreamingStepGroup;
 
 /**
  * Collect existing changed files for the root lint fix fast path.
