@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ab9d7357f8b530f28f0368b611003e9c1a4f19dbef103581378a0a2871b7a23c",
+    "digest": "e89a6a0a127c2e11be5827345c23c20ced9822e7c962537fa709c7b1b3237afb",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -267,8 +267,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sha256": "3f2eb587a7e548c1dacaabec937d7e1ab78d5e2a2421ddd5cef274af32ab4f42",
-        "bytes": 50018
+        "sha256": "428c0f859e3e65728f7d36ab90028ed47ea4aa9953d588cd4d8c66b554d8bbdf",
+        "bytes": 51395
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
@@ -922,8 +922,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1754,
-      "uniqueSymbols": 640,
+      "publicExportEntries": 1756,
+      "uniqueSymbols": 641,
       "sourceFiles": 145
     },
     "exports": [
@@ -23225,7 +23225,7 @@
         "symbolName": "backupDirectoryNameFromEpochMillisForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 306,
+        "sourceLine": 316,
         "summary": "Build the backup directory name used by `graphiti restore --backup`.",
         "categories": [
           "testing"
@@ -23252,7 +23252,7 @@
         "symbolName": "ensureGraphitiProxy",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1055,
+        "sourceLine": 1065,
         "summary": "Ensure the local Graphiti proxy is healthy, starting it in the background when needed.",
         "categories": [
           "use-cases"
@@ -23303,7 +23303,7 @@
         "symbolName": "GraphitiRestoreConfig",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 82,
+        "sourceLine": 85,
         "summary": "Configuration for restoring and verifying the local Graphiti stack.",
         "categories": [
           "models"
@@ -23328,7 +23328,7 @@
         "symbolName": "installGraphitiProxyService",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1270,
+        "sourceLine": 1310,
         "summary": "Install and start the user-level systemd unit for the Graphiti proxy.",
         "categories": [
           "use-cases"
@@ -23337,6 +23337,7 @@
           "0.0.0"
         ],
         "tags": [
+          "@param",
           "@returns",
           "@example",
           "@category",
@@ -23354,7 +23355,7 @@
         "symbolName": "ProxyServiceConfig",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 119,
+        "sourceLine": 122,
         "summary": "Configuration for installing and managing the Graphiti proxy user service.",
         "categories": [
           "models"
@@ -23379,7 +23380,7 @@
         "symbolName": "recoverGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1192,
+        "sourceLine": 1202,
         "summary": "Recover the local Graphiti backing stack by restarting unhealthy containers.",
         "categories": [
           "use-cases"
@@ -23403,10 +23404,37 @@
         "importSpecifier": "@beep/repo-cli/commands/Graphiti/internal/ProxyOps",
         "exportSubpath": "./commands/Graphiti/internal/ProxyOps",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
+        "symbolName": "renderProxyServiceUnitForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
+        "sourceLine": 1295,
+        "summary": "Render the user-level systemd unit for the Graphiti proxy.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/graphiti/internal/proxyops ./commands/graphiti/internal/proxyops renderproxyserviceunitfortesting const render the user-level systemd unit for the graphiti proxy. testing packages/tooling/tool/cli/src/commands/graphiti/internal/proxyops.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Graphiti/internal/ProxyOps",
+        "exportSubpath": "./commands/Graphiti/internal/ProxyOps",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
         "symbolName": "resolveGraphitiStackDirForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 249,
+        "sourceLine": 259,
         "summary": "Resolve the Graphiti stack directory from CLI and environment inputs.",
         "categories": [
           "testing"
@@ -23433,7 +23461,7 @@
         "symbolName": "restoreGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1143,
+        "sourceLine": 1153,
         "summary": "Restore the local Graphiti backing stack and repair the agent-facing proxy.",
         "categories": [
           "use-cases"
@@ -23460,7 +23488,7 @@
         "symbolName": "shouldInstallProxyServiceForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 343,
+        "sourceLine": 353,
         "summary": "Decide whether the live proxy systemd unit should be reinstalled.",
         "categories": [
           "testing"
@@ -23487,7 +23515,7 @@
         "symbolName": "shouldRecoverGraphitiStackForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1221,
+        "sourceLine": 1231,
         "summary": "Decide whether Graphiti recovery should restart the backing containers.",
         "categories": [
           "testing"
@@ -23515,7 +23543,7 @@
         "symbolName": "verifyGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1116,
+        "sourceLine": 1126,
         "summary": "Verify the local Graphiti stack, persisted `beep_dev` graph, and proxy MCP endpoint.",
         "categories": [
           "use-cases"
@@ -38290,7 +38318,7 @@
         "symbolName": "backupDirectoryNameFromEpochMillisForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 306,
+        "sourceLine": 316,
         "summary": "Build the backup directory name used by `graphiti restore --backup`.",
         "categories": [
           "testing"
@@ -38392,7 +38420,7 @@
         "symbolName": "ensureGraphitiProxy",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1055,
+        "sourceLine": 1065,
         "summary": "Ensure the local Graphiti proxy is healthy, starting it in the background when needed.",
         "categories": [
           "use-cases"
@@ -38593,7 +38621,7 @@
         "symbolName": "GraphitiRestoreConfig",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 82,
+        "sourceLine": 85,
         "summary": "Configuration for restoring and verifying the local Graphiti stack.",
         "categories": [
           "models"
@@ -38618,7 +38646,7 @@
         "symbolName": "installGraphitiProxyService",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1270,
+        "sourceLine": 1310,
         "summary": "Install and start the user-level systemd unit for the Graphiti proxy.",
         "categories": [
           "use-cases"
@@ -38627,6 +38655,7 @@
           "0.0.0"
         ],
         "tags": [
+          "@param",
           "@returns",
           "@example",
           "@category",
@@ -38881,7 +38910,7 @@
         "symbolName": "ProxyServiceConfig",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 119,
+        "sourceLine": 122,
         "summary": "Configuration for installing and managing the Graphiti proxy user service.",
         "categories": [
           "models"
@@ -38906,7 +38935,7 @@
         "symbolName": "recoverGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1192,
+        "sourceLine": 1202,
         "summary": "Recover the local Graphiti backing stack by restarting unhealthy containers.",
         "categories": [
           "use-cases"
@@ -38930,10 +38959,37 @@
         "importSpecifier": "@beep/repo-cli/test/Graphiti",
         "exportSubpath": "./test/Graphiti",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Graphiti.test-kit.ts",
+        "symbolName": "renderProxyServiceUnitForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
+        "sourceLine": 1295,
+        "summary": "Render the user-level systemd unit for the Graphiti proxy.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/graphiti ./test/graphiti renderproxyserviceunitfortesting const render the user-level systemd unit for the graphiti proxy. testing packages/tooling/tool/cli/src/commands/graphiti/internal/proxyops.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Graphiti",
+        "exportSubpath": "./test/Graphiti",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Graphiti.test-kit.ts",
         "symbolName": "resolveGraphitiStackDirForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 249,
+        "sourceLine": 259,
         "summary": "Resolve the Graphiti stack directory from CLI and environment inputs.",
         "categories": [
           "testing"
@@ -38960,7 +39016,7 @@
         "symbolName": "restoreGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1143,
+        "sourceLine": 1153,
         "summary": "Restore the local Graphiti backing stack and repair the agent-facing proxy.",
         "categories": [
           "use-cases"
@@ -38987,7 +39043,7 @@
         "symbolName": "shouldInstallProxyServiceForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 343,
+        "sourceLine": 353,
         "summary": "Decide whether the live proxy systemd unit should be reinstalled.",
         "categories": [
           "testing"
@@ -39014,7 +39070,7 @@
         "symbolName": "shouldRecoverGraphitiStackForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1221,
+        "sourceLine": 1231,
         "summary": "Decide whether Graphiti recovery should restart the backing containers.",
         "categories": [
           "testing"
@@ -39042,7 +39098,7 @@
         "symbolName": "verifyGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1116,
+        "sourceLine": 1126,
         "summary": "Verify the local Graphiti stack, persisted `beep_dev` graph, and proxy MCP endpoint.",
         "categories": [
           "use-cases"

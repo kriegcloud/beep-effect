@@ -36,6 +36,9 @@ type GraphitiRestoreOptions = {
   readonly force?: boolean | undefined;
   readonly stackDir?: string | undefined;
 };
+type GraphitiProxyServiceInstallOptions = {
+  readonly upstreamMcpUrl?: string | undefined;
+};
 
 const DEFAULT_GRAPHITI_STACK_DIR_NAME = "graphiti-mcp";
 const DEFAULT_GRAPHITI_PROJECT_NAME = "graphiti-mcp";
@@ -122,6 +125,7 @@ export class ProxyServiceConfig extends S.Class<ProxyServiceConfig>($I`ProxyServ
     serviceName: S.String,
     stateDir: S.String,
     systemdUserDir: S.String,
+    upstreamMcpUrl: S.String,
   },
   $I.annote("ProxyServiceConfig", {
     description: "Configuration for managing the Graphiti proxy service.",
@@ -212,7 +216,7 @@ const proxyEnsureConfig = (path: Path.Path): ProxyEnsureConfig => {
   };
 };
 
-const proxyServiceConfig = (path: Path.Path): ProxyServiceConfig => {
+const proxyServiceConfig = (path: Path.Path, options: GraphitiProxyServiceInstallOptions = {}): ProxyServiceConfig => {
   const serviceName = envValue("GRAPHITI_PROXY_SERVICE_NAME", "beep-graphiti-proxy.service");
   const systemdUserDir = path.join(
     envValue("XDG_CONFIG_HOME", path.join(homeDirectory(), ".config")),
@@ -220,11 +224,17 @@ const proxyServiceConfig = (path: Path.Path): ProxyServiceConfig => {
     "user"
   );
   const stateDir = path.join(envValue("XDG_STATE_HOME", path.join(homeDirectory(), ".local", "state")), "beep");
+  const upstreamMcpUrl = pipe(
+    O.fromUndefinedOr(options.upstreamMcpUrl),
+    O.filter(Str.isNonEmpty),
+    O.getOrElse(() => envValue("GRAPHITI_PROXY_UPSTREAM", DEFAULT_GRAPHITI_UPSTREAM_MCP_URL))
+  );
   return {
     serviceFile: path.join(systemdUserDir, serviceName),
     serviceName,
     stateDir,
     systemdUserDir,
+    upstreamMcpUrl,
   };
 };
 
@@ -248,7 +258,7 @@ const containerName = (projectName: string, serviceName: string): string => `${p
  */
 export const resolveGraphitiStackDirForTesting: {
   (cliStackDir: O.Option<string>, envStackDir: O.Option<string>): string;
-  (envStackDir: O.Option<string>): (cliStackDir: O.Option<string>) => string;
+  (cliStackDir: O.Option<string>): (envStackDir: O.Option<string>) => string;
 } = dual(
   2,
   function resolveGraphitiStackDirForTestingImpl(cliStackDir: O.Option<string>, envStackDir: O.Option<string>): string {
@@ -850,7 +860,7 @@ const ensureProxyServiceForRestore = Effect.fn("GraphitiProxyOps.ensureProxyServ
 
   if (shouldInstall) {
     yield* Console.log("[graphiti-restore] Proxy service unit drift detected; reinstalling from this checkout.");
-    yield* installGraphitiProxyService();
+    yield* installGraphitiProxyService({ upstreamMcpUrl: config.upstreamMcpUrl });
     return;
   }
 
@@ -1243,7 +1253,7 @@ const renderServiceUnit = (repoRoot: string, bunBin: string, config: ProxyServic
       `Environment=PATH=/usr/local/bin:/usr/bin:/bin:${homeDirectory()}/.bun/bin`,
       "Environment=GRAPHITI_PROXY_HOST=127.0.0.1",
       "Environment=GRAPHITI_PROXY_PORT=8123",
-      "Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:8000/mcp",
+      `Environment=GRAPHITI_PROXY_UPSTREAM=${config.upstreamMcpUrl}`,
       "Environment=GRAPHITI_PROXY_SERVER_IDLE_TIMEOUT_SECONDS=75",
       `StandardOutput=append:${config.stateDir}/graphiti-proxy.log`,
       `StandardError=append:${config.stateDir}/graphiti-proxy.err.log`,
@@ -1256,83 +1266,113 @@ const renderServiceUnit = (repoRoot: string, bunBin: string, config: ProxyServic
   );
 
 /**
+ * Render the user-level systemd unit for the Graphiti proxy.
+ *
+ * @param repoRoot - Repository root used as the service working directory.
+ * @param bunBin - Resolved Bun executable path.
+ * @param config - Proxy service configuration.
+ * @returns Rendered systemd unit text.
+ * @example
+ * ```ts
+ * import { ProxyServiceConfig, renderProxyServiceUnitForTesting } from "@beep/repo-cli/test/Graphiti"
+ *
+ * const unit = renderProxyServiceUnitForTesting(
+ *   "/repo",
+ *   "/bin/bun",
+ *   ProxyServiceConfig.make({
+ *     serviceFile: "/tmp/beep-graphiti-proxy.service",
+ *     serviceName: "beep-graphiti-proxy.service",
+ *     stateDir: "/tmp/beep",
+ *     systemdUserDir: "/tmp/systemd/user",
+ *     upstreamMcpUrl: "http://127.0.0.1:9000/mcp"
+ *   })
+ * )
+ * console.log(unit)
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const renderProxyServiceUnitForTesting = renderServiceUnit;
+
+/**
  * Install and start the user-level systemd unit for the Graphiti proxy.
  *
+ * @param options - Optional service install overrides.
  * @returns Effect that writes, enables, starts, and displays the user unit status.
  * @example
  * ```ts
  * import { installGraphitiProxyService } from "@beep/repo-cli/commands/Graphiti/internal/ProxyOps"
- * const program = installGraphitiProxyService()
+ * const program = installGraphitiProxyService({ upstreamMcpUrl: "http://127.0.0.1:9000/mcp" })
  * ```
  * @category use-cases
  * @since 0.0.0
  */
-export const installGraphitiProxyService = Effect.fn("GraphitiProxyOps.installGraphitiProxyService")(
-  function* (): Effect.fn.Return<void, GraphitiProxyOpsError, GraphitiProxyOpsEnvironment> {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const repoRoot = yield* findRepoRoot().pipe(GraphitiProxyOpsError.mapError("Failed to locate repository root."));
-    const config = proxyServiceConfig(path);
-    const bunBin = yield* collectSuccessfulOutput(
-      QualityTaskStep.make({
-        label: "which:bun",
-        command: "which",
-        args: ["bun"],
-        cwd: repoRoot,
-      })
-    );
+export const installGraphitiProxyService = Effect.fn("GraphitiProxyOps.installGraphitiProxyService")(function* (
+  options: GraphitiProxyServiceInstallOptions = {}
+): Effect.fn.Return<void, GraphitiProxyOpsError, GraphitiProxyOpsEnvironment> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const repoRoot = yield* findRepoRoot().pipe(GraphitiProxyOpsError.mapError("Failed to locate repository root."));
+  const config = proxyServiceConfig(path, options);
+  const bunBin = yield* collectSuccessfulOutput(
+    QualityTaskStep.make({
+      label: "which:bun",
+      command: "which",
+      args: ["bun"],
+      cwd: repoRoot,
+    })
+  );
 
-    yield* fs
-      .makeDirectory(config.systemdUserDir, { recursive: true })
-      .pipe(GraphitiProxyOpsError.mapError(`Failed to create ${config.systemdUserDir}.`));
-    yield* fs
-      .makeDirectory(config.stateDir, { recursive: true })
-      .pipe(GraphitiProxyOpsError.mapError(`Failed to create ${config.stateDir}.`));
-    yield* fs
-      .writeFileString(config.serviceFile, renderServiceUnit(repoRoot, bunBin, config))
-      .pipe(GraphitiProxyOpsError.mapError(`Failed to write ${config.serviceFile}.`));
-    yield* Console.log(`[graphiti-proxy:service] Wrote user unit: ${config.serviceFile}`);
+  yield* fs
+    .makeDirectory(config.systemdUserDir, { recursive: true })
+    .pipe(GraphitiProxyOpsError.mapError(`Failed to create ${config.systemdUserDir}.`));
+  yield* fs
+    .makeDirectory(config.stateDir, { recursive: true })
+    .pipe(GraphitiProxyOpsError.mapError(`Failed to create ${config.stateDir}.`));
+  yield* fs
+    .writeFileString(config.serviceFile, renderServiceUnit(repoRoot, bunBin, config))
+    .pipe(GraphitiProxyOpsError.mapError(`Failed to write ${config.serviceFile}.`));
+  yield* Console.log(`[graphiti-proxy:service] Wrote user unit: ${config.serviceFile}`);
 
-    yield* runInheritedStep(
-      QualityTaskStep.make({
-        label: "systemctl:daemon-reload",
-        command: "systemctl",
-        args: ["--user", "daemon-reload"],
-        cwd: repoRoot,
-      })
-    );
-    yield* runInheritedStep(
-      QualityTaskStep.make({
-        label: "systemctl:enable-now",
-        command: "systemctl",
-        args: ["--user", "enable", "--now", config.serviceName],
-        cwd: repoRoot,
-      })
-    );
-    yield* runInheritedStep(
-      QualityTaskStep.make({
-        label: "systemctl:restart",
-        command: "systemctl",
-        args: ["--user", "restart", config.serviceName],
-        cwd: repoRoot,
-      })
-    );
-    yield* runInheritedStep(
-      QualityTaskStep.make({
-        label: "systemctl:is-active",
-        command: "systemctl",
-        args: ["--user", "is-active", "--quiet", config.serviceName],
-        cwd: repoRoot,
-      })
-    );
-    yield* runInheritedStep(
-      QualityTaskStep.make({
-        label: "systemctl:status",
-        command: "systemctl",
-        args: ["--user", "--no-pager", "--full", "status", config.serviceName],
-        cwd: repoRoot,
-      })
-    );
-    yield* Console.log("[graphiti-proxy:service] Service enabled and started.");
-  }
-);
+  yield* runInheritedStep(
+    QualityTaskStep.make({
+      label: "systemctl:daemon-reload",
+      command: "systemctl",
+      args: ["--user", "daemon-reload"],
+      cwd: repoRoot,
+    })
+  );
+  yield* runInheritedStep(
+    QualityTaskStep.make({
+      label: "systemctl:enable-now",
+      command: "systemctl",
+      args: ["--user", "enable", "--now", config.serviceName],
+      cwd: repoRoot,
+    })
+  );
+  yield* runInheritedStep(
+    QualityTaskStep.make({
+      label: "systemctl:restart",
+      command: "systemctl",
+      args: ["--user", "restart", config.serviceName],
+      cwd: repoRoot,
+    })
+  );
+  yield* runInheritedStep(
+    QualityTaskStep.make({
+      label: "systemctl:is-active",
+      command: "systemctl",
+      args: ["--user", "is-active", "--quiet", config.serviceName],
+      cwd: repoRoot,
+    })
+  );
+  yield* runInheritedStep(
+    QualityTaskStep.make({
+      label: "systemctl:status",
+      command: "systemctl",
+      args: ["--user", "--no-pager", "--full", "status", config.serviceName],
+      cwd: repoRoot,
+    })
+  );
+  yield* Console.log("[graphiti-proxy:service] Service enabled and started.");
+});

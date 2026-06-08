@@ -65,23 +65,52 @@ const findExact = (sourceText: string, query: string): undefined | readonly [num
   return start >= 0 ? [start, query] : undefined;
 };
 
-const findLesser = (sourceText: string, query: string): undefined | readonly [number, string] => {
-  const normalizedQuery = lower(query);
+const lowerWithSourceOffsets = (
+  sourceText: string
+): {
+  readonly ends: ReadonlyArray<number>;
+  readonly starts: ReadonlyArray<number>;
+  readonly text: string;
+} => {
+  const starts: Array<number> = [];
+  const ends: Array<number> = [];
+  let text = "";
+  let sourceStart = 0;
 
-  for (let start = 0; start < sourceText.length; start += 1) {
-    for (let end = start + 1; end <= sourceText.length; end += 1) {
-      const candidate = sourceText.slice(start, end);
-      const normalizedCandidate = lower(candidate);
-      if (normalizedCandidate === normalizedQuery) {
-        return [start, candidate];
-      }
-      if (normalizedCandidate.length >= normalizedQuery.length) {
-        break;
-      }
+  for (const segment of sourceText) {
+    const sourceEnd = sourceStart + segment.length;
+    const normalizedSegment = lower(segment);
+    for (let index = 0; index < normalizedSegment.length; index += 1) {
+      starts.push(sourceStart);
+      ends.push(sourceEnd);
     }
+    text += normalizedSegment;
+    sourceStart = sourceEnd;
   }
 
-  return undefined;
+  return { ends, starts, text };
+};
+
+const findLesser = (sourceText: string, query: string): undefined | readonly [number, string] => {
+  const normalizedQuery = lower(query);
+  if (normalizedQuery.length === 0) {
+    return undefined;
+  }
+
+  const normalizedSource = lowerWithSourceOffsets(sourceText);
+  const normalizedStart = normalizedSource.text.indexOf(normalizedQuery);
+  if (normalizedStart < 0) {
+    return undefined;
+  }
+
+  const normalizedEnd = normalizedStart + normalizedQuery.length - 1;
+  const start = normalizedSource.starts[normalizedStart];
+  const end = normalizedSource.ends[normalizedEnd];
+  if (start === undefined || end === undefined) {
+    return undefined;
+  }
+
+  return [start, sourceText.slice(start, end)];
 };
 
 const toCodePoints = (value: string): ReadonlyArray<string> => [...value];

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "72bd4614d709f0cd599f545edcc7c3adf5f41e9aa88167b5cda2da2ed90e684b",
+    "digest": "5a965a31d1a8d640d5f0ae6fe1ad440a2eb36392607c47f41075c9da59dde0cb",
     "inputs": [
       {
         "path": "packages/foundation/capability/langextract/package.json",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/foundation/capability/langextract/src/Alignment/index.ts",
-        "sha256": "3f967948fa211b649f5e8f797abe563c6603ac6eae4b44bd1bc17baecce19393",
-        "bytes": 7835
+        "sha256": "21a767b27830d83b865031b4fd9c91870857fb22663a4e1deba12d6e335fdd8e",
+        "bytes": 8604
       },
       {
         "path": "packages/foundation/capability/langextract/src/Extraction/index.ts",
@@ -192,7 +192,7 @@
         "symbolName": "alignCandidate",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
-        "sourceLine": 174,
+        "sourceLine": 203,
         "summary": "Align one extraction candidate against source text.",
         "categories": [
           "mapping"
@@ -217,7 +217,7 @@
         "symbolName": "alignCandidates",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
-        "sourceLine": 219,
+        "sourceLine": 248,
         "summary": "Align candidates and honor the optional maximum extraction count.",
         "categories": [
           "mapping"
@@ -242,7 +242,7 @@
         "symbolName": "alignCandidate",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
-        "sourceLine": 174,
+        "sourceLine": 203,
         "summary": "Align one extraction candidate against source text.",
         "categories": [
           "mapping"
@@ -267,7 +267,7 @@
         "symbolName": "alignCandidates",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
-        "sourceLine": 219,
+        "sourceLine": 248,
         "summary": "Align candidates and honor the optional maximum extraction count.",
         "categories": [
           "mapping"

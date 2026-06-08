@@ -3,6 +3,8 @@ import {
   GraphitiProxyConfig,
   isFastMcpRequestBody,
   makeGraphitiProxyForwarderService,
+  ProxyServiceConfig,
+  renderProxyServiceUnitForTesting,
   resolveGraphitiStackDirForTesting,
   shouldInstallProxyServiceForTesting,
   shouldRecoverGraphitiStackForTesting,
@@ -316,5 +318,22 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
         upstream: "http://127.0.0.1:9000/mcp",
       })
     ).toBe(true);
+  });
+
+  it("renders the configured upstream into the managed proxy service unit", () => {
+    const unit = renderProxyServiceUnitForTesting(
+      "/repo",
+      "/bin/bun",
+      ProxyServiceConfig.make({
+        serviceFile: "/tmp/beep-graphiti-proxy.service",
+        serviceName: "beep-graphiti-proxy.service",
+        stateDir: "/tmp/beep",
+        systemdUserDir: "/tmp/systemd/user",
+        upstreamMcpUrl: "http://127.0.0.1:9000/mcp",
+      })
+    );
+
+    expect(unit).toContain("Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:9000/mcp");
+    expect(unit).not.toContain("Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:8000/mcp");
   });
 });
