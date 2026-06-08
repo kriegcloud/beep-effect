@@ -2406,16 +2406,6 @@
       "reason": "Schema-heavy test file has 6 Schema codec assertions but no schema-derived property coverage."
     },
     {
-      "file": "packages/foundation/modeling/schema/test/Options.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 12,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 4 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
       "file": "packages/foundation/modeling/schema/test/PromiseSchema.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",

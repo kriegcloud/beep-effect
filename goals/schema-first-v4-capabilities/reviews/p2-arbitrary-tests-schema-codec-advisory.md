@@ -161,10 +161,17 @@ lint run stays green (advisories do not fail). See
 candidate-vs-exception guidance and the focused sync-codec lint test.
 
 After the HttpStatus round-trip pilot
-(`reviews/p4-httpstatus-arbitrary-pilot.md`), the live repo now reports:
+(`reviews/p4-httpstatus-arbitrary-pilot.md`), the live repo reported:
 
 ```text
 [schema-first] sfv4_arbitrary_tests_advisories=33
+```
+
+After the Options codec round-trip pilot
+(`reviews/p4-options-arbitrary-pilot.md`), the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=32
 ```
 
 ## Still Pending

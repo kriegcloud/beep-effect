@@ -263,6 +263,11 @@ class-local decoder statics pilots in
         `S.toArbitrary(HttpStatus.Schema)` and proving the bijective name↔code
         round-trip, dropping the hardened arbitrary-tests advisories 34 → 33;
         see `reviews/p4-httpstatus-arbitrary-pilot.md`.
+  - [x] Pilot `OptionFromOptionalNullishKey`: added a property test deriving
+        `{ nickname: Option<string> }` payloads from the source combinator and
+        proving the optional/nullish Option codec round-trips (Some and
+        omitted-None forms), dropping the advisories 33 → 32; see
+        `reviews/p4-options-arbitrary-pilot.md`.
 - [ ] Wave 4: migrate options/config/request defaults from parameter defaults
       and fallback objects into schema defaults. Start with schemas already
       modeling option/config/request objects.
