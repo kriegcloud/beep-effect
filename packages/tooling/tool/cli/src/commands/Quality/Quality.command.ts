@@ -31,6 +31,7 @@ import {
   renderTurboConfigProofReportJson,
   runTurboConfigProof,
 } from "./internal/TurboConfigProof.js";
+import { qualityFallowCommand } from "./FallowQuality.command.js";
 import { QualityScriptCommandError } from "./Quality.errors.js";
 import { QualityTaskStep } from "./Tasks.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
@@ -1856,6 +1857,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality turbo-config-proof --base origin/main --head HEAD",
     "- bun run beep quality package-verify @beep/repo-cli",
     "- bun run beep quality changeset-graph",
+    "- bun run beep quality fallow audit --advisory",
   ])
 ).pipe(
   Command.withDescription("Repository operational quality commands"),
@@ -1873,5 +1875,6 @@ export const qualityCommand = Command.make("quality", {}, () =>
     turboConfigProofCommand,
     packageVerifyCommand,
     changesetGraphCommand,
+    qualityFallowCommand,
   ])
 );

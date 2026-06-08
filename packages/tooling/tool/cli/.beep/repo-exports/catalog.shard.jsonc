@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "6d06f872448ce28d6f12c4141b74216582675256fcdd837a48d7123eb4115d11",
+    "digest": "8929ca204310c460083b60a470144e8d2f9c660d05a4e4bb0d807d80182cf80c",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/package.json",
-        "sha256": "92f9f905012e118330c3377ee0cdd3dd5bca2aacb989b013b978326f45268dfc",
-        "bytes": 6668
+        "sha256": "fa1e7129fbbcaa881af6eafe8fd8b71aaf65cdd57707ad8441e777956883f74f",
+        "bytes": 6789
       },
       {
         "path": "packages/tooling/tool/cli/src/bin-main.ts",
@@ -209,6 +209,16 @@
         "path": "packages/tooling/tool/cli/src/commands/Docs/index.ts",
         "sha256": "1e61f078ec8f06d20234889238e5a132ae5113fdf9ef8f7bfadab71c6e3ac1e4",
         "bytes": 207
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
+        "sha256": "8ce6a4df795f3b85786991a861e15967bc52d0cefa046456c16991ac801fead8",
+        "bytes": 6950
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Fallow/index.ts",
+        "sha256": "c311d906cc4c5cf7ac2e56302d48684f25c3f2a9826aa794bf1953f29eb958d7",
+        "bytes": 218
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Files/Files.command.ts",
@@ -497,8 +507,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Root.ts",
-        "sha256": "c4fd2da6e4b94dd4da3f10593996ac0ee821c42db658f89048413da590a0f29a",
-        "bytes": 2281
+        "sha256": "5772e57de3bb9f6ea84c73d333a92815db250bb6962797f3c18adceb2c05597d",
+        "bytes": 2351
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts",
@@ -677,8 +687,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/index.ts",
-        "sha256": "4aaa3b2468f6b546523a04c36cd3af2f7e8908eba2c89d903423a30a5c342406",
-        "bytes": 7185
+        "sha256": "712358b1ecb5bce21f7ee20615e8fed787366e8c08b40c04f8e12744ddbb3743",
+        "bytes": 7448
       },
       {
         "path": "packages/tooling/tool/cli/src/internal/cli/ExitCodeError.ts",
@@ -818,6 +828,9 @@
       "@beep/repo-cli/commands/Docs/Docs.aggregate",
       "@beep/repo-cli/commands/Docs/Docs.command",
       "@beep/repo-cli/commands/Docs/index",
+      "@beep/repo-cli/commands/Fallow",
+      "@beep/repo-cli/commands/Fallow/Fallow.command",
+      "@beep/repo-cli/commands/Fallow/index",
       "@beep/repo-cli/commands/Files",
       "@beep/repo-cli/commands/Files/Files.command",
       "@beep/repo-cli/commands/Files/Files.errors",
@@ -922,9 +935,9 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1756,
-      "uniqueSymbols": 641,
-      "sourceFiles": 145
+      "publicExportEntries": 1760,
+      "uniqueSymbols": 642,
+      "sourceFiles": 147
     },
     "exports": [
       {
@@ -1101,6 +1114,31 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli . docscommand const command-first docs discovery entrypoint used by agent config surfaces. utilities packages/tooling/tool/cli/src/commands/docs/docs.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/tool/cli/src/index.ts",
+        "symbolName": "fallowCommand",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
+        "sourceLine": 212,
+        "summary": "Fallow quality-tooling command group.",
+        "categories": [
+          "cli-commands"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli . fallowcommand const fallow quality-tooling command group. cli-commands packages/tooling/tool/cli/src/commands/fallow/fallow.command.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -1312,7 +1350,7 @@
         "symbolName": "rootCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Root.ts",
-        "sourceLine": 46,
+        "sourceLine": 47,
         "summary": "Top-level CLI command that registers all subcommands.",
         "categories": [
           "utilities"
@@ -9067,6 +9105,81 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docs/index ./commands/docs/index docssection type documentation section model. models packages/tooling/tool/cli/src/commands/docs/docs.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Fallow",
+        "exportSubpath": "./commands/Fallow",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Fallow/index.ts",
+        "symbolName": "fallowCommand",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
+        "sourceLine": 212,
+        "summary": "Fallow quality-tooling command group.",
+        "categories": [
+          "cli-commands"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/fallow ./commands/fallow fallowcommand const fallow quality-tooling command group. cli-commands packages/tooling/tool/cli/src/commands/fallow/fallow.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Fallow/Fallow.command",
+        "exportSubpath": "./commands/Fallow/Fallow.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
+        "symbolName": "fallowCommand",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
+        "sourceLine": 212,
+        "summary": "Fallow quality-tooling command group.",
+        "categories": [
+          "cli-commands"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/fallow/fallow.command ./commands/fallow/fallow.command fallowcommand const fallow quality-tooling command group. cli-commands packages/tooling/tool/cli/src/commands/fallow/fallow.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Fallow/index",
+        "exportSubpath": "./commands/Fallow/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Fallow/index.ts",
+        "symbolName": "fallowCommand",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
+        "sourceLine": 212,
+        "summary": "Fallow quality-tooling command group.",
+        "categories": [
+          "cli-commands"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/fallow/index ./commands/fallow/index fallowcommand const fallow quality-tooling command group. cli-commands packages/tooling/tool/cli/src/commands/fallow/fallow.command.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -30674,7 +30787,7 @@
         "symbolName": "rootCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Root.ts",
-        "sourceLine": 46,
+        "sourceLine": 47,
         "summary": "Top-level CLI command that registers all subcommands.",
         "categories": [
           "utilities"

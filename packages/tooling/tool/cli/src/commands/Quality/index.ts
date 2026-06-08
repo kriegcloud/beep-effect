@@ -12,6 +12,13 @@
  */
 export * from "./internal/TurboConfigProof.js";
 /**
+ * Public Fallow quality command export.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export { qualityFallowCommand } from "./FallowQuality.command.js";
+/**
  * Public quality command export.
  *
  * @category cli-commands

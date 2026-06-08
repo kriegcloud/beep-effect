@@ -221,6 +221,73 @@ jobs:
         if: steps.lane-gate.outputs.should_run != 'true'
         run: echo "Skipping ${{ matrix.name }} for this change set."
 
+  fallow-audit:
+    name: Fallow Audit (Advisory)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - name: Determine audit base
+        id: base
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            base_ref="origin/${GITHUB_BASE_REF:-main}"
+            git fetch --quiet --no-tags --depth=100 origin "${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}"
+          elif [[ -n "${BEFORE_SHA:-}" && ! "$BEFORE_SHA" =~ ^0+$ ]]; then
+            base_ref="$BEFORE_SHA"
+            git rev-parse --verify "${base_ref}^{commit}" >/dev/null 2>&1 || git fetch --quiet --no-tags --depth=100 origin "$base_ref"
+          else
+            base_ref="HEAD~1"
+          fi
+
+          echo "base_ref=$base_ref" >> "$GITHUB_OUTPUT"
+
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "false"
+          cache-write: "false"
+
+      - name: Run Fallow audit
+        id: fallow
+        shell: bash
+        run: |
+          set +e
+          bun run fallow:audit -- --base "${{ steps.base.outputs.base_ref }}" --gate new-only > fallow-audit.json
+          status=$?
+          echo "exit_status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Append Fallow summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Fallow Audit (Advisory)"
+            echo
+            echo "- exit status: \`${{ steps.fallow.outputs.exit_status }}\`"
+            jq -r '"- verdict: `\(.verdict // "unknown")`\n- changed files: `\(.changed_files_count // "unknown")`\n- dead code issues: `\(.summary.dead_code_issues // "unknown")`\n- complexity findings: `\(.summary.complexity_findings // "unknown")`\n- duplication clone groups: `\(.summary.duplication_clone_groups // "unknown")`\n- introduced dead-code issues: `\(.attribution.dead_code_introduced // "unknown")`\n- introduced complexity findings: `\(.attribution.complexity_introduced // "unknown")`\n- introduced duplication clone groups: `\(.attribution.duplication_introduced // "unknown")`"' fallow-audit.json 2>/dev/null || echo "- summary: unavailable"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Fallow audit JSON
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: fallow-audit-${{ github.event_name }}-${{ github.run_attempt }}
+          path: fallow-audit.json
+          if-no-files-found: warn
+
   build:
     name: Build
     if: github.event_name == 'push'
