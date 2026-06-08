@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "59fa374e05ada58be4a31fd5ac9de61856ebdfc244deecb738edcf47f42b6a23",
+    "digest": "9bc1d8ec186c9e9d361b8c9c9992f177c6d0ba306f924ec3626fc3659c0b2da9",
     "inputs": [
       {
         "path": "packages/tooling/library/ai-metrics/package.json",
@@ -137,8 +137,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
-        "bytes": 76366
+        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
+        "bytes": 76913
       }
     ]
   },

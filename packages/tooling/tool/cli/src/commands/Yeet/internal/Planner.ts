@@ -295,7 +295,7 @@ const commitStep = (
   );
 
 const pushStep = (context: RepoRunContext): RepoPlanStep =>
-  gitStep(context, "publish:01-git-push", "publish:git:push", "publish", ["push"]);
+  gitStep(context, "publish:01-git-push", "publish:git:push", "publish", ["push", "-u", "origin", "HEAD"]);
 
 const monitorContextStep = (context: RepoRunContext): RepoPlanStep =>
   RepoPlanStep.make({

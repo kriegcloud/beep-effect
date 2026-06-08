@@ -1747,6 +1747,8 @@ const runQualityProgram = <A, R>(
 
 const variadicStrings = (values: ReadonlyArray<unknown>): ReadonlyArray<string> => pipe(values, A.filter(P.isString));
 
+const changedPathsDiffFilter = ["A", "C", "M", "R", "D"].join("");
+
 const changedPathsForRange = Effect.fn("QualityScriptCommands.changedPathsForRange")(function* (
   repoRoot: string,
   base: string,
@@ -1756,7 +1758,7 @@ const changedPathsForRange = Effect.fn("QualityScriptCommands.changedPathsForRan
     QualityTaskStep.make({
       label: "repo-exports-catalog:affected:changed-files",
       command: "git",
-      args: ["diff", "--name-only", "--diff-filter=ACMRD", `${base}...${head}`],
+      args: ["diff", "--name-only", `--diff-filter=${changedPathsDiffFilter}`, `${base}...${head}`],
       cwd: repoRoot,
     })
   );
@@ -1832,13 +1834,18 @@ const shouldRunFullRepoExportsCatalogCheck = (filePath: string): boolean =>
 /**
  * Build the conservative affected repo export catalog plan for a set of changed paths.
  *
+ * @param changedPaths - Git diff paths to map onto repo export catalog inputs.
+ * @param packages - Discovered workspace packages used to resolve changed package paths.
+ * @returns The affected repo export catalog execution plan.
  * @category testing
  * @since 0.0.0
  */
-export const affectedRepoExportsCatalogPlanForTesting = (
-  changedPaths: ReadonlyArray<string>,
-  packages: ReadonlyArray<WorkspacePackageInfo>
-): AffectedRepoExportsCatalogPlan => {
+export const affectedRepoExportsCatalogPlanForTesting: {
+  (changedPaths: ReadonlyArray<string>, packages: ReadonlyArray<WorkspacePackageInfo>): AffectedRepoExportsCatalogPlan;
+  (
+    packages: ReadonlyArray<WorkspacePackageInfo>
+  ): (changedPaths: ReadonlyArray<string>) => AffectedRepoExportsCatalogPlan;
+} = dual(2, (changedPaths: ReadonlyArray<string>, packages: ReadonlyArray<WorkspacePackageInfo>) => {
   if (A.isReadonlyArrayEmpty(changedPaths)) {
     return { aggregateCheck: false, fullCheck: false, packageNames: [], reason: "no relevant git diff paths" };
   }
@@ -1879,7 +1886,7 @@ export const affectedRepoExportsCatalogPlanForTesting = (
     packageNames,
     reason: aggregateCheck ? "affected repo export shards" : "no repo export relevant paths",
   };
-};
+});
 
 const runAffectedRepoExportsCatalog = Effect.fn("QualityScriptCommands.runAffectedRepoExportsCatalog")(function* (
   repoRoot: string,

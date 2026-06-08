@@ -1128,12 +1128,13 @@ const issuesFromResults = (
   );
 
 const publishResult = Effect.fn("Yeet.publishResult")(function* (
-  context: RepoRunContext
+  context: RepoRunContext,
+  committed: boolean
 ): Effect.fn.Return<YeetRunResult, never, Path.Path> {
   const artifactDir = yield* artifactDirForContext(context);
   return YeetRunResult.make({
     artifactDir,
-    committed: true,
+    committed,
     pushed: true,
     packetPaths: [],
   });
@@ -1243,6 +1244,32 @@ const runVerifyMode = Effect.fn("Yeet.runVerifyMode")(function* (
   return yield* emptyPlanResult(context);
 });
 
+const shouldSkipCommitForReusablePublish = Effect.fn("Yeet.shouldSkipCommitForReusablePublish")(function* (
+  context: RepoRunContext,
+  options: YeetRunOptions
+): Effect.fn.Return<boolean, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  if (!options.reuseVerified || !options.amend || !options.noEdit) {
+    return false;
+  }
+
+  const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);
+  if (!A.isReadonlyArrayEmpty(stagedPaths)) {
+    return false;
+  }
+
+  const unstagedPaths = yield* collectUnstagedTrackedPaths(context.repoRoot);
+  const untrackedPaths = yield* collectUntrackedPaths(context.repoRoot);
+  const changedPaths = sortedUniquePaths([...unstagedPaths, ...untrackedPaths]);
+  if (!A.isReadonlyArrayEmpty(changedPaths)) {
+    return yield* publishScopeError(
+      "yeet publish --reuse-verified found uncommitted changes but no staged amend intent.",
+      changedPaths
+    );
+  }
+
+  return true;
+});
+
 const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   plan: RepoRunPlan,
   message: O.Option<string>,
@@ -1256,18 +1283,24 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   YeetCommandError,
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
-  const publishIntent = yield* collectPublishIntent(plan.context);
+  const skipCommit = yield* shouldSkipCommitForReusablePublish(plan.context, options);
   if (options.reuseVerified) {
     yield* assertReusableVerifiedState(plan.context);
   }
-  if (O.isSome(message)) {
-    yield* validateCommitMessage(plan.context, message.value);
-  }
-  yield* stageReviewedPublishIntent(plan.context, publishIntent);
 
-  const commitResults = yield* runPhase(plan.context, commitSteps);
-  if (A.some(commitResults, (result) => result.exitCode !== 0)) {
-    return yield* failWithIssueArtifacts(plan.context, commitSteps, commitResults, "yeet commit phase failed.");
+  if (skipCommit) {
+    yield* Console.log("[yeet] skipped commit; exact reusable proof state matches the current clean commit");
+  } else {
+    const publishIntent = yield* collectPublishIntent(plan.context);
+    if (O.isSome(message)) {
+      yield* validateCommitMessage(plan.context, message.value);
+    }
+    yield* stageReviewedPublishIntent(plan.context, publishIntent);
+
+    const commitResults = yield* runPhase(plan.context, commitSteps);
+    if (A.some(commitResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(plan.context, commitSteps, commitResults, "yeet commit phase failed.");
+    }
   }
 
   if (!options.reuseVerified) {
@@ -1301,7 +1334,7 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
     );
   }
 
-  return yield* publishResult(plan.context);
+  return yield* publishResult(plan.context, !skipCommit);
 });
 
 const runMonitorMode = Effect.fn("Yeet.runMonitorMode")(function* (

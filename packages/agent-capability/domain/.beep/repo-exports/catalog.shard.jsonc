@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "0817ce44d7f3d13ce4bc3290661744519ad3abc1f5c5e2a3567563dc3d761f76",
+    "digest": "a038c67264525217b988bd6cf61330e9719a5218e601b476f9649164c54c31af",
     "inputs": [
       {
         "path": "packages/agent-capability/domain/package.json",
@@ -72,8 +72,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
-        "bytes": 76366
+        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
+        "bytes": 76913
       }
     ]
   },

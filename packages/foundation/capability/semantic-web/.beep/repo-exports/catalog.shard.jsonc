@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "5052b46650da3dc5e0932023fa533a94925dac7cba562e233eb6b0d8c37beb1b",
+    "digest": "c6ed19f7b97a6bb4ffd3ebd7f892a0918b4bfb5cbbb26c664089d0a84cf365e3",
     "inputs": [
       {
         "path": "packages/foundation/capability/semantic-web/package.json",
@@ -182,8 +182,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
-        "bytes": 76366
+        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
+        "bytes": 76913
       }
     ]
   },

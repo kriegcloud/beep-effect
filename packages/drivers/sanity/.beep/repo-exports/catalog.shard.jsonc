@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "098b7b8926886c9efe81e33ee6dc80ccfc941ddf864db659449aa846e9c30f5b",
+    "digest": "8b0e95d4bd915cdad98aa26a29e4a52b58136c1d5a2aa5bc327b33a5110c8c6c",
     "inputs": [
       {
         "path": "packages/drivers/sanity/package.json",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
-        "bytes": 76366
+        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
+        "bytes": 76913
       }
     ]
   },

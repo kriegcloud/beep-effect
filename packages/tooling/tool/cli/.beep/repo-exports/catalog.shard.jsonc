@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "6560c16897da732c2d315258518ed9b31650537291666661b129db5b91c8080e",
+    "digest": "e518d0a33e7783606f49d3b42a8b62cccc9929dee591e2fe9b6fe60f1f24853d",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -452,13 +452,13 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
-        "bytes": 76366
+        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
+        "bytes": 76913
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
-        "bytes": 76366
+        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
+        "bytes": 76913
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts",
@@ -647,13 +647,13 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sha256": "2a08a1154f3a3e78c60343d3e0085e1ddd5826322aa32fd8b5da772145919805",
-        "bytes": 17329
+        "sha256": "827b9aa01c0d9b124d521610599e2d9cf75ab92f616daa46d8c1fbfbb4dad4e2",
+        "bytes": 17283
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sha256": "8e25b5fd80cff220707bc03ea496d5562239169a682f8bf454cbfbee43da6a90",
-        "bytes": 53137
+        "sha256": "5408fe12586253a63bdf6fbd2f1f2832f73cb6eb9a31dc30fc5c9be3fb1d32c7",
+        "bytes": 54363
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts",
@@ -662,8 +662,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sha256": "47197860553a0d91be5b5663fe31a06a2acdedeb363916686f26c70f5a647fe2",
-        "bytes": 14440
+        "sha256": "d41cc8f731202efa4281cf990ba6b41baae5ccaee1270f5922f6997a5078be49",
+        "bytes": 14464
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
@@ -1267,7 +1267,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2127,
+        "sourceLine": 2134,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -27560,7 +27560,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2127,
+        "sourceLine": 2134,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -28262,7 +28262,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2127,
+        "sourceLine": 2134,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -28762,7 +28762,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1838,
+        "sourceLine": 1843,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -28771,6 +28771,8 @@
           "0.0.0"
         ],
         "tags": [
+          "@param",
+          "@returns",
           "@category",
           "@since"
         ],
@@ -28863,7 +28865,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2127,
+        "sourceLine": 2134,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -39932,7 +39934,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1838,
+        "sourceLine": 1843,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -39941,6 +39943,8 @@
           "0.0.0"
         ],
         "tags": [
+          "@param",
+          "@returns",
           "@category",
           "@since"
         ],
@@ -40612,7 +40616,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2127,
+        "sourceLine": 2134,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -43702,7 +43706,7 @@
         "symbolName": "buildYeetRunPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1468,
+        "sourceLine": 1501,
         "summary": "Build a plan for tests without reading repository state.",
         "categories": [
           "testing"
@@ -43854,7 +43858,7 @@
         "symbolName": "defaultYeetRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1499,
+        "sourceLine": 1532,
         "summary": "Construct baseline yeet options for focused tests.",
         "categories": [
           "testing"
@@ -44057,7 +44061,7 @@
         "symbolName": "GreptileSummary",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 234,
+        "sourceLine": 235,
         "summary": "Summary of Greptile signal extracted from PR comments.",
         "categories": [
           "models"
@@ -44184,7 +44188,7 @@
         "symbolName": "PrCloseoutOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 215,
+        "sourceLine": 216,
         "summary": "Runtime closeout gates accepted by Yeet.",
         "categories": [
           "models"
@@ -44208,7 +44212,7 @@
         "symbolName": "PrCloseoutReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 251,
+        "sourceLine": 252,
         "summary": "Yeet PR closeout report.",
         "categories": [
           "models"
@@ -45056,7 +45060,7 @@
         "symbolName": "runPrCloseout",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 525,
+        "sourceLine": 523,
         "summary": "Inspect current PR review and bot closeout state.",
         "categories": [
           "use-cases"
@@ -45107,7 +45111,7 @@
         "symbolName": "runYeet",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1430,
+        "sourceLine": 1463,
         "summary": "Run yeet with the provided options.",
         "categories": [
           "use-cases"

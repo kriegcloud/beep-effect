@@ -146,7 +146,7 @@ describe("yeet planner", () => {
     expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
     expect(proof.args).toEqual(["run", "beep", "quality", "github-checks", "pre-push"]);
     expect(proof.mutability).toBe("readonly");
-    expect(push.args).toEqual(["push"]);
+    expect(push.args).toEqual(["push", "-u", "origin", "HEAD"]);
     expect(
       pipe(
         plan.steps,

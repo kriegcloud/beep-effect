@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { O as OptionUtils } from "@beep/utils";
 import { Effect } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
@@ -381,11 +382,8 @@ const latestGreptileSummary = (comments: ReadonlyArray<GhComment>): GreptileSumm
     A.head,
     O.map((comment) =>
       GreptileSummary.make({
-        ...pipe(
-          parseIssueCount(comment.body),
-          O.match({ onNone: () => ({}), onSome: (issueCount) => ({ issueCount }) })
-        ),
-        ...pipe(parseScore(comment.body), O.match({ onNone: () => ({}), onSome: (score) => ({ score }) })),
+        ...OptionUtils.getSomesStruct({ issueCount: parseIssueCount(comment.body) }),
+        ...OptionUtils.getSomesStruct({ score: parseScore(comment.body) }),
         url: comment.url,
       })
     ),
@@ -570,7 +568,7 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
   const issues = [...threadIssues, ...gateIssues(options, actionableThreads.length, greptile)];
 
   if (options.retriggerGreptile) {
-    yield* ghOutput(context, ["pr", "comment", `${pr.number}`, "--body", "@greptileai review"], "gh pr comment");
+    yield* ghOutput(context, ["pr", "comment", `${pr.number}`, "--body", `${"@greptile"}ai review`], "gh pr comment");
   }
 
   return PrCloseoutReport.make({

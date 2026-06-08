@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "51e067c1098d959f6034aa86f98fad030109134ef0a4697b4885ca70180232b8",
+    "digest": "3b88ac5576db9726c8fc638a8f51ad74351d29094df9d0620a530a605e674553",
     "inputs": [
       {
         "path": "packages/foundation/capability/chalk/package.json",
@@ -87,8 +87,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
-        "bytes": 76366
+        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
+        "bytes": 76913
       }
     ]
   },

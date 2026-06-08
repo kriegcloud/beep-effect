@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "91135e33a1a313cdc191660e8fb527c9be460102a787cff519d847333e0c6421",
+    "digest": "7875e931d12274b20bb86cf2a2f7f4a01b082a6781b4a3338ad8f4d205b0dfa4",
     "inputs": [
       {
         "path": "packages/foundation/capability/nlp/package.json",
@@ -412,8 +412,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
-        "bytes": 76366
+        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
+        "bytes": 76913
       }
     ]
   },

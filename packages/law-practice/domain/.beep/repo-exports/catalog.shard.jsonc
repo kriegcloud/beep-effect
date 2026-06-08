@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "4254487aa6308e5e8278a63e8a3e743aa4c5a271361ce811d33a5597a5e3dd67",
+    "digest": "a3b3b5e597188ce8446446e51f5690efc6343a53d9110894e6151b0982e2d08c",
     "inputs": [
       {
         "path": "packages/law-practice/domain/package.json",
@@ -107,8 +107,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
-        "bytes": 76366
+        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
+        "bytes": 76913
       }
     ]
   },

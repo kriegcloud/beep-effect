@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "b04d77e27b0a97d23a41fd8ef3756906ca547e5c3aa2e3c75f6fdd66ae1d65e0",
+    "digest": "fc5bb65bb5142930e44c67d3a43dc5dd80649739b830d680d0db47076f9cfa62",
     "inputs": [
       {
         "path": "packages/foundation/modeling/ontology/package.json",
@@ -82,8 +82,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
-        "bytes": 76366
+        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
+        "bytes": 76913
       }
     ]
   },
