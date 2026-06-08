@@ -158,6 +158,12 @@ Use:
 
 - `S.is(schema)`
 - `S.toEquivalence(schema)`
+- `S.toArbitrary(schema)` for schema-modeled laws and boundary invariants
+- `S.TaggedUnion(...).cases` / `.guards` / `.isAnyOf` / `.match`
+- `S.toTaggedUnion(...).cases` / `.guards` / `.isAnyOf` / `.match`
+- `LiteralKit.Options`, `.Enum`, `.is`, `.pickOptions`, `.omitOptions`,
+  `.$match`, `.thunk`, and `.toTaggedUnion`
+- `MappedLiteralKit.From`, `.To`, and `.Pairs` for directional literal maps
 
 Avoid ad-hoc duplicate helpers when the schema already expresses the domain
 constraint.
@@ -197,6 +203,25 @@ S.makeFilter(Str.includes("/"), {
 - Prefer `LiteralKit + mapMembers + Tuple.evolve + S.toTaggedUnion(...)` for
   reusable literal domains, and prefer the schema-derived `.match` helper when
   branching directly on the tagged union.
+- Use `LiteralKit.Enum` and subset helpers instead of duplicate literal arrays
+  or enum-like constants.
+
+## 9b. Source Schemas Must Be Precise Enough to Generate Test Data
+
+Property tests should import production schemas and derive data from them.
+Do not define weaker test-only schemas to make arbitrary generation easier.
+
+When `S.toArbitrary(schema)` exposes values that break a claimed invariant,
+fix or annotate the source schema unless the invariant was overstated.
+
+Broad primitives in exported/domain/boundary schemas need a deliberate reason:
+
+- use `S.NonEmptyString`, patterns, brands, and length checks when a string
+  domain is narrower than all strings;
+- use `S.Finite`, `S.Int`, `S.FiniteFromString`, and range checks for
+  operational numbers;
+- use non-empty or bounded collections when empty or unbounded arrays are not
+  valid domain values.
 
 ## 10. Enforcement and Review Signals
 

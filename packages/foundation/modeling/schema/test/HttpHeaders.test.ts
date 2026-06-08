@@ -1,6 +1,12 @@
-import { CrossOriginEmbedderPolicyHeader } from "@beep/schema/CrossOriginEmbedderPolicy";
-import { CrossOriginOpenerPolicyHeader } from "@beep/schema/CrossOriginOpenerPolicy";
-import { CrossOriginResourcePolicyHeader } from "@beep/schema/CrossOriginResourcePolicy";
+import {
+  CrossOriginEmbedderPolicyHeader,
+  CrossOriginEmbedderPolicyOption,
+} from "@beep/schema/CrossOriginEmbedderPolicy";
+import { CrossOriginOpenerPolicyHeader, CrossOriginOpenerPolicyOption } from "@beep/schema/CrossOriginOpenerPolicy";
+import {
+  CrossOriginResourcePolicyHeader,
+  CrossOriginResourcePolicyOption,
+} from "@beep/schema/CrossOriginResourcePolicy";
 import {
   ContentSecurityPolicyHeader,
   createContentSecurityPolicyOptionHeaderValue,
@@ -25,7 +31,9 @@ import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Exit, pipe } from "effect";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import type { ContentSecurityPolicyOption } from "@beep/schema/Csp";
 
 type HeaderLike = {
@@ -53,7 +61,9 @@ type CrossOriginCase = {
   readonly label: string;
   readonly headerName: string;
   readonly validValue: string;
+  readonly optionArbitrary: fc.Arbitrary<unknown>;
   readonly decodeDisabled: (input: false | undefined) => HeaderLike;
+  readonly decodeOption: (input: unknown) => HeaderLike;
   readonly decodeValid: () => HeaderLike;
   readonly createValueValid: () => Effect.Effect<O.Option<string>, never, never>;
   readonly createValid: () => Effect.Effect<O.Option<HeaderLike>, never, never>;
@@ -65,7 +75,9 @@ const crossOriginCases: ReadonlyArray<CrossOriginCase> = [
     label: "COEP",
     headerName: "Cross-Origin-Embedder-Policy",
     validValue: "require-corp",
+    optionArbitrary: S.toArbitrary(CrossOriginEmbedderPolicyOption),
     decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginEmbedderPolicyHeader)(input),
+    decodeOption: S.decodeUnknownSync(CrossOriginEmbedderPolicyHeader),
     decodeValid: () => S.decodeUnknownSync(CrossOriginEmbedderPolicyHeader)("require-corp"),
     createValueValid: () => CrossOriginEmbedderPolicyHeader.createValue("require-corp").pipe(Effect.orDie),
     createValid: () => CrossOriginEmbedderPolicyHeader.create("require-corp").pipe(Effect.orDie),
@@ -75,7 +87,9 @@ const crossOriginCases: ReadonlyArray<CrossOriginCase> = [
     label: "COOP",
     headerName: "Cross-Origin-Opener-Policy",
     validValue: "same-origin",
+    optionArbitrary: S.toArbitrary(CrossOriginOpenerPolicyOption),
     decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginOpenerPolicyHeader)(input),
+    decodeOption: S.decodeUnknownSync(CrossOriginOpenerPolicyHeader),
     decodeValid: () => S.decodeUnknownSync(CrossOriginOpenerPolicyHeader)("same-origin"),
     createValueValid: () => CrossOriginOpenerPolicyHeader.createValue("same-origin").pipe(Effect.orDie),
     createValid: () => CrossOriginOpenerPolicyHeader.create("same-origin").pipe(Effect.orDie),
@@ -85,7 +99,9 @@ const crossOriginCases: ReadonlyArray<CrossOriginCase> = [
     label: "CORP",
     headerName: "Cross-Origin-Resource-Policy",
     validValue: "same-origin",
+    optionArbitrary: S.toArbitrary(CrossOriginResourcePolicyOption),
     decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginResourcePolicyHeader)(input),
+    decodeOption: S.decodeUnknownSync(CrossOriginResourcePolicyHeader),
     decodeValid: () => S.decodeUnknownSync(CrossOriginResourcePolicyHeader)("same-origin"),
     createValueValid: () => CrossOriginResourcePolicyHeader.createValue("same-origin").pipe(Effect.orDie),
     createValid: () => CrossOriginResourcePolicyHeader.create("same-origin").pipe(Effect.orDie),
@@ -111,6 +127,15 @@ describe("Secure header schemas", () => {
           Effect.runSync(testCase.createValid() as unknown as Effect.Effect<O.Option<HeaderLike>, never, never>),
           testCase.headerName,
           testCase.validValue
+        );
+      });
+
+      it("derives option examples from the source schema", () => {
+        fc.assert(
+          fc.property(testCase.optionArbitrary, (option) => {
+            expectHeader(testCase.decodeOption(option), testCase.headerName, P.isString(option) ? option : undefined);
+          }),
+          { numRuns: 25 }
         );
       });
 

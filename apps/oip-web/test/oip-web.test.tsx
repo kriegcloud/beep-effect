@@ -13,7 +13,9 @@ import Home from "@/app/page";
 import { OipThemeProvider } from "@/components/OipThemeProvider";
 import { oipRedirects } from "@/config/OipRedirects";
 import {
+  ContactSubmission,
   ContactSubmissionAccepted,
+  ContactSubmissionFormPayload,
   ContactSubmissionRejected,
   ContactSubmissionResponse,
   contactSubmissionPayloadFromFormData,
@@ -26,6 +28,7 @@ import {
   decodeOipSiteContentResult,
   launchReviewGates,
   makeJsonLdGraph,
+  OipSiteContent,
   oipSiteContent,
   oipTwitterHandle,
   ReviewStatus,
@@ -143,6 +146,22 @@ describe("@beep/oip-web", { concurrent: false }, () => {
 
     expect(Result.isSuccess(result)).toBe(true);
   });
+
+  it("exposes schema class-local decoders beside compatibility exports", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const contentResult = OipSiteContent.decodeUnknownResult(oipSiteContent);
+        expect(contentResult).toEqual(decodeOipSiteContentResult(oipSiteContent));
+
+        const formPayload = contactSubmissionPayloadFromFormData(contactFormData());
+        const formResult = ContactSubmissionFormPayload.decodeUnknownResult(formPayload);
+        expect(Result.isSuccess(formResult)).toBe(true);
+
+        const submission = yield* ContactSubmission.decodeUnknownEffect(validContactPayload());
+        const submissionFromAlias = yield* decodeContactSubmission(validContactPayload());
+        expect(submission).toEqual(submissionFromAlias);
+      })
+    ));
 
   it("decodes the firm social profiles", () => {
     expect(A.map(oipSiteContent.socials, (social) => social.platform)).toEqual([

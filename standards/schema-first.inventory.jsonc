@@ -1,7 +1,11 @@
 {
   "version": 1,
   "generatedOn": "2026-06-08",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
     "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -9,6 +13,16 @@
     "packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts"
   ],
   "entries": [
+    {
+      "file": "apps/oip-web/src/contact/ContactSubmission.model.ts",
+      "symbol": "ContactSubmissionFormPayload.email",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-precision-audit",
+      "line": 181,
+      "owner": "@beep/oip-web",
+      "reason": "Raw browser FormData staging payload intentionally preserves submitted email text before ContactSubmission performs domain email normalization and validation."
+    },
     {
       "file": "infra/src/OipWeb.ts",
       "symbol": "OipWebRuntimeSecrets",
@@ -496,6 +510,16 @@
       "status": "exception",
       "owner": "@beep/firecrawl",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/hubspot/src/HubSpot.errors.ts",
+      "symbol": "HubSpotErrorOptions.email",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-precision-audit",
+      "line": 174,
+      "owner": "@beep/hubspot",
+      "reason": "HubSpot driver diagnostic options intentionally preserve invalid email input so request-encoding and response-status errors can report the rejected external value."
     },
     {
       "file": "packages/drivers/hubspot/src/HubSpot.service.ts",

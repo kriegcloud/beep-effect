@@ -410,11 +410,7 @@ export const isAfter: {
 export const equals: {
   (that: LocalDate): (self: LocalDate) => boolean;
   (self: LocalDate, that: LocalDate): boolean;
-} = dual(
-  2,
-  (self: LocalDate, that: LocalDate): boolean =>
-    self.year === that.year && self.month === that.month && self.day === that.day
-);
+} = dual(2, S.toEquivalence(LocalDate));
 
 /**
  * Add days to a `LocalDate`.

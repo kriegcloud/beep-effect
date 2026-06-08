@@ -1,0 +1,157 @@
+# P2 Arbitrary Tests Schema Codec Advisory
+
+Date: 2026-06-08
+
+## Completed
+
+- Implemented the first `SFV4-arbitrary-tests` advisory slice in
+  `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts`.
+- The rule is AST-backed and intentionally file-level:
+  - it only scans test files (`/test/`, `/tests/`, `.test.ts(x)`,
+    `.spec.ts(x)`);
+  - it excludes generated, docs, dtslint, build, dist, coverage, `.repos`, and
+    `node_modules` paths;
+  - it counts real Schema codec helper calls such as `S.decodeUnknownEffect`,
+    `S.decodeEffect`, `S.encodeUnknownEffect`, `S.encodeEffect`,
+    `S.decodeUnknownResult`, and `S.decodeUnknownOption`;
+  - it only flags files with at least three Schema codec helper calls;
+  - it ignores files that already contain `S.toArbitrary(...)` or
+    `fc.property` / `fc.assert` / `fc.check`.
+- Findings are inventoried as:
+  - `kind`: `schema-policy-advisory`;
+  - `status`: `advisory`;
+  - `ruleId`: `SFV4-arbitrary-tests`;
+  - `symbol`: `schema-codec-tests`;
+  - line metadata pointing at the first Schema codec helper call.
+- Missing advisory inventory entries emit structured `[schema-first:issue]`
+  warnings with remediation toward a focused
+  `fc.property(S.toArbitrary(sourceSchema), law)` test, or an explicit
+  inventory entry when the file is intentionally golden/snapshot/regression-only
+  coverage.
+- Effect v4 source grounding:
+  - `.repos/effect-v4/packages/effect/SCHEMA.md` documents converting schemas
+    to FastCheck arbitraries with `Schema.toArbitrary`;
+  - `.repos/effect-v4/packages/effect/src/Schema.ts` exports `toArbitrary` and
+    `toArbitraryLazy` in the Arbitrary section.
+
+## Verification
+
+```sh
+bunx --bun vitest run packages/tooling/tool/cli/test/lint-command.test.ts
+bun run beep lint schema-first --write
+bun run beep lint schema-first
+```
+
+The focused fixture proves a static-only schema-heavy test file emits a
+structured `SFV4-arbitrary-tests` advisory, while a test file containing
+`S.toArbitrary(Model)` and `fc.property(...)` produces no advisory.
+
+After the shared-domain `EntityKernel` pilot, the live repo reported:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=17
+```
+
+After the shared-UI `OrganizationDisplay` pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=16
+```
+
+After the `@beep/md` AST pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=15
+```
+
+After the `@beep/file-processing` pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=14
+```
+
+After the `@beep/nlp` graph schema pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=13
+```
+
+After the `@beep/nlp` PatternCore pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=12
+```
+
+After the `@beep/semantic-web` ServicesAndSurface DTO pilot, the live repo now
+reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=11
+```
+
+After the `@beep/semantic-web` JSON-LD DTO pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=10
+```
+
+After the `@beep/form` core builder pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=9
+```
+
+After the tooling agent-effectiveness command pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=8
+```
+
+After the tooling AI-metrics command pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=7
+```
+
+After the tooling files command pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=6
+```
+
+After the Libpff and Tika driver pilots, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=4
+```
+
+After the Venice AI driver pilot, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=3
+```
+
+After the ACP and architecture-lab PgLite pilots, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=0
+```
+
+There are currently no tracked live `SFV4-arbitrary-tests` advisory files.
+
+## Still Pending
+
+- Review each advisory before remediation; many files may keep exact fixtures
+  for golden payloads, compatibility contracts, or regression repros while
+  adding one or two schema-derived property laws beside them.
+- Continue P4 Wave 3 after the completed Sha256, Markdown, secure-header
+  option, CSV, repo-configs route-predicate, LocalDate, Organization, identity
+  namespace, EntityKernel, OrganizationDisplay, Markdown AST, file-processing,
+  NLP graph schema, NLP PatternCore, semantic-web DTO, JSON-LD DTO, form
+  builder, tooling agent-effectiveness command, tooling AI-metrics command,
+  tooling files command, Libpff, Tika, Venice AI, ACP, and architecture-lab
+  PgLite pilots. This advisory class is currently fully remediated.
+- Later enforcement can distinguish files that use manual `fc.*` arbitraries
+  from files using `S.toArbitrary(...)`; this first slice only separates
+  static-only schema codec coverage from files that already have property
+  coverage.

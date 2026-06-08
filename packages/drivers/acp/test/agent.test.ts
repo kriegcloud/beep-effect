@@ -9,6 +9,7 @@ import * as Queue from "effect/Queue";
 import * as Ref from "effect/Ref";
 import * as Schema from "effect/Schema";
 import * as Scope from "effect/Scope";
+import { FastCheck as fc } from "effect/testing";
 import { encodeJsonl, jsonRpcNotification, jsonRpcRequest, jsonRpcResponse, makeInMemoryStdio } from "./helpers.ts";
 
 const RequestPermissionRequest = jsonRpcRequest("session/request_permission", AcpSchema.RequestPermissionRequest);
@@ -21,7 +22,33 @@ const ExtRequest = jsonRpcRequest("x/test", Schema.Struct({ hello: Schema.String
 const ExtResponse = jsonRpcResponse(Schema.Struct({ ok: Schema.Boolean }));
 const decodeRequestPermissionRequest = Schema.decodeEffect(Schema.fromJsonString(RequestPermissionRequest));
 const decodeInitializeResponse = Schema.decodeEffect(Schema.fromJsonString(InitializeResponse));
+const decodeSessionCancelNotification = Schema.decodeEffect(Schema.fromJsonString(SessionCancelNotification));
 const decodeExtRequest = Schema.decodeEffect(Schema.fromJsonString(ExtRequest));
+const encodeInitializeResponse = Schema.encodeEffect(Schema.fromJsonString(InitializeResponse));
+const encodeSessionCancelNotification = Schema.encodeEffect(Schema.fromJsonString(SessionCancelNotification));
+const InitializeResponseArbitrary = Schema.toArbitrary(InitializeResponse);
+const SessionCancelNotificationArbitrary = Schema.toArbitrary(SessionCancelNotification);
+
+it("round-trips schema-derived agent JSON-RPC responses and notifications through JSON boundaries", () =>
+  fc.assert(
+    fc.property(
+      InitializeResponseArbitrary,
+      SessionCancelNotificationArbitrary,
+      (initializeResponse, cancelNotification) => {
+        const encodedInitializeResponse = Effect.runSync(encodeInitializeResponse(initializeResponse));
+        const decodedInitializeResponse = Effect.runSync(decodeInitializeResponse(encodedInitializeResponse));
+        assert.equal(Effect.runSync(encodeInitializeResponse(decodedInitializeResponse)), encodedInitializeResponse);
+
+        const encodedCancelNotification = Effect.runSync(encodeSessionCancelNotification(cancelNotification));
+        const decodedCancelNotification = Effect.runSync(decodeSessionCancelNotification(encodedCancelNotification));
+        assert.equal(
+          Effect.runSync(encodeSessionCancelNotification(decodedCancelNotification)),
+          encodedCancelNotification
+        );
+      }
+    ),
+    { numRuns: 25 }
+  ));
 
 it.effect(
   "effect-acp agent handles core agent requests and outbound client requests",

@@ -127,6 +127,26 @@ Why it matters:
   domains that become tagged unions
 - it keeps the case set anchored to the literal domain instead of a raw union
 
+## 6. Scratch Proofs for Underused Schema Capabilities
+
+Files:
+
+- `scratchpad/index.ts`
+- `scratchpad/test/schema-arbitrary-fastcheck.test.ts`
+- `scratchpad/test/schema-static-apis.test.ts`
+
+Use these files when you need:
+
+- concrete default-combinator semantics;
+- schema-derived property tests with FastCheck and Faker;
+- `TaggedUnion`, `LiteralKit`, and `MappedLiteralKit` static API examples.
+
+Why it matters:
+
+- these files are runnable teaching examples for packet agents;
+- they demonstrate source-schema-owned behavior instead of weaker test-only
+  shapes.
+
 ## Quick Selection Map
 
 - Need a `S.Class` domain payload:
@@ -138,3 +158,7 @@ Why it matters:
 - Need a `kind` or `type` tagged union:
   Start with `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
   or `packages/tooling/tool/cli/src/commands/VersionSync/internal/Models.ts`
+- Need a static API refresher:
+  Start with `scratchpad/test/schema-static-apis.test.ts`
+- Need schema-derived property test scaffolding:
+  Start with `scratchpad/test/schema-arbitrary-fastcheck.test.ts`

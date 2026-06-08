@@ -52,6 +52,47 @@ const emailChecks = S.makeFilterGroup([
 
 const EmailBranded = NormalizedString.check(emailChecks).pipe(S.brand("Email"));
 
+// --- Public non-redacted schema: branded + annotated ---
+
+/**
+ * Internal normalized, branded, non-redacted email string schema.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { EmailString } from "@beep/schema/internal/email"
+ *
+ * const decode = S.decodeUnknownEffect(EmailString)
+ * const program = decode("Admin@Example.COM")
+ *
+ * console.log(program)
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const EmailString = EmailBranded.pipe(
+  $I.annoteSchema("EmailString", {
+    description: "RFC 5322 compliant normalized email address string.",
+  })
+);
+
+/**
+ * Internal branded, non-redacted email string type.
+ *
+ * @example
+ * ```ts
+ * import type { EmailString } from "@beep/schema/internal/email"
+ *
+ * const email = "admin@example.com" as EmailString
+ * console.log(email)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type EmailString = typeof EmailString.Type;
+
 // --- Final schema: branded + redacted + annotated ---
 
 /**
@@ -71,7 +112,7 @@ const EmailBranded = NormalizedString.check(emailChecks).pipe(S.brand("Email"));
  * @category constructors
  * @since 0.0.0
  */
-export const Email = S.RedactedFromValue(EmailBranded, { label: "Email" }).pipe(
+export const Email = S.RedactedFromValue(EmailString, { label: "Email" }).pipe(
   $I.annoteSchema("Email", { description: "RFC 5322 compliant email address" })
 );
 

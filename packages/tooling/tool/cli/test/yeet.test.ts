@@ -866,6 +866,45 @@ describe("yeet quality issue index", () => {
     });
   });
 
+  it("parses structured schema-first policy findings", () => {
+    const lintStep = feedbackStep("feedback:lint", "lint");
+    const output =
+      '[schema-first:issue] {"category":"schema-first-policy","ruleId":"literal-kit-const-assertion",' +
+      '"severity":"error","file":"packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts","line":42,' +
+      '"symbol":"LiteralKit","message":"Inline LiteralKit array arguments do not need as const.",' +
+      '"remediation":"Remove the redundant as const assertion; LiteralKit already uses const type parameters."}';
+    const issues = qualityIssuesFromStepResult(
+      context,
+      lintStep,
+      RepoStepRunResult.make({
+        stepId: lintStep.id,
+        commandText: "bun run beep lint schema-first",
+        exitCode: 1,
+        output,
+        rawOutputRef: ".beep/yeet/logs/lint-schema-first.log",
+      })
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      category: "schema-first-policy",
+      subCategory: "literal-kit-const-assertion",
+      confidence: "structured",
+      file: "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
+      line: 42,
+      symbol: "LiteralKit",
+      remediation: "Remove the redundant as const assertion; LiteralKit already uses const type parameters.",
+      packageName: "@beep/repo-cli",
+      packagePath: "packages/tooling/tool/cli",
+    });
+    expect(issues[0]?.routing).toContainEqual(
+      expect.objectContaining({
+        skill: "schema-first-development",
+        reason: "Schema-first policy finding",
+      })
+    );
+  });
+
   it("renders deterministic per-package Markdown packets", () => {
     const checkStep = feedbackStep("feedback:check", "check");
     const lintStep = feedbackStep("feedback:lint", "lint");

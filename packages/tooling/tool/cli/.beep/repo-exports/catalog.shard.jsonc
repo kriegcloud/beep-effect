@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "0bab7999e7e81c0d77b34fb171ba93de7e8d1ee87d41c67bced955bfa332710e",
+    "digest": "8898f42c21c103b40fbf0b8d572cceba7a6459024dcc0727c6334a0b43da93c3",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -387,8 +387,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sha256": "abdec82697cfd9378026db93df01c949938e3a0a8d545fc07860023e588e1fe1",
-        "bytes": 22790
+        "sha256": "a70e5ba4b5d6857a2f7797f86853ea6c6c2580e3924ab00cb934ece026d787a1",
+        "bytes": 47852
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts",
@@ -667,8 +667,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sha256": "d5c58611013a4de5b62233cd342b6e60c9ac1ac0b6e357ebc0777d3cacdd438d",
-        "bytes": 27849
+        "sha256": "33984aea108d72ed489bffc1c8ef704d708dff311395cec99b788d2126faefd0",
+        "bytes": 30067
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
@@ -27129,7 +27129,7 @@
         "symbolName": "lintSchemaFirstCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 626,
+        "sourceLine": 1239,
         "summary": "Repo-wide schema-first lint command.",
         "categories": [
           "utilities"
@@ -27154,7 +27154,7 @@
         "symbolName": "runSchemaFirstLint",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 517,
+        "sourceLine": 1093,
         "summary": "Run schema-first inventory verification against the committed baseline.",
         "categories": [
           "utilities"
@@ -27179,7 +27179,7 @@
         "symbolName": "SchemaFirstInventoryEntry",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 75,
+        "sourceLine": 172,
         "summary": "Namespace for {@link SchemaFirstInventoryEntry} companion types.",
         "categories": [
           "models"
@@ -35357,7 +35357,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 228,
+        "sourceLine": 248,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -35382,7 +35382,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 174,
+        "sourceLine": 194,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -35407,7 +35407,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 45,
+        "sourceLine": 46,
         "summary": "Classification domain for normalized yeet quality findings.",
         "categories": [
           "models"
@@ -35432,7 +35432,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 75,
+        "sourceLine": 76,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -35456,7 +35456,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 115,
+        "sourceLine": 135,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35481,7 +35481,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 127,
+        "sourceLine": 147,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35505,7 +35505,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 254,
+        "sourceLine": 274,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -35530,7 +35530,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 142,
+        "sourceLine": 162,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -35555,7 +35555,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 89,
+        "sourceLine": 90,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -35580,7 +35580,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 101,
+        "sourceLine": 102,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -35753,7 +35753,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 228,
+        "sourceLine": 248,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -35778,7 +35778,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 174,
+        "sourceLine": 194,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -35803,7 +35803,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 45,
+        "sourceLine": 46,
         "summary": "Classification domain for normalized yeet quality findings.",
         "categories": [
           "models"
@@ -35828,7 +35828,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 75,
+        "sourceLine": 76,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -35852,7 +35852,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 115,
+        "sourceLine": 135,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35877,7 +35877,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 127,
+        "sourceLine": 147,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35901,7 +35901,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 254,
+        "sourceLine": 274,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -35926,7 +35926,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 142,
+        "sourceLine": 162,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -35951,7 +35951,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 89,
+        "sourceLine": 90,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -35976,7 +35976,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 101,
+        "sourceLine": 102,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -44822,7 +44822,7 @@
         "symbolName": "buildQualityIssueIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 851,
+        "sourceLine": 918,
         "summary": "Build a schema-first issue index from normalized issues.",
         "categories": [
           "constructors"
@@ -45487,7 +45487,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 228,
+        "sourceLine": 248,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -45705,7 +45705,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 174,
+        "sourceLine": 194,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -45730,7 +45730,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 45,
+        "sourceLine": 46,
         "summary": "Classification domain for normalized yeet quality findings.",
         "categories": [
           "models"
@@ -45755,7 +45755,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 75,
+        "sourceLine": 76,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -45779,7 +45779,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 115,
+        "sourceLine": 135,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -45804,7 +45804,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 127,
+        "sourceLine": 147,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -45828,7 +45828,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 254,
+        "sourceLine": 274,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -45853,7 +45853,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 142,
+        "sourceLine": 162,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -45878,7 +45878,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 89,
+        "sourceLine": 90,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -45903,7 +45903,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 101,
+        "sourceLine": 102,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -45927,7 +45927,7 @@
         "symbolName": "qualityIssuesFromStepResult",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 797,
+        "sourceLine": 859,
         "summary": "Convert a failed step result into quality issues.",
         "categories": [
           "parsing"

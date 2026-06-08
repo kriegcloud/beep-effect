@@ -54,12 +54,16 @@ const computeSha256Hex = (input: Uint8Array): Effect.Effect<string, SchemaIssue.
  * @since 0.0.0
  * @category validation
  */
-export const Sha256Hex = S.String.check(Sha256HexChecks).pipe(
-  S.brand("Sha256Hex"),
-  $I.annoteSchema("Sha256Hex", {
-    description: "A canonical lowercase SHA-256 hex digest.",
+export const Sha256Hex = S.String.check(Sha256HexChecks)
+  .annotate({
+    toArbitrary: () => (fc) => fc.stringMatching(/^[0-9a-f]{64}$/),
   })
-);
+  .pipe(
+    S.brand("Sha256Hex"),
+    $I.annoteSchema("Sha256Hex", {
+      description: "A canonical lowercase SHA-256 hex digest.",
+    })
+  );
 
 /**
  * Type for {@link Sha256Hex}.

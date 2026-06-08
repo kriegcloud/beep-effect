@@ -34,7 +34,12 @@ import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit, Result } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import type { EffectRenderAdapter, PureRenderAdapter, RenderError } from "@beep/md/Md.render";
+
+const InlineArbitrary = S.toArbitrary(Inline);
+const BlockArbitrary = S.toArbitrary(Block);
+const DocumentArbitrary = S.toArbitrary(Document);
 
 describe("@beep/md", () => {
   it("renders the intended lowercase block-constructor document shape", () => {
@@ -87,6 +92,23 @@ console.log("beep")
     );
     expect(S.decodeUnknownSync(Text)(Text.make({ value: "Hello" }))).toEqual(text);
   });
+
+  it("round-trips schema-derived Markdown AST nodes", () =>
+    fc.assert(
+      fc.property(InlineArbitrary, BlockArbitrary, DocumentArbitrary, (inline, block, document) => {
+        const decodedInline = S.decodeUnknownSync(Inline)(S.encodeSync(Inline)(inline));
+        const decodedBlock = S.decodeUnknownSync(Block)(S.encodeSync(Block)(block));
+        const decodedDocument = S.decodeUnknownSync(Document)(S.encodeSync(Document)(document));
+
+        expect(decodedInline).toEqual(inline);
+        expect(decodedBlock).toEqual(block);
+        expect(decodedDocument).toEqual(document);
+        expect(renderMarkdownInline(decodedInline)).toEqual(expect.any(String));
+        expect(renderMarkdownBlock(decodedBlock)).toEqual(expect.any(String));
+        expect(Result.isSuccess(Md.render(decodedDocument))).toBe(true);
+      }),
+      { numRuns: 50 }
+    ));
 
   it("renders inline Markdown and HTML variants with escaped text by default", () => {
     expect(renderMarkdownInline(Md.text("# title <tag>."))).toBe("\\# title \\<tag\\>\\.");

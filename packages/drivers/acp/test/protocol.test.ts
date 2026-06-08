@@ -12,6 +12,7 @@ import * as Queue from "effect/Queue";
 import * as Ref from "effect/Ref";
 import * as Schema from "effect/Schema";
 import * as Stream from "effect/Stream";
+import { FastCheck as fc } from "effect/testing";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import {
   encodeJsonl,
@@ -36,6 +37,10 @@ const ExtResponse = jsonRpcResponse(Schema.Struct({ ok: Schema.Boolean }));
 const decodeSessionCancelNotification = Schema.decodeEffect(Schema.fromJsonString(SessionCancelNotification));
 const decodeExtRequest = Schema.decodeEffect(Schema.fromJsonString(ExtRequest));
 const decodeRequestPermissionResponse = Schema.decodeEffect(Schema.fromJsonString(RequestPermissionResponse));
+const encodeSessionCancelNotification = Schema.encodeEffect(Schema.fromJsonString(SessionCancelNotification));
+const encodeRequestPermissionResponse = Schema.encodeEffect(Schema.fromJsonString(RequestPermissionResponse));
+const SessionCancelNotificationArbitrary = Schema.toArbitrary(SessionCancelNotification);
+const RequestPermissionResponseArbitrary = Schema.toArbitrary(RequestPermissionResponse);
 const childProcessProtocolTestTimeout = 30_000;
 const mockPeerPath = Effect.map(Effect.service(Path.Path), (path) =>
   path.join(import.meta.dirname, "fixtures/acp-mock-peer.ts")
@@ -51,6 +56,30 @@ const makeHandle = Effect.fn("AcpProtocolTest.makeHandle")(function* (env?: Reco
   });
   return yield* spawner.spawn(command);
 });
+
+it("round-trips schema-derived JSON-RPC notifications and responses through JSON boundaries", () =>
+  fc.assert(
+    fc.property(
+      SessionCancelNotificationArbitrary,
+      RequestPermissionResponseArbitrary,
+      (cancelNotification, permissionResponse) => {
+        const encodedCancelNotification = Effect.runSync(encodeSessionCancelNotification(cancelNotification));
+        const decodedCancelNotification = Effect.runSync(decodeSessionCancelNotification(encodedCancelNotification));
+        assert.equal(
+          Effect.runSync(encodeSessionCancelNotification(decodedCancelNotification)),
+          encodedCancelNotification
+        );
+
+        const encodedPermissionResponse = Effect.runSync(encodeRequestPermissionResponse(permissionResponse));
+        const decodedPermissionResponse = Effect.runSync(decodeRequestPermissionResponse(encodedPermissionResponse));
+        assert.equal(
+          Effect.runSync(encodeRequestPermissionResponse(decodedPermissionResponse)),
+          encodedPermissionResponse
+        );
+      }
+    ),
+    { numRuns: 25 }
+  ));
 
 it.layer(NodeServices.layer)("effect-acp protocol", (it) => {
   it.effect(

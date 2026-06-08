@@ -15,6 +15,7 @@ import { cast } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const $I = $SharedDomainId.create("entity/test/EntityKernel");
 const makeSharedId = EntityId.factory("shared", $I);
@@ -195,6 +196,24 @@ describe("EntityRef and shared entity primitives", () => {
       expect(yield* S.decodeUnknownEffect(primitives.VectorClock)({ replica: 1 })).toEqual({ replica: 1 });
     })
   );
+
+  it("round-trips schema-derived document ids through entity references", () =>
+    fc.assert(
+      fc.asyncProperty(S.toArbitrary(DocumentId), async (id) => {
+        const ref = EntityRef.make(DocumentId, id);
+        const encodedRef = await Effect.runPromise(S.encodeEffect(EntityRef.EntityRef)(ref));
+        const decodedRef = await Effect.runPromise(S.decodeUnknownEffect(EntityRef.EntityRef)(encodedRef));
+
+        expect(encodedRef).toEqual({
+          entityType: DocumentId.entityType,
+          id,
+        });
+        expect(decodedRef.entityType).toBe(DocumentId.entityType);
+        expect(DocumentId.equivalence(cast(decodedRef.id), cast(id))).toBe(true);
+        expect(Result.isSuccess(EntityRef.makeResult(DocumentId, id))).toBe(true);
+      }),
+      { numRuns: 50 }
+    ));
 
   it.effect(
     "decodes principals, source kinds, and barrel exports",

@@ -4,6 +4,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Effect, Exit } from "effect";
 import { cast } from "effect/Function";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import type * as EntityId from "@beep/shared-domain/entity/EntityId";
 
 type IdentitySpec = {
@@ -316,6 +317,21 @@ describe("P3 identity namespaces", () => {
       }
     })
   );
+
+  it("round-trips schema-derived ids for every identity namespace", () => {
+    for (const spec of specs) {
+      fc.assert(
+        fc.asyncProperty(S.toArbitrary(spec.schema), async (id) => {
+          const decoded = await Effect.runPromise(S.decodeUnknownEffect(spec.schema)(id));
+          const encoded = await Effect.runPromise(S.encodeEffect(spec.schema)(decoded));
+
+          expect(encoded, spec.label).toBe(id);
+          expect(spec.schema.equivalence(cast(decoded), cast(id)), spec.label).toBe(true);
+        }),
+        { numRuns: 10 }
+      );
+    }
+  });
 
   it.effect(
     "validates runtime identity composers",

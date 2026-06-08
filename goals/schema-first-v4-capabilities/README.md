@@ -1,0 +1,167 @@
+# Schema-First V4 Capabilities
+
+This packet turns a research finding into a repo initiative: we already require
+schema-first development, but we are underusing Effect v4 Schema features that
+make that law more valuable and more enforceable.
+
+The packet is grounded in the local Effect v4 subtree at `.repos/effect-v4` and
+the repo's current patterns. It is intentionally phased: first teach and enforce
+the high-leverage patterns, then remediate call sites with feedback from Yeet
+and schema-first lint.
+
+## Review Status
+
+Packet review round 01 is recorded in `reviews/round-01.md`. The review fixed
+source-fidelity issues around seeded Faker arbitraries, `withKeyDefaults`
+semantics, `annotateKey`, diagnostics, SchemaRepresentation limits, and Yeet
+issue-shape claims.
+
+The packet was then expanded to include schema-derived static APIs such as
+`TaggedUnion.match`, `TaggedUnion.cases`, `LiteralKit.Enum`, `LiteralKit.is`,
+`LiteralKit.pickOptions`, `MappedLiteralKit` directional helpers, and
+class-local derived helpers. Future agents should treat `SPEC.md` as the source
+of truth for rule cards and `PLAN.md` as the phase order.
+
+The packet was also aligned after merging `feat/yeet-pr-closeout-loop`.
+Closure should now use Yeet's exact proof-reuse paths only when Yeet accepts
+the current state, should reserve `publish --start-pr-early --monitor` for the
+explicit remote-overlap path, and should run `yeet closeout` as a read-first PR
+gate before claiming hosted review readiness.
+
+## Scratch References
+
+- `scratchpad/index.ts` contains concrete examples for:
+  - `S.withDecodingDefault`
+  - `S.withConstructorDefault`
+  - `S.withDecodingDefaultType`
+  - `S.withDecodingDefaultKey`
+  - `S.withDecodingDefaultTypeKey`
+  - `S.withDecodingDefault(..., { encodingStrategy: "omit" })`
+- `scratchpad/test/schema-arbitrary-fastcheck.test.ts` contains a runnable
+  property-testing scratch:
+  - static fixture passes on an under-specified `S.Number` schema;
+  - `S.toArbitrary` plus FastCheck finds the broader domain;
+  - `S.Int` plus range checks fixes the model;
+  - `annotate({ toArbitrary })` demonstrates seeded Faker integration.
+- `scratchpad/test/schema-static-apis.test.ts` contains a runnable static API
+  scratch:
+  - `S.TaggedUnion` exposes `.cases`, `.guards`, `.isAnyOf`, and `.match`;
+  - `LiteralKit` exposes `.Options`, `.Enum`, `.is`, `.pickOptions`,
+    `.omitOptions`, `.$match`, `.thunk`, and `.toTaggedUnion`;
+  - `MappedLiteralKit` exposes directional `From` / `To` literal helpers.
+
+## Why This Matters
+
+Schema-first should not only replace `type` and `interface`. It should make the
+schema the active center for validation, construction defaults, generated test
+data, equivalence, boundary codecs, diagnostics, and eventual code generation.
+
+This directly reduces classes of bugs:
+
+- fallback object literals drifting away from accepted input;
+- happy-path fixtures masking negative, huge, or malformed values;
+- `S.Number` accepting `NaN` / infinities where `S.Finite` was intended;
+- broad `S.String` / `S.Array` schemas failing to say what the domain accepts;
+- agents hand-writing branching and guard helpers that schema values already
+  expose;
+- manual equality checks that disagree with schema semantics;
+- boundary parsers and generated models carrying duplicate plumbing.
+
+The intent is not to delete fixtures. Keep fixtures for golden payloads,
+snapshots, external compatibility, migrations, and regression repros. Add
+schema-derived properties when a behavior claims to hold across a schema domain.
+When those properties are hard to generate, sharpen the source schema or add
+source-schema arbitrary annotations instead of defining weaker test schemas.
+
+## Primary Sources
+
+- `.repos/effect-v4/packages/effect/SCHEMA.md`
+- `.repos/effect-v4/packages/effect/src/Schema.ts`
+- `.repos/effect-v4/packages/effect/src/SchemaAST.ts`
+- `.repos/effect-v4/packages/effect/src/SchemaGetter.ts`
+- `.repos/effect-v4/packages/effect/src/SchemaIssue.ts`
+- `.repos/effect-v4/packages/effect/src/SchemaParser.ts`
+- `.repos/effect-v4/packages/effect/src/SchemaRepresentation.ts`
+- `.repos/effect-v4/packages/effect/src/SchemaTransformation.ts`
+- `.repos/effect-v4/packages/effect/src/SchemaUtils.ts`
+- `packages/foundation/modeling/schema/src/LiteralKit/LiteralKit.schema.ts`
+- `packages/foundation/modeling/schema/src/MappedLiteralKit/MappedLiteralKit.schema.ts`
+- `packages/foundation/modeling/schema/src/SchemaUtils/withLiteralKitStatics.ts`
+- `packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts`
+- `packages/tooling/tool/cli/src/commands/Quality/Tasks.ts`
+- `packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts`
+
+## Current Readiness
+
+P0 and P1 are complete. P2 is complete for the initial rule-card set: current
+`beep lint schema-first` failures emit structured `[schema-first:issue]` lines,
+and Yeet parses them into `schema-first-policy` quality issues with rule id,
+file, remediation, and package routing. The live repo currently tracks zero
+boundary-codec advisories after the Runpod OpenAPI generator remediation, zero
+equivalence advisories after `LocalDate.equals` / `Timestamp.equals` were moved to
+`S.toEquivalence`, zero active precision-audit advisories after the two
+remaining broad email fields were reviewed as raw-input/diagnostic exceptions,
+zero arbitrary-test migration advisories, and zero
+defaults/numeric/static-api advisories. P4 has started with low-risk Sha256,
+Markdown, secure-header
+option, CSV, repo-configs route-predicate, LocalDate codec, and Organization
+value-schema, identity-id, and EntityKernel property-test pilots: `Sha256Hex`
+now owns a `toArbitrary` annotation, `Markdown` works with its derived arbitrary
+directly, secure header option tests derive COEP/COOP/CORP values from source
+schemas, CSV row generation exposed a `-0` text round-trip hole that was fixed
+by tightening the row id source schema,
+`NextModels.schema.test.ts` derives `RouteHas` predicates from the source
+schema, and `LocalDate.test.ts` derives class instances for a schema
+encode/decode law in both schema and shared-domain packages;
+`Organization.test.ts` derives license-tier/settings values from source schemas.
+`IdentityNamespaces.test.ts` derives ids across every registered identity
+namespace.
+`EntityKernel.test.ts` derives document ids and proves entity-reference
+round-trips.
+`OrganizationDisplay.test.ts` derives browser-safe display/form payloads and
+proves UI codec stability plus the primary-label law.
+`packages/foundation/capability/md/test/Md.test.ts` derives Markdown AST
+inline/block/document values and proves schema codec plus renderer handoff
+stability.
+`FileProcessing.test.ts` derives file-processing artifact and operation payloads
+from source schemas; the pilot also added valid-subset arbitrary annotations for
+prefixed SHA-256 identifiers and local artifact names/extensions.
+`Graph/Schema.test.ts` derives NLP graph nodes, edges, annotation nodes, and
+analysis summaries from source schemas and proves codec stability.
+`PatternCore.test.ts` derives NLP pattern options, elements, and full patterns
+from source schemas and proves schema codec plus compact encode/decode
+stability.
+`ServicesAndSurface.test.ts` derives semantic-web RDF datasets and
+canonicalization DTOs from source schemas and proves encoded-boundary stability.
+`JsonLd.test.ts` derives JSON-LD context/literal/frame DTOs from source schemas
+and proves encoded-boundary stability beside exact document/RDF fixtures.
+`Form.test.ts` derives values from a schema produced by
+`FormBuilder.buildSchema(...)` and proves encoded-boundary stability.
+`agent-effectiveness-command.test.ts` derives agent-effectiveness report values
+from source schemas and proves the same `S.fromJsonString(...)` JSON boundary
+used by the command renderers.
+`ai-metrics-command.test.ts` derives representative AI-metrics command report
+values from source schemas and proves the same JSON boundary across forwarder,
+label queue, mirror, OTLP, and weekly-report outputs.
+`files-command.test.ts` derives representative files-command and
+file-processing report values from source schemas and proves JSON-boundary
+stability while leaving larger media manifest arbitraries for a bounded
+annotation pass.
+`Libpff.service.test.ts` and `Tika.service.test.ts` derive file-processing
+source artifacts and operation payloads from source schemas and prove direct
+schema codec stability for runtime data that may include `Uint8Array` bytes.
+`VeniceAI.service.test.ts` derives local OpenAPI operation and prompt-body
+fixture payloads from source schemas and proves direct schema codec stability
+beside the exact swagger and request-shaping checks.
+`agent.test.ts` and `protocol.test.ts` derive ACP JSON-RPC responses and
+notifications from source schemas and prove JSON-boundary stability.
+`WorkItemDrizzleRepository.pglite.test.ts` derives architecture-lab domain ids
+and titles from source schemas in an always-on property while keeping the PgLite
+repository cases behind their existing integration gate.
+Wave 2 also started with HubSpot request-email and shared `EmailString`
+precision pilots. These pilots reduced arbitrary-test advisories from 27 to 0
+and active precision-audit advisories from 7 to 0, with two reviewed precision
+exceptions still tracked in the inventory.
+The next packet phases are helper evaluation and ordered remediation waves.
+
+Use `PLAN.md` for sequencing and `SPEC.md` for acceptance.

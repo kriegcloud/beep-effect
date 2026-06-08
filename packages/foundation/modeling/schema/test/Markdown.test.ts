@@ -4,6 +4,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const replaceGlobalBunMarkdownHtml = (html: unknown) =>
   Effect.sync(() => {
@@ -32,6 +33,8 @@ const restoreGlobalBunMarkdownHtml = ({
   });
 
 describe("Markdown", () => {
+  const markdownArbitrary = S.toArbitrary(Markdown);
+
   it.effect(
     "brands Markdown text accepted by the active parser",
     Effect.fnUntraced(function* () {
@@ -42,6 +45,17 @@ describe("Markdown", () => {
       expect(yield* decodeMarkdown("")).toBe("");
     })
   );
+
+  it("derives accepted Markdown examples from the source schema", async () => {
+    const decodeMarkdown = S.decodeUnknownEffect(Markdown);
+
+    await fc.assert(
+      fc.asyncProperty(markdownArbitrary, async (document) => {
+        await expect(Effect.runPromise(decodeMarkdown(document))).resolves.toBe(document);
+      }),
+      { numRuns: 25 }
+    );
+  });
 
   it("falls back to micromark with GFM extensions when Bun is unavailable", () => {
     const parseWithoutBun = makeParseMarkdownForSchema({}, loadMarkdownModule, {

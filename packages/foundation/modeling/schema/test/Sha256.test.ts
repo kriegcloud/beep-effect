@@ -3,15 +3,28 @@ import { Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const knownDigest = "d01b7ce9154ef0264ce71e457ea81903b87a58d6cf2cd6be474886fdbc6f61d9";
 const emptyDigest = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 
 describe("Sha256Hex", () => {
   const decode = S.decodeUnknownSync(Sha256Hex);
+  const arbitrary = S.toArbitrary(Sha256Hex);
 
   it("accepts canonical lowercase digests", () => {
     expect(decode(knownDigest)).toBe(knownDigest);
+  });
+
+  it("derives canonical digest examples from the source schema", () => {
+    fc.assert(
+      fc.property(arbitrary, (digest) => {
+        expect(decode(digest)).toBe(digest);
+        expect(digest).toHaveLength(64);
+        expect(digest).toMatch(/^[0-9a-f]{64}$/);
+      }),
+      { numRuns: 25 }
+    );
   });
 
   it("rejects uppercase digests", () => {

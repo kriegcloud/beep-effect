@@ -20,6 +20,22 @@ import type * as HttpClientResponse from "effect/unstable/http/HttpClientRespons
 
 const $I = $HubspotId.create("HubSpot.service");
 
+const hubSpotEmailPattern =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+
+const HubSpotContactEmail = S.NonEmptyString.check(
+  S.isMaxLength(254, {
+    message: "HubSpot contact email must be 254 characters or fewer.",
+  }),
+  S.isPattern(hubSpotEmailPattern, {
+    message: "HubSpot contact email must be a valid email address.",
+  })
+).pipe(
+  $I.annoteSchema("HubSpotContactEmail", {
+    description: "HubSpot contact email used as the CRM upsert identity.",
+  })
+);
+
 /**
  * HubSpot form field submission value.
  *
@@ -156,7 +172,7 @@ export class HubSpotSubmitFormResponse extends S.Class<HubSpotSubmitFormResponse
  */
 export class HubSpotUpsertContactRequest extends S.Class<HubSpotUpsertContactRequest>($I`HubSpotUpsertContactRequest`)(
   {
-    email: S.String,
+    email: HubSpotContactEmail,
     objectWriteTraceId: S.optionalKey(S.String),
     properties: S.Record(S.String, S.String),
   },

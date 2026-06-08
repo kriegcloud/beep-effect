@@ -28,6 +28,7 @@ import {
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { describe, expect, it } from "vitest";
@@ -48,6 +49,16 @@ const decodeMirrorBundle = S.decodeUnknownEffect(S.fromJsonString(AiMetricsMirro
 const decodeOtlpExportResult = S.decodeUnknownEffect(S.fromJsonString(AiMetricsOtlpExportResult));
 const decodeSourceDiscovery = S.decodeUnknownEffect(S.fromJsonString(AiMetricsSourceDiscoveryResult));
 const decodeWeeklyReport = S.decodeUnknownEffect(S.fromJsonString(AiMetricsWeeklyReportResult));
+const encodeForwarderResult = S.encodeUnknownEffect(S.fromJsonString(AiMetricsForwarderRunResult));
+const encodeLabelQueue = S.encodeUnknownEffect(S.fromJsonString(AiMetricsLabelQueueResult));
+const encodeMirrorBundle = S.encodeUnknownEffect(S.fromJsonString(AiMetricsMirrorBundleResult));
+const encodeOtlpExportResult = S.encodeUnknownEffect(S.fromJsonString(AiMetricsOtlpExportResult));
+const encodeWeeklyReport = S.encodeUnknownEffect(S.fromJsonString(AiMetricsWeeklyReportResult));
+const ForwarderResultArbitrary = S.toArbitrary(AiMetricsForwarderRunResult);
+const LabelQueueArbitrary = S.toArbitrary(AiMetricsLabelQueueResult);
+const MirrorBundleArbitrary = S.toArbitrary(AiMetricsMirrorBundleResult);
+const OtlpExportResultArbitrary = S.toArbitrary(AiMetricsOtlpExportResult);
+const WeeklyReportArbitrary = S.toArbitrary(AiMetricsWeeklyReportResult);
 const decodeUnknownJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const isString = (value: unknown): value is string => typeof value === "string";
 const farFutureUntilEpochMs = 4_102_444_800_000;
@@ -241,6 +252,39 @@ const waitForCapturedOtlpTraceRequest = (
   );
 
 describe("ai-metrics command", () => {
+  it("round-trips schema-derived report data through JSON command boundaries", () =>
+    fc.assert(
+      fc.property(
+        ForwarderResultArbitrary,
+        LabelQueueArbitrary,
+        MirrorBundleArbitrary,
+        OtlpExportResultArbitrary,
+        WeeklyReportArbitrary,
+        (forwarderResult, labelQueue, mirrorBundle, otlpExportResult, weeklyReport) => {
+          const encodedForwarderResult = Effect.runSync(encodeForwarderResult(forwarderResult));
+          const decodedForwarderResult = Effect.runSync(decodeForwarderResult(encodedForwarderResult));
+          expect(Effect.runSync(encodeForwarderResult(decodedForwarderResult))).toBe(encodedForwarderResult);
+
+          const encodedLabelQueue = Effect.runSync(encodeLabelQueue(labelQueue));
+          const decodedLabelQueue = Effect.runSync(decodeLabelQueue(encodedLabelQueue));
+          expect(Effect.runSync(encodeLabelQueue(decodedLabelQueue))).toBe(encodedLabelQueue);
+
+          const encodedMirrorBundle = Effect.runSync(encodeMirrorBundle(mirrorBundle));
+          const decodedMirrorBundle = Effect.runSync(decodeMirrorBundle(encodedMirrorBundle));
+          expect(Effect.runSync(encodeMirrorBundle(decodedMirrorBundle))).toBe(encodedMirrorBundle);
+
+          const encodedOtlpExportResult = Effect.runSync(encodeOtlpExportResult(otlpExportResult));
+          const decodedOtlpExportResult = Effect.runSync(decodeOtlpExportResult(encodedOtlpExportResult));
+          expect(Effect.runSync(encodeOtlpExportResult(decodedOtlpExportResult))).toBe(encodedOtlpExportResult);
+
+          const encodedWeeklyReport = Effect.runSync(encodeWeeklyReport(weeklyReport));
+          const decodedWeeklyReport = Effect.runSync(decodeWeeklyReport(encodedWeeklyReport));
+          expect(Effect.runSync(encodeWeeklyReport(decodedWeeklyReport))).toBe(encodedWeeklyReport);
+        }
+      ),
+      { numRuns: 25 }
+    ));
+
   it("emits ingest JSON without raw local paths or Claude private identifiers", () =>
     Effect.runPromise(
       withTempDirectory((tmpDir) =>

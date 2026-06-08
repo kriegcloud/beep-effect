@@ -8,10 +8,11 @@ import { makeDrizzleWorkerRepository } from "@beep/architecture-lab-server/entit
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import { makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
 import { A, Str } from "@beep/utils";
-import { describe, expect, layer } from "@effect/vitest";
+import { describe, expect, it, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import type { SqlTestHooks } from "@beep/test-utils";
 
 const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
@@ -22,6 +23,14 @@ const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 const decodeWorkItemTitle = S.decodeUnknownEffect(DomainWorkItem.WorkItemTitle);
 const decodeWorkerId = S.decodeUnknownEffect(DomainWorker.WorkerId);
 const decodeOrganizationId = S.decodeUnknownEffect(DomainWorker.WorkerOrganizationId);
+const encodeWorkItemId = S.encodeEffect(DomainWorkItem.WorkItemId);
+const encodeWorkItemTitle = S.encodeEffect(DomainWorkItem.WorkItemTitle);
+const encodeWorkerId = S.encodeEffect(DomainWorker.WorkerId);
+const encodeOrganizationId = S.encodeEffect(DomainWorker.WorkerOrganizationId);
+const WorkItemIdArbitrary = S.toArbitrary(DomainWorkItem.WorkItemId);
+const WorkItemTitleArbitrary = S.toArbitrary(DomainWorkItem.WorkItemTitle);
+const WorkerIdArbitrary = S.toArbitrary(DomainWorker.WorkerId);
+const OrganizationIdArbitrary = S.toArbitrary(DomainWorker.WorkerOrganizationId);
 const PgliteIntegrationTimeout = 300_000;
 
 const makePgliteLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
@@ -64,6 +73,34 @@ const migrateArchitectureLab = Effect.fnUntraced(function* () {
 const WorkItemDrizzleRepositoryLayer = Layer.mergeAll(ArchitectureLabConfigTest, makeDrizzleLayer()).pipe(
   Layer.provideMerge(makePgliteLayer())
 );
+
+it("round-trips schema-derived repository identity values through domain schemas", () =>
+  fc.assert(
+    fc.property(
+      WorkItemIdArbitrary,
+      WorkItemTitleArbitrary,
+      WorkerIdArbitrary,
+      OrganizationIdArbitrary,
+      (workItemId, title, workerId, organizationId) => {
+        const encodedWorkItemId = Effect.runSync(encodeWorkItemId(workItemId));
+        const decodedWorkItemId = Effect.runSync(decodeWorkItemId(encodedWorkItemId));
+        expect(Effect.runSync(encodeWorkItemId(decodedWorkItemId))).toBe(encodedWorkItemId);
+
+        const encodedTitle = Effect.runSync(encodeWorkItemTitle(title));
+        const decodedTitle = Effect.runSync(decodeWorkItemTitle(encodedTitle));
+        expect(Effect.runSync(encodeWorkItemTitle(decodedTitle))).toBe(encodedTitle);
+
+        const encodedWorkerId = Effect.runSync(encodeWorkerId(workerId));
+        const decodedWorkerId = Effect.runSync(decodeWorkerId(encodedWorkerId));
+        expect(Effect.runSync(encodeWorkerId(decodedWorkerId))).toBe(encodedWorkerId);
+
+        const encodedOrganizationId = Effect.runSync(encodeOrganizationId(organizationId));
+        const decodedOrganizationId = Effect.runSync(decodeOrganizationId(encodedOrganizationId));
+        expect(Effect.runSync(encodeOrganizationId(decodedOrganizationId))).toBe(encodedOrganizationId);
+      }
+    ),
+    { numRuns: 25 }
+  ));
 
 if (!shouldRunPgliteIntegration) {
   describe.skip("ArchitectureLab Drizzle repository PgLite integration", () => {});

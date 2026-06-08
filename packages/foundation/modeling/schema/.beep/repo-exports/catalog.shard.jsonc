@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "283f0b07cf8cb3171e2263e112d5e80c0ebd4b847c298148c1f5bd4626a7d3e3",
+    "digest": "b0c8293506e08f7739cc1f2c403a086c3cd6c16a6768ad2f11bc93a74825ccaa",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -352,8 +352,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/Email.ts",
-        "sha256": "cb354eedcf1ea84c62f3483ffa7f7eecad8f93e26562372b3b1f2d6919dfcf7d",
-        "bytes": 1069
+        "sha256": "117e2d67cac4f01b0d9fbfb5a74984dca10a061ff47da1f00f5d27a40bbdcf13",
+        "bytes": 2089
       },
       {
         "path": "packages/foundation/modeling/schema/src/EntitySchema/EntitySchema.constructors.ts",
@@ -707,8 +707,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/internal/email.ts",
-        "sha256": "e36cd884f3cf38fc74c2247a3331e878be4feacc07d61278cc49eaee73f5e01e",
-        "bytes": 2384
+        "sha256": "250895f781ad9dc568f78a5edd94f2249b64dbe0884571e0f28509a6b4b19277",
+        "bytes": 3311
       },
       {
         "path": "packages/foundation/modeling/schema/src/internal/markdown.ts",
@@ -767,8 +767,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sha256": "b08e77bb17ca28735ab9e1fb6777ae99d527599dc82f507d1bce3fa31d398e11",
-        "bytes": 19209
+        "sha256": "b138914a0990ac6b1cee58f98f59f049e4da8dfc87c96d42a1947334c51b7f4f",
+        "bytes": 19101
       },
       {
         "path": "packages/foundation/modeling/schema/src/Logs.ts",
@@ -1052,8 +1052,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sha256": "a3069760bf8d5d5d9916d0fbe30ee8b81ac7d8dd4f87015ac04ccace8bd006c0",
-        "bytes": 4807
+        "sha256": "17996819b200259ec89610290bd5d38693b4de734b8ec3c73574690314dc517d",
+        "bytes": 4907
       },
       {
         "path": "packages/foundation/modeling/schema/src/Slug.ts",
@@ -1107,8 +1107,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/Timestamp/Timestamp.schema.ts",
-        "sha256": "5ce4bb3275d0e578e29d82274f1f55a6244cae91b763ae5ec0d72626cb6a75ea",
-        "bytes": 17539
+        "sha256": "225845e7b94df61ecea0c8f9c902eca633c26423a5ef490507996389e3dd56f8",
+        "bytes": 17481
       },
       {
         "path": "packages/foundation/modeling/schema/src/Timezone.ts",
@@ -1308,8 +1308,8 @@
       "@beep/schema/Yaml"
     ],
     "counts": {
-      "publicExportEntries": 1748,
-      "uniqueSymbols": 719,
+      "publicExportEntries": 1752,
+      "uniqueSymbols": 720,
       "sourceFiles": 228
     },
     "exports": [
@@ -1373,7 +1373,7 @@
         "symbolName": "addDays",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 433,
+        "sourceLine": 429,
         "summary": "Add days to a `LocalDate`.",
         "categories": [
           "combinators"
@@ -1398,7 +1398,7 @@
         "symbolName": "addMonths",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 456,
+        "sourceLine": 452,
         "summary": "Add months to a `LocalDate`.",
         "categories": [
           "combinators"
@@ -1423,7 +1423,7 @@
         "symbolName": "addYears",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 479,
+        "sourceLine": 475,
         "summary": "Add years to a `LocalDate`.",
         "categories": [
           "combinators"
@@ -2790,7 +2790,7 @@
         "symbolName": "daysInMonth",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 625,
+        "sourceLine": 621,
         "summary": "Get the number of days in a given month, accounting for leap years.",
         "categories": [
           "utilities"
@@ -3027,7 +3027,7 @@
         "symbolName": "diffInDays",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 503,
+        "sourceLine": 499,
         "summary": "Get the difference in whole days between two `LocalDate` values.",
         "categories": [
           "utilities"
@@ -3995,7 +3995,7 @@
         "symbolName": "Email",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Email.ts",
-        "sourceLine": 29,
+        "sourceLine": 67,
         "summary": "RFC 5322 compliant email address schema.",
         "categories": [
           "constructors"
@@ -4020,7 +4020,7 @@
         "symbolName": "Email",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Email.ts",
-        "sourceLine": 48,
+        "sourceLine": 86,
         "summary": "Branded, redacted email address type extracted from {@link Email}.",
         "categories": [
           "models"
@@ -4034,6 +4034,56 @@
           "@since"
         ],
         "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema . email type branded, redacted email address type extracted from {@link email}. models packages/foundation/modeling/schema/src/email.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/index.ts",
+        "symbolName": "EmailString",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/schema/src/Email.ts",
+        "sourceLine": 30,
+        "summary": "RFC 5322 compliant email address string schema.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema . emailstring const rfc 5322 compliant email address string schema. constructors packages/foundation/modeling/schema/src/email.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/index.ts",
+        "symbolName": "EmailString",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/schema/src/Email.ts",
+        "sourceLine": 46,
+        "summary": "Branded email address string type extracted from {@link EmailString}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema . emailstring type branded email address string type extracted from {@link emailstring}. models packages/foundation/modeling/schema/src/email.ts"
       },
       {
         "packageName": "@beep/schema",
@@ -4070,7 +4120,7 @@
         "symbolName": "endOfMonth",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 548,
+        "sourceLine": 544,
         "summary": "Return the last day of the month for the given `LocalDate`.",
         "categories": [
           "utilities"
@@ -4095,7 +4145,7 @@
         "symbolName": "endOfYear",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 590,
+        "sourceLine": 586,
         "summary": "Return December 31st for the year of the given `LocalDate`.",
         "categories": [
           "utilities"
@@ -6434,7 +6484,7 @@
         "symbolName": "isLeapYear",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 610,
+        "sourceLine": 606,
         "summary": "Check whether a year is a leap year.",
         "categories": [
           "predicates"
@@ -7246,7 +7296,7 @@
         "symbolName": "LocalDateFromString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 654,
+        "sourceLine": 650,
         "summary": "Schema that transforms ISO 8601 date strings (`YYYY-MM-DD`) into `LocalDate` instances.",
         "categories": [
           "constructors"
@@ -7271,7 +7321,7 @@
         "symbolName": "LocalDateFromString",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 695,
+        "sourceLine": 691,
         "summary": "Namespace members for {@link LocalDateFromString}.",
         "categories": [
           "models"
@@ -7296,7 +7346,7 @@
         "symbolName": "LocalDateFromString",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 679,
+        "sourceLine": 675,
         "summary": "Decoded `LocalDate` type extracted from {@link LocalDateFromString}.",
         "categories": [
           "models"
@@ -10477,7 +10527,7 @@
         "symbolName": "Sha256Hex",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sourceLine": 77,
+        "sourceLine": 81,
         "summary": "Type for {@link Sha256Hex}.",
         "categories": [
           "models"
@@ -10502,7 +10552,7 @@
         "symbolName": "Sha256HexFromBytes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sourceLine": 97,
+        "sourceLine": 101,
         "summary": "One-way schema that decodes a byte array into a canonical lowercase SHA-256",
         "categories": [
           "validation"
@@ -10527,7 +10577,7 @@
         "symbolName": "Sha256HexFromBytes",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sourceLine": 120,
+        "sourceLine": 124,
         "summary": "Type for {@link Sha256HexFromBytes}.",
         "categories": [
           "models"
@@ -10552,7 +10602,7 @@
         "symbolName": "Sha256HexFromHexBytes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sourceLine": 140,
+        "sourceLine": 144,
         "summary": "One-way schema that decodes a hex-encoded byte string into a canonical",
         "categories": [
           "validation"
@@ -10577,7 +10627,7 @@
         "symbolName": "Sha256HexFromHexBytes",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sourceLine": 160,
+        "sourceLine": 164,
         "summary": "Type for {@link Sha256HexFromHexBytes}.",
         "categories": [
           "models"
@@ -10726,7 +10776,7 @@
         "symbolName": "startOfMonth",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 527,
+        "sourceLine": 523,
         "summary": "Return the first day of the month for the given `LocalDate`.",
         "categories": [
           "utilities"
@@ -10751,7 +10801,7 @@
         "symbolName": "startOfYear",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 569,
+        "sourceLine": 565,
         "summary": "Return January 1st for the year of the given `LocalDate`.",
         "categories": [
           "utilities"
@@ -20587,7 +20637,7 @@
         "symbolName": "Email",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Email.ts",
-        "sourceLine": 29,
+        "sourceLine": 67,
         "summary": "RFC 5322 compliant email address schema.",
         "categories": [
           "constructors"
@@ -20612,7 +20662,7 @@
         "symbolName": "Email",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Email.ts",
-        "sourceLine": 48,
+        "sourceLine": 86,
         "summary": "Branded, redacted email address type extracted from {@link Email}.",
         "categories": [
           "models"
@@ -20626,6 +20676,56 @@
           "@since"
         ],
         "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema/email ./email email type branded, redacted email address type extracted from {@link email}. models packages/foundation/modeling/schema/src/email.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema/Email",
+        "exportSubpath": "./Email",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/Email.ts",
+        "symbolName": "EmailString",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/schema/src/Email.ts",
+        "sourceLine": 30,
+        "summary": "RFC 5322 compliant email address string schema.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema/email ./email emailstring const rfc 5322 compliant email address string schema. constructors packages/foundation/modeling/schema/src/email.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema/Email",
+        "exportSubpath": "./Email",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/Email.ts",
+        "symbolName": "EmailString",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/schema/src/Email.ts",
+        "sourceLine": 46,
+        "summary": "Branded email address string type extracted from {@link EmailString}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema/email ./email emailstring type branded email address string type extracted from {@link emailstring}. models packages/foundation/modeling/schema/src/email.ts"
       },
       {
         "packageName": "@beep/schema",
@@ -32978,7 +33078,7 @@
         "symbolName": "addDays",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 433,
+        "sourceLine": 429,
         "summary": "Add days to a `LocalDate`.",
         "categories": [
           "combinators"
@@ -33003,7 +33103,7 @@
         "symbolName": "addMonths",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 456,
+        "sourceLine": 452,
         "summary": "Add months to a `LocalDate`.",
         "categories": [
           "combinators"
@@ -33028,7 +33128,7 @@
         "symbolName": "addYears",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 479,
+        "sourceLine": 475,
         "summary": "Add years to a `LocalDate`.",
         "categories": [
           "combinators"
@@ -33053,7 +33153,7 @@
         "symbolName": "daysInMonth",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 625,
+        "sourceLine": 621,
         "summary": "Get the number of days in a given month, accounting for leap years.",
         "categories": [
           "utilities"
@@ -33078,7 +33178,7 @@
         "symbolName": "diffInDays",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 503,
+        "sourceLine": 499,
         "summary": "Get the difference in whole days between two `LocalDate` values.",
         "categories": [
           "utilities"
@@ -33103,7 +33203,7 @@
         "symbolName": "endOfMonth",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 548,
+        "sourceLine": 544,
         "summary": "Return the last day of the month for the given `LocalDate`.",
         "categories": [
           "utilities"
@@ -33128,7 +33228,7 @@
         "symbolName": "endOfYear",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 590,
+        "sourceLine": 586,
         "summary": "Return December 31st for the year of the given `LocalDate`.",
         "categories": [
           "utilities"
@@ -33304,7 +33404,7 @@
         "symbolName": "isLeapYear",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 610,
+        "sourceLine": 606,
         "summary": "Check whether a year is a leap year.",
         "categories": [
           "predicates"
@@ -33379,7 +33479,7 @@
         "symbolName": "LocalDateFromString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 654,
+        "sourceLine": 650,
         "summary": "Schema that transforms ISO 8601 date strings (`YYYY-MM-DD`) into `LocalDate` instances.",
         "categories": [
           "constructors"
@@ -33404,7 +33504,7 @@
         "symbolName": "LocalDateFromString",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 695,
+        "sourceLine": 691,
         "summary": "Namespace members for {@link LocalDateFromString}.",
         "categories": [
           "models"
@@ -33429,7 +33529,7 @@
         "symbolName": "LocalDateFromString",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 679,
+        "sourceLine": 675,
         "summary": "Decoded `LocalDate` type extracted from {@link LocalDateFromString}.",
         "categories": [
           "models"
@@ -33479,7 +33579,7 @@
         "symbolName": "startOfMonth",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 527,
+        "sourceLine": 523,
         "summary": "Return the first day of the month for the given `LocalDate`.",
         "categories": [
           "utilities"
@@ -33504,7 +33604,7 @@
         "symbolName": "startOfYear",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/LocalDate/LocalDate.schema.ts",
-        "sourceLine": 569,
+        "sourceLine": 565,
         "summary": "Return January 1st for the year of the given `LocalDate`.",
         "categories": [
           "utilities"
@@ -41702,7 +41802,7 @@
         "symbolName": "Sha256Hex",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sourceLine": 77,
+        "sourceLine": 81,
         "summary": "Type for {@link Sha256Hex}.",
         "categories": [
           "models"
@@ -41727,7 +41827,7 @@
         "symbolName": "Sha256HexFromBytes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sourceLine": 97,
+        "sourceLine": 101,
         "summary": "One-way schema that decodes a byte array into a canonical lowercase SHA-256",
         "categories": [
           "validation"
@@ -41752,7 +41852,7 @@
         "symbolName": "Sha256HexFromBytes",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sourceLine": 120,
+        "sourceLine": 124,
         "summary": "Type for {@link Sha256HexFromBytes}.",
         "categories": [
           "models"
@@ -41777,7 +41877,7 @@
         "symbolName": "Sha256HexFromHexBytes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sourceLine": 140,
+        "sourceLine": 144,
         "summary": "One-way schema that decodes a hex-encoded byte string into a canonical",
         "categories": [
           "validation"
@@ -41802,7 +41902,7 @@
         "symbolName": "Sha256HexFromHexBytes",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Sha256.ts",
-        "sourceLine": 160,
+        "sourceLine": 164,
         "summary": "Type for {@link Sha256HexFromHexBytes}.",
         "categories": [
           "models"
