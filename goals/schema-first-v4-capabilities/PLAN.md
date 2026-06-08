@@ -273,7 +273,16 @@ class-local decoder statics pilots in
         (`CanonicalizationSecurity`, `MutableHashMap`, `MutableHashSet`,
         wink `ToolValidation`, `Model`, `Rdf`) with verified round-trip
         properties, dropping the advisories 32 → 26; see
-        `reviews/p4-wave3-arbitrary-remediation-batch.md`.
+        `reviews/p4-wave3-arbitrary-remediation-batch.md`. Reclassified 8
+        incidental/meta-combinator tests as inventory exceptions (26 → 18); see
+        `reviews/p4-wave3-arbitrary-exceptions.md`.
+  - [x] Source `toArbitrary` annotation batch over the deferred regex
+        string-brands: added `fc.stringMatching` source annotations to
+        `Kebab/Pascal/SnakeCaseStr`, `WindowsDriveRoot`, and
+        `EthereumValidatorPublicKey` (with a branded-type cast caught by `tsc`),
+        remediating `CaseStr`, `FilePath`, and `BlockchainRedacted` (18 → 15);
+        5 non-regex brands were correctly reverted. See
+        `reviews/p4-wave3-source-arbitrary-annotations.md`.
 - [ ] Wave 4: migrate options/config/request defaults from parameter defaults
       and fallback objects into schema defaults. Start with schemas already
       modeling option/config/request objects.

@@ -182,14 +182,23 @@ After the orchestrated Wave 3 batch remediated 6 genuine schema-law tests
 ```
 
 After reclassifying the 8 reviewed non-candidates as inventory exceptions
-(`reviews/p4-wave3-arbitrary-exceptions.md`), the live repo now reports:
+(`reviews/p4-wave3-arbitrary-exceptions.md`), the live repo reported:
 
 ```text
 [schema-first] sfv4_arbitrary_tests_advisories=18
 ```
 
-The remaining 18 are deferred genuine schema tests pending a source-schema
-`toArbitrary` annotation pass.
+After the source `toArbitrary` annotation batch remediated 3 regex string-brand
+tests (`reviews/p4-wave3-source-arbitrary-annotations.md` — CaseStr, FilePath,
+BlockchainRedacted), the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=15
+```
+
+The remaining 15 are deferred genuine schema tests pending bespoke arbitrary
+generators (template/predicate brands, transforms, `instanceOf`, and the
+Bun-runtime-blocked Glob/TypedArrays suites).
 
 ## Still Pending
 

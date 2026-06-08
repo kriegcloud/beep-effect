@@ -45,6 +45,15 @@ They remain advisory candidates so the work stays visible; a future annotation
 pass should add seeded arbitraries to the source brands, then property tests
 can derive from them.
 
+**Update:** the source-annotation pass in
+`reviews/p4-wave3-source-arbitrary-annotations.md` then cleared 3 of these —
+`CaseStr` (Kebab/Pascal/Snake brands), `FilePath` (`WindowsDriveRoot`), and
+`BlockchainRedacted` (`EthereumValidatorPublicKey`) — by adding
+`fc.stringMatching` source annotations. The other filter-heavy entries below
+were attempted and correctly reverted because they are template/predicate
+brands rather than pure anchored-regex brands (FileName, Glob, IRI, URI) or
+transforms (DateTimeUtcFromValid), so 15 deferrals remain.
+
 - filter-heavy refinement brands (regex/predicate filters that random strings
   essentially never satisfy, so `toArbitrary` exhausts on rejection):
   `schema/test/{CaseStr,FileName,Glob,FilePath,DateTimeUtcFromValid,BlockchainRedacted}.test.ts`,

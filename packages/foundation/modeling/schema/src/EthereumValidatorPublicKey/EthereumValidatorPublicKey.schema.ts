@@ -49,12 +49,16 @@ const EthereumValidatorPublicKeyChecks = S.makeFilterGroup(
  * @since 0.0.0
  * @category validation
  */
-export const EthereumValidatorPublicKey = S.String.check(EthereumValidatorPublicKeyChecks).pipe(
-  S.brand("EthereumValidatorPublicKey"),
-  $I.annoteSchema("EthereumValidatorPublicKey", {
-    description: "Canonical lowercase 0x-prefixed compressed Ethereum validator public key.",
+export const EthereumValidatorPublicKey = S.String.check(EthereumValidatorPublicKeyChecks)
+  .annotate({
+    toArbitrary: () => (fc) => fc.stringMatching(/^0x[0-9a-f]{96}$/),
   })
-);
+  .pipe(
+    S.brand("EthereumValidatorPublicKey"),
+    $I.annoteSchema("EthereumValidatorPublicKey", {
+      description: "Canonical lowercase 0x-prefixed compressed Ethereum validator public key.",
+    })
+  );
 
 /**
  * Type for {@link EthereumValidatorPublicKey}.

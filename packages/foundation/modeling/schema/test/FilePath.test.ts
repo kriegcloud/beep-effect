@@ -1,6 +1,7 @@
 import * as FilePathSchema from "@beep/schema/FilePath";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("FilePath part schemas", () => {
   it("decodes the literal family unions", () => {
@@ -48,6 +49,19 @@ describe("FilePath part schemas", () => {
     expect(decodeUncRoot("\\\\server\\share")).toBe("\\\\server\\share");
     expect(() => decodeUncRoot("\\\\server\\share\\")).toThrow();
     expect(() => decodeUncRoot("\\\\server")).toThrow();
+  });
+
+  it("derives valid values from the WindowsDriveRoot source schema and round-trips", () => {
+    const decode = S.decodeUnknownSync(FilePathSchema.WindowsDriveRoot);
+    const arbitrary = S.toArbitrary(FilePathSchema.WindowsDriveRoot);
+
+    fc.assert(
+      fc.property(arbitrary, (value) => {
+        expect(decode(value)).toBe(value);
+        expect(value).toMatch(/^[A-Za-z]:[\\/]?$/);
+      }),
+      { numRuns: 50 }
+    );
   });
 
   it("validates Windows path segments", () => {

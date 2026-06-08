@@ -108,9 +108,13 @@ for Wave 3. An orchestrated triage then remediated 8 of those with derived
 round-trip property tests (HttpStatus, Options, and the
 CanonicalizationSecurity / MutableHashMap / MutableHashSet / wink ToolValidation
 / Model / Rdf batch), reclassified 8 incidental JSON-boundary and
-meta-combinator tests as inventory exceptions, and left 18 deferred pending a
-source-schema `toArbitrary` annotation pass — the live arbitrary-tests count is
-now 18. P3 has started with an internal
+meta-combinator tests as inventory exceptions, and deferred the rest. A
+follow-up source-annotation batch then added `fc.stringMatching` `toArbitrary`
+annotations to the `Kebab/Pascal/SnakeCaseStr`, `WindowsDriveRoot`, and
+`EthereumValidatorPublicKey` source brands (remediating CaseStr, FilePath, and
+BlockchainRedacted), bringing the live arbitrary-tests count to 15; the
+remaining deferrals need bespoke arbitrary generators. P3 has started with an
+internal
 repo-cli laws helper that formats `SchemaError.issue` through
 `SchemaIssue.makeFormatterStandardSchemaV1(...)` and provides redacted
 diagnostic output through public formatter hooks while avoiding a premature

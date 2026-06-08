@@ -2236,26 +2236,6 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/test/BlockchainRedacted.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 17,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 4 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/test/CaseStr.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 6,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
       "file": "packages/foundation/modeling/schema/test/Color.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",
@@ -2294,16 +2274,6 @@
       "line": 6,
       "owner": "@beep/schema",
       "reason": "Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/test/FilePath.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 7,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 18 Schema codec assertions but no schema-derived property coverage."
     },
     {
       "file": "packages/foundation/modeling/schema/test/Fn.test.ts",
