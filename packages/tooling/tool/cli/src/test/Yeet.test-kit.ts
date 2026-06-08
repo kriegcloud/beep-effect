@@ -6,6 +6,7 @@
  */
 
 export * from "@beep/repo-cli/commands/Yeet/index";
+export * from "../commands/Yeet/internal/Closeout.js";
 export * from "../commands/Yeet/internal/Handler.js";
 export * from "../commands/Yeet/internal/PacketRenderer.js";
 export * from "../commands/Yeet/internal/Planner.js";

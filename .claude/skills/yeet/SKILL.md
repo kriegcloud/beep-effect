@@ -44,10 +44,35 @@ bun run beep yeet repair
 bun run beep yeet verify
 ```
 
+- Run the targeted review-fix proof while iterating on PR comments:
+
+```bash
+bun run beep yeet verify --tier review-fix
+```
+
 - Commit reviewed staged changes, run the full local pre-push proof, then push:
 
 ```bash
 bun run beep yeet publish --message "type(scope): summary"
+```
+
+- Start hosted PR review/checks immediately, then keep proving locally:
+
+```bash
+bun run beep yeet publish --start-pr-early --monitor --message "type(scope): summary"
+```
+
+- Retry after a separately verified amend without creating a new commit:
+
+```bash
+bun run beep yeet publish --amend --no-edit --reuse-verified
+```
+
+- Push an already-verified clean commit without committing or rerunning local
+  proof:
+
+```bash
+bun run beep yeet publish --push-only --reuse-verified
 ```
 
 - Monitor hosted PR checks for the current branch:
@@ -56,12 +81,27 @@ bun run beep yeet publish --message "type(scope): summary"
 bun run beep yeet monitor
 ```
 
+- Inspect hosted review/bot closeout gates for the current branch PR:
+
+```bash
+bun run beep yeet closeout --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0
+```
+
+- Inspect local hardware profile guidance before choosing heavy parallel work:
+
+```bash
+bun run beep quality profile detect
+bun run beep quality profile config workstation
+```
+
 Use plan mode before long or risky runs when you need to inspect the shape:
 
 ```bash
 bun run beep yeet repair --plan --json
 bun run beep yeet verify --plan --json
+bun run beep yeet verify --tier review-fix --plan --json
 bun run beep yeet publish --message "type(scope): summary" --plan --json
+bun run beep yeet closeout --plan --json
 ```
 
 ## Mergeable PR Workflow
@@ -72,13 +112,22 @@ bun run beep yeet publish --message "type(scope): summary" --plan --json
 3. Run `bun run beep yeet publish --message "type(scope): summary"`.
 4. If no pull request exists for the pushed branch, create a draft PR with
    `gh pr create --draft --fill`.
-5. Run `bun run beep yeet monitor` and inspect PR checks, mergeability, and
-   review threads.
-6. Address failed checks or actionable review comments with follow-up commits
+5. Run `bun run beep yeet monitor` for hosted checks.
+6. Run `bun run beep yeet closeout --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0`
+   to inspect unresolved actionable review threads and review-bot gates.
+7. Use `bun run beep yeet verify --tier review-fix` while fixing PR comments,
+   then use normal Yeet publish or the exact-match amend retry when appropriate.
+8. Address failed checks or actionable review comments with follow-up commits
    through the same Yeet publish path.
-7. Mark the PR ready only when checks are green, there are no unresolved
+9. Mark the PR ready only when checks are green, there are no unresolved
    actionable review threads, and GitHub reports the branch as mergeable or not
    conflicted.
+
+`yeet closeout` is read-first. It classifies review threads and bot findings and
+writes Yeet artifacts locally. It posts a Greptile rerun comment only when
+`--retrigger-greptile` is explicit, and it does not auto-resolve or auto-reply to
+review threads. The closeout artifact includes durable states for review
+threads, Greptile, CodeRabbit, ChatGPT, and hosted-check handoff.
 
 ## Fast Plus Monitor
 
@@ -90,13 +139,70 @@ with `--monitor`; Yeet rejects `--fast` without it.
 `bun run audit:github pre-push` remains the named full local fallback for
 secrets, security, SAST, Nix, and any lane that must be proven outside Yeet.
 
+## Start PR Early
+
+`bun run beep yeet publish --start-pr-early --monitor --message "..."` is the
+explicit fail-faster path for an existing PR branch. It validates the commit
+message, commits and pushes with Git hooks skipped, then still runs the full
+local pre-push proof and hosted PR monitor. Unlike `--fast`, it does not skip the
+local full proof; it only overlaps that proof with hosted CI and reviewer startup
+time.
+
+Use it when the user wants remote checks and reviewers moving in parallel with a
+local proof cycle. If the post-push local proof fails or writes files, fix the
+issue in a follow-up commit and publish again. Treat commit/pre-push hooks as
+local tripwires and proof-reuse adapters; Yeet full proof plus hosted checks are
+the authoritative gates.
+
 ## Failure Handling
 
-- If Yeet fails after creating a local commit but before pushing, fix the issue,
-  then amend or reset the unpushed commit before retrying.
+- If Yeet fails after creating a local commit but before pushing, fix the issue.
+  When you prove the exact current worktree with `bun run beep yeet verify`, you
+  may retry with `bun run beep yeet publish --amend --no-edit --reuse-verified`.
+  Yeet reuses only exact matching full-proof state; if the state is stale, rerun
+  full proof or publish normally.
+- If the current clean commit was already verified and only the push was blocked
+  or skipped, prefer `bun run beep yeet publish --push-only --reuse-verified`.
+  Yeet still requires exact reusable proof state and a clean worktree, and it
+  pushes with `git push -u origin HEAD` so upstream branch naming cannot block
+  agent-created feature branches.
+- Yeet publish marks its `git push` with an exact-proof reuse hint for the
+  pre-push hook. The hook reuses only matching full-proof state for the pushed
+  SHA and falls back to its normal repo-export catalog validation when state is
+  absent, stale, dirty, or ambiguous. Treat this as duplicate-proof reuse, not a
+  hook bypass.
+- `--start-pr-early` is the only Yeet publish mode that intentionally skips
+  commit and pre-push hooks. It requires `--monitor`, still runs full local
+  proof after pushing, and should fail loudly rather than hiding follow-up work.
 - If Yeet refuses untracked, unstaged, or newly generated paths, inspect the
   paths and decide whether they belong in the reviewed publish intent.
+- Yeet serializes full local proof runs with `.beep/yeet/quality-lock`.
+  `verify --tier review-fix` remains the cheaper loop lane while a full proof is
+  already active. If the lock is stale, confirm no full proof process is running
+  before removing it.
+- Full pre-push proof streams a conservative collector for independent GitHub
+  check lanes. A failed proof may report multiple sibling failures at once
+  (for example check, lint, repo-export, tests, SAST, or Nix). Fix all reported
+  actionable lanes before retrying instead of assuming the first item is the
+  only blocker.
+- Yeet failure packets now add known sub-lane hints for common broad failures
+  such as cspell, terse-effect, dual-arity, repo-export catalog, docgen,
+  secrets, SAST, security, and Nix. Prefer the suggested repair command in the
+  packet over rerunning the whole loop blindly.
+- Root composite lanes prefer streaming accumulation where child commands are
+  independent. For example, root `lint` streams the Turbo/Biome aggregate and
+  then still runs repo-law policy lints, so one lint-family failure does not
+  hide sibling lint findings.
+- The root docgen lint check uses package-local docgen proof manifests. A
+  package with a current `.beep/docgen/proof.json` can skip duplicate docgen
+  metadata analysis; missing or stale manifests fall back to the normal check.
+- Terse-effect output separates `blocking`, `rewritable`, and `informational`
+  files. Use `--write` only for the rewritable helper subset; manual candidates
+  still need direct edits.
 - If there is no open PR for `yeet monitor`, create the draft PR first or run
   `bun run audit:github pre-push` as the full local fallback.
+- If `yeet closeout` reports Greptile score/issues as unknown, inspect the PR
+  comments and rerun Greptile explicitly with `--retrigger-greptile` only when
+  the user wants that GitHub write.
 - Do not weaken GitHub check names, hosted PR checks, or manual fallback lanes
   to make a branch appear green faster.

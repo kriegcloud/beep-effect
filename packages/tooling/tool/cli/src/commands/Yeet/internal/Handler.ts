@@ -5,9 +5,10 @@
  * @since 0.0.0
  */
 
+import { createHash } from "node:crypto";
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { Console, Effect, FileSystem, Order, Path, pipe, Result } from "effect";
+import { Console, DateTime, Effect, FileSystem, Order, Path, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -15,7 +16,8 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { printCommandJson } from "../../../internal/cli/Json.js";
 import {
-  executeRepoPlanStep,
+  commandTextForStep,
+  executeRepoPlanStepStreaming,
   RepoRunContext,
   resolveLocalRepoBinary,
   runRepoCommandCapture,
@@ -24,12 +26,14 @@ import {
   TurboWorkspacePackage,
 } from "../../../internal/repo-run/index.js";
 import { YeetCommandError } from "../Yeet.errors.js";
+import { PrCloseoutOptions, runPrCloseout } from "./Closeout.js";
 import { renderPackageQualityPacketMarkdown } from "./PacketRenderer.js";
 import {
   buildYeetRunPlanWithMode,
   DEFAULT_YEET_PACKET_DIR,
   emptyTurboPlanSnapshot,
   YEET_FEEDBACK_TASKS,
+  YeetProofTier,
   YeetRunMode,
   YeetRunPlanModeOptions,
 } from "./Planner.js";
@@ -136,10 +140,12 @@ const decodeTurboQueryLsDocument = S.decodeUnknownEffect(S.fromJsonString(TurboQ
 
 const shouldCollectAffectedFeedbackTasks = (mode: YeetRunMode): boolean =>
   YeetRunMode.$match(mode, {
+    closeout: () => false,
     publish: () => false,
     repair: () => true,
     verify: () => false,
     monitor: () => false,
+    "pre-push-hook": () => false,
   });
 
 class GhPullRequestView extends S.Class<GhPullRequestView>($I`GhPullRequestView`)(
@@ -162,7 +168,28 @@ const decodeGhPullRequestView = S.decodeUnknownEffect(S.fromJsonString(GhPullReq
  * ```ts
  * import { YeetRunOptions } from "@beep/repo-cli/commands/Yeet"
  *
- * const options = YeetRunOptions.make({ base: "origin/main", fast: false, head: "HEAD", json: false, message: "", mode: "verify", monitor: false, packetDir: ".beep/yeet", plan: true })
+ * const options = YeetRunOptions.make({
+ *   amend: false,
+ *   base: "origin/main",
+ *   bots: "greptile,coderabbit,chatgpt",
+ *   fast: false,
+ *   head: "HEAD",
+ *   json: false,
+ *   message: "",
+ *   mode: "verify",
+ *   monitor: false,
+ *   noEdit: false,
+ *   packetDir: ".beep/yeet",
+ *   plan: true,
+ *   pushOnly: false,
+ *   requireGreptileIssues: -1,
+ *   requireGreptileScore: "",
+ *   requireReviewComments: -1,
+ *   retriggerGreptile: false,
+ *   reuseVerified: false,
+ *   startPrEarly: false,
+ *   tier: "full"
+ * })
  * console.log(options.base)
  * ```
  * @category models
@@ -170,20 +197,84 @@ const decodeGhPullRequestView = S.decodeUnknownEffect(S.fromJsonString(GhPullReq
  */
 export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
   {
+    amend: S.Boolean,
     base: S.String,
+    bots: S.String,
     fast: S.Boolean,
     head: S.String,
     json: S.Boolean,
     message: S.String,
     mode: YeetRunMode,
     monitor: S.Boolean,
+    noEdit: S.Boolean,
     packetDir: S.String,
     plan: S.Boolean,
+    pushOnly: S.Boolean,
+    requireGreptileIssues: S.Finite,
+    requireGreptileScore: S.String,
+    requireReviewComments: S.Finite,
+    retriggerGreptile: S.Boolean,
+    reuseVerified: S.Boolean,
+    startPrEarly: S.Boolean,
+    tier: YeetProofTier,
   },
   $I.annote("YeetRunOptions", {
     description: "Runtime options accepted by the yeet handler.",
   })
 ) {}
+
+class YeetLaneProofState extends S.Class<YeetLaneProofState>($I`YeetLaneProofState`)(
+  {
+    commandHash: S.String,
+    commandText: S.String,
+    diffFingerprint: S.String,
+    stepId: S.String,
+    label: S.String,
+    verifiedAt: S.String,
+  },
+  $I.annote("YeetLaneProofState", {
+    description: "One durable per-lane proof record keyed by command and tree fingerprint.",
+  })
+) {}
+
+class YeetRunState extends S.Class<YeetRunState>($I`YeetRunState`)(
+  {
+    schemaVersion: S.Literal("yeet-run-state/v1"),
+    artifactDir: S.String,
+    base: S.String,
+    branch: S.String,
+    commitSha: S.String,
+    diffFingerprint: S.String,
+    head: S.String,
+    proofCommand: S.String,
+    proofTier: YeetProofTier,
+    runId: S.String,
+    verifiedAt: S.String,
+    laneProofs: S.Array(YeetLaneProofState).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<YeetLaneProofState>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<YeetLaneProofState>()))
+    ),
+  },
+  $I.annote("YeetRunState", {
+    description: "Durable exact-match proof state for Yeet retry and closeout loops.",
+  })
+) {}
+
+class YeetProofLockState extends S.Class<YeetProofLockState>($I`YeetProofLockState`)(
+  {
+    schemaVersion: S.Literal("yeet-proof-lock/v1"),
+    branch: S.String,
+    command: S.String,
+    pid: S.Finite,
+    proofTier: YeetProofTier,
+    startedAt: S.String,
+  },
+  $I.annote("YeetProofLockState", {
+    description: "Best-effort local lock metadata for heavyweight Yeet proof scheduling.",
+  })
+) {}
+
+const decodeYeetRunState = S.decodeUnknownEffect(S.fromJsonString(YeetRunState));
 
 /**
  * Result returned by a yeet execution attempt.
@@ -233,11 +324,30 @@ const safeArtifactName = (value: string): string =>
     Str.isNonEmpty(name) ? name : "repo"
   );
 
+const zeroGitSha = "0000000000000000000000000000000000000000" as const;
+
 const sortedUniquePaths = (paths: ReadonlyArray<string>): ReadonlyArray<string> =>
   pipe(paths, A.filter(Str.isNonEmpty), A.dedupe, A.sort(Order.String));
 
 const gitPathListFromNulOutput = (output: string): ReadonlyArray<string> =>
   pipe(output, Str.split("\0"), sortedUniquePaths);
+
+const prePushLocalShasFromStdin = (input: string): ReadonlyArray<string> =>
+  pipe(
+    Str.split(/\r?\n/u)(input),
+    A.map(Str.trim),
+    A.filter(Str.isNonEmpty),
+    A.map((line) => Str.split(/\s+/u)(line)[1] ?? ""),
+    A.filter((sha) => Str.isNonEmpty(sha) && sha !== zeroGitSha),
+    sortedUniquePaths
+  );
+
+const prePushShaMismatches = (localShas: ReadonlyArray<string>, expectedCommitSha: string): ReadonlyArray<string> =>
+  pipe(
+    localShas,
+    A.filter((sha) => sha !== expectedCommitSha),
+    sortedUniquePaths
+  );
 
 const publishPathsOutsideIntent = (
   intendedPaths: ReadonlyArray<string>,
@@ -258,6 +368,15 @@ const publishRestagePaths = (
     A.filter((filePath) => A.contains(existingPaths, filePath)),
     sortedUniquePaths
   );
+
+const expectedPublishUpstream = (branch: string): string => `origin/${branch}`;
+
+const publishUpstreamMismatchWarning = (branch: string, upstream: string): O.Option<string> =>
+  upstream === expectedPublishUpstream(branch)
+    ? O.none()
+    : O.some(
+        `[yeet] warning: branch "${branch}" tracks "${upstream}"; publish will push HEAD to ${expectedPublishUpstream(branch)}.`
+      );
 
 const formatPublishPaths = (paths: ReadonlyArray<string>): string =>
   pipe(
@@ -283,6 +402,22 @@ const publishScopeError = (message: string, paths: ReadonlyArray<string>): YeetC
 export const gitPathListFromNulOutputForTesting = gitPathListFromNulOutput;
 
 /**
+ * Parse Git pre-push stdin and return non-delete local commit SHAs.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const prePushLocalShasFromStdinForTesting = prePushLocalShasFromStdin;
+
+/**
+ * Return pushed SHAs that do not match the reusable Yeet proof commit.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const prePushShaMismatchesForTesting = prePushShaMismatches;
+
+/**
  * Return observed paths that are not part of the reviewed Yeet publish intent.
  *
  * @category testing
@@ -299,6 +434,15 @@ export const publishPathsOutsideIntentForTesting = publishPathsOutsideIntent;
  */
 export const publishRestagePathsForTesting = publishRestagePaths;
 
+/**
+ * Return the warning Yeet prints when publish push target differs from branch
+ * upstream tracking.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const publishUpstreamMismatchWarningForTesting = publishUpstreamMismatchWarning;
+
 const renderJson = Effect.fn("Yeet.renderJson")(function* (value: unknown): Effect.fn.Return<string, YeetCommandError> {
   return yield* encodeJson(value).pipe(Effect.mapError(YeetCommandError.new("Failed to encode yeet JSON output.")));
 });
@@ -308,21 +452,31 @@ const runGitOutput = Effect.fn("Yeet.runGitOutput")(function* (
   repoRoot: string,
   args: ReadonlyArray<string>
 ): Effect.fn.Return<string, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const command = `git ${A.join(args, " ")}`;
   const result = yield* runRepoCommandCapture("git", args, repoRoot).pipe(
-    Effect.mapError(YeetCommandError.new(`Failed to run git ${A.join(args, " ")}.`))
+    Effect.mapError(YeetCommandError.new(`Failed to run ${command}.`))
   );
   if (result.exitCode !== 0) {
     return yield* YeetCommandError.make({
-      message: `git ${A.join(args, " ")} failed with exit code ${result.exitCode}.`,
-      command: `git ${A.join(args, " ")}`,
+      message: `${command} failed with exit code ${result.exitCode}.`,
+      command,
       exitCode: result.exitCode,
     });
   }
-  return Str.trim(result.output);
+  if (result.truncated) {
+    return yield* YeetCommandError.make({
+      message: `${command} output exceeded the repo-run capture limit.`,
+      command,
+      exitCode: 1,
+    });
+  }
+
+  return result.output;
 });
 
 const blockedMonitorBranches: ReadonlyArray<string> = ["main", "master", "HEAD"];
-const shouldMonitorChecks = (options: YeetRunOptions): boolean => options.monitor || options.mode === "monitor";
+const shouldMonitorChecks = (options: YeetRunOptions): boolean =>
+  options.monitor || options.mode === "monitor" || options.mode === "closeout";
 
 const validateMonitorBranch = (context: RepoRunContext): Effect.Effect<void, YeetCommandError> => {
   if (!A.contains(blockedMonitorBranches, context.branch)) {
@@ -409,6 +563,74 @@ const validateMonitorGuards = Effect.fn("Yeet.validateMonitorGuards")(function* 
     });
   }
 
+  if (options.startPrEarly && options.mode !== "publish") {
+    return yield* YeetCommandError.make({
+      message: "yeet --start-pr-early is only valid for publish.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.startPrEarly && !options.monitor) {
+    return yield* YeetCommandError.make({
+      message:
+        "yeet publish --start-pr-early requires --monitor so hosted PR checks are watched while local proof runs.",
+      exitCode: 1,
+    });
+  }
+
+  if (
+    options.startPrEarly &&
+    (options.fast || options.pushOnly || options.reuseVerified || options.amend || options.noEdit)
+  ) {
+    return yield* YeetCommandError.make({
+      message:
+        "yeet publish --start-pr-early cannot be combined with --fast, --push-only, --reuse-verified, --amend, or --no-edit.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.mode === "publish" && options.tier !== "full") {
+    return yield* YeetCommandError.make({
+      message: "yeet publish always uses the full local proof. Use `yeet verify --tier review-fix` for review loops.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.noEdit && !options.amend) {
+    return yield* YeetCommandError.make({
+      message: "yeet publish --no-edit requires --amend.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.pushOnly && options.mode !== "publish") {
+    return yield* YeetCommandError.make({
+      message: "yeet --push-only is only valid for publish.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.pushOnly && !options.reuseVerified) {
+    return yield* YeetCommandError.make({
+      message: "yeet publish --push-only requires --reuse-verified.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.pushOnly && (options.amend || options.noEdit || options.fast)) {
+    return yield* YeetCommandError.make({
+      message: "yeet publish --push-only cannot be combined with --amend, --no-edit, or --fast.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.pushOnly && O.isSome(optionFromNonEmpty(options.message))) {
+    return yield* YeetCommandError.make({
+      message: "yeet publish --push-only does not accept --message because it never creates a commit.",
+      exitCode: 1,
+    });
+  }
+
   if (!shouldMonitorChecks(options)) {
     return;
   }
@@ -472,6 +694,36 @@ const collectUntrackedPaths = Effect.fn("Yeet.collectUntrackedPaths")(function* 
   repoRoot: string
 ): Effect.fn.Return<ReadonlyArray<string>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
   return yield* runGitPathList(repoRoot, ["ls-files", "--others", "--exclude-standard", "-z"]);
+});
+
+const collectCurrentUpstreamBranch = Effect.fn("Yeet.collectCurrentUpstreamBranch")(function* (
+  repoRoot: string
+): Effect.fn.Return<O.Option<string>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const result = yield* runRepoCommandCapture(
+    "git",
+    ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"],
+    repoRoot
+  ).pipe(Effect.mapError(YeetCommandError.new("Failed to inspect current branch upstream.")));
+
+  if (result.exitCode !== 0) {
+    return O.none();
+  }
+
+  return optionFromNonEmpty(result.output);
+});
+
+const warnOnMismatchedPublishUpstream = Effect.fn("Yeet.warnOnMismatchedPublishUpstream")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const upstream = yield* collectCurrentUpstreamBranch(context.repoRoot);
+  if (O.isNone(upstream)) {
+    return;
+  }
+
+  const warning = publishUpstreamMismatchWarning(context.branch, upstream.value);
+  if (O.isSome(warning)) {
+    yield* Console.error(warning.value);
+  }
 });
 
 const collectPublishIntent = Effect.fn("Yeet.collectPublishIntent")(function* (
@@ -580,9 +832,16 @@ const stageReviewedPublishIntent = Effect.fn("Yeet.stageReviewedPublishIntent")(
   }
 });
 
+const postCommitProofChangedBeforePushMessage =
+  "yeet publish stopped because the full proof changed files after the local commit. Regenerate them, then amend or reset the commit that has not yet been pushed before retrying.";
+
+const postCommitProofChangedAfterEarlyPushMessage =
+  "yeet publish --start-pr-early stopped because the full proof changed files after the commit was already pushed. Commit a follow-up fix and publish again.";
+
 const validatePostCommitProofDidNotChangeWorktree = Effect.fn("Yeet.validatePostCommitProofDidNotChangeWorktree")(
   function* (
-    context: RepoRunContext
+    context: RepoRunContext,
+    message = postCommitProofChangedBeforePushMessage
   ): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
     const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);
     const unstagedPaths = yield* collectUnstagedTrackedPaths(context.repoRoot);
@@ -590,10 +849,7 @@ const validatePostCommitProofDidNotChangeWorktree = Effect.fn("Yeet.validatePost
     const changedPaths = sortedUniquePaths([...stagedPaths, ...unstagedPaths, ...untrackedPaths]);
 
     if (!A.isReadonlyArrayEmpty(changedPaths)) {
-      return yield* publishScopeError(
-        "yeet publish stopped because the full proof changed files after the local commit. Regenerate them, then amend or reset the commit that has not yet been pushed before retrying.",
-        changedPaths
-      );
+      return yield* publishScopeError(message, changedPaths);
     }
   }
 );
@@ -847,7 +1103,20 @@ export const hydrateYeetRunContext = Effect.fn("Yeet.hydrateYeetRunContext")(fun
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   const repoRoot = yield* findRepoRoot().pipe(Effect.mapError(YeetCommandError.new("Failed to locate repo root.")));
-  const branch = yield* runGitOutput(repoRoot, ["rev-parse", "--abbrev-ref", "HEAD"]);
+  const branch = yield* runGitOutput(repoRoot, ["rev-parse", "--abbrev-ref", "HEAD"]).pipe(Effect.map(Str.trim));
+  if (options.mode === "pre-push-hook") {
+    return RepoRunContext.make({
+      repoRoot,
+      cwd: process.cwd(),
+      base: options.base,
+      head: options.head,
+      branch,
+      packetDir: options.packetDir,
+      originalArgv: [],
+      turbo: emptyTurboPlanSnapshot([]),
+    });
+  }
+
   yield* refreshBaseRef(repoRoot, options.base);
   const turbo = yield* collectTurboPlanSnapshot(repoRoot, options);
 
@@ -870,6 +1139,203 @@ const artifactDirForContext = Effect.fn("Yeet.artifactDirForContext")(function* 
   return path.isAbsolute(context.packetDir) ? context.packetDir : path.join(context.repoRoot, context.packetDir);
 });
 
+const runIdForContext = (context: RepoRunContext): string => safeArtifactName(context.branch);
+
+const runStatePathForContext = Effect.fn("Yeet.runStatePathForContext")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<string, never, Path.Path> {
+  const path = yield* Path.Path;
+  const artifactDir = yield* artifactDirForContext(context);
+  return path.join(artifactDir, "runs", runIdForContext(context), "state.json");
+});
+
+const proofLockPathForContext = Effect.fn("Yeet.proofLockPathForContext")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<string, never, Path.Path> {
+  const path = yield* Path.Path;
+  const artifactDir = yield* artifactDirForContext(context);
+  return path.join(artifactDir, "quality-lock");
+});
+
+const runOutputPathForContext = Effect.fn("Yeet.runOutputPathForContext")(function* (
+  context: RepoRunContext,
+  fileName: string
+): Effect.fn.Return<string, never, Path.Path> {
+  const path = yield* Path.Path;
+  const artifactDir = yield* artifactDirForContext(context);
+  return path.join(artifactDir, "runs", runIdForContext(context), fileName);
+});
+
+const collectDiffFingerprint = Effect.fn("Yeet.collectDiffFingerprint")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<string, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const status = yield* runGitOutput(context.repoRoot, ["status", "--short"]);
+  const unstagedDiff = yield* runGitOutput(context.repoRoot, ["diff", "--binary", "HEAD"]);
+  const stagedDiff = yield* runGitOutput(context.repoRoot, ["diff", "--cached", "--binary"]);
+  return createHash("sha256")
+    .update(status)
+    .update("\0")
+    .update(unstagedDiff)
+    .update("\0")
+    .update(stagedDiff)
+    .digest("hex");
+});
+
+const currentCommitSha = (context: RepoRunContext) =>
+  runGitOutput(context.repoRoot, ["rev-parse", "HEAD"]).pipe(Effect.map(Str.trim));
+
+const proofCommandForSteps = (steps: ReadonlyArray<RepoPlanStep>): string =>
+  pipe(steps, A.map(commandTextForStep), A.join(" && "));
+
+const hashText = (text: string): string => createHash("sha256").update(text).digest("hex");
+
+const laneProofStateForStep = (step: RepoPlanStep, diffFingerprint: string, verifiedAt: string): YeetLaneProofState => {
+  const commandText = commandTextForStep(step);
+  return YeetLaneProofState.make({
+    commandHash: hashText(commandText),
+    commandText,
+    diffFingerprint,
+    label: step.label,
+    stepId: step.id,
+    verifiedAt,
+  });
+};
+
+const acquireFullProofLock = Effect.fn("Yeet.acquireFullProofLock")(function* (
+  context: RepoRunContext,
+  proofSteps: ReadonlyArray<RepoPlanStep>
+): Effect.fn.Return<string, YeetCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const lockPath = yield* proofLockPathForContext(context);
+  yield* fs
+    .makeDirectory(path.dirname(lockPath), { recursive: true })
+    .pipe(Effect.mapError(YeetCommandError.new(`Failed to create Yeet proof lock directory for ${lockPath}.`)));
+  const lockState = YeetProofLockState.make({
+    schemaVersion: "yeet-proof-lock/v1",
+    branch: context.branch,
+    command: proofCommandForSteps(proofSteps),
+    pid: process.pid,
+    proofTier: "full",
+    startedAt: yield* DateTime.now.pipe(Effect.map(DateTime.formatIso)),
+  });
+  const lockText = `${yield* renderJson(lockState)}\n`;
+  const existing = yield* fs.exists(lockPath).pipe(Effect.orElseSucceed(() => false));
+  if (existing) {
+    const existingText = yield* fs.readFileString(lockPath).pipe(Effect.orElseSucceed(() => ""));
+    return yield* YeetCommandError.make({
+      message: `Another Yeet full proof appears active at ${lockPath}.\n${existingText}\nRun review-fix lanes or remove the stale lock after confirming no full proof is running.`,
+      command: "bun run beep yeet verify",
+      exitCode: 1,
+    });
+  }
+
+  yield* writeTextFile(lockPath, lockText);
+  return lockPath;
+});
+
+const releaseProofLock = (lockPath: string): Effect.Effect<void, never, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    yield* fs.remove(lockPath).pipe(Effect.ignore);
+  });
+
+const runProofPhase = Effect.fn("Yeet.runProofPhase")(function* (
+  context: RepoRunContext,
+  steps: ReadonlyArray<RepoPlanStep>,
+  tier: YeetProofTier
+): Effect.fn.Return<
+  ReadonlyArray<RepoStepRunResult>,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  if (tier !== "full") {
+    return yield* runPhase(context, steps);
+  }
+
+  return yield* Effect.acquireUseRelease(
+    acquireFullProofLock(context, steps),
+    () => runPhase(context, steps),
+    releaseProofLock
+  );
+});
+
+const writeVerifiedState = Effect.fn("Yeet.writeVerifiedState")(function* (
+  context: RepoRunContext,
+  tier: YeetProofTier,
+  proofSteps: ReadonlyArray<RepoPlanStep>
+): Effect.fn.Return<
+  void,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const artifactDir = yield* artifactDirForContext(context);
+  const statePath = yield* runStatePathForContext(context);
+  const diffFingerprint = yield* collectDiffFingerprint(context);
+  const verifiedAt = yield* DateTime.now.pipe(Effect.map(DateTime.formatIso));
+  const state = YeetRunState.make({
+    schemaVersion: "yeet-run-state/v1",
+    artifactDir,
+    base: context.base,
+    branch: context.branch,
+    commitSha: yield* currentCommitSha(context),
+    diffFingerprint,
+    head: context.head,
+    laneProofs: A.map(proofSteps, (step) => laneProofStateForStep(step, diffFingerprint, verifiedAt)),
+    proofCommand: proofCommandForSteps(proofSteps),
+    proofTier: tier,
+    runId: runIdForContext(context),
+    verifiedAt,
+  });
+  yield* writeTextFile(statePath, `${yield* renderJson(state)}\n`);
+});
+
+const loadVerifiedState = Effect.fn("Yeet.loadVerifiedState")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<YeetRunState, YeetCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const statePath = yield* runStatePathForContext(context);
+  const text = yield* fs
+    .readFileString(statePath)
+    .pipe(Effect.mapError(YeetCommandError.new(`No reusable Yeet proof state found at ${statePath}.`)));
+  return yield* decodeYeetRunState(text).pipe(
+    Effect.mapError(YeetCommandError.new(`Failed to decode reusable Yeet proof state at ${statePath}.`))
+  );
+});
+
+const assertReusableVerifiedState = Effect.fn("Yeet.assertReusableVerifiedState")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<
+  void,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const state = yield* loadVerifiedState(context);
+  const expectedCommitSha = yield* currentCommitSha(context);
+  const expectedFingerprint = yield* collectDiffFingerprint(context);
+  const mismatch = [
+    ...(state.branch === context.branch ? [] : [`branch ${state.branch} != ${context.branch}`]),
+    ...(state.base === context.base ? [] : [`base ${state.base} != ${context.base}`]),
+    ...(state.head === context.head ? [] : [`head ${state.head} != ${context.head}`]),
+    ...(state.commitSha === expectedCommitSha ? [] : [`commit ${state.commitSha} != ${expectedCommitSha}`]),
+    ...(state.diffFingerprint === expectedFingerprint ? [] : ["diff fingerprint changed"]),
+    ...(state.proofTier === "full" ? [] : [`proof tier ${state.proofTier} is not full`]),
+  ];
+
+  if (A.isReadonlyArrayEmpty(mismatch)) {
+    yield* Console.log(`[yeet] reusing full proof state from ${state.verifiedAt}`);
+    return;
+  }
+
+  return yield* YeetCommandError.make({
+    message: `yeet publish --reuse-verified found stale proof state:\n${A.join(
+      A.map(mismatch, (line) => `  - ${line}`),
+      "\n"
+    )}\nRun \`bun run beep yeet verify\` against the exact current worktree before retrying.`,
+    exitCode: 1,
+  });
+});
+
 const rawOutputPathForStep = Effect.fn("Yeet.rawOutputPathForStep")(function* (
   context: RepoRunContext,
   step: RepoPlanStep
@@ -888,7 +1354,7 @@ const executeStepWithArtifacts = Effect.fn("Yeet.executeStepWithArtifacts")(func
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   const rawOutputPath = yield* rawOutputPathForStep(context, step);
-  return yield* executeRepoPlanStep(step, O.some(rawOutputPath)).pipe(
+  return yield* executeRepoPlanStepStreaming(step, O.some(rawOutputPath)).pipe(
     Effect.mapError(YeetCommandError.new(`Failed to execute ${step.label}.`))
   );
 });
@@ -959,12 +1425,13 @@ const issuesFromResults = (
   );
 
 const publishResult = Effect.fn("Yeet.publishResult")(function* (
-  context: RepoRunContext
+  context: RepoRunContext,
+  committed: boolean
 ): Effect.fn.Return<YeetRunResult, never, Path.Path> {
   const artifactDir = yield* artifactDirForContext(context);
   return YeetRunResult.make({
     artifactDir,
-    committed: true,
+    committed,
     pushed: true,
     packetPaths: [],
   });
@@ -992,7 +1459,13 @@ const emptyPlanResult = Effect.fn("Yeet.emptyPlanResult")(function* (
 
 const validateRequiredMessage = (options: YeetRunOptions): Effect.Effect<O.Option<string>, YeetCommandError> => {
   const message = optionFromNonEmpty(options.message);
-  if (options.plan || options.mode !== "publish" || O.isSome(message)) {
+  if (
+    options.plan ||
+    options.mode !== "publish" ||
+    O.isSome(message) ||
+    (options.amend && options.noEdit) ||
+    options.pushOnly
+  ) {
     return Effect.succeed(message);
   }
   return Effect.fail(
@@ -1059,24 +1532,70 @@ const failWithIssueArtifacts = Effect.fn("Yeet.failWithIssueArtifacts")(function
 
 const runVerifyMode = Effect.fn("Yeet.runVerifyMode")(function* (
   context: RepoRunContext,
-  fullSteps: ReadonlyArray<RepoPlanStep>
+  fullSteps: ReadonlyArray<RepoPlanStep>,
+  tier: YeetProofTier
 ): Effect.fn.Return<
   YeetRunResult,
   YeetCommandError,
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
-  const verifyResults = yield* runPhase(context, fullSteps);
+  const verifyResults = yield* runProofPhase(context, fullSteps, tier);
   if (A.some(verifyResults, (result) => result.exitCode !== 0)) {
     return yield* failWithIssueArtifacts(context, fullSteps, verifyResults, "yeet verification proof failed.");
   }
+  yield* writeVerifiedState(context, tier, fullSteps);
   return yield* emptyPlanResult(context);
 });
+
+const shouldSkipCommitForReusablePublish = Effect.fn("Yeet.shouldSkipCommitForReusablePublish")(function* (
+  context: RepoRunContext,
+  options: YeetRunOptions
+): Effect.fn.Return<boolean, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  if (!options.reuseVerified || (!options.pushOnly && (!options.amend || !options.noEdit))) {
+    return false;
+  }
+
+  const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);
+  if (!A.isReadonlyArrayEmpty(stagedPaths)) {
+    if (options.pushOnly) {
+      return yield* publishScopeError(
+        "yeet publish --push-only --reuse-verified refuses staged changes. Commit or unstage these files before pushing an already-verified commit.",
+        stagedPaths
+      );
+    }
+    return false;
+  }
+
+  const unstagedPaths = yield* collectUnstagedTrackedPaths(context.repoRoot);
+  const untrackedPaths = yield* collectUntrackedPaths(context.repoRoot);
+  const changedPaths = sortedUniquePaths([...unstagedPaths, ...untrackedPaths]);
+  if (!A.isReadonlyArrayEmpty(changedPaths)) {
+    return yield* publishScopeError(
+      options.pushOnly
+        ? "yeet publish --push-only --reuse-verified found uncommitted changes."
+        : "yeet publish --reuse-verified found uncommitted changes but no staged amend intent.",
+      changedPaths
+    );
+  }
+
+  return true;
+});
+
+/**
+ * Decide whether a reusable publish should skip the commit phase.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const shouldSkipCommitForReusablePublishForTesting = shouldSkipCommitForReusablePublish;
 
 const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   plan: RepoRunPlan,
   message: O.Option<string>,
+  options: YeetRunOptions,
   commitSteps: ReadonlyArray<RepoPlanStep>,
   fullSteps: ReadonlyArray<RepoPlanStep>,
+  earlyPublishSteps: ReadonlyArray<RepoPlanStep>,
   publishSteps: ReadonlyArray<RepoPlanStep>,
   monitorSteps: ReadonlyArray<RepoPlanStep>
 ): Effect.fn.Return<
@@ -1084,27 +1603,83 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   YeetCommandError,
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
-  const publishIntent = yield* collectPublishIntent(plan.context);
-  const commitMessage = O.getOrElse(message, () => "");
-  yield* validateCommitMessage(plan.context, commitMessage);
-  yield* stageReviewedPublishIntent(plan.context, publishIntent);
-
-  const commitResults = yield* runPhase(plan.context, commitSteps);
-  if (A.some(commitResults, (result) => result.exitCode !== 0)) {
-    return yield* failWithIssueArtifacts(plan.context, commitSteps, commitResults, "yeet commit phase failed.");
+  const skipCommit = yield* shouldSkipCommitForReusablePublish(plan.context, options);
+  if (options.reuseVerified) {
+    yield* assertReusableVerifiedState(plan.context);
   }
 
-  const fullResults = yield* runPhase(plan.context, fullSteps);
-  if (A.some(fullResults, (result) => result.exitCode !== 0)) {
-    return yield* failWithIssueArtifacts(
-      plan.context,
-      fullSteps,
-      fullResults,
-      "yeet publish proof failed after creating the local commit. Fix the issue, then amend or reset the commit that has not yet been pushed before retrying."
+  if (skipCommit) {
+    yield* Console.log("[yeet] skipped commit; exact reusable proof state matches the current clean commit");
+  } else {
+    const publishIntent = yield* collectPublishIntent(plan.context);
+    if (O.isSome(message)) {
+      yield* validateCommitMessage(plan.context, message.value);
+    }
+    yield* stageReviewedPublishIntent(plan.context, publishIntent);
+
+    const commitResults = yield* runPhase(plan.context, commitSteps);
+    if (A.some(commitResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(plan.context, commitSteps, commitResults, "yeet commit phase failed.");
+    }
+  }
+
+  if (options.startPrEarly) {
+    yield* Console.log(
+      "[yeet] start-pr-early: pushing before local proof; full proof and hosted monitor remain required"
     );
+    yield* warnOnMismatchedPublishUpstream(plan.context);
+    const earlyPublishResults = yield* runPhase(plan.context, earlyPublishSteps);
+    if (A.some(earlyPublishResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(
+        plan.context,
+        earlyPublishSteps,
+        earlyPublishResults,
+        "yeet start-pr-early push phase failed."
+      );
+    }
+
+    const fullResults = yield* runProofPhase(plan.context, fullSteps, "full");
+    if (A.some(fullResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(
+        plan.context,
+        fullSteps,
+        fullResults,
+        "yeet publish --start-pr-early proof failed after pushing the commit. Fix the issue in a follow-up commit and publish again."
+      );
+    }
+    yield* writeVerifiedState(plan.context, "full", fullSteps);
+    yield* validatePostCommitProofDidNotChangeWorktree(plan.context, postCommitProofChangedAfterEarlyPushMessage);
+
+    const monitorResults = yield* runPhase(plan.context, monitorSteps);
+    if (A.some(monitorResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(
+        plan.context,
+        monitorSteps,
+        monitorResults,
+        "yeet publish monitor phase failed."
+      );
+    }
+
+    return yield* publishResult(plan.context, !skipCommit);
+  }
+
+  if (!options.reuseVerified) {
+    const fullResults = yield* runProofPhase(plan.context, fullSteps, "full");
+    if (A.some(fullResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(
+        plan.context,
+        fullSteps,
+        fullResults,
+        "yeet publish proof failed after creating the local commit. Fix the issue, then amend or reset the commit that has not yet been pushed before retrying."
+      );
+    }
+    yield* writeVerifiedState(plan.context, "full", fullSteps);
+  } else {
+    yield* Console.log("[yeet] skipped local full proof after exact reusable proof-state match");
   }
   yield* validatePostCommitProofDidNotChangeWorktree(plan.context);
 
+  yield* warnOnMismatchedPublishUpstream(plan.context);
   const publishResults = yield* runPhase(plan.context, publishSteps);
   if (A.some(publishResults, (result) => result.exitCode !== 0)) {
     return yield* failWithIssueArtifacts(plan.context, publishSteps, publishResults, "yeet publish phase failed.");
@@ -1120,7 +1695,53 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
     );
   }
 
-  return yield* publishResult(plan.context);
+  return yield* publishResult(plan.context, !skipCommit);
+});
+
+const readPrePushHookStdin = Effect.fn("Yeet.readPrePushHookStdin")(function* (): Effect.fn.Return<
+  string,
+  YeetCommandError
+> {
+  if (process.stdin.isTTY) {
+    return "";
+  }
+
+  return yield* Effect.tryPromise({
+    try: () => Bun.stdin.text(),
+    catch: (cause) =>
+      YeetCommandError.make({
+        message: `Failed to read git pre-push stdin: ${cause instanceof Error ? cause.message : String(cause)}`,
+        exitCode: 1,
+      }),
+  });
+});
+
+const runPrePushHookMode = Effect.fn("Yeet.runPrePushHookMode")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<
+  YeetRunResult,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const currentSha = yield* currentCommitSha(context);
+  const stdinText = yield* readPrePushHookStdin();
+  const pushedLocalShas = prePushLocalShasFromStdin(stdinText);
+  const localShas = A.isReadonlyArrayEmpty(pushedLocalShas) ? [currentSha] : pushedLocalShas;
+  const mismatchedShas = prePushShaMismatches(localShas, currentSha);
+
+  if (!A.isReadonlyArrayEmpty(mismatchedShas)) {
+    return yield* YeetCommandError.make({
+      message: `yeet pre-push-hook cannot reuse proof for pushed SHA(s) outside current HEAD:\n${formatPublishPaths(
+        mismatchedShas
+      )}`,
+      command: "git push",
+      exitCode: 1,
+    });
+  }
+
+  yield* assertReusableVerifiedState(context);
+  yield* Console.log(`[yeet] pre-push hook reused full proof for ${Str.slice(0, 12)(currentSha)}`);
+  return yield* emptyPlanResult(context);
 });
 
 const runMonitorMode = Effect.fn("Yeet.runMonitorMode")(function* (
@@ -1138,9 +1759,50 @@ const runMonitorMode = Effect.fn("Yeet.runMonitorMode")(function* (
   return yield* emptyPlanResult(context);
 });
 
+const runCloseoutMode = Effect.fn("Yeet.runCloseoutMode")(function* (
+  context: RepoRunContext,
+  options: YeetRunOptions
+): Effect.fn.Return<
+  YeetRunResult,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const report = yield* runPrCloseout(
+    context,
+    PrCloseoutOptions.make({
+      bots: options.bots,
+      requireGreptileIssues: options.requireGreptileIssues,
+      requireGreptileScore: options.requireGreptileScore,
+      requireReviewComments: options.requireReviewComments,
+      retriggerGreptile: options.retriggerGreptile,
+    })
+  );
+  const reportPath = yield* runOutputPathForContext(context, "pr-closeout.json");
+  yield* writeTextFile(reportPath, `${yield* renderJson(report)}\n`);
+  yield* Console.log(`[yeet] PR closeout report written to ${reportPath}`);
+
+  if (A.isReadonlyArrayEmpty(report.issues)) {
+    return yield* emptyPlanResult(context);
+  }
+
+  const index = buildQualityIssueIndex(report.issues);
+  const artifacts = yield* writeIssueArtifacts(context, index);
+  yield* Console.error(
+    `yeet PR closeout failed with ${report.issueCount} issue(s).\nYeet quality packets written to ${artifacts.artifactDir}`
+  );
+  for (const packetPath of artifacts.packetPaths) {
+    yield* Console.error(`  - ${packetPath}`);
+  }
+  return yield* YeetCommandError.make({
+    message: `yeet PR closeout failed with ${report.issueCount} issue(s).`,
+    command: "bun run beep yeet closeout",
+    exitCode: 1,
+  });
+});
+
 const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   plan: RepoRunPlan,
-  mode: YeetRunMode,
+  options: YeetRunOptions,
   message: O.Option<string>
 ): Effect.fn.Return<
   YeetRunResult,
@@ -1150,6 +1812,7 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   const prepareSteps = A.filter(plan.steps, (step) => step.phase === "prepare");
   const feedbackSteps = A.filter(plan.steps, (step) => step.phase === "feedback");
   const commitSteps = A.filter(plan.steps, (step) => step.phase === "commit");
+  const earlyPublishSteps = A.filter(plan.steps, (step) => step.phase === "early-publish");
   const fullSteps = A.filter(plan.steps, (step) => step.phase === "full");
   const publishSteps = A.filter(plan.steps, (step) => step.phase === "publish");
   const monitorSteps = A.filter(plan.steps, (step) => step.phase === "monitor");
@@ -1164,11 +1827,14 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
     return yield* failWithIssueArtifacts(plan.context, feedbackSteps, feedbackResults, "yeet feedback phase failed.");
   }
 
-  return yield* YeetRunMode.$match(mode, {
+  return yield* YeetRunMode.$match(options.mode, {
     repair: () => emptyPlanResult(plan.context),
-    verify: () => runVerifyMode(plan.context, fullSteps),
-    publish: () => runPublishMode(plan, message, commitSteps, fullSteps, publishSteps, monitorSteps),
+    verify: () => runVerifyMode(plan.context, fullSteps, options.tier),
+    publish: () =>
+      runPublishMode(plan, message, options, commitSteps, fullSteps, earlyPublishSteps, publishSteps, monitorSteps),
     monitor: () => runMonitorMode(plan.context, monitorSteps),
+    closeout: () => runCloseoutMode(plan.context, options),
+    "pre-push-hook": () => runPrePushHookMode(plan.context),
   });
 });
 
@@ -1217,14 +1883,23 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
   const plan = buildYeetRunPlanWithMode(
     context,
     message,
-    YeetRunPlanModeOptions.make({ fast: options.fast, mode: options.mode, monitor: options.monitor })
+    YeetRunPlanModeOptions.make({
+      amend: options.amend,
+      fast: options.fast,
+      mode: options.mode,
+      monitor: options.monitor,
+      noEdit: options.noEdit,
+      pushOnly: options.pushOnly,
+      startPrEarly: options.startPrEarly,
+      tier: options.tier,
+    })
   );
   if (options.plan) {
     yield* renderPlan(plan, options.json);
     return yield* emptyPlanResult(context);
   }
 
-  return yield* runPlanExecution(plan, options.mode, message);
+  return yield* runPlanExecution(plan, options, message);
 });
 
 /**
@@ -1236,19 +1911,29 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
  * @since 0.0.0
  */
 export const buildYeetRunPlanForTesting = (options: {
+  readonly amend?: boolean;
   readonly context: RepoRunContext;
   readonly fast?: boolean;
   readonly message: O.Option<string>;
   readonly mode?: YeetRunMode;
   readonly monitor?: boolean;
+  readonly noEdit?: boolean;
+  readonly pushOnly?: boolean;
+  readonly startPrEarly?: boolean;
+  readonly tier?: YeetProofTier;
 }): RepoRunPlan =>
   buildYeetRunPlanWithMode(
     options.context,
     options.message,
     YeetRunPlanModeOptions.make({
+      amend: options.amend ?? false,
       fast: options.fast ?? false,
       mode: options.mode ?? "publish",
       monitor: options.monitor ?? false,
+      noEdit: options.noEdit ?? false,
+      pushOnly: options.pushOnly ?? false,
+      startPrEarly: options.startPrEarly ?? false,
+      tier: options.tier ?? "full",
     })
   );
 
@@ -1262,14 +1947,25 @@ export const buildYeetRunPlanForTesting = (options: {
  */
 export const defaultYeetRunOptions = (overrides: Partial<YeetRunOptions> = {}): YeetRunOptions =>
   YeetRunOptions.make({
+    amend: false,
     base: "origin/main",
+    bots: "greptile,coderabbit,chatgpt",
     fast: false,
     head: "HEAD",
     json: false,
     message: "",
     mode: "publish",
     monitor: false,
+    noEdit: false,
     packetDir: DEFAULT_YEET_PACKET_DIR,
     plan: false,
+    pushOnly: false,
+    requireGreptileIssues: -1,
+    requireGreptileScore: "",
+    requireReviewComments: -1,
+    retriggerGreptile: false,
+    reuseVerified: false,
+    startPrEarly: false,
+    tier: "full",
     ...overrides,
   });

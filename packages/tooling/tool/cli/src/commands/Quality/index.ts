@@ -17,7 +17,12 @@ export * from "./internal/TurboConfigProof.js";
  * @category cli-commands
  * @since 0.0.0
  */
-export { qualityCommand } from "./Quality.command.js";
+export {
+  QualityHardwareProfile,
+  QualityProfileConfig,
+  QualityProfileDetection,
+  qualityCommand,
+} from "./Quality.command.js";
 /**
  * Public command module export.
  *
