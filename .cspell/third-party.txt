@@ -68,3 +68,16 @@ serde
 starlette
 YuNet
 yunet
+ANNOTATIONV
+coadmin
+Decryptor
+gsuite
+Invitability
+invitability
+mdfilters
+Metadatas
+UNDELETE
+UNSYNC
+Vochw
+wopi
+wopiplus

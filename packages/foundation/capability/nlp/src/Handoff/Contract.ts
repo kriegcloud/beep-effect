@@ -19,11 +19,12 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { dual } from "@beep/utils";
 import { Clock, Effect } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { UnitInterval } from "../internal/numbers.ts";
 
 const $I = $NlpId.create("Handoff/Contract");
 
@@ -148,28 +149,52 @@ export const ChunkKind = LiteralKit(["document", "paragraph", "sentence", "token
   $I.annote("ChunkKind", { description: "Granularity of a text chunk (document/paragraph/sentence/token)." })
 );
 
+class SpanFields extends S.Class<SpanFields>($I`SpanFields`)(
+  {
+    end: NonNegativeInt,
+    start: NonNegativeInt,
+  },
+  $I.annote("SpanFields", {
+    description: "Internal half-open character span fields with branded non-negative offsets.",
+  })
+) {}
+
 /**
  * A half-open character span `[start, end)` into the source text.
  *
  * @example
  * ```ts
+ * import { NonNegativeInt } from "@beep/schema"
  * import { Span } from "@beep/nlp/Handoff/Contract"
  *
- * console.log(Span.make({ start: 0, end: 5 }))
+ * console.log(Span.make({ start: NonNegativeInt.make(0), end: NonNegativeInt.make(5) }))
  * ```
  *
  * @since 0.0.0
  * @category models
  */
-export class Span extends S.Class<Span>($I`Span`)(
-  {
-    end: S.Int,
-    start: S.Int,
-  },
-  $I.annote("Span", {
+export const Span = SpanFields.check(
+  S.makeFilter((span: { readonly end: number; readonly start: number }) =>
+    span.start <= span.end
+      ? undefined
+      : {
+          path: ["end"],
+          issue: "Span end must be greater than or equal to start",
+        }
+  )
+).pipe(
+  $I.annoteSchema("Span", {
     description: "A half-open character span [start, end) into the source text (zero-based offsets).",
   })
-) {}
+);
+
+/**
+ * Runtime type of {@link Span}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type Span = typeof Span.Type;
 
 /**
  * PROV-O-aligned provenance for a piece of derived annotation: where it came
@@ -189,7 +214,7 @@ export class Span extends S.Class<Span>($I`Span`)(
  */
 export class Provenance extends S.Class<Provenance>($I`Provenance`)(
   {
-    confidence: S.optionalKey(S.Finite),
+    confidence: S.optionalKey(UnitInterval),
     generatedBy: S.String,
     source: S.String,
     timestamp: S.Finite,
@@ -272,7 +297,7 @@ export class Mention extends S.Class<Mention>($I`Mention`)(
 export class Entity extends S.Class<Entity>($I`Entity`)(
   {
     canonicalName: S.String,
-    confidence: S.optionalKey(S.Finite),
+    confidence: S.optionalKey(UnitInterval),
     id: EntityId,
     mentions: S.Array(MentionId),
     provenance: Provenance,
@@ -300,7 +325,7 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
  */
 export class Relation extends S.Class<Relation>($I`Relation`)(
   {
-    confidence: S.optionalKey(S.Finite),
+    confidence: S.optionalKey(UnitInterval),
     evidence: S.Array(Span).pipe(S.optionalKey),
     id: RelationId,
     object: EntityId,

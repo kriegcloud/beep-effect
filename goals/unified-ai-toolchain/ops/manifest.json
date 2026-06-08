@@ -3,26 +3,51 @@
   "initiative": {
     "id": "unified-ai-toolchain",
     "title": "Unified AI Toolchain",
-    "status": "v1-complete",
+    "status": "v2-active",
     "created": "2026-05-22",
-    "updated": "2026-05-23",
+    "updated": "2026-06-07",
     "packetAnchorDocument": "SPEC.md"
   },
-  "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "P6+",
-  "completionEvidence": "schema library plus drift checks plus beep-effect dogfooding validation during bun run check",
+  "packetPath": "goals/unified-ai-toolchain",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/unified-ai-toolchain/README.md",
+    "goals/unified-ai-toolchain/SPEC.md",
+    "goals/unified-ai-toolchain/PLAN.md",
+    "goals/unified-ai-toolchain/GOAL.md",
+    "goals/unified-ai-toolchain/ops/manifest.json"
+  ],
+  "currentTargetPhase": "V2.1",
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/unified-ai-toolchain/GOAL.md"
+    }
+  ],
   "targets": {
-    "package": "packages/tooling/library/ai-sync",
+    "schemaLibrary": "packages/tooling/library/ai-sync",
+    "operatorCli": "packages/tooling/tool/cli",
     "publishedPackage": "@beep/ai-sync",
+    "rootCommandGroup": "bun run beep ai-sync",
+    "canonicalConfig": ".ai-sync/project.jsonc",
     "dogfoodRepo": "beep-effect"
   },
   "defaults": {
     "artifactFamily": "tooling",
     "artifactKind": "library",
+    "operatorFamily": "tooling",
+    "operatorKind": "tool",
     "schemaRuntime": "effect-schema",
     "codegenPrecedent": "@beep/acp",
     "validationPosture": "offline-local-by-default",
-    "driftPosture": "tiered-pins-and-semantic-field-diff"
+    "driftPosture": "tiered-pins-and-semantic-field-diff",
+    "nativeEmissionPosture": "plan-first-explicit-apply"
   },
   "v1Completion": {
     "status": "complete",
@@ -40,119 +65,184 @@
       "validate at least one real beep-effect agent config during bun run check",
       "record deliberate invalid-config failure evidence"
     ],
-    "remainingGates": [],
-    "nonBlockingFollowUps": [
-      "P6+ CLI tool",
-      "P6+ ruler/rulesync interoperability layer",
-      "P6+ reverse-roundtrip emission",
-      "P6+ additional agents"
+    "remainingGates": []
+  },
+  "v2Completion": {
+    "status": "active",
+    "activeGate": "V2.1 Operator CLI",
+    "closedGates": ["V2/V3 packet bootstrap"],
+    "remainingGates": [
+      "root beep ai-sync command group",
+      "all registered repo agent config files validated during normal checks",
+      "schema-first JSON reports and human summaries",
+      "rulesync config/MCP audit-import evidence",
+      "weekly/manual drift refresh Auto-PR workflow",
+      "V2 closeout evidence"
+    ]
+  },
+  "v3Completion": {
+    "status": "planned",
+    "activeGate": null,
+    "remainingGates": [
+      "canonical per-domain models",
+      ".ai-sync/project.jsonc canonical source",
+      "native dry-run emission plans",
+      "explicit apply workflow",
+      "current-matrix native emitters",
+      "research-gated V3b additional-agent expansion"
     ]
   },
   "owningSurfaces": {
     "schemaLibrary": "packages/tooling/library/ai-sync",
+    "operatorCli": "packages/tooling/tool/cli",
     "codegenPrecedent": "packages/drivers/acp/scripts/generate.ts",
     "rootCheckIntegration": "root package scripts and check pipeline",
+    "workflowPrecedent": ".github/workflows/data-sync.yml",
     "goalPacket": "goals/unified-ai-toolchain"
   },
   "phases": [
     {
-      "id": "P0",
-      "name": "Initiative Bootstrap And Current State",
+      "id": "P0-P5",
+      "name": "V1 Schema Truth Layer",
       "status": "complete",
-      "output": "history/outputs/p0-current-state.md"
-    },
-    {
-      "id": "P1",
-      "name": "Source-of-Truth Pinning And Tier-1 Codegen",
-      "status": "complete",
-      "output": "history/outputs/p1-source-of-truth-pinning-and-tier-1-codegen.md"
-    },
-    {
-      "id": "P2",
-      "name": "Tier-2 Semantic-Field-Diff Schemas",
-      "status": "complete",
-      "output": "history/outputs/p2-tier-2-semantic-field-diff-schemas.md"
-    },
-    {
-      "id": "P3",
-      "name": "Drift Detection Pipeline",
-      "status": "complete",
-      "output": "history/outputs/p3-drift-detection-pipeline.md"
-    },
-    {
-      "id": "P4",
-      "name": "Cross-Agent Transforms",
-      "status": "complete",
-      "output": "history/outputs/p4-cross-agent-transforms.md"
-    },
-    {
-      "id": "P5",
-      "name": "First Real Consumer",
-      "status": "complete",
-      "v1Blocking": true,
-      "output": "history/outputs/p5-first-real-consumer.md"
-    },
-    {
-      "id": "P6+",
-      "name": "Non-V1-Blocking Follow-Ups",
-      "status": "pending",
-      "v1Blocking": false,
-      "output": "history/outputs/p6-plus-follow-ups.md",
-      "subphases": [
-        {
-          "id": "P6a",
-          "name": "CLI Tool",
-          "status": "pending",
-          "v1Blocking": false
-        },
-        {
-          "id": "P6b",
-          "name": "Ruler And Rulesync Interoperability",
-          "status": "pending",
-          "v1Blocking": false
-        },
-        {
-          "id": "P6c",
-          "name": "Reverse Roundtrip Emission",
-          "status": "pending",
-          "v1Blocking": false
-        },
-        {
-          "id": "P6d",
-          "name": "Additional Agents",
-          "status": "pending",
-          "v1Blocking": false
-        }
+      "version": "V1",
+      "outputs": [
+        "history/outputs/p0-current-state.md",
+        "history/outputs/p1-source-of-truth-pinning-and-tier-1-codegen.md",
+        "history/outputs/p2-tier-2-semantic-field-diff-schemas.md",
+        "history/outputs/p3-drift-detection-pipeline.md",
+        "history/outputs/p4-cross-agent-transforms.md",
+        "history/outputs/p5-first-real-consumer.md"
       ]
+    },
+    {
+      "id": "V2.0",
+      "name": "Bootstrap V2 And V3 Packet",
+      "status": "complete",
+      "version": "V2",
+      "output": "history/outputs/v2-v3-bootstrap.md"
+    },
+    {
+      "id": "V2.1",
+      "name": "Operator CLI",
+      "status": "pending",
+      "version": "V2"
+    },
+    {
+      "id": "V2.2",
+      "name": "Broad Dogfood",
+      "status": "pending",
+      "version": "V2"
+    },
+    {
+      "id": "V2.3",
+      "name": "Reports And Interop Evidence",
+      "status": "pending",
+      "version": "V2"
+    },
+    {
+      "id": "V2.4",
+      "name": "Drift Auto-PR",
+      "status": "pending",
+      "version": "V2"
+    },
+    {
+      "id": "V2.5",
+      "name": "V2 Closeout",
+      "status": "pending",
+      "version": "V2"
+    },
+    {
+      "id": "V3.1",
+      "name": "Canonical Models",
+      "status": "planned",
+      "version": "V3"
+    },
+    {
+      "id": "V3.2",
+      "name": "Canonical Source",
+      "status": "planned",
+      "version": "V3"
+    },
+    {
+      "id": "V3.3",
+      "name": "Native Plan And Apply",
+      "status": "planned",
+      "version": "V3"
+    },
+    {
+      "id": "V3.4",
+      "name": "Current-Matrix Emitters",
+      "status": "planned",
+      "version": "V3"
+    },
+    {
+      "id": "V3b",
+      "name": "Research-Gated Additional Agents",
+      "status": "planned",
+      "version": "V3"
     }
   ],
   "commandGates": [
+    {
+      "id": "goal-launcher-size",
+      "command": "test \"$(wc -m < goals/unified-ai-toolchain/GOAL.md)\" -le 4000"
+    },
+    {
+      "id": "manifest-json",
+      "command": "jq . goals/unified-ai-toolchain/ops/manifest.json"
+    },
+    {
+      "id": "ai-sync-audit-json",
+      "command": "bun run beep ai-sync audit --json"
+    },
+    {
+      "id": "ai-sync-check-json",
+      "command": "bun run beep ai-sync check --json"
+    },
+    {
+      "id": "ai-sync-drift-strict-json",
+      "command": "bun run beep ai-sync drift --strict --json"
+    },
+    {
+      "id": "ai-sync-package-check",
+      "command": "bun run --cwd packages/tooling/library/ai-sync check"
+    },
+    {
+      "id": "ai-sync-package-test",
+      "command": "bun run --cwd packages/tooling/library/ai-sync test"
+    },
     {
       "id": "root-check",
       "command": "bun run check"
     },
     {
-      "id": "ai-sync-check",
-      "command": "bun run --cwd packages/tooling/library/ai-sync check"
-    },
-    {
-      "id": "ai-sync-generate",
-      "command": "bun run --cwd packages/tooling/library/ai-sync generate"
-    },
-    {
-      "id": "ai-sync-drift-strict",
-      "command": "bun run --cwd packages/tooling/library/ai-sync drift --strict"
-    },
-    {
-      "id": "ai-sync-dogfood",
-      "command": "bun run --cwd packages/tooling/library/ai-sync validate -- --repo-root ../../../.. --config .codex/config.toml"
+      "id": "diff-check",
+      "command": "git diff --check -- goals/unified-ai-toolchain packages/tooling/library/ai-sync packages/tooling/tool/cli .github/workflows"
     }
   ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/unified-ai-toolchain/GOAL.md)\" -le 4000",
+    "jq . goals/unified-ai-toolchain/ops/manifest.json",
+    "rg -n \"V2|V3|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/unified-ai-toolchain",
+    "git diff --check -- goals/unified-ai-toolchain"
+  ],
   "knownGaps": [
+    "Strict drift was observed to report moved hashes for claude-code-settings, rulesync-config, and rulesync-mcp",
     "Grok Build hook event schemas, plugin manifest schema, and Grok-native MCP shape are undocumented and must remain unknown_schema until evidence exists",
     "JetBrains AI Assistant has no repo-committed Skills or Hooks concept",
     "Junie Hooks and Plugins are not V1 repo-committed concepts",
-    "P6+ operator CLI, adapter interoperability, reverse-roundtrip emission, and additional agents are deferred"
+    "V2 does not write native agent files",
+    "V2 parses rulesync schema-backed config/MCP evidence but keeps ruler as research-only",
+    "V3b additional-agent expansion requires fresh source-map research before selecting candidates"
   ],
-  "nextAction": "Open a deliberate P6+ follow-up if operator workflows, adapter interoperability, reverse-roundtrip emission, or additional agents become active scope."
+  "stopConditions": [
+    "Implementation starts modeling an undocumented native schema from guesswork.",
+    "V2 work starts writing native agent files instead of reporting or refreshing generated metadata.",
+    "The Auto-PR workflow is routed through Yeet publish while Yeet remains proof-mode.",
+    "Validation or reports would print raw secrets, bearer tokens, raw headers, private home paths, or full instruction documents.",
+    "Additional-agent support starts before current-matrix V3 emitters are production-ready.",
+    "Required source files are missing or materially contradictory."
+  ],
+  "nextAction": "Implement V2.1 Operator CLI in @beep/repo-cli, backed by @beep/ai-sync report and validation primitives."
 }

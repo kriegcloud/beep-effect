@@ -85,6 +85,12 @@
         "./packages/foundation/capability/semantic-web/src/*"
       ],
       "@beep/nlp": ["./packages/foundation/capability/nlp/src/index.ts"],
+      "@beep/langextract": [
+        "./packages/foundation/capability/langextract/src/index.ts"
+      ],
+      "@beep/langextract/*": [
+        "./packages/foundation/capability/langextract/src/*"
+      ],
       "@beep/observability": [
         "./packages/foundation/capability/observability/src/index.ts"
       ],
@@ -1082,6 +1088,21 @@
       ],
       "@beep/nlp/Handoff": [
         "./packages/foundation/capability/nlp/src/Handoff/index.ts"
+      ],
+      "@beep/langextract/Alignment": [
+        "./packages/foundation/capability/langextract/src/Alignment/index.ts"
+      ],
+      "@beep/langextract/Extraction": [
+        "./packages/foundation/capability/langextract/src/Extraction/index.ts"
+      ],
+      "@beep/langextract/Handoff": [
+        "./packages/foundation/capability/langextract/src/Handoff/index.ts"
+      ],
+      "@beep/langextract/Service": [
+        "./packages/foundation/capability/langextract/src/Service/index.ts"
+      ],
+      "@beep/langextract/Target": [
+        "./packages/foundation/capability/langextract/src/Target/index.ts"
       ],
       "@beep/nlp-mcp": ["./packages/drivers/nlp-mcp/src/index.ts"],
       "@beep/nlp-mcp/*": ["./packages/drivers/nlp-mcp/src/*"],

@@ -6,7 +6,7 @@ import {
   ChartTooltipContent,
 } from "@beep/ui/components/chart";
 import { A, Str } from "@beep/utils";
-import { pipe } from "effect";
+import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import {
   AreaChart,
@@ -132,6 +132,7 @@ const meta = {
     config: chartConfig,
     className: "min-h-[200px] w-full max-w-xl",
     children: defaultChartChildren,
+    style: { width: 576, height: 324 },
   },
 } satisfies Meta<typeof ChartContainer>;
 
@@ -210,11 +211,16 @@ export const WithLegend: Story = {
       </BarChart>
     </ChartContainer>
   ),
-  play: ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    expect(canvas.getByText("Desktop")).toBeVisible();
-    expect(canvas.getByText("Mobile")).toBeVisible();
-  },
+  play: ({ canvasElement }) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const canvas = within(canvasElement);
+        const desktop = yield* Effect.promise(() => canvas.findByText("Desktop"));
+        expect(desktop).toBeVisible();
+        const mobile = yield* Effect.promise(() => canvas.findByText("Mobile"));
+        expect(mobile).toBeVisible();
+      })
+    ),
 };
 
 /** A line chart driven by the same config, ideal for showing trends over time. */
@@ -280,7 +286,7 @@ export const Area: Story = {
  * mapping slices to their configured labels via `nameKey`.
  */
 export const Pie: Story = {
-  args: { config: pieConfig, className: "mx-auto aspect-square max-h-[260px]" },
+  args: { config: pieConfig, className: "mx-auto", style: { width: 260, height: 260 } },
   render: (args) => (
     <ChartContainer {...args}>
       <PieChart>
@@ -296,11 +302,16 @@ export const Pie: Story = {
       </PieChart>
     </ChartContainer>
   ),
-  play: ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    expect(canvas.getByText("Chrome")).toBeVisible();
-    expect(canvas.getByText("Safari")).toBeVisible();
-  },
+  play: ({ canvasElement }) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const canvas = within(canvasElement);
+        const chrome = yield* Effect.promise(() => canvas.findByText("Chrome"));
+        expect(chrome).toBeVisible();
+        const safari = yield* Effect.promise(() => canvas.findByText("Safari"));
+        expect(safari).toBeVisible();
+      })
+    ),
 };
 
 /**

@@ -1,18 +1,203 @@
 /**
- * Box driver service implementation marker.
- *
- * The runtime adapter is intentionally deferred while the package scaffold
- * lands. Keeping an exported marker makes the stub visible to downstream
- * imports without pretending the service is implemented.
+ * Effect service boundary for the Box Node SDK.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
+import { $BoxId } from "@beep/identity";
+import { BoxCcgAuth, BoxClient, BoxDeveloperTokenAuth, CcgConfig } from "box-node-sdk";
+import { Context, Effect, Layer, Redacted } from "effect";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import { makeGeneratedOperations } from "./_generated/Box.operations.gen.ts";
+import { BoxConfig, BoxConfigLayer } from "./Box.config.ts";
+import { BoxError } from "./Box.errors.ts";
+import { makeStreamingOperations } from "./Box.streaming.ts";
+import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
+import { decodeWith, logDriverFailure } from "./internal/Box.runtime.ts";
+import type { BoxGeneratedOperations, BoxRunSdkCall } from "./_generated/Box.operations.gen.ts";
+import type { BoxCcgConfig, BoxDeveloperTokenConfig } from "./Box.config.ts";
+import type { BoxStreamingOperations } from "./Box.streaming.ts";
+
+const $I = $BoxId.create("Box.service");
+
 /**
- * Implementation status for the deferred Box service adapter.
+ * Public Box service shape.
+ *
+ * @example
+ * ```ts
+ * import type { BoxShape } from "@beep/box"
+ *
+ * type Managers = keyof BoxShape
+ * ```
  *
  * @category services
  * @since 0.0.0
  */
-export const BOX_SERVICE_IMPLEMENTATION_STATUS = "stub";
+export type BoxShape = BoxGeneratedOperations & BoxStreamingOperations;
+
+const runSdkCall: BoxRunSdkCall = (manager, method, methodName, payloadSchema, successSchema, payload, invoke) =>
+  Effect.acquireUseRelease(
+    Effect.sync(() => new AbortController()),
+    (controller) =>
+      decodeWith(methodName, payloadSchema, payload, "request encoding").pipe(
+        Effect.flatMap((decoded) =>
+          Effect.tryPromise({
+            try: () => invoke(decoded, controller.signal),
+            catch: (cause) => BoxError.fromUnknown(methodName, cause),
+          })
+        ),
+        Effect.flatMap((result) => decodeWith(methodName, successSchema, result, "response decoding")),
+        Effect.tapError(logDriverFailure("box.driver_failure")),
+        Effect.withSpan(`box.${manager}.${method}`, {
+          attributes: {
+            "box.manager": manager,
+            "box.method": methodName,
+            "box.sdk.version": BOX_SDK_VERSION,
+          },
+        })
+      ),
+    (controller) => Effect.sync(() => controller.abort())
+  );
+
+const makeService = (client: unknown): BoxShape => {
+  const generated = makeGeneratedOperations(client, runSdkCall);
+  const streaming = makeStreamingOperations(client);
+
+  return {
+    ...generated,
+    avatars: { ...generated.avatars, ...streaming.avatars },
+    chunkedUploads: { ...generated.chunkedUploads, ...streaming.chunkedUploads },
+    downloads: { ...generated.downloads, ...streaming.downloads },
+    events: { ...generated.events, ...streaming.events },
+    files: { ...generated.files, ...streaming.files },
+    uploads: { ...generated.uploads, ...streaming.uploads },
+    zipDownloads: { ...generated.zipDownloads, ...streaming.zipDownloads },
+  };
+};
+
+const makeDeveloperTokenClient = (config: BoxDeveloperTokenConfig): BoxClient =>
+  new BoxClient({
+    auth: new BoxDeveloperTokenAuth({
+      token: Redacted.value(config.token),
+    }),
+  });
+
+const makeCcgClient = (config: BoxCcgConfig): BoxClient =>
+  new BoxClient({
+    auth: new BoxCcgAuth({
+      config: new CcgConfig({
+        clientId: config.clientId,
+        clientSecret: Redacted.value(config.clientSecret),
+        ...R.getSomes({
+          enterpriseId: O.fromUndefinedOr(config.enterpriseId),
+          userId: O.fromUndefinedOr(config.userId),
+        }),
+      }),
+    }),
+  });
+
+const validateCcgConfig = (config: BoxCcgConfig): Effect.Effect<BoxCcgConfig, BoxError> =>
+  config.enterpriseId === undefined && config.userId === undefined
+    ? Effect.fail(
+        BoxError.fromReason("config", {
+          cause: "Missing enterpriseId or userId for Box CCG auth",
+        })
+      )
+    : Effect.succeed(config);
+
+/**
+ * Effect service for the Box Node SDK.
+ *
+ * @example
+ * ```ts
+ * import { Box, BoxDeveloperTokenConfig } from "@beep/box"
+ * import { Redacted } from "effect"
+ *
+ * const layer = Box.makeLayer(BoxDeveloperTokenConfig.make({ token: Redacted.make("box-token") }))
+ * console.log(layer)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class Box extends Context.Service<Box, BoxShape>()($I`Box`) {
+  /**
+   * Build a Box layer from explicit developer-token configuration.
+   *
+   * @example
+   * ```ts
+   * import { Box, BoxDeveloperTokenConfig } from "@beep/box"
+   * import { Redacted } from "effect"
+   *
+   * const layer = Box.makeLayer(BoxDeveloperTokenConfig.make({ token: Redacted.make("box-token") }))
+   * console.log(layer)
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayer = (config: BoxDeveloperTokenConfig): Layer.Layer<Box> =>
+    Layer.succeed(Box, Box.of(makeService(makeDeveloperTokenClient(config))));
+
+  /**
+   * Build a Box layer from explicit Client Credentials Grant configuration.
+   *
+   * @example
+   * ```ts
+   * import { Box, BoxCcgConfig } from "@beep/box"
+   * import { Redacted } from "effect"
+   *
+   * const layer = Box.makeCcgLayer(BoxCcgConfig.make({
+   *   clientId: "client-id",
+   *   clientSecret: Redacted.make("client-secret"),
+   *   enterpriseId: "enterprise-id"
+   * }))
+   * console.log(layer)
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeCcgLayer = (config: BoxCcgConfig): Layer.Layer<Box, BoxError> =>
+    Layer.effect(
+      Box,
+      validateCcgConfig(config).pipe(Effect.map((validConfig) => Box.of(makeService(makeCcgClient(validConfig)))))
+    );
+
+  /**
+   * Build a Box layer from a pre-authenticated SDK client.
+   *
+   * @example
+   * ```ts
+   * import { Box } from "@beep/box"
+   *
+   * const makeLayer = (client: unknown) => Box.makeLayerFromClient(client)
+   * console.log(makeLayer)
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayerFromClient = (client: unknown): Layer.Layer<Box> =>
+    Layer.succeed(Box, Box.of(makeService(client)));
+
+  /**
+   * Live developer-token layer backed by `CLOUD_BOX_TOKEN`.
+   *
+   * @example
+   * ```ts
+   * import { Box } from "@beep/box"
+   *
+   * console.log(Box.layer)
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly layer: Layer.Layer<Box, BoxError> = Layer.effect(
+    Box,
+    BoxConfig.pipe(Effect.map((config) => Box.of(makeService(makeDeveloperTokenClient(config)))))
+  ).pipe(Layer.provide(BoxConfigLayer));
+}

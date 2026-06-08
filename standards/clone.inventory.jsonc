@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-04",
+  "generatedOn": "2026-06-08",
   "entries": [
     {
       "id": "reuse-clone:50:3716dfdbaca45d3c",
@@ -21,6 +21,16 @@
       "members": [
         "packages/architecture-lab/domain/src/identity/ArchitectureLab.ts#ArchitectureLab",
         "packages/canvas/domain/src/identity/Canvas.ts#Canvas"
+      ]
+    },
+    {
+      "id": "reuse-clone:51:4f45279c92e7d6bd",
+      "title": "Structural clone of CreateUserAvatarRequestBody across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#CreateUserAvatarRequestBody",
+        "packages/drivers/runpod/src/_generated/Runpod.generated.ts#GetEndpointRequest"
       ]
     },
     {
@@ -87,6 +97,31 @@
       ]
     },
     {
+      "id": "reuse-clone:57:cacc580204db0f68",
+      "title": "Structural clone of AddShareLinkToFileRequestBodySharedLinkPermissionsField across 2 packages",
+      "occurrences": 17,
+      "packages": 2,
+      "members": [
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#AddShareLinkToFileRequestBodySharedLinkPermissionsField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#AddShareLinkToFolderRequestBodySharedLinkPermissionsField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#AddShareLinkToWebLinkRequestBodySharedLinkPermissionsField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#AiAgentInfoModelsField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#FileFullClassificationField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#FileFullRepresentationsEntriesPropertiesField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#FileFullWatermarkInfoField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#FolderFullClassificationField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#FolderFullWatermarkInfoField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#MetadataError",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#PostOAuth2Revoke",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#RetentionPolicyAssignmentCountsField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#UpdateSharedLinkOnFileRequestBodySharedLinkPermissionsField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#UpdateSharedLinkOnFolderRequestBodySharedLinkPermissionsField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#UpdateSharedLinkOnWebLinkRequestBodySharedLinkPermissionsField",
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#UserAvatarPicUrlsField",
+        "packages/drivers/runpod/src/_generated/Runpod.generated.ts#ListTemplatesRequest"
+      ]
+    },
+    {
       "id": "reuse-clone:59:eaa7b48779f2bdc5",
       "title": "Structural clone of RepoExportsCatalogTotals across 2 packages",
       "occurrences": 2,
@@ -139,6 +174,16 @@
       ]
     },
     {
+      "id": "reuse-clone:68:bad99edc0346bfea",
+      "title": "Structural clone of MetadataBase across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#MetadataBase",
+        "packages/drivers/runpod/src/_generated/Runpod.generated.ts#NetworkVolume"
+      ]
+    },
+    {
       "id": "reuse-clone:74:51aaed08d72d9f1d",
       "title": "Structural clone of FFmpegErrorFromUnknownOptions across 2 packages",
       "occurrences": 2,
@@ -171,6 +216,16 @@
       "members": [
         "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.errors.ts#WorkItemInvalidTransition",
         "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.errors.ts#CanvasProjectInvalidTransition"
+      ]
+    },
+    {
+      "id": "reuse-clone:79:63a1abc1a60cb7d7",
+      "title": "Structural clone of RealtimeServer across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/box/src/_generated/Box.models.gen.ts#RealtimeServer",
+        "packages/drivers/runpod/src/_generated/Runpod.generated.ts#NetworkVolumeBillingRecord"
       ]
     },
     {

@@ -1,12 +1,17 @@
 import {
+  backupDirectoryNameFromEpochMillisForTesting,
   GraphitiProxyConfig,
   isFastMcpRequestBody,
   makeGraphitiProxyForwarderService,
+  ProxyServiceConfig,
+  renderProxyServiceUnitForTesting,
+  resolveGraphitiStackDirForTesting,
+  shouldInstallProxyServiceForTesting,
   shouldRecoverGraphitiStackForTesting,
 } from "@beep/repo-cli/test/Graphiti";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
-import { Duration, Effect } from "effect";
+import { Config, Duration, Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
@@ -265,5 +270,86 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
         recoverOnUnhealthy: false,
       })
     ).toBe(true);
+  });
+
+  it("resolves restore stack directory with CLI precedence over environment and default", () => {
+    const expectedDefault = `${pipe(
+      Effect.runSync(Config.option(Config.string("HOME"))),
+      O.getOrElse(() => process.cwd())
+    )}/graphiti-mcp`;
+
+    expect(resolveGraphitiStackDirForTesting(O.some("/tmp/cli"), O.some("/tmp/env"))).toBe("/tmp/cli");
+    expect(resolveGraphitiStackDirForTesting(O.none(), O.some("/tmp/env"))).toBe("/tmp/env");
+    expect(resolveGraphitiStackDirForTesting(O.none(), O.none())).toBe(expectedDefault);
+  });
+
+  it("uses a stable timestamped backup directory name", () => {
+    expect(backupDirectoryNameFromEpochMillisForTesting(0)).toBe("data-1970-01-01T000000000Z");
+  });
+
+  it("reinstalls the proxy service when the unit points at a stale checkout or upstream", () => {
+    const currentUnit = [
+      "[Service]",
+      "WorkingDirectory=/repo",
+      "ExecStart=/home/elpresidank/.bun/bin/bun run beep graphiti proxy",
+      "Environment=GRAPHITI_PROXY_HOST=127.0.0.1",
+      "Environment=GRAPHITI_PROXY_PORT=8123",
+      "Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:8000/mcp",
+    ].join("\n");
+
+    expect(
+      shouldInstallProxyServiceForTesting({
+        repoRoot: "/repo",
+        unitText: currentUnit,
+        upstream: "http://127.0.0.1:8000/mcp",
+      })
+    ).toBe(false);
+    expect(
+      shouldInstallProxyServiceForTesting({
+        repoRoot: "/new-repo",
+        unitText: currentUnit,
+        upstream: "http://127.0.0.1:8000/mcp",
+      })
+    ).toBe(true);
+    expect(
+      shouldInstallProxyServiceForTesting({
+        repoRoot: "/repo",
+        unitText: currentUnit,
+        upstream: "http://127.0.0.1:9000/mcp",
+      })
+    ).toBe(true);
+  });
+
+  it("renders the configured upstream into the managed proxy service unit", () => {
+    const unit = renderProxyServiceUnitForTesting(
+      "/repo",
+      "/bin/bun",
+      ProxyServiceConfig.make({
+        serviceFile: "/tmp/beep-graphiti-proxy.service",
+        serviceName: "beep-graphiti-proxy.service",
+        stateDir: "/tmp/beep",
+        systemdUserDir: "/tmp/systemd/user",
+        upstreamMcpUrl: "http://127.0.0.1:9000/mcp",
+      })
+    );
+
+    expect(unit).toContain("Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:9000/mcp");
+    expect(unit).not.toContain("Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:8000/mcp");
+  });
+
+  it("escapes percent signs in the managed proxy service upstream", () => {
+    const unit = renderProxyServiceUnitForTesting(
+      "/repo",
+      "/bin/bun",
+      ProxyServiceConfig.make({
+        serviceFile: "/tmp/beep-graphiti-proxy.service",
+        serviceName: "beep-graphiti-proxy.service",
+        stateDir: "/tmp/beep",
+        systemdUserDir: "/tmp/systemd/user",
+        upstreamMcpUrl: "http://127.0.0.1:9000/mcp?redirect=%2Fgraphiti",
+      })
+    );
+
+    expect(unit).toContain("Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:9000/mcp?redirect=%%2Fgraphiti");
   });
 });

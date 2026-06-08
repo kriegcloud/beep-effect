@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "langextract-capability",
+    "title": "LangExtract Capability",
+    "status": "active",
+    "created": "2026-06-07",
+    "updated": "2026-06-07",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/langextract-capability",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "standards/ARCHITECTURE.md",
+    "standards/architecture/README.md",
+    "standards/effect-first-development.md",
+    "standards/repo-exports.catalog.md",
+    "goals/langextract-capability/README.md",
+    "goals/langextract-capability/SPEC.md",
+    "goals/langextract-capability/PLAN.md",
+    "goals/langextract-capability/GOAL.md",
+    "goals/langextract-capability/research/synthesis.md"
+  ],
+  "targetSurfaces": [
+    "goals/langextract-capability/**",
+    "packages/foundation/capability/langextract/**",
+    "packages/foundation/capability/nlp/**",
+    "standards/repo-exports.catalog.{md,jsonc}"
+  ],
+  "packageIntent": {
+    "packageName": "@beep/langextract",
+    "packagePath": "packages/foundation/capability/langextract",
+    "family": "foundation",
+    "kind": "capability",
+    "boundary": "provider-neutral structured extraction substrate",
+    "mustNotDependOn": [
+      "drivers",
+      "apps",
+      "product slices",
+      "provider-specific env/config loaders"
+    ]
+  },
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/langextract-capability/GOAL.md"
+    }
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Packet Bootstrap",
+      "status": "completed"
+    },
+    {
+      "id": "P1",
+      "name": "Parallel Research",
+      "status": "completed"
+    },
+    {
+      "id": "P2",
+      "name": "Research Synthesis",
+      "status": "completed"
+    },
+    {
+      "id": "P3",
+      "name": "Packet Finalization",
+      "status": "completed"
+    },
+    {
+      "id": "P4",
+      "name": "Implement",
+      "status": "in-progress"
+    },
+    {
+      "id": "P5",
+      "name": "Quality Review Fix Loop",
+      "status": "pending"
+    },
+    {
+      "id": "P6",
+      "name": "Yeet And PR Babysitting",
+      "status": "pending"
+    }
+  ],
+  "researchReports": [
+    "research/reports/repo-reuse-audit.md",
+    "research/reports/nlp-fit-audit.md",
+    "research/reports/effect-v3-reference.md",
+    "research/reports/effect-v4-migration.md",
+    "research/reports/architecture-boundaries.md",
+    "research/reports/extraction-alignment.md",
+    "research/reports/testing-quality.md"
+  ],
+  "proposalReviewReports": ["research/reports/proposal-review-round-1.md"],
+  "proposalReviewLoop": {
+    "zeroGate": "zero required improvement items",
+    "loopBudget": 3,
+    "inventoryPattern": "research/reports/proposal-review-round-<n>.md",
+    "reviewerRoles": [
+      "quality-gate",
+      "architecture-boundary",
+      "schema-domain",
+      "effect-law",
+      "error-boundary",
+      "testing",
+      "observability",
+      "documentation-api",
+      "reuse-duplication",
+      "evolution-deprecation"
+    ]
+  },
+  "reuseGate": {
+    "preferredHome": "@beep/nlp",
+    "catalogCommand": "rg -i \"span|annotateddocument|handoff|extraction|languagemodel\" standards/repo-exports.catalog.md packages/foundation/capability/nlp packages/drivers",
+    "requiredClassifications": [
+      "reuse as-is",
+      "extend @beep/nlp first",
+      "langextract-local with rationale"
+    ]
+  },
+  "verificationCommands": [
+    "test \"$(wc -m < goals/langextract-capability/GOAL.md)\" -le 4000",
+    "jq . goals/langextract-capability/ops/manifest.json",
+    "rg -n \"langextract-capability|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/langextract-capability",
+    "git diff --check -- goals/langextract-capability"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "The implementation would exceed named scope.",
+    "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
+    "The same blocker repeats after reasonable investigation.",
+    "Provider-specific runtime work starts entering the foundation package.",
+    "Research proves the foundation capability route needs a standards decision."
+  ]
+}

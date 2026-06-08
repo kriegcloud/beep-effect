@@ -63,7 +63,12 @@
     "lint": {
       "cache": true,
       "dependsOn": ["^lint"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.jsonc", "!.beep/**"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/biome.jsonc",
+        "$TURBO_ROOT$/packages/foundation/ui-system/*/stories/**",
+        "!.beep/**"
+      ]
     },
     "lint:fix": {
       "cache": false,
@@ -77,6 +82,7 @@
         "$TURBO_ROOT$/tsconfig.json",
         "$TURBO_ROOT$/tsconfig.base.json",
         "$TURBO_ROOT$/tsconfig.packages.json",
+        "$TURBO_ROOT$/packages/foundation/ui-system/*/stories/**",
         "!.beep/**"
       ],
       "outputs": [
@@ -157,6 +163,7 @@
         "$TURBO_ROOT$/tstyche.json",
         "$TURBO_ROOT$/vitest.shared.ts",
         "$TURBO_ROOT$/.env*",
+        "$TURBO_ROOT$/packages/foundation/ui-system/*/stories/**",
         "!.beep/**"
       ],
       "env": [
@@ -231,6 +238,14 @@
     },
     "storybook:build": {
       "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/storybook/.storybook/**",
+        "$TURBO_ROOT$/apps/storybook/vitest.storybook.config.ts",
+        "$TURBO_ROOT$/apps/storybook/vitest.storybook.setup.ts",
+        "$TURBO_ROOT$/packages/foundation/ui-system/*/src/**",
+        "$TURBO_ROOT$/packages/foundation/ui-system/*/stories/**"
+      ],
       "outputs": ["storybook-static/**"]
     },
     "storybook:start": {
@@ -239,7 +254,16 @@
       "dependsOn": ["storybook:build"]
     },
     "test:storybook": {
-      "cache": false
+      "cache": false,
+      "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/storybook/.storybook/**",
+        "$TURBO_ROOT$/apps/storybook/vitest.storybook.config.ts",
+        "$TURBO_ROOT$/apps/storybook/vitest.storybook.setup.ts",
+        "$TURBO_ROOT$/packages/foundation/ui-system/*/src/**",
+        "$TURBO_ROOT$/packages/foundation/ui-system/*/stories/**"
+      ]
     }
   }
 }
