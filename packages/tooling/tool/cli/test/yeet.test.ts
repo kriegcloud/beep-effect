@@ -7,6 +7,7 @@ import {
   jsonObjectTextFromMixedOutputForTesting,
   publishPathsOutsideIntentForTesting,
   publishRestagePathsForTesting,
+  publishUpstreamMismatchWarningForTesting,
   qualityIssuesFromStepResult,
   RepoPlanStep,
   RepoRunContext,
@@ -264,6 +265,24 @@ describe("yeet planner", () => {
     ).not.toContain("full:pre-push");
   });
 
+  it("builds push-only reuse publish as only push plus optional monitor", () => {
+    const plan = buildYeetRunPlanForTesting({
+      context,
+      message: O.none(),
+      mode: "publish",
+      monitor: true,
+      pushOnly: true,
+    });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["publish:git:push", "monitor:pr-context", "monitor:pr-checks:watch"]);
+    expect(findStep(plan.steps, "publish:git:push").args).toEqual(["push", "-u", "origin", "HEAD"]);
+  });
+
   it("keeps publish monitor on the full local proof unless fast is explicit", () => {
     const plan = buildYeetRunPlanForTesting({
       context,
@@ -500,6 +519,13 @@ describe("yeet planner", () => {
 
     expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
     expect(commandTextForStep(commit)).toBe("git commit -m 'feat(repo-cli): add yeet'");
+  });
+
+  it("warns when publish push target differs from upstream tracking", () => {
+    expect(publishUpstreamMismatchWarningForTesting("feat/yeet", "origin/main")).toEqual(
+      O.some('[yeet] warning: branch "feat/yeet" tracks "origin/main"; publish will push HEAD to origin/feat/yeet.')
+    );
+    expect(publishUpstreamMismatchWarningForTesting("feat/yeet", "origin/feat/yeet")).toEqual(O.none());
   });
 });
 

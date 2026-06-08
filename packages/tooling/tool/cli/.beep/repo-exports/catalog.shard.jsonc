@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "e518d0a33e7783606f49d3b42a8b62cccc9929dee591e2fe9b6fe60f1f24853d",
+    "digest": "a02c290e0f5578b2c55386c80670e658f815fa645020e7b82241a10d9d3dbf62",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -652,8 +652,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sha256": "5408fe12586253a63bdf6fbd2f1f2832f73cb6eb9a31dc30fc5c9be3fb1d32c7",
-        "bytes": 54363
+        "sha256": "3291506d87a9a9fb437b46d6c892e6fdbb18cffa27adf57cc171c13d4483ada6",
+        "bytes": 57318
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts",
@@ -662,8 +662,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sha256": "d41cc8f731202efa4281cf990ba6b41baae5ccaee1270f5922f6997a5078be49",
-        "bytes": 14464
+        "sha256": "ae053b58cbeb6969e14f65a761a766456a9b2bdc52b426625525f35c5d9fae7f",
+        "bytes": 14646
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
@@ -672,8 +672,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sha256": "f9b2a4bc2924c15629febdf599639ebd806b8582e9e6073188ad58c7fe427513",
-        "bytes": 6738
+        "sha256": "ac6a2c55f464967d137266ddde7d9e8b017f070ece4132869f2b7aaaa54fc5aa",
+        "bytes": 7003
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts",
@@ -927,8 +927,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1764,
-      "uniqueSymbols": 647,
+      "publicExportEntries": 1765,
+      "uniqueSymbols": 648,
       "sourceFiles": 146
     },
     "exports": [
@@ -1443,7 +1443,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 186,
+        "sourceLine": 193,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -34895,7 +34895,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 186,
+        "sourceLine": 193,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -35019,7 +35019,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 236,
+        "sourceLine": 237,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"
@@ -35291,7 +35291,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 186,
+        "sourceLine": 193,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -35415,7 +35415,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 236,
+        "sourceLine": 237,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"
@@ -35440,7 +35440,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 186,
+        "sourceLine": 193,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -43679,7 +43679,7 @@
         "symbolName": "buildYeetRunPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 460,
+        "sourceLine": 464,
         "summary": "Build the publish-mode yeet run plan.",
         "categories": [
           "workflows"
@@ -43706,7 +43706,7 @@
         "symbolName": "buildYeetRunPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1501,
+        "sourceLine": 1588,
         "summary": "Build a plan for tests without reading repository state.",
         "categories": [
           "testing"
@@ -43732,7 +43732,7 @@
         "symbolName": "buildYeetRunPlanWithMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 422,
+        "sourceLine": 426,
         "summary": "Build a yeet run plan for a specific mode.",
         "categories": [
           "workflows"
@@ -43810,7 +43810,7 @@
         "symbolName": "decodeTurboPlanTasksFromQueryJsonForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 858,
+        "sourceLine": 935,
         "summary": "Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests.",
         "categories": [
           "testing"
@@ -43858,7 +43858,7 @@
         "symbolName": "defaultYeetRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1532,
+        "sourceLine": 1621,
         "summary": "Construct baseline yeet options for focused tests.",
         "categories": [
           "testing"
@@ -43884,7 +43884,7 @@
         "symbolName": "emptyTurboPlanSnapshot",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 194,
+        "sourceLine": 195,
         "summary": "Create an empty Turbo metadata snapshot.",
         "categories": [
           "constructors"
@@ -44037,7 +44037,7 @@
         "symbolName": "gitPathListFromNulOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 318,
+        "sourceLine": 328,
         "summary": "Parse NUL-delimited Git path output for Yeet publish-safety tests.",
         "categories": [
           "testing"
@@ -44085,7 +44085,7 @@
         "symbolName": "hydrateYeetRunContext",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 899,
+        "sourceLine": 976,
         "summary": "Hydrate a shared yeet run context from repository state.",
         "categories": [
           "utilities"
@@ -44139,7 +44139,7 @@
         "symbolName": "jsonObjectTextFromMixedOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 715,
+        "sourceLine": 792,
         "summary": "Extract the last decodable JSON object from mixed command output for tests.",
         "categories": [
           "testing"
@@ -44236,7 +44236,7 @@
         "symbolName": "publishPathsOutsideIntentForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 326,
+        "sourceLine": 336,
         "summary": "Return observed paths that are not part of the reviewed Yeet publish intent.",
         "categories": [
           "testing"
@@ -44260,7 +44260,7 @@
         "symbolName": "publishRestagePathsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 335,
+        "sourceLine": 345,
         "summary": "Return reviewed paths that can be passed to `git add` without failing on",
         "categories": [
           "testing"
@@ -44273,6 +44273,30 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet publishrestagepathsfortesting const return reviewed paths that can be passed to `git add` without failing on testing packages/tooling/tool/cli/src/commands/yeet/internal/handler.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "publishUpstreamMismatchWarningForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
+        "sourceLine": 354,
+        "summary": "Return the warning Yeet prints when publish push target differs from branch",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet publishupstreammismatchwarningfortesting const return the warning yeet prints when publish push target differs from branch testing packages/tooling/tool/cli/src/commands/yeet/internal/handler.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -45111,7 +45135,7 @@
         "symbolName": "runYeet",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1463,
+        "sourceLine": 1549,
         "summary": "Run yeet with the provided options.",
         "categories": [
           "use-cases"
@@ -45263,7 +45287,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 186,
+        "sourceLine": 193,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -45313,7 +45337,7 @@
         "symbolName": "yeetPlanPhases",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 488,
+        "sourceLine": 493,
         "summary": "Return plan phases in execution order.",
         "categories": [
           "utilities"
@@ -45487,7 +45511,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 236,
+        "sourceLine": 237,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"

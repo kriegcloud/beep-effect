@@ -48,23 +48,23 @@
 
 ## P7 Follow-Up Optimizations
 
-- Split repo-export generator inputs so ordinary Quality CLI edits do not churn
+- [ ] Split repo-export generator inputs so ordinary Quality CLI edits do not churn
   every package shard; prefer an explicit `catalogGeneratorVersion` or a smaller
   extractor fingerprint surface.
-- Teach Yeet the composite pre-push lanes and persist per-lane success keyed by
+- [ ] Teach Yeet the composite pre-push lanes and persist per-lane success keyed by
   command, tree/commit fingerprint, and generator version.
-- Add a shared docgen run manifest so check, generate, and aggregate can reuse
+- [ ] Add a shared docgen run manifest so check, generate, and aggregate can reuse
   one package graph and example typecheck cache.
-- Rework terse-effect reporting into blocking files, informational files, and
+- [ ] Rework terse-effect reporting into blocking files, informational files, and
   rewritable files with line-numbered findings.
-- Parse known quality runner output into Yeet failure packets with failed
+- [ ] Parse known quality runner output into Yeet failure packets with failed
   subcommand, files, and suggested repair command.
-- Keep publish pushes branch-name independent with `git push -u origin HEAD`
+- [x] Keep publish pushes branch-name independent with `git push -u origin HEAD`
   and add a preflight warning for mismatched upstream tracking.
-- Add a first-class push-only reuse path for exact verified commits.
-- Add repo-level proof scheduling so only one full proof runs at a time while
+- [x] Add a first-class push-only reuse path for exact verified commits.
+- [ ] Add repo-level proof scheduling so only one full proof runs at a time while
   cheaper review-fix lanes can queue or proceed safely.
-- Add `quality profile detect` and explicit profiles for current machine,
+- [ ] Add `quality profile detect` and explicit profiles for current machine,
   workstation, and CI concurrency settings.
-- Evolve closeout into a durable state machine for Greptile, CodeRabbit,
+- [ ] Evolve closeout into a durable state machine for Greptile, CodeRabbit,
   ChatGPT, hosted checks, and unresolved actionable comments.

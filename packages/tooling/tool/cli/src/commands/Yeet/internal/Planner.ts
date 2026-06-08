@@ -114,6 +114,7 @@ export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`Y
     mode: YeetRunMode,
     monitor: S.Boolean,
     noEdit: S.Boolean,
+    pushOnly: S.Boolean,
     tier: YeetProofTier,
   },
   $I.annote("YeetRunPlanModeOptions", {
@@ -367,12 +368,15 @@ const publishSteps = (
   context: RepoRunContext,
   message: O.Option<string>,
   options: YeetRunPlanModeOptions
-): ReadonlyArray<RepoPlanStep> => [
-  commitStep(context, message, options),
-  ...(options.fast && options.monitor ? [] : [proofStep(context, "full")]),
-  pushStep(context),
-  ...(options.monitor ? monitorSteps(context) : []),
-];
+): ReadonlyArray<RepoPlanStep> =>
+  options.pushOnly
+    ? [pushStep(context), ...(options.monitor ? monitorSteps(context) : [])]
+    : [
+        commitStep(context, message, options),
+        ...(options.fast && options.monitor ? [] : [proofStep(context, "full")]),
+        pushStep(context),
+        ...(options.monitor ? monitorSteps(context) : []),
+      ];
 
 const stepsForMode = (
   context: RepoRunContext,
@@ -472,6 +476,7 @@ export const buildYeetRunPlan: {
         mode: "publish",
         monitor: false,
         noEdit: false,
+        pushOnly: false,
         tier: "full",
       })
     )

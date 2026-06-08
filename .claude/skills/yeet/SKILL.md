@@ -62,6 +62,13 @@ bun run beep yeet publish --message "type(scope): summary"
 bun run beep yeet publish --amend --no-edit --reuse-verified
 ```
 
+- Push an already-verified clean commit without committing or rerunning local
+  proof:
+
+```bash
+bun run beep yeet publish --push-only --reuse-verified
+```
+
 - Monitor hosted PR checks for the current branch:
 
 ```bash
@@ -125,6 +132,11 @@ secrets, security, SAST, Nix, and any lane that must be proven outside Yeet.
   may retry with `bun run beep yeet publish --amend --no-edit --reuse-verified`.
   Yeet reuses only exact matching full-proof state; if the state is stale, rerun
   full proof or publish normally.
+- If the current clean commit was already verified and only the push was blocked
+  or skipped, prefer `bun run beep yeet publish --push-only --reuse-verified`.
+  Yeet still requires exact reusable proof state and a clean worktree, and it
+  pushes with `git push -u origin HEAD` so upstream branch naming cannot block
+  agent-created feature branches.
 - If Yeet refuses untracked, unstaged, or newly generated paths, inspect the
   paths and decide whether they belong in the reviewed publish intent.
 - If there is no open PR for `yeet monitor`, create the draft PR first or run

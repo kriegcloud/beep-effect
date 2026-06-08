@@ -187,6 +187,7 @@ export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
     noEdit: S.Boolean,
     packetDir: S.String,
     plan: S.Boolean,
+    pushOnly: S.Boolean,
     requireGreptileIssues: S.Finite,
     requireGreptileScore: S.String,
     requireReviewComments: S.Finite,
@@ -294,6 +295,15 @@ const publishRestagePaths = (
     sortedUniquePaths
   );
 
+const expectedPublishUpstream = (branch: string): string => `origin/${branch}`;
+
+const publishUpstreamMismatchWarning = (branch: string, upstream: string): O.Option<string> =>
+  upstream === expectedPublishUpstream(branch)
+    ? O.none()
+    : O.some(
+        `[yeet] warning: branch "${branch}" tracks "${upstream}"; publish will push HEAD to ${expectedPublishUpstream(branch)}.`
+      );
+
 const formatPublishPaths = (paths: ReadonlyArray<string>): string =>
   pipe(
     paths,
@@ -333,6 +343,15 @@ export const publishPathsOutsideIntentForTesting = publishPathsOutsideIntent;
  * @since 0.0.0
  */
 export const publishRestagePathsForTesting = publishRestagePaths;
+
+/**
+ * Return the warning Yeet prints when publish push target differs from branch
+ * upstream tracking.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const publishUpstreamMismatchWarningForTesting = publishUpstreamMismatchWarning;
 
 const renderJson = Effect.fn("Yeet.renderJson")(function* (value: unknown): Effect.fn.Return<string, YeetCommandError> {
   return yield* encodeJson(value).pipe(Effect.mapError(YeetCommandError.new("Failed to encode yeet JSON output.")));
@@ -466,6 +485,34 @@ const validateMonitorGuards = Effect.fn("Yeet.validateMonitorGuards")(function* 
     });
   }
 
+  if (options.pushOnly && options.mode !== "publish") {
+    return yield* YeetCommandError.make({
+      message: "yeet --push-only is only valid for publish.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.pushOnly && !options.reuseVerified) {
+    return yield* YeetCommandError.make({
+      message: "yeet publish --push-only requires --reuse-verified.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.pushOnly && (options.amend || options.noEdit || options.fast)) {
+    return yield* YeetCommandError.make({
+      message: "yeet publish --push-only cannot be combined with --amend, --no-edit, or --fast.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.pushOnly && O.isSome(optionFromNonEmpty(options.message))) {
+    return yield* YeetCommandError.make({
+      message: "yeet publish --push-only does not accept --message because it never creates a commit.",
+      exitCode: 1,
+    });
+  }
+
   if (!shouldMonitorChecks(options)) {
     return;
   }
@@ -529,6 +576,36 @@ const collectUntrackedPaths = Effect.fn("Yeet.collectUntrackedPaths")(function* 
   repoRoot: string
 ): Effect.fn.Return<ReadonlyArray<string>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
   return yield* runGitPathList(repoRoot, ["ls-files", "--others", "--exclude-standard", "-z"]);
+});
+
+const collectCurrentUpstreamBranch = Effect.fn("Yeet.collectCurrentUpstreamBranch")(function* (
+  repoRoot: string
+): Effect.fn.Return<O.Option<string>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const result = yield* runRepoCommandCapture(
+    "git",
+    ["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"],
+    repoRoot
+  ).pipe(Effect.mapError(YeetCommandError.new("Failed to inspect current branch upstream.")));
+
+  if (result.exitCode !== 0) {
+    return O.none();
+  }
+
+  return optionFromNonEmpty(result.output);
+});
+
+const warnOnMismatchedPublishUpstream = Effect.fn("Yeet.warnOnMismatchedPublishUpstream")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const upstream = yield* collectCurrentUpstreamBranch(context.repoRoot);
+  if (O.isNone(upstream)) {
+    return;
+  }
+
+  const warning = publishUpstreamMismatchWarning(context.branch, upstream.value);
+  if (O.isSome(warning)) {
+    yield* Console.error(warning.value);
+  }
 });
 
 const collectPublishIntent = Effect.fn("Yeet.collectPublishIntent")(function* (
@@ -1162,7 +1239,13 @@ const emptyPlanResult = Effect.fn("Yeet.emptyPlanResult")(function* (
 
 const validateRequiredMessage = (options: YeetRunOptions): Effect.Effect<O.Option<string>, YeetCommandError> => {
   const message = optionFromNonEmpty(options.message);
-  if (options.plan || options.mode !== "publish" || O.isSome(message) || (options.amend && options.noEdit)) {
+  if (
+    options.plan ||
+    options.mode !== "publish" ||
+    O.isSome(message) ||
+    (options.amend && options.noEdit) ||
+    options.pushOnly
+  ) {
     return Effect.succeed(message);
   }
   return Effect.fail(
@@ -1248,7 +1331,7 @@ const shouldSkipCommitForReusablePublish = Effect.fn("Yeet.shouldSkipCommitForRe
   context: RepoRunContext,
   options: YeetRunOptions
 ): Effect.fn.Return<boolean, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
-  if (!options.reuseVerified || !options.amend || !options.noEdit) {
+  if (!options.reuseVerified || (!options.pushOnly && (!options.amend || !options.noEdit))) {
     return false;
   }
 
@@ -1262,7 +1345,9 @@ const shouldSkipCommitForReusablePublish = Effect.fn("Yeet.shouldSkipCommitForRe
   const changedPaths = sortedUniquePaths([...unstagedPaths, ...untrackedPaths]);
   if (!A.isReadonlyArrayEmpty(changedPaths)) {
     return yield* publishScopeError(
-      "yeet publish --reuse-verified found uncommitted changes but no staged amend intent.",
+      options.pushOnly
+        ? "yeet publish --push-only --reuse-verified found uncommitted changes."
+        : "yeet publish --reuse-verified found uncommitted changes but no staged amend intent.",
       changedPaths
     );
   }
@@ -1319,6 +1404,7 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   }
   yield* validatePostCommitProofDidNotChangeWorktree(plan.context);
 
+  yield* warnOnMismatchedPublishUpstream(plan.context);
   const publishResults = yield* runPhase(plan.context, publishSteps);
   if (A.some(publishResults, (result) => result.exitCode !== 0)) {
     return yield* failWithIssueArtifacts(plan.context, publishSteps, publishResults, "yeet publish phase failed.");
@@ -1479,6 +1565,7 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
       mode: options.mode,
       monitor: options.monitor,
       noEdit: options.noEdit,
+      pushOnly: options.pushOnly,
       tier: options.tier,
     })
   );
@@ -1506,6 +1593,7 @@ export const buildYeetRunPlanForTesting = (options: {
   readonly mode?: YeetRunMode;
   readonly monitor?: boolean;
   readonly noEdit?: boolean;
+  readonly pushOnly?: boolean;
   readonly tier?: YeetProofTier;
 }): RepoRunPlan =>
   buildYeetRunPlanWithMode(
@@ -1517,6 +1605,7 @@ export const buildYeetRunPlanForTesting = (options: {
       mode: options.mode ?? "publish",
       monitor: options.monitor ?? false,
       noEdit: options.noEdit ?? false,
+      pushOnly: options.pushOnly ?? false,
       tier: options.tier ?? "full",
     })
   );
@@ -1543,6 +1632,7 @@ export const defaultYeetRunOptions = (overrides: Partial<YeetRunOptions> = {}): 
     noEdit: false,
     packetDir: DEFAULT_YEET_PACKET_DIR,
     plan: false,
+    pushOnly: false,
     requireGreptileIssues: -1,
     requireGreptileScore: "",
     requireReviewComments: -1,

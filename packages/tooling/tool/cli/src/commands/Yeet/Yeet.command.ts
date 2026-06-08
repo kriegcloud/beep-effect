@@ -60,6 +60,10 @@ const reuseVerifiedFlag = Flag.boolean("reuse-verified").pipe(
   Flag.withDescription("Skip publish proof only when durable Yeet full-proof state exactly matches")
 );
 
+const pushOnlyFlag = Flag.boolean("push-only").pipe(
+  Flag.withDescription("Push an already-verified clean commit without committing or rerunning local proof")
+);
+
 const botsFlag = Flag.string("bots").pipe(
   Flag.withDescription("Comma-separated PR review bots to classify during closeout"),
   Flag.withDefault("greptile,coderabbit,chatgpt")
@@ -100,6 +104,7 @@ const publishFlags = {
   message: messageFlag,
   monitor: monitorFlag,
   noEdit: noEditFlag,
+  pushOnly: pushOnlyFlag,
   reuseVerified: reuseVerifiedFlag,
 } as const;
 
@@ -123,6 +128,7 @@ type SharedOptions = {
   readonly plan: boolean;
   readonly monitor?: boolean;
   readonly noEdit?: boolean;
+  readonly pushOnly?: boolean;
   readonly requireGreptileIssues?: number;
   readonly requireGreptileScore?: string;
   readonly requireReviewComments?: number;
@@ -142,6 +148,7 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
       mode,
       monitor: options.monitor ?? false,
       noEdit: options.noEdit ?? false,
+      pushOnly: options.pushOnly ?? false,
       requireGreptileIssues: options.requireGreptileIssues ?? -1,
       requireGreptileScore: options.requireGreptileScore ?? "",
       requireReviewComments: options.requireReviewComments ?? -1,
