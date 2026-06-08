@@ -38,6 +38,10 @@ const fastFlag = Flag.boolean("fast").pipe(
   Flag.withDescription("Skip local full pre-push proof only when paired with --monitor on a PR branch")
 );
 
+const startPrEarlyFlag = Flag.boolean("start-pr-early").pipe(
+  Flag.withDescription("Push with hooks skipped before full local proof, then run proof and monitor hosted checks")
+);
+
 const monitorFlag = Flag.boolean("monitor").pipe(
   Flag.withDescription("Monitor hosted PR checks after publish instead of stopping at push")
 );
@@ -106,6 +110,7 @@ const publishFlags = {
   noEdit: noEditFlag,
   pushOnly: pushOnlyFlag,
   reuseVerified: reuseVerifiedFlag,
+  startPrEarly: startPrEarlyFlag,
 } as const;
 
 const closeoutFlags = {
@@ -134,6 +139,7 @@ type SharedOptions = {
   readonly requireReviewComments?: number;
   readonly retriggerGreptile?: boolean;
   readonly reuseVerified?: boolean;
+  readonly startPrEarly?: boolean;
   readonly tier?: YeetProofTier;
 };
 
@@ -154,6 +160,7 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
       requireReviewComments: options.requireReviewComments ?? -1,
       retriggerGreptile: options.retriggerGreptile ?? false,
       reuseVerified: options.reuseVerified ?? false,
+      startPrEarly: options.startPrEarly ?? false,
       tier: options.tier ?? "full",
     })
   );

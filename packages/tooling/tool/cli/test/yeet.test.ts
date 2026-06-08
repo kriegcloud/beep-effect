@@ -298,6 +298,42 @@ describe("yeet planner", () => {
     ).not.toContain("full:pre-push");
   });
 
+  it("builds start-pr-early publish as commit, early push, full proof, then monitor", () => {
+    const plan = buildYeetRunPlanForTesting({
+      context,
+      message: O.some("feat(repo-cli): add yeet"),
+      monitor: true,
+      startPrEarly: true,
+    });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual([
+      "commit:git:commit",
+      "early-publish:git:push",
+      "full:pre-push",
+      "monitor:pr-context",
+      "monitor:pr-checks:watch",
+    ]);
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.phase),
+        A.dedupe
+      )
+    ).toEqual(["commit", "early-publish", "full", "monitor"]);
+
+    const commit = findStep(plan.steps, "commit:git:commit");
+    const earlyPush = findStep(plan.steps, "early-publish:git:push");
+
+    expect(commit.args).toEqual(["commit", "--no-verify", "-m", "feat(repo-cli): add yeet"]);
+    expect(earlyPush.args).toEqual(["push", "--no-verify", "-u", "origin", "HEAD"]);
+    expect(earlyPush.env).toBeUndefined();
+  });
+
   it("builds push-only reuse publish as only push plus optional monitor", () => {
     const plan = buildYeetRunPlanForTesting({
       context,

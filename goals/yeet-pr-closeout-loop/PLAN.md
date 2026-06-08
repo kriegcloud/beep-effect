@@ -62,6 +62,8 @@
 - [x] Keep publish pushes branch-name independent with `git push -u origin HEAD`
   and add a preflight warning for mismatched upstream tracking.
 - [x] Add a first-class push-only reuse path for exact verified commits.
+- [x] Add `publish --start-pr-early --monitor` so hosted review/checks can
+  start before local proof completes while hooks remain local tripwires.
 - [ ] Add repo-level proof scheduling so only one full proof runs at a time while
   cheaper review-fix lanes can queue or proceed safely.
 - [ ] Add `quality profile detect` and explicit profiles for current machine,

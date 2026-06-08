@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "d6c070774a89d041cbc64ac9c4293ff3c9383cc85417b864f011606d834bbed8",
+    "digest": "66fff2bb7811f8fa6a3b1b6a9a27c1daa516222f79f2a9e9548bdf1f0a4fc667",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -652,8 +652,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sha256": "c9a9527a81af5a315d78d70b77855735b2769ed4d8bc03957c48484ca33912bd",
-        "bytes": 60036
+        "sha256": "0d89d3274e975c431acba3fd2529a4108958680312290ea825f4ee15df46db95",
+        "bytes": 63362
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts",
@@ -662,8 +662,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sha256": "5728a8f976132cf4b638a947b7735f964a6046aeefa1e97d7821ed6a01bbde44",
-        "bytes": 15000
+        "sha256": "5beff2b490bdccc157c5a62da8f5c263b66450727f03d28143da6262a8b187bb",
+        "bytes": 16018
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
@@ -672,8 +672,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sha256": "cf13bc34e3f1ecaba6527bb6253294cdba8e31d0d6e327927ad61d3f8a0e0747",
-        "bytes": 7262
+        "sha256": "343192973bda48cad98f692e24465069d08dc94e55a8de326ed4805003d272a6",
+        "bytes": 7564
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts",
@@ -717,8 +717,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sha256": "c74c9b9e73a3c66b580054025b6e0aaa76ba1b09d14f767a0e469090d8ee3cfe",
-        "bytes": 12952
+        "sha256": "761f569de4dc61f675020cfae7378ef41ea37026e9aa35332347abec2c07230a",
+        "bytes": 13016
       },
       {
         "path": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts",
@@ -1443,7 +1443,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 197,
+        "sourceLine": 204,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -35155,7 +35155,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 197,
+        "sourceLine": 204,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -35254,7 +35254,7 @@
         "symbolName": "YeetRunOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 177,
+        "sourceLine": 198,
         "summary": "Runtime options accepted by the yeet handler.",
         "categories": [
           "models"
@@ -35279,7 +35279,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 238,
+        "sourceLine": 260,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"
@@ -35551,7 +35551,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 197,
+        "sourceLine": 204,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -35650,7 +35650,7 @@
         "symbolName": "YeetRunOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 177,
+        "sourceLine": 198,
         "summary": "Runtime options accepted by the yeet handler.",
         "categories": [
           "models"
@@ -35675,7 +35675,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 238,
+        "sourceLine": 260,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"
@@ -35700,7 +35700,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 197,
+        "sourceLine": 204,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -44199,7 +44199,7 @@
         "symbolName": "buildYeetRunPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 476,
+        "sourceLine": 524,
         "summary": "Build the publish-mode yeet run plan.",
         "categories": [
           "workflows"
@@ -44226,7 +44226,7 @@
         "symbolName": "buildYeetRunPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1677,
+        "sourceLine": 1773,
         "summary": "Build a plan for tests without reading repository state.",
         "categories": [
           "testing"
@@ -44252,7 +44252,7 @@
         "symbolName": "buildYeetRunPlanWithMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 438,
+        "sourceLine": 486,
         "summary": "Build a yeet run plan for a specific mode.",
         "categories": [
           "workflows"
@@ -44279,7 +44279,7 @@
         "symbolName": "byRepoPlanStepAscending",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 376,
+        "sourceLine": 385,
         "summary": "Order repository plan steps by phase, then identifier.",
         "categories": [
           "ordering"
@@ -44303,7 +44303,7 @@
         "symbolName": "commandTextForStep",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 418,
+        "sourceLine": 427,
         "summary": "Render a planned step as a shell-like command string.",
         "categories": [
           "formatting"
@@ -44330,7 +44330,7 @@
         "symbolName": "decodeTurboPlanTasksFromQueryJsonForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 964,
+        "sourceLine": 1016,
         "summary": "Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests.",
         "categories": [
           "testing"
@@ -44378,7 +44378,7 @@
         "symbolName": "defaultYeetRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1710,
+        "sourceLine": 1808,
         "summary": "Construct baseline yeet options for focused tests.",
         "categories": [
           "testing"
@@ -44404,7 +44404,7 @@
         "symbolName": "emptyTurboPlanSnapshot",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 197,
+        "sourceLine": 209,
         "summary": "Create an empty Turbo metadata snapshot.",
         "categories": [
           "constructors"
@@ -44431,7 +44431,7 @@
         "symbolName": "enforceConservativeResume",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 457,
+        "sourceLine": 466,
         "summary": "Ensure a step's resume field follows v1 safety rules.",
         "categories": [
           "constructors"
@@ -44584,7 +44584,7 @@
         "symbolName": "gitPathListFromNulOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 348,
+        "sourceLine": 370,
         "summary": "Parse NUL-delimited Git path output for Yeet publish-safety tests.",
         "categories": [
           "testing"
@@ -44682,7 +44682,7 @@
         "symbolName": "hydrateYeetRunContext",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1005,
+        "sourceLine": 1057,
         "summary": "Hydrate a shared yeet run context from repository state.",
         "categories": [
           "utilities"
@@ -44735,7 +44735,7 @@
         "symbolName": "isConservativeResumeCandidate",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 446,
+        "sourceLine": 455,
         "summary": "Determine whether a planned step may use conservative resume metadata.",
         "categories": [
           "predicates"
@@ -44762,7 +44762,7 @@
         "symbolName": "jsonObjectTextFromMixedOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 821,
+        "sourceLine": 873,
         "summary": "Extract the last decodable JSON object from mixed command output for tests.",
         "categories": [
           "testing"
@@ -44885,7 +44885,7 @@
         "symbolName": "prePushLocalShasFromStdinForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 356,
+        "sourceLine": 378,
         "summary": "Parse Git pre-push stdin and return non-delete local commit SHAs.",
         "categories": [
           "testing"
@@ -44909,7 +44909,7 @@
         "symbolName": "prePushShaMismatchesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 364,
+        "sourceLine": 386,
         "summary": "Return pushed SHAs that do not match the reusable Yeet proof commit.",
         "categories": [
           "testing"
@@ -44933,7 +44933,7 @@
         "symbolName": "publishPathsOutsideIntentForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 372,
+        "sourceLine": 394,
         "summary": "Return observed paths that are not part of the reviewed Yeet publish intent.",
         "categories": [
           "testing"
@@ -44957,7 +44957,7 @@
         "symbolName": "publishRestagePathsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 381,
+        "sourceLine": 403,
         "summary": "Return reviewed paths that can be passed to `git add` without failing on",
         "categories": [
           "testing"
@@ -44981,7 +44981,7 @@
         "symbolName": "publishUpstreamMismatchWarningForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 390,
+        "sourceLine": 412,
         "summary": "Return the warning Yeet prints when publish push target differs from branch",
         "categories": [
           "testing"
@@ -45308,7 +45308,7 @@
         "symbolName": "RepoGraphHealthStatus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 135,
+        "sourceLine": 143,
         "summary": "Graph-health signal recorded while hydrating a run context.",
         "categories": [
           "models"
@@ -45333,7 +45333,7 @@
         "symbolName": "RepoGraphHealthStatus",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 147,
+        "sourceLine": 155,
         "summary": "Graph-health signal recorded while hydrating a run context.",
         "categories": [
           "models"
@@ -45382,7 +45382,7 @@
         "symbolName": "RepoPlanPhase",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 43,
+        "sourceLine": 51,
         "summary": "Plan phase used by repository run orchestration.",
         "categories": [
           "models"
@@ -45406,7 +45406,7 @@
         "symbolName": "RepoPlanStep",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 288,
+        "sourceLine": 296,
         "summary": "One subprocess or git operation planned for a repo run.",
         "categories": [
           "models"
@@ -45431,7 +45431,7 @@
         "symbolName": "RepoPlanStepMutability",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 57,
+        "sourceLine": 65,
         "summary": "Step mutability classification.",
         "categories": [
           "models"
@@ -45456,7 +45456,7 @@
         "symbolName": "RepoPlanStepMutability",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 69,
+        "sourceLine": 77,
         "summary": "Step mutability classification.",
         "categories": [
           "models"
@@ -45480,7 +45480,7 @@
         "symbolName": "RepoPlanStepResume",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 109,
+        "sourceLine": 117,
         "summary": "Conservative resume eligibility for a planned step.",
         "categories": [
           "models"
@@ -45505,7 +45505,7 @@
         "symbolName": "RepoPlanStepResume",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 121,
+        "sourceLine": 129,
         "summary": "Conservative resume eligibility for a planned step.",
         "categories": [
           "models"
@@ -45529,7 +45529,7 @@
         "symbolName": "RepoPlanStepScope",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 83,
+        "sourceLine": 91,
         "summary": "Step scope classification.",
         "categories": [
           "models"
@@ -45554,7 +45554,7 @@
         "symbolName": "RepoPlanStepScope",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 95,
+        "sourceLine": 103,
         "summary": "Step scope classification.",
         "categories": [
           "models"
@@ -45679,7 +45679,7 @@
         "symbolName": "RepoRunContext",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 249,
+        "sourceLine": 257,
         "summary": "Shared run context hydrated before planning.",
         "categories": [
           "models"
@@ -45704,7 +45704,7 @@
         "symbolName": "RepoRunPlan",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 323,
+        "sourceLine": 331,
         "summary": "Repository run plan.",
         "categories": [
           "models"
@@ -45729,7 +45729,7 @@
         "symbolName": "RepoStepRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 346,
+        "sourceLine": 354,
         "summary": "Captured subprocess result for a planned step.",
         "categories": [
           "models"
@@ -45859,7 +45859,7 @@
         "symbolName": "runYeet",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1638,
+        "sourceLine": 1733,
         "summary": "Run yeet with the provided options.",
         "categories": [
           "use-cases"
@@ -45886,7 +45886,7 @@
         "symbolName": "TurboPlanSnapshot",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 214,
+        "sourceLine": 222,
         "summary": "Turbo snapshot stored in the shared run context.",
         "categories": [
           "models"
@@ -45911,7 +45911,7 @@
         "symbolName": "TurboPlanTask",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 162,
+        "sourceLine": 170,
         "summary": "Turbo task metadata captured from dry-runs or summaries.",
         "categories": [
           "models"
@@ -45936,7 +45936,7 @@
         "symbolName": "turboTaskForStep",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 474,
+        "sourceLine": 483,
         "summary": "Lookup Turbo metadata for a planned step, if available.",
         "categories": [
           "utilities"
@@ -45962,7 +45962,7 @@
         "symbolName": "TurboWorkspacePackage",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
-        "sourceLine": 191,
+        "sourceLine": 199,
         "summary": "Workspace package metadata captured from Turbo graph queries.",
         "categories": [
           "models"
@@ -46011,7 +46011,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 197,
+        "sourceLine": 204,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -46061,7 +46061,7 @@
         "symbolName": "yeetPlanPhases",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 505,
+        "sourceLine": 554,
         "summary": "Return plan phases in execution order.",
         "categories": [
           "utilities"
@@ -46185,7 +46185,7 @@
         "symbolName": "YeetRunOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 177,
+        "sourceLine": 198,
         "summary": "Runtime options accepted by the yeet handler.",
         "categories": [
           "models"
@@ -46210,7 +46210,7 @@
         "symbolName": "YeetRunPlanModeOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 110,
+        "sourceLine": 121,
         "summary": "Options for building a Yeet run plan in a specific mode.",
         "categories": [
           "models"
@@ -46235,7 +46235,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 238,
+        "sourceLine": 260,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"

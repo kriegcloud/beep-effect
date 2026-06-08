@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "35a704d2db5531ea9caa9fd9170fb18287a7de6aadd0625e86a645d4cd6c2833",
+    "digest": "efe774d720cad8cfb4e5f546e622b668394df9097e5100dd17eb693ad3cb1163",
     "inputs": [
       {
         "path": "apps/architecture-lab-proof/package.json",
@@ -24,6 +24,11 @@
         "path": "apps/architecture-lab-proof/src/index.ts",
         "sha256": "67282094ad3dc4f98ab3c148673d389fec1c17e81f527ad317441ffe3157b5b0",
         "bytes": 2476
+      },
+      {
+        "path": "generator:repo-exports-catalog",
+        "sha256": "e6cae6330d6bd8d281c78e74b8a14825f906499b3c002f6ff5f73886e4ef3fb4",
+        "bytes": 33
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -37,13 +42,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
-        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
-        "bytes": 40136
-      },
-      {
-        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
-        "bytes": 77619
+        "sha256": "5d7d12f4417b8f8e0e703747a4987e2200fc2813807b45ba4f56ab875c005a6a",
+        "bytes": 41729
       }
     ]
   },

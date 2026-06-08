@@ -56,6 +56,12 @@ bun run beep yeet verify --tier review-fix
 bun run beep yeet publish --message "type(scope): summary"
 ```
 
+- Start hosted PR review/checks immediately, then keep proving locally:
+
+```bash
+bun run beep yeet publish --start-pr-early --monitor --message "type(scope): summary"
+```
+
 - Retry after a separately verified amend without creating a new commit:
 
 ```bash
@@ -125,6 +131,21 @@ with `--monitor`; Yeet rejects `--fast` without it.
 `bun run audit:github pre-push` remains the named full local fallback for
 secrets, security, SAST, Nix, and any lane that must be proven outside Yeet.
 
+## Start PR Early
+
+`bun run beep yeet publish --start-pr-early --monitor --message "..."` is the
+explicit fail-faster path for an existing PR branch. It validates the commit
+message, commits and pushes with Git hooks skipped, then still runs the full
+local pre-push proof and hosted PR monitor. Unlike `--fast`, it does not skip the
+local full proof; it only overlaps that proof with hosted CI and reviewer startup
+time.
+
+Use it when the user wants remote checks and reviewers moving in parallel with a
+local proof cycle. If the post-push local proof fails or writes files, fix the
+issue in a follow-up commit and publish again. Treat commit/pre-push hooks as
+local tripwires and proof-reuse adapters; Yeet full proof plus hosted checks are
+the authoritative gates.
+
 ## Failure Handling
 
 - If Yeet fails after creating a local commit but before pushing, fix the issue.
@@ -142,6 +163,9 @@ secrets, security, SAST, Nix, and any lane that must be proven outside Yeet.
   SHA and falls back to its normal repo-export catalog validation when state is
   absent, stale, dirty, or ambiguous. Treat this as duplicate-proof reuse, not a
   hook bypass.
+- `--start-pr-early` is the only Yeet publish mode that intentionally skips
+  commit and pre-push hooks. It requires `--monitor`, still runs full local
+  proof after pushing, and should fail loudly rather than hiding follow-up work.
 - If Yeet refuses untracked, unstaged, or newly generated paths, inspect the
   paths and decide whether they belong in the reviewed publish intent.
 - Full pre-push proof streams a conservative collector for independent GitHub

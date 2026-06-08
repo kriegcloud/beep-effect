@@ -30,6 +30,8 @@ Implementation scope:
   `bun run beep yeet publish --amend --no-edit --reuse-verified`.
 - Add targeted loop proof:
   `bun run beep yeet verify --tier review-fix`.
+- Add explicit start-PR-early UX:
+  `bun run beep yeet publish --start-pr-early --monitor --message "..."`.
 - Add `bun run beep quality github-checks review-fix`.
 - Add affected repo-export shard checks while preserving full fallback.
 - Update `.claude/skills/yeet/SKILL.md` after code is shipped.
@@ -47,6 +49,7 @@ Additional optimization scope for follow-up commits in this PR:
 - Make `git push -u origin HEAD` the default publish push and warn on mismatched
   upstream branch names.
 - Add an explicit push-only reuse mode for already-verified commits.
+- Codify start-PR-early publish plus hook-as-tripwire guidance.
 - Add machine-aware proof scheduling plus explicit hardware profiles.
 - Model PR closeout as durable states for bot gates and Greptile reruns.
 
@@ -54,6 +57,8 @@ Guardrails:
 
 - Full pre-push remains canonical for publish.
 - `--fast --monitor` stays opt-in only.
+- `--start-pr-early --monitor` skips hooks only to start hosted review early;
+  full local proof and hosted monitor remain required.
 - GitHub write behavior is limited to explicit Greptile retrigger comments.
 - Do not auto-resolve or auto-reply to review threads.
 - Secrets, SAST, security, Nix, and full quality lanes remain intact.

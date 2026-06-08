@@ -168,7 +168,28 @@ const decodeGhPullRequestView = S.decodeUnknownEffect(S.fromJsonString(GhPullReq
  * ```ts
  * import { YeetRunOptions } from "@beep/repo-cli/commands/Yeet"
  *
- * const options = YeetRunOptions.make({ base: "origin/main", fast: false, head: "HEAD", json: false, message: "", mode: "verify", monitor: false, packetDir: ".beep/yeet", plan: true })
+ * const options = YeetRunOptions.make({
+ *   amend: false,
+ *   base: "origin/main",
+ *   bots: "greptile,coderabbit,chatgpt",
+ *   fast: false,
+ *   head: "HEAD",
+ *   json: false,
+ *   message: "",
+ *   mode: "verify",
+ *   monitor: false,
+ *   noEdit: false,
+ *   packetDir: ".beep/yeet",
+ *   plan: true,
+ *   pushOnly: false,
+ *   requireGreptileIssues: -1,
+ *   requireGreptileScore: "",
+ *   requireReviewComments: -1,
+ *   retriggerGreptile: false,
+ *   reuseVerified: false,
+ *   startPrEarly: false,
+ *   tier: "full"
+ * })
  * console.log(options.base)
  * ```
  * @category models
@@ -194,6 +215,7 @@ export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
     requireReviewComments: S.Finite,
     retriggerGreptile: S.Boolean,
     reuseVerified: S.Boolean,
+    startPrEarly: S.Boolean,
     tier: YeetProofTier,
   },
   $I.annote("YeetRunOptions", {
@@ -500,6 +522,32 @@ const validateMonitorGuards = Effect.fn("Yeet.validateMonitorGuards")(function* 
     });
   }
 
+  if (options.startPrEarly && options.mode !== "publish") {
+    return yield* YeetCommandError.make({
+      message: "yeet --start-pr-early is only valid for publish.",
+      exitCode: 1,
+    });
+  }
+
+  if (options.startPrEarly && !options.monitor) {
+    return yield* YeetCommandError.make({
+      message:
+        "yeet publish --start-pr-early requires --monitor so hosted PR checks are watched while local proof runs.",
+      exitCode: 1,
+    });
+  }
+
+  if (
+    options.startPrEarly &&
+    (options.fast || options.pushOnly || options.reuseVerified || options.amend || options.noEdit)
+  ) {
+    return yield* YeetCommandError.make({
+      message:
+        "yeet publish --start-pr-early cannot be combined with --fast, --push-only, --reuse-verified, --amend, or --no-edit.",
+      exitCode: 1,
+    });
+  }
+
   if (options.mode === "publish" && options.tier !== "full") {
     return yield* YeetCommandError.make({
       message: "yeet publish always uses the full local proof. Use `yeet verify --tier review-fix` for review loops.",
@@ -743,9 +791,16 @@ const stageReviewedPublishIntent = Effect.fn("Yeet.stageReviewedPublishIntent")(
   }
 });
 
+const postCommitProofChangedBeforePushMessage =
+  "yeet publish stopped because the full proof changed files after the local commit. Regenerate them, then amend or reset the commit that has not yet been pushed before retrying.";
+
+const postCommitProofChangedAfterEarlyPushMessage =
+  "yeet publish --start-pr-early stopped because the full proof changed files after the commit was already pushed. Commit a follow-up fix and publish again.";
+
 const validatePostCommitProofDidNotChangeWorktree = Effect.fn("Yeet.validatePostCommitProofDidNotChangeWorktree")(
   function* (
-    context: RepoRunContext
+    context: RepoRunContext,
+    message = postCommitProofChangedBeforePushMessage
   ): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
     const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);
     const unstagedPaths = yield* collectUnstagedTrackedPaths(context.repoRoot);
@@ -753,10 +808,7 @@ const validatePostCommitProofDidNotChangeWorktree = Effect.fn("Yeet.validatePost
     const changedPaths = sortedUniquePaths([...stagedPaths, ...unstagedPaths, ...untrackedPaths]);
 
     if (!A.isReadonlyArrayEmpty(changedPaths)) {
-      return yield* publishScopeError(
-        "yeet publish stopped because the full proof changed files after the local commit. Regenerate them, then amend or reset the commit that has not yet been pushed before retrying.",
-        changedPaths
-      );
+      return yield* publishScopeError(message, changedPaths);
     }
   }
 );
@@ -1403,6 +1455,7 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   options: YeetRunOptions,
   commitSteps: ReadonlyArray<RepoPlanStep>,
   fullSteps: ReadonlyArray<RepoPlanStep>,
+  earlyPublishSteps: ReadonlyArray<RepoPlanStep>,
   publishSteps: ReadonlyArray<RepoPlanStep>,
   monitorSteps: ReadonlyArray<RepoPlanStep>
 ): Effect.fn.Return<
@@ -1428,6 +1481,46 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
     if (A.some(commitResults, (result) => result.exitCode !== 0)) {
       return yield* failWithIssueArtifacts(plan.context, commitSteps, commitResults, "yeet commit phase failed.");
     }
+  }
+
+  if (options.startPrEarly) {
+    yield* Console.log(
+      "[yeet] start-pr-early: pushing before local proof; full proof and hosted monitor remain required"
+    );
+    yield* warnOnMismatchedPublishUpstream(plan.context);
+    const earlyPublishResults = yield* runPhase(plan.context, earlyPublishSteps);
+    if (A.some(earlyPublishResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(
+        plan.context,
+        earlyPublishSteps,
+        earlyPublishResults,
+        "yeet start-pr-early push phase failed."
+      );
+    }
+
+    const fullResults = yield* runPhase(plan.context, fullSteps);
+    if (A.some(fullResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(
+        plan.context,
+        fullSteps,
+        fullResults,
+        "yeet publish --start-pr-early proof failed after pushing the commit. Fix the issue in a follow-up commit and publish again."
+      );
+    }
+    yield* writeVerifiedState(plan.context, "full", fullSteps);
+    yield* validatePostCommitProofDidNotChangeWorktree(plan.context, postCommitProofChangedAfterEarlyPushMessage);
+
+    const monitorResults = yield* runPhase(plan.context, monitorSteps);
+    if (A.some(monitorResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(
+        plan.context,
+        monitorSteps,
+        monitorResults,
+        "yeet publish monitor phase failed."
+      );
+    }
+
+    return yield* publishResult(plan.context, !skipCommit);
   }
 
   if (!options.reuseVerified) {
@@ -1579,6 +1672,7 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   const prepareSteps = A.filter(plan.steps, (step) => step.phase === "prepare");
   const feedbackSteps = A.filter(plan.steps, (step) => step.phase === "feedback");
   const commitSteps = A.filter(plan.steps, (step) => step.phase === "commit");
+  const earlyPublishSteps = A.filter(plan.steps, (step) => step.phase === "early-publish");
   const fullSteps = A.filter(plan.steps, (step) => step.phase === "full");
   const publishSteps = A.filter(plan.steps, (step) => step.phase === "publish");
   const monitorSteps = A.filter(plan.steps, (step) => step.phase === "monitor");
@@ -1596,7 +1690,8 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
   return yield* YeetRunMode.$match(options.mode, {
     repair: () => emptyPlanResult(plan.context),
     verify: () => runVerifyMode(plan.context, fullSteps, options.tier),
-    publish: () => runPublishMode(plan, message, options, commitSteps, fullSteps, publishSteps, monitorSteps),
+    publish: () =>
+      runPublishMode(plan, message, options, commitSteps, fullSteps, earlyPublishSteps, publishSteps, monitorSteps),
     monitor: () => runMonitorMode(plan.context, monitorSteps),
     closeout: () => runCloseoutMode(plan.context, options),
     "pre-push-hook": () => runPrePushHookMode(plan.context),
@@ -1655,6 +1750,7 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
       monitor: options.monitor,
       noEdit: options.noEdit,
       pushOnly: options.pushOnly,
+      startPrEarly: options.startPrEarly,
       tier: options.tier,
     })
   );
@@ -1683,6 +1779,7 @@ export const buildYeetRunPlanForTesting = (options: {
   readonly monitor?: boolean;
   readonly noEdit?: boolean;
   readonly pushOnly?: boolean;
+  readonly startPrEarly?: boolean;
   readonly tier?: YeetProofTier;
 }): RepoRunPlan =>
   buildYeetRunPlanWithMode(
@@ -1695,6 +1792,7 @@ export const buildYeetRunPlanForTesting = (options: {
       monitor: options.monitor ?? false,
       noEdit: options.noEdit ?? false,
       pushOnly: options.pushOnly ?? false,
+      startPrEarly: options.startPrEarly ?? false,
       tier: options.tier ?? "full",
     })
   );
@@ -1727,6 +1825,7 @@ export const defaultYeetRunOptions = (overrides: Partial<YeetRunOptions> = {}): 
     requireReviewComments: -1,
     retriggerGreptile: false,
     reuseVerified: false,
+    startPrEarly: false,
     tier: "full",
     ...overrides,
   });
