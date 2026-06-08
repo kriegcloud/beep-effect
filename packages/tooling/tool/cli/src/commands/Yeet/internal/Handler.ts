@@ -1445,6 +1445,12 @@ const shouldSkipCommitForReusablePublish = Effect.fn("Yeet.shouldSkipCommitForRe
 
   const stagedPaths = yield* collectStagedPublishPaths(context.repoRoot);
   if (!A.isReadonlyArrayEmpty(stagedPaths)) {
+    if (options.pushOnly) {
+      return yield* publishScopeError(
+        "yeet publish --push-only --reuse-verified refuses staged changes. Commit or unstage these files before pushing an already-verified commit.",
+        stagedPaths
+      );
+    }
     return false;
   }
 
@@ -1462,6 +1468,14 @@ const shouldSkipCommitForReusablePublish = Effect.fn("Yeet.shouldSkipCommitForRe
 
   return true;
 });
+
+/**
+ * Decide whether a reusable publish should skip the commit phase.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const shouldSkipCommitForReusablePublishForTesting = shouldSkipCommitForReusablePublish;
 
 const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
   plan: RepoRunPlan,

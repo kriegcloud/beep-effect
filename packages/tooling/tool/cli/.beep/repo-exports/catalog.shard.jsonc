@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "800ac4644fc32cb61fc9d33dd78ec846b657c5101cbb1dcf1bf425f8057f1fc6",
+    "digest": "9c2f937762cf8d115f60c9146cea18962abc0ccd3b64545c6754e4999ba6a453",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -652,8 +652,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sha256": "15c25a9a1026870d72843ad090e48a2f179d3bd0b24aa4f65bba7806940e59db",
-        "bytes": 63746
+        "sha256": "f18d64c008dfb0d59d33e44496d4a43c15656d076dbbbb5d2c0bdd4f88a81d45",
+        "bytes": 64210
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts",
@@ -927,8 +927,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1797,
-      "uniqueSymbols": 666,
+      "publicExportEntries": 1798,
+      "uniqueSymbols": 667,
       "sourceFiles": 146
     },
     "exports": [
@@ -44322,7 +44322,7 @@
         "symbolName": "buildYeetRunPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1787,
+        "sourceLine": 1801,
         "summary": "Build a plan for tests without reading repository state.",
         "categories": [
           "testing"
@@ -44474,7 +44474,7 @@
         "symbolName": "defaultYeetRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1822,
+        "sourceLine": 1836,
         "summary": "Construct baseline yeet options for focused tests.",
         "categories": [
           "testing"
@@ -45955,7 +45955,7 @@
         "symbolName": "runYeet",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1747,
+        "sourceLine": 1761,
         "summary": "Run yeet with the provided options.",
         "categories": [
           "use-cases"
@@ -45971,6 +45971,30 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet runyeet const run yeet with the provided options. use-cases packages/tooling/tool/cli/src/commands/yeet/internal/handler.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "shouldSkipCommitForReusablePublishForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
+        "sourceLine": 1478,
+        "summary": "Decide whether a reusable publish should skip the commit phase.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet shouldskipcommitforreusablepublishfortesting const decide whether a reusable publish should skip the commit phase. testing packages/tooling/tool/cli/src/commands/yeet/internal/handler.ts"
       },
       {
         "packageName": "@beep/repo-cli",

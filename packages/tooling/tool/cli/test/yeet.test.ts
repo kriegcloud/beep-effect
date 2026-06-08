@@ -3,6 +3,7 @@ import {
   buildYeetRunPlanForTesting,
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
+  defaultYeetRunOptions,
   gitPathListFromNulOutputForTesting,
   greptileIssueLimitExceededForTesting,
   greptileRetriggerCommentForTesting,
@@ -20,16 +21,56 @@ import {
   RepoStepRunResult,
   renderPackageQualityPacketMarkdown,
   repoProofStepDefinition,
+  shouldSkipCommitForReusablePublishForTesting,
   TurboPlanSnapshot,
   TurboPlanTask,
   TurboWorkspacePackage,
 } from "@beep/repo-cli/test/Yeet";
-import { Effect } from "effect";
+import { provideScopedLayer } from "@beep/test-utils";
+import { NodeChildProcessSpawner } from "@effect/platform-node";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { Effect, FileSystem, Layer, Path } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import { describe, expect, it } from "vitest";
+
+const FileSystemLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+const PlatformLayer = Layer.mergeAll(
+  FileSystemLayer,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(FileSystemLayer))
+);
+
+const runGit = (cwd: string, args: ReadonlyArray<string>) =>
+  Effect.sync(() => {
+    const result = Bun.spawnSync(["git", ...args], {
+      cwd,
+      stderr: "pipe",
+      stdout: "pipe",
+    });
+
+    if (result.exitCode !== 0) {
+      throw new Error(`git ${A.join(args, " ")} failed: ${result.stderr.toString()}`);
+    }
+  });
+
+const withTempDirectory = <Result, Error, Requirements>(
+  use: (tmpDir: string) => Effect.Effect<Result, Error, Requirements>
+) =>
+  Effect.acquireUseRelease(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      return yield* fs.makeTempDirectory();
+    }),
+    use,
+    (tmpDir) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+  ).pipe(provideScopedLayer(PlatformLayer));
 
 const turboTask = (
   task: string,
@@ -351,6 +392,41 @@ describe("yeet planner", () => {
     ).toEqual(["publish:git:push", "monitor:pr-context", "monitor:pr-checks:watch"]);
     expect(findStep(plan.steps, "publish:git:push").args).toEqual(["push", "-u", "origin", "HEAD"]);
   });
+
+  it("rejects push-only reuse when staged changes are present", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const filePath = path.join(tmpDir, "tracked.txt");
+          const tempContext = RepoRunContext.make({
+            ...context,
+            cwd: tmpDir,
+            repoRoot: tmpDir,
+          });
+
+          yield* runGit(tmpDir, ["init"]);
+          yield* runGit(tmpDir, ["config", "user.email", "yeet@example.test"]);
+          yield* runGit(tmpDir, ["config", "user.name", "Yeet Test"]);
+          yield* fs.writeFileString(filePath, "base\n");
+          yield* runGit(tmpDir, ["add", "tracked.txt"]);
+          yield* runGit(tmpDir, ["commit", "-m", "init"]);
+          yield* fs.writeFileString(filePath, "changed\n");
+          yield* runGit(tmpDir, ["add", "tracked.txt"]);
+
+          const error = yield* Effect.flip(
+            shouldSkipCommitForReusablePublishForTesting(
+              tempContext,
+              defaultYeetRunOptions({ pushOnly: true, reuseVerified: true })
+            )
+          );
+
+          expect(error.message).toContain("yeet publish --push-only --reuse-verified refuses staged changes.");
+          expect(error.message).toContain("  - tracked.txt");
+        })
+      )
+    ));
 
   it("keeps publish monitor on the full local proof unless fast is explicit", () => {
     const plan = buildYeetRunPlanForTesting({
