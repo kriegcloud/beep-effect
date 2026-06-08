@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "105d312e26c3f84d39a09b9de9ff2206bd4d0a71e0b258de4d1ce14bf400ec98",
+    "digest": "715e3388910938d872d32c8dca0eea69634b908dd781dab48fc71315b163aeaf",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -472,8 +472,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sha256": "f8c636fec35fca14fc0e44db46ddc64af4099928016f7cffbe3d3604686968b5",
-        "bytes": 54950
+        "sha256": "ac07d828b3f77a557cc1ca894bf87c44948e7ce2b0c891e90de069dddbd523d9",
+        "bytes": 55367
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
@@ -29944,7 +29944,7 @@
         "symbolName": "collectLintFixChangedFilesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1603,
+        "sourceLine": 1615,
         "summary": "Collect existing changed files for the root lint fix fast path.",
         "categories": [
           "utilities"
@@ -29970,7 +29970,7 @@
         "symbolName": "collectStepOutput",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1524,
+        "sourceLine": 1536,
         "summary": "Run a subprocess and capture all output. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -29997,7 +29997,7 @@
         "symbolName": "lintFixChangedStepForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1618,
+        "sourceLine": 1630,
         "summary": "Build the root lint fix changed-file step. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -30023,7 +30023,7 @@
         "symbolName": "PackageTaskProfile",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 108,
+        "sourceLine": 122,
         "summary": "Package-local script profile used by the quality task adapter.",
         "categories": [
           "models"
@@ -30048,7 +30048,7 @@
         "symbolName": "parseQualityTaskInvocation",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1418,
+        "sourceLine": 1430,
         "summary": "Parse a raw argv vector into a quality task invocation when the first token is",
         "categories": [
           "utilities"
@@ -30150,7 +30150,7 @@
         "symbolName": "QualityTaskInvocation",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 164,
+        "sourceLine": 178,
         "summary": "Result of parsing a quality command invocation.",
         "categories": [
           "models"
@@ -30175,7 +30175,7 @@
         "symbolName": "QualityTaskName",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 74,
+        "sourceLine": 62,
         "summary": "Canonical quality task name.",
         "categories": [
           "models"
@@ -30200,7 +30200,7 @@
         "symbolName": "QualityTaskName",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 91,
+        "sourceLine": 79,
         "summary": "Canonical quality task name.",
         "categories": [
           "models"
@@ -30225,7 +30225,7 @@
         "symbolName": "QualityTaskStep",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 135,
+        "sourceLine": 149,
         "summary": "Planned subprocess invocation.",
         "categories": [
           "models"
@@ -30250,7 +30250,7 @@
         "symbolName": "rootQualityStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1293,
+        "sourceLine": 1305,
         "summary": "Build root quality task subprocess steps. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -30277,7 +30277,7 @@
         "symbolName": "runQualityTask",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1462,
+        "sourceLine": 1474,
         "summary": "Run a parsed quality task in either repo-root or package-local mode.",
         "categories": [
           "use-cases"
@@ -30303,7 +30303,7 @@
         "symbolName": "runQualityTaskIfRequested",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1492,
+        "sourceLine": 1504,
         "summary": "Run a quality task directly from a raw argv vector.",
         "categories": [
           "use-cases"
@@ -30330,7 +30330,7 @@
         "symbolName": "runQualityTaskStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1541,
+        "sourceLine": 1553,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "use-cases"
@@ -30356,7 +30356,7 @@
         "symbolName": "runQualityTaskStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1573,
+        "sourceLine": 1585,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "testing"
@@ -30382,7 +30382,7 @@
         "symbolName": "runQualityTaskStreamingStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1557,
+        "sourceLine": 1569,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "use-cases"
@@ -30408,7 +30408,7 @@
         "symbolName": "runQualityTaskStreamingStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1589,
+        "sourceLine": 1601,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "testing"
@@ -30434,7 +30434,7 @@
         "symbolName": "runSqlIntegrationTestLaneForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1100,
+        "sourceLine": 1112,
         "summary": "Run the SQL integration lane with an injected resource and child command.",
         "categories": [
           "utilities"
@@ -30459,7 +30459,7 @@
         "symbolName": "sqlIntegrationConnectionUriFromEnvForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1114,
+        "sourceLine": 1126,
         "summary": "Resolve the SQL integration database connection URI from environment variables.",
         "categories": [
           "utilities"
@@ -30484,7 +30484,7 @@
         "symbolName": "sqlIntegrationStepForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1081,
+        "sourceLine": 1093,
         "summary": "Build the SQL integration test subprocess step. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -30536,7 +30536,7 @@
         "symbolName": "workspaceTaskFiltersForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 521,
+        "sourceLine": 533,
         "summary": "Resolve Turbo filters for workspace packages that define a script.",
         "categories": [
           "utilities"
@@ -40950,7 +40950,7 @@
         "symbolName": "collectLintFixChangedFilesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1603,
+        "sourceLine": 1615,
         "summary": "Collect existing changed files for the root lint fix fast path.",
         "categories": [
           "utilities"
@@ -41001,7 +41001,7 @@
         "symbolName": "collectStepOutput",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1524,
+        "sourceLine": 1536,
         "summary": "Run a subprocess and capture all output. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -41360,7 +41360,7 @@
         "symbolName": "lintFixChangedStepForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1618,
+        "sourceLine": 1630,
         "summary": "Build the root lint fix changed-file step. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -41411,7 +41411,7 @@
         "symbolName": "PackageTaskProfile",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 108,
+        "sourceLine": 122,
         "summary": "Package-local script profile used by the quality task adapter.",
         "categories": [
           "models"
@@ -41611,7 +41611,7 @@
         "symbolName": "parseQualityTaskInvocation",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1418,
+        "sourceLine": 1430,
         "summary": "Parse a raw argv vector into a quality task invocation when the first token is",
         "categories": [
           "utilities"
@@ -41888,7 +41888,7 @@
         "symbolName": "QualityTaskInvocation",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 164,
+        "sourceLine": 178,
         "summary": "Result of parsing a quality command invocation.",
         "categories": [
           "models"
@@ -41913,7 +41913,7 @@
         "symbolName": "QualityTaskName",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 74,
+        "sourceLine": 62,
         "summary": "Canonical quality task name.",
         "categories": [
           "models"
@@ -41938,7 +41938,7 @@
         "symbolName": "QualityTaskName",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 91,
+        "sourceLine": 79,
         "summary": "Canonical quality task name.",
         "categories": [
           "models"
@@ -41963,7 +41963,7 @@
         "symbolName": "QualityTaskStep",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 135,
+        "sourceLine": 149,
         "summary": "Planned subprocess invocation.",
         "categories": [
           "models"
@@ -42142,7 +42142,7 @@
         "symbolName": "rootQualityStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1293,
+        "sourceLine": 1305,
         "summary": "Build root quality task subprocess steps. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -42402,7 +42402,7 @@
         "symbolName": "runQualityTask",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1462,
+        "sourceLine": 1474,
         "summary": "Run a parsed quality task in either repo-root or package-local mode.",
         "categories": [
           "use-cases"
@@ -42428,7 +42428,7 @@
         "symbolName": "runQualityTaskIfRequested",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1492,
+        "sourceLine": 1504,
         "summary": "Run a quality task directly from a raw argv vector.",
         "categories": [
           "use-cases"
@@ -42455,7 +42455,7 @@
         "symbolName": "runQualityTaskStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1541,
+        "sourceLine": 1553,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "use-cases"
@@ -42481,7 +42481,7 @@
         "symbolName": "runQualityTaskStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1573,
+        "sourceLine": 1585,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "testing"
@@ -42507,7 +42507,7 @@
         "symbolName": "runQualityTaskStreamingStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1557,
+        "sourceLine": 1569,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "use-cases"
@@ -42533,7 +42533,7 @@
         "symbolName": "runQualityTaskStreamingStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1589,
+        "sourceLine": 1601,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "testing"
@@ -42586,7 +42586,7 @@
         "symbolName": "runSqlIntegrationTestLaneForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1100,
+        "sourceLine": 1112,
         "summary": "Run the SQL integration lane with an injected resource and child command.",
         "categories": [
           "utilities"
@@ -42741,7 +42741,7 @@
         "symbolName": "sqlIntegrationConnectionUriFromEnvForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1114,
+        "sourceLine": 1126,
         "summary": "Resolve the SQL integration database connection URI from environment variables.",
         "categories": [
           "utilities"
@@ -42766,7 +42766,7 @@
         "symbolName": "sqlIntegrationStepForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1081,
+        "sourceLine": 1093,
         "summary": "Build the SQL integration test subprocess step. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -43090,7 +43090,7 @@
         "symbolName": "workspaceTaskFiltersForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 521,
+        "sourceLine": 533,
         "summary": "Resolve Turbo filters for workspace packages that define a script.",
         "categories": [
           "utilities"

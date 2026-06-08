@@ -166,12 +166,18 @@ see
 `reviews/p4-acp-arbitrary-pilot.md`, and
 `reviews/p4-architecture-lab-pglite-arbitrary-pilot.md`, plus the OIP
 class-local decoder statics pilot in
-`reviews/p4-oip-class-local-statics-pilot.md`.
+`reviews/p4-oip-class-local-statics-pilot.md`, and the repo-cli quality task
+`LiteralKit` statics pilot in
+`reviews/p4-quality-task-literalkit-statics-pilot.md`.
 
 - [ ] Wave 1: migrate low-risk static schema API sites first:
       `TaggedUnion.match`, `.cases`, `.guards`, `LiteralKit.Enum`,
       `LiteralKit.is`, `LiteralKit.Options`, `LiteralKit.pickOptions`, and
       `MappedLiteralKit` directional helpers.
+  - [x] Pilot repo-cli quality task literal domains: moved loaded command
+        adapter guards and canonical values to `LiteralKit` / `S.is` static
+        surfaces while leaving the lazy `bin-main.ts` preflight untouched; see
+        `reviews/p4-quality-task-literalkit-statics-pilot.md`.
 - [ ] Wave 2: tighten broad schema primitives surfaced by the precision audit,
       including `S.String`, `S.Number`, and unbounded arrays where the domain is
       narrower.
