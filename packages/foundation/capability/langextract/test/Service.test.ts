@@ -57,7 +57,7 @@ describe("LangExtractService", () => {
         const result = yield* service.extract(request);
 
         expect(result.extractions).toHaveLength(1);
-        expect(result.diagnostics.candidateCount).toBe(1);
+        expect(result.diagnostics.candidateCount).toBe(2);
         expect(result.diagnostics.alignedCount + result.diagnostics.unalignedCount).toBe(1);
       })
     );

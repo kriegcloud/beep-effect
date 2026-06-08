@@ -97,7 +97,10 @@ const levenshtein = (left: ReadonlyArray<string>, right: ReadonlyArray<string>):
           ? (previous[j] ?? 0)
           : Math.min(previous[j] ?? 0, current[j] ?? 0, previous[j + 1] ?? 0) + 1;
     }
-    previous.splice(0, previous.length, ...current);
+    for (let k = 0; k < current.length; k += 1) {
+      previous[k] = current[k] ?? 0;
+    }
+    previous.length = current.length;
   }
 
   return previous[right.length] ?? 0;
