@@ -1,6 +1,6 @@
-import { reuseCommand } from "@beep/repo-cli/commands/Reuse";
+import { printLookupSummaryForTesting, reuseCommand } from "@beep/repo-cli/commands/Reuse";
 import { CodexSmokeResult } from "@beep/repo-cli/test/Reuse";
-import { RepoCodegraphLookupResult } from "@beep/repo-codegraph";
+import { RepoCodegraphLookupResult, RepoCodegraphLookupTotals } from "@beep/repo-codegraph";
 import {
   FsUtilsLive,
   ReuseCandidate,
@@ -282,15 +282,23 @@ describe("reuse command", () => {
     () =>
       Effect.runPromise(
         Effect.gen(function* () {
-          yield* runReuseCommand([
-            "lookup",
-            "--query",
-            "UnknownRecord\u001b]52;c;clipboard\u0007\rspoof",
-            "--from",
-            "packages/missing\u001b[31m/domain",
-            "--limit",
-            "0",
-          ]);
+          yield* printLookupSummaryForTesting(
+            RepoCodegraphLookupResult.make({
+              schemaVersion: "repo-codegraph.lookup/v1",
+              query: "UnknownRecord\u001b]52;c;clipboard\u0007\rspoof",
+              fromPackage: O.some("packages/missing\u001b[31m/domain"),
+              limit: 0,
+              freshnessStatus: "unchecked",
+              warnings: ['Caller package selector "packages/missing\u001b[31m/domain" was not found in catalog.'],
+              matches: [],
+              totals: RepoCodegraphLookupTotals.make({
+                catalogEntries: 0,
+                matchedEntries: 0,
+                returnedMatches: 0,
+              }),
+            }),
+            false
+          );
 
           const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
 

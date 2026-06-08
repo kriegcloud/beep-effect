@@ -416,21 +416,35 @@ const renderJson = Effect.fn("Yeet.renderJson")(function* (value: unknown): Effe
 });
 const decodeJsonTextOption = S.decodeUnknownOption(S.UnknownFromJsonString);
 
+type RunGitOutputOptions = {
+  readonly trim?: boolean;
+};
+
 const runGitOutput = Effect.fn("Yeet.runGitOutput")(function* (
   repoRoot: string,
-  args: ReadonlyArray<string>
+  args: ReadonlyArray<string>,
+  options: RunGitOutputOptions = {}
 ): Effect.fn.Return<string, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const command = `git ${A.join(args, " ")}`;
   const result = yield* runRepoCommandCapture("git", args, repoRoot).pipe(
-    Effect.mapError(YeetCommandError.new(`Failed to run git ${A.join(args, " ")}.`))
+    Effect.mapError(YeetCommandError.new(`Failed to run ${command}.`))
   );
   if (result.exitCode !== 0) {
     return yield* YeetCommandError.make({
-      message: `git ${A.join(args, " ")} failed with exit code ${result.exitCode}.`,
-      command: `git ${A.join(args, " ")}`,
+      message: `${command} failed with exit code ${result.exitCode}.`,
+      command,
       exitCode: result.exitCode,
     });
   }
-  return Str.trim(result.output);
+  if (result.truncated) {
+    return yield* YeetCommandError.make({
+      message: `${command} output exceeded the repo-run capture limit.`,
+      command,
+      exitCode: 1,
+    });
+  }
+
+  return options.trim === false ? result.output : Str.trim(result.output);
 });
 
 const blockedMonitorBranches: ReadonlyArray<string> = ["main", "master", "HEAD"];
@@ -633,7 +647,7 @@ const runGitPathList = Effect.fn("Yeet.runGitPathList")(function* (
   repoRoot: string,
   args: ReadonlyArray<string>
 ): Effect.fn.Return<ReadonlyArray<string>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
-  const output = yield* runGitOutput(repoRoot, args);
+  const output = yield* runGitOutput(repoRoot, args, { trim: false });
   return gitPathListFromNulOutput(output);
 });
 
@@ -1120,9 +1134,9 @@ const runOutputPathForContext = Effect.fn("Yeet.runOutputPathForContext")(functi
 const collectDiffFingerprint = Effect.fn("Yeet.collectDiffFingerprint")(function* (
   context: RepoRunContext
 ): Effect.fn.Return<string, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
-  const status = yield* runGitOutput(context.repoRoot, ["status", "--short"]);
-  const unstagedDiff = yield* runGitOutput(context.repoRoot, ["diff", "--binary", "HEAD"]);
-  const stagedDiff = yield* runGitOutput(context.repoRoot, ["diff", "--cached", "--binary"]);
+  const status = yield* runGitOutput(context.repoRoot, ["status", "--short"], { trim: false });
+  const unstagedDiff = yield* runGitOutput(context.repoRoot, ["diff", "--binary", "HEAD"], { trim: false });
+  const stagedDiff = yield* runGitOutput(context.repoRoot, ["diff", "--cached", "--binary"], { trim: false });
   return createHash("sha256")
     .update(status)
     .update("\0")

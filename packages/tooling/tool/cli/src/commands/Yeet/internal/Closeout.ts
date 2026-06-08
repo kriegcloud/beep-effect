@@ -227,7 +227,7 @@ class GhCloseoutPullRequest extends S.Class<GhCloseoutPullRequest>($I`GhCloseout
     reviewThreads: GhReviewThreadConnection,
     reviews: GhReviewConnection,
   },
-  $I.annote("GhGraphqlPullRequest", {
+  $I.annote("GhCloseoutPullRequest", {
     description: "Pull request GraphQL payload used by Yeet closeout.",
   })
 ) {}

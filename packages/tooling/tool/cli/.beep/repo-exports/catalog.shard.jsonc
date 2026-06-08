@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "66fff2bb7811f8fa6a3b1b6a9a27c1daa516222f79f2a9e9548bdf1f0a4fc667",
+    "digest": "800ac4644fc32cb61fc9d33dd78ec846b657c5101cbb1dcf1bf425f8057f1fc6",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -487,8 +487,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sha256": "69d8dd128da1cc36ba7182339fd2be1f93bb041cc20f903d565b24c0674e4ff6",
-        "bytes": 24108
+        "sha256": "0a7697f0bdf8ee30c0e20efb69deee1c72c3408bb53c8b022b99be2c1ef39eb8",
+        "bytes": 24295
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts",
@@ -647,13 +647,13 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sha256": "eebe7ae6a4717c26924082a7130e638178c5e7bb660e8815c9c0fcf58dc35cf4",
-        "bytes": 29015
+        "sha256": "034d2a83b4e1ead94ae46512897499bb08a963030a379e364749e7d7c0079749",
+        "bytes": 29016
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sha256": "0d89d3274e975c431acba3fd2529a4108958680312290ea825f4ee15df46db95",
-        "bytes": 63362
+        "sha256": "15c25a9a1026870d72843ad090e48a2f179d3bd0b24aa4f65bba7806940e59db",
+        "bytes": 63746
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts",
@@ -927,8 +927,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1793,
-      "uniqueSymbols": 665,
+      "publicExportEntries": 1797,
+      "uniqueSymbols": 666,
       "sourceFiles": 146
     },
     "exports": [
@@ -1292,7 +1292,7 @@
         "symbolName": "reuseCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 672,
+        "sourceLine": 680,
         "summary": "Reuse-discovery command group.",
         "categories": [
           "use-cases"
@@ -30303,10 +30303,34 @@
         "importSpecifier": "@beep/repo-cli/commands/Reuse",
         "exportSubpath": "./commands/Reuse",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
+        "symbolName": "printLookupSummaryForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
+        "sourceLine": 404,
+        "summary": "Print human-readable lookup output for focused command-renderer tests.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse ./commands/reuse printlookupsummaryfortesting const print human-readable lookup output for focused command-renderer tests. testing packages/tooling/tool/cli/src/commands/reuse/reuse.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Reuse",
+        "exportSubpath": "./commands/Reuse",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
         "symbolName": "reuseCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 672,
+        "sourceLine": 680,
         "summary": "Reuse-discovery command group.",
         "categories": [
           "use-cases"
@@ -30533,10 +30557,34 @@
         "importSpecifier": "@beep/repo-cli/commands/Reuse/index",
         "exportSubpath": "./commands/Reuse/index",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
+        "symbolName": "printLookupSummaryForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
+        "sourceLine": 404,
+        "summary": "Print human-readable lookup output for focused command-renderer tests.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/index ./commands/reuse/index printlookupsummaryfortesting const print human-readable lookup output for focused command-renderer tests. testing packages/tooling/tool/cli/src/commands/reuse/reuse.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Reuse/index",
+        "exportSubpath": "./commands/Reuse/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
         "symbolName": "reuseCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 672,
+        "sourceLine": 680,
         "summary": "Reuse-discovery command group.",
         "categories": [
           "use-cases"
@@ -30836,10 +30884,34 @@
         "importSpecifier": "@beep/repo-cli/commands/Reuse/Reuse.command",
         "exportSubpath": "./commands/Reuse/Reuse.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
+        "symbolName": "printLookupSummaryForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
+        "sourceLine": 404,
+        "summary": "Print human-readable lookup output for focused command-renderer tests.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/reuse.command ./commands/reuse/reuse.command printlookupsummaryfortesting const print human-readable lookup output for focused command-renderer tests. testing packages/tooling/tool/cli/src/commands/reuse/reuse.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Reuse/Reuse.command",
+        "exportSubpath": "./commands/Reuse/Reuse.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
         "symbolName": "reuseCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 672,
+        "sourceLine": 680,
         "summary": "Reuse-discovery command group.",
         "categories": [
           "use-cases"
@@ -42630,10 +42702,34 @@
         "importSpecifier": "@beep/repo-cli/test/Reuse",
         "exportSubpath": "./test/Reuse",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Reuse.test-kit.ts",
+        "symbolName": "printLookupSummaryForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
+        "sourceLine": 404,
+        "summary": "Print human-readable lookup output for focused command-renderer tests.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/reuse ./test/reuse printlookupsummaryfortesting const print human-readable lookup output for focused command-renderer tests. testing packages/tooling/tool/cli/src/commands/reuse/reuse.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Reuse",
+        "exportSubpath": "./test/Reuse",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Reuse.test-kit.ts",
         "symbolName": "reuseCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 672,
+        "sourceLine": 680,
         "summary": "Reuse-discovery command group.",
         "categories": [
           "use-cases"
@@ -44226,7 +44322,7 @@
         "symbolName": "buildYeetRunPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1773,
+        "sourceLine": 1787,
         "summary": "Build a plan for tests without reading repository state.",
         "categories": [
           "testing"
@@ -44330,7 +44426,7 @@
         "symbolName": "decodeTurboPlanTasksFromQueryJsonForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1016,
+        "sourceLine": 1030,
         "summary": "Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests.",
         "categories": [
           "testing"
@@ -44378,7 +44474,7 @@
         "symbolName": "defaultYeetRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1808,
+        "sourceLine": 1822,
         "summary": "Construct baseline yeet options for focused tests.",
         "categories": [
           "testing"
@@ -44682,7 +44778,7 @@
         "symbolName": "hydrateYeetRunContext",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1057,
+        "sourceLine": 1071,
         "summary": "Hydrate a shared yeet run context from repository state.",
         "categories": [
           "utilities"
@@ -44762,7 +44858,7 @@
         "symbolName": "jsonObjectTextFromMixedOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 873,
+        "sourceLine": 887,
         "summary": "Extract the last decodable JSON object from mixed command output for tests.",
         "categories": [
           "testing"
@@ -45859,7 +45955,7 @@
         "symbolName": "runYeet",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1733,
+        "sourceLine": 1747,
         "summary": "Run yeet with the provided options.",
         "categories": [
           "use-cases"
