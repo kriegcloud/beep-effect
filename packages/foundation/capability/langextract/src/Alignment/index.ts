@@ -11,11 +11,12 @@ import { NonNegativeInt } from "@beep/schema";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import type { ExtractionCandidate, LangExtractOptions } from "@beep/langextract/Extraction";
 
 const DEFAULT_FUZZY_THRESHOLD = 0.82;
 
-const lower = (value: string): string => value.toLocaleLowerCase();
+const lower = Str.toLowerCase;
 
 const makeGrounded = (
   candidate: ExtractionCandidate,
@@ -65,8 +66,16 @@ const findExact = (sourceText: string, query: string): undefined | readonly [num
 };
 
 const findLesser = (sourceText: string, query: string): undefined | readonly [number, string] => {
-  const start = lower(sourceText).indexOf(lower(query));
-  return start >= 0 ? [start, sourceText.slice(start, start + query.length)] : undefined;
+  const normalizedQuery = lower(query);
+
+  for (let start = 0; start <= sourceText.length - query.length; start += 1) {
+    const candidate = sourceText.slice(start, start + query.length);
+    if (lower(candidate) === normalizedQuery) {
+      return [start, candidate];
+    }
+  }
+
+  return undefined;
 };
 
 const levenshtein = (left: string, right: string): number => {

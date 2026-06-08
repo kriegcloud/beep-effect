@@ -24,6 +24,18 @@ describe("alignCandidate", () => {
     expect(extraction.matchedText).toBe("Acme");
   });
 
+  it("keeps lesser match spans anchored to source offsets after Unicode lowercase expansion", () => {
+    const extraction = alignCandidate(
+      "A\u0130 Alice founded Acme.",
+      ExtractionCandidate.make({ label: "person", text: "alice" })
+    );
+
+    expect(extraction.alignmentStatus).toBe("match_lesser");
+    expect(extraction.matchedText).toBe("Alice");
+    expect(extraction.span?.start).toBe(3);
+    expect(extraction.span?.end).toBe(8);
+  });
+
   it("uses bounded fuzzy matching", () => {
     const extraction = alignCandidate(
       "Alice founded Acme.",
