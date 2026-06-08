@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "6d06f872448ce28d6f12c4141b74216582675256fcdd837a48d7123eb4115d11",
+    "digest": "6560c16897da732c2d315258518ed9b31650537291666661b129db5b91c8080e",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -452,13 +452,13 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
+        "bytes": 76366
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
+        "bytes": 76366
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts",
@@ -646,9 +646,14 @@
         "bytes": 922
       },
       {
+        "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+        "sha256": "2a08a1154f3a3e78c60343d3e0085e1ddd5826322aa32fd8b5da772145919805",
+        "bytes": 17329
+      },
+      {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sha256": "dbfcba2bec8185f5533de04a3f9db41e9efbf3245123ac824bb1d69894d527ce",
-        "bytes": 44137
+        "sha256": "8e25b5fd80cff220707bc03ea496d5562239169a682f8bf454cbfbee43da6a90",
+        "bytes": 53137
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts",
@@ -657,18 +662,18 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sha256": "86fd0b27d2a1986801cb67d007b1f82950dba2a1ca7cc8e8f99dd6f6a3af4a69",
-        "bytes": 12257
+        "sha256": "47197860553a0d91be5b5663fe31a06a2acdedeb363916686f26c70f5a647fe2",
+        "bytes": 14440
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sha256": "e72683e390a1ac5d2a7b23b656f12c19fe7473ecc0abc5693eea2f115a3b08c5",
-        "bytes": 23781
+        "sha256": "c893aa7603f25f9975e1ca7a483da009c39ba5975ab965c8834ec26082a07b04",
+        "bytes": 24267
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sha256": "18bf92e11b1005248d67cfc3ba8252f5b60c6a8fea3375a6c41a47eb59652bdb",
-        "bytes": 3669
+        "sha256": "f9b2a4bc2924c15629febdf599639ebd806b8582e9e6073188ad58c7fe427513",
+        "bytes": 6738
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts",
@@ -717,8 +722,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts",
-        "sha256": "b491a597d02a3081c705b2b75638a0deb1994211c2d2dac2eedb61ad5a659597",
-        "bytes": 3455
+        "sha256": "3795c85bf05f3f3a41d1e4fd12e9f522682e51f99ab98fc5b13542ffddf189bd",
+        "bytes": 3699
       },
       {
         "path": "packages/tooling/tool/cli/src/test/CreatePackage.test-kit.ts",
@@ -762,8 +767,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
-        "sha256": "93ddefddb0af40c5c755dcedac847b4fe482275cebf532a0f105872901019956",
-        "bytes": 425
+        "sha256": "ff5486a9c6563ac4d7dcdd976017074cd662b155a441d51c28e4e818c7dc7841",
+        "bytes": 480
       }
     ]
   },
@@ -922,9 +927,9 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1756,
-      "uniqueSymbols": 641,
-      "sourceFiles": 145
+      "publicExportEntries": 1764,
+      "uniqueSymbols": 647,
+      "sourceFiles": 146
     },
     "exports": [
       {
@@ -1262,7 +1267,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1842,
+        "sourceLine": 2127,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -1438,7 +1443,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 109,
+        "sourceLine": 186,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -27555,7 +27560,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1842,
+        "sourceLine": 2127,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -28257,7 +28262,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1842,
+        "sourceLine": 2127,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -28754,10 +28759,34 @@
         "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
         "exportSubpath": "./commands/Quality/Quality.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "affectedRepoExportsCatalogPlanForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 1838,
+        "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command affectedrepoexportscatalogplanfortesting const build the conservative affected repo export catalog plan for a set of changed paths. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 876,
+        "sourceLine": 951,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -28784,7 +28813,7 @@
         "symbolName": "GithubCheckMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 152,
+        "sourceLine": 160,
         "summary": "GitHub check mode handled by `beep quality github-checks`.",
         "categories": [
           "models"
@@ -28809,7 +28838,7 @@
         "symbolName": "GithubCheckMode",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 165,
+        "sourceLine": 173,
         "summary": "GitHub check mode handled by `beep quality github-checks`.",
         "categories": [
           "models"
@@ -28834,7 +28863,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1842,
+        "sourceLine": 2127,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -28884,7 +28913,7 @@
         "symbolName": "runBunAudit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 368,
+        "sourceLine": 392,
         "summary": "Run Bun's high-severity package audit with OSV ignores mirrored from config.",
         "categories": [
           "use-cases"
@@ -28911,7 +28940,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1213,
+        "sourceLine": 1288,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -28938,7 +28967,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 628,
+        "sourceLine": 701,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -28965,7 +28994,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1533,
+        "sourceLine": 1608,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -28991,7 +29020,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1456,
+        "sourceLine": 1531,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -29017,7 +29046,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1643,
+        "sourceLine": 1725,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -29042,7 +29071,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1568,
+        "sourceLine": 1643,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -29069,7 +29098,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1259,
+        "sourceLine": 1334,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -29096,7 +29125,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1022,
+        "sourceLine": 1097,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -29122,7 +29151,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1355,
+        "sourceLine": 1430,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -34617,7 +34646,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 224,
+        "sourceLine": 227,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -34642,7 +34671,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 170,
+        "sourceLine": 173,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -34692,7 +34721,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 71,
+        "sourceLine": 74,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -34716,7 +34745,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 111,
+        "sourceLine": 114,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -34741,7 +34770,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 123,
+        "sourceLine": 126,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -34765,7 +34794,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 250,
+        "sourceLine": 253,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -34790,7 +34819,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 138,
+        "sourceLine": 141,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -34815,7 +34844,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 85,
+        "sourceLine": 88,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -34840,7 +34869,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 97,
+        "sourceLine": 100,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -34864,7 +34893,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 109,
+        "sourceLine": 186,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -34963,7 +34992,7 @@
         "symbolName": "YeetRunOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 171,
+        "sourceLine": 176,
         "summary": "Runtime options accepted by the yeet handler.",
         "categories": [
           "models"
@@ -34988,7 +35017,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 201,
+        "sourceLine": 236,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"
@@ -35013,7 +35042,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 224,
+        "sourceLine": 227,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -35038,7 +35067,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 170,
+        "sourceLine": 173,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -35088,7 +35117,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 71,
+        "sourceLine": 74,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -35112,7 +35141,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 111,
+        "sourceLine": 114,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35137,7 +35166,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 123,
+        "sourceLine": 126,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35161,7 +35190,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 250,
+        "sourceLine": 253,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -35186,7 +35215,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 138,
+        "sourceLine": 141,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -35211,7 +35240,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 85,
+        "sourceLine": 88,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -35236,7 +35265,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 97,
+        "sourceLine": 100,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -35260,7 +35289,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 109,
+        "sourceLine": 186,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -35359,7 +35388,7 @@
         "symbolName": "YeetRunOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 171,
+        "sourceLine": 176,
         "summary": "Runtime options accepted by the yeet handler.",
         "categories": [
           "models"
@@ -35384,7 +35413,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 201,
+        "sourceLine": 236,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"
@@ -35409,7 +35438,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 109,
+        "sourceLine": 186,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -39900,6 +39929,30 @@
         "importSpecifier": "@beep/repo-cli/test/Quality",
         "exportSubpath": "./test/Quality",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "affectedRepoExportsCatalogPlanForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 1838,
+        "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality affectedrepoexportscatalogplanfortesting const build the conservative affected repo export catalog plan for a set of changed paths. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
         "symbolName": "buildJSDocDocumentationInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts",
@@ -40051,7 +40104,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 876,
+        "sourceLine": 951,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -40183,7 +40236,7 @@
         "symbolName": "GithubCheckMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 152,
+        "sourceLine": 160,
         "summary": "GitHub check mode handled by `beep quality github-checks`.",
         "categories": [
           "models"
@@ -40208,7 +40261,7 @@
         "symbolName": "GithubCheckMode",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 165,
+        "sourceLine": 173,
         "summary": "GitHub check mode handled by `beep quality github-checks`.",
         "categories": [
           "models"
@@ -40559,7 +40612,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1842,
+        "sourceLine": 2127,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -40938,7 +40991,7 @@
         "symbolName": "runBunAudit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 368,
+        "sourceLine": 392,
         "summary": "Run Bun's high-severity package audit with OSV ignores mirrored from config.",
         "categories": [
           "use-cases"
@@ -40990,7 +41043,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1213,
+        "sourceLine": 1288,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -41017,7 +41070,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 628,
+        "sourceLine": 701,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -41044,7 +41097,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1533,
+        "sourceLine": 1608,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -41070,7 +41123,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1456,
+        "sourceLine": 1531,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -41096,7 +41149,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1643,
+        "sourceLine": 1725,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -41250,7 +41303,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1568,
+        "sourceLine": 1643,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -41302,7 +41355,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1259,
+        "sourceLine": 1334,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -41329,7 +41382,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1022,
+        "sourceLine": 1097,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -41355,7 +41408,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1355,
+        "sourceLine": 1430,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -43595,7 +43648,7 @@
         "symbolName": "buildQualityIssueIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 716,
+        "sourceLine": 728,
         "summary": "Build a schema-first issue index from normalized issues.",
         "categories": [
           "constructors"
@@ -43622,7 +43675,7 @@
         "symbolName": "buildYeetRunPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 387,
+        "sourceLine": 460,
         "summary": "Build the publish-mode yeet run plan.",
         "categories": [
           "workflows"
@@ -43649,7 +43702,7 @@
         "symbolName": "buildYeetRunPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1238,
+        "sourceLine": 1468,
         "summary": "Build a plan for tests without reading repository state.",
         "categories": [
           "testing"
@@ -43675,7 +43728,7 @@
         "symbolName": "buildYeetRunPlanWithMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 349,
+        "sourceLine": 422,
         "summary": "Build a yeet run plan for a specific mode.",
         "categories": [
           "workflows"
@@ -43753,7 +43806,7 @@
         "symbolName": "decodeTurboPlanTasksFromQueryJsonForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 801,
+        "sourceLine": 858,
         "summary": "Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests.",
         "categories": [
           "testing"
@@ -43801,7 +43854,7 @@
         "symbolName": "defaultYeetRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1263,
+        "sourceLine": 1499,
         "summary": "Construct baseline yeet options for focused tests.",
         "categories": [
           "testing"
@@ -43827,7 +43880,7 @@
         "symbolName": "emptyTurboPlanSnapshot",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 165,
+        "sourceLine": 194,
         "summary": "Create an empty Turbo metadata snapshot.",
         "categories": [
           "constructors"
@@ -43932,7 +43985,7 @@
         "symbolName": "GithubCheckMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts",
-        "sourceLine": 42,
+        "sourceLine": 43,
         "summary": "GitHub check mode handled by `beep quality github-checks`.",
         "categories": [
           "models"
@@ -43956,7 +44009,7 @@
         "symbolName": "GithubCheckMode",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts",
-        "sourceLine": 54,
+        "sourceLine": 55,
         "summary": "GitHub check mode handled by `beep quality github-checks`.",
         "categories": [
           "models"
@@ -43980,7 +44033,7 @@
         "symbolName": "gitPathListFromNulOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 283,
+        "sourceLine": 318,
         "summary": "Parse NUL-delimited Git path output for Yeet publish-safety tests.",
         "categories": [
           "testing"
@@ -44001,10 +44054,34 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "GreptileSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+        "sourceLine": 234,
+        "summary": "Summary of Greptile signal extracted from PR comments.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet greptilesummary class summary of greptile signal extracted from pr comments. models packages/tooling/tool/cli/src/commands/yeet/internal/closeout.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "hydrateYeetRunContext",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 842,
+        "sourceLine": 899,
         "summary": "Hydrate a shared yeet run context from repository state.",
         "categories": [
           "utilities"
@@ -44058,7 +44135,7 @@
         "symbolName": "jsonObjectTextFromMixedOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 658,
+        "sourceLine": 715,
         "summary": "Extract the last decodable JSON object from mixed command output for tests.",
         "categories": [
           "testing"
@@ -44082,7 +44159,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 224,
+        "sourceLine": 227,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -44104,10 +44181,58 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "PrCloseoutOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+        "sourceLine": 215,
+        "summary": "Runtime closeout gates accepted by Yeet.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet prcloseoutoptions class runtime closeout gates accepted by yeet. models packages/tooling/tool/cli/src/commands/yeet/internal/closeout.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "PrCloseoutReport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+        "sourceLine": 251,
+        "summary": "Yeet PR closeout report.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet prcloseoutreport class yeet pr closeout report. models packages/tooling/tool/cli/src/commands/yeet/internal/closeout.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "publishPathsOutsideIntentForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 291,
+        "sourceLine": 326,
         "summary": "Return observed paths that are not part of the reviewed Yeet publish intent.",
         "categories": [
           "testing"
@@ -44131,7 +44256,7 @@
         "symbolName": "publishRestagePathsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 300,
+        "sourceLine": 335,
         "summary": "Return reviewed paths that can be passed to `git add` without failing on",
         "categories": [
           "testing"
@@ -44155,7 +44280,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 170,
+        "sourceLine": 173,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -44205,7 +44330,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 71,
+        "sourceLine": 74,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -44229,7 +44354,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 111,
+        "sourceLine": 114,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -44254,7 +44379,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 123,
+        "sourceLine": 126,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -44278,7 +44403,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 250,
+        "sourceLine": 253,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -44303,7 +44428,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 138,
+        "sourceLine": 141,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -44328,7 +44453,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 85,
+        "sourceLine": 88,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -44353,7 +44478,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 97,
+        "sourceLine": 100,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -44377,7 +44502,7 @@
         "symbolName": "qualityIssuesFromStepResult",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 662,
+        "sourceLine": 674,
         "summary": "Convert a failed step result into quality issues.",
         "categories": [
           "parsing"
@@ -44728,7 +44853,7 @@
         "symbolName": "repoProofStepDefinition",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts",
-        "sourceLine": 120,
+        "sourceLine": 121,
         "summary": "Return the `beep` command metadata that proves a repository proof surface.",
         "categories": [
           "constructors"
@@ -44755,7 +44880,7 @@
         "symbolName": "RepoProofStepDefinition",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts",
-        "sourceLine": 94,
+        "sourceLine": 95,
         "summary": "Planned command metadata for a repository proof surface.",
         "categories": [
           "models"
@@ -44780,7 +44905,7 @@
         "symbolName": "RepoProofSurface",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts",
-        "sourceLine": 68,
+        "sourceLine": 69,
         "summary": "Named proof surfaces that orchestration commands may require.",
         "categories": [
           "models"
@@ -44805,7 +44930,7 @@
         "symbolName": "RepoProofSurface",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts",
-        "sourceLine": 80,
+        "sourceLine": 81,
         "summary": "Named proof surfaces that orchestration commands may require.",
         "categories": [
           "models"
@@ -44928,6 +45053,30 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "runPrCloseout",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+        "sourceLine": 525,
+        "summary": "Inspect current PR review and bot closeout state.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet runprcloseout const inspect current pr review and bot closeout state. use-cases packages/tooling/tool/cli/src/commands/yeet/internal/closeout.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "runRepoCommandCapture",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.executor.ts",
@@ -44958,7 +45107,7 @@
         "symbolName": "runYeet",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1207,
+        "sourceLine": 1430,
         "summary": "Run yeet with the provided options.",
         "categories": [
           "use-cases"
@@ -45110,7 +45259,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 109,
+        "sourceLine": 186,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -45160,7 +45309,7 @@
         "symbolName": "yeetPlanPhases",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 408,
+        "sourceLine": 488,
         "summary": "Return plan phases in execution order.",
         "categories": [
           "utilities"
@@ -45175,6 +45324,55 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet yeetplanphases const return plan phases in execution order. utilities packages/tooling/tool/cli/src/commands/yeet/internal/planner.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "YeetProofTier",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
+        "sourceLine": 84,
+        "summary": "Yeet local proof tier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet yeetprooftier const yeet local proof tier. models packages/tooling/tool/cli/src/commands/yeet/internal/planner.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "YeetProofTier",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
+        "sourceLine": 96,
+        "summary": "Yeet local proof tier.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet yeetprooftier type yeet local proof tier. models packages/tooling/tool/cli/src/commands/yeet/internal/planner.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -45235,7 +45433,7 @@
         "symbolName": "YeetRunOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 171,
+        "sourceLine": 176,
         "summary": "Runtime options accepted by the yeet handler.",
         "categories": [
           "models"
@@ -45260,7 +45458,7 @@
         "symbolName": "YeetRunPlanModeOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 84,
+        "sourceLine": 110,
         "summary": "Options for building a Yeet run plan in a specific mode.",
         "categories": [
           "models"
@@ -45285,7 +45483,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 201,
+        "sourceLine": 236,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"

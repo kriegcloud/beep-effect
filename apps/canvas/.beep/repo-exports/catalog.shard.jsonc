@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "67b64b587da78a6cff2e1cbe35860285f51c415c6fe5ee50c718e14b4f5f1cbb",
+    "digest": "c6eb9b06768bace1c05e460e1bbc2647644e563ce807ae9e4b3efd6e9a920ab4",
     "inputs": [
       {
         "path": "apps/canvas/package.json",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "c2646ebaee6194cc77c96eeaa51c3274a26a79affaacb36d79e99622f1eca22f",
+        "bytes": 76366
       }
     ]
   },
