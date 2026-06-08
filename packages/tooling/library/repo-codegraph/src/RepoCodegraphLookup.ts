@@ -532,6 +532,22 @@ const scoredEntryOrder: Order.Order<ScoredEntry> = Order.combine(
   )
 );
 
+// Dedupe by entry identity in O(n). The prior `A.dedupeWith` comparator was
+// O(n^2) and recomputed `entryIdentity` strings on every pairwise comparison,
+// which dominated lookup latency on the full catalog (~12.8k matched entries).
+// Keeping the first occurrence preserves the post-sort "best score wins" choice.
+const dedupeScoredByIdentity = (entries: ReadonlyArray<ScoredEntry>): ReadonlyArray<ScoredEntry> => {
+  const seen = new Set<string>();
+  return A.filter(entries, (entry) => {
+    const identity = entryIdentity(entry.entry);
+    if (seen.has(identity)) {
+      return false;
+    }
+    seen.add(identity);
+    return true;
+  });
+};
+
 const lookupRepoExportsBody = (
   catalog: RepoExportsCatalog,
   request: RepoCodegraphLookupRequest,
@@ -562,7 +578,7 @@ const lookupRepoExportsBody = (
     }),
     A.filter((entry) => entry.score.total > 0),
     A.sort(scoredEntryOrder),
-    A.dedupeWith((left, right) => entryIdentity(left.entry) === entryIdentity(right.entry))
+    dedupeScoredByIdentity
   );
   const matches = pipe(
     scored,
