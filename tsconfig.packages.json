@@ -28,6 +28,9 @@
       "path": "apps/stack-installer"
     },
     {
+      "path": "apps/storybook"
+    },
+    {
       "path": "infra"
     },
     {
@@ -155,6 +158,9 @@
     },
     {
       "path": "packages/foundation/capability/file-processing"
+    },
+    {
+      "path": "packages/foundation/capability/langextract"
     },
     {
       "path": "packages/foundation/capability/md"

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-05",
+  "generatedOn": "2026-06-08",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -160,6 +160,262 @@
       "status": "exception",
       "owner": "@beep/acp",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.config.ts",
+      "symbol": "BoxCcgConfigShape",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxChunkedUploadReducerPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxChunkedUploadReducerPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxCreateUserAvatarPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxCreateUserAvatarPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxDownloadFilePayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxDownloadFilePayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxDownloadZipPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxDownloadZipPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxGetEventStreamPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxGetEventStreamPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxGetFileThumbnailByIdPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxGetFileThumbnailByIdPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxGetUserAvatarPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxGetUserAvatarPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxGetZipDownloadContentPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxGetZipDownloadContentPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxPartAccumulator",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxPartAccumulatorSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxStreamingOperations",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/box",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadBigFilePayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadBigFilePayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadFilePartByUrlPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadFilePartByUrlPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadFilePartPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadFilePartPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadFilePayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadFilePayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadFileVersionPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadFileVersionPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadWithPreflightCheckPayload",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/drivers/box/src/Box.streaming.ts",
+      "symbol": "BoxUploadWithPreflightCheckPayloadSchema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/box",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
       "file": "packages/drivers/drizzle/src/Drizzle.service.ts",

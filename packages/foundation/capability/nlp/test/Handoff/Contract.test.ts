@@ -5,8 +5,10 @@
  */
 
 import { Contract } from "@beep/nlp/Handoff";
+import { NonNegativeInt } from "@beep/schema";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";
 import { FastCheck as fc } from "effect/testing";
 
@@ -22,7 +24,7 @@ const sampleDocument = Contract.AnnotatedDocument.make({
       id: Contract.ChunkId.make("chunk-1"),
       kind: "sentence",
       provenance: sampleProvenance,
-      span: Contract.Span.make({ end: 11, start: 0 }),
+      span: Contract.Span.make({ end: NonNegativeInt.make(11), start: NonNegativeInt.make(0) }),
       text: "Hello world",
     }),
   ],
@@ -80,11 +82,60 @@ describe("Span", () => {
       fc.property(fc.nat(1000), fc.nat(1000), (a, b) => {
         const start = Math.min(a, b);
         const end = Math.max(a, b);
-        const span = Contract.Span.make({ end, start });
+        const span = Contract.Span.make({ end: NonNegativeInt.make(end), start: NonNegativeInt.make(start) });
         return span.start <= span.end && span.start === start && span.end === end;
       })
     );
   });
+
+  it("rejects negative offsets", () => {
+    expect(() => S.decodeUnknownSync(Contract.Span)({ end: 1, start: -1 })).toThrow();
+    expect(() => S.decodeUnknownSync(Contract.Span)({ end: -1, start: 0 })).toThrow();
+  });
+
+  it("rejects spans whose end precedes start", () => {
+    expect(() => Contract.Span.make({ end: NonNegativeInt.make(4), start: NonNegativeInt.make(5) })).toThrow();
+  });
+});
+
+describe("Provenance confidence", () => {
+  it.effect(
+    "decodes confidence values in the unit interval",
+    Effect.fnUntraced(function* () {
+      const decoded = yield* S.decodeUnknownEffect(Contract.Provenance)({
+        confidence: 1,
+        generatedBy: "langextract",
+        source: "doc-1",
+        timestamp: 1_000,
+      });
+      expect(decoded.confidence).toBe(1);
+    })
+  );
+
+  it.effect(
+    "rejects confidence values outside the unit interval",
+    Effect.fnUntraced(function* () {
+      const low = yield* Effect.exit(
+        S.decodeUnknownEffect(Contract.Provenance)({
+          confidence: -0.01,
+          generatedBy: "langextract",
+          source: "doc-1",
+          timestamp: 1_000,
+        })
+      );
+      const high = yield* Effect.exit(
+        S.decodeUnknownEffect(Contract.Provenance)({
+          confidence: 1.01,
+          generatedBy: "langextract",
+          source: "doc-1",
+          timestamp: 1_000,
+        })
+      );
+
+      expect(Exit.isFailure(low)).toBe(true);
+      expect(Exit.isFailure(high)).toBe(true);
+    })
+  );
 });
 
 describe("makeProvenance", () => {

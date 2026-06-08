@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
+    "vitest.storybook.config.ts",
+    "vitest.storybook.setup.ts",
+    "../../packages/foundation/ui-system/*/stories/**/*.ts",
+    "../../packages/foundation/ui-system/*/stories/**/*.tsx"
+  ],
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react-jsx",
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "incremental": false,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "rootDir": "../..",
+    "sourceMap": false,
+    "types": ["node", "vite/client"],
+    "paths": {
+      "@beep/ui": ["../../packages/foundation/ui-system/ui/src/index.ts"],
+      "@beep/ui/*": ["../../packages/foundation/ui-system/ui/src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../../packages/foundation/ui-system/ui/tsconfig.json"
+    }
+  ]
+}

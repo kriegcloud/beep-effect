@@ -24,14 +24,16 @@ Ship reliable code with effect first and schema first patterns.
   artifacts, while the root `standards/repo-exports.catalog.{jsonc,md}` remains
   the compatibility lookup surface. Use `bun run repo-exports:catalog:full`
   only for an explicit full-scan fallback proof.
-- Yeet workflow hardening is in proof mode: use `bun run beep yeet repair`,
-  `bun run beep yeet verify`, and `bun run beep yeet publish --message "..."`
-  for proving the path, but do not treat Yeet as the canonical replacement for
-  manual quality lanes until its dedicated proof PR is green in GitHub Actions
-  and the Yeet agent skill is added.
+- Yeet is the canonical repo-quality operator path. Use the `yeet` skill and
+  `bun run beep yeet repair`, `bun run beep yeet verify`,
+  `bun run beep yeet publish --message "..."`, and
+  `bun run beep yeet monitor` for End-to-End Green: repair, proof, commit,
+  push, PR checks, review closeout, and merge readiness.
 - Yeet fast-plus-monitor is opt-in only: `bun run beep yeet publish --fast
-  --monitor --message "..."` is PR-branch guarded, and
-  `bun run audit:github pre-push` remains the explicit full local fallback.
+  --monitor --message "..."` is PR-branch guarded. Use the normal
+  `publish --message` path by default, and keep `bun run audit:github pre-push`
+  as the explicit full local fallback for secrets, security, SAST, Nix, or any
+  lane that needs manual proof outside Yeet.
 
 ## Prompt-cache discipline
 Claude Code auto-caches the stable conversation prefix (system prompt, tool
