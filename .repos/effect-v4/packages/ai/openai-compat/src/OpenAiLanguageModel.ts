@@ -1235,7 +1235,7 @@ const makeStreamResponse = Effect.fnUntraced(
             const activeToolCall = activeToolCalls[toolIndex]
             const toolId = activeToolCall?.id ?? deltaTool.id ?? `${event.id}_tool_${toolIndex}`
             const providerToolName = deltaTool.function?.name
-            const toolName = providerToolName !== undefined
+            const toolName = Predicate.isNotNullish(providerToolName)
               ? toolNameMapper.getCustomName(providerToolName)
               : activeToolCall?.name ?? toolNameMapper.getCustomName("unknown_tool")
             const argumentsDelta = deltaTool.function?.arguments ?? ""
