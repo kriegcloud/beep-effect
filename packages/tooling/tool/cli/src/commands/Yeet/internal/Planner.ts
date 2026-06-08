@@ -290,8 +290,10 @@ const commitStep = (
     "commit:01-git-commit",
     options.amend ? "commit:git:commit:amend" : "commit:git:commit",
     "commit",
-    options.amend && options.noEdit
-      ? ["commit", "--amend", "--no-edit"]
+    options.amend
+      ? options.noEdit
+        ? ["commit", "--amend", "--no-edit"]
+        : ["commit", "--amend", "-m", O.getOrElse(message, () => "<required-conventional-commit-message>")]
       : ["commit", "-m", O.getOrElse(message, () => "<required-conventional-commit-message>")]
   );
 

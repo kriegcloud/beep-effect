@@ -5,6 +5,7 @@ import {
   decodeTurboPlanTasksFromQueryJsonForTesting,
   gitPathListFromNulOutputForTesting,
   jsonObjectTextFromMixedOutputForTesting,
+  latestGreptileSummaryForTesting,
   publishPathsOutsideIntentForTesting,
   publishRestagePathsForTesting,
   publishUpstreamMismatchWarningForTesting,
@@ -223,6 +224,22 @@ describe("yeet planner", () => {
     });
 
     expect(findStep(plan.steps, "commit:git:commit:amend").args).toEqual(["commit", "--amend", "--no-edit"]);
+  });
+
+  it("builds amend publish with an explicit message without dropping --amend", () => {
+    const plan = buildYeetRunPlanForTesting({
+      amend: true,
+      context,
+      message: O.some("fix(repo-cli): update yeet"),
+      mode: "publish",
+    });
+
+    expect(findStep(plan.steps, "commit:git:commit:amend").args).toEqual([
+      "commit",
+      "--amend",
+      "-m",
+      "fix(repo-cli): update yeet",
+    ]);
   });
 
   it("builds monitor as current branch PR context plus check watching", () => {
@@ -526,6 +543,32 @@ describe("yeet planner", () => {
       O.some('[yeet] warning: branch "feat/yeet" tracks "origin/main"; publish will push HEAD to origin/feat/yeet.')
     );
     expect(publishUpstreamMismatchWarningForTesting("feat/yeet", "origin/feat/yeet")).toEqual(O.none());
+  });
+
+  it("keeps human comments that mention Greptile from replacing the bot summary", () => {
+    const summary = latestGreptileSummaryForTesting([
+      {
+        authorLogin: "greptile-apps",
+        body: "Confidence Score: 5/5\n0 issues",
+        url: "https://github.test/pr#greptile",
+      },
+      {
+        authorLogin: "elpresidank",
+        body: "fixed per greptile feedback",
+        url: "https://github.test/pr#human",
+      },
+      {
+        authorLogin: "greptile-apps",
+        body: "Inline finding without a summary score",
+        url: "https://github.test/pr#inline",
+      },
+    ]);
+
+    expect(summary).toMatchObject({
+      issueCount: 0,
+      score: "5/5",
+      url: "https://github.test/pr#greptile",
+    });
   });
 });
 

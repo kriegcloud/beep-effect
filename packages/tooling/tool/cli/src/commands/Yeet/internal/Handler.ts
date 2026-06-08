@@ -478,13 +478,6 @@ const validateMonitorGuards = Effect.fn("Yeet.validateMonitorGuards")(function* 
     });
   }
 
-  if (options.amend && !options.noEdit) {
-    return yield* YeetCommandError.make({
-      message: "yeet publish --amend currently supports the explicit --no-edit retry mode only.",
-      exitCode: 1,
-    });
-  }
-
   if (options.pushOnly && options.mode !== "publish") {
     return yield* YeetCommandError.make({
       message: "yeet --push-only is only valid for publish.",

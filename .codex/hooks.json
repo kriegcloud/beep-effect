@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/home/elpresidank/.local/bin/graphify hook-check"
+            "command": "graphify hook-check"
           }
         ]
       }

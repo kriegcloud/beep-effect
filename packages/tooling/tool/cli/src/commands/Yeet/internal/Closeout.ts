@@ -4,6 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+// cspell:ignore greptileai
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { O as OptionUtils } from "@beep/utils";
@@ -20,6 +21,7 @@ import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { RepoRunContext } from "../../../internal/repo-run/index.js";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Closeout");
+const GREPTILE_RETRIGGER_COMMENT = "@greptileai" as const;
 
 class GhActor extends S.Class<GhActor>($I`GhActor`)(
   {
@@ -27,6 +29,16 @@ class GhActor extends S.Class<GhActor>($I`GhActor`)(
   },
   $I.annote("GhActor", {
     description: "GitHub actor metadata returned by gh.",
+  })
+) {}
+
+class GhPageInfo extends S.Class<GhPageInfo>($I`GhPageInfo`)(
+  {
+    endCursor: S.NullOr(S.String),
+    hasNextPage: S.Boolean,
+  },
+  $I.annote("GhPageInfo", {
+    description: "GitHub GraphQL connection pagination metadata.",
   })
 ) {}
 
@@ -95,6 +107,7 @@ class GhInlineReviewCommentConnection extends S.Class<GhInlineReviewCommentConne
 )(
   {
     nodes: S.Array(GhInlineReviewComment),
+    pageInfo: GhPageInfo,
   },
   $I.annote("GhInlineReviewCommentConnection", {
     description: "Inline review comment connection.",
@@ -106,6 +119,7 @@ class GhReviewThreadCommentConnection extends S.Class<GhReviewThreadCommentConne
 )(
   {
     nodes: S.Array(GhComment),
+    pageInfo: GhPageInfo,
   },
   $I.annote("GhReviewThreadCommentConnection", {
     description: "Review thread comment connection.",
@@ -129,6 +143,7 @@ class GhReviewThread extends S.Class<GhReviewThread>($I`GhReviewThread`)(
 class GhReviewThreadConnection extends S.Class<GhReviewThreadConnection>($I`GhReviewThreadConnection`)(
   {
     nodes: S.Array(GhReviewThread),
+    pageInfo: GhPageInfo,
   },
   $I.annote("GhReviewThreadConnection", {
     description: "Review thread connection.",
@@ -140,6 +155,7 @@ class GhPullRequestCommentConnection extends S.Class<GhPullRequestCommentConnect
 )(
   {
     nodes: S.Array(GhComment),
+    pageInfo: GhPageInfo,
   },
   $I.annote("GhPullRequestCommentConnection", {
     description: "Pull request top-level comment connection.",
@@ -163,13 +179,41 @@ class GhReview extends S.Class<GhReview>($I`GhReview`)(
 class GhReviewConnection extends S.Class<GhReviewConnection>($I`GhReviewConnection`)(
   {
     nodes: S.Array(GhReview),
+    pageInfo: GhPageInfo,
   },
   $I.annote("GhReviewConnection", {
     description: "Pull request review connection.",
   })
 ) {}
 
-class GhGraphqlPullRequest extends S.Class<GhGraphqlPullRequest>($I`GhGraphqlPullRequest`)(
+class GhCommentsPullRequest extends S.Class<GhCommentsPullRequest>($I`GhCommentsPullRequest`)(
+  {
+    comments: GhPullRequestCommentConnection,
+  },
+  $I.annote("GhCommentsPullRequest", {
+    description: "Pull request top-level comment page payload.",
+  })
+) {}
+
+class GhReviewThreadsPullRequest extends S.Class<GhReviewThreadsPullRequest>($I`GhReviewThreadsPullRequest`)(
+  {
+    reviewThreads: GhReviewThreadConnection,
+  },
+  $I.annote("GhReviewThreadsPullRequest", {
+    description: "Pull request review thread page payload.",
+  })
+) {}
+
+class GhReviewsPullRequest extends S.Class<GhReviewsPullRequest>($I`GhReviewsPullRequest`)(
+  {
+    reviews: GhReviewConnection,
+  },
+  $I.annote("GhReviewsPullRequest", {
+    description: "Pull request review page payload.",
+  })
+) {}
+
+class GhCloseoutPullRequest extends S.Class<GhCloseoutPullRequest>($I`GhCloseoutPullRequest`)(
   {
     comments: GhPullRequestCommentConnection,
     reviewThreads: GhReviewThreadConnection,
@@ -180,30 +224,84 @@ class GhGraphqlPullRequest extends S.Class<GhGraphqlPullRequest>($I`GhGraphqlPul
   })
 ) {}
 
-class GhGraphqlRepository extends S.Class<GhGraphqlRepository>($I`GhGraphqlRepository`)(
+class GhCommentsRepository extends S.Class<GhCommentsRepository>($I`GhCommentsRepository`)(
   {
-    pullRequest: GhGraphqlPullRequest,
+    pullRequest: GhCommentsPullRequest,
   },
-  $I.annote("GhGraphqlRepository", {
-    description: "Repository wrapper for pull request GraphQL payload.",
+  $I.annote("GhCommentsRepository", {
+    description: "Repository wrapper for pull request comment page payload.",
   })
 ) {}
 
-class GhGraphqlData extends S.Class<GhGraphqlData>($I`GhGraphqlData`)(
+class GhReviewThreadsRepository extends S.Class<GhReviewThreadsRepository>($I`GhReviewThreadsRepository`)(
   {
-    repository: GhGraphqlRepository,
+    pullRequest: GhReviewThreadsPullRequest,
   },
-  $I.annote("GhGraphqlData", {
-    description: "GraphQL data wrapper.",
+  $I.annote("GhReviewThreadsRepository", {
+    description: "Repository wrapper for pull request review thread page payload.",
   })
 ) {}
 
-class GhGraphqlDocument extends S.Class<GhGraphqlDocument>($I`GhGraphqlDocument`)(
+class GhReviewsRepository extends S.Class<GhReviewsRepository>($I`GhReviewsRepository`)(
   {
-    data: GhGraphqlData,
+    pullRequest: GhReviewsPullRequest,
   },
-  $I.annote("GhGraphqlDocument", {
-    description: "GitHub GraphQL response document.",
+  $I.annote("GhReviewsRepository", {
+    description: "Repository wrapper for pull request review page payload.",
+  })
+) {}
+
+class GhCommentsData extends S.Class<GhCommentsData>($I`GhCommentsData`)(
+  {
+    repository: GhCommentsRepository,
+  },
+  $I.annote("GhCommentsData", {
+    description: "GraphQL data wrapper for pull request comment pages.",
+  })
+) {}
+
+class GhReviewThreadsData extends S.Class<GhReviewThreadsData>($I`GhReviewThreadsData`)(
+  {
+    repository: GhReviewThreadsRepository,
+  },
+  $I.annote("GhReviewThreadsData", {
+    description: "GraphQL data wrapper for pull request review thread pages.",
+  })
+) {}
+
+class GhReviewsData extends S.Class<GhReviewsData>($I`GhReviewsData`)(
+  {
+    repository: GhReviewsRepository,
+  },
+  $I.annote("GhReviewsData", {
+    description: "GraphQL data wrapper for pull request review pages.",
+  })
+) {}
+
+class GhCommentsDocument extends S.Class<GhCommentsDocument>($I`GhCommentsDocument`)(
+  {
+    data: GhCommentsData,
+  },
+  $I.annote("GhCommentsDocument", {
+    description: "GitHub GraphQL response document for pull request comment pages.",
+  })
+) {}
+
+class GhReviewThreadsDocument extends S.Class<GhReviewThreadsDocument>($I`GhReviewThreadsDocument`)(
+  {
+    data: GhReviewThreadsData,
+  },
+  $I.annote("GhReviewThreadsDocument", {
+    description: "GitHub GraphQL response document for pull request review thread pages.",
+  })
+) {}
+
+class GhReviewsDocument extends S.Class<GhReviewsDocument>($I`GhReviewsDocument`)(
+  {
+    data: GhReviewsData,
+  },
+  $I.annote("GhReviewsDocument", {
+    description: "GitHub GraphQL response document for pull request review pages.",
   })
 ) {}
 
@@ -268,33 +366,62 @@ export class PrCloseoutReport extends S.Class<PrCloseoutReport>($I`PrCloseoutRep
 
 const decodeGhPrView = S.decodeUnknownEffect(S.fromJsonString(GhPrView));
 const decodeGhRepoView = S.decodeUnknownEffect(S.fromJsonString(GhRepoView));
-const decodeGhGraphqlDocument = S.decodeUnknownEffect(S.fromJsonString(GhGraphqlDocument));
+const decodeGhCommentsDocument = S.decodeUnknownEffect(S.fromJsonString(GhCommentsDocument));
+const decodeGhReviewThreadsDocument = S.decodeUnknownEffect(S.fromJsonString(GhReviewThreadsDocument));
+const decodeGhReviewsDocument = S.decodeUnknownEffect(S.fromJsonString(GhReviewsDocument));
 
-const closeoutQuery = `
-query YeetPrCloseout($owner: String!, $name: String!, $number: Int!) {
+const commentsPageQuery = `
+query YeetPrCloseoutComments($owner: String!, $name: String!, $number: Int!, $cursor: String) {
   repository(owner: $owner, name: $name) {
     pullRequest(number: $number) {
-      comments(first: 100) {
+      comments(first: 100, after: $cursor) {
+        pageInfo { hasNextPage endCursor }
         nodes { id body url createdAt author { login } }
       }
-      reviewThreads(first: 100) {
+    }
+  }
+}
+`;
+
+const reviewThreadsPageQuery = `
+query YeetPrCloseoutReviewThreads($owner: String!, $name: String!, $number: Int!, $cursor: String) {
+  repository(owner: $owner, name: $name) {
+    pullRequest(number: $number) {
+      reviewThreads(first: 100, after: $cursor) {
+        pageInfo { hasNextPage endCursor }
         nodes {
           id
           isResolved
           isOutdated
           path
           line
-          comments(first: 20) { nodes { id body url createdAt author { login } } }
+          comments(first: 100) {
+            pageInfo { hasNextPage endCursor }
+            nodes { id body url createdAt author { login } }
+          }
         }
       }
-      reviews(first: 100) {
+    }
+  }
+}
+`;
+
+const reviewsPageQuery = `
+query YeetPrCloseoutReviews($owner: String!, $name: String!, $number: Int!, $cursor: String) {
+  repository(owner: $owner, name: $name) {
+    pullRequest(number: $number) {
+      reviews(first: 100, after: $cursor) {
+        pageInfo { hasNextPage endCursor }
         nodes {
           id
           body
           state
           submittedAt
           author { login }
-          comments(first: 50) { nodes { id body url path line author { login } } }
+          comments(first: 100) {
+            pageInfo { hasNextPage endCursor }
+            nodes { id body url path line author { login } }
+          }
         }
       }
     }
@@ -342,11 +469,11 @@ const textMatchesAnyToken = (tokens: ReadonlyArray<string>, value: string): bool
   return A.some(tokens, (token) => Str.includes(token)(lower));
 };
 
-const isBotComment = (tokens: ReadonlyArray<string>, author: GhActor | null, body: string): boolean =>
-  textMatchesAnyToken(tokens, authorLogin(author)) || textMatchesAnyToken(tokens, body);
+const isBotComment = (tokens: ReadonlyArray<string>, author: GhActor | null): boolean =>
+  textMatchesAnyToken(tokens, authorLogin(author));
 
-const isGreptileComment = (author: GhActor | null, body: string): boolean =>
-  Str.includes("greptile")(Str.toLowerCase(authorLogin(author))) || Str.includes("greptile")(Str.toLowerCase(body));
+const isGreptileComment = (author: GhActor | null): boolean =>
+  Str.includes("greptile")(Str.toLowerCase(authorLogin(author)));
 
 const scorePattern = /(?<score>\d+(?:\.\d+)?)\s*\/\s*5/u;
 const leadingIssueCountPattern = /(?<count>\d+)\s+(?:open\s+)?issues?/iu;
@@ -377,17 +504,49 @@ const parseIssueCount = (body: string): O.Option<number> => {
 const latestGreptileSummary = (comments: ReadonlyArray<GhComment>): GreptileSummary =>
   pipe(
     comments,
-    A.filter((comment) => isGreptileComment(comment.author, comment.body)),
-    A.reverse,
-    A.head,
-    O.map((comment) =>
+    A.filter((comment) => isGreptileComment(comment.author)),
+    A.map((comment) =>
       GreptileSummary.make({
         ...OptionUtils.getSomesStruct({ issueCount: parseIssueCount(comment.body) }),
         ...OptionUtils.getSomesStruct({ score: parseScore(comment.body) }),
         url: comment.url,
       })
     ),
+    A.filter((summary) => summary.score !== undefined || summary.issueCount !== undefined),
+    A.reverse,
+    A.head,
     O.getOrElse(() => GreptileSummary.make({}))
+  );
+
+type GreptileSummaryCommentInput = {
+  readonly authorLogin: string;
+  readonly body: string;
+  readonly url: string;
+};
+
+/**
+ * Parse the latest Greptile summary from simplified comment inputs.
+ *
+ * @param comments - Simplified comment inputs ordered from oldest to newest.
+ * @returns Parsed Greptile summary from the latest bot-authored summary comment.
+ * @category testing
+ * @since 0.0.0
+ */
+export const latestGreptileSummaryForTesting = (
+  comments: ReadonlyArray<GreptileSummaryCommentInput>
+): GreptileSummary =>
+  latestGreptileSummary(
+    pipe(
+      comments,
+      A.map((comment) =>
+        GhComment.make({
+          author: GhActor.make({ login: comment.authorLogin }),
+          body: comment.body,
+          id: comment.url,
+          url: comment.url,
+        })
+      )
+    )
   );
 
 const issueRouting = (reason: string): ReadonlyArray<QualityIssueRouting> => [
@@ -467,10 +626,172 @@ const gateIssues = (
     : []),
 ];
 
+const closedPageInfo = GhPageInfo.make({ endCursor: null, hasNextPage: false });
+
+const cursorArgs = (cursor: O.Option<string>): ReadonlyArray<string> =>
+  O.isSome(cursor) ? ["-F", `cursor=${cursor.value}`] : [];
+
+const nextCursor = (label: string, pageInfo: GhPageInfo): Effect.Effect<O.Option<string>, YeetCommandError> => {
+  if (!pageInfo.hasNextPage) {
+    return Effect.succeed(O.none());
+  }
+
+  return pipe(
+    O.fromNullishOr(pageInfo.endCursor),
+    O.match({
+      onNone: () =>
+        Effect.fail(
+          YeetCommandError.make({
+            message: `${label} reported another GraphQL page without an end cursor.`,
+            command: "gh api graphql",
+            exitCode: 1,
+          })
+        ),
+      onSome: (cursor) => Effect.succeed(O.some(cursor)),
+    })
+  );
+};
+
+const ghGraphqlPage = Effect.fn("YeetCloseout.ghGraphqlPage")(function* (
+  context: RepoRunContext,
+  repo: GhRepoView,
+  pr: GhPrView,
+  query: string,
+  cursor: O.Option<string>,
+  label: string
+): Effect.fn.Return<string, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  return yield* ghOutput(
+    context,
+    [
+      "api",
+      "graphql",
+      "-f",
+      `query=${query}`,
+      "-F",
+      `owner=${repo.owner.login}`,
+      "-F",
+      `name=${repo.name}`,
+      "-F",
+      `number=${pr.number}`,
+      ...cursorArgs(cursor),
+    ],
+    label
+  );
+});
+
+const collectCommentPages = Effect.fn("YeetCloseout.collectCommentPages")(function* (
+  context: RepoRunContext,
+  repo: GhRepoView,
+  pr: GhPrView
+): Effect.fn.Return<ReadonlyArray<GhComment>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  let cursor = O.none<string>();
+  let comments: ReadonlyArray<GhComment> = [];
+  let hasNextPage = true;
+
+  while (hasNextPage) {
+    const page = yield* ghGraphqlPage(context, repo, pr, commentsPageQuery, cursor, "gh api graphql comments").pipe(
+      Effect.flatMap((output) =>
+        decodeGhCommentsDocument(output).pipe(
+          Effect.mapError(YeetCommandError.new("Failed to decode PR closeout comments GraphQL JSON."))
+        )
+      ),
+      Effect.map((document) => document.data.repository.pullRequest.comments)
+    );
+    comments = [...comments, ...page.nodes];
+    cursor = yield* nextCursor("pull request comments", page.pageInfo);
+    hasNextPage = O.isSome(cursor);
+  }
+
+  return comments;
+});
+
+const collectReviewThreadPages = Effect.fn("YeetCloseout.collectReviewThreadPages")(function* (
+  context: RepoRunContext,
+  repo: GhRepoView,
+  pr: GhPrView
+): Effect.fn.Return<ReadonlyArray<GhReviewThread>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  let cursor = O.none<string>();
+  let threads: ReadonlyArray<GhReviewThread> = [];
+  let hasNextPage = true;
+
+  while (hasNextPage) {
+    const page = yield* ghGraphqlPage(
+      context,
+      repo,
+      pr,
+      reviewThreadsPageQuery,
+      cursor,
+      "gh api graphql review threads"
+    ).pipe(
+      Effect.flatMap((output) =>
+        decodeGhReviewThreadsDocument(output).pipe(
+          Effect.mapError(YeetCommandError.new("Failed to decode PR closeout review threads GraphQL JSON."))
+        )
+      ),
+      Effect.map((document) => document.data.repository.pullRequest.reviewThreads)
+    );
+    const truncatedThread = pipe(
+      page.nodes,
+      A.findFirst((thread) => thread.comments.pageInfo.hasNextPage)
+    );
+    if (O.isSome(truncatedThread)) {
+      return yield* YeetCommandError.make({
+        message: `Review thread ${truncatedThread.value.id} has more than 100 comments; Yeet closeout refuses to silently truncate nested thread comments.`,
+        command: "gh api graphql",
+        exitCode: 1,
+      });
+    }
+
+    threads = [...threads, ...page.nodes];
+    cursor = yield* nextCursor("pull request review threads", page.pageInfo);
+    hasNextPage = O.isSome(cursor);
+  }
+
+  return threads;
+});
+
+const collectReviewPages = Effect.fn("YeetCloseout.collectReviewPages")(function* (
+  context: RepoRunContext,
+  repo: GhRepoView,
+  pr: GhPrView
+): Effect.fn.Return<ReadonlyArray<GhReview>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  let cursor = O.none<string>();
+  let reviews: ReadonlyArray<GhReview> = [];
+  let hasNextPage = true;
+
+  while (hasNextPage) {
+    const page = yield* ghGraphqlPage(context, repo, pr, reviewsPageQuery, cursor, "gh api graphql reviews").pipe(
+      Effect.flatMap((output) =>
+        decodeGhReviewsDocument(output).pipe(
+          Effect.mapError(YeetCommandError.new("Failed to decode PR closeout reviews GraphQL JSON."))
+        )
+      ),
+      Effect.map((document) => document.data.repository.pullRequest.reviews)
+    );
+    const truncatedReview = pipe(
+      page.nodes,
+      A.findFirst((review) => review.comments.pageInfo.hasNextPage)
+    );
+    if (O.isSome(truncatedReview)) {
+      return yield* YeetCommandError.make({
+        message: `Review ${truncatedReview.value.id} has more than 100 inline comments; Yeet closeout refuses to silently truncate nested review comments.`,
+        command: "gh api graphql",
+        exitCode: 1,
+      });
+    }
+
+    reviews = [...reviews, ...page.nodes];
+    cursor = yield* nextCursor("pull request reviews", page.pageInfo);
+    hasNextPage = O.isSome(cursor);
+  }
+
+  return reviews;
+});
+
 const collectPrCloseoutPayload = Effect.fn("YeetCloseout.collectPrCloseoutPayload")(function* (
   context: RepoRunContext
 ): Effect.fn.Return<
-  { readonly document: GhGraphqlDocument; readonly pr: GhPrView },
+  { readonly pullRequest: GhCloseoutPullRequest; readonly pr: GhPrView },
   YeetCommandError,
   ChildProcessSpawner.ChildProcessSpawner
 > {
@@ -488,30 +809,16 @@ const collectPrCloseoutPayload = Effect.fn("YeetCloseout.collectPrCloseoutPayloa
       decodeGhRepoView(output).pipe(Effect.mapError(YeetCommandError.new("Failed to decode gh repo view JSON.")))
     )
   );
-  const document = yield* ghOutput(
-    context,
-    [
-      "api",
-      "graphql",
-      "-f",
-      `query=${closeoutQuery}`,
-      "-F",
-      `owner=${repo.owner.login}`,
-      "-F",
-      `name=${repo.name}`,
-      "-F",
-      `number=${pr.number}`,
-    ],
-    "gh api graphql"
-  ).pipe(
-    Effect.flatMap((output) =>
-      decodeGhGraphqlDocument(output).pipe(
-        Effect.mapError(YeetCommandError.new("Failed to decode PR closeout GraphQL JSON."))
-      )
-    )
-  );
+  const comments = yield* collectCommentPages(context, repo, pr);
+  const reviewThreads = yield* collectReviewThreadPages(context, repo, pr);
+  const reviews = yield* collectReviewPages(context, repo, pr);
+  const pullRequest = GhCloseoutPullRequest.make({
+    comments: GhPullRequestCommentConnection.make({ nodes: comments, pageInfo: closedPageInfo }),
+    reviewThreads: GhReviewThreadConnection.make({ nodes: reviewThreads, pageInfo: closedPageInfo }),
+    reviews: GhReviewConnection.make({ nodes: reviews, pageInfo: closedPageInfo }),
+  });
 
-  return { document, pr };
+  return { pullRequest, pr };
 });
 
 /**
@@ -524,8 +831,7 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
   context: RepoRunContext,
   options: PrCloseoutOptions
 ): Effect.fn.Return<PrCloseoutReport, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
-  const { document, pr } = yield* collectPrCloseoutPayload(context);
-  const pullRequest = document.data.repository.pullRequest;
+  const { pullRequest, pr } = yield* collectPrCloseoutPayload(context);
   const botTokens = normalizedTokens(options.bots);
   const actionableThreads = pipe(
     pullRequest.reviewThreads.nodes,
@@ -534,12 +840,12 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
   const threadIssues = pipe(actionableThreads, A.map(reviewThreadIssue));
   const topLevelBotComments = pipe(
     pullRequest.comments.nodes,
-    A.filter((comment) => isBotComment(botTokens, comment.author, comment.body))
+    A.filter((comment) => isBotComment(botTokens, comment.author))
   );
   const reviewBotComments = pipe(
     pullRequest.reviews.nodes,
     A.flatMap((review) => [
-      ...(isBotComment(botTokens, review.author, review.body)
+      ...(isBotComment(botTokens, review.author)
         ? [
             GhComment.make({
               author: review.author,
@@ -551,7 +857,7 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
         : []),
       ...pipe(
         review.comments.nodes,
-        A.filter((comment) => isBotComment(botTokens, comment.author, comment.body)),
+        A.filter((comment) => isBotComment(botTokens, comment.author)),
         A.map((comment) =>
           GhComment.make({
             author: comment.author,
@@ -568,7 +874,7 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
   const issues = [...threadIssues, ...gateIssues(options, actionableThreads.length, greptile)];
 
   if (options.retriggerGreptile) {
-    yield* ghOutput(context, ["pr", "comment", `${pr.number}`, "--body", `${"@greptile"}ai review`], "gh pr comment");
+    yield* ghOutput(context, ["pr", "comment", `${pr.number}`, "--body", GREPTILE_RETRIGGER_COMMENT], "gh pr comment");
   }
 
   return PrCloseoutReport.make({
