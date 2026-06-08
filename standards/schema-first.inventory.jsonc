@@ -2626,6 +2626,46 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+      "symbol": "FallowAuditRawReport",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+      "symbol": "FallowDeadCodeRawReport",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+      "symbol": "FallowDupesRawReport",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+      "symbol": "FallowFlagsRawReport",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+      "symbol": "FallowHealthRawReport",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts",
       "symbol": "CategorySelectionServiceShape",
       "kind": "exported-type-literal",

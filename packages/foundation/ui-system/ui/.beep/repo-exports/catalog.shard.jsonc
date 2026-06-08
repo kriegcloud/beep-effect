@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "2db8df2f37e62b01313d6e76a1021bf52f4445c19b89c4f78f4dafbe559848cb",
+    "digest": "92a7304d104240d7bb1e4b5229cbeb1fa455c0c0f3b34b5fbac77344a282ccab",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -107,8 +107,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sha256": "4dbf5a70ae7e276de17af1e72d329b0da7f0ee7d2b9e0dd44c0be6114c4934c5",
-        "bytes": 7819
+        "sha256": "b5d948b15628423df32440bee017105be405ddeab0251118b16235fed79352f4",
+        "bytes": 9054
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/chart.tsx",
@@ -2452,7 +2452,7 @@
         "symbolName": "Carousel",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 92,
+        "sourceLine": 134,
         "summary": "Carousel component.",
         "categories": [
           "components"
@@ -2502,7 +2502,7 @@
         "symbolName": "CarouselContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 201,
+        "sourceLine": 219,
         "summary": "Carousel content component.",
         "categories": [
           "components"
@@ -2527,7 +2527,7 @@
         "symbolName": "CarouselItem",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 224,
+        "sourceLine": 242,
         "summary": "Carousel item component.",
         "categories": [
           "components"
@@ -2552,7 +2552,7 @@
         "symbolName": "CarouselNext",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 294,
+        "sourceLine": 312,
         "summary": "Carousel next component.",
         "categories": [
           "components"
@@ -2577,7 +2577,7 @@
         "symbolName": "CarouselPrevious",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 251,
+        "sourceLine": 269,
         "summary": "Carousel previous component.",
         "categories": [
           "components"
@@ -2602,7 +2602,7 @@
         "symbolName": "useCarousel",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 74,
+        "sourceLine": 116,
         "summary": "Use carousel hook.",
         "categories": [
           "hooks"

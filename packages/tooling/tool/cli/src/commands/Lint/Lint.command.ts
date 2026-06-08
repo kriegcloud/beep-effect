@@ -41,7 +41,7 @@ const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
 const ALLOWED_NON_PASCAL_FILENAMES = HashSet.fromIterable(["index", "bin"]);
 const DEPRECATED_API_LINT_CACHE_LOCATION = "node_modules/.cache/eslint-deprecated/.eslintcache";
 const DEPRECATED_API_LINT_ESLINT_BIN = "node_modules/.bin/eslint";
-const DEPRECATED_API_LINT_NODE_OPTIONS = "--max-old-space-size=4096";
+const DEPRECATED_API_LINT_NODE_OPTIONS = "--max-old-space-size=8192";
 const DEPRECATED_API_LINT_SHARDS = [
   "apps/architecture-lab-proof",
   "apps/canvas",

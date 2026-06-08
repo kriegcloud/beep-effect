@@ -261,138 +261,156 @@ const FallowVersionedRawFields = {
   version: S.String,
   elapsed_ms: S.Finite,
 };
-const FallowRawAction = S.Struct({
-  type: S.String,
-  auto_fixable: S.Boolean,
-  description: S.String,
-}).pipe(
-  $I.annoteSchema("FallowRawAction", {
+class FallowRawAction extends S.Class<FallowRawAction>($I`FallowRawAction`)(
+  {
+    type: S.String,
+    auto_fixable: S.Boolean,
+    description: S.String,
+  },
+  $I.annote("FallowRawAction", {
     description: "Common raw Fallow action shape emitted with actionable findings.",
   })
-);
-const FallowActionIssue = S.Struct({
-  actions: S.Array(FallowRawAction),
-}).pipe(
-  $I.annoteSchema("FallowActionIssue", {
+) {}
+class FallowActionIssue extends S.Class<FallowActionIssue>($I`FallowActionIssue`)(
+  {
+    actions: S.Array(FallowRawAction),
+  },
+  $I.annote("FallowActionIssue", {
     description: "Raw Fallow issue item that must carry action metadata.",
   })
-);
+) {}
 const FallowIssueArray = S.Array(FallowActionIssue).pipe(
   $I.annoteSchema("FallowIssueArray", {
     description: "Raw Fallow issue array retained for success-shape validation.",
   })
 );
-const FallowCloneInstance = S.Struct({
-  file: S.String,
-  start_line: S.Finite,
-  end_line: S.Finite,
-  start_col: S.Finite,
-  end_col: S.Finite,
-  fragment: S.String,
-}).pipe(
-  $I.annoteSchema("FallowCloneInstance", {
+class FallowCloneInstance extends S.Class<FallowCloneInstance>($I`FallowCloneInstance`)(
+  {
+    file: S.String,
+    start_line: S.Finite,
+    end_line: S.Finite,
+    start_col: S.Finite,
+    end_col: S.Finite,
+    fragment: S.String,
+  },
+  $I.annote("FallowCloneInstance", {
     description: "Raw Fallow duplication clone instance shape.",
   })
-);
-const FallowCloneGroup = S.Struct({
-  instances: S.Array(FallowCloneInstance),
-  token_count: S.Finite,
-  line_count: S.Finite,
-  fingerprint: S.String,
-  actions: S.Array(FallowRawAction),
-}).pipe(
-  $I.annoteSchema("FallowCloneGroup", {
+) {}
+class FallowCloneGroup extends S.Class<FallowCloneGroup>($I`FallowCloneGroup`)(
+  {
+    instances: S.Array(FallowCloneInstance),
+    token_count: S.Finite,
+    line_count: S.Finite,
+    fingerprint: S.String,
+    actions: S.Array(FallowRawAction),
+  },
+  $I.annote("FallowCloneGroup", {
     description: "Raw Fallow duplication clone group shape.",
   })
-);
-const FallowCloneFamily = S.Struct({
-  files: S.Array(S.String),
-  groups: S.Array(FallowCloneGroup),
-  total_duplicated_lines: S.Finite,
-  total_duplicated_tokens: S.Finite,
-  actions: S.Array(FallowRawAction),
-}).pipe(
-  $I.annoteSchema("FallowCloneFamily", {
+) {}
+class FallowCloneFamily extends S.Class<FallowCloneFamily>($I`FallowCloneFamily`)(
+  {
+    files: S.Array(S.String),
+    groups: S.Array(FallowCloneGroup),
+    total_duplicated_lines: S.Finite,
+    total_duplicated_tokens: S.Finite,
+    actions: S.Array(FallowRawAction),
+  },
+  $I.annote("FallowCloneFamily", {
     description: "Raw Fallow duplication clone family shape.",
   })
-);
-const FallowHealthFinding = S.Struct({
-  path: S.String,
-  name: S.String,
-  line: S.Finite,
-  col: S.Finite,
-  cyclomatic: S.Finite,
-  cognitive: S.Finite,
-  line_count: S.Finite,
-  param_count: S.Finite,
-  severity: S.String,
-  actions: S.Array(FallowRawAction),
-}).pipe(
-  $I.annoteSchema("FallowHealthFinding", {
+) {}
+class FallowHealthFinding extends S.Class<FallowHealthFinding>($I`FallowHealthFinding`)(
+  {
+    path: S.String,
+    name: S.String,
+    line: S.Finite,
+    col: S.Finite,
+    cyclomatic: S.Finite,
+    cognitive: S.Finite,
+    line_count: S.Finite,
+    param_count: S.Finite,
+    severity: S.String,
+    actions: S.Array(FallowRawAction),
+  },
+  $I.annote("FallowHealthFinding", {
     description: "Raw Fallow health finding shape.",
   })
-);
-const FallowFeatureFlagFinding = S.Struct({
-  path: S.String,
-  line: S.Finite,
-}).pipe(
-  $I.annoteSchema("FallowFeatureFlagFinding", {
+) {}
+class FallowFeatureFlagFinding extends S.Class<FallowFeatureFlagFinding>($I`FallowFeatureFlagFinding`)(
+  {
+    path: S.String,
+    line: S.Finite,
+  },
+  $I.annote("FallowFeatureFlagFinding", {
     description: "Raw Fallow feature flag finding shape.",
   })
-);
-const FallowSecurityTracePoint = S.Struct({
-  path: S.String,
-  line: S.Finite,
-  col: S.Finite,
-  role: S.String,
-}).pipe(
-  $I.annoteSchema("FallowSecurityTracePoint", {
+) {}
+class FallowSecurityTracePoint extends S.Class<FallowSecurityTracePoint>($I`FallowSecurityTracePoint`)(
+  {
+    path: S.String,
+    line: S.Finite,
+    col: S.Finite,
+    role: S.String,
+  },
+  $I.annote("FallowSecurityTracePoint", {
     description: "Raw Fallow security trace point shape.",
   })
-);
-const FallowSecurityFinding = S.Struct({
-  kind: S.String,
-  category: S.optionalKey(S.String),
-  cwe: S.optionalKey(S.Finite),
-  path: S.String,
-  line: S.Finite,
-  col: S.Finite,
-  evidence: S.String,
-  trace: S.Array(FallowSecurityTracePoint),
-  actions: S.Array(FallowRawAction),
-}).pipe(
-  $I.annoteSchema("FallowSecurityFinding", {
+) {}
+class FallowSecurityFinding extends S.Class<FallowSecurityFinding>($I`FallowSecurityFinding`)(
+  {
+    kind: S.String,
+    category: S.optionalKey(S.String),
+    cwe: S.optionalKey(S.Finite),
+    path: S.String,
+    line: S.Finite,
+    col: S.Finite,
+    evidence: S.String,
+    trace: S.Array(FallowSecurityTracePoint),
+    actions: S.Array(FallowRawAction),
+  },
+  $I.annote("FallowSecurityFinding", {
     description: "Raw Fallow security finding shape.",
   })
-);
-const FallowFixPreviewFinding = S.Struct({
-  type: S.String,
-  path: S.optionalKey(S.String),
-  file: S.optionalKey(S.String),
-  line: S.optionalKey(S.Finite),
-}).pipe(
-  $I.annoteSchema("FallowFixPreviewFinding", {
+) {}
+class FallowFixPreviewFinding extends S.Class<FallowFixPreviewFinding>($I`FallowFixPreviewFinding`)(
+  {
+    type: S.String,
+    path: S.optionalKey(S.String),
+    file: S.optionalKey(S.String),
+    line: S.optionalKey(S.Finite),
+  },
+  $I.annote("FallowFixPreviewFinding", {
     description: "Raw Fallow fix dry-run item shape.",
   })
-);
-const FallowDeadCodeSummaryRawReport = S.Struct({
-  total_issues: S.Finite,
-  unused_files: S.Finite,
-  unused_exports: S.Finite,
-  unused_types: S.Finite,
-  unused_dependencies: S.Finite,
-  unresolved_imports: S.Finite,
-  unlisted_dependencies: S.Finite,
-  boundary_violations: S.Finite,
-});
-const FallowEntryPointsRawReport = S.Struct({
-  total: S.Finite,
-  sources: S.Record(S.String, S.Finite),
-}).pipe(
-  $I.annoteSchema("FallowEntryPointsRawReport", {
+) {}
+class FallowDeadCodeSummaryRawReport extends S.Class<FallowDeadCodeSummaryRawReport>(
+  $I`FallowDeadCodeSummaryRawReport`
+)(
+  {
+    total_issues: S.Finite,
+    unused_files: S.Finite,
+    unused_exports: S.Finite,
+    unused_types: S.Finite,
+    unused_dependencies: S.Finite,
+    unresolved_imports: S.Finite,
+    unlisted_dependencies: S.Finite,
+    boundary_violations: S.Finite,
+  },
+  $I.annote("FallowDeadCodeSummaryRawReport", {
+    description: "Raw Fallow dead-code summary counts emitted by dead-code JSON output.",
+  })
+) {}
+class FallowEntryPointsRawReport extends S.Class<FallowEntryPointsRawReport>($I`FallowEntryPointsRawReport`)(
+  {
+    total: S.Finite,
+    sources: S.Record(S.String, S.Finite),
+  },
+  $I.annote("FallowEntryPointsRawReport", {
     description: "Raw Fallow entry point summary emitted by dead-code JSON output.",
   })
-);
+) {}
 const FallowAuditRawReport = S.Struct({
   kind: S.Literal("audit"),
   ...FallowVersionedRawFields,
@@ -493,30 +511,32 @@ const FallowFlagsRawReport = S.Struct({
     description: "Raw Fallow flags JSON shape accepted by the P1 wrapper.",
   })
 );
-const FallowSecurityRawReport = S.Struct({
-  kind: S.Literal("security"),
-  schema_version: S.Union([S.Finite, S.String]),
-  security_findings: S.Array(FallowSecurityFinding),
-  unresolved_edge_files: S.Finite,
-  unresolved_callee_sites: S.Finite,
-}).pipe(
-  $I.annoteSchema("FallowSecurityRawReport", {
+class FallowSecurityRawReport extends S.Class<FallowSecurityRawReport>($I`FallowSecurityRawReport`)(
+  {
+    kind: S.Literal("security"),
+    schema_version: S.Union([S.Finite, S.String]),
+    security_findings: S.Array(FallowSecurityFinding),
+    unresolved_edge_files: S.Finite,
+    unresolved_callee_sites: S.Finite,
+  },
+  $I.annote("FallowSecurityRawReport", {
     description: "Raw Fallow security JSON shape accepted by the P1 wrapper.",
   })
-);
-const FallowFixPreviewRawReport = S.Struct({
-  dry_run: S.Literal(true),
-  fixes: S.Array(FallowFixPreviewFinding),
-  total_fixed: S.Finite,
-  skipped: S.Finite,
-  skipped_content_changed: S.Finite,
-  skipped_low_confidence_exports: S.Finite,
-  skipped_mixed_line_endings: S.Finite,
-}).pipe(
-  $I.annoteSchema("FallowFixPreviewRawReport", {
+) {}
+class FallowFixPreviewRawReport extends S.Class<FallowFixPreviewRawReport>($I`FallowFixPreviewRawReport`)(
+  {
+    dry_run: S.Literal(true),
+    fixes: S.Array(FallowFixPreviewFinding),
+    total_fixed: S.Finite,
+    skipped: S.Finite,
+    skipped_content_changed: S.Finite,
+    skipped_low_confidence_exports: S.Finite,
+    skipped_mixed_line_endings: S.Finite,
+  },
+  $I.annote("FallowFixPreviewRawReport", {
     description: "Raw Fallow fix dry-run JSON shape accepted by the P1 wrapper.",
   })
-);
+) {}
 const decodeFallowAuditRawReportOption = S.decodeUnknownOption(FallowAuditRawReport);
 const decodeFallowDeadCodeRawReportOption = S.decodeUnknownOption(FallowDeadCodeRawReport);
 const decodeFallowDupesRawReportOption = S.decodeUnknownOption(FallowDupesRawReport);
@@ -2143,7 +2163,7 @@ const runCiContractCheck = Effect.fn("FallowQuality.runCiContractCheck")(functio
   const fallowSteps = pipe(
     fallowJob,
     O.flatMap((job) => unknownArrayProperty(job, "steps")),
-    O.getOrElse(() => A.empty<unknown>())
+    O.getOrElse(A.empty<unknown>)
   );
   const stepStringValues = (key: string): ReadonlyArray<string> =>
     pipe(
@@ -2152,7 +2172,7 @@ const runCiContractCheck = Effect.fn("FallowQuality.runCiContractCheck")(functio
         pipe(
           unknownStringProperty(step, key),
           O.match({
-            onNone: () => A.empty<string>(),
+            onNone: A.empty<string>,
             onSome: A.of,
           })
         )

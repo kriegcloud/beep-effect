@@ -10,7 +10,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, flow, MutableHashMap, Order, Path, pipe, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, Match, MutableHashMap, Order, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -920,33 +920,27 @@ export const githubCheckLanesForModeForTesting = (
       externalLanes,
       A.findFirst((lane) => lane.id === id),
       O.match({
-        onNone: () => A.empty<GithubCheckLaneSpec>(),
+        onNone: A.empty<GithubCheckLaneSpec>,
         onSome: A.of,
       })
     );
 
-  switch (mode) {
-    case "quality":
-      return [...githubCheckQualityLanes(repoRoot), ...githubCheckRepoSanityLanes(repoRoot)];
-    case "repo-sanity":
-      return githubCheckRepoSanityLanes(repoRoot);
-    case "secrets":
-      return externalLane("pre-push:secrets");
-    case "security":
-      return externalLane("pre-push:security");
-    case "sast":
-      return externalLane("pre-push:sast");
-    case "nix":
-      return externalLane("pre-push:nix");
-    case "pre-push":
-      return [
-        ...githubCheckQualityLanes(repoRoot),
-        ...githubCheckRepoSanityLanes(repoRoot),
-        ...githubCheckPrePushExternalLanes(repoRoot),
-      ];
-    case "review-fix":
-      return A.empty();
-  }
+  return pipe(
+    Match.value(mode),
+    Match.when("quality", () => [...githubCheckQualityLanes(repoRoot), ...githubCheckRepoSanityLanes(repoRoot)]),
+    Match.when("repo-sanity", () => githubCheckRepoSanityLanes(repoRoot)),
+    Match.when("secrets", () => externalLane("pre-push:secrets")),
+    Match.when("security", () => externalLane("pre-push:security")),
+    Match.when("sast", () => externalLane("pre-push:sast")),
+    Match.when("nix", () => externalLane("pre-push:nix")),
+    Match.when("pre-push", () => [
+      ...githubCheckQualityLanes(repoRoot),
+      ...githubCheckRepoSanityLanes(repoRoot),
+      ...githubCheckPrePushExternalLanes(repoRoot),
+    ]),
+    Match.when("review-fix", A.empty<GithubCheckLaneSpec>),
+    Match.exhaustive
+  );
 };
 
 /**

@@ -391,7 +391,7 @@ const envelopePaths = Effect.fn("YeetFallowFeedback.envelopePaths")(function* (
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const absoluteFromPath = yield* resolveRepoPath(fromPath);
-  const entries = yield* fs.readDirectory(absoluteFromPath).pipe(Effect.orElseSucceed(() => A.empty<string>()));
+  const entries = yield* fs.readDirectory(absoluteFromPath).pipe(Effect.orElseSucceed(A.empty<string>));
   return pipe(
     entries,
     A.filter((entry) => A.contains(fallowEnvelopeFileNames, entry)),

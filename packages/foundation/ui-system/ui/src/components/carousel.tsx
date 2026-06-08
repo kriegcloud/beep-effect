@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@beep/ui/components/button";
-import { make as makeScopedAtom, useAtom, useAtomMount } from "@effect/atom-react";
+import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { Atom } from "effect/unstable/reactivity";
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
@@ -51,10 +51,52 @@ type CarouselState = {
   readonly canScrollPrev: boolean;
 };
 
-const CarouselStateScope = makeScopedAtom(() =>
-  Atom.make<CarouselState>({
-    canScrollNext: false,
-    canScrollPrev: false,
+const readCarouselState = (api: CarouselApi): CarouselState =>
+  api === undefined
+    ? { canScrollNext: false, canScrollPrev: false }
+    : { canScrollNext: api.canScrollNext(), canScrollPrev: api.canScrollPrev() };
+
+const carouselStateAtom = Atom.family((_scope: string) =>
+  Atom.make<CarouselState>({ canScrollNext: false, canScrollPrev: false })
+);
+
+const carouselApiAtom = Atom.family((_scope: string) => Atom.make<CarouselApi>(undefined));
+
+const carouselSetApiAtom = Atom.family((_scope: string) => Atom.make<CarouselProps["setApi"]>(undefined));
+
+// Stable per-instance side-effect atom: subscribes to the embla `api` and wires
+// the select/reInit listeners exactly once per `api` change, restoring the prior
+// `[api]` dependency semantics without recreating an atom on every render.
+const carouselEffectAtom = Atom.family((scope: string) =>
+  Atom.make((get) => {
+    const stateAtom = carouselStateAtom(scope);
+    let detach: (() => void) | undefined;
+
+    get.subscribe(
+      carouselApiAtom(scope),
+      (current) => {
+        detach?.();
+        detach = undefined;
+
+        if (current === undefined) {
+          return;
+        }
+
+        get.set(stateAtom, readCarouselState(current));
+        get.once(carouselSetApiAtom(scope))?.(current);
+
+        const onSelect = () => get.set(stateAtom, readCarouselState(current));
+        current.on("reInit", onSelect);
+        current.on("select", onSelect);
+        detach = () => {
+          current.off("select", onSelect);
+          current.off("reInit", onSelect);
+        };
+      },
+      { immediate: true }
+    );
+
+    get.addFinalizer(() => detach?.());
   })
 );
 
@@ -89,15 +131,7 @@ function useCarousel() {
  * @category components
  * @since 0.0.0
  */
-function Carousel({ ...props }: React.ComponentProps<"div"> & CarouselProps) {
-  return (
-    <CarouselStateScope.Provider>
-      <CarouselInner {...props} />
-    </CarouselStateScope.Provider>
-  );
-}
-
-function CarouselInner({
+function Carousel({
   orientation = "horizontal",
   opts,
   setApi,
@@ -106,7 +140,10 @@ function CarouselInner({
   children,
   ...props
 }: React.ComponentProps<"div"> & CarouselProps) {
-  const [carouselState, setCarouselState] = useAtom(CarouselStateScope.use());
+  const scope = React.useId();
+  const carouselState = useAtomValue(carouselStateAtom(scope));
+  const pushApi = useAtomSet(carouselApiAtom(scope));
+  const pushSetApi = useAtomSet(carouselSetApiAtom(scope));
   const [carouselRef, api] = useEmblaCarousel(
     {
       ...opts,
@@ -115,13 +152,13 @@ function CarouselInner({
     plugins
   );
 
-  const onSelect = (api: CarouselApi) => {
-    if (api === undefined) return;
-    setCarouselState({
-      canScrollNext: api.canScrollNext(),
-      canScrollPrev: api.canScrollPrev(),
-    });
-  };
+  // Bridge render values into the per-instance atoms. Embla keeps a stable
+  // `api` reference across renders, so these writes are idempotent (the
+  // registry dedupes equal writes via `Object.is`) and never re-render in a
+  // loop. The stable `carouselEffectAtom` subscribes to `api` and wires the
+  // select/reInit listeners exactly once per `api` change.
+  pushSetApi(setApi);
+  pushApi(api);
 
   const scrollPrev = () => api?.scrollPrev();
 
@@ -137,26 +174,7 @@ function CarouselInner({
     }
   };
 
-  useAtomMount(
-    Atom.make(() => {
-      if (api === undefined || setApi === undefined) return;
-      setApi(api);
-    })
-  );
-
-  useAtomMount(
-    Atom.make((get) => {
-      if (api === undefined) return;
-      onSelect(api);
-      api.on("reInit", onSelect);
-      api.on("select", onSelect);
-
-      get.addFinalizer(() => {
-        api?.off("select", onSelect);
-        api?.off("reInit", onSelect);
-      });
-    })
-  );
+  useAtomMount(carouselEffectAtom(scope));
 
   return (
     <CarouselContext.Provider

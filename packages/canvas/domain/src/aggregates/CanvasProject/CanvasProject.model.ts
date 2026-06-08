@@ -53,6 +53,19 @@ export class CanvasNode extends S.Class<CanvasNode>($I`CanvasNode`)(
   })
 ) {}
 
+/**
+ * Open scene container aggregate for the bootstrap canvas slice.
+ *
+ * @example
+ * ```ts
+ * import { OpenCanvasProject } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(OpenCanvasProject)
+ * ```
+ *
+ * @category aggregates
+ * @since 0.0.0
+ */
 export class OpenCanvasProject extends S.Class<OpenCanvasProject>($I`OpenCanvasProject`)(
   {
     id: CanvasProjectId,
@@ -66,6 +79,19 @@ export class OpenCanvasProject extends S.Class<OpenCanvasProject>($I`OpenCanvasP
   })
 ) {}
 
+/**
+ * Archived scene container aggregate for the bootstrap canvas slice.
+ *
+ * @example
+ * ```ts
+ * import { ArchivedCanvasProject } from "@beep/canvas-domain/aggregates/CanvasProject"
+ *
+ * console.log(ArchivedCanvasProject)
+ * ```
+ *
+ * @category aggregates
+ * @since 0.0.0
+ */
 export class ArchivedCanvasProject extends S.Class<ArchivedCanvasProject>($I`ArchivedCanvasProject`)(
   {
     id: CanvasProjectId,
