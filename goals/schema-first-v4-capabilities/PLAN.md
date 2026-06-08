@@ -89,15 +89,20 @@ remediation, and package routing. See `reviews/p2-enforcement-slice.md`.
 
 ## P3 Helper And Example Library
 
-Status: planned.
+Status: in progress. The first internal diagnostics helper pilot is complete
+for repo-cli laws tooling; public `@beep/schema` helper extraction is deferred
+until multiple packages need the same surface. See
+`reviews/p3-schema-diagnostics-helper-pilot.md`.
 
 - [ ] Evaluate a small `@beep/schema` law-test helper for
       arbitrary/equivalence/codecs.
 - [ ] Evaluate helper statics for `S.Class` schemas if the pattern repeats.
-- [ ] Add reusable diagnostics formatting around
-      `SchemaIssue.makeFormatterStandardSchemaV1`.
-- [ ] Ensure diagnostics helpers format `SchemaError.issue` and handle redacted
-      values before formatting.
+- [x] Add reusable diagnostics formatting around
+      `SchemaIssue.makeFormatterStandardSchemaV1` for the first internal
+      laws-tooling call site.
+- [x] Ensure diagnostics helpers format `SchemaError.issue` and handle redacted
+      values before formatting, using public formatter hooks while
+      `SchemaIssue.redact` is not exposed by installed package typings.
 - [ ] Keep helpers thin; prefer upstream `effect/Schema` directly where clear.
 
 ## P4 Ordered Remediation Waves

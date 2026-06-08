@@ -61,6 +61,7 @@
     "goals/schema-first-v4-capabilities/reviews/p4-email-string-precision-pilot.md",
     "goals/schema-first-v4-capabilities/reviews/p4-precision-exception-counting.md",
     "goals/schema-first-v4-capabilities/reviews/p4-oip-class-local-statics-pilot.md",
+    "goals/schema-first-v4-capabilities/reviews/p3-schema-diagnostics-helper-pilot.md",
     "standards/schema-first.inventory.jsonc",
     "standards/repo-exports.catalog.jsonc",
     "standards/repo-exports.catalog.md",
@@ -108,6 +109,10 @@
     "packages/tooling/library/repo-utils/test/schemas/PackageJson.test.ts",
     "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
     "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
+    "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
+    "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+    "packages/tooling/tool/cli/src/test/Laws.test-kit.ts",
+    "packages/tooling/tool/cli/test/allowlist-check.test.ts",
     "packages/tooling/tool/cli/test/lint-command.test.ts",
     "packages/tooling/tool/cli/test/yeet.test.ts",
     "scratchpad/index.ts",
@@ -156,7 +161,7 @@
     {
       "id": "P3",
       "name": "Helper and example library",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P4",
@@ -179,6 +184,9 @@
     "cd apps/oip-web && bun run check",
     "cd apps/oip-web && bun run test",
     "cd apps/oip-web && bun run lint",
+    "bunx --bun vitest run packages/tooling/tool/cli/test/allowlist-check.test.ts",
+    "cd packages/tooling/tool/cli && bun run check",
+    "cd packages/tooling/tool/cli && bun run lint",
     "bun run beep yeet verify --plan --json",
     "bun run beep yeet verify --tier review-fix --plan --json",
     "git diff --check -- goals/schema-first-v4-capabilities scratchpad standards .claude package.json bun.lock packages/tooling/tool/cli packages/drivers/runpod packages/drivers/libpff packages/drivers/tika packages/drivers/venice-ai packages/drivers/acp packages/architecture-lab/server packages/shared/ui packages/foundation/capability/md packages/foundation/capability/file-processing packages/foundation/capability/nlp packages/foundation/capability/semantic-web packages/foundation/ui-system/form packages/drivers/hubspot packages/foundation/modeling/schema packages/shared/domain packages/tooling/policy-pack/repo-configs apps/oip-web packages/agent-capability/use-cases packages/tooling/library/repo-utils"

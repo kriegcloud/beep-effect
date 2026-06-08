@@ -102,7 +102,12 @@ equivalence advisories after `LocalDate.equals` / `Timestamp.equals` were moved 
 `S.toEquivalence`, zero active precision-audit advisories after the two
 remaining broad email fields were reviewed as raw-input/diagnostic exceptions,
 zero arbitrary-test migration advisories, and zero
-defaults/numeric/static-api advisories. P4 has started with low-risk Sha256,
+defaults/numeric/static-api advisories. P3 has started with an internal
+repo-cli laws helper that formats `SchemaError.issue` through
+`SchemaIssue.makeFormatterStandardSchemaV1(...)` and provides redacted
+diagnostic output through public formatter hooks while avoiding a premature
+public `@beep/schema` export.
+P4 has started with low-risk Sha256,
 Markdown, secure-header
 option, CSV, repo-configs route-predicate, LocalDate codec, and Organization
 value-schema, identity-id, and EntityKernel property-test pilots: `Sha256Hex`

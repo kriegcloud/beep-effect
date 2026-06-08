@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f0c5f1feaa352e39f34c943baa7b428c557427c9c487971a0741b15ff6fb24bf",
+    "digest": "105d312e26c3f84d39a09b9de9ff2206bd4d0a71e0b258de4d1ce14bf400ec98",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -322,8 +322,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sha256": "ee44317e156458f72c63c8704e675c3eee0c74c2264600ab559ff5c0f4d9b2f2",
-        "bytes": 11629
+        "sha256": "336de81bcfe17903edf4f25c2acd388d3d64eddbb7942cf7d8a5eb0d1322f774",
+        "bytes": 11245
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
@@ -359,6 +359,11 @@
         "path": "packages/tooling/tool/cli/src/commands/Laws/NoNativeRuntime.ts",
         "sha256": "6656499ef466e2344045ebf5da4685422a45a6060bb6adc9d3de7028659a70fb",
         "bytes": 21052
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "sha256": "5a88ad1b27cbbee62e5010589f229b89696e6d0d39d6f822bcbf38bc6a4a30d8",
+        "bytes": 2431
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts",
@@ -742,8 +747,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Laws.test-kit.ts",
-        "sha256": "e0a2088b2919aaf9ec32ec2144a28f1902e94bc06fbceec3f195dc23d72a0ebb",
-        "bytes": 497
+        "sha256": "df1d24284805139fbdc0591072618d432f1691edba99e82e33e783112eb21000",
+        "bytes": 561
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
@@ -856,6 +861,7 @@
       "@beep/repo-cli/commands/Laws/Laws.command",
       "@beep/repo-cli/commands/Laws/Laws.errors",
       "@beep/repo-cli/commands/Laws/NoNativeRuntime",
+      "@beep/repo-cli/commands/Laws/SchemaDiagnostics",
       "@beep/repo-cli/commands/Laws/TerseEffect",
       "@beep/repo-cli/commands/Lint",
       "@beep/repo-cli/commands/Lint/index",
@@ -927,9 +933,9 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1822,
-      "uniqueSymbols": 675,
-      "sourceFiles": 146
+      "publicExportEntries": 1826,
+      "uniqueSymbols": 677,
+      "sourceFiles": 147
     },
     "exports": [
       {
@@ -25695,7 +25701,7 @@
         "symbolName": "ALLOWLIST_PATH",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 35,
+        "sourceLine": 36,
         "summary": "Relative path to the effect laws allowlist.",
         "categories": [
           "utilities"
@@ -25720,7 +25726,7 @@
         "symbolName": "AllowlistCheckOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 119,
+        "sourceLine": 120,
         "summary": "Runtime options for allowlist integrity checks.",
         "categories": [
           "models"
@@ -25745,7 +25751,7 @@
         "symbolName": "AllowlistCheckSummary",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 138,
+        "sourceLine": 139,
         "summary": "Result of an allowlist integrity check.",
         "categories": [
           "models"
@@ -25770,7 +25776,7 @@
         "symbolName": "reportAllowlistCheckSummary",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 365,
+        "sourceLine": 353,
         "summary": "Print allowlist integrity diagnostics to the console.",
         "categories": [
           "utilities"
@@ -25795,7 +25801,7 @@
         "symbolName": "runAllowlistCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 297,
+        "sourceLine": 285,
         "summary": "Run the effect laws allowlist integrity check.",
         "categories": [
           "utilities"
@@ -26512,6 +26518,56 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/laws/nonativeruntime ./commands/laws/nonativeruntime runnonativeruntimerules const run repo-local native runtime checks. utilities packages/tooling/tool/cli/src/commands/laws/nonativeruntime.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Laws/SchemaDiagnostics",
+        "exportSubpath": "./commands/Laws/SchemaDiagnostics",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "symbolName": "formatRedactedSchemaDiagnostics",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "sourceLine": 66,
+        "summary": "Format a schema issue or schema error after redacting actual values.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/laws/schemadiagnostics ./commands/laws/schemadiagnostics formatredactedschemadiagnostics const format a schema issue or schema error after redacting actual values. utilities packages/tooling/tool/cli/src/commands/laws/schemadiagnostics.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Laws/SchemaDiagnostics",
+        "exportSubpath": "./commands/Laws/SchemaDiagnostics",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "symbolName": "formatSchemaDiagnostics",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "sourceLine": 50,
+        "summary": "Format a schema issue or schema error as path-prefixed Standard Schema V1 diagnostics.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/laws/schemadiagnostics ./commands/laws/schemadiagnostics formatschemadiagnostics const format a schema issue or schema error as path-prefixed standard schema v1 diagnostics. utilities packages/tooling/tool/cli/src/commands/laws/schemadiagnostics.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -39865,7 +39921,7 @@
         "symbolName": "ALLOWLIST_PATH",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 35,
+        "sourceLine": 36,
         "summary": "Relative path to the effect laws allowlist.",
         "categories": [
           "utilities"
@@ -39890,7 +39946,7 @@
         "symbolName": "AllowlistCheckOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 119,
+        "sourceLine": 120,
         "summary": "Runtime options for allowlist integrity checks.",
         "categories": [
           "models"
@@ -39915,7 +39971,7 @@
         "symbolName": "AllowlistCheckSummary",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 138,
+        "sourceLine": 139,
         "summary": "Result of an allowlist integrity check.",
         "categories": [
           "models"
@@ -40212,6 +40268,56 @@
         "importSpecifier": "@beep/repo-cli/test/Laws",
         "exportSubpath": "./test/Laws",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Laws.test-kit.ts",
+        "symbolName": "formatRedactedSchemaDiagnostics",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "sourceLine": 66,
+        "summary": "Format a schema issue or schema error after redacting actual values.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/laws ./test/laws formatredactedschemadiagnostics const format a schema issue or schema error after redacting actual values. utilities packages/tooling/tool/cli/src/commands/laws/schemadiagnostics.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Laws",
+        "exportSubpath": "./test/Laws",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Laws.test-kit.ts",
+        "symbolName": "formatSchemaDiagnostics",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "sourceLine": 50,
+        "summary": "Format a schema issue or schema error as path-prefixed Standard Schema V1 diagnostics.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/laws ./test/laws formatschemadiagnostics const format a schema issue or schema error as path-prefixed standard schema v1 diagnostics. utilities packages/tooling/tool/cli/src/commands/laws/schemadiagnostics.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Laws",
+        "exportSubpath": "./test/Laws",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Laws.test-kit.ts",
         "symbolName": "lawsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts",
@@ -40390,7 +40496,7 @@
         "symbolName": "reportAllowlistCheckSummary",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 365,
+        "sourceLine": 353,
         "summary": "Print allowlist integrity diagnostics to the console.",
         "categories": [
           "utilities"
@@ -40415,7 +40521,7 @@
         "symbolName": "runAllowlistCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 297,
+        "sourceLine": 285,
         "summary": "Run the effect laws allowlist integrity check.",
         "categories": [
           "utilities"
