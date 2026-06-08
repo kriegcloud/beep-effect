@@ -21,6 +21,29 @@ export const VERSION = "0.0.0" as const;
  */
 export { Ontology } from "./create.ts";
 /**
+ * OntoUML cardinality value model.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export {
+  CARDINALITY_MAX,
+  CARDINALITY_MAX_AS_NUMBER,
+  CARDINALITY_SEPARATOR,
+  Cardinality,
+  CardinalityPresetValue,
+  CardinalityValue,
+  CardinalityValues,
+  isCardinalityValue,
+} from "./domain/Cardinality/Cardinality.model.ts";
+/**
+ * OntoUML JSON Schema domain models.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./domain/Ontouml/Ontouml.model.ts";
+/**
  * Annotation display-map readers and draft guards.
  *
  * @category utilities

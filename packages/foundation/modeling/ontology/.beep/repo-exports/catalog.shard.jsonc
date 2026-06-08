@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "22c7d144ee63c0cfe33619d403c3bf2775c2c75df431c1c8e2bb17481cdcbc9c",
+    "digest": "0ba4d687d4c21df38f04a7773c5e54cfea55fdbd1aa2fae8a185d9795494e548",
     "inputs": [
       {
         "path": "packages/foundation/modeling/ontology/package.json",
@@ -36,9 +36,24 @@
         "bytes": 4693
       },
       {
+        "path": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sha256": "cd00f67f4414f952c398034aa110c0e4b91d0deeee6ee51a8a89a5c609ff42c1",
+        "bytes": 16721
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sha256": "2ec88c3448dfe18c9a475e7792db7139eeff8e49faa860d2f1556c3cc1eae787",
+        "bytes": 44831
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/Identity/Identity.model.ts",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
         "path": "packages/foundation/modeling/ontology/src/index.ts",
-        "sha256": "86b55cd403a27b43b8313f0f902ac1a64f7843fabf554681c19c365fd18a09c1",
-        "bytes": 1126
+        "sha256": "e6315ddf4f153d8284d899c679e41e027a6d06a32b348c669fc190e06568c20a",
+        "bytes": 1583
       },
       {
         "path": "packages/foundation/modeling/ontology/src/model.ts",
@@ -96,11 +111,236 @@
       "@beep/ontology"
     ],
     "counts": {
-      "publicExportEntries": 12,
-      "uniqueSymbols": 12,
-      "sourceFiles": 9
+      "publicExportEntries": 102,
+      "uniqueSymbols": 67,
+      "sourceFiles": 12
     },
     "exports": [
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "Cardinality",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sourceLine": 347,
+        "summary": "Schema-backed OntoUML cardinality value object.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . cardinality class schema-backed ontouml cardinality value object. models packages/foundation/modeling/ontology/src/domain/cardinality/cardinality.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "CARDINALITY_MAX",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sourceLine": 47,
+        "summary": "OntoUML unbounded upper-bound marker.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . cardinality_max const ontouml unbounded upper-bound marker. constants packages/foundation/modeling/ontology/src/domain/cardinality/cardinality.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "CARDINALITY_MAX_AS_NUMBER",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sourceLine": 62,
+        "summary": "Numeric representation for the unbounded upper-bound marker.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . cardinality_max_as_number const numeric representation for the unbounded upper-bound marker. constants packages/foundation/modeling/ontology/src/domain/cardinality/cardinality.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "CARDINALITY_SEPARATOR",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sourceLine": 32,
+        "summary": "Separates lower and upper bounds in an OntoUML cardinality string.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . cardinality_separator const separates lower and upper bounds in an ontouml cardinality string. constants packages/foundation/modeling/ontology/src/domain/cardinality/cardinality.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "CardinalityPresetValue",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sourceLine": 99,
+        "summary": "Built-in OntoUML cardinality shortcuts.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . cardinalitypresetvalue const built-in ontouml cardinality shortcuts. schemas packages/foundation/modeling/ontology/src/domain/cardinality/cardinality.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "CardinalityPresetValue",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sourceLine": 126,
+        "summary": "Runtime type for {@link CardinalityPresetValue}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . cardinalitypresetvalue type runtime type for {@link cardinalitypresetvalue}. models packages/foundation/modeling/ontology/src/domain/cardinality/cardinality.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "CardinalityValue",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sourceLine": 222,
+        "summary": "Valid OntoUML cardinality string.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . cardinalityvalue const valid ontouml cardinality string. schemas packages/foundation/modeling/ontology/src/domain/cardinality/cardinality.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "CardinalityValue",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sourceLine": 256,
+        "summary": "Runtime type for {@link CardinalityValue}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . cardinalityvalue type runtime type for {@link cardinalityvalue}. models packages/foundation/modeling/ontology/src/domain/cardinality/cardinality.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "CardinalityValues",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sourceLine": 77,
+        "summary": "Named OntoUML cardinality values.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . cardinalityvalues const named ontouml cardinality values. constants packages/foundation/modeling/ontology/src/domain/cardinality/cardinality.model.ts"
+      },
       {
         "packageName": "@beep/ontology",
         "packagePath": "packages/foundation/modeling/ontology",
@@ -156,6 +396,31 @@
         "importSpecifier": "@beep/ontology",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "isCardinalityValue",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts",
+        "sourceLine": 271,
+        "summary": "Guard for {@link CardinalityValue}.",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . iscardinalityvalue const guard for {@link cardinalityvalue}. guards packages/foundation/modeling/ontology/src/domain/cardinality/cardinality.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
         "symbolName": "isOntologyClassAnnotationDraft",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/ontology/src/model.ts",
@@ -182,6 +447,31 @@
         "since": [],
         "tags": [],
         "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . isontologypredicateannotationdraft const packages/foundation/modeling/ontology/src/model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "isOntoumlProject",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1867,
+        "summary": "Guard for OntoUML projects.",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . isontoumlproject const guard for ontouml projects. guards packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
       },
       {
         "packageName": "@beep/ontology",
@@ -223,6 +513,1981 @@
         "since": [],
         "tags": [],
         "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontologyassemblyerror class packages/foundation/modeling/ontology/src/model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlAggregationKind",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 436,
+        "summary": "OntoUML property aggregation kind literals.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlaggregationkind const ontouml property aggregation kind literals. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlAggregationKind",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 456,
+        "summary": "Runtime type for {@link OntoumlAggregationKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlaggregationkind type runtime type for {@link ontoumlaggregationkind}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlBackground",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 786,
+        "summary": "Nullable OntoUML background style.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlbackground const nullable ontouml background style. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlBackground",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 806,
+        "summary": "Runtime type for {@link OntoumlBackground}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlbackground type runtime type for {@link ontoumlbackground}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlBackgroundObject",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 762,
+        "summary": "Non-null OntoUML background style.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlbackgroundobject class non-null ontouml background style. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlClass",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1347,
+        "summary": "OntoUML class model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlclass class ontouml class model. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlColor",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 584,
+        "summary": "OntoUML color field.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlcolor const ontouml color field. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlColor",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 604,
+        "summary": "Runtime type for {@link OntoumlColor}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlcolor type runtime type for {@link ontoumlcolor}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDescription",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 330,
+        "summary": "OntoUML description field.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldescription const ontouml description field. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDescription",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 350,
+        "summary": "Runtime type for {@link OntoumlDescription}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldescription type runtime type for {@link ontoumldescription}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDiagram",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1767,
+        "summary": "OntoUML diagram model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldiagram class ontouml diagram model. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDiagramContents",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1723,
+        "summary": "Nullable non-empty unique diagram contents.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldiagramcontents const nullable non-empty unique diagram contents. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDiagramContents",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1751,
+        "summary": "Runtime type for {@link OntoumlDiagramContents}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldiagramcontents type runtime type for {@link ontoumldiagramcontents}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDiagramElement",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1652,
+        "summary": "OntoUML diagram element model.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldiagramelement const ontouml diagram element model. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDiagramElement",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1707,
+        "summary": "Runtime type for {@link OntoumlDiagramElement}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldiagramelement type runtime type for {@link ontoumldiagramelement}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDiagramElementType",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 401,
+        "summary": "Diagram element type literals.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldiagramelementtype const diagram element type literals. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDiagramElementType",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 421,
+        "summary": "Runtime type for {@link OntoumlDiagramElementType}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldiagramelementtype type runtime type for {@link ontoumldiagramelementtype}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDiagrams",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1795,
+        "summary": "Nullable non-empty array of OntoUML diagrams.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldiagrams const nullable non-empty array of ontouml diagrams. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlDiagrams",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1817,
+        "summary": "Runtime type for {@link OntoumlDiagrams}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumldiagrams type runtime type for {@link ontoumldiagrams}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlFont",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 909,
+        "summary": "Nullable OntoUML font style.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlfont const nullable ontouml font style. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlFont",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 929,
+        "summary": "Runtime type for {@link OntoumlFont}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlfont type runtime type for {@link ontoumlfont}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlFontObject",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 884,
+        "summary": "Non-null OntoUML font style.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlfontobject class non-null ontouml font style. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlGeneralization",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1432,
+        "summary": "OntoUML generalization model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlgeneralization class ontouml generalization model. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlGeneralizationReferences",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1461,
+        "summary": "Nullable non-empty generalization reference list.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlgeneralizationreferences const nullable non-empty generalization reference list. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlGeneralizationReferences",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1483,
+        "summary": "Runtime type for {@link OntoumlGeneralizationReferences}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlgeneralizationreferences type runtime type for {@link ontoumlgeneralizationreferences}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlGeneralizationSet",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1509,
+        "summary": "OntoUML generalization set model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlgeneralizationset class ontouml generalization set model. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 70,
+        "summary": "Non-empty OntoUML element identifier.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlid const non-empty ontouml element identifier. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlId",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 90,
+        "summary": "Runtime type for {@link OntoumlId}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlid type runtime type for {@link ontoumlid}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlLanguageStringMap",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 214,
+        "summary": "Non-empty language map branch for multilingual OntoUML strings.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumllanguagestringmap const non-empty language map branch for multilingual ontouml strings. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlLanguageStringMap",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 242,
+        "summary": "Runtime type for {@link OntoumlLanguageStringMap}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumllanguagestringmap type runtime type for {@link ontoumllanguagestringmap}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlLine",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 848,
+        "summary": "Nullable OntoUML line style object.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlline const nullable ontouml line style object. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlLine",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 868,
+        "summary": "Runtime type for {@link OntoumlLine}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlline type runtime type for {@link ontoumlline}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlLineObject",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 822,
+        "summary": "Non-null OntoUML line style object.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumllineobject class non-null ontouml line style object. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlLineStyle",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 620,
+        "summary": "OntoUML diagram line style field.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumllinestyle const ontouml diagram line style field. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlLineStyle",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 640,
+        "summary": "Runtime type for {@link OntoumlLineStyle}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumllinestyle type runtime type for {@link ontoumllinestyle}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlLiteral",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1186,
+        "summary": "OntoUML literal model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlliteral class ontouml literal model. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlLiterals",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1106,
+        "summary": "Nullable non-empty array of OntoUML literals.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlliterals const nullable non-empty array of ontouml literals. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlLiterals",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1126,
+        "summary": "Runtime type for {@link OntoumlLiterals}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlliterals type runtime type for {@link ontoumlliterals}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlMultilingualString",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 258,
+        "summary": "Nullable string or language map used for OntoUML names and descriptions.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlmultilingualstring const nullable string or language map used for ontouml names and descriptions. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlMultilingualString",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 278,
+        "summary": "Runtime type for {@link OntoumlMultilingualString}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlmultilingualstring type runtime type for {@link ontoumlmultilingualstring}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlName",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 294,
+        "summary": "OntoUML name field.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlname const ontouml name field. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlName",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 314,
+        "summary": "Runtime type for {@link OntoumlName}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlname type runtime type for {@link ontoumlname}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlNullableBoolean",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 178,
+        "summary": "Nullable boolean from the OntoUML JSON schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlnullableboolean const nullable boolean from the ontouml json schema. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlNullableBoolean",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 198,
+        "summary": "Runtime type for {@link OntoumlNullableBoolean}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlnullableboolean type runtime type for {@link ontoumlnullableboolean}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlNullableNumber",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 142,
+        "summary": "Nullable finite number from the OntoUML JSON schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlnullablenumber const nullable finite number from the ontouml json schema. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlNullableNumber",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 162,
+        "summary": "Runtime type for {@link OntoumlNullableNumber}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlnullablenumber type runtime type for {@link ontoumlnullablenumber}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlNullableString",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 106,
+        "summary": "Nullable non-empty string from the OntoUML JSON schema.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlnullablestring const nullable non-empty string from the ontouml json schema. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlNullableString",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 126,
+        "summary": "Runtime type for {@link OntoumlNullableString}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlnullablestring type runtime type for {@link ontoumlnullablestring}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPackage",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1282,
+        "summary": "OntoUML package model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpackage const ontouml package model. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPackage",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1316,
+        "summary": "Runtime type for {@link OntoumlPackage}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpackage type runtime type for {@link ontoumlpackage}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPackageContent",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1540,
+        "summary": "OntoUML package content union.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpackagecontent const ontouml package content union. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPackageContent",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1566,
+        "summary": "Runtime type for {@link OntoumlPackageContent}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpackagecontent type runtime type for {@link ontoumlpackagecontent}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPackageContents",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1582,
+        "summary": "Nullable non-empty unique package contents.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpackagecontents const nullable non-empty unique package contents. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPackageContents",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1611,
+        "summary": "Runtime type for {@link OntoumlPackageContents}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpackagecontents type runtime type for {@link ontoumlpackagecontents}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPoint",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 656,
+        "summary": "OntoUML diagram point.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpoint class ontouml diagram point. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPoints",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 680,
+        "summary": "Nullable non-empty array of OntoUML diagram points.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpoints const nullable non-empty array of ontouml diagram points. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPoints",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 702,
+        "summary": "Runtime type for {@link OntoumlPoints}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpoints type runtime type for {@link ontoumlpoints}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlProject",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1840,
+        "summary": "OntoUML project model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlproject class ontouml project model. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlProperties",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1070,
+        "summary": "Nullable non-empty OntoUML property list.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlproperties const nullable non-empty ontouml property list. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlProperties",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1090,
+        "summary": "Runtime type for {@link OntoumlProperties}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlproperties type runtime type for {@link ontoumlproperties}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlProperty",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1228,
+        "summary": "OntoUML property model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlproperty class ontouml property model. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPropertyAssignmentArray",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 984,
+        "summary": "OntoUML property assignment array value.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpropertyassignmentarray const ontouml property assignment array value. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPropertyAssignmentArray",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1014,
+        "summary": "Runtime type for {@link OntoumlPropertyAssignmentArray}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpropertyassignmentarray type runtime type for {@link ontoumlpropertyassignmentarray}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPropertyAssignments",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 945,
+        "summary": "OntoUML model element property assignments.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpropertyassignments const ontouml model element property assignments. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPropertyAssignments",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 968,
+        "summary": "Runtime type for {@link OntoumlPropertyAssignments}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpropertyassignments type runtime type for {@link ontoumlpropertyassignments}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPropertyAssignmentValue",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1030,
+        "summary": "OntoUML property assignment value.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpropertyassignmentvalue const ontouml property assignment value. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlPropertyAssignmentValue",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1054,
+        "summary": "Runtime type for {@link OntoumlPropertyAssignmentValue}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlpropertyassignmentvalue type runtime type for {@link ontoumlpropertyassignmentvalue}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlReference",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 540,
+        "summary": "Nullable OntoUML reference definition.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlreference const nullable ontouml reference definition. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlReference",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 560,
+        "summary": "Runtime type for {@link OntoumlReference}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlreference type runtime type for {@link ontoumlreference}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlReferenceObject",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 516,
+        "summary": "Non-null OntoUML reference object.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlreferenceobject class non-null ontouml reference object. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlReferenceType",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 471,
+        "summary": "OntoUML reference target type literals.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlreferencetype const ontouml reference target type literals. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlReferenceType",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 500,
+        "summary": "Runtime type for {@link OntoumlReferenceType}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlreferencetype type runtime type for {@link ontoumlreferencetype}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlRelation",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1393,
+        "summary": "OntoUML relation model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlrelation class ontouml relation model. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlRestrictedTo",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1142,
+        "summary": "Nullable unique list of OntoUML instance natures.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlrestrictedto const nullable unique list of ontouml instance natures. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlRestrictedTo",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 1170,
+        "summary": "Runtime type for {@link OntoumlRestrictedTo}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlrestrictedto type runtime type for {@link ontoumlrestrictedto}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlStereotype",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 366,
+        "summary": "OntoUML stereotype field.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlstereotype const ontouml stereotype field. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlStereotype",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 386,
+        "summary": "Runtime type for {@link OntoumlStereotype}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlstereotype type runtime type for {@link ontoumlstereotype}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlVisibility",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 718,
+        "summary": "Nullable visibility flags for OntoUML diagram elements.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlvisibility const nullable visibility flags for ontouml diagram elements. schemas packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
+      },
+      {
+        "packageName": "@beep/ontology",
+        "packagePath": "packages/foundation/modeling/ontology",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/ontology",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/ontology/src/index.ts",
+        "symbolName": "OntoumlVisibility",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts",
+        "sourceLine": 746,
+        "summary": "Runtime type for {@link OntoumlVisibility}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/ontology packages/foundation/modeling/ontology @beep/ontology . ontoumlvisibility type runtime type for {@link ontoumlvisibility}. models packages/foundation/modeling/ontology/src/domain/ontouml/ontouml.model.ts"
       },
       {
         "packageName": "@beep/ontology",

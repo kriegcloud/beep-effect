@@ -21,8 +21,8 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | packagesWithoutPublicExports | 6 |
 | missingWorkspaceMetadata | 4 |
 | importSpecifiers | 1079 |
-| publicExportEntries | 15197 |
-| uniquePackageSymbols | 6565 |
+| publicExportEntries | 15287 |
+| uniquePackageSymbols | 6620 |
 
 ## Seed Discovery Proof
 
@@ -42,7 +42,7 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 | 3 | `dependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
 | 4 | `optionalDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 |
 | 5 | `@beep/hubspot` | `packages/drivers/hubspot` | has-public-exports | 5 | 48 | 15 |
-| 6 | `@beep/ontology` | `packages/foundation/modeling/ontology` | has-public-exports | 1 | 12 | 12 |
+| 6 | `@beep/ontology` | `packages/foundation/modeling/ontology` | has-public-exports | 1 | 102 | 67 |
 | 7 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | has-public-exports | 2 | 6 | 5 |
 | 8 | `@beep/root` | `.` | no-public-exports | 0 | 0 | 0 |
 | 9 | `@beep/canvas-domain` | `packages/canvas/domain` | has-public-exports | 5 | 35 | 24 |
@@ -189,12 +189,102 @@ The package universe is the current `bun run topo-sort` output. This catalog exi
 
 | Import | Symbol | Kind | Source | Summary |
 |---|---|---|---|---|
+| `@beep/ontology` | `Cardinality` | class | `packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts:347` | Schema-backed OntoUML cardinality value object. |
+| `@beep/ontology` | `CARDINALITY_MAX` | const | `packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts:47` | OntoUML unbounded upper-bound marker. |
+| `@beep/ontology` | `CARDINALITY_MAX_AS_NUMBER` | const | `packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts:62` | Numeric representation for the unbounded upper-bound marker. |
+| `@beep/ontology` | `CARDINALITY_SEPARATOR` | const | `packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts:32` | Separates lower and upper bounds in an OntoUML cardinality string. |
+| `@beep/ontology` | `CardinalityPresetValue` | const | `packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts:99` | Built-in OntoUML cardinality shortcuts. |
+| `@beep/ontology` | `CardinalityPresetValue` | type | `packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts:126` | Runtime type for {@link CardinalityPresetValue}. |
+| `@beep/ontology` | `CardinalityValue` | const | `packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts:222` | Valid OntoUML cardinality string. |
+| `@beep/ontology` | `CardinalityValue` | type | `packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts:256` | Runtime type for {@link CardinalityValue}. |
+| `@beep/ontology` | `CardinalityValues` | const | `packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts:77` | Named OntoUML cardinality values. |
 | `@beep/ontology` | `getOntologyKeyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:591` | Reads ontology metadata from a schema property-key annotation display map. |
 | `@beep/ontology` | `getOntologyMetadata` | const | `packages/foundation/modeling/ontology/src/model.ts:582` | Reads ontology metadata from an Effect Schema annotation display map. |
+| `@beep/ontology` | `isCardinalityValue` | const | `packages/foundation/modeling/ontology/src/domain/Cardinality/Cardinality.model.ts:271` | Guard for {@link CardinalityValue}. |
 | `@beep/ontology` | `isOntologyClassAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:518` |  |
 | `@beep/ontology` | `isOntologyPredicateAnnotationDraft` | const | `packages/foundation/modeling/ontology/src/model.ts:519` |  |
+| `@beep/ontology` | `isOntoumlProject` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1867` | Guard for OntoUML projects. |
 | `@beep/ontology` | `Ontology` | const | `packages/foundation/modeling/ontology/src/create.ts:52` | Creates an ontology authoring scope with identity-aware annotation helpers, |
 | `@beep/ontology` | `OntologyAssemblyError` | class | `packages/foundation/modeling/ontology/src/model.ts:610` |  |
+| `@beep/ontology` | `OntoumlAggregationKind` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:436` | OntoUML property aggregation kind literals. |
+| `@beep/ontology` | `OntoumlAggregationKind` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:456` | Runtime type for {@link OntoumlAggregationKind}. |
+| `@beep/ontology` | `OntoumlBackground` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:786` | Nullable OntoUML background style. |
+| `@beep/ontology` | `OntoumlBackground` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:806` | Runtime type for {@link OntoumlBackground}. |
+| `@beep/ontology` | `OntoumlBackgroundObject` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:762` | Non-null OntoUML background style. |
+| `@beep/ontology` | `OntoumlClass` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1347` | OntoUML class model. |
+| `@beep/ontology` | `OntoumlColor` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:584` | OntoUML color field. |
+| `@beep/ontology` | `OntoumlColor` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:604` | Runtime type for {@link OntoumlColor}. |
+| `@beep/ontology` | `OntoumlDescription` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:330` | OntoUML description field. |
+| `@beep/ontology` | `OntoumlDescription` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:350` | Runtime type for {@link OntoumlDescription}. |
+| `@beep/ontology` | `OntoumlDiagram` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1767` | OntoUML diagram model. |
+| `@beep/ontology` | `OntoumlDiagramContents` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1723` | Nullable non-empty unique diagram contents. |
+| `@beep/ontology` | `OntoumlDiagramContents` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1751` | Runtime type for {@link OntoumlDiagramContents}. |
+| `@beep/ontology` | `OntoumlDiagramElement` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1652` | OntoUML diagram element model. |
+| `@beep/ontology` | `OntoumlDiagramElement` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1707` | Runtime type for {@link OntoumlDiagramElement}. |
+| `@beep/ontology` | `OntoumlDiagramElementType` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:401` | Diagram element type literals. |
+| `@beep/ontology` | `OntoumlDiagramElementType` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:421` | Runtime type for {@link OntoumlDiagramElementType}. |
+| `@beep/ontology` | `OntoumlDiagrams` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1795` | Nullable non-empty array of OntoUML diagrams. |
+| `@beep/ontology` | `OntoumlDiagrams` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1817` | Runtime type for {@link OntoumlDiagrams}. |
+| `@beep/ontology` | `OntoumlFont` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:909` | Nullable OntoUML font style. |
+| `@beep/ontology` | `OntoumlFont` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:929` | Runtime type for {@link OntoumlFont}. |
+| `@beep/ontology` | `OntoumlFontObject` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:884` | Non-null OntoUML font style. |
+| `@beep/ontology` | `OntoumlGeneralization` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1432` | OntoUML generalization model. |
+| `@beep/ontology` | `OntoumlGeneralizationReferences` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1461` | Nullable non-empty generalization reference list. |
+| `@beep/ontology` | `OntoumlGeneralizationReferences` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1483` | Runtime type for {@link OntoumlGeneralizationReferences}. |
+| `@beep/ontology` | `OntoumlGeneralizationSet` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1509` | OntoUML generalization set model. |
+| `@beep/ontology` | `OntoumlId` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:70` | Non-empty OntoUML element identifier. |
+| `@beep/ontology` | `OntoumlId` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:90` | Runtime type for {@link OntoumlId}. |
+| `@beep/ontology` | `OntoumlLanguageStringMap` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:214` | Non-empty language map branch for multilingual OntoUML strings. |
+| `@beep/ontology` | `OntoumlLanguageStringMap` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:242` | Runtime type for {@link OntoumlLanguageStringMap}. |
+| `@beep/ontology` | `OntoumlLine` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:848` | Nullable OntoUML line style object. |
+| `@beep/ontology` | `OntoumlLine` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:868` | Runtime type for {@link OntoumlLine}. |
+| `@beep/ontology` | `OntoumlLineObject` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:822` | Non-null OntoUML line style object. |
+| `@beep/ontology` | `OntoumlLineStyle` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:620` | OntoUML diagram line style field. |
+| `@beep/ontology` | `OntoumlLineStyle` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:640` | Runtime type for {@link OntoumlLineStyle}. |
+| `@beep/ontology` | `OntoumlLiteral` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1186` | OntoUML literal model. |
+| `@beep/ontology` | `OntoumlLiterals` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1106` | Nullable non-empty array of OntoUML literals. |
+| `@beep/ontology` | `OntoumlLiterals` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1126` | Runtime type for {@link OntoumlLiterals}. |
+| `@beep/ontology` | `OntoumlMultilingualString` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:258` | Nullable string or language map used for OntoUML names and descriptions. |
+| `@beep/ontology` | `OntoumlMultilingualString` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:278` | Runtime type for {@link OntoumlMultilingualString}. |
+| `@beep/ontology` | `OntoumlName` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:294` | OntoUML name field. |
+| `@beep/ontology` | `OntoumlName` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:314` | Runtime type for {@link OntoumlName}. |
+| `@beep/ontology` | `OntoumlNullableBoolean` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:178` | Nullable boolean from the OntoUML JSON schema. |
+| `@beep/ontology` | `OntoumlNullableBoolean` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:198` | Runtime type for {@link OntoumlNullableBoolean}. |
+| `@beep/ontology` | `OntoumlNullableNumber` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:142` | Nullable finite number from the OntoUML JSON schema. |
+| `@beep/ontology` | `OntoumlNullableNumber` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:162` | Runtime type for {@link OntoumlNullableNumber}. |
+| `@beep/ontology` | `OntoumlNullableString` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:106` | Nullable non-empty string from the OntoUML JSON schema. |
+| `@beep/ontology` | `OntoumlNullableString` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:126` | Runtime type for {@link OntoumlNullableString}. |
+| `@beep/ontology` | `OntoumlPackage` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1282` | OntoUML package model. |
+| `@beep/ontology` | `OntoumlPackage` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1316` | Runtime type for {@link OntoumlPackage}. |
+| `@beep/ontology` | `OntoumlPackageContent` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1540` | OntoUML package content union. |
+| `@beep/ontology` | `OntoumlPackageContent` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1566` | Runtime type for {@link OntoumlPackageContent}. |
+| `@beep/ontology` | `OntoumlPackageContents` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1582` | Nullable non-empty unique package contents. |
+| `@beep/ontology` | `OntoumlPackageContents` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1611` | Runtime type for {@link OntoumlPackageContents}. |
+| `@beep/ontology` | `OntoumlPoint` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:656` | OntoUML diagram point. |
+| `@beep/ontology` | `OntoumlPoints` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:680` | Nullable non-empty array of OntoUML diagram points. |
+| `@beep/ontology` | `OntoumlPoints` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:702` | Runtime type for {@link OntoumlPoints}. |
+| `@beep/ontology` | `OntoumlProject` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1840` | OntoUML project model. |
+| `@beep/ontology` | `OntoumlProperties` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1070` | Nullable non-empty OntoUML property list. |
+| `@beep/ontology` | `OntoumlProperties` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1090` | Runtime type for {@link OntoumlProperties}. |
+| `@beep/ontology` | `OntoumlProperty` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1228` | OntoUML property model. |
+| `@beep/ontology` | `OntoumlPropertyAssignmentArray` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:984` | OntoUML property assignment array value. |
+| `@beep/ontology` | `OntoumlPropertyAssignmentArray` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1014` | Runtime type for {@link OntoumlPropertyAssignmentArray}. |
+| `@beep/ontology` | `OntoumlPropertyAssignments` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:945` | OntoUML model element property assignments. |
+| `@beep/ontology` | `OntoumlPropertyAssignments` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:968` | Runtime type for {@link OntoumlPropertyAssignments}. |
+| `@beep/ontology` | `OntoumlPropertyAssignmentValue` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1030` | OntoUML property assignment value. |
+| `@beep/ontology` | `OntoumlPropertyAssignmentValue` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1054` | Runtime type for {@link OntoumlPropertyAssignmentValue}. |
+| `@beep/ontology` | `OntoumlReference` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:540` | Nullable OntoUML reference definition. |
+| `@beep/ontology` | `OntoumlReference` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:560` | Runtime type for {@link OntoumlReference}. |
+| `@beep/ontology` | `OntoumlReferenceObject` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:516` | Non-null OntoUML reference object. |
+| `@beep/ontology` | `OntoumlReferenceType` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:471` | OntoUML reference target type literals. |
+| `@beep/ontology` | `OntoumlReferenceType` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:500` | Runtime type for {@link OntoumlReferenceType}. |
+| `@beep/ontology` | `OntoumlRelation` | class | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1393` | OntoUML relation model. |
+| `@beep/ontology` | `OntoumlRestrictedTo` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1142` | Nullable unique list of OntoUML instance natures. |
+| `@beep/ontology` | `OntoumlRestrictedTo` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:1170` | Runtime type for {@link OntoumlRestrictedTo}. |
+| `@beep/ontology` | `OntoumlStereotype` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:366` | OntoUML stereotype field. |
+| `@beep/ontology` | `OntoumlStereotype` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:386` | Runtime type for {@link OntoumlStereotype}. |
+| `@beep/ontology` | `OntoumlVisibility` | const | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:718` | Nullable visibility flags for OntoUML diagram elements. |
+| `@beep/ontology` | `OntoumlVisibility` | type | `packages/foundation/modeling/ontology/src/domain/Ontouml/Ontouml.model.ts:746` | Runtime type for {@link OntoumlVisibility}. |
 | `@beep/ontology` | `parseJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:487` | Parses the POC JSON-LD graph representation back into an assembled ontology result. |
 | `@beep/ontology` | `projectJsonLdContext` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:69` | Projects an assembled ontology into a reusable JSON-LD context document. |
 | `@beep/ontology` | `projectJsonLdOntology` | const | `packages/foundation/modeling/ontology/src/projections/jsonld.ts:264` | Projects an assembled ontology into the POC JSON-LD graph representation. |
