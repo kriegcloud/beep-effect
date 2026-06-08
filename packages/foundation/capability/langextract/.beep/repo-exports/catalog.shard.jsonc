@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f412461c565d2a28d25235161cf9d846684574170a215d352db024830895ec52",
+    "digest": "6dd4e9e4c37bc9e202d20dc9ddaae0c6defc61a7a131221e46b64c4259fcd3b4",
     "inputs": [
       {
         "path": "packages/foundation/capability/langextract/package.json",
@@ -27,8 +27,8 @@
       },
       {
         "path": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sha256": "9c0bfec577f294f9168e5c320da74eeeeb66ebe53e7542d0ac8b47a035b27098",
-        "bytes": 11853
+        "sha256": "b64f195364a4c77c922e8f48fb71e296e8a46c9ad3b2436fba971c682d7442a0",
+        "bytes": 12127
       },
       {
         "path": "packages/foundation/capability/langextract/src/Handoff/index.ts",
@@ -565,7 +565,7 @@
         "symbolName": "parseModelOutput",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 378,
+        "sourceLine": 377,
         "summary": "Decode a model text response into extraction candidates.",
         "categories": [
           "parsing"
@@ -864,7 +864,7 @@
         "symbolName": "parseModelOutput",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 378,
+        "sourceLine": 377,
         "summary": "Decode a model text response into extraction candidates.",
         "categories": [
           "parsing"

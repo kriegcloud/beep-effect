@@ -344,10 +344,9 @@ class ModelOutputObject extends S.Class<ModelOutputObject>($I`ModelOutputObject`
 ) {}
 
 const ModelOutput = S.Union([ModelOutputObject, S.Array(ExtractionCandidate)]);
-const decodeModelOutputJson = S.decodeUnknownEffect(S.fromJsonString(ModelOutput));
-type ParsedModelOutput =
-  | ReadonlyArray<ExtractionCandidate>
-  | { readonly extractions: ReadonlyArray<ExtractionCandidate> };
+const decodeModelOutputJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
+const decodeModelOutputPayload = S.decodeUnknownEffect(ModelOutput);
+type ParsedModelOutput = ReadonlyArray<ExtractionCandidate> | ModelOutputObject;
 const isCandidateArray = (output: ParsedModelOutput): output is ReadonlyArray<ExtractionCandidate> => A.isArray(output);
 
 const stripJsonFence = (text: string): string => {
@@ -378,7 +377,16 @@ const outputToCandidates = (output: ParsedModelOutput): ReadonlyArray<Extraction
 export const parseModelOutput = Effect.fn("LangExtract.parseModelOutput")(function* (
   text: string
 ): Effect.fn.Return<ReadonlyArray<ExtractionCandidate>, LangExtractError> {
-  const parsed = yield* decodeModelOutputJson(stripJsonFence(text)).pipe(
+  const json = yield* decodeModelOutputJson(stripJsonFence(text)).pipe(
+    Effect.mapError((error) =>
+      LangExtractError.fromReason("model-output-parse-failed", {
+        details: { cause: String(error) },
+        message: "Language model output was not valid JSON.",
+      })
+    )
+  );
+
+  const parsed = yield* decodeModelOutputPayload(json).pipe(
     Effect.mapError((error) =>
       LangExtractError.fromReason("model-output-schema-invalid", {
         details: { cause: String(error) },
@@ -387,5 +395,5 @@ export const parseModelOutput = Effect.fn("LangExtract.parseModelOutput")(functi
     )
   );
 
-  return outputToCandidates(parsed as ParsedModelOutput);
+  return outputToCandidates(parsed);
 });

@@ -35,4 +35,14 @@ describe("parseModelOutput", () => {
       expect(error.reason).toBe("model-output-schema-invalid");
     })
   );
+
+  it.effect(
+    "maps malformed JSON to a parse failure",
+    Effect.fnUntraced(function* () {
+      const error = yield* parseModelOutput(`{"extractions":[`).pipe(Effect.flip);
+
+      expect(error).toBeInstanceOf(LangExtractError);
+      expect(error.reason).toBe("model-output-parse-failed");
+    })
+  );
 });
