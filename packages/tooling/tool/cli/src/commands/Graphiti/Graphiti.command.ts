@@ -74,7 +74,9 @@ const graphitiRecoverCommand = pipe(
 
 const stackDirFlag = pipe(
   Flag.string("stack-dir"),
-  Flag.withDescription("Graphiti Compose stack directory (default: /home/elpresidank/graphiti-mcp)"),
+  Flag.withDescription(
+    "Graphiti Compose stack directory (default: $HOME/graphiti-mcp; override with GRAPHITI_STACK_DIR)"
+  ),
   Flag.optional
 );
 

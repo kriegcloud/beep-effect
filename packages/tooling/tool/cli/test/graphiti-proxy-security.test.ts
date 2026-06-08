@@ -9,7 +9,7 @@ import {
 } from "@beep/repo-cli/test/Graphiti";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
-import { Duration, Effect } from "effect";
+import { Config, Duration, Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
@@ -271,9 +271,14 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
   });
 
   it("resolves restore stack directory with CLI precedence over environment and default", () => {
+    const expectedDefault = `${pipe(
+      Effect.runSync(Config.option(Config.string("HOME"))),
+      O.getOrElse(() => process.cwd())
+    )}/graphiti-mcp`;
+
     expect(resolveGraphitiStackDirForTesting(O.some("/tmp/cli"), O.some("/tmp/env"))).toBe("/tmp/cli");
     expect(resolveGraphitiStackDirForTesting(O.none(), O.some("/tmp/env"))).toBe("/tmp/env");
-    expect(resolveGraphitiStackDirForTesting(O.none(), O.none())).toBe("/home/elpresidank/graphiti-mcp");
+    expect(resolveGraphitiStackDirForTesting(O.none(), O.none())).toBe(expectedDefault);
   });
 
   it("uses a stable timestamped backup directory name", () => {

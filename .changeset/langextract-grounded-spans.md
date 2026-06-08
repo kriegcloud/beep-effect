@@ -1,6 +1,6 @@
 ---
 "@beep/langextract": minor
-"@beep/nlp": patch
+"@beep/nlp": minor
 "@beep/identity": patch
 ---
 

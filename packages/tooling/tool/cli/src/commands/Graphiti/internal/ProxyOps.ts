@@ -37,7 +37,7 @@ type GraphitiRestoreOptions = {
   readonly stackDir?: string | undefined;
 };
 
-const DEFAULT_GRAPHITI_STACK_DIR = "/home/elpresidank/graphiti-mcp";
+const DEFAULT_GRAPHITI_STACK_DIR_NAME = "graphiti-mcp";
 const DEFAULT_GRAPHITI_PROJECT_NAME = "graphiti-mcp";
 const DEFAULT_GRAPHITI_GRAPH_NAME = "beep_dev";
 const DEFAULT_GRAPHITI_PROXY_HEALTH_URL = "http://127.0.0.1:8123/healthz";
@@ -142,6 +142,8 @@ const homeDirectory = (): string =>
     configStringOptionSync("HOME"),
     O.getOrElse(() => process.cwd())
   );
+
+const defaultGraphitiStackDir = (): string => `${homeDirectory()}/${DEFAULT_GRAPHITI_STACK_DIR_NAME}`;
 
 const envValue: {
   (name: string, fallback: string): string;
@@ -254,7 +256,7 @@ export const resolveGraphitiStackDirForTesting: {
       cliStackDir,
       O.filter(Str.isNonEmpty),
       O.orElse(() => pipe(envStackDir, O.filter(Str.isNonEmpty))),
-      O.getOrElse(() => DEFAULT_GRAPHITI_STACK_DIR)
+      O.getOrElse(defaultGraphitiStackDir)
     );
   }
 );
@@ -580,20 +582,27 @@ const waitForHealthyContainers: {
   })
 );
 
+const restoreContainerHealthStates = Effect.fn("GraphitiProxyOps.restoreContainerHealthStates")(function* (
+  repoRoot: string,
+  config: GraphitiRestoreConfig
+): Effect.fn.Return<ReadonlyArray<string>, never, ChildProcessSpawner.ChildProcessSpawner> {
+  const containers = [config.falkorContainer, config.browserContainer, config.graphitiContainer];
+  return yield* Effect.forEach(
+    containers,
+    (container) => containerHealth(repoRoot, container).pipe(Effect.map((health) => `${container}=${health}`)),
+    { concurrency: "unbounded" }
+  );
+});
+
 const waitForRestoreContainers = Effect.fn("GraphitiProxyOps.waitForRestoreContainers")(function* (
   repoRoot: string,
   config: GraphitiRestoreConfig
 ): Effect.fn.Return<void, GraphitiProxyOpsError, ChildProcessSpawner.ChildProcessSpawner> {
   const start = yield* Clock.currentTimeMillis;
   const deadline = start + config.waitSeconds * 1000;
-  const containers = [config.falkorContainer, config.browserContainer, config.graphitiContainer];
 
   while ((yield* Clock.currentTimeMillis) <= deadline) {
-    const states = yield* Effect.forEach(
-      containers,
-      (container) => containerHealth(repoRoot, container).pipe(Effect.map((health) => `${container}=${health}`)),
-      { concurrency: "unbounded" }
-    );
+    const states = yield* restoreContainerHealthStates(repoRoot, config);
     yield* Console.log(`[graphiti-restore] health ${A.join(states, " ")}`);
 
     if (A.every(states, Str.includes("=healthy"))) {
@@ -605,6 +614,23 @@ const waitForRestoreContainers = Effect.fn("GraphitiProxyOps.waitForRestoreConta
 
   return yield* GraphitiProxyOpsError.make({
     message: "Timed out waiting for Graphiti restore containers to become healthy.",
+    exitCode: 1,
+  });
+});
+
+const requireRestoreContainersHealthy = Effect.fn("GraphitiProxyOps.requireRestoreContainersHealthy")(function* (
+  repoRoot: string,
+  config: GraphitiRestoreConfig
+): Effect.fn.Return<void, GraphitiProxyOpsError, ChildProcessSpawner.ChildProcessSpawner> {
+  const states = yield* restoreContainerHealthStates(repoRoot, config);
+  yield* Console.log(`[graphiti-verify] health ${A.join(states, " ")}`);
+
+  if (A.every(states, Str.includes("=healthy"))) {
+    return;
+  }
+
+  return yield* GraphitiProxyOpsError.make({
+    message: `Graphiti restore containers are not healthy: ${A.join(states, " ")}.`,
     exitCode: 1,
   });
 });
@@ -1095,7 +1121,7 @@ export const verifyGraphitiStack = Effect.fn("GraphitiProxyOps.verifyGraphitiSta
   const config = graphitiRestoreConfig(path, options);
 
   yield* preflightGraphitiStack(repoRoot, config);
-  yield* waitForRestoreContainers(repoRoot, config);
+  yield* requireRestoreContainersHealthy(repoRoot, config);
   yield* verifyFalkor(config);
   yield* verifyProxy(config);
   yield* Console.log("[graphiti-verify] Graphiti stack, persisted graph, and proxy MCP endpoint are healthy.");
