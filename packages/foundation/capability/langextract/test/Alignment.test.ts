@@ -36,6 +36,18 @@ describe("alignCandidate", () => {
     expect(extraction.span?.end).toBe(8);
   });
 
+  it("matches decomposed source text when the query lowercases to more code units", () => {
+    const extraction = alignCandidate(
+      "i\u0307 founded Acme.",
+      ExtractionCandidate.make({ label: "person", text: "\u0130" })
+    );
+
+    expect(extraction.alignmentStatus).toBe("match_lesser");
+    expect(extraction.matchedText).toBe("i\u0307");
+    expect(extraction.span?.start).toBe(0);
+    expect(extraction.span?.end).toBe(2);
+  });
+
   it("uses bounded fuzzy matching", () => {
     const extraction = alignCandidate(
       "Alice founded Acme.",
@@ -45,6 +57,16 @@ describe("alignCandidate", () => {
 
     expect(extraction.alignmentStatus).toBe("match_fuzzy");
     expect(extraction.matchedText).toBe("Acme.");
+  });
+
+  it("scores fuzzy matching by Unicode code points", () => {
+    const extraction = alignCandidate(
+      "\u{1F389}",
+      ExtractionCandidate.make({ label: "event", text: "\u{1F38A}" }),
+      LangExtractOptions.make({ fuzzyThreshold: 0.25 })
+    );
+
+    expect(extraction.alignmentStatus).toBe("unaligned");
   });
 
   it("marks candidates unaligned when no match passes", () => {

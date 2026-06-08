@@ -68,17 +68,25 @@ const findExact = (sourceText: string, query: string): undefined | readonly [num
 const findLesser = (sourceText: string, query: string): undefined | readonly [number, string] => {
   const normalizedQuery = lower(query);
 
-  for (let start = 0; start <= sourceText.length - query.length; start += 1) {
-    const candidate = sourceText.slice(start, start + query.length);
-    if (lower(candidate) === normalizedQuery) {
-      return [start, candidate];
+  for (let start = 0; start < sourceText.length; start += 1) {
+    for (let end = start + 1; end <= sourceText.length; end += 1) {
+      const candidate = sourceText.slice(start, end);
+      const normalizedCandidate = lower(candidate);
+      if (normalizedCandidate === normalizedQuery) {
+        return [start, candidate];
+      }
+      if (normalizedCandidate.length >= normalizedQuery.length) {
+        break;
+      }
     }
   }
 
   return undefined;
 };
 
-const levenshtein = (left: string, right: string): number => {
+const toCodePoints = (value: string): ReadonlyArray<string> => [...value];
+
+const levenshtein = (left: ReadonlyArray<string>, right: ReadonlyArray<string>): number => {
   const previous = A.makeBy(right.length + 1, (index) => index);
 
   for (let i = 0; i < left.length; i += 1) {
@@ -96,8 +104,10 @@ const levenshtein = (left: string, right: string): number => {
 };
 
 const similarity = (left: string, right: string): number => {
-  const denominator = Math.max(left.length, right.length, 1);
-  return 1 - levenshtein(lower(left), lower(right)) / denominator;
+  const leftNormalized = toCodePoints(lower(left));
+  const rightNormalized = toCodePoints(lower(right));
+  const denominator = Math.max(leftNormalized.length, rightNormalized.length, 1);
+  return 1 - levenshtein(leftNormalized, rightNormalized) / denominator;
 };
 
 const wordsWithOffsets = (sourceText: string): ReadonlyArray<readonly [number, number]> => {
