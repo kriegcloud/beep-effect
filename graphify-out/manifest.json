@@ -10515,8 +10515,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts": {
-    "mtime": 1780368480.3874695,
-    "ast_hash": "923660e48b4f08ba5e8fd4381a1be14a",
+    "mtime": 1780945553.8835702,
+    "ast_hash": "c8dd09f4943f34c52e20117736a3ae7c",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Docgen/index.ts": {
@@ -10700,8 +10700,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts": {
-    "mtime": 1780099631.1271796,
-    "ast_hash": "e6462e3c2f2c9c36825888d6eb0280b9",
+    "mtime": 1780945553.8835702,
+    "ast_hash": "a9a75bc0bed9c789eff7e37ce3fc2d9f",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts": {
@@ -10715,8 +10715,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts": {
-    "mtime": 1780745842.603279,
-    "ast_hash": "93efce520714c0251a644f030049ae7b",
+    "mtime": 1780945553.8895705,
+    "ast_hash": "95b5ff5430c2644b50597a95a1539b39",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Laws/index.ts": {
@@ -10775,8 +10775,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts": {
-    "mtime": 1780933490.7153642,
-    "ast_hash": "1f8baa5fb6dc2f0b1338000412613ccc",
+    "mtime": 1780945553.8895705,
+    "ast_hash": "0d565190a0e27f86c8f44af3e9427117",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts": {
@@ -10785,13 +10785,13 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts": {
-    "mtime": 1780932731.9764419,
-    "ast_hash": "abafae0f7a5f2bc3f575f99f577e122e",
+    "mtime": 1780945553.8895705,
+    "ast_hash": "a1be6e6c170b08574629e8bb71e0199b",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Quality/index.ts": {
-    "mtime": 1780933490.6453626,
-    "ast_hash": "7d1f66be82c45ad30099bcaf53897fe4",
+    "mtime": 1780945553.8895705,
+    "ast_hash": "bddb8a34bd41cf3ab4d563ef0bd74770",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts": {
@@ -10825,8 +10825,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts": {
-    "mtime": 1780368480.3884697,
-    "ast_hash": "df76b9367eea319e9d44dd77e4752291",
+    "mtime": 1780945553.8895705,
+    "ast_hash": "e3fec50469b5b78c80209327030b0d8f",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts": {
@@ -11010,13 +11010,13 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts": {
-    "mtime": 1780932731.9764419,
-    "ast_hash": "e94c4b6da264b24422a480f0b803d11e",
+    "mtime": 1780945553.8895705,
+    "ast_hash": "d01ec42107427dec97ee59e07a1a39de",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts": {
-    "mtime": 1780932731.9764419,
-    "ast_hash": "6d165f4f25c8c4396c02444c48679d96",
+    "mtime": 1780945553.8895705,
+    "ast_hash": "c90999b441a6cf60670606ca76b3675f",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts": {
@@ -11030,8 +11030,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts": {
-    "mtime": 1780943175.5343509,
-    "ast_hash": "8e39785132fbfa115ffc8fec56c313b6",
+    "mtime": 1780945553.8895705,
+    "ast_hash": "9e6259f13b03194ca571f7d06173d943",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/index.ts": {
@@ -11170,8 +11170,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/docgen.test.ts": {
-    "mtime": 1780801534.4573534,
-    "ast_hash": "38fe90288065538a7e656e0b17e18f46",
+    "mtime": 1780945553.8895705,
+    "ast_hash": "7df41f07c1ebee186d3d0b3c8187c3c8",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/dual-arity.test.ts": {
@@ -11255,8 +11255,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/quality-tasks.test.ts": {
-    "mtime": 1780932731.978442,
-    "ast_hash": "b20636d8f1cae990c6833057f76920cf",
+    "mtime": 1780945553.8905704,
+    "ast_hash": "1f5d7c3d94b1793ceae6bd8b5f0cfa4e",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/repo-exports-catalog.test.ts": {
@@ -11265,8 +11265,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/reuse-command.test.ts": {
-    "mtime": 1780905196.7938144,
-    "ast_hash": "c4705605553611f550ac64b108b87809",
+    "mtime": 1780945553.8905704,
+    "ast_hash": "8079eaf1a3661d4d0fe9ebf8a595b758",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/schema-first.test.ts": {
@@ -11285,8 +11285,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/terse-effect.test.ts": {
-    "mtime": 1780099631.1281796,
-    "ast_hash": "a4b711266cdc93f760cdd48a8c875265",
+    "mtime": 1780945553.8905704,
+    "ast_hash": "8a03fa8f7042fb7cf1c4354f5d1b5d3e",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/tsconfig-sync.test.ts": {
@@ -11305,8 +11305,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/yeet.test.ts": {
-    "mtime": 1780932731.978442,
-    "ast_hash": "d475ce7828edbe5795062acd02cc54f7",
+    "mtime": 1780946296.4177604,
+    "ast_hash": "50f7e825f1d59a3e408032f8569e7241",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/tsconfig.json": {
@@ -12240,8 +12240,8 @@
     "semantic_hash": ""
   },
   ".claude/skills/yeet/SKILL.md": {
-    "mtime": 1780932731.939441,
-    "ast_hash": "aa0be6574cbe024258c762579fe9901a",
+    "mtime": 1780945553.8825703,
+    "ast_hash": "81a4457917e02a1988fe577854df71f7",
     "semantic_hash": ""
   },
   ".cspell/alt-languages.txt": {
@@ -12925,8 +12925,8 @@
     "semantic_hash": ""
   },
   "goals/fallow-quality-enforcement/research/audit.md": {
-    "mtime": 1780942451.2043571,
-    "ast_hash": "49b56cb918da3ba4bf28fdfb1eb58851",
+    "mtime": 1780946546.5562472,
+    "ast_hash": "a4fb2ab28a6abbab311fca6e0d3979d9",
     "semantic_hash": ""
   },
   "goals/fallow-quality-enforcement/research/boundaries.md": {
@@ -13755,8 +13755,8 @@
     "semantic_hash": ""
   },
   "goals/yeet-pr-closeout-loop/PLAN.md": {
-    "mtime": 1780932731.9412441,
-    "ast_hash": "a5c454409d516b7b2696ab7603e76dd7",
+    "mtime": 1780945553.8825703,
+    "ast_hash": "ecc2ee248d119767aa39df7107cf9517",
     "semantic_hash": ""
   },
   "goals/yeet-pr-closeout-loop/README.md": {
@@ -15255,8 +15255,8 @@
     "semantic_hash": ""
   },
   "standards/repo-exports.catalog.md": {
-    "mtime": 1780943780.4275994,
-    "ast_hash": "3c4db94822d29283f8393b36d8e04c6b",
+    "mtime": 1780945582.0351791,
+    "ast_hash": "d9cce5a2ede498a9e38fe40a1e5fc4c1",
     "semantic_hash": ""
   },
   "goals/repo-codegraph-jsdoc/WHITEPAPER.md": {

@@ -1129,22 +1129,22 @@ const ciFallowContractCommand =
 const expectedFallowAuditBaseline = {
   changedFilesMinimum: 90,
   deadCodeIssues: 30,
-  complexityFindings: 42,
-  duplicationCloneGroups: 156,
+  complexityFindings: 37,
+  duplicationCloneGroups: 132,
   deadCodeIntroduced: 3,
   deadCodeInherited: 27,
-  complexityIntroduced: 11,
+  complexityIntroduced: 6,
   complexityInherited: 30,
   complexityUnattributed: 1,
-  duplicationIntroduced: 11,
-  duplicationInherited: 145,
+  duplicationIntroduced: 3,
+  duplicationInherited: 129,
 } as const;
 const auditCountsNarrative =
-  "Counts: at least 90 changed files in the current dirty worktree, verdict `fail`, 30 changed-scope dead-code issues, 42 raw complexity findings, 156 duplication clone groups";
+  "Counts: at least 90 changed files in the current dirty worktree, verdict `fail`, 30 changed-scope dead-code issues, 37 raw complexity findings, 132 duplication clone groups";
 const auditAttributionNarrative =
-  "Attribution: 3 introduced dead-code issues, 11 introduced complexity findings, 11 introduced duplication clone groups; 42 raw complexity findings = 11 introduced + 30 inherited + 1 unattributed";
+  "Attribution: 3 introduced dead-code issues, 6 introduced complexity findings, 3 introduced duplication clone groups; 37 raw complexity findings = 6 introduced + 30 inherited + 1 unattributed";
 const auditBaselineSummaryCounts =
-  "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 42 raw complexity findings, and 156 clone groups; introduced counts were 3 dead-code, 11 complexity, and 11 duplication; 42 raw complexity findings = 11 introduced + 30 inherited + 1 unattributed.";
+  "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 37 raw complexity findings, and 132 clone groups; introduced counts were 3 dead-code, 6 complexity, and 3 duplication; 37 raw complexity findings = 6 introduced + 30 inherited + 1 unattributed.";
 const requiredBoundarySourceRefs = ["package.json", "standards/fallow.boundaries.generated.jsonc"];
 const requiredBoundaryCatalogRef = "standards/repo-exports.catalog.jsonc";
 const requiredBoundaryDoctrineRefPrefix = "standards/ARCHITECTURE.md";

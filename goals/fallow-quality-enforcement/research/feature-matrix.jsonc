@@ -42,7 +42,7 @@
       "baselineArtifact": "standards/fallow.pilot.inventory.jsonc",
       "baselineSummary": {
         "status": "measured",
-        "counts": "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 42 raw complexity findings, and 156 clone groups; introduced counts were 3 dead-code, 11 complexity, and 11 duplication; 42 raw complexity findings = 11 introduced + 30 inherited + 1 unattributed.",
+        "counts": "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 37 raw complexity findings, and 132 clone groups; introduced counts were 3 dead-code, 6 complexity, and 3 duplication; 37 raw complexity findings = 6 introduced + 30 inherited + 1 unattributed.",
         "notes": "Changed-file count is worktree-volatile while this packet is edited. The baseline helper enforces a minimum changed-file snapshot plus exact finding and attribution counts."
       },
       "falsePositiveStatus": "unknown",

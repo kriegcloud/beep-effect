@@ -8,15 +8,15 @@ const repoRoot = new URL("../../../", import.meta.url).pathname;
 const expectedAuditSummary = {
   changed_files_minimum: 90,
   dead_code_issues: 30,
-  complexity_findings: 42,
-  duplication_clone_groups: 156,
+  complexity_findings: 37,
+  duplication_clone_groups: 132,
   dead_code_introduced: 3,
   dead_code_inherited: 27,
-  complexity_introduced: 11,
+  complexity_introduced: 6,
   complexity_inherited: 30,
   complexity_unattributed: 1,
-  duplication_introduced: 11,
-  duplication_inherited: 145,
+  duplication_introduced: 3,
+  duplication_inherited: 129,
 } as const;
 
 const fail = (message: string): never => {

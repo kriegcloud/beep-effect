@@ -1490,7 +1490,7 @@
             "goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts",
             "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
           ],
-          "concreteFix": "Reduced new parser duplicate structure so the live Fallow audit duplication baseline returned to 156 clone groups.",
+          "concreteFix": "Reduced new parser duplicate structure, then after merging origin/main recorded the live Fallow audit duplication baseline at 132 clone groups.",
           "closureStatus": "fixed",
           "closureEvidenceRefs": [
             "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
