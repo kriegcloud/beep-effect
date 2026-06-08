@@ -45,7 +45,7 @@ updated: 2026-06-08
 - Yeet category: `security-audit`
 - Parser: `fallow/security/v1`
 - Default blocking: false
-- CI mode: advisory artifact; P2 CI hardening is still blocked until `fqe-005` uploads the envelope as nonblocking evidence.
+- CI mode: advisory artifact; hosted CI uploads the envelope as nonblocking evidence.
 - Failure envelope behavior: wrapper must preserve `unresolved_edge_files` and `unresolved_callee_sites` as triage metadata.
 
 ## Promotion Gate

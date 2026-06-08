@@ -10,7 +10,7 @@
   },
   "mission": "Promote Fallow from advisory pilot into a repo-cli quality subsystem that improves agent back-pressure without replacing Knip until parity is proven.",
   "currentSourceOfTruth": "SPEC.md",
-  "currentTargetPhase": "P2",
+  "currentTargetPhase": "P3",
   "requiredArtifacts": [
     "research/feature-matrix.jsonc",
     "research/knip-parity.jsonc",

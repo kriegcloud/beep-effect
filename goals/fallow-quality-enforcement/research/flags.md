@@ -45,7 +45,7 @@ updated: 2026-06-08
 - Yeet category: `repo-law`
 - Parser: `fallow/flags/v1`
 - Default blocking: false
-- CI mode: advisory artifact; P2 uploads the envelope as nonblocking evidence, with promotion blocked until registry policy exists.
+- CI mode: advisory artifact; hosted CI uploads the envelope as nonblocking evidence, with promotion blocked until registry policy exists.
 - Failure envelope behavior: P1 wrapper may emit advisory envelopes, but no flags finding may become blocking until policy exists.
 
 ## Promotion Gate

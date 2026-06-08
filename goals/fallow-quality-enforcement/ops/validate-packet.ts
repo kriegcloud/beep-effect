@@ -1122,21 +1122,22 @@ const ciFallowContractCommand =
 const expectedFallowAuditBaseline = {
   changedFilesMinimum: 90,
   deadCodeIssues: 30,
-  complexityFindings: 41,
-  duplicationCloneGroups: 155,
+  complexityFindings: 42,
+  duplicationCloneGroups: 156,
   deadCodeIntroduced: 3,
   deadCodeInherited: 27,
-  complexityIntroduced: 10,
+  complexityIntroduced: 11,
   complexityInherited: 30,
-  duplicationIntroduced: 10,
+  complexityUnattributed: 1,
+  duplicationIntroduced: 11,
   duplicationInherited: 145,
 } as const;
 const auditCountsNarrative =
-  "Counts: at least 90 changed files in the current dirty worktree, verdict `fail`, 30 changed-scope dead-code issues, 41 complexity findings, 155 duplication clone groups";
+  "Counts: at least 90 changed files in the current dirty worktree, verdict `fail`, 30 changed-scope dead-code issues, 42 raw complexity findings, 156 duplication clone groups";
 const auditAttributionNarrative =
-  "Attribution: 3 introduced dead-code issues, 10 introduced complexity findings, 10 introduced duplication clone groups";
+  "Attribution: 3 introduced dead-code issues, 11 introduced complexity findings, 11 introduced duplication clone groups; 42 raw complexity findings = 11 introduced + 30 inherited + 1 unattributed";
 const auditBaselineSummaryCounts =
-  "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 41 complexity findings, and 155 clone groups; introduced counts were 3 dead-code, 10 complexity, and 10 duplication.";
+  "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 42 raw complexity findings, and 156 clone groups; introduced counts were 3 dead-code, 11 complexity, and 11 duplication; 42 raw complexity findings = 11 introduced + 30 inherited + 1 unattributed.";
 const requiredBoundarySourceRefs = ["package.json", "standards/fallow.boundaries.generated.jsonc"];
 const requiredBoundaryCatalogRef = "standards/repo-exports.catalog.jsonc";
 const requiredBoundaryDoctrineRefPrefix = "standards/ARCHITECTURE.md";
@@ -1884,6 +1885,9 @@ const tasksDiagnostics = (document: TasksDocument): ReadonlyArray<string> => {
       if (task.id === "fqe-004" && !hasCommand(allCommands, yeetFallowFixtureCheckCommand)) {
         diagnostics.push(`${task.id}: Yeet advisory task must decode Fallow fixtures into a QualityIssueIndex`);
       }
+      if (task.id === "fqe-004" && (task.status !== "seeded" || task.decisionGate.status !== "blocked")) {
+        diagnostics.push(`${task.id}: P3 Yeet advisory feedback must remain seeded/blocked until implemented`);
+      }
       if (
         task.id === "fqe-005" &&
         !hasAllCommandFragments(allCommands, ["envelope-check", ".beep/fallow/audit.json"])
@@ -1898,6 +1902,9 @@ const tasksDiagnostics = (document: TasksDocument): ReadonlyArray<string> => {
       }
       if (task.id === "fqe-005" && task.decisionGate.status === "passed" && task.status !== "done") {
         diagnostics.push(`${task.id}: passed decision gate requires task status done`);
+      }
+      if (task.id === "fqe-005" && (task.status !== "done" || task.decisionGate.status !== "passed")) {
+        diagnostics.push(`${task.id}: P2 CI envelope hardening must be done/passed after implementation`);
       }
       if (
         task.id === "fqe-005" &&
@@ -1919,6 +1926,9 @@ const tasksDiagnostics = (document: TasksDocument): ReadonlyArray<string> => {
         A.some(allCommands, (command) => Str.includes("beep quality github-checks --plan")(command))
       ) {
         diagnostics.push(`${task.id}: github-checks plan assertions must use the plan-contract-check helper`);
+      }
+      if (task.id === "fqe-006" && (task.status !== "seeded" || task.decisionGate.status !== "blocked")) {
+        diagnostics.push(`${task.id}: blocking pre-push promotion must remain seeded/blocked until parity gates pass`);
       }
       return diagnostics;
     }),
@@ -2325,6 +2335,7 @@ const manifestDiagnostics = (document: InitiativeManifestDocument): ReadonlyArra
   ...(document.decisions.knipEndgame === "parity-then-decide"
     ? []
     : ["manifest decisions.knipEndgame must keep Knip retirement gated by parity"]),
+  ...(document.currentTargetPhase === "P3" ? [] : ["manifest currentTargetPhase must be P3 after P2 CI hardening"]),
 ];
 
 const manifestArtifactDiagnostics = Effect.fn("manifestArtifactDiagnostics")(function* (
@@ -2540,6 +2551,7 @@ const pilotInventoryDiagnostics = (document: unknown): ReadonlyArray<string> => 
   const fallowAuditSummary = asRecord(fallowAudit.summary);
   const fallowAuditIntroduced = asRecord(fallowAudit.introduced);
   const fallowAuditInherited = asRecord(fallowAudit.inherited);
+  const fallowAuditUnattributed = asRecord(fallowAudit.unattributed);
   const diagnostics: Array<string> = [];
 
   if (decision.keepKnipAsBlockingGate === true) {
@@ -2555,6 +2567,11 @@ const pilotInventoryDiagnostics = (document: unknown): ReadonlyArray<string> => 
   if (A.some(knipStrengths, (strength) => Str.includes("Existing blocking gate")(strength))) {
     diagnostics.push(
       "standards/fallow.pilot.inventory.jsonc: Knip strengths must say reference analyzer/parity gate, not existing blocking gate"
+    );
+  }
+  if (implementationPolicy.advisoryCiJob !== "fallow-advisory") {
+    diagnostics.push(
+      "standards/fallow.pilot.inventory.jsonc: implementationPolicy.advisoryCiJob must be fallow-advisory"
     );
   }
   diagnostics.push(
@@ -2617,6 +2634,12 @@ const pilotInventoryDiagnostics = (document: unknown): ReadonlyArray<string> => 
       fallowAuditInherited,
       "duplicationCloneGroups",
       expectedFallowAuditBaseline.duplicationInherited
+    ),
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.unattributed",
+      fallowAuditUnattributed,
+      "complexityFindings",
+      expectedFallowAuditBaseline.complexityUnattributed
     )
   );
 

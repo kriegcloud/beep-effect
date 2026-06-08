@@ -2,7 +2,7 @@
 
 ## Status
 
-**ACTIVE - P1 repo-cli advisory integration implemented, P2 CI envelope hardening next**
+**ACTIVE - P2 CI envelope hardening implemented, P3 Yeet advisory feedback next**
 
 ## Owner
 
@@ -60,8 +60,8 @@ existing repo-law standards.
   mutations.
 - Knip remains the reference analyzer and parity gate until parity rows
   explicitly support replacing it.
-- Current hosted CI still has the raw advisory pilot output; P2 replaces it
-  with repo-cli envelope upload and hard artifact-existence proof.
+- Hosted CI now uploads repo-cli Fallow envelopes with hard
+  artifact-existence proof.
 
 ## Verification
 

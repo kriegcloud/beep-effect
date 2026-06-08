@@ -167,7 +167,7 @@
     {
       "id": "fqe-005",
       "rank": 4,
-      "status": "seeded",
+      "status": "done",
       "phase": "P2",
       "title": "Harden advisory CI envelopes",
       "summary": "Ensure CI uploads a success or failure envelope for every Fallow advisory lane.",
@@ -189,13 +189,21 @@
       ],
       "dependencies": ["fqe-003"],
       "rollbackPlan": "Revert Fallow CI to the standalone advisory audit job.",
-      "evidenceRefs": ["SPEC.md#ci-policy"],
+      "evidenceRefs": [
+        ".github/workflows/check.yml",
+        "SPEC.md#ci-policy",
+        "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts"
+      ],
       "owner": "@beep-team",
       "riskLevel": "medium",
       "decisionGate": {
         "kind": "ci-envelope-contract",
-        "status": "blocked",
-        "evidence": [".github/workflows/check.yml", "SPEC.md#ci-policy"]
+        "status": "passed",
+        "evidence": [
+          ".github/workflows/check.yml",
+          "SPEC.md#ci-policy",
+          "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts"
+        ]
       }
     },
     {

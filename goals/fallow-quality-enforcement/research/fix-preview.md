@@ -45,7 +45,7 @@ updated: 2026-06-08
 - Yeet category: `repo-law`
 - Parser: `fallow/fix-preview/v1`
 - Default blocking: false
-- CI mode: advisory artifact; P2 CI hardening is still blocked until `fqe-005` uploads the dry-run envelope as nonblocking evidence.
+- CI mode: advisory artifact; hosted CI uploads the dry-run envelope as nonblocking evidence.
 - Failure envelope behavior: wrapper must never run non-dry-run fix and must include the exact dry-run command in the envelope.
 
 ## Promotion Gate

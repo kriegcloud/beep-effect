@@ -17,6 +17,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import { ChildProcess } from "effect/unstable/process";
+import { parseDocument } from "yaml";
 import { QualityScriptCommandError } from "./Quality.errors.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 
@@ -566,8 +567,56 @@ const unknownRecordProperty = (value: unknown, key: string): O.Option<unknown> =
     O.flatMap((record) => O.fromUndefinedOr(record[key]))
   );
 
+const unknownStringProperty = (value: unknown, key: string): O.Option<string> =>
+  pipe(unknownRecordProperty(value, key), O.filter(P.isString));
+
 const unknownNumberProperty = (value: unknown, key: string): O.Option<number> =>
   pipe(unknownRecordProperty(value, key), O.flatMap(decodeNumberOption));
+
+const unknownArrayProperty = (value: unknown, key: string): O.Option<ReadonlyArray<unknown>> =>
+  pipe(unknownRecordProperty(value, key), O.flatMap(decodeUnknownArrayOption));
+
+const nonCommentLines = (text: string): ReadonlyArray<string> =>
+  pipe(
+    Str.split(text, "\n"),
+    A.map(Str.trim),
+    A.filter((line) => Str.isNonEmpty(line) && !Str.startsWith("#")(line))
+  );
+
+const yamlDocumentValue = Effect.fn("FallowQuality.yamlDocumentValue")(function* (
+  filePath: string,
+  text: string
+): Effect.fn.Return<unknown, QualityScriptCommandError> {
+  const document = yield* Effect.try({
+    try: () => parseDocument(text),
+    catch: (cause) =>
+      QualityScriptCommandError.make({
+        message: `Failed to parse workflow YAML ${filePath}.`,
+        cause,
+      }),
+  });
+
+  if (!A.isReadonlyArrayEmpty(document.errors)) {
+    const message = pipe(
+      A.head(document.errors),
+      O.map((error) => error.message),
+      O.getOrElse(() => "YAML parser reported an unknown error.")
+    );
+    return yield* QualityScriptCommandError.make({
+      message: `Invalid workflow YAML ${filePath}: ${message}`,
+      exitCode: 1,
+    });
+  }
+
+  return yield* Effect.try({
+    try: () => document.toJSON(),
+    catch: (cause) =>
+      QualityScriptCommandError.make({
+        message: `Failed to read workflow YAML ${filePath}.`,
+        cause,
+      }),
+  });
+});
 
 const countFor = (findings: ReadonlyArray<FallowFinding>, attribution: typeof FindingAttributionKind.Type): number =>
   pipe(
@@ -1509,18 +1558,43 @@ const checkReportInvariants = (document: unknown): Effect.Effect<void, QualitySc
 
 const checkEnvelopePath = Effect.fn("FallowQuality.checkEnvelopePath")(function* (
   filePath: string,
-  requiredKeys: ReadonlyArray<string>
+  requiredKeys: ReadonlyArray<string>,
+  expectedSubcommand: string,
+  expectedReportPath: string,
+  requireRawOutput: boolean
 ): Effect.fn.Return<void, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
   const document = yield* readJsonDocument(filePath);
   yield* checkExactEnvelopeKeys(document);
   yield* requireEnvelopeKeys(document, requiredKeys);
   yield* decodeFallowReportWireEnvelope(document).pipe(
     QualityScriptCommandError.mapError(`Fallow envelope ${filePath} does not match the report schema.`)
   );
-  yield* decodeFallowReportEnvelope(document).pipe(
+  const envelope = yield* decodeFallowReportEnvelope(document).pipe(
     QualityScriptCommandError.mapError(`Fallow envelope ${filePath} does not match the decoded report schema.`)
   );
   yield* checkReportInvariants(document);
+  const normalizedExpectedReportPath = normalizePath(expectedReportPath);
+  yield* failWithDiagnostics("fallow envelope-check", [
+    ...(Str.isNonEmpty(expectedSubcommand) && envelope.subcommand !== expectedSubcommand
+      ? [`${filePath}: expected subcommand ${expectedSubcommand}, got ${envelope.subcommand}`]
+      : []),
+    ...(Str.isNonEmpty(normalizedExpectedReportPath) && envelope.reportPath !== normalizedExpectedReportPath
+      ? [`${filePath}: expected reportPath ${normalizedExpectedReportPath}, got ${envelope.reportPath}`]
+      : []),
+  ]);
+  if (requireRawOutput) {
+    const repoRoot = yield* findRepoRoot().pipe(
+      QualityScriptCommandError.mapError("Failed to locate repository root.")
+    );
+    const rawOutputPath = path.isAbsolute(envelope.rawOutputRef)
+      ? envelope.rawOutputRef
+      : path.join(repoRoot, envelope.rawOutputRef);
+    yield* fs
+      .stat(rawOutputPath)
+      .pipe(QualityScriptCommandError.mapError(`Failed to stat Fallow raw output ${rawOutputPath}.`));
+  }
   yield* Console.log(`[fallow] envelope ok: ${filePath}`);
 });
 
@@ -1535,7 +1609,13 @@ const checkPublicDispatchEnvelope = Effect.fn("FallowQuality.checkPublicDispatch
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
   const paths = yield* resolveReportPath(repoRoot, out, feature);
-  yield* checkEnvelopePath(out, ["schemaVersion", "status", "command", "exitStatus", "baseRef", "rawOutputRef"]);
+  yield* checkEnvelopePath(
+    out,
+    ["schemaVersion", "status", "command", "exitStatus", "baseRef", "rawOutputRef"],
+    feature,
+    out,
+    true
+  );
   const document = yield* readJsonDocument(out);
   const envelope = yield* decodeFallowReportEnvelope(document).pipe(
     QualityScriptCommandError.mapError(`Fallow envelope ${out} does not match the decoded report schema.`)
@@ -2055,20 +2135,98 @@ const runCiContractCheck = Effect.fn("FallowQuality.runCiContractCheck")(functio
   const text = yield* fs
     .readFileString(absolutePath)
     .pipe(QualityScriptCommandError.mapError(`Failed to read ${absolutePath}.`));
+  const workflow = yield* yamlDocumentValue(workflowPath, text);
+  const fallowJob = pipe(
+    unknownRecordProperty(workflow, "jobs"),
+    O.flatMap((jobs) => unknownRecordProperty(jobs, "fallow-advisory"))
+  );
+  const fallowSteps = pipe(
+    fallowJob,
+    O.flatMap((job) => unknownArrayProperty(job, "steps")),
+    O.getOrElse(() => A.empty<unknown>())
+  );
+  const stepStringValues = (key: string): ReadonlyArray<string> =>
+    pipe(
+      fallowSteps,
+      A.flatMap((step) =>
+        pipe(
+          unknownStringProperty(step, key),
+          O.match({
+            onNone: () => A.empty<string>(),
+            onSome: A.of,
+          })
+        )
+      )
+    );
+  const jobRunText = A.join(stepStringValues("run"), "\n");
+  const jobRunLines = nonCommentLines(jobRunText);
+  const jobRunBody = A.join(jobRunLines, "\n");
+  const jobUsesValues = stepStringValues("uses");
+  const uploadArtifactSteps = A.filter(fallowSteps, (step) => {
+    const uses = unknownStringProperty(step, "uses");
+    return O.isSome(uses) && Str.includes("actions/upload-artifact")(uses.value);
+  });
+  const uploadWithString = (step: unknown, key: string): O.Option<string> =>
+    pipe(
+      unknownRecordProperty(step, "with"),
+      O.flatMap((withRecord) => unknownStringProperty(withRecord, key))
+    );
   const lanes = csvValues(expectLanes);
+  const expectedLaneList = A.join(lanes, " ");
+  const expectedLaneLoop = `for lane in ${expectedLaneList}; do`;
+  const hasLaneEnvelopeTemplate =
+    Str.includes(`${expectOutDir}/\${lane}.json`)(jobRunBody) || Str.includes(`${expectOutDir}/$lane.json`)(jobRunBody);
   const diagnostics = [
+    ...(O.isSome(fallowJob) ? [] : ["missing fallow-advisory workflow job id"]),
+    ...(A.filter(jobRunLines, (line) => Str.Equivalence(line, expectedLaneLoop)).length >= 2
+      ? []
+      : [`missing run and validation loops over expected Fallow lanes: ${expectedLaneLoop}`]),
     ...A.flatMap(lanes, (lane) =>
-      Str.includes(`beep quality fallow ${lane}`)(text) || Str.includes(`${expectOutDir}/${lane}.json`)(text)
+      hasLaneEnvelopeTemplate || Str.includes(`${expectOutDir}/${lane}.json`)(jobRunBody)
         ? A.empty<string>()
-        : A.of(`missing CI lane or artifact reference for ${lane}`)
+        : A.of(`missing CI envelope path for ${lane}: ${expectOutDir}/${lane}.json`)
     ),
-    ...(requireUpload && !Str.includes("actions/upload-artifact")(text)
+    ...(Str.includes("bun run beep quality fallow")(jobRunBody) ? [] : ["missing repo-cli Fallow envelope invocation"]),
+    ...(Str.includes("bun run fallow:audit")(jobRunBody) ? ["CI must not use raw fallow:audit pilot command"] : []),
+    ...(Str.includes("beep quality fallow envelope-check")(jobRunBody)
+      ? []
+      : ["missing hard envelope-check validation step"]),
+    ...(Str.includes("--expect-subcommand")(jobRunBody) ? [] : ["missing envelope-check subcommand assertion"]),
+    ...(Str.includes("--expect-report-path")(jobRunBody) ? [] : ["missing envelope-check reportPath assertion"]),
+    ...(Str.includes("--require-raw-output")(jobRunBody) ? [] : ["missing envelope-check raw output proof"]),
+    ...(Str.includes("|| fetch_status=$?")(jobRunBody) && Str.includes("base_fetch_status")(jobRunBody)
+      ? []
+      : ["base fetch must be best-effort so Fallow wrappers can emit base-resolution envelopes"]),
+    ...(A.some(uploadArtifactSteps, (step) =>
+      pipe(
+        uploadWithString(step, "path"),
+        O.match({
+          onNone: () => false,
+          onSome: (actual) => Str.Equivalence(actual, `${expectOutDir}/**`),
+        })
+      )
+    )
+      ? []
+      : [`missing upload of complete Fallow output tree: ${expectOutDir}/**`]),
+    ...A.flatMap(lanes, (lane) =>
+      Str.includes(lane)(jobRunBody) ? A.empty<string>() : A.of(`missing CI advisory lane name ${lane}`)
+    ),
+    ...(requireUpload && !A.some(jobUsesValues, Str.includes("actions/upload-artifact"))
       ? ["missing actions/upload-artifact step"]
       : []),
-    ...(requireUpload && !Str.includes(`if-no-files-found: ${ifNoFilesFound}`)(text)
+    ...(requireUpload &&
+    !A.some(uploadArtifactSteps, (step) =>
+      pipe(
+        uploadWithString(step, "if-no-files-found"),
+        O.match({
+          onNone: () => false,
+          onSome: (actual) => Str.Equivalence(actual, ifNoFilesFound),
+        })
+      )
+    )
       ? [`missing if-no-files-found: ${ifNoFilesFound}`]
       : []),
-    ...(advisory && !Str.includes("--advisory")(text) ? ["missing advisory Fallow invocation"] : []),
+    ...(advisory && !Str.includes("--advisory")(jobRunBody) ? ["missing advisory Fallow invocation"] : []),
   ];
 
   yield* failWithDiagnostics("fallow ci-contract-check", diagnostics);
@@ -2106,8 +2264,20 @@ const envelopeCheckCommand = Command.make(
       Flag.withDefault(""),
       Flag.withDescription("Comma-separated top-level metadata keys that must be present")
     ),
+    expectSubcommand: Flag.string("expect-subcommand").pipe(
+      Flag.withDefault(""),
+      Flag.withDescription("Expected Fallow subcommand recorded in the envelope")
+    ),
+    expectReportPath: Flag.string("expect-report-path").pipe(
+      Flag.withDefault(""),
+      Flag.withDescription("Expected reportPath recorded in the envelope")
+    ),
+    requireRawOutput: Flag.boolean("require-raw-output").pipe(
+      Flag.withDescription("Require the envelope rawOutputRef artifact to exist")
+    ),
   },
-  ({ path, require }) => checkEnvelopePath(path, csvValues(require))
+  ({ expectReportPath, expectSubcommand, path, require, requireRawOutput }) =>
+    checkEnvelopePath(path, csvValues(require), expectSubcommand, expectReportPath, requireRawOutput)
 ).pipe(Command.withDescription("Decode and validate one Fallow report envelope"));
 
 const commandContractCheckCommand = Command.make(
