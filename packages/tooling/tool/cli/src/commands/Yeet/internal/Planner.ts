@@ -287,6 +287,26 @@ const feedbackSteps = (context: RepoRunContext): ReadonlyArray<RepoPlanStep> =>
     feedbackStep(context, "feedback:04-test", "feedback:test", "test", "test"),
   ]);
 
+const fallowAdvisoryFeedbackStep = (context: RepoRunContext): RepoPlanStep =>
+  bunRunStep(
+    context,
+    "advisory:01-fallow-feedback",
+    "fallow-advisory-feedback",
+    "feedback",
+    "beep",
+    [
+      "yeet",
+      "fallow-feedback",
+      "--from",
+      ".beep/fallow",
+      "--emit",
+      ".beep/yeet/fallow-quality-issues.json",
+      "--advisory",
+    ],
+    "write",
+    "repo"
+  );
+
 const proofStep = (context: RepoRunContext, tier: YeetProofTier): RepoPlanStep => {
   const proof = repoProofStepDefinition(tier === "review-fix" ? "review-fix" : "pre-push");
   const proofArgs =
@@ -410,12 +430,14 @@ const publishSteps = (
     ? [pushStep(context), ...(options.monitor ? monitorSteps(context) : [])]
     : options.startPrEarly
       ? [
+          fallowAdvisoryFeedbackStep(context),
           commitStep(context, message, options),
           earlyPushStep(context),
           proofStep(context, "full"),
           ...(options.monitor ? monitorSteps(context) : []),
         ]
       : [
+          fallowAdvisoryFeedbackStep(context),
           commitStep(context, message, options),
           ...(options.fast && options.monitor ? [] : [proofStep(context, "full")]),
           pushStep(context),
@@ -429,7 +451,7 @@ const stepsForMode = (
 ): ReadonlyArray<RepoPlanStep> =>
   YeetRunMode.$match(options.mode, {
     repair: () => [...repairSteps(context), ...feedbackSteps(context)],
-    verify: () => [proofStep(context, options.tier)],
+    verify: () => [fallowAdvisoryFeedbackStep(context), proofStep(context, options.tier)],
     publish: () => publishSteps(context, message, options),
     monitor: () => monitorSteps(context),
     closeout: () => closeoutSteps(context),

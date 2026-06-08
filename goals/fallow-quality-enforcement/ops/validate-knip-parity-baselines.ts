@@ -274,7 +274,7 @@ const entryPointInventory = run(
   ],
   0
 );
-expectEqual("fallow entry_point_count", Number(entryPointInventory.json.entry_point_count), 2490);
+expectEqual("fallow entry_point_count", Number(entryPointInventory.json.entry_point_count), 2491);
 expectStringContains("fallow entry-point warnings", entryPointInventory.output, "Skipped");
 expectStringContains("fallow entry-point warnings", entryPointInventory.output, "parent directory traversal");
 

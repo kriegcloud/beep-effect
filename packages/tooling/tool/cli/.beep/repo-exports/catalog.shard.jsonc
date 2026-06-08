@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "34346d77fe7477ed14d48afb357abb09a10f90b72a9f5a54a259e3861d2b7d4b",
+    "digest": "3e448f7a2efa563367935e76505609be2797843d82793689413b60242ef6a23a",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -657,13 +657,18 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
-        "sha256": "f32f37eb811067d20d491fb3747aa82930c1d34b844597d88296a948d5190579",
-        "bytes": 922
+        "sha256": "2d98777db4215d061f76306e6450ae24eefdad3c19c1182a13354f470647b210",
+        "bytes": 949
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
         "sha256": "eebe7ae6a4717c26924082a7130e638178c5e7bb660e8815c9c0fcf58dc35cf4",
         "bytes": 29015
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
+        "sha256": "b3d4327a7b3e2259fcc69b7ec4d9c8bba8932b705900e4dbf687886841a6adae",
+        "bytes": 19857
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
@@ -677,18 +682,18 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sha256": "5beff2b490bdccc157c5a62da8f5c263b66450727f03d28143da6262a8b187bb",
-        "bytes": 16018
+        "sha256": "aff77fa3c7c7cac9d2f1af828c0e42ab23079bef0aff6323e3a336a710a35970",
+        "bytes": 16552
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sha256": "c893aa7603f25f9975e1ca7a483da009c39ba5975ab965c8834ec26082a07b04",
-        "bytes": 24267
+        "sha256": "402830b7b88e857b9ea6e71c8ebc3a782ce8e8c469e068d255639a24d99d8a69",
+        "bytes": 25077
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sha256": "343192973bda48cad98f692e24465069d08dc94e55a8de326ed4805003d272a6",
-        "bytes": 7564
+        "sha256": "d0bbcc9358a2ca74394a0191df85d252978fc0e48dcbfa0f547329170496e04f",
+        "bytes": 10536
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts",
@@ -946,9 +951,9 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1801,
-      "uniqueSymbols": 667,
-      "sourceFiles": 149
+      "publicExportEntries": 1807,
+      "uniqueSymbols": 668,
+      "sourceFiles": 150
     },
     "exports": [
       {
@@ -1487,7 +1492,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 204,
+        "sourceLine": 287,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -35102,7 +35107,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 227,
+        "sourceLine": 254,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -35127,7 +35132,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 173,
+        "sourceLine": 199,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -35141,6 +35146,55 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet ./commands/yeet qualityissue class one normalized quality issue. models packages/tooling/tool/cli/src/commands/yeet/internal/qualityissueindex.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet",
+        "exportSubpath": "./commands/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "QualityIssueAttribution",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
+        "sourceLine": 140,
+        "summary": "Source attribution carried by normalized advisory analyzer issues.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet ./commands/yeet qualityissueattribution const source attribution carried by normalized advisory analyzer issues. models packages/tooling/tool/cli/src/commands/yeet/internal/qualityissueindex.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet",
+        "exportSubpath": "./commands/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "QualityIssueAttribution",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
+        "sourceLine": 152,
+        "summary": "Source attribution carried by normalized advisory analyzer issues.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet ./commands/yeet qualityissueattribution type source attribution carried by normalized advisory analyzer issues. models packages/tooling/tool/cli/src/commands/yeet/internal/qualityissueindex.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -35250,7 +35304,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 253,
+        "sourceLine": 280,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -35275,7 +35329,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 141,
+        "sourceLine": 167,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -35349,7 +35403,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 204,
+        "sourceLine": 287,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -35498,7 +35552,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 227,
+        "sourceLine": 254,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -35523,7 +35577,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 173,
+        "sourceLine": 199,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -35537,6 +35591,55 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet/index ./commands/yeet/index qualityissue class one normalized quality issue. models packages/tooling/tool/cli/src/commands/yeet/internal/qualityissueindex.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet/index",
+        "exportSubpath": "./commands/Yeet/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "QualityIssueAttribution",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
+        "sourceLine": 140,
+        "summary": "Source attribution carried by normalized advisory analyzer issues.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet/index ./commands/yeet/index qualityissueattribution const source attribution carried by normalized advisory analyzer issues. models packages/tooling/tool/cli/src/commands/yeet/internal/qualityissueindex.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet/index",
+        "exportSubpath": "./commands/Yeet/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "QualityIssueAttribution",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
+        "sourceLine": 152,
+        "summary": "Source attribution carried by normalized advisory analyzer issues.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet/index ./commands/yeet/index qualityissueattribution type source attribution carried by normalized advisory analyzer issues. models packages/tooling/tool/cli/src/commands/yeet/internal/qualityissueindex.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -35646,7 +35749,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 253,
+        "sourceLine": 280,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -35671,7 +35774,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 141,
+        "sourceLine": 167,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -35745,7 +35848,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 204,
+        "sourceLine": 287,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -35894,7 +35997,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 204,
+        "sourceLine": 287,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -44391,7 +44494,7 @@
         "symbolName": "buildQualityIssueIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 728,
+        "sourceLine": 755,
         "summary": "Build a schema-first issue index from normalized issues.",
         "categories": [
           "constructors"
@@ -44418,7 +44521,7 @@
         "symbolName": "buildYeetRunPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 524,
+        "sourceLine": 546,
         "summary": "Build the publish-mode yeet run plan.",
         "categories": [
           "workflows"
@@ -44471,7 +44574,7 @@
         "symbolName": "buildYeetRunPlanWithMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 486,
+        "sourceLine": 508,
         "summary": "Build a yeet run plan for a specific mode.",
         "categories": [
           "workflows"
@@ -45031,7 +45134,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 227,
+        "sourceLine": 254,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -45224,7 +45327,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 173,
+        "sourceLine": 199,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -45238,6 +45341,55 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet qualityissue class one normalized quality issue. models packages/tooling/tool/cli/src/commands/yeet/internal/qualityissueindex.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "QualityIssueAttribution",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
+        "sourceLine": 140,
+        "summary": "Source attribution carried by normalized advisory analyzer issues.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet qualityissueattribution const source attribution carried by normalized advisory analyzer issues. models packages/tooling/tool/cli/src/commands/yeet/internal/qualityissueindex.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "QualityIssueAttribution",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
+        "sourceLine": 152,
+        "summary": "Source attribution carried by normalized advisory analyzer issues.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet qualityissueattribution type source attribution carried by normalized advisory analyzer issues. models packages/tooling/tool/cli/src/commands/yeet/internal/qualityissueindex.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -45347,7 +45499,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 253,
+        "sourceLine": 280,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -45372,7 +45524,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 141,
+        "sourceLine": 167,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -45446,7 +45598,7 @@
         "symbolName": "qualityIssuesFromStepResult",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 674,
+        "sourceLine": 701,
         "summary": "Convert a failed step result into quality issues.",
         "categories": [
           "parsing"
@@ -46230,7 +46382,7 @@
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
-        "sourceLine": 204,
+        "sourceLine": 287,
         "summary": "Command that repairs, verifies, or publishes repository work through Yeet.",
         "categories": [
           "cli-commands"
@@ -46280,7 +46432,7 @@
         "symbolName": "yeetPlanPhases",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 554,
+        "sourceLine": 576,
         "summary": "Return plan phases in execution order.",
         "categories": [
           "utilities"

@@ -2,7 +2,7 @@
 
 ## Status
 
-**ACTIVE - P2 CI envelope hardening implemented, P3 Yeet advisory feedback next**
+**ACTIVE - P3 Yeet advisory feedback implemented, blocking promotion still gated**
 
 ## Owner
 
@@ -49,7 +49,9 @@ existing repo-law standards.
 - `beep fallow boundaries` may remain as a compatibility alias while Fallow
   migrates under `beep quality`.
 - P1 wrappers are report-only and stay outside `pre-push`.
-- P3 adds an explicit advisory Yeet feedback step before any blocking promotion.
+- P3 adds an explicit advisory Yeet feedback step before any blocking promotion;
+  the advisory step is implemented and emits nonblocking `QualityIssueIndex`
+  packets from Fallow envelopes.
 - P3 blocking promotion must be wired through `quality github-checks pre-push`
   so Yeet verify, Yeet publish, and `audit:github pre-push` remain equivalent.
 - Blocking promotion must also prove the normal

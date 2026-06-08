@@ -16,7 +16,7 @@
       "falsePositiveOwner": "@beep-team",
       "promotionStatus": "research",
       "retirementDecision": "keep-knip",
-      "retirementRationale": "Fallow reports 2,490 entry points and skipped parent-traversal package.json entries, so explicit Knip entry behavior is not proven equivalent.",
+      "retirementRationale": "Fallow reports 2,491 entry points and skipped parent-traversal package.json entries, so explicit Knip entry behavior is not proven equivalent.",
       "acceptanceCommands": [
         "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
         "bun run fallow -- list --entry-points --config .fallowrc.jsonc --format json --quiet",

@@ -10995,8 +10995,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts": {
-    "mtime": 1780932731.9764419,
-    "ast_hash": "e5d8d2e45a173f5b58a17f5a4f4ae1d4",
+    "mtime": 1780943374.1547089,
+    "ast_hash": "3371868954f631ada53ea9d86f1f76cf",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Yeet/Yeet.errors.ts": {
@@ -11005,8 +11005,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Yeet/index.ts": {
-    "mtime": 1780590551.4617596,
-    "ast_hash": "ffc0e3ab7be05de97b0bdae6a912c006",
+    "mtime": 1780943374.1457086,
+    "ast_hash": "dd1f5274b6eb59d64c0b9148d312d535",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts": {
@@ -11025,13 +11025,13 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts": {
-    "mtime": 1780932731.9764419,
-    "ast_hash": "c489cc72a775d9fe57465b7fb71a29f3",
+    "mtime": 1780943357.9863565,
+    "ast_hash": "b7838c307e6dfe7a3585c446d4f002de",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts": {
-    "mtime": 1780932731.9764419,
-    "ast_hash": "e1d2a8288559f954fc86496fdb6f5b93",
+    "mtime": 1780943175.5343509,
+    "ast_hash": "8e39785132fbfa115ffc8fec56c313b6",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/index.ts": {
@@ -12910,8 +12910,8 @@
     "semantic_hash": ""
   },
   "goals/fallow-quality-enforcement/README.md": {
-    "mtime": 1780940086.0632713,
-    "ast_hash": "71bb20bc86ba217062b7fe0d3072a20f",
+    "mtime": 1780943717.200212,
+    "ast_hash": "60ec5f85e8430dc363d0d47025fea1f5",
     "semantic_hash": ""
   },
   "goals/fallow-quality-enforcement/SPEC.md": {
@@ -15255,8 +15255,8 @@
     "semantic_hash": ""
   },
   "standards/repo-exports.catalog.md": {
-    "mtime": 1780942772.4854457,
-    "ast_hash": "a4de1d4562bfe98dc25121712d0e9f91",
+    "mtime": 1780943780.4275994,
+    "ast_hash": "3c4db94822d29283f8393b36d8e04c6b",
     "semantic_hash": ""
   },
   "goals/repo-codegraph-jsdoc/WHITEPAPER.md": {
@@ -15517,6 +15517,11 @@
   ".beep/fallow/raw/health-tool-failed.combined.txt": {
     "mtime": 1780940348.5651183,
     "ast_hash": "5c28d73090dac7019f6f7071360dc7e6",
+    "semantic_hash": ""
+  },
+  "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts": {
+    "mtime": 1780944532.5801575,
+    "ast_hash": "78b7118f986ec0889889a979945435bf",
     "semantic_hash": ""
   }
 }

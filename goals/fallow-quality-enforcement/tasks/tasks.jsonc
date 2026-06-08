@@ -130,7 +130,7 @@
     {
       "id": "fqe-004",
       "rank": 5,
-      "status": "seeded",
+      "status": "done",
       "phase": "P3",
       "title": "Add Yeet advisory Fallow feedback step",
       "summary": "Decode Fallow envelopes through schema-first models and map advisory findings into `QualityIssue` packets with `blocking: false`.",
@@ -155,13 +155,24 @@
       ],
       "dependencies": ["fqe-005"],
       "rollbackPlan": "Disable Fallow parser registration and keep raw artifact upload only.",
-      "evidenceRefs": ["SPEC.md#yeet-mapping"],
+      "evidenceRefs": [
+        "SPEC.md#yeet-mapping",
+        "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
+        "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
+        "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
+        "goals/fallow-quality-enforcement/reports/report-envelope-fixtures.jsonc"
+      ],
       "owner": "@beep-team",
       "riskLevel": "high",
       "decisionGate": {
         "kind": "schema-first-parser-fixtures",
-        "status": "blocked",
-        "evidence": ["SPEC.md#report-envelope"]
+        "status": "passed",
+        "evidence": [
+          "SPEC.md#report-envelope",
+          "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
+          "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
+          "goals/fallow-quality-enforcement/reports/report-envelope-fixtures.jsonc"
+        ]
       }
     },
     {

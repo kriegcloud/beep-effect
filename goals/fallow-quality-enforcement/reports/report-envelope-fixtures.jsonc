@@ -178,6 +178,50 @@
       "subCategory": "fallow:audit:tool-context",
       "blocking": false,
       "attribution": "not-applicable"
+    },
+    {
+      "id": "yeet-fallow-tool-failed",
+      "sourceFeature": "health",
+      "sourceEnvelopeRef": ".beep/fallow/health.json",
+      "sourceFindingId": "tool-failed",
+      "tool": "fallow",
+      "parser": "fallow/health/v1",
+      "subCategory": "fallow:health:tool-failed",
+      "blocking": false,
+      "attribution": "not-applicable"
+    },
+    {
+      "id": "yeet-fallow-invalid-json",
+      "sourceFeature": "dead-code",
+      "sourceEnvelopeRef": ".beep/fallow/dead-code.json",
+      "sourceFindingId": "invalid-json",
+      "tool": "fallow",
+      "parser": "fallow/dead-code/v1",
+      "subCategory": "fallow:dead-code:invalid-json",
+      "blocking": false,
+      "attribution": "not-applicable"
+    },
+    {
+      "id": "yeet-fallow-invalid-report",
+      "sourceFeature": "flags",
+      "sourceEnvelopeRef": ".beep/fallow/flags.json",
+      "sourceFindingId": "invalid-report",
+      "tool": "fallow",
+      "parser": "fallow/flags/v1",
+      "subCategory": "fallow:flags:invalid-report",
+      "blocking": false,
+      "attribution": "not-applicable"
+    },
+    {
+      "id": "yeet-fallow-base-resolution-failed",
+      "sourceFeature": "boundaries",
+      "sourceEnvelopeRef": ".beep/fallow/boundaries.json",
+      "sourceFindingId": "base-resolution-failed",
+      "tool": "fallow",
+      "parser": "fallow/boundaries/v1",
+      "subCategory": "fallow:boundaries:base-resolution-failed",
+      "blocking": false,
+      "attribution": "not-applicable"
     }
   ]
 }

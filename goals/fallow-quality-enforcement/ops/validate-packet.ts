@@ -1115,6 +1115,13 @@ const yeetPublishPlanContractCommand =
   'bun run beep yeet publish --message "chore(fallow): plan proof" --plan --json | bun run beep yeet plan-contract-check --from-stdin --expect-step-id full:01-pre-push --expect-step-label full:pre-push --expect-command bun --expect-args "run beep quality github-checks pre-push"';
 const yeetFallowFixtureCheckCommand =
   "bun run beep yeet fallow-fixture-check goals/fallow-quality-enforcement/reports/report-envelope-fixtures.jsonc --emit .beep/yeet/fallow-quality-issues.json --assert QualityIssueIndex,tool=fallow,blocking=false,attribution";
+const yeetPackageCheckCommand = "bun run --cwd packages/tooling/tool/cli check";
+const requiredLatestReviewAcceptanceCommands = [
+  yeetPackageCheckCommand,
+  yeetPlanContractCommand,
+  yeetPublishAdvisoryPlanContractCommand,
+  yeetFallowFixtureCheckCommand,
+] as const;
 const githubChecksPlanContractCommand =
   "bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes";
 const ciFallowContractCommand =
@@ -1885,8 +1892,18 @@ const tasksDiagnostics = (document: TasksDocument): ReadonlyArray<string> => {
       if (task.id === "fqe-004" && !hasCommand(allCommands, yeetFallowFixtureCheckCommand)) {
         diagnostics.push(`${task.id}: Yeet advisory task must decode Fallow fixtures into a QualityIssueIndex`);
       }
-      if (task.id === "fqe-004" && (task.status !== "seeded" || task.decisionGate.status !== "blocked")) {
-        diagnostics.push(`${task.id}: P3 Yeet advisory feedback must remain seeded/blocked until implemented`);
+      if (task.id === "fqe-004" && (task.status !== "done" || task.decisionGate.status !== "passed")) {
+        diagnostics.push(`${task.id}: P3 Yeet advisory feedback must be done/passed after implementation`);
+      }
+      if (
+        task.id === "fqe-004" &&
+        task.decisionGate.status === "passed" &&
+        !A.contains(
+          task.decisionGate.evidence,
+          "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+        )
+      ) {
+        diagnostics.push(`${task.id}: passed decision gate requires FallowFeedback.ts evidence`);
       }
       if (
         task.id === "fqe-005" &&
@@ -2108,15 +2125,24 @@ const reportFixtureDiagnostics = (document: ReportFixtureDocument): ReadonlyArra
   );
   const fixturesByPath = new Map(A.map(document.fixtures, (fixture) => [fixture.reportPath, fixture] as const));
   const findingByEnvelopeAndId = new Map<string, FallowReportFinding>();
+  const expectedYeetIssueRefs: Array<string> = [];
   for (const fixture of document.fixtures) {
     if (fixture.status === "ok") {
       for (const finding of fixture.report.findings) {
         findingByEnvelopeAndId.set(`${fixture.reportPath}#${finding.id}`, finding);
+        expectedYeetIssueRefs.push(`${fixture.reportPath}#${finding.id}`);
       }
+    } else {
+      expectedYeetIssueRefs.push(`${fixture.reportPath}#${fixture.status}`);
     }
   }
+  const actualYeetIssueRefs = A.map(
+    document.yeetIssueFixtures,
+    (fixture) => `${fixture.sourceEnvelopeRef}#${fixture.sourceFindingId}`
+  );
   return [
     ...sameSetDiagnostics("report envelope fixture statuses", reportEnvelopeStatuses, statuses),
+    ...sameSetDiagnostics("Yeet issue fixture source refs", expectedYeetIssueRefs, actualYeetIssueRefs),
     ...sameSetDiagnostics(
       "report envelope attribution kinds",
       FindingAttributionKind.Options,
@@ -2186,7 +2212,11 @@ const reportFixtureDiagnostics = (document: ReportFixtureDocument): ReadonlyArra
         diagnostics.push(`${fixture.id}: sourceEnvelopeRef must reference a report fixture`);
       }
       if (sourceFinding === undefined) {
-        diagnostics.push(`${fixture.id}: sourceFindingId must reference a finding from the source envelope`);
+        if (sourceEnvelope === undefined || sourceEnvelope.status === "ok") {
+          diagnostics.push(`${fixture.id}: sourceFindingId must reference a finding from the source envelope`);
+        } else if (fixture.sourceFindingId !== sourceEnvelope.status) {
+          diagnostics.push(`${fixture.id}: failure sourceFindingId must match source envelope status`);
+        }
       }
       if (sourceEnvelope !== undefined && sourceEnvelope.subcommand !== fixture.sourceFeature) {
         diagnostics.push(`${fixture.id}: sourceFeature must match source envelope subcommand`);
@@ -2200,6 +2230,18 @@ const reportFixtureDiagnostics = (document: ReportFixtureDocument): ReadonlyArra
         }
         if (fixture.attribution !== sourceFinding.attribution) {
           diagnostics.push(`${fixture.id}: attribution must match source finding attribution`);
+        }
+      } else if (sourceEnvelope !== undefined && sourceEnvelope.status !== "ok") {
+        const expectedParser = `fallow/${sourceEnvelope.subcommand}/v1`;
+        const expectedSubCategory = `fallow:${sourceEnvelope.subcommand}:${sourceEnvelope.status}`;
+        if (fixture.parser !== expectedParser) {
+          diagnostics.push(`${fixture.id}: failure parser must be ${expectedParser}`);
+        }
+        if (fixture.subCategory !== expectedSubCategory) {
+          diagnostics.push(`${fixture.id}: failure subCategory must be ${expectedSubCategory}`);
+        }
+        if (fixture.attribution !== "not-applicable") {
+          diagnostics.push(`${fixture.id}: failure attribution must be not-applicable`);
         }
       }
       if (fixture.blocking) {
@@ -2225,6 +2267,14 @@ const reviewRoundsDiagnostics = (document: ReviewRoundsDocument): ReadonlyArray<
     A.isReadonlyArrayEmpty(latestRound.findings)
       ? []
       : ["review rounds must end with a post-fix zero-finding critic round"];
+  const latestRoundAcceptanceDiagnostics =
+    latestRound === undefined
+      ? []
+      : pipe(
+          requiredLatestReviewAcceptanceCommands,
+          A.filter((command) => !hasCommand(latestRound.acceptanceCommands, command)),
+          A.map((command) => `${latestRound.roundId}: final zero round acceptanceCommands must include ${command}`)
+        );
 
   return [
     ...uniqueDiagnostics(
@@ -2232,6 +2282,7 @@ const reviewRoundsDiagnostics = (document: ReviewRoundsDocument): ReadonlyArray<
       A.map(document.rounds, (round) => round.roundId)
     ),
     ...latestRoundDiagnostics,
+    ...latestRoundAcceptanceDiagnostics,
     ...A.flatMap(document.rounds, (round) => {
       const requiredFindings = A.filter(round.findings, (finding) => finding.severity === "required");
       const openRequiredFindings = A.filter(requiredFindings, (finding) => finding.closureStatus === "open");

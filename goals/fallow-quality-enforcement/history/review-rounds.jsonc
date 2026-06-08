@@ -1394,6 +1394,185 @@
         "bunx biome check goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json",
         "git diff --check -- goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json"
       ]
+    },
+    {
+      "roundId": "round-12-p3-required-fixes",
+      "criticId": "critics-popper-lovelace-meitner",
+      "criticRole": "P3 Yeet Advisory Feedback Critic Panel",
+      "requiredFindingCount": 10,
+      "openRequiredFindingCount": 0,
+      "findings": [
+        {
+          "id": "r12-p-001",
+          "severity": "required",
+          "title": "Plan contract did not prove advisory feedback precedence",
+          "sourceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts"
+          ],
+          "concreteFix": "Added plan-contract diagnostics requiring `advisory:01-fallow-feedback` to stay in the feedback phase before full/publish steps.",
+          "closureStatus": "fixed",
+          "closureEvidenceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ]
+        },
+        {
+          "id": "r12-p-002",
+          "severity": "required",
+          "title": "Plan contract accepted noisy stdin around JSON",
+          "sourceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ],
+          "concreteFix": "Removed JSON substring extraction so plan-contract-check decodes the full trimmed stdin with `S.fromJsonString(RepoRunPlan)`.",
+          "closureStatus": "fixed",
+          "closureEvidenceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ]
+        },
+        {
+          "id": "r12-l-001",
+          "severity": "required",
+          "title": "Runtime Fallow envelopes used JSONC parsing",
+          "sourceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ],
+          "concreteFix": "Changed runtime `.json` envelope reads to strict `S.fromJsonString(FallowEnvelope)` while keeping checked-in fixture reads JSONC-aware.",
+          "closureStatus": "fixed",
+          "closureEvidenceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ]
+        },
+        {
+          "id": "r12-l-002",
+          "severity": "required",
+          "title": "Consumer envelope schema was weaker than the Fallow emitter",
+          "sourceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
+            "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts"
+          ],
+          "concreteFix": "Mirrored emitter constraints for non-empty attribution kinds, literal nonblocking findings, and positive exit statuses for tool/base failures.",
+          "closureStatus": "fixed",
+          "closureEvidenceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ]
+        },
+        {
+          "id": "r12-l-003",
+          "severity": "required",
+          "title": "Advisory Yeet mode could silently downgrade non-advisory envelopes",
+          "sourceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ],
+          "concreteFix": "Added advisory envelope validation and limited directory reads to canonical Fallow lane envelope filenames.",
+          "closureStatus": "fixed",
+          "closureEvidenceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ]
+        },
+        {
+          "id": "r12-l-004",
+          "severity": "required",
+          "title": "Fixture command did not decode the emitted QualityIssueIndex",
+          "sourceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ],
+          "concreteFix": "Made the fixture command re-read `--emit` and decode it through `S.fromJsonString(QualityIssueIndex)` before assertions.",
+          "closureStatus": "fixed",
+          "closureEvidenceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ]
+        },
+        {
+          "id": "r12-m-001",
+          "severity": "required",
+          "title": "Fallow audit duplication baseline temporarily drifted",
+          "sourceRefs": [
+            "goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts",
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ],
+          "concreteFix": "Reduced new parser duplicate structure so the live Fallow audit duplication baseline returned to 156 clone groups.",
+          "closureStatus": "fixed",
+          "closureEvidenceRefs": [
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
+            "goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts"
+          ]
+        },
+        {
+          "id": "r12-m-002",
+          "severity": "required",
+          "title": "Knip parity entry-point baseline was stale after adding the Yeet feedback module",
+          "sourceRefs": [
+            "goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
+            "goals/fallow-quality-enforcement/research/knip-parity.jsonc"
+          ],
+          "concreteFix": "Updated the recorded Fallow entry-point count from 2,490 to 2,491.",
+          "closureStatus": "fixed",
+          "closureEvidenceRefs": [
+            "goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
+            "goals/fallow-quality-enforcement/research/knip-parity.jsonc"
+          ]
+        },
+        {
+          "id": "r12-m-003",
+          "severity": "required",
+          "title": "Final zero critic record did not include P3 Yeet feedback proof",
+          "sourceRefs": [
+            "goals/fallow-quality-enforcement/history/review-rounds.jsonc",
+            "goals/fallow-quality-enforcement/ops/validate-packet.ts"
+          ],
+          "concreteFix": "Added validator invariants for latest final-zero P3 acceptance commands and appended a new P3 final-zero review round.",
+          "closureStatus": "fixed",
+          "closureEvidenceRefs": [
+            "goals/fallow-quality-enforcement/history/review-rounds.jsonc",
+            "goals/fallow-quality-enforcement/ops/validate-packet.ts"
+          ]
+        },
+        {
+          "id": "r12-m-004",
+          "severity": "required",
+          "title": "Failure-envelope Yeet projections were not contractually asserted",
+          "sourceRefs": [
+            "goals/fallow-quality-enforcement/reports/report-envelope-fixtures.jsonc",
+            "goals/fallow-quality-enforcement/ops/validate-packet.ts",
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ],
+          "concreteFix": "Added failure-envelope Yeet issue fixtures, source anchors, and validator coverage for every fixture-derived issue.",
+          "closureStatus": "fixed",
+          "closureEvidenceRefs": [
+            "goals/fallow-quality-enforcement/reports/report-envelope-fixtures.jsonc",
+            "goals/fallow-quality-enforcement/ops/validate-packet.ts",
+            "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts"
+          ]
+        }
+      ],
+      "acceptanceCommands": [
+        "bun run --cwd packages/tooling/tool/cli check",
+        "bun goals/fallow-quality-enforcement/ops/validate-packet.ts",
+        "bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts",
+        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
+        "bun run beep yeet verify --plan --json | bun run beep yeet plan-contract-check --from-stdin --expect-step-id advisory:01-fallow-feedback --expect-step-label fallow-advisory-feedback --expect-command bun --expect-args \"run beep yeet fallow-feedback --from .beep/fallow --emit .beep/yeet/fallow-quality-issues.json --advisory\"",
+        "bun run beep yeet publish --message \"chore(fallow): advisory plan proof\" --plan --json | bun run beep yeet plan-contract-check --from-stdin --expect-step-id advisory:01-fallow-feedback --expect-step-label fallow-advisory-feedback --expect-command bun --expect-args \"run beep yeet fallow-feedback --from .beep/fallow --emit .beep/yeet/fallow-quality-issues.json --advisory\"",
+        "bun run beep yeet fallow-fixture-check goals/fallow-quality-enforcement/reports/report-envelope-fixtures.jsonc --emit .beep/yeet/fallow-quality-issues.json --assert QualityIssueIndex,tool=fallow,blocking=false,attribution"
+      ]
+    },
+    {
+      "roundId": "round-13-p3-final-zero-critic",
+      "criticId": "critic-final-p3",
+      "criticRole": "P3 Final Zero Critic Panel",
+      "requiredFindingCount": 0,
+      "openRequiredFindingCount": 0,
+      "findings": [],
+      "acceptanceCommands": [
+        "bun run --cwd packages/tooling/tool/cli check",
+        "bun goals/fallow-quality-enforcement/ops/validate-packet.ts",
+        "bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts",
+        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
+        "bun run beep yeet verify --plan --json | bun run beep yeet plan-contract-check --from-stdin --expect-step-id advisory:01-fallow-feedback --expect-step-label fallow-advisory-feedback --expect-command bun --expect-args \"run beep yeet fallow-feedback --from .beep/fallow --emit .beep/yeet/fallow-quality-issues.json --advisory\"",
+        "bun run beep yeet publish --message \"chore(fallow): advisory plan proof\" --plan --json | bun run beep yeet plan-contract-check --from-stdin --expect-step-id advisory:01-fallow-feedback --expect-step-label fallow-advisory-feedback --expect-command bun --expect-args \"run beep yeet fallow-feedback --from .beep/fallow --emit .beep/yeet/fallow-quality-issues.json --advisory\"",
+        "bun run beep yeet fallow-fixture-check goals/fallow-quality-enforcement/reports/report-envelope-fixtures.jsonc --emit .beep/yeet/fallow-quality-issues.json --assert QualityIssueIndex,tool=fallow,blocking=false,attribution",
+        "bunx biome check goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json",
+        "git diff --check -- goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json"
+      ]
     }
   ]
 }

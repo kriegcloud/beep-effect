@@ -126,6 +126,32 @@ export const QualityIssueConfidence = LiteralKit(["structured", "partial", "raw"
 export type QualityIssueConfidence = typeof QualityIssueConfidence.Type;
 
 /**
+ * Source attribution carried by normalized advisory analyzer issues.
+ *
+ * @example
+ * ```ts
+ * import { QualityIssueAttribution } from "@beep/repo-cli/commands/Yeet"
+ *
+ * console.log(QualityIssueAttribution.is.introduced("introduced"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const QualityIssueAttribution = LiteralKit(["introduced", "inherited-adjacent", "not-applicable"]).pipe(
+  $I.annoteSchema("QualityIssueAttribution", {
+    description: "Attribution class for advisory analyzer issues normalized into Yeet packets.",
+  })
+);
+
+/**
+ * Source attribution carried by normalized advisory analyzer issues.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type QualityIssueAttribution = typeof QualityIssueAttribution.Type;
+
+/**
  * Specialist routing hint for one issue.
  *
  * @example
@@ -193,6 +219,7 @@ export class QualityIssue extends S.Class<QualityIssue>($I`QualityIssue`)(
     sourceAnchor: S.optionalKey(S.String),
     tool: S.String,
     parser: S.String,
+    attribution: QualityIssueAttribution.pipe(S.optionalKey),
     task: S.optionalKey(S.String),
     label: S.optionalKey(S.String),
     command: S.optionalKey(S.String),
