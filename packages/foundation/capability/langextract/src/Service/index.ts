@@ -140,7 +140,7 @@ export const make = Effect.fn("LangExtractService.make")(function* () {
         annotatedDocument,
         diagnostics: LangExtractDiagnostics.make({
           alignedCount: NonNegativeInt.make(alignedCount),
-          candidateCount: NonNegativeInt.make(candidates.length),
+          candidateCount: NonNegativeInt.make(extractions.length),
           promptChars: NonNegativeInt.make(prompt.length),
           unalignedCount: NonNegativeInt.make(unalignedCount),
         }),

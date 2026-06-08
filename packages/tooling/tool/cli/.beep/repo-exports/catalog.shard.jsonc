@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "d4e78d3a3eba2499336066d976486cb972d0bc74089de7b927acdd88a9a89bf6",
+    "digest": "ab9d7357f8b530f28f0368b611003e9c1a4f19dbef103581378a0a2871b7a23c",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -267,8 +267,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sha256": "7647bfa85cfb1cdeb17d6b949b2fa85f2c551b2449f8e4ad4b9f8e5fba84b8ce",
-        "bytes": 50024
+        "sha256": "3f2eb587a7e548c1dacaabec937d7e1ab78d5e2a2421ddd5cef274af32ab4f42",
+        "bytes": 50018
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",

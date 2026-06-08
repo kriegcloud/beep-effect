@@ -689,7 +689,7 @@ const runMcpSessionProbe = Effect.fn("GraphitiProxyOps.runMcpSessionProbe")(func
       'status_body=\'{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_status","arguments":{}}}\'',
       'curl -sS -m 10 -N -D "$headers" -H "content-type: application/json" -H "accept: application/json, text/event-stream" --data-binary "$initialize_body" "$graphiti_url" > "$body" || true',
       'cat "$body"',
-      'session_id="$(awk \'BEGIN{IGNORECASE=1} /^mcp-session-id:/ {gsub("\\r","",$2); print $2; exit}\' "$headers")"',
+      'session_id="$(awk \'tolower($0) ~ /^mcp-session-id:/ {gsub("\\r","",$2); print $2; exit}\' "$headers")"',
       'test -n "$session_id"',
       'curl -sS -m 10 -N -H "content-type: application/json" -H "accept: application/json, text/event-stream" -H "mcp-session-id: $session_id" --data-binary "$initialized_body" "$graphiti_url" >/dev/null || true',
       'curl -sS -m 10 -N -H "content-type: application/json" -H "accept: application/json, text/event-stream" -H "mcp-session-id: $session_id" --data-binary "$tools_body" "$graphiti_url" || true',

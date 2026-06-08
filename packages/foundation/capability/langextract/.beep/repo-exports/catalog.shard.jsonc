@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "6dd4e9e4c37bc9e202d20dc9ddaae0c6defc61a7a131221e46b64c4259fcd3b4",
+    "digest": "44b682a411531c8d6928e3723d52f263ede38bcd410887f0f24c3daec1aefb3a",
     "inputs": [
       {
         "path": "packages/foundation/capability/langextract/package.json",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/foundation/capability/langextract/src/Service/index.ts",
-        "sha256": "ffffaa498b6972eee05a27a878995fe7e8adb83ab4b9b0f04b804618e369505b",
-        "bytes": 5470
+        "sha256": "16e702d32cdf2683fa271e88328bb8d0a9f665ce4923e24742c2ec4f5da1726f",
+        "bytes": 5471
       },
       {
         "path": "packages/foundation/capability/langextract/src/Target/index.ts",
