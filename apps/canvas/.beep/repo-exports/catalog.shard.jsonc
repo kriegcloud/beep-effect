@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ad72b76e61cf468d1d5f1bbc958e817fada657a0de22bdf092bc364fd944379d",
+    "digest": "e267f9435071a146db9e9ecbdf9fca4ce29ffb2bb3dc5d06eb352350f0348d47",
     "inputs": [
       {
         "path": "apps/canvas/package.json",
@@ -22,8 +22,8 @@
       },
       {
         "path": "apps/canvas/src/App.tsx",
-        "sha256": "8d444a26c655e9449198abb5faaaccefe844d30fc5a2bcb74d04c701f9bc3983",
-        "bytes": 23620
+        "sha256": "8cecd7441266115c7fc4002c46d68b8c1eaa587f67e072de470470e30887f0c5",
+        "bytes": 23646
       },
       {
         "path": "apps/canvas/src/commandBridge.ts",
@@ -32,8 +32,8 @@
       },
       {
         "path": "apps/canvas/src/main.tsx",
-        "sha256": "0677ac0f3d13bc26ed43d5802ccdb70d3af89facab0eae8ab21e025a227464a3",
-        "bytes": 456
+        "sha256": "ed5640d2b0573ba23484bc31c49363e02936f368e0250889d9bb52b7c3bae566",
+        "bytes": 493
       },
       {
         "path": "generator:repo-exports-catalog",

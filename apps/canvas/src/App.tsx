@@ -383,6 +383,10 @@ const getCanvasAppAtoms: {
   }
 );
 
+interface AppProps {
+  readonly loadBridge?: CanvasCommandBridgeEffect;
+  readonly runtime?: CanvasCommandRuntime;
+}
 /**
  * Canvas desktop shell root component.
  *
@@ -396,13 +400,7 @@ const getCanvasAppAtoms: {
  * @category components
  * @since 0.0.0
  */
-export function App({
-  loadBridge = makeCanvasCommandBridge,
-  runtime: providedRuntime,
-}: {
-  readonly loadBridge?: CanvasCommandBridgeEffect;
-  readonly runtime?: CanvasCommandRuntime;
-}) {
+export function App({ loadBridge = makeCanvasCommandBridge, runtime: providedRuntime }: AppProps) {
   return (
     <RegistryProvider>
       <CanvasAppShell atoms={getCanvasAppAtoms(loadBridge, providedRuntime)} />
