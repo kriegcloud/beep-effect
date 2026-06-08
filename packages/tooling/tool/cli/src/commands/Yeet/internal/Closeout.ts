@@ -597,6 +597,20 @@ const reviewThreadIssue = (thread: GhReviewThread): QualityIssue => {
   );
 };
 
+const greptileIssueLimitExceeded = (issueCount: number | undefined, limit: number): boolean =>
+  limit >= 0 && (issueCount === undefined || issueCount > limit);
+
+/**
+ * Determine whether the Greptile issue-count gate should block closeout.
+ *
+ * @param issueCount - Parsed Greptile issue count, if present.
+ * @param limit - Maximum accepted issue count. Negative values disable the gate.
+ * @returns Whether the issue-count gate should fail.
+ * @category testing
+ * @since 0.0.0
+ */
+export const greptileIssueLimitExceededForTesting = greptileIssueLimitExceeded;
+
 const gateIssues = (
   options: PrCloseoutOptions,
   actionableReviewThreadCount: number,
@@ -622,12 +636,12 @@ const gateIssues = (
         ),
       ]
     : []),
-  ...(options.requireGreptileIssues >= 0 && greptile.issueCount !== options.requireGreptileIssues
+  ...(greptileIssueLimitExceeded(greptile.issueCount, options.requireGreptileIssues)
     ? [
         closeoutIssue(
           "greptile:issues",
           "greptile-review",
-          `Expected Greptile issues ${options.requireGreptileIssues}; found ${greptile.issueCount ?? "unknown"}.`,
+          `Expected at most ${options.requireGreptileIssues} Greptile issues; found ${greptile.issueCount ?? "unknown"}.`,
           [...(greptile.url === undefined ? [] : [greptile.url])]
         ),
       ]

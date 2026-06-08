@@ -4,6 +4,7 @@ import {
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
   gitPathListFromNulOutputForTesting,
+  greptileIssueLimitExceededForTesting,
   greptileRetriggerCommentForTesting,
   jsonObjectTextFromMixedOutputForTesting,
   latestGreptileSummaryForTesting,
@@ -574,6 +575,14 @@ describe("yeet planner", () => {
       score: "5/5",
       url: "https://github.test/pr#greptile",
     });
+  });
+
+  it("treats Greptile issue requirements as an upper bound", () => {
+    expect(greptileIssueLimitExceededForTesting(undefined, -1)).toBe(false);
+    expect(greptileIssueLimitExceededForTesting(undefined, 0)).toBe(true);
+    expect(greptileIssueLimitExceededForTesting(0, 2)).toBe(false);
+    expect(greptileIssueLimitExceededForTesting(2, 2)).toBe(false);
+    expect(greptileIssueLimitExceededForTesting(3, 2)).toBe(true);
   });
 });
 

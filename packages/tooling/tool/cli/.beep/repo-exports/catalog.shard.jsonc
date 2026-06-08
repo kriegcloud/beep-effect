@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "6a7e3d7adc145b3cc8e6aa313e05ce255f4fae1eb4ac0e8f5fd4ba3c1c619415",
+    "digest": "c1876acea87adf3bddb0cd48858416be5a2f06d7aec23277d369c3edd22b9dfd",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -647,8 +647,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sha256": "8d06061618c46375bc293a0785e5026af165faa71df23f50a7b29ec583db29a9",
-        "bytes": 27370
+        "sha256": "9b428b68e6e791dd0c855830e5fecdddea40022b11ee3b9b0c1c1b9ee7d23d75",
+        "bytes": 27930
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
@@ -927,8 +927,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1769,
-      "uniqueSymbols": 651,
+      "publicExportEntries": 1770,
+      "uniqueSymbols": 652,
       "sourceFiles": 146
     },
     "exports": [
@@ -44110,6 +44110,32 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "greptileIssueLimitExceededForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+        "sourceLine": 612,
+        "summary": "Determine whether the Greptile issue-count gate should block closeout.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet greptileissuelimitexceededfortesting const determine whether the greptile issue-count gate should block closeout. testing packages/tooling/tool/cli/src/commands/yeet/internal/closeout.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "greptileRetriggerCommentForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
@@ -45186,7 +45212,7 @@
         "symbolName": "runPrCloseout",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 838,
+        "sourceLine": 852,
         "summary": "Inspect current PR review and bot closeout state.",
         "categories": [
           "use-cases"
