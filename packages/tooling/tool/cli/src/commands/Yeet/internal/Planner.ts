@@ -102,7 +102,18 @@ export type YeetProofTier = typeof YeetProofTier.Type;
  * ```ts
  * import { YeetRunPlanModeOptions } from "@beep/repo-cli/test/Yeet"
  *
- * console.log(YeetRunPlanModeOptions.make({ fast: false, mode: "verify", monitor: false }).mode)
+ * console.log(
+ *   YeetRunPlanModeOptions.make({
+ *     amend: false,
+ *     fast: false,
+ *     mode: "verify",
+ *     monitor: false,
+ *     noEdit: false,
+ *     pushOnly: false,
+ *     startPrEarly: false,
+ *     tier: "full"
+ *   }).mode
+ * )
  * ```
  * @category models
  * @since 0.0.0
@@ -115,6 +126,7 @@ export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`Y
     monitor: S.Boolean,
     noEdit: S.Boolean,
     pushOnly: S.Boolean,
+    startPrEarly: S.Boolean,
     tier: YeetProofTier,
   },
   $I.annote("YeetRunPlanModeOptions", {
@@ -296,8 +308,22 @@ const commitStep = (
       ? options.noEdit
         ? ["commit", "--amend", "--no-edit"]
         : ["commit", "--amend", "-m", O.getOrElse(message, () => "<required-conventional-commit-message>")]
-      : ["commit", "-m", O.getOrElse(message, () => "<required-conventional-commit-message>")]
+      : [
+          "commit",
+          ...(options.startPrEarly ? ["--no-verify"] : []),
+          "-m",
+          O.getOrElse(message, () => "<required-conventional-commit-message>"),
+        ]
   );
+
+const earlyPushStep = (context: RepoRunContext): RepoPlanStep =>
+  gitStep(context, "early-publish:01-git-push", "early-publish:git:push", "early-publish", [
+    "push",
+    "--no-verify",
+    "-u",
+    "origin",
+    "HEAD",
+  ]);
 
 const pushStep = (context: RepoRunContext): RepoPlanStep =>
   gitStep(
@@ -382,12 +408,19 @@ const publishSteps = (
 ): ReadonlyArray<RepoPlanStep> =>
   options.pushOnly
     ? [pushStep(context), ...(options.monitor ? monitorSteps(context) : [])]
-    : [
-        commitStep(context, message, options),
-        ...(options.fast && options.monitor ? [] : [proofStep(context, "full")]),
-        pushStep(context),
-        ...(options.monitor ? monitorSteps(context) : []),
-      ];
+    : options.startPrEarly
+      ? [
+          commitStep(context, message, options),
+          earlyPushStep(context),
+          proofStep(context, "full"),
+          ...(options.monitor ? monitorSteps(context) : []),
+        ]
+      : [
+          commitStep(context, message, options),
+          ...(options.fast && options.monitor ? [] : [proofStep(context, "full")]),
+          pushStep(context),
+          ...(options.monitor ? monitorSteps(context) : []),
+        ];
 
 const stepsForMode = (
   context: RepoRunContext,
@@ -430,7 +463,22 @@ const stepsForMode = (
  *   repoRoot: "/repo",
  *   turbo: TurboPlanSnapshot.make({ graphHealthStatus: "ok", graphHealthWarnings: [], tasks: [] })
  * })
- * console.log(buildYeetRunPlanWithMode(context, O.none(), YeetRunPlanModeOptions.make({ fast: false, mode: "verify", monitor: false })).steps)
+ * console.log(
+ *   buildYeetRunPlanWithMode(
+ *     context,
+ *     O.none(),
+ *     YeetRunPlanModeOptions.make({
+ *       amend: false,
+ *       fast: false,
+ *       mode: "verify",
+ *       monitor: false,
+ *       noEdit: false,
+ *       pushOnly: false,
+ *       startPrEarly: false,
+ *       tier: "full"
+ *     })
+ *   ).steps
+ * )
  * ```
  * @category workflows
  * @since 0.0.0
@@ -489,6 +537,7 @@ export const buildYeetRunPlan: {
         monitor: false,
         noEdit: false,
         pushOnly: false,
+        startPrEarly: false,
         tier: "full",
       })
     )
@@ -513,9 +562,10 @@ export const yeetPlanPhases = (plan: RepoRunPlan): ReadonlyArray<RepoPlanStep["p
           prepare: () => 0,
           feedback: () => 1,
           commit: () => 2,
-          full: () => 3,
-          publish: () => 4,
-          monitor: () => 5,
+          "early-publish": () => 3,
+          full: () => 4,
+          publish: () => 5,
+          monitor: () => 6,
         })
       )
     )

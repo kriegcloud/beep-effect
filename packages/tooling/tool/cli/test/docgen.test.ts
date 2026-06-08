@@ -3263,6 +3263,111 @@ export const parseValue = (value: string): string => value.trim();
     )
   );
 
+  it("skips current proof manifests during docgen check", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          const srcPath = path.join(packageDir, "src", "index.ts");
+          const docsPath = path.join(packageDir, "docs", "modules", "Schema.md");
+          yield* fs.makeDirectory(path.dirname(srcPath), { recursive: true });
+          yield* fs.makeDirectory(path.dirname(docsPath), { recursive: true });
+          yield* fs.writeFileString(path.join(packageDir, "package.json"), encodeJson({ name: "@beep/schema" }));
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            srcPath,
+            `/**
+ * Package docs.
+ *
+ * @packageDocumentation
+ * @category schemas
+ * @since 0.0.0
+ */
+
+/**
+ * Current proof fixture.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ProofFixture = 1;
+`
+          );
+          yield* fs.writeFileString(docsPath, "---\ntitle: Schema\n---\n\n# Schema\n");
+          const packageProcessLayer = Layer.succeed(
+            Process,
+            Process.of({
+              argv: Effect.succeed([]),
+              cwd: Effect.succeed(packageDir),
+              platform: Effect.succeed(process.platform),
+            })
+          );
+          const packageConfigurationLayer = Configuration.layer({
+            enableSearch: true,
+            enforceDescriptions: false,
+            enforceExamples: false,
+            enforceVersion: true,
+            examplesCompilerOptions: defaultCompilerOptions,
+            exclude: [],
+            outDir: "docs",
+            parseCompilerOptions: defaultCompilerOptions,
+            projectHomepage: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema",
+            projectName: "@beep/schema",
+            runExamples: false,
+            srcDir: "src",
+            srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
+            theme: DEFAULT_THEME,
+            tscExecutable: "tsc",
+          });
+
+          yield* writeDocgenProofManifest().pipe(
+            provideScopedLayer(Layer.mergeAll(packageConfigurationLayer, packageProcessLayer))
+          );
+          yield* runDocgenCommand([
+            "check",
+            "-p",
+            "packages/foundation/modeling/schema",
+            "--reuse-proof-manifest",
+            "--json",
+          ]);
+
+          const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
+          const decoded = decodeUnknownJson(output) as {
+            readonly analyses?: ReadonlyArray<unknown>;
+            readonly proofManifests?: ReadonlyArray<{ readonly status?: string }>;
+            readonly summary?: {
+              readonly analyzedPackages?: number;
+              readonly failingPackages?: number;
+              readonly packages?: number;
+              readonly skippedByProofManifest?: number;
+            };
+          };
+
+          expect(decoded.analyses).toHaveLength(0);
+          expect(decoded.proofManifests?.[0]?.status).toBe("current");
+          expect(decoded.summary).toMatchObject({
+            analyzedPackages: 0,
+            failingPackages: 0,
+            packages: 1,
+            skippedByProofManifest: 1,
+          });
+        })
+      )
+    )
+  );
+
   it(
     "checks rejected category values without writing analysis files",
     {

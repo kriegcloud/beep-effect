@@ -37,6 +37,8 @@ the faster lanes explicit and bounded.
   Greptile rerun comment.
 - `publish --amend --no-edit --reuse-verified` skips the full proof only when a
   durable state file proves an exact match to a prior full proof.
+- `publish --start-pr-early --monitor` commits and pushes with hooks skipped
+  before full local proof, then still requires full proof and hosted monitor.
 - Affected repo-export checks use package shards when safe and escalate to full
   catalog check for topology/generator/root changes.
 
@@ -66,6 +68,8 @@ ready-for-review branch is pushed:
 - Publish pushes use `git push -u origin HEAD` and warn when the branch tracks a
   differently named upstream.
 - Verified clean commits have an explicit push-only reuse command.
+- Start-PR-early publish is explicit, monitor-required, and documents hooks as
+  local tripwires rather than authoritative gates.
 - Quality scheduling is machine-aware and prevents competing full proof runs.
 - Hardware profile detection/config can tune local concurrency for current,
   workstation, and CI environments.

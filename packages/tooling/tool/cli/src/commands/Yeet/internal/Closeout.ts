@@ -7,6 +7,7 @@
 // cspell:ignore greptileai
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { O as OptionUtils } from "@beep/utils";
 import { Effect } from "effect";
 import * as A from "effect/Array";
@@ -227,7 +228,7 @@ class GhCloseoutPullRequest extends S.Class<GhCloseoutPullRequest>($I`GhCloseout
     reviewThreads: GhReviewThreadConnection,
     reviews: GhReviewConnection,
   },
-  $I.annote("GhGraphqlPullRequest", {
+  $I.annote("GhCloseoutPullRequest", {
     description: "Pull request GraphQL payload used by Yeet closeout.",
   })
 ) {}
@@ -349,6 +350,49 @@ export class GreptileSummary extends S.Class<GreptileSummary>($I`GreptileSummary
   })
 ) {}
 
+const PrCloseoutGateName = LiteralKit(["hosted-checks", "review-threads", "greptile", "coderabbit", "chatgpt"]).pipe(
+  $I.annoteSchema("PrCloseoutGateName", {
+    description: "Named PR closeout gate represented in durable Yeet state.",
+  })
+);
+
+const PrCloseoutGateStatus = LiteralKit(["passed", "blocked", "unknown", "written"]).pipe(
+  $I.annoteSchema("PrCloseoutGateStatus", {
+    description: "Durable status for one PR closeout gate.",
+  })
+);
+
+/**
+ * Durable PR closeout gate state.
+ *
+ * @example
+ * ```ts
+ * import { PrCloseoutGateState } from "@beep/repo-cli/commands/Yeet"
+ *
+ * const state = PrCloseoutGateState.make({
+ *   name: "greptile",
+ *   status: "passed",
+ *   detail: "Greptile score=5/5 issues=0.",
+ *   count: 0
+ * })
+ * console.log(state.status)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class PrCloseoutGateState extends S.Class<PrCloseoutGateState>($I`PrCloseoutGateState`)(
+  {
+    name: PrCloseoutGateName,
+    status: PrCloseoutGateStatus,
+    detail: S.String,
+    count: S.optionalKey(S.Finite),
+    url: S.optionalKey(S.String),
+  },
+  $I.annote("PrCloseoutGateState", {
+    description: "Durable state for one PR closeout gate.",
+  })
+) {}
+
 /**
  * Yeet PR closeout report.
  *
@@ -366,6 +410,10 @@ export class PrCloseoutReport extends S.Class<PrCloseoutReport>($I`PrCloseoutRep
     prUrl: S.String,
     retriggeredGreptile: S.Boolean,
     schemaVersion: S.Literal("yeet-pr-closeout/v1"),
+    states: S.Array(PrCloseoutGateState).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<PrCloseoutGateState>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<PrCloseoutGateState>()))
+    ),
   },
   $I.annote("PrCloseoutReport", {
     description: "Structured PR closeout result emitted by Yeet.",
@@ -538,6 +586,25 @@ const greptileAuthoredReviewThreadCount = (threads: ReadonlyArray<GhReviewThread
     A.length
   );
 
+const botAuthoredReviewThreadCount = (threads: ReadonlyArray<GhReviewThread>, token: string): number =>
+  pipe(
+    threads,
+    A.filter(
+      (thread) =>
+        !thread.isResolved &&
+        !thread.isOutdated &&
+        A.some(thread.comments.nodes, (comment) => textMatchesAnyToken([token], authorLogin(comment.author)))
+    ),
+    A.length
+  );
+
+const botCommentCount = (comments: ReadonlyArray<GhComment>, token: string): number =>
+  pipe(
+    comments,
+    A.filter((comment) => textMatchesAnyToken([token], authorLogin(comment.author))),
+    A.length
+  );
+
 const inferGreptileIssueCount = (summary: GreptileSummary, activeThreadCount: number): GreptileSummary =>
   summary.issueCount === undefined ? GreptileSummary.make({ ...summary, issueCount: activeThreadCount }) : summary;
 
@@ -673,6 +740,115 @@ const gateIssues = (
       ]
     : []),
 ];
+
+const closeoutGateStates = (
+  options: PrCloseoutOptions,
+  actionableReviewThreadCount: number,
+  greptile: GreptileSummary,
+  botComments: ReadonlyArray<GhComment>,
+  reviewThreads: ReadonlyArray<GhReviewThread>
+): ReadonlyArray<PrCloseoutGateState> => {
+  const greptileBlocked =
+    (Str.isNonEmpty(Str.trim(options.requireGreptileScore)) && greptile.score !== options.requireGreptileScore) ||
+    greptileIssueLimitExceeded(greptile.issueCount, options.requireGreptileIssues);
+  const coderabbitActiveThreads = botAuthoredReviewThreadCount(reviewThreads, "coderabbit");
+  const chatgptActiveThreads = botAuthoredReviewThreadCount(reviewThreads, "chatgpt");
+  const coderabbitComments = botCommentCount(botComments, "coderabbit");
+  const chatgptComments = botCommentCount(botComments, "chatgpt");
+
+  return [
+    PrCloseoutGateState.make({
+      name: "review-threads",
+      status: actionableReviewThreadCount > 0 ? "blocked" : "passed",
+      detail:
+        actionableReviewThreadCount > 0
+          ? `${actionableReviewThreadCount} unresolved actionable review thread(s).`
+          : "No unresolved actionable review threads.",
+      count: actionableReviewThreadCount,
+    }),
+    PrCloseoutGateState.make({
+      name: "greptile",
+      status: greptileBlocked ? "blocked" : options.retriggerGreptile ? "written" : "passed",
+      detail: options.retriggerGreptile
+        ? "Greptile retrigger comment was posted explicitly."
+        : `Greptile score=${greptile.score ?? "unknown"} issues=${greptile.issueCount ?? "unknown"}.`,
+      ...(greptile.issueCount === undefined ? {} : { count: greptile.issueCount }),
+      ...(greptile.url === undefined ? {} : { url: greptile.url }),
+    }),
+    PrCloseoutGateState.make({
+      name: "coderabbit",
+      status: coderabbitActiveThreads > 0 ? "blocked" : coderabbitComments > 0 ? "passed" : "unknown",
+      detail:
+        coderabbitActiveThreads > 0
+          ? `${coderabbitActiveThreads} unresolved CodeRabbit-authored review thread(s).`
+          : coderabbitComments > 0
+            ? "CodeRabbit comments are present and no active CodeRabbit-authored thread remains."
+            : "No CodeRabbit signal was found in fetched bot comments.",
+      count: coderabbitActiveThreads,
+    }),
+    PrCloseoutGateState.make({
+      name: "chatgpt",
+      status: chatgptActiveThreads > 0 ? "blocked" : chatgptComments > 0 ? "passed" : "unknown",
+      detail:
+        chatgptActiveThreads > 0
+          ? `${chatgptActiveThreads} unresolved ChatGPT-authored review thread(s).`
+          : chatgptComments > 0
+            ? "ChatGPT comments are present and no active ChatGPT-authored thread remains."
+            : "No ChatGPT signal was found in fetched bot comments.",
+      count: chatgptActiveThreads,
+    }),
+    PrCloseoutGateState.make({
+      name: "hosted-checks",
+      status: "unknown",
+      detail: "Hosted check state is owned by yeet monitor and gh pr checks.",
+    }),
+  ];
+};
+
+/**
+ * Build durable PR closeout gate states from simplified test inputs.
+ *
+ * @example
+ * ```ts
+ * import { closeoutGateStatesForTesting, GreptileSummary, PrCloseoutOptions } from "@beep/repo-cli/test/Yeet"
+ *
+ * const states = closeoutGateStatesForTesting(
+ *   PrCloseoutOptions.make({
+ *     bots: "coderabbit,chatgpt,greptile",
+ *     requireGreptileIssues: 0,
+ *     requireGreptileScore: "5/5",
+ *     requireReviewComments: 0,
+ *     retriggerGreptile: false
+ *   }),
+ *   0,
+ *   GreptileSummary.make({ issueCount: 0, score: "5/5" }),
+ *   []
+ * )
+ * console.log(states.length)
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const closeoutGateStatesForTesting = (
+  options: PrCloseoutOptions,
+  actionableReviewThreadCount: number,
+  greptile: GreptileSummary,
+  botComments: ReadonlyArray<GreptileSummaryCommentInput>
+): ReadonlyArray<PrCloseoutGateState> =>
+  closeoutGateStates(
+    options,
+    actionableReviewThreadCount,
+    greptile,
+    A.map(botComments, (comment, index) =>
+      GhComment.make({
+        author: GhActor.make({ login: comment.authorLogin }),
+        body: comment.body,
+        id: `comment-${index}`,
+        url: comment.url,
+      })
+    ),
+    []
+  );
 
 const closedPageInfo = GhPageInfo.make({ endCursor: null, hasNextPage: false });
 
@@ -923,6 +1099,13 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
     greptileAuthoredReviewThreadCount(pullRequest.reviewThreads.nodes)
   );
   const issues = [...threadIssues, ...gateIssues(options, actionableThreads.length, greptile)];
+  const states = closeoutGateStates(
+    options,
+    actionableThreads.length,
+    greptile,
+    botComments,
+    pullRequest.reviewThreads.nodes
+  );
 
   if (options.retriggerGreptile) {
     yield* ghOutput(context, ["pr", "comment", `${pr.number}`, "--body", GREPTILE_RETRIGGER_COMMENT], "gh pr comment");
@@ -938,5 +1121,6 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
     prUrl: pr.url,
     retriggeredGreptile: options.retriggerGreptile,
     schemaVersion: "yeet-pr-closeout/v1",
+    states,
   });
 });

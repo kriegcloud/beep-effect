@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { cpus, totalmem } from "node:os";
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
@@ -66,10 +67,205 @@ const effectDiagnosticsOffDirectivePattern = new RegExp(`${effectDiagnosticsDire
 const effectTsgoDiagnosticPattern = /\b(?:error|warning) TS\d+: .* effect\([^)]+\)/u;
 const decodeUnknownRecordOption = S.decodeUnknownOption(S.Record(S.String, S.Unknown));
 const decodeUnknownArrayOption = S.decodeUnknownOption(S.Array(S.Unknown));
+const QUALITY_PROFILE_NAMES = ["current", "workstation", "ci"] as const;
 const effectTsgoReadmeParser = new XMLParser({
   ignoreAttributes: false,
   trimValues: true,
 });
+
+/**
+ * Explicit machine profile used to tune future quality scheduling.
+ *
+ * @example
+ * ```ts
+ * import { QualityHardwareProfile } from "@beep/repo-cli/commands/Quality"
+ *
+ * console.log(QualityHardwareProfile.is.workstation("workstation"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const QualityHardwareProfile = LiteralKit(QUALITY_PROFILE_NAMES).pipe(
+  $I.annoteSchema("QualityHardwareProfile", {
+    description: "Named local hardware profile for quality scheduling guidance.",
+  })
+);
+
+/**
+ * Explicit machine profile used to tune future quality scheduling.
+ *
+ * @example
+ * ```ts
+ * import type { QualityHardwareProfile } from "@beep/repo-cli/commands/Quality"
+ *
+ * const profile: QualityHardwareProfile = "current"
+ * console.log(profile)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type QualityHardwareProfile = typeof QualityHardwareProfile.Type;
+
+/**
+ * Static quality scheduling settings for a hardware profile.
+ *
+ * @example
+ * ```ts
+ * import { QualityProfileConfig } from "@beep/repo-cli/commands/Quality"
+ *
+ * const config = QualityProfileConfig.make({
+ *   profile: "current",
+ *   turboConcurrency: 3,
+ *   docgenParallel: 3,
+ *   fullProofSlots: 1,
+ *   reviewFixSlots: 1,
+ *   notes: []
+ * })
+ * console.log(config.profile)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class QualityProfileConfig extends S.Class<QualityProfileConfig>($I`QualityProfileConfig`)(
+  {
+    profile: QualityHardwareProfile,
+    turboConcurrency: S.Finite,
+    docgenParallel: S.Finite,
+    fullProofSlots: S.Finite,
+    reviewFixSlots: S.Finite,
+    notes: S.Array(S.String),
+  },
+  $I.annote("QualityProfileConfig", {
+    description: "Static quality scheduling settings for a hardware profile.",
+  })
+) {}
+
+/**
+ * Detected quality profile plus host facts.
+ *
+ * @example
+ * ```ts
+ * import { QualityProfileDetection } from "@beep/repo-cli/commands/Quality"
+ *
+ * const detection = QualityProfileDetection.make({
+ *   profile: "current",
+ *   cpuCount: 8,
+ *   memoryGiB: 16,
+ *   config: {
+ *     profile: "current",
+ *     turboConcurrency: 3,
+ *     docgenParallel: 3,
+ *     fullProofSlots: 1,
+ *     reviewFixSlots: 1,
+ *     notes: []
+ *   }
+ * })
+ * console.log(detection.profile)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class QualityProfileDetection extends S.Class<QualityProfileDetection>($I`QualityProfileDetection`)(
+  {
+    profile: QualityHardwareProfile,
+    cpuCount: S.Finite,
+    memoryGiB: S.Finite,
+    config: QualityProfileConfig,
+  },
+  $I.annote("QualityProfileDetection", {
+    description: "Detected quality profile plus host facts.",
+  })
+) {}
+
+type QualityProfileDetectionInput = {
+  readonly ci: boolean;
+  readonly cpuCount: number;
+  readonly totalMemoryBytes: number;
+};
+
+const gibibytes = (bytes: number): number => Math.round((bytes / 1024 / 1024 / 1024) * 10) / 10;
+
+/**
+ * Return static quality scheduling settings for a hardware profile.
+ *
+ * @example
+ * ```ts
+ * import { qualityProfileConfigForTesting } from "@beep/repo-cli/test/Quality"
+ *
+ * console.log(qualityProfileConfigForTesting("workstation").reviewFixSlots)
+ * ```
+ * @category configuration
+ * @since 0.0.0
+ */
+export const qualityProfileConfigForTesting = (profile: QualityHardwareProfile): QualityProfileConfig =>
+  QualityHardwareProfile.$match(profile, {
+    ci: () =>
+      QualityProfileConfig.make({
+        profile,
+        turboConcurrency: 3,
+        docgenParallel: 3,
+        fullProofSlots: 1,
+        reviewFixSlots: 1,
+        notes: ["CI keeps conservative parallelism and relies on hosted job sharding."],
+      }),
+    current: () =>
+      QualityProfileConfig.make({
+        profile,
+        turboConcurrency: 3,
+        docgenParallel: 3,
+        fullProofSlots: 1,
+        reviewFixSlots: 1,
+        notes: ["Current local profile keeps one heavyweight proof active at a time."],
+      }),
+    workstation: () =>
+      QualityProfileConfig.make({
+        profile,
+        turboConcurrency: 8,
+        docgenParallel: 6,
+        fullProofSlots: 1,
+        reviewFixSlots: 3,
+        notes: ["Workstation profile allows parallel review-fix loops while keeping full proofs serialized."],
+      }),
+  });
+
+/**
+ * Detect the quality hardware profile from host facts.
+ *
+ * @example
+ * ```ts
+ * import { detectQualityProfileForTesting } from "@beep/repo-cli/test/Quality"
+ *
+ * const profile = detectQualityProfileForTesting({
+ *   ci: false,
+ *   cpuCount: 64,
+ *   totalMemoryBytes: 128 * 1024 * 1024 * 1024
+ * })
+ * console.log(profile.profile)
+ * ```
+ * @category configuration
+ * @since 0.0.0
+ */
+export const detectQualityProfileForTesting = (input: QualityProfileDetectionInput): QualityProfileDetection => {
+  const profile: QualityHardwareProfile = input.ci
+    ? "ci"
+    : input.cpuCount >= 32 && input.totalMemoryBytes >= 64 * 1024 * 1024 * 1024
+      ? "workstation"
+      : "current";
+
+  return QualityProfileDetection.make({
+    profile,
+    cpuCount: input.cpuCount,
+    memoryGiB: gibibytes(input.totalMemoryBytes),
+    config: qualityProfileConfigForTesting(profile),
+  });
+};
+
+const detectQualityProfile = (): QualityProfileDetection =>
+  detectQualityProfileForTesting({
+    ci: Str.isNonEmpty(Bun.env.CI ?? ""),
+    cpuCount: cpus().length,
+    totalMemoryBytes: totalmem(),
+  });
 
 class EffectTsgoRuleCell extends S.Class<EffectTsgoRuleCell>($I`EffectTsgoRuleCell`)(
   {
@@ -673,6 +869,32 @@ const reviewFixEnv = (base: string, head: string): Record<string, string | undef
   TURBO_SCM_HEAD: head,
 });
 
+/**
+ * Build the docgen command arguments for the review-fix proof lane.
+ *
+ * @param base - Git base ref for changed package discovery.
+ * @param head - Git head ref for changed package discovery.
+ * @returns Arguments passed to `bun run`.
+ * @example
+ * ```ts
+ * import { reviewFixDocgenLocalArgsForTesting } from "@beep/repo-cli/test/Quality"
+ *
+ * console.log(reviewFixDocgenLocalArgsForTesting("origin/main", "HEAD"))
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const reviewFixDocgenLocalArgsForTesting = (base: string, head: string): ReadonlyArray<string> => [
+  "docgen:local",
+  "--",
+  "--base",
+  base,
+  "--head",
+  head,
+  "--parallel=3",
+  "--full",
+];
+
 const runReviewFix = Effect.fn("QualityScriptCommands.runReviewFix")(function* (
   repoRoot: string,
   options: GithubCheckRunOptions
@@ -693,15 +915,7 @@ const runReviewFix = Effect.fn("QualityScriptCommands.runReviewFix")(function* (
   );
 
   yield* Console.log("[github-checks] review-fix: local docgen");
-  yield* runBun(repoRoot, "review-fix:docgen-local", [
-    "docgen:local",
-    "--",
-    "--base",
-    base,
-    "--head",
-    head,
-    "--parallel=3",
-  ]);
+  yield* runBun(repoRoot, "review-fix:docgen-local", reviewFixDocgenLocalArgsForTesting(base, head));
 
   yield* Console.log("[github-checks] review-fix: affected repo export catalog");
   yield* runBun(repoRoot, "review-fix:repo-exports-catalog", [
@@ -1933,6 +2147,42 @@ const runQualityProgram = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effe
 
 const variadicStrings = (values: ReadonlyArray<unknown>): ReadonlyArray<string> => pipe(values, A.filter(P.isString));
 
+const renderQualityProfileConfigLines = (config: QualityProfileConfig): ReadonlyArray<string> => [
+  `profile=${config.profile}`,
+  `turbo_concurrency=${config.turboConcurrency}`,
+  `docgen_parallel=${config.docgenParallel}`,
+  `full_proof_slots=${config.fullProofSlots}`,
+  `review_fix_slots=${config.reviewFixSlots}`,
+  ...A.map(config.notes, (note) => `note=${note}`),
+];
+
+const printQualityProfileConfig = (
+  config: QualityProfileConfig,
+  json: boolean
+): Effect.Effect<void, QualityScriptCommandError> =>
+  json
+    ? jsonStringifyPretty(config).pipe(
+        QualityScriptCommandError.mapError("Failed to encode quality profile config."),
+        Effect.flatMap(Console.log)
+      )
+    : printLines(renderQualityProfileConfigLines(config));
+
+const printQualityProfileDetection = (
+  detection: QualityProfileDetection,
+  json: boolean
+): Effect.Effect<void, QualityScriptCommandError> =>
+  json
+    ? jsonStringifyPretty(detection).pipe(
+        QualityScriptCommandError.mapError("Failed to encode quality profile detection."),
+        Effect.flatMap(Console.log)
+      )
+    : printLines([
+        `profile=${detection.profile}`,
+        `cpu_count=${detection.cpuCount}`,
+        `memory_gib=${detection.memoryGiB}`,
+        ...renderQualityProfileConfigLines(detection.config),
+      ]);
+
 const changedPathsDiffFilter = ["A", "C", "M", "R", "D"].join("");
 
 const changedPathsForRange = Effect.fn("QualityScriptCommands.changedPathsForRange")(function* (
@@ -2325,6 +2575,38 @@ const changesetGraphCommand = Command.make("changeset-graph", {}, () =>
   )
 ).pipe(Command.withDescription("Validate changesets against the current workspace package graph"));
 
+const qualityProfileDetectCommand = Command.make(
+  "detect",
+  {
+    json: Flag.boolean("json").pipe(Flag.withDescription("Print the detected profile as JSON")),
+  },
+  ({ json }) => runQualityProgram(printQualityProfileDetection(detectQualityProfile(), json))
+).pipe(Command.withDescription("Detect the local quality hardware profile"));
+
+const qualityProfileConfigCommand = Command.make(
+  "config",
+  {
+    json: Flag.boolean("json").pipe(Flag.withDescription("Print the profile config as JSON")),
+    profile: Argument.choice("profile", QUALITY_PROFILE_NAMES).pipe(
+      Argument.withDescription("Quality hardware profile to inspect")
+    ),
+  },
+  ({ json, profile }) => runQualityProgram(printQualityProfileConfig(qualityProfileConfigForTesting(profile), json))
+).pipe(Command.withDescription("Print quality scheduling settings for a hardware profile"));
+
+const qualityProfileCommand = Command.make("profile", {}, () =>
+  printLines([
+    "Quality profile commands:",
+    "- bun run beep quality profile detect",
+    "- bun run beep quality profile config current",
+    "- bun run beep quality profile config workstation",
+    "- bun run beep quality profile config ci",
+  ])
+).pipe(
+  Command.withDescription("Inspect quality scheduling hardware profiles"),
+  Command.withSubcommands([qualityProfileDetectCommand, qualityProfileConfigCommand])
+);
+
 /**
  * Quality command group for repo operational checks.
  *
@@ -2350,6 +2632,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality jsdoc-quality",
     "- bun run beep quality repo-exports-catalog",
     "- bun run beep quality turbo-config-proof --base origin/main --head HEAD",
+    "- bun run beep quality profile detect",
     "- bun run beep quality package-verify @beep/repo-cli",
     "- bun run beep quality changeset-graph",
   ])
@@ -2367,6 +2650,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     jsdocQualityCommand,
     repoExportsCatalogCommand,
     turboConfigProofCommand,
+    qualityProfileCommand,
     packageVerifyCommand,
     changesetGraphCommand,
   ])

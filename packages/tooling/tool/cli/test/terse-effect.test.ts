@@ -216,6 +216,12 @@ describe("terse effect laws", () => {
           expect(summary.flowCandidatesDetected).toBe(1);
           expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(true);
+          expect(summary.blockingFiles).toEqual(["packages/demo/src/index.ts"]);
+          expect(summary.rewritableFiles).toEqual(["packages/demo/src/index.ts"]);
+          expect(summary.informationalFiles).toEqual(["packages/demo/src/index.ts"]);
+          expect(summary.blockingFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ thunk-helper$/u);
+          expect(summary.rewritableFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ thunk-helper$/u);
+          expect(summary.informationalFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ flow-candidate$/u);
           expect(source).toContain("onNone: () => undefined");
           expect(source).toContain("parse: (input: string) => pipe(input, parse, render)");
         })
@@ -263,6 +269,12 @@ describe("terse effect laws", () => {
           expect(summary.flowCandidatesDetected).toBe(1);
           expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(false);
+          expect(summary.blockingFiles).toEqual(["packages/demo/src/index.ts"]);
+          expect(summary.rewritableFiles).toEqual(["packages/demo/src/index.ts"]);
+          expect(summary.informationalFiles).toEqual(["packages/demo/src/index.ts"]);
+          expect(summary.blockingFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ thunk-helper$/u);
+          expect(summary.rewritableFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ thunk-helper$/u);
+          expect(summary.informationalFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ flow-candidate$/u);
           expect(source).toContain("onNone: thunkUndefined");
           expect(source).toContain("parse: (input: string) => pipe(input, parse, render)");
         })

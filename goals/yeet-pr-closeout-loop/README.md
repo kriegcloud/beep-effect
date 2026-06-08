@@ -27,6 +27,8 @@ Key decisions:
   explicit Greptile rerun gates.
 - `publish` keeps full local proof unless `--fast --monitor` is explicitly
   selected.
+- `publish --start-pr-early --monitor` overlaps hosted PR startup with full
+  local proof; hooks are tripwires, not authoritative gates.
 - `publish --amend --no-edit --reuse-verified` reuses only exact matching full
   proof state.
 - `review-fix` is a loop accelerator, not a replacement for full pre-push.

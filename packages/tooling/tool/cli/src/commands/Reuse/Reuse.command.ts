@@ -395,6 +395,14 @@ const printLookupSummary = Effect.fn(function* (result: RepoCodegraphLookupResul
   );
 });
 
+/**
+ * Print human-readable lookup output for focused command-renderer tests.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const printLookupSummaryForTesting = printLookupSummary;
+
 const reusePartitionsCommand = Command.make(
   "partitions",
   {

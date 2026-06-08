@@ -28,7 +28,15 @@ const $I = $RepoCliId.create("internal/repo-run/RepoRun.models");
  * @category models
  * @since 0.0.0
  */
-export const RepoPlanPhase = LiteralKit(["prepare", "feedback", "commit", "full", "publish", "monitor"]).pipe(
+export const RepoPlanPhase = LiteralKit([
+  "prepare",
+  "feedback",
+  "commit",
+  "early-publish",
+  "full",
+  "publish",
+  "monitor",
+]).pipe(
   $I.annoteSchema("RepoPlanPhase", {
     description: "Named phase in a repository run plan.",
   })
@@ -362,9 +370,10 @@ const phaseOrderValue = (phase: RepoPlanPhase): number =>
     prepare: () => 0,
     feedback: () => 1,
     commit: () => 2,
-    full: () => 3,
-    publish: () => 4,
-    monitor: () => 5,
+    "early-publish": () => 3,
+    full: () => 4,
+    publish: () => 5,
+    monitor: () => 6,
   });
 
 /**

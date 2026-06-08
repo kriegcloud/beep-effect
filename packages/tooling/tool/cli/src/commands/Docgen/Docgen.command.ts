@@ -8,6 +8,7 @@
  * @since 0.0.0
  */
 
+import { verifyDocgenProofManifest } from "@beep/repo-docgen/ProofManifest";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson";
 import { Runpod, RunpodConfigInput } from "@beep/runpod";
@@ -93,6 +94,9 @@ const planFlag = Flag.boolean("plan").pipe(Flag.withDescription("Print the local
 const fullFlag = Flag.boolean("full").pipe(Flag.withDescription("Run the canonical full docgen proof"));
 const allFlag = Flag.boolean("all").pipe(Flag.withDescription("Run against every configured docgen package"));
 const checkFlag = Flag.boolean("check").pipe(Flag.withDescription("Fail when the command reports failure findings"));
+const reuseProofManifestFlag = Flag.boolean("reuse-proof-manifest").pipe(
+  Flag.withDescription("Skip docgen metadata analysis for packages with current package-local proof manifests")
+);
 const changedFilesFlag = Flag.boolean("changed-files").pipe(
   Flag.withDescription("Run against packages touched by working-tree TypeScript changes only")
 );
@@ -310,6 +314,28 @@ const qualityReportHasBlockingFindings = (report: {
   report.summary.failures > 0 ||
   report.summary.warnings > 0 ||
   A.some(report.packages, (pkg) => pkg.status !== "completed");
+
+const verifyDocgenCheckProofManifests = Effect.fn("Docgen.verifyDocgenCheckProofManifests")(function* (
+  targets: ReadonlyArray<{ readonly absolutePath: string; readonly name: string; readonly relativePath: string }>
+) {
+  return yield* Effect.forEach(
+    targets,
+    (target) =>
+      verifyDocgenProofManifest(target.absolutePath, target.name).pipe(
+        Effect.mapError(DomainError.newCause(`Failed to verify docgen proof manifest for ${target.relativePath}.`))
+      ),
+    { concurrency: 4 }
+  );
+});
+
+const targetHasCurrentDocgenProofManifest = (
+  verifications: ReadonlyArray<{ readonly packagePath: string; readonly status: string }>,
+  target: { readonly absolutePath: string }
+): boolean =>
+  A.some(
+    verifications,
+    (verification) => verification.packagePath === target.absolutePath && verification.status === "current"
+  );
 
 const resolveQualityWorkerEvalSource = Effect.fn("Docgen.resolveQualityWorkerEvalSource")(function* ({
   all,
@@ -695,9 +721,10 @@ const docgenCheckCommand = Command.make(
     package: packageFlag,
     parallel: parallelFlag,
     json: jsonFlag,
+    reuseProofManifest: reuseProofManifestFlag,
   },
   Effect.fn(
-    function* ({ package: selector, parallel, json }) {
+    function* ({ package: selector, parallel, json, reuseProofManifest }) {
       const targets = yield* resolveAnalyzeTargets(selector);
 
       if (targets.length === 0) {
@@ -705,7 +732,12 @@ const docgenCheckCommand = Command.make(
         return;
       }
 
-      const analyses = yield* Effect.forEach(targets, analyzePackageDocumentation, {
+      const proofManifests = reuseProofManifest ? yield* verifyDocgenCheckProofManifests(targets) : [];
+      const analysisTargets = reuseProofManifest
+        ? A.filter(targets, (target) => !targetHasCurrentDocgenProofManifest(proofManifests, target))
+        : targets;
+      const skippedByProofManifest = targets.length - analysisTargets.length;
+      const analyses = yield* Effect.forEach(analysisTargets, analyzePackageDocumentation, {
         concurrency: Math.max(1, parallel),
       });
       const failures = A.filter(analyses, (analysis) => analysis.summary.missingDocumentation > 0);
@@ -714,8 +746,11 @@ const docgenCheckCommand = Command.make(
         yield* Console.log(
           yield* renderJson({
             analyses,
+            proofManifests,
             summary: {
-              packages: analyses.length,
+              packages: targets.length,
+              analyzedPackages: analyses.length,
+              skippedByProofManifest,
               failingPackages: failures.length,
               missingDocumentation: A.reduce(
                 failures,
@@ -729,6 +764,10 @@ const docgenCheckCommand = Command.make(
           return yield* failWithReportedExit("docgen: check found missing documentation.");
         }
         return;
+      }
+
+      if (skippedByProofManifest > 0) {
+        yield* Console.log(`docgen: skipped ${skippedByProofManifest} package(s) with current proof manifests`);
       }
 
       for (const analysis of analyses) {
