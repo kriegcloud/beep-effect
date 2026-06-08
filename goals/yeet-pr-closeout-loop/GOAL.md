@@ -34,6 +34,22 @@ Implementation scope:
 - Add affected repo-export shard checks while preserving full fallback.
 - Update `.claude/skills/yeet/SKILL.md` after code is shipped.
 
+Additional optimization scope for follow-up commits in this PR:
+
+- Narrow repo-export invalidation by decoupling generator fingerprints from
+  monolithic Quality command edits.
+- Persist composite quality sub-lane proof state so late failures do not force
+  clean reruns of already-proven lanes.
+- Share docgen plan/result manifests across check, generate, and aggregate.
+- Split terse-effect output into blocking, informational, and rewritable files.
+- Extract known failed sub-lanes into Yeet failure packets with exact repair
+  commands.
+- Make `git push -u origin HEAD` the default publish push and warn on mismatched
+  upstream branch names.
+- Add an explicit push-only reuse mode for already-verified commits.
+- Add machine-aware proof scheduling plus explicit hardware profiles.
+- Model PR closeout as durable states for bot gates and Greptile reruns.
+
 Guardrails:
 
 - Full pre-push remains canonical for publish.

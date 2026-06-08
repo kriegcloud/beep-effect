@@ -47,3 +47,27 @@ the faster lanes explicit and bounded.
 - Repo catalog artifacts are current after exported CLI symbols change.
 - Packet verification passes.
 - PR proof uses Yeet commands and closeout gates.
+
+## Follow-Up Optimization Backlog
+
+These items are in-scope for follow-up commits on the same PR after the initial
+ready-for-review branch is pushed:
+
+- Repo-export invalidation narrows generator fingerprints and avoids broad shard
+  churn from unrelated Quality command edits.
+- Yeet can record and reuse composite pre-push sub-lane proofs when inputs are
+  unchanged.
+- Docgen check/generate/aggregate can share a run plan and expensive example
+  typecheck results.
+- Terse-effect reports distinguish strict blockers from informational findings
+  and safe rewrites.
+- Yeet failure packets expose known failed sub-lanes directly instead of only a
+  broad command failure.
+- Publish pushes use `git push -u origin HEAD` and warn when the branch tracks a
+  differently named upstream.
+- Verified clean commits have an explicit push-only reuse command.
+- Quality scheduling is machine-aware and prevents competing full proof runs.
+- Hardware profile detection/config can tune local concurrency for current,
+  workstation, and CI environments.
+- Closeout is represented as durable PR states for Greptile, CodeRabbit,
+  ChatGPT, hosted checks, and unresolved review comments.
