@@ -1,6 +1,6 @@
 import { $OntologyId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import { pipe } from "effect";
+import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -30,22 +30,23 @@ export class OntologyMarkdownProjectionOptions extends S.Class<OntologyMarkdownP
   $I`OntologyMarkdownProjectionOptions`
 )(
   {
-    linkMode: S.optionalKey(OntologyMarkdownLinkMode),
+    linkMode: OntologyMarkdownLinkMode.pipe(
+      S.withConstructorDefault(Effect.succeed(OntologyMarkdownLinkMode.Enum.portable))
+    ),
   },
   $I.annote("OntologyMarkdownProjectionOptions", {
     description: "Options for ontology Markdown projection.",
   })
 ) {}
 
-type MarkdownOptionsInput = typeof OntologyMarkdownProjectionOptions.Encoded;
+type MarkdownOptionsInput = Parameters<typeof OntologyMarkdownProjectionOptions.make>[0];
 
 type NormalizedMarkdownOptions = {
   readonly linkMode: OntologyMarkdownLinkMode;
 };
 
-const normalizeOptions = (options: MarkdownOptionsInput = {}): NormalizedMarkdownOptions => ({
-  linkMode: options.linkMode ?? "portable",
-});
+const normalizeOptions = (options: MarkdownOptionsInput = {}): NormalizedMarkdownOptions =>
+  OntologyMarkdownProjectionOptions.make(options);
 
 const markdownText = (value: string): string => pipe(value, Str.replace(/([\\`*_{}[\]()#+\-.!|>~])/g, "\\$1"));
 

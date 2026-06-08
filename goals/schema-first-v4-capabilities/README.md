@@ -171,6 +171,10 @@ statics.
 using `LiteralKit` domains, `QualityTaskName.Enum`, `QualityTaskName.is.lint`,
 and `S.is(...)` guards for quality task routing while keeping the lazy
 `bin-main.ts` preflight intentionally minimal.
+`projectMarkdown(...)` now demonstrates the first defaults remediation by
+constructing `OntologyMarkdownProjectionOptions` through its schema-owned
+`linkMode` constructor default instead of restating the portable-link fallback
+in normalization code.
 Wave 2 also started with HubSpot request-email and shared `EmailString`
 precision pilots. These pilots reduced arbitrary-test advisories from 27 to 0
 and active precision-audit advisories from 7 to 0, with two reviewed precision

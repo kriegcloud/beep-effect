@@ -258,6 +258,10 @@ class-local decoder statics pilot in
 - [ ] Wave 4: migrate options/config/request defaults from parameter defaults
       and fallback objects into schema defaults. Start with schemas already
       modeling option/config/request objects.
+  - [x] Pilot ontology Markdown projection options: moved `linkMode` fallback
+        into `OntologyMarkdownProjectionOptions` with
+        `S.withConstructorDefault(...)` and proved omitted/empty options render
+        equivalently; see `reviews/p4-ontology-markdown-defaults-pilot.md`.
 - [x] Wave 5: add `S.toEquivalence` where schema-modeled equality is manually
       encoded. Completed for `LocalDate.equals` and `Timestamp.equals`; see
       `reviews/p4-equivalence-wave.md`.
