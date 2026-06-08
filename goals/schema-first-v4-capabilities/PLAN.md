@@ -258,6 +258,11 @@ class-local decoder statics pilots in
   - [x] Pilot shared-UI `OrganizationDisplay`: added a property test deriving
         `Display` and `Form` class instances from the source schemas and
         proving browser codec stability plus `primaryLabel`.
+  - [x] Pilot `HttpStatus` (first sync-codec backlog pilot): added a property
+        test deriving the full status-code domain from
+        `S.toArbitrary(HttpStatus.Schema)` and proving the bijective name↔code
+        round-trip, dropping the hardened arbitrary-tests advisories 34 → 33;
+        see `reviews/p4-httpstatus-arbitrary-pilot.md`.
 - [ ] Wave 4: migrate options/config/request defaults from parameter defaults
       and fallback objects into schema defaults. Start with schemas already
       modeling option/config/request objects.

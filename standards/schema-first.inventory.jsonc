@@ -2366,16 +2366,6 @@
       "reason": "Schema-heavy test file has 33 Schema codec assertions but no schema-derived property coverage."
     },
     {
-      "file": "packages/foundation/modeling/schema/test/HttpStatus.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 7,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 8 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
       "file": "packages/foundation/modeling/schema/test/MappedLiteralKit.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",

@@ -100,7 +100,9 @@ bunx vitest run --config scratchpad/vitest.config.ts                  # 9 passed
 ## Still pending
 
 - Wave 3 pilots grind the 34 advisories down one file at a time, with the
-  candidate/exception decision made per file.
+  candidate/exception decision made per file. The first pilot
+  (`reviews/p4-httpstatus-arbitrary-pilot.md`) landed a derived round-trip law
+  for `HttpStatus`, dropping the live count to 33.
 - A later enforcement slice can separate files using hand-written `fc.*`
   arbitraries from files using `S.toArbitrary(...)`; this matcher still only
   separates static-only codec coverage from any property coverage.
