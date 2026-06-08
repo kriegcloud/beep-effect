@@ -173,6 +173,57 @@ describe("yeet planner", () => {
     ).toEqual(["readonly"]);
   });
 
+  it("builds review-fix verify as the targeted review proof", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "verify", tier: "review-fix" });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["full:review-fix"]);
+    expect(findStep(plan.steps, "full:review-fix").args).toEqual([
+      "run",
+      "beep",
+      "quality",
+      "github-checks",
+      "review-fix",
+      "--base",
+      "origin/main",
+      "--head",
+      "feature/head",
+    ]);
+  });
+
+  it("builds closeout as PR context plus review gates", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "closeout" });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["closeout:pr-context", "closeout:review-gates"]);
+    expect(findStep(plan.steps, "closeout:pr-context").args).toEqual([
+      "pr",
+      "view",
+      "--json",
+      "number,headRefName,state,url,headRefOid,isDraft",
+    ]);
+  });
+
+  it("builds amend no-edit publish without requiring a new message", () => {
+    const plan = buildYeetRunPlanForTesting({
+      amend: true,
+      context,
+      message: O.none(),
+      mode: "publish",
+      noEdit: true,
+    });
+
+    expect(findStep(plan.steps, "commit:git:commit:amend").args).toEqual(["commit", "--amend", "--no-edit"]);
+  });
+
   it("builds monitor as current branch PR context plus check watching", () => {
     const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "monitor" });
 
@@ -232,6 +283,14 @@ describe("yeet planner", () => {
       "monitor:pr-context",
       "monitor:pr-checks:watch",
     ]);
+  });
+
+  it("exposes the review-fix repo proof surface", () => {
+    expect(repoProofStepDefinition("review-fix")).toMatchObject({
+      args: ["quality", "github-checks", "review-fix"],
+      label: "full:review-fix",
+      surface: "review-fix",
+    });
   });
 
   it("builds repair as deterministic generators plus affected feedback", () => {

@@ -55,7 +55,7 @@ type YeetFeedbackTask = (typeof YEET_FEEDBACK_TASKS)[number];
  * @category models
  * @since 0.0.0
  */
-export const YeetRunMode = LiteralKit(["repair", "verify", "publish", "monitor"]).pipe(
+export const YeetRunMode = LiteralKit(["repair", "verify", "publish", "monitor", "closeout"]).pipe(
   $I.annoteSchema("YeetRunMode", {
     description: "Execution mode selected for a yeet repository run.",
   })
@@ -68,6 +68,32 @@ export const YeetRunMode = LiteralKit(["repair", "verify", "publish", "monitor"]
  * @since 0.0.0
  */
 export type YeetRunMode = typeof YeetRunMode.Type;
+
+/**
+ * Yeet local proof tier.
+ *
+ * @example
+ * ```ts
+ * import { YeetProofTier } from "@beep/repo-cli/test/Yeet"
+ *
+ * console.log(YeetProofTier.is["review-fix"]("review-fix"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const YeetProofTier = LiteralKit(["full", "review-fix"]).pipe(
+  $I.annoteSchema("YeetProofTier", {
+    description: "Local proof tier selected for yeet verify loops.",
+  })
+);
+
+/**
+ * Yeet local proof tier.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type YeetProofTier = typeof YeetProofTier.Type;
 
 /**
  * Options for building a Yeet run plan in a specific mode.
@@ -83,9 +109,12 @@ export type YeetRunMode = typeof YeetRunMode.Type;
  */
 export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`YeetRunPlanModeOptions`)(
   {
+    amend: S.Boolean,
     fast: S.Boolean,
     mode: YeetRunMode,
     monitor: S.Boolean,
+    noEdit: S.Boolean,
+    tier: YeetProofTier,
   },
   $I.annote("YeetRunPlanModeOptions", {
     description: "Options for building a Yeet run plan in a specific mode.",
@@ -243,17 +272,27 @@ const feedbackSteps = (context: RepoRunContext): ReadonlyArray<RepoPlanStep> =>
     feedbackStep(context, "feedback:04-test", "feedback:test", "test", "test"),
   ]);
 
-const proofStep = (context: RepoRunContext): RepoPlanStep => {
-  const proof = repoProofStepDefinition("pre-push");
-  return bunRunStep(context, proof.id, proof.label, "full", "beep", proof.args, "readonly", "repo");
+const proofStep = (context: RepoRunContext, tier: YeetProofTier): RepoPlanStep => {
+  const proof = repoProofStepDefinition(tier === "review-fix" ? "review-fix" : "pre-push");
+  const proofArgs =
+    tier === "review-fix" ? [...proof.args, "--base", context.base, "--head", context.head] : proof.args;
+  return bunRunStep(context, proof.id, proof.label, "full", "beep", proofArgs, "readonly", "repo");
 };
 
-const commitStep = (context: RepoRunContext, message: O.Option<string>): RepoPlanStep =>
-  gitStep(context, "commit:01-git-commit", "commit:git:commit", "commit", [
+const commitStep = (
+  context: RepoRunContext,
+  message: O.Option<string>,
+  options: YeetRunPlanModeOptions
+): RepoPlanStep =>
+  gitStep(
+    context,
+    "commit:01-git-commit",
+    options.amend ? "commit:git:commit:amend" : "commit:git:commit",
     "commit",
-    "-m",
-    O.getOrElse(message, () => "<required-conventional-commit-message>"),
-  ]);
+    options.amend && options.noEdit
+      ? ["commit", "--amend", "--no-edit"]
+      : ["commit", "-m", O.getOrElse(message, () => "<required-conventional-commit-message>")]
+  );
 
 const pushStep = (context: RepoRunContext): RepoPlanStep =>
   gitStep(context, "publish:01-git-push", "publish:git:push", "publish", ["push"]);
@@ -291,13 +330,46 @@ const monitorSteps = (context: RepoRunContext): ReadonlyArray<RepoPlanStep> => [
   monitorChecksStep(context),
 ];
 
+const closeoutPrContextStep = (context: RepoRunContext): RepoPlanStep =>
+  RepoPlanStep.make({
+    id: "closeout:01-pr-context",
+    label: "closeout:pr-context",
+    phase: "monitor",
+    command: "gh",
+    args: ["pr", "view", "--json", "number,headRefName,state,url,headRefOid,isDraft"],
+    cwd: context.repoRoot,
+    scope: "repo",
+    mutability: "readonly",
+    resume: "never",
+    verification: "current-branch-open-pr",
+  });
+
+const closeoutReviewGateStep = (context: RepoRunContext): RepoPlanStep =>
+  RepoPlanStep.make({
+    id: "closeout:02-review-gates",
+    label: "closeout:review-gates",
+    phase: "monitor",
+    command: "gh",
+    args: ["api", "graphql", "-f", "query=<yeet-closeout-review-query>"],
+    cwd: context.repoRoot,
+    scope: "repo",
+    mutability: "readonly",
+    resume: "never",
+    verification: "review-thread-and-bot-closeout",
+  });
+
+const closeoutSteps = (context: RepoRunContext): ReadonlyArray<RepoPlanStep> => [
+  closeoutPrContextStep(context),
+  closeoutReviewGateStep(context),
+];
+
 const publishSteps = (
   context: RepoRunContext,
   message: O.Option<string>,
   options: YeetRunPlanModeOptions
 ): ReadonlyArray<RepoPlanStep> => [
-  commitStep(context, message),
-  ...(options.fast && options.monitor ? [] : [proofStep(context)]),
+  commitStep(context, message, options),
+  ...(options.fast && options.monitor ? [] : [proofStep(context, "full")]),
   pushStep(context),
   ...(options.monitor ? monitorSteps(context) : []),
 ];
@@ -309,9 +381,10 @@ const stepsForMode = (
 ): ReadonlyArray<RepoPlanStep> =>
   YeetRunMode.$match(options.mode, {
     repair: () => [...repairSteps(context), ...feedbackSteps(context)],
-    verify: () => [proofStep(context)],
+    verify: () => [proofStep(context, options.tier)],
     publish: () => publishSteps(context, message, options),
     monitor: () => monitorSteps(context),
+    closeout: () => closeoutSteps(context),
   });
 
 /**
@@ -393,7 +466,14 @@ export const buildYeetRunPlan: {
     buildYeetRunPlanWithMode(
       context,
       message,
-      YeetRunPlanModeOptions.make({ fast: false, mode: "publish", monitor: false })
+      YeetRunPlanModeOptions.make({
+        amend: false,
+        fast: false,
+        mode: "publish",
+        monitor: false,
+        noEdit: false,
+        tier: "full",
+      })
     )
 );
 

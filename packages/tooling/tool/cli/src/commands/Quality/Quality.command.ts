@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, flow, Order, Path, pipe, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, MutableHashMap, Order, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -24,7 +24,7 @@ import { runChangesetGraphCheck } from "./ChangesetGraph.js";
 import { configStringEqualsSync } from "./internal/Config.js";
 import { writeJSDocDocumentationInventory } from "./internal/JSDocDocumentationInventory.js";
 import { runPackageVerifyCli } from "./internal/PackageVerify.js";
-import { repoRelative } from "./internal/QualityArtifactSupport.js";
+import { discoverWorkspacePackages, repoRelative } from "./internal/QualityArtifactSupport.js";
 import { writeOrCheckRepoExportsCatalog } from "./internal/RepoExportsCatalog.js";
 import {
   renderTurboConfigProofReport,
@@ -36,6 +36,7 @@ import { QualityTaskStep } from "./Tasks.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { ParseError } from "jsonc-parser";
 import type { GithubCheckMode as GithubCheckModeType } from "../../internal/repo-run/index.js";
+import type { WorkspacePackageInfo } from "./internal/QualityArtifactSupport.js";
 
 /**
  * Public quality script command error export.
@@ -130,9 +131,16 @@ const decodeEffectTsgoDiagnosticsTableOption = S.decodeUnknownOption(EffectTsgoD
 
 type QualityScriptEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
 type RepoExportsCatalogRunOptions = {
+  readonly affected?: boolean;
+  readonly base?: string;
   readonly fromShards?: boolean;
+  readonly head?: string;
   readonly packageShard?: boolean;
   readonly packageName?: string;
+};
+type GithubCheckRunOptions = {
+  readonly base?: string;
+  readonly head?: string;
 };
 type TsgoDiagnosticOutput = {
   readonly output: string;
@@ -219,6 +227,22 @@ const runBun = (repoRoot: string, label: string, args: ReadonlyArray<string>) =>
       command: "bun",
       args: ["run", ...args],
       cwd: repoRoot,
+    })
+  );
+
+const runBunWithEnv = (
+  repoRoot: string,
+  label: string,
+  args: ReadonlyArray<string>,
+  env: Record<string, string | undefined>
+) =>
+  runStep(
+    QualityTaskStep.make({
+      label,
+      command: "bun",
+      args: ["run", ...args],
+      cwd: repoRoot,
+      env,
     })
   );
 
@@ -449,6 +473,55 @@ const runQuality = Effect.fn("QualityScriptCommands.runQuality")(function* (
   yield* runChangesetStatus(repoRoot);
 });
 
+const reviewFixEnv = (base: string, head: string): Record<string, string | undefined> => ({
+  TURBO_SCM_BASE: base,
+  TURBO_SCM_HEAD: head,
+});
+
+const runReviewFix = Effect.fn("QualityScriptCommands.runReviewFix")(function* (
+  repoRoot: string,
+  options: GithubCheckRunOptions
+): Effect.fn.Return<void, QualityScriptCommandError, QualityScriptEnvironment> {
+  const base = options.base ?? "origin/main";
+  const head = options.head ?? "HEAD";
+  const env = reviewFixEnv(base, head);
+
+  yield* Console.log(`[github-checks] review-fix: affected build/check/lint/test for ${base}...${head}`);
+  yield* runBunWithEnv(repoRoot, "review-fix:build", ["build", "--", "--affected", "--summarize"], env);
+  yield* runBunWithEnv(repoRoot, "review-fix:check", ["check", "--", "--affected", "--summarize"], env);
+  yield* runBunWithEnv(repoRoot, "review-fix:lint", ["lint", "--", "--affected", "--summarize"], env);
+  yield* runBunWithEnv(
+    repoRoot,
+    "review-fix:test",
+    ["test", "--", "--unit", "--types", "--affected", "--summarize"],
+    env
+  );
+
+  yield* Console.log("[github-checks] review-fix: local docgen");
+  yield* runBun(repoRoot, "review-fix:docgen-local", [
+    "docgen:local",
+    "--",
+    "--base",
+    base,
+    "--head",
+    head,
+    "--parallel=3",
+  ]);
+
+  yield* Console.log("[github-checks] review-fix: affected repo export catalog");
+  yield* runBun(repoRoot, "review-fix:repo-exports-catalog", [
+    "beep",
+    "quality",
+    "repo-exports-catalog",
+    "--affected",
+    "--check",
+    "--base",
+    base,
+    "--head",
+    head,
+  ]);
+});
+
 const runSecretScan = Effect.fn("QualityScriptCommands.runSecretScan")(function* (
   repoRoot: string
 ): Effect.fn.Return<void, QualityScriptCommandError, ChildProcessSpawner.ChildProcessSpawner> {
@@ -626,12 +699,14 @@ const runNixChecks = Effect.fn("QualityScriptCommands.runNixChecks")(function* (
  * @since 0.0.0
  */
 export const runGithubChecks = Effect.fn("QualityScriptCommands.runGithubChecks")(function* (
-  mode: GithubCheckMode
+  mode: GithubCheckMode,
+  options: GithubCheckRunOptions = {}
 ): Effect.fn.Return<void, QualityScriptCommandError, QualityScriptEnvironment> {
   const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
 
   yield* GithubCheckMode.$match(mode, {
     quality: () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runQuality(repoRoot))),
+    "review-fix": () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runReviewFix(repoRoot, options))),
     "repo-sanity": () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runRepoSanity(repoRoot))),
     secrets: () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runSecretScan(repoRoot))),
     security: () => runSecurityScan(repoRoot),
@@ -1575,6 +1650,11 @@ export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExp
 > {
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
+  if (options.affected === true) {
+    yield* runAffectedRepoExportsCatalog(repoRoot, check, options.base ?? "origin/main", options.head ?? "HEAD");
+    return;
+  }
+
   const catalogOptions = {
     rootDir: repoRoot,
     check,
@@ -1587,7 +1667,9 @@ export const runRepoExportsCatalog = Effect.fn("QualityScriptCommands.runRepoExp
     QualityScriptCommandError.mapError("Failed to generate repo export catalog.", {
       command: commandText("bun run beep quality repo-exports-catalog", [
         ...(check ? ["--check"] : []),
+        ...(options.base === undefined ? [] : ["--base", options.base]),
         ...(options.fromShards === true ? ["--from-shards"] : []),
+        ...(options.head === undefined ? [] : ["--head", options.head]),
         ...(options.packageShard === true ? ["--package-shard"] : []),
         ...(options.packageName === undefined ? [] : ["--package", options.packageName]),
       ]),
@@ -1665,12 +1747,204 @@ const runQualityProgram = <A, R>(
 
 const variadicStrings = (values: ReadonlyArray<unknown>): ReadonlyArray<string> => pipe(values, A.filter(P.isString));
 
+const changedPathsForRange = Effect.fn("QualityScriptCommands.changedPathsForRange")(function* (
+  repoRoot: string,
+  base: string,
+  head: string
+): Effect.fn.Return<ReadonlyArray<string>, QualityScriptCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const output = yield* collectSuccessfulOutput(
+    QualityTaskStep.make({
+      label: "repo-exports-catalog:affected:changed-files",
+      command: "git",
+      args: ["diff", "--name-only", "--diff-filter=ACMRD", `${base}...${head}`],
+      cwd: repoRoot,
+    })
+  );
+
+  return pipe(
+    Str.split(output, "\n"),
+    A.map((line) => Str.replaceAll("\\", "/")(Str.trim(line))),
+    A.filter(Str.isNonEmpty),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+});
+
+type AffectedRepoExportsCatalogPlan = {
+  readonly aggregateCheck: boolean;
+  readonly fullCheck: boolean;
+  readonly packageNames: ReadonlyArray<string>;
+  readonly reason: string;
+};
+
+const rootCatalogPaths = ["standards/repo-exports.catalog.jsonc", "standards/repo-exports.catalog.md"] as const;
+const repoExportsFullCheckPaths = [
+  "package.json",
+  "bun.lock",
+  "turbo.json",
+  "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+  "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+  "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+] as const;
+const repoExportsShardSuffix = "/.beep/repo-exports/catalog.shard.jsonc" as const;
+const repoExportsTrackedSourceExtensions = [".cts", ".mts", ".ts", ".tsx"] as const;
+
+const pathUnderPackage = (packageInfo: WorkspacePackageInfo, filePath: string): boolean =>
+  packageInfo.path === "."
+    ? !Str.includes("/")(filePath)
+    : filePath === packageInfo.path || Str.startsWith(`${packageInfo.path}/`)(filePath);
+
+const packagePathRelative = (packageInfo: WorkspacePackageInfo, filePath: string): string =>
+  packageInfo.path === "." ? filePath : Str.replace(`${packageInfo.path}/`, "")(filePath);
+
+const isTrackedSourcePath = (filePath: string): boolean =>
+  A.some(repoExportsTrackedSourceExtensions, (extension) => filePath.endsWith(extension));
+
+const isPackageRepoExportsInputPath = (packageInfo: WorkspacePackageInfo, filePath: string): boolean => {
+  if (!pathUnderPackage(packageInfo, filePath)) {
+    return false;
+  }
+
+  const relativePath = packagePathRelative(packageInfo, filePath);
+  return (
+    relativePath === "package.json" ||
+    relativePath === ".beep/repo-exports/catalog.shard.jsonc" ||
+    Str.startsWith("src/")(relativePath) ||
+    isTrackedSourcePath(relativePath)
+  );
+};
+
+const packageForRepoExportsPath = (
+  packages: ReadonlyArray<WorkspacePackageInfo>,
+  filePath: string
+): O.Option<WorkspacePackageInfo> =>
+  pipe(
+    packages,
+    A.filter((packageInfo) => packageInfo.path !== "." && isPackageRepoExportsInputPath(packageInfo, filePath)),
+    A.sort(Order.mapInput(Order.Number, (packageInfo: WorkspacePackageInfo) => -Str.length(packageInfo.path))),
+    A.head
+  );
+
+const shouldRunFullRepoExportsCatalogCheck = (filePath: string): boolean =>
+  A.contains(repoExportsFullCheckPaths, filePath) ||
+  Str.startsWith("packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog")(filePath);
+
+/**
+ * Build the conservative affected repo export catalog plan for a set of changed paths.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const affectedRepoExportsCatalogPlanForTesting = (
+  changedPaths: ReadonlyArray<string>,
+  packages: ReadonlyArray<WorkspacePackageInfo>
+): AffectedRepoExportsCatalogPlan => {
+  if (A.isReadonlyArrayEmpty(changedPaths)) {
+    return { aggregateCheck: false, fullCheck: false, packageNames: [], reason: "no relevant git diff paths" };
+  }
+
+  if (A.some(changedPaths, shouldRunFullRepoExportsCatalogCheck)) {
+    return { aggregateCheck: false, fullCheck: true, packageNames: [], reason: "repo export topology changed" };
+  }
+
+  const packageNames = pipe(
+    changedPaths,
+    A.map((filePath) => packageForRepoExportsPath(packages, filePath)),
+    A.getSomes,
+    A.map((packageInfo) => packageInfo.name),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+  const unresolvedPackageJson = A.some(
+    changedPaths,
+    (filePath) =>
+      filePath.endsWith("/package.json") &&
+      O.isNone(packageForRepoExportsPath(packages, filePath)) &&
+      !A.contains(rootCatalogPaths, filePath)
+  );
+  const unresolvedShard = A.some(
+    changedPaths,
+    (filePath) => filePath.endsWith(repoExportsShardSuffix) && O.isNone(packageForRepoExportsPath(packages, filePath))
+  );
+
+  if (unresolvedPackageJson || unresolvedShard) {
+    return { aggregateCheck: false, fullCheck: true, packageNames: [], reason: "workspace package topology changed" };
+  }
+
+  const aggregateCheck =
+    A.isReadonlyArrayNonEmpty(packageNames) || A.some(changedPaths, (path) => A.contains(rootCatalogPaths, path));
+  return {
+    aggregateCheck,
+    fullCheck: false,
+    packageNames,
+    reason: aggregateCheck ? "affected repo export shards" : "no repo export relevant paths",
+  };
+};
+
+const runAffectedRepoExportsCatalog = Effect.fn("QualityScriptCommands.runAffectedRepoExportsCatalog")(function* (
+  repoRoot: string,
+  check: boolean,
+  base: string,
+  head: string
+): Effect.fn.Return<void, QualityScriptCommandError, QualityScriptEnvironment> {
+  const path = yield* Path.Path;
+  const packageByName = yield* discoverWorkspacePackages(repoRoot, path).pipe(
+    QualityScriptCommandError.mapError("Failed to discover workspace packages for affected repo export catalog.")
+  );
+  const packages: ReadonlyArray<WorkspacePackageInfo> = pipe(
+    A.fromIterable(MutableHashMap.values(packageByName)),
+    A.sort(Order.mapInput(Order.String, (pkg: WorkspacePackageInfo) => pkg.name))
+  );
+  const changedPaths = yield* changedPathsForRange(repoRoot, base, head);
+  const plan = affectedRepoExportsCatalogPlanForTesting(changedPaths, packages);
+
+  if (plan.fullCheck) {
+    yield* Console.log(`[repo-exports-catalog] affected escalated to full check: ${plan.reason}`);
+    yield* runBun(repoRoot, "quality:repo-exports-catalog-check", ["repo-exports:catalog:check"]);
+    return;
+  }
+
+  if (A.isReadonlyArrayEmpty(plan.packageNames) && !plan.aggregateCheck) {
+    yield* Console.log("[repo-exports-catalog] affected check skipped; no repo export inputs changed");
+    return;
+  }
+
+  for (const packageName of plan.packageNames) {
+    yield* Console.log(`[repo-exports-catalog] affected package shard: ${packageName}`);
+    yield* runBun(repoRoot, `repo-exports-catalog:shard:${packageName}`, [
+      "beep",
+      "quality",
+      "repo-exports-catalog",
+      "--package-shard",
+      ...(check ? ["--check"] : []),
+      "--package",
+      packageName,
+    ]);
+  }
+
+  if (plan.aggregateCheck) {
+    yield* Console.log("[repo-exports-catalog] affected aggregate from shards");
+    yield* runBun(repoRoot, "repo-exports-catalog:from-shards", [
+      "beep",
+      "quality",
+      "repo-exports-catalog",
+      "--from-shards",
+      ...(check ? ["--check"] : []),
+    ]);
+  }
+});
+
 const githubChecksCommand = Command.make(
   "github-checks",
   {
+    base: Flag.string("base").pipe(
+      Flag.withDefault("origin/main"),
+      Flag.withDescription("Base git ref for affected review-fix checks")
+    ),
+    head: Flag.string("head").pipe(Flag.withDefault("HEAD"), Flag.withDescription("Head git ref for affected checks")),
     mode: Argument.choice("mode", GITHUB_CHECK_MODE_VALUES).pipe(Argument.withDescription("GitHub check mode to run")),
   },
-  ({ mode }) => runQualityProgram(runGithubChecks(mode))
+  ({ base, head, mode }) => runQualityProgram(runGithubChecks(mode, { base, head }))
 ).pipe(Command.withDescription("Run repository GitHub verification lanes"));
 
 const bunAuditCommand = Command.make("bun-audit", {}, () =>
@@ -1721,10 +1995,18 @@ const jsdocQualityCommand = Command.make("jsdoc-quality", {}, () => runQualityPr
 const repoExportsCatalogCommand = Command.make(
   "repo-exports-catalog",
   {
+    affected: Flag.boolean("affected").pipe(
+      Flag.withDescription("Check only repo-export shards affected by the configured git range")
+    ),
+    base: Flag.string("base").pipe(
+      Flag.withDefault("origin/main"),
+      Flag.withDescription("Base git ref for --affected")
+    ),
     check: Flag.boolean("check").pipe(Flag.withDescription("Fail when the tracked repo export catalog is stale")),
     fromShards: Flag.boolean("from-shards").pipe(
       Flag.withDescription("Aggregate the tracked root catalog from package-local repo-export shards")
     ),
+    head: Flag.string("head").pipe(Flag.withDefault("HEAD"), Flag.withDescription("Head git ref for --affected")),
     packageShard: Flag.boolean("package-shard").pipe(
       Flag.withDescription("Write or check the current package's repo-export shard")
     ),
@@ -1733,10 +2015,13 @@ const repoExportsCatalogCommand = Command.make(
       Flag.optional
     ),
   },
-  ({ check, fromShards, packageName, packageShard }) =>
+  ({ affected, base, check, fromShards, head, packageName, packageShard }) =>
     runQualityProgram(
       runRepoExportsCatalog(check, {
+        affected,
+        base,
         fromShards,
+        head,
         packageShard,
         ...R.getSomes({ packageName }),
       })

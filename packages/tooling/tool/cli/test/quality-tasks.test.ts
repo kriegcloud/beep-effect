@@ -1,5 +1,7 @@
 import {
+  affectedRepoExportsCatalogPlanForTesting,
   collectEffectTsgoDiagnosticLines,
+  GithubCheckMode,
   lintFixChangedStepForTesting,
   parseQualityTaskInvocation,
   QualityTaskFailed,
@@ -117,6 +119,13 @@ const bunScriptStep = (label: string, source: string) =>
     cwd: process.cwd(),
   });
 
+const repoCliPackage = {
+  absolutePath: "/repo/packages/tooling/tool/cli",
+  name: "@beep/repo-cli",
+  packageJson: { name: "@beep/repo-cli" },
+  path: "packages/tooling/tool/cli",
+};
+
 const expectSubstringBefore = (text: string, before: string, after: string): void => {
   const beforeIndex = Str.indexOf(before)(text);
   const afterIndex = Str.indexOf(after)(text);
@@ -216,6 +225,33 @@ describe("quality task adapter", () => {
       command: "bun",
       args: ["run", "beep", "quality", "github-checks", "repo-sanity"],
       cwd: "/repo",
+    });
+  });
+
+  it("includes the targeted review-fix github check mode", () => {
+    expect(GithubCheckMode.is["review-fix"]("review-fix")).toBe(true);
+  });
+
+  it("plans affected repo export checks conservatively", () => {
+    expect(
+      affectedRepoExportsCatalogPlanForTesting(
+        ["packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts"],
+        [repoCliPackage]
+      )
+    ).toMatchObject({
+      aggregateCheck: true,
+      fullCheck: false,
+      packageNames: ["@beep/repo-cli"],
+    });
+
+    expect(affectedRepoExportsCatalogPlanForTesting(["package.json"], [repoCliPackage])).toMatchObject({
+      fullCheck: true,
+    });
+
+    expect(affectedRepoExportsCatalogPlanForTesting(["README.md"], [repoCliPackage])).toMatchObject({
+      aggregateCheck: false,
+      fullCheck: false,
+      packageNames: [],
     });
   });
 

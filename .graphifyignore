@@ -1,0 +1,117 @@
+# Graphify corpus shaping.
+# This file intentionally differs from .gitignore: it keeps source, doctrine,
+# goal packets, package guidance, and repo-export catalogs visible while
+# excluding generated/vendor/cache state.
+
+# VCS, IDE, and local agent/cache state.
+.git/
+.idea/
+.direnv/
+.serena/
+.junie/
+.lsmcp/cache/
+.code-index/
+.playwright-mcp/
+.playwright-cli/
+.DS_Store
+
+# Graphify should not graph its own generated corpus/output or installed skill.
+graphify-out/
+.codex/skills/graphify/
+
+# Secrets and credentials.
+.env
+.env.*
+!.env.example
+!.env.*.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+credentials.json
+secrets.json
+service-account*.json
+**/secrets/
+**/.secrets/
+
+# Package manager, build, test, and framework artifacts.
+node_modules/
+.turbo/
+tmp/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.next/
+next-env.d.ts
+storybook-static/
+playwright-report/
+test-results/
+e2e/.auth/
+.lostpixel/current/
+.lostpixel/difference/
+trace
+.vercel/
+.sst/
+sst-env.d.ts
+output/
+outputs/
+stats.html
+.env.tmp
+.aider*
+
+# Rust/Tauri local build output.
+**/src-tauri/target/
+**/src-tauri/gen/
+
+# Generated doc/docgen artifacts. Keep goal docs because those are planning
+# packets, not package API docgen output.
+docs/
+**/docs/
+!goals/**/docs/
+!goals/**/docs/**
+JSDOC_ANALYSIS.*
+JSDOC_QUALITY.*
+**/JSDOC_ANALYSIS.*
+**/JSDOC_QUALITY.*
+
+# Repo automation state. Keep repo-export shard catalogs by not ignoring their
+# parent branch; ignore only the bulky generated branches.
+.beep/yeet/
+.beep/ai-metrics/
+**/.beep/docgen/
+
+# Subtrees and generated source bundles.
+.repos/*
+**/src/_generated/
+
+# Goal packets are useful; operational handoffs/history/outputs are noisy.
+goals/**/ops/**
+goals/**/history/**
+goals/**/fixtures/**
+goals/**/tasks/**
+goals/**/outputs/**
+
+# Media: keep OIP product assets to exercise image/video extraction, but skip
+# generic screenshots, icons, coverage sprites, and scratch images.
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.webp
+**/*.mp4
+**/*.mov
+**/*.m4v
+**/*.mp3
+**/*.wav
+**/*.m4a
+!apps/oip-web/public/
+!apps/oip-web/public/oip/
+!apps/oip-web/public/oip/**
