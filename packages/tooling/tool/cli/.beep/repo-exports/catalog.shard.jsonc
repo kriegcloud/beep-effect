@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f376925189dd4039bd84fbcfeee43a00285e8d4e440e5ea30f4a4ea86a172f96",
+    "digest": "ec8e3a24fd452ea0b713c1c93d504f1c1d4923b85e37c77ac41a3f43098c05a5",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -647,8 +647,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sha256": "7f0c13b4ae9056330ec66700bf6d0b49f3513d71a50272766d006a218677e321",
-        "bytes": 27178
+        "sha256": "8d06061618c46375bc293a0785e5026af165faa71df23f50a7b29ec583db29a9",
+        "bytes": 27370
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
@@ -927,8 +927,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1766,
-      "uniqueSymbols": 649,
+      "publicExportEntries": 1767,
+      "uniqueSymbols": 650,
       "sourceFiles": 146
     },
     "exports": [
@@ -44058,10 +44058,34 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "greptileRetriggerCommentForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+        "sourceLine": 32,
+        "summary": "Greptile retrigger comment body used by closeout mode.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet greptileretriggercommentfortesting const greptile retrigger comment body used by closeout mode. testing packages/tooling/tool/cli/src/commands/yeet/internal/closeout.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "GreptileSummary",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 333,
+        "sourceLine": 341,
         "summary": "Summary of Greptile signal extracted from PR comments.",
         "categories": [
           "models"
@@ -44163,7 +44187,7 @@
         "symbolName": "latestGreptileSummaryForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 535,
+        "sourceLine": 543,
         "summary": "Parse the latest Greptile summary from simplified comment inputs.",
         "categories": [
           "testing"
@@ -44214,7 +44238,7 @@
         "symbolName": "PrCloseoutOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 314,
+        "sourceLine": 322,
         "summary": "Runtime closeout gates accepted by Yeet.",
         "categories": [
           "models"
@@ -44238,7 +44262,7 @@
         "symbolName": "PrCloseoutReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 350,
+        "sourceLine": 358,
         "summary": "Yeet PR closeout report.",
         "categories": [
           "models"
@@ -45110,7 +45134,7 @@
         "symbolName": "runPrCloseout",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 830,
+        "sourceLine": 838,
         "summary": "Inspect current PR review and bot closeout state.",
         "categories": [
           "use-cases"

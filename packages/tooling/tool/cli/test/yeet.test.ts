@@ -4,6 +4,7 @@ import {
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
   gitPathListFromNulOutputForTesting,
+  greptileRetriggerCommentForTesting,
   jsonObjectTextFromMixedOutputForTesting,
   latestGreptileSummaryForTesting,
   publishPathsOutsideIntentForTesting,
@@ -212,6 +213,10 @@ describe("yeet planner", () => {
       "--json",
       "number,headRefName,state,url,headRefOid,isDraft",
     ]);
+  });
+
+  it("uses a Greptile retrigger body that requests review explicitly", () => {
+    expect(greptileRetriggerCommentForTesting).toBe("@greptileai review");
   });
 
   it("builds amend no-edit publish without requiring a new message", () => {

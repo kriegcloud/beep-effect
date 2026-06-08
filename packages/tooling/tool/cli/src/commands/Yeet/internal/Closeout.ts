@@ -21,7 +21,15 @@ import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { RepoRunContext } from "../../../internal/repo-run/index.js";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Closeout");
-const GREPTILE_RETRIGGER_COMMENT = "@greptileai" as const;
+const GREPTILE_RETRIGGER_COMMENT = "@greptileai review" as const;
+
+/**
+ * Greptile retrigger comment body used by closeout mode.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const greptileRetriggerCommentForTesting = GREPTILE_RETRIGGER_COMMENT;
 
 class GhActor extends S.Class<GhActor>($I`GhActor`)(
   {
