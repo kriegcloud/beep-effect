@@ -10775,8 +10775,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts": {
-    "mtime": 1780945553.8895705,
-    "ast_hash": "0d565190a0e27f86c8f44af3e9427117",
+    "mtime": 1780948100.222412,
+    "ast_hash": "103c27bb0fba77441a2ddfe9d9e63038",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts": {
@@ -11255,8 +11255,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/quality-tasks.test.ts": {
-    "mtime": 1780945553.8905704,
-    "ast_hash": "1f5d7c3d94b1793ceae6bd8b5f0cfa4e",
+    "mtime": 1780948374.8684556,
+    "ast_hash": "06b5d3fad97200d141deb289804ed4bf",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/repo-exports-catalog.test.ts": {
@@ -12925,8 +12925,8 @@
     "semantic_hash": ""
   },
   "goals/fallow-quality-enforcement/research/audit.md": {
-    "mtime": 1780946546.5562472,
-    "ast_hash": "a4fb2ab28a6abbab311fca6e0d3979d9",
+    "mtime": 1780947823.8673313,
+    "ast_hash": "54acbd0f4e3fa9d2a1bb77dcef36b990",
     "semantic_hash": ""
   },
   "goals/fallow-quality-enforcement/research/boundaries.md": {
@@ -15255,8 +15255,8 @@
     "semantic_hash": ""
   },
   "standards/repo-exports.catalog.md": {
-    "mtime": 1780945582.0351791,
-    "ast_hash": "d9cce5a2ede498a9e38fe40a1e5fc4c1",
+    "mtime": 1780947557.2634656,
+    "ast_hash": "c14235f0625a72466dabd2bbac3be9d8",
     "semantic_hash": ""
   },
   "goals/repo-codegraph-jsdoc/WHITEPAPER.md": {

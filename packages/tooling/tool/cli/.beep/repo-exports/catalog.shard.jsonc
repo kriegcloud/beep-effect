@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ccca9ea71450e6b2bb797fa850fc1c6f01e4a14d2620fd8a74b68e2b43c0ee8c",
+    "digest": "d0dd3f542a612a040006ffd36267bb9cdb56d997d0920dfb547085c77477a909",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -472,8 +472,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "872ef62890f6b777a1505c84cbb139a7869c2969fa37245f1719c418eb2d50dd",
-        "bytes": 92564
+        "sha256": "1ca402920d49a3f297c43f81507b9971bf6ccbf8a8be43ad2454ed918ccc4037",
+        "bytes": 102965
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts",
@@ -951,8 +951,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1836,
-      "uniqueSymbols": 678,
+      "publicExportEntries": 1844,
+      "uniqueSymbols": 682,
       "sourceFiles": 150
     },
     "exports": [
@@ -1316,7 +1316,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2621,
+        "sourceLine": 2903,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -27684,7 +27684,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2621,
+        "sourceLine": 2903,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -28536,7 +28536,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2621,
+        "sourceLine": 2903,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -29161,7 +29161,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2295,
+        "sourceLine": 2554,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -29187,7 +29187,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1353,
+        "sourceLine": 1612,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -29239,7 +29239,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2227,
+        "sourceLine": 2486,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -29262,10 +29262,37 @@
         "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
         "exportSubpath": "./commands/Quality/Quality.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "githubCheckLanesForModeForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 901,
+        "summary": "Return the static GitHub check collector lanes for a mode.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command githubchecklanesformodefortesting const return the static github check collector lanes for a mode. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
         "symbolName": "GithubCheckLaneSpec",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 512,
+        "sourceLine": 581,
         "summary": "Executable lane specification for GitHub check collectors.",
         "categories": [
           "models"
@@ -29290,7 +29317,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 475,
+        "sourceLine": 544,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "models"
@@ -29315,7 +29342,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 492,
+        "sourceLine": 561,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "type-level"
@@ -29390,7 +29417,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 829,
+        "sourceLine": 1022,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29414,10 +29441,37 @@
         "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
         "exportSubpath": "./commands/Quality/Quality.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 957,
+        "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command githubcheckpromotedfallowlanediagnosticsfortesting const compare promoted fallow matrix rows against static github check lanes. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 799,
+        "sourceLine": 992,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29444,7 +29498,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 814,
+        "sourceLine": 1007,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29468,10 +29522,54 @@
         "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
         "exportSubpath": "./commands/Quality/Quality.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "GithubChecksFallowFeatureMatrix",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 435,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command githubchecksfallowfeaturematrix class packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 875,
+        "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command promotedfallowgithubchecklaneidsfortesting const derive the github check lane ids required by currently promoted fallow matrix rows. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2621,
+        "sourceLine": 2903,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -29646,7 +29744,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 888,
+        "sourceLine": 1081,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -29673,7 +29771,7 @@
         "symbolName": "runBunAudit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 697,
+        "sourceLine": 766,
         "summary": "Run Bun's high-severity package audit with OSV ignores mirrored from config.",
         "categories": [
           "use-cases"
@@ -29700,7 +29798,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1690,
+        "sourceLine": 1949,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -29727,7 +29825,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1111,
+        "sourceLine": 1304,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -29754,7 +29852,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2010,
+        "sourceLine": 2269,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -29780,7 +29878,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1933,
+        "sourceLine": 2192,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -29806,7 +29904,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2127,
+        "sourceLine": 2386,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -29831,7 +29929,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2045,
+        "sourceLine": 2304,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -29858,7 +29956,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1736,
+        "sourceLine": 1995,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -29885,7 +29983,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1499,
+        "sourceLine": 1758,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -29911,7 +30009,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1832,
+        "sourceLine": 2091,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -40940,7 +41038,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2295,
+        "sourceLine": 2554,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -41114,7 +41212,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1353,
+        "sourceLine": 1612,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -41271,7 +41369,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2227,
+        "sourceLine": 2486,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -41294,10 +41392,37 @@
         "importSpecifier": "@beep/repo-cli/test/Quality",
         "exportSubpath": "./test/Quality",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "githubCheckLanesForModeForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 901,
+        "summary": "Return the static GitHub check collector lanes for a mode.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality githubchecklanesformodefortesting const return the static github check collector lanes for a mode. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
         "symbolName": "GithubCheckLaneSpec",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 512,
+        "sourceLine": 581,
         "summary": "Executable lane specification for GitHub check collectors.",
         "categories": [
           "models"
@@ -41322,7 +41447,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 475,
+        "sourceLine": 544,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "models"
@@ -41347,7 +41472,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 492,
+        "sourceLine": 561,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "type-level"
@@ -41422,7 +41547,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 829,
+        "sourceLine": 1022,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -41446,10 +41571,37 @@
         "importSpecifier": "@beep/repo-cli/test/Quality",
         "exportSubpath": "./test/Quality",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 957,
+        "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality githubcheckpromotedfallowlanediagnosticsfortesting const compare promoted fallow matrix rows against static github check lanes. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 799,
+        "sourceLine": 992,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -41476,7 +41628,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 814,
+        "sourceLine": 1007,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -41492,6 +41644,23 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality githubcheckreposanitylanesfortesting const build the repo-sanity diagnostic lanes used by github check collectors. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "GithubChecksFallowFeatureMatrix",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 435,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality githubchecksfallowfeaturematrix class packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -41826,10 +41995,37 @@
         "importSpecifier": "@beep/repo-cli/test/Quality",
         "exportSubpath": "./test/Quality",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 875,
+        "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality promotedfallowgithubchecklaneidsfortesting const derive the github check lane ids required by currently promoted fallow matrix rows. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2621,
+        "sourceLine": 2903,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -42331,7 +42527,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 888,
+        "sourceLine": 1081,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -42385,7 +42581,7 @@
         "symbolName": "runBunAudit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 697,
+        "sourceLine": 766,
         "summary": "Run Bun's high-severity package audit with OSV ignores mirrored from config.",
         "categories": [
           "use-cases"
@@ -42437,7 +42633,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1690,
+        "sourceLine": 1949,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -42464,7 +42660,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1111,
+        "sourceLine": 1304,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -42491,7 +42687,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2010,
+        "sourceLine": 2269,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -42517,7 +42713,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1933,
+        "sourceLine": 2192,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -42543,7 +42739,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2127,
+        "sourceLine": 2386,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -42775,7 +42971,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2045,
+        "sourceLine": 2304,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -42827,7 +43023,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1736,
+        "sourceLine": 1995,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -42854,7 +43050,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1499,
+        "sourceLine": 1758,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -42880,7 +43076,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1832,
+        "sourceLine": 2091,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"

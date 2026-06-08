@@ -73,7 +73,7 @@
       "summary": {
         "deadCodeIssues": 30,
         "complexityFindings": 37,
-        "duplicationCloneGroups": 132
+        "duplicationCloneGroups": 143
       },
       "introduced": {
         "deadCodeIssues": 3,
@@ -83,7 +83,7 @@
       "inherited": {
         "deadCodeIssues": 27,
         "complexityFindings": 30,
-        "duplicationCloneGroups": 129
+        "duplicationCloneGroups": 140
       },
       "unattributed": {
         "complexityFindings": 1
