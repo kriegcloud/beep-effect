@@ -294,6 +294,36 @@ The driver role is already visible from the canonical root
 `packages/drivers/<name>`. Repeating that role in the import path adds noise
 without adding clarity.
 
+## 2026-06-07: Generated SDK Drivers Prefer Regenerable Fidelity
+
+- **Status:** Active
+
+Decision:
+
+Large SDK driver packages may generate schema and operation wrappers directly
+from the installed SDK type declarations when the generated output is
+reproducible and package-local. Generators should preserve precise schema
+fidelity where the SDK exposes precise types, model forward-compatible open
+enums explicitly, and fall back to `S.Unknown` for SDK `any`, unsupported
+intersection refinements, uninspectable dynamic maps, and other shapes that
+cannot be represented honestly without hand-written semantics.
+
+Methods that carry byte streams, event streams, or SDK helper state may be
+excluded from JSON operation generation and wrapped by a small hand-written
+adapter surface. That adapter remains technical, driver-local, schema-first for
+the representable fields, and covered by unit/type tests that pin the generated
+and hand-written split.
+
+Rationale:
+
+SDK wrappers need broad method coverage without hand-authoring thousands of
+schemas. A generator-first driver gives the repo a repeatable upgrade path and
+keeps the SDK boundary honest: precise types stay precise, future enum values
+decode where the SDK contract is open, and ambiguous SDK declarations remain
+`Unknown` instead of pretending to be domain language. The hand-written stream
+escape hatch keeps non-JSON runtime behavior explicit without turning the whole
+driver into bespoke code.
+
 ## 2026-04-23: Add Explicit Non-Slice Artifact Families
 
 - **Status:** Superseded

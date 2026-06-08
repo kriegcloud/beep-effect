@@ -1,14 +1,92 @@
 /**
- * Public entrypoint for the Box driver package.
+ * Schema-first, Effect-first Box technical driver.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Current package version for the Box driver.
+ * Box driver configuration exports.
  *
+ * @example
+ * ```ts
+ * import { BoxDeveloperTokenConfig } from "@beep/box"
+ *
+ * console.log(BoxDeveloperTokenConfig)
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category constants
  */
-export const VERSION = "0.0.0" as const;
+export * from "./Box.config.ts";
+/**
+ * Box technical error exports.
+ *
+ * @example
+ * ```ts
+ * import { BoxError } from "@beep/box"
+ *
+ * console.log(BoxError)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export * from "./Box.errors.ts";
+/**
+ * Box payload and success model exports.
+ *
+ * @example
+ * ```ts
+ * import { FilesGetFileByIdPayload } from "@beep/box"
+ *
+ * console.log(FilesGetFileByIdPayload)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./Box.models.ts";
+/**
+ * Box service and Layer exports.
+ *
+ * @example
+ * ```ts
+ * import { Box } from "@beep/box"
+ *
+ * console.log(Box)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./Box.service.ts";
+/**
+ * Box byte and event streaming exports.
+ *
+ * @example
+ * ```ts
+ * import type { BoxByteStream } from "@beep/box"
+ *
+ * type Bytes = BoxByteStream
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./Box.streaming.ts";
+
+/**
+ * Package version for `@beep/box`.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/box"
+ *
+ * console.log(VERSION)
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const VERSION = "0.0.0";
