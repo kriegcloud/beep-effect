@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c881c6bed3f294a4b1f47e36666f44b903c12088b6d6a714e811ef26144ed5f5",
+    "digest": "a79fe429deea479e5ba17b0011572db661cd5c1f160679486efbb24d60f53269",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/package.json",
@@ -62,8 +62,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
-        "bytes": 76913
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

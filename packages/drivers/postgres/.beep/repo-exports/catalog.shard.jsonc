@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "8492b2c6875f06b478c84cc449d1b6a6af6c5135da4e1eaf066a7ba34ceb3d41",
+    "digest": "b5534db57c44c92fd5786452d401cf263a974d7d025d44ad9b497fd250710f38",
     "inputs": [
       {
         "path": "packages/drivers/postgres/package.json",
@@ -72,8 +72,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
-        "bytes": 76913
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

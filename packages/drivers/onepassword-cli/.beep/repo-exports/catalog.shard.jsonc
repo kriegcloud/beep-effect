@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f5e7e4c093f603d4370d08b6871803b4e0ea91f590c8413cf5fd97440cc24d9f",
+    "digest": "dae01527b898186bdab999d5f3a723d42ef17c69b6be6d04eb0a7b742beee303",
     "inputs": [
       {
         "path": "packages/drivers/onepassword-cli/package.json",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
-        "bytes": 76913
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

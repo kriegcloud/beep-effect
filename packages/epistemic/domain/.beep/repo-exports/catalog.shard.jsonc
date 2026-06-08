@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "205b108fe1c3e9adf9807e9532b123c72df63bada775cc68ba6aa53ff1820048",
+    "digest": "e5f0950bfe9b1100669a89d55604ab931f4a39be6bfda0fbc4a7bfdf7385636c",
     "inputs": [
       {
         "path": "packages/epistemic/domain/package.json",
@@ -102,8 +102,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
-        "bytes": 76913
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

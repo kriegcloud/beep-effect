@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ff24b5577827bf9e9d28e3e01db0f63e951540c8aff12ea0726933273c6af9f6",
+    "digest": "62d57a0f984a4022e19c76024d8a61546360a4ab63cb14f07d2fe8684df6871f",
     "inputs": [
       {
         "path": "packages/drivers/drizzle/package.json",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
-        "bytes": 76913
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

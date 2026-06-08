@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "5a7cdac92c29ce51efba5246ec7bf3b79a9ec967566f112dd64423af9065733f",
+    "digest": "005aade31045965cc3c5bbffabbd876024c69034c7fd1d238525e5a40dcd056a",
     "inputs": [
       {
         "path": "packages/drivers/duckdb/package.json",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
-        "bytes": 76913
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

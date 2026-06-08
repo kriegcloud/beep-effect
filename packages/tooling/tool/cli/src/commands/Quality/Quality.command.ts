@@ -1779,6 +1779,21 @@ type AffectedRepoExportsCatalogPlan = {
   readonly reason: string;
 };
 
+/**
+ * Resolve the full repo export catalog command used by affected escalation.
+ *
+ * @param check - Whether to verify generated artifacts instead of writing them.
+ * @returns The label and command arguments for the escalated full catalog lane.
+ * @category testing
+ * @since 0.0.0
+ */
+export const fullRepoExportsCatalogEscalationCommandForTesting = (
+  check: boolean
+): { readonly args: ReadonlyArray<string>; readonly label: string } =>
+  check
+    ? { args: ["repo-exports:catalog:check"], label: "quality:repo-exports-catalog-check" }
+    : { args: ["repo-exports:catalog"], label: "quality:repo-exports-catalog" };
+
 const rootCatalogPaths = ["standards/repo-exports.catalog.jsonc", "standards/repo-exports.catalog.md"] as const;
 const repoExportsFullCheckPaths = [
   "package.json",
@@ -1906,8 +1921,11 @@ const runAffectedRepoExportsCatalog = Effect.fn("QualityScriptCommands.runAffect
   const plan = affectedRepoExportsCatalogPlanForTesting(changedPaths, packages);
 
   if (plan.fullCheck) {
-    yield* Console.log(`[repo-exports-catalog] affected escalated to full check: ${plan.reason}`);
-    yield* runBun(repoRoot, "quality:repo-exports-catalog-check", ["repo-exports:catalog:check"]);
+    yield* Console.log(
+      `[repo-exports-catalog] affected escalated to full catalog ${check ? "check" : "refresh"}: ${plan.reason}`
+    );
+    const command = fullRepoExportsCatalogEscalationCommandForTesting(check);
+    yield* runBun(repoRoot, command.label, command.args);
     return;
   }
 

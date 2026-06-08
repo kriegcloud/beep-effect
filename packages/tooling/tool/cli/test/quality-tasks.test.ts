@@ -1,6 +1,7 @@
 import {
   affectedRepoExportsCatalogPlanForTesting,
   collectEffectTsgoDiagnosticLines,
+  fullRepoExportsCatalogEscalationCommandForTesting,
   GithubCheckMode,
   lintFixChangedStepForTesting,
   parseQualityTaskInvocation,
@@ -252,6 +253,17 @@ describe("quality task adapter", () => {
       aggregateCheck: false,
       fullCheck: false,
       packageNames: [],
+    });
+  });
+
+  it("preserves write mode when affected repo export checks escalate", () => {
+    expect(fullRepoExportsCatalogEscalationCommandForTesting(false)).toEqual({
+      args: ["repo-exports:catalog"],
+      label: "quality:repo-exports-catalog",
+    });
+    expect(fullRepoExportsCatalogEscalationCommandForTesting(true)).toEqual({
+      args: ["repo-exports:catalog:check"],
+      label: "quality:repo-exports-catalog-check",
     });
   });
 

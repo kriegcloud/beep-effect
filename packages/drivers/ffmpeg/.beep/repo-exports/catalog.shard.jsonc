@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "df75b0c44008a4c02771f39de34c7ebaf07b2da78ebf8836c459920194121693",
+    "digest": "dfde377499ea5b92f3f01bc449a6ad307690b274eddce45311b7195761860b0f",
     "inputs": [
       {
         "path": "packages/drivers/ffmpeg/package.json",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
-        "bytes": 76913
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

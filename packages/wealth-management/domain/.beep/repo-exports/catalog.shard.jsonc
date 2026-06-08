@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "53a01d16e68538ab8761d3ba774e882fb5e9e683a9ee12ee0c43493f0491897c",
+    "digest": "1a60ed59d9b1316a9a5e858278dc8d295ea758f66928414f1d61e522e82f62bd",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -32,8 +32,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
-        "bytes": 76913
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       },
       {
         "path": "packages/wealth-management/domain/package.json",

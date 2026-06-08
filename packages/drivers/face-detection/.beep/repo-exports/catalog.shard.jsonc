@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "5f5789b40f568313708e3fc159d50fa979ca64e90dd39cd030234caa987e064d",
+    "digest": "13bb6edadafeb8f88741d6c9153bf12a29ae62bf3297086622388570e686c173",
     "inputs": [
       {
         "path": "packages/drivers/face-detection/package.json",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
-        "bytes": 76913
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

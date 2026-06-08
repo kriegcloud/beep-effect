@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "5c465ead5db77ae077d6bb870799a5920aebfbb08b08137ed2db7947fc896131",
+    "digest": "e16f997476c16df34b2ae693a039272c566c1282df4be95d762dfa7f9f0abde3",
     "inputs": [
       {
         "path": "packages/architecture-lab/server/package.json",
@@ -102,8 +102,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "298cf932e21cae731dcaad064a8a251745680217f63dee75a6c6495ee761d668",
-        "bytes": 76913
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },
