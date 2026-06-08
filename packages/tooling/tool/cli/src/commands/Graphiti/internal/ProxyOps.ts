@@ -438,9 +438,15 @@ const runInheritedStep = Effect.fn("GraphitiProxyOps.runInheritedStep")(function
 const checkProxyHealth = Effect.fn("GraphitiProxyOps.checkProxyHealth")(function* (
   config: ProxyEnsureConfig
 ): Effect.fn.Return<boolean, never, ChildProcessSpawner.ChildProcessSpawner> {
+  return yield* checkProxyHealthUrl(config.healthUrl);
+});
+
+const checkProxyHealthUrl = Effect.fn("GraphitiProxyOps.checkProxyHealthUrl")(function* (
+  healthUrl: string
+): Effect.fn.Return<boolean, never, ChildProcessSpawner.ChildProcessSpawner> {
   const exitCode = yield* Effect.scoped(
     Effect.gen(function* () {
-      const handle = yield* ChildProcess.make("curl", ["-fsS", "-m", "2", config.healthUrl], {
+      const handle = yield* ChildProcess.make("curl", ["-fsS", "-m", "2", healthUrl], {
         stdout: "ignore",
         stderr: "ignore",
       });
@@ -641,6 +647,28 @@ const requireRestoreContainersHealthy = Effect.fn("GraphitiProxyOps.requireResto
 
   return yield* GraphitiProxyOpsError.make({
     message: `Graphiti restore containers are not healthy: ${A.join(states, " ")}.`,
+    exitCode: 1,
+  });
+});
+
+const waitForRestoreProxyHealthy = Effect.fn("GraphitiProxyOps.waitForRestoreProxyHealthy")(function* (
+  config: GraphitiRestoreConfig
+): Effect.fn.Return<void, GraphitiProxyOpsError, ChildProcessSpawner.ChildProcessSpawner> {
+  const start = yield* Clock.currentTimeMillis;
+  const deadline = start + config.waitSeconds * 1000;
+
+  while ((yield* Clock.currentTimeMillis) <= deadline) {
+    const healthy = yield* checkProxyHealthUrl(config.proxyHealthUrl);
+    if (healthy) {
+      yield* Console.log(`[graphiti-restore] Proxy service is healthy at ${config.proxyHealthUrl}.`);
+      return;
+    }
+
+    yield* Effect.sleep(Duration.seconds(1));
+  }
+
+  return yield* GraphitiProxyOpsError.make({
+    message: `Timed out waiting for Graphiti proxy service to become healthy at ${config.proxyHealthUrl}.`,
     exitCode: 1,
   });
 });
@@ -1179,7 +1207,7 @@ export const restoreGraphitiStack = Effect.fn("GraphitiProxyOps.restoreGraphitiS
   yield* waitForRestoreContainers(repoRoot, config);
   yield* verifyFalkor(config);
   yield* ensureProxyServiceForRestore(repoRoot, config);
-  yield* ensureGraphitiProxy();
+  yield* waitForRestoreProxyHealthy(config);
   yield* verifyProxy(config);
   yield* Console.log(
     "[graphiti-restore] Graphiti memory runtime restored. Start a fresh Codex session if this session does not expose the graphiti-memory MCP tool."
@@ -1236,6 +1264,8 @@ export const shouldRecoverGraphitiStackForTesting = (options: {
 }): boolean =>
   options.force || (options.recoverOnUnhealthy && (options.falkor !== "healthy" || options.graphiti !== "healthy"));
 
+const escapeSystemdEnvironmentValue = (value: string): string => Str.replaceAll("%", "%%")(value);
+
 const renderServiceUnit = (repoRoot: string, bunBin: string, config: ProxyServiceConfig): string =>
   A.join(
     [
@@ -1253,7 +1283,7 @@ const renderServiceUnit = (repoRoot: string, bunBin: string, config: ProxyServic
       `Environment=PATH=/usr/local/bin:/usr/bin:/bin:${homeDirectory()}/.bun/bin`,
       "Environment=GRAPHITI_PROXY_HOST=127.0.0.1",
       "Environment=GRAPHITI_PROXY_PORT=8123",
-      `Environment=GRAPHITI_PROXY_UPSTREAM=${config.upstreamMcpUrl}`,
+      `Environment=GRAPHITI_PROXY_UPSTREAM=${escapeSystemdEnvironmentValue(config.upstreamMcpUrl)}`,
       "Environment=GRAPHITI_PROXY_SERVER_IDLE_TIMEOUT_SECONDS=75",
       `StandardOutput=append:${config.stateDir}/graphiti-proxy.log`,
       `StandardError=append:${config.stateDir}/graphiti-proxy.err.log`,

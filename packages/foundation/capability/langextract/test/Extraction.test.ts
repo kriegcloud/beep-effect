@@ -1,6 +1,9 @@
-import { LangExtractError, parseModelOutput } from "@beep/langextract/Extraction";
+import { LangExtractError, LangExtractRequest, parseModelOutput } from "@beep/langextract/Extraction";
+import { ExtractionTarget } from "@beep/langextract/Target";
+import { DocumentId } from "@beep/nlp/Core";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
+import * as S from "effect/Schema";
 
 describe("parseModelOutput", () => {
   it.effect(
@@ -33,6 +36,7 @@ describe("parseModelOutput", () => {
 
       expect(error).toBeInstanceOf(LangExtractError);
       expect(error.reason).toBe("model-output-schema-invalid");
+      expect(error.details?.cause).toBe("schema-decode-failed");
     })
   );
 
@@ -43,6 +47,28 @@ describe("parseModelOutput", () => {
 
       expect(error).toBeInstanceOf(LangExtractError);
       expect(error.reason).toBe("model-output-parse-failed");
+      expect(error.details?.cause).toBe("json-parse-failed");
+    })
+  );
+
+  it.effect(
+    "requires at least one extraction target",
+    Effect.fnUntraced(function* () {
+      const error = yield* S.decodeUnknownEffect(LangExtractRequest)({
+        documentId: DocumentId.make("doc-1"),
+        targets: [],
+        text: "Alice founded Acme.",
+      }).pipe(Effect.flip);
+
+      expect(error).toBeDefined();
+
+      const request = yield* S.decodeUnknownEffect(LangExtractRequest)({
+        documentId: DocumentId.make("doc-1"),
+        targets: [ExtractionTarget.make({ kind: "entity", name: "person" })],
+        text: "Alice founded Acme.",
+      });
+
+      expect(request.targets).toHaveLength(1);
     })
   );
 });

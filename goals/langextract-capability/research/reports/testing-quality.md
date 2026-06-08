@@ -2,7 +2,7 @@
 
 Scope: P1 read-only lane for deterministic tests, package checks, docgen, export catalog, QRFL, and yeet follow-up.
 
-Status: completed locally because the seventh research sub-agent could not be launched due the thread limit.
+Status: completed locally because the seventh research sub-agent could not be launched due to the thread limit.
 
 ## Facts
 

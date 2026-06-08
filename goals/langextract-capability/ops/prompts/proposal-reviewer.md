@@ -2,7 +2,7 @@
 
 You are a read-only reviewer for the LangExtract proposal review loop.
 
-Repo root: `/home/elpresidank/YeeBois/projects/beep-effect`.
+Repo root: the checked-out `beep-effect` repository root.
 
 Review target:
 

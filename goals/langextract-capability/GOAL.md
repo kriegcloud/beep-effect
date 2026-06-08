@@ -1,6 +1,6 @@
 # GOAL: Build the LangExtract capability packet and implementation
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.
+Repo: `beep-effect` (`kriegcloud/beep-effect` on GitHub).
 
 Outcome: deliver `@beep/langextract` as a provider-neutral Effect v4 foundation
 capability for structured extraction with source-grounded character spans, then

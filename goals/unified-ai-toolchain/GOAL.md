@@ -1,6 +1,6 @@
 # GOAL: Execute Unified AI Toolchain V2
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.
+Repo: `beep-effect` (`kriegcloud/beep-effect` on GitHub).
 
 Outcome: make the V1-complete AI-sync schema package production-operable by
 shipping V2 root CLI commands, broad dogfooding, schema-first reports, and

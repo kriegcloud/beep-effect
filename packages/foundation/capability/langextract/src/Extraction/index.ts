@@ -31,6 +31,7 @@ const $I = $LangExtractId.create("Extraction");
  */
 export const LangExtractErrorReason = LiteralKit([
   "model-generation-failed",
+  "model-generation-timeout",
   "model-output-parse-failed",
   "model-output-schema-invalid",
   "alignment-failed",
@@ -219,7 +220,7 @@ export class LangExtractRequest extends S.Class<LangExtractRequest>($I`LangExtra
     documentId: DocumentId,
     examples: ExtractionExample.pipe(S.Array, S.optionalKey),
     options: S.optionalKey(LangExtractOptions),
-    targets: S.Array(ExtractionTarget),
+    targets: S.NonEmptyArray(ExtractionTarget),
     text: S.String,
   },
   $I.annote("LangExtractRequest", {
@@ -350,18 +351,18 @@ export const parseModelOutput = Effect.fn("LangExtract.parseModelOutput")(functi
   text: string
 ): Effect.fn.Return<ReadonlyArray<ExtractionCandidate>, LangExtractError> {
   const json = yield* decodeModelOutputJson(stripJsonFence(text)).pipe(
-    Effect.mapError((error) =>
+    Effect.mapError(() =>
       LangExtractError.fromReason("model-output-parse-failed", {
-        details: { cause: String(error) },
+        details: { cause: "json-parse-failed" },
         message: "Language model output was not valid JSON.",
       })
     )
   );
 
   const parsed = yield* decodeModelOutputPayload(json).pipe(
-    Effect.mapError((error) =>
+    Effect.mapError(() =>
       LangExtractError.fromReason("model-output-schema-invalid", {
-        details: { cause: String(error) },
+        details: { cause: "schema-decode-failed" },
         message: "Language model output did not match the LangExtract response schema.",
       })
     )

@@ -336,4 +336,20 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
     expect(unit).toContain("Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:9000/mcp");
     expect(unit).not.toContain("Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:8000/mcp");
   });
+
+  it("escapes percent signs in the managed proxy service upstream", () => {
+    const unit = renderProxyServiceUnitForTesting(
+      "/repo",
+      "/bin/bun",
+      ProxyServiceConfig.make({
+        serviceFile: "/tmp/beep-graphiti-proxy.service",
+        serviceName: "beep-graphiti-proxy.service",
+        stateDir: "/tmp/beep",
+        systemdUserDir: "/tmp/systemd/user",
+        upstreamMcpUrl: "http://127.0.0.1:9000/mcp?redirect=%2Fgraphiti",
+      })
+    );
+
+    expect(unit).toContain("Environment=GRAPHITI_PROXY_UPSTREAM=http://127.0.0.1:9000/mcp?redirect=%%2Fgraphiti");
+  });
 });

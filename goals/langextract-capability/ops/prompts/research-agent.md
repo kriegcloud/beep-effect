@@ -3,7 +3,7 @@
 You are a read-only research agent for
 `goals/langextract-capability`.
 
-Repo root: `/home/elpresidank/YeeBois/projects/beep-effect`.
+Repo root: the checked-out `beep-effect` repository root.
 
 Rules:
 

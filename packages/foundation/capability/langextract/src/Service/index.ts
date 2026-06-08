@@ -15,12 +15,13 @@ import {
 } from "@beep/langextract/Extraction";
 import { toAnnotatedDocument } from "@beep/langextract/Handoff";
 import { NonNegativeInt } from "@beep/schema";
-import { Clock, Context, Effect, Layer } from "effect";
+import { Clock, Context, Duration, Effect, Layer } from "effect";
 import * as LanguageModel from "effect/unstable/ai/LanguageModel";
 import type { LangExtractRequest } from "@beep/langextract/Extraction";
 
 const $I = $LangExtractId.create("Service");
 const GENERATED_BY = "@beep/langextract";
+const GENERATE_TEXT_TIMEOUT = Duration.seconds(30);
 
 interface LangExtractServiceShape {
   readonly extract: (request: LangExtractRequest) => Effect.Effect<LangExtractResult, LangExtractError>;
@@ -116,12 +117,22 @@ export const make = Effect.fn("LangExtractService.make")(function* () {
     extract: Effect.fn("LangExtractService.extract")(function* (request) {
       const prompt = buildPrompt(request);
       const response = yield* languageModel.generateText({ prompt }).pipe(
-        Effect.mapError((error) =>
+        Effect.mapError(() =>
           LangExtractError.fromReason("model-generation-failed", {
-            details: { cause: String(error) },
+            details: { cause: "language-model-generate-text-failed" },
             message: "Language model generation failed.",
           })
-        )
+        ),
+        Effect.timeoutOrElse({
+          duration: GENERATE_TEXT_TIMEOUT,
+          orElse: () =>
+            Effect.fail(
+              LangExtractError.fromReason("model-generation-timeout", {
+                details: { cause: "language-model-generate-text-timeout" },
+                message: "Language model generation timed out.",
+              })
+            ),
+        })
       );
       const candidates = yield* parseModelOutput(response.text);
       const extractions = alignCandidates(request.text, candidates, request.options);

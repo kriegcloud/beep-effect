@@ -116,9 +116,9 @@ explicit change:
 | --- | --- | --- |
 | Packet launcher size | `test "$(wc -m < goals/langextract-capability/GOAL.md)" -le 4000` | Passes |
 | Manifest JSON | `jq . goals/langextract-capability/ops/manifest.json` | Passes |
-| Packet references | `rg -n "langextract-capability|GOAL.md|agentLaunchers|packetAnchorDocument" goals/langextract-capability` | Finds expected references |
+| Packet references | `rg -n -e "langextract-capability" -e "GOAL.md" -e "agentLaunchers" -e "packetAnchorDocument" goals/langextract-capability` | Finds expected references |
 | Whitespace | `git diff --check -- goals/langextract-capability` | Passes |
-| Repo export reuse | `rg -i "span|annotateddocument|handoff|extraction|languagemodel" standards/repo-exports.catalog.md packages/foundation/capability/nlp packages/drivers` | Evidence recorded in research |
+| Repo export reuse | `rg -i -e "span" -e "annotateddocument" -e "handoff" -e "extraction" -e "languagemodel" standards/repo-exports.catalog.md packages/foundation/capability/nlp packages/drivers` | Evidence recorded in research |
 | Package quality | package-local checks selected during implementation | Passes |
 | Repo quality | `bun run audit:github quality` | Passes or unrelated failures are documented |
 | QRFL closure | reviewer inventory files and final closeout | Zero required blockers or explicit waivers |
