@@ -151,6 +151,20 @@ class NoNativeRuntimeCommandOptions extends S.Class<NoNativeRuntimeCommandOption
 const parseExcludePaths = (excludeValue: string): ReadonlyArray<string> =>
   Text.splitCommaSeparatedTrimmed(excludeValue);
 
+const logTerseEffectFileGroup = Effect.fn("Laws.logTerseEffectFileGroup")(function* (
+  label: string,
+  files: ReadonlyArray<string>,
+  findings: ReadonlyArray<string>
+) {
+  yield* Console.log(`[effect-governance-terse-effect] ${label}_files=${files.length}`);
+  for (const filePath of files) {
+    yield* Console.log(`[effect-governance-terse-effect] ${label}: ${filePath}`);
+  }
+  for (const finding of findings) {
+    yield* Console.log(`[effect-governance-terse-effect] ${label}_finding: ${finding}`);
+  }
+});
+
 /**
  * CLI command for effect import style migration/check.
  *
@@ -253,12 +267,16 @@ const lawsTerseEffectCommand = Command.make(
       `[effect-governance-terse-effect] dual_overload_candidates_detected=${summary.dualOverloadCandidatesDetected}`
     );
 
-    if (!options.write) {
-      yield* Console.log("[effect-governance-terse-effect] Run with --write to persist changes.");
+    yield* logTerseEffectFileGroup("blocking", summary.blockingFiles, summary.blockingFindings);
+    yield* logTerseEffectFileGroup("rewritable", summary.rewritableFiles, summary.rewritableFindings);
+    yield* logTerseEffectFileGroup("informational", summary.informationalFiles, summary.informationalFindings);
+
+    if (!options.write && summary.rewritableFiles.length > 0) {
+      yield* Console.log("[effect-governance-terse-effect] Run with --write to persist rewritable helper changes.");
     }
 
-    for (const filePath of summary.changedFiles) {
-      yield* Console.log(filePath);
+    if (summary.blockingFiles.length > summary.rewritableFiles.length) {
+      yield* Console.log("[effect-governance-terse-effect] Manual terse-effect candidates remain after safe rewrites.");
     }
 
     if (summary.strictFailure) {

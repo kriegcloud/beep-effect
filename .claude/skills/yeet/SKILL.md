@@ -87,6 +87,13 @@ bun run beep yeet monitor
 bun run beep yeet closeout --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0
 ```
 
+- Inspect local hardware profile guidance before choosing heavy parallel work:
+
+```bash
+bun run beep quality profile detect
+bun run beep quality profile config workstation
+```
+
 Use plan mode before long or risky runs when you need to inspect the shape:
 
 ```bash
@@ -119,7 +126,8 @@ bun run beep yeet closeout --plan --json
 `yeet closeout` is read-first. It classifies review threads and bot findings and
 writes Yeet artifacts locally. It posts a Greptile rerun comment only when
 `--retrigger-greptile` is explicit, and it does not auto-resolve or auto-reply to
-review threads.
+review threads. The closeout artifact includes durable states for review
+threads, Greptile, CodeRabbit, ChatGPT, and hosted-check handoff.
 
 ## Fast Plus Monitor
 
@@ -168,15 +176,29 @@ the authoritative gates.
   proof after pushing, and should fail loudly rather than hiding follow-up work.
 - If Yeet refuses untracked, unstaged, or newly generated paths, inspect the
   paths and decide whether they belong in the reviewed publish intent.
+- Yeet serializes full local proof runs with `.beep/yeet/quality-lock`.
+  `verify --tier review-fix` remains the cheaper loop lane while a full proof is
+  already active. If the lock is stale, confirm no full proof process is running
+  before removing it.
 - Full pre-push proof streams a conservative collector for independent GitHub
   check lanes. A failed proof may report multiple sibling failures at once
   (for example check, lint, repo-export, tests, SAST, or Nix). Fix all reported
   actionable lanes before retrying instead of assuming the first item is the
   only blocker.
+- Yeet failure packets now add known sub-lane hints for common broad failures
+  such as cspell, terse-effect, dual-arity, repo-export catalog, docgen,
+  secrets, SAST, security, and Nix. Prefer the suggested repair command in the
+  packet over rerunning the whole loop blindly.
 - Root composite lanes prefer streaming accumulation where child commands are
   independent. For example, root `lint` streams the Turbo/Biome aggregate and
   then still runs repo-law policy lints, so one lint-family failure does not
   hide sibling lint findings.
+- The root docgen lint check uses package-local docgen proof manifests. A
+  package with a current `.beep/docgen/proof.json` can skip duplicate docgen
+  metadata analysis; missing or stale manifests fall back to the normal check.
+- Terse-effect output separates `blocking`, `rewritable`, and `informational`
+  files. Use `--write` only for the rewritable helper subset; manual candidates
+  still need direct edits.
 - If there is no open PR for `yeet monitor`, create the draft PR first or run
   `bun run audit:github pre-push` as the full local fallback.
 - If `yeet closeout` reports Greptile score/issues as unknown, inspect the PR

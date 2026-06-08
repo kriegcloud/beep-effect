@@ -25,6 +25,7 @@ import type {
 const $I = $RepoCliId.create("commands/Yeet/internal/QualityIssueIndex");
 
 const MAX_RAW_EXCERPT_CHARS = 4 * 1024;
+const KNOWN_SUB_LANE_TAIL_CHARS = 16 * 1024;
 const ansiPattern = /\u001b\[[0-9;]*m/gu;
 const tsDiagnosticPattern =
   /^(?<file>[^:\n]+):(?<line>\d+):(?<column>\d+)(?:\s+-)?\s+(?<severity>error|warning)\s+TS(?<code>\d+):\s+(?<message>.+)$/u;
@@ -400,6 +401,105 @@ const categoryForStep = (step: RepoPlanStep): QualityIssueCategory => {
   return "command-failure";
 };
 
+type KnownSubLaneHint = {
+  readonly needle: string;
+  readonly subCategory: string;
+  readonly category: QualityIssueCategory;
+  readonly remediation: string;
+};
+
+type KnownSubLaneMatch = {
+  readonly hint: KnownSubLaneHint;
+  readonly index: number;
+};
+
+const knownSubLaneHints: ReadonlyArray<KnownSubLaneHint> = [
+  {
+    needle: "cspell",
+    subCategory: "cspell",
+    category: "lint-tool",
+    remediation: "Run `bun run cspell` or update the spelling dictionary for intentional terms.",
+  },
+  {
+    needle: "terse-effect",
+    subCategory: "terse-effect",
+    category: "repo-law",
+    remediation:
+      "Run `bun run beep laws terse-effect --check` and inspect blocking, rewritable, and informational files.",
+  },
+  {
+    needle: "dual-arity",
+    subCategory: "dual-arity",
+    category: "repo-law",
+    remediation: "Run `bun run beep laws dual-arity --check` and fix enforced candidates.",
+  },
+  {
+    needle: "repo-exports",
+    subCategory: "repo-exports-catalog",
+    category: "repo-export-policy",
+    remediation: "Run `bun run repo-exports:catalog` then `bun run repo-exports:catalog:check`.",
+  },
+  {
+    needle: "docgen",
+    subCategory: "docgen",
+    category: "docgen-jsdoc-quality",
+    remediation: "Run `bun run docgen:local` for edit loops or `bun run docgen` for the full proof.",
+  },
+  {
+    needle: "semgrep",
+    subCategory: "sast",
+    category: "security-audit",
+    remediation: "Inspect the Semgrep finding and rerun `bun run beep quality github-checks sast`.",
+  },
+  {
+    needle: "gitleaks",
+    subCategory: "secrets",
+    category: "security-audit",
+    remediation: "Inspect the Gitleaks finding and rerun `bun run beep quality github-checks secrets`.",
+  },
+  {
+    needle: "osv",
+    subCategory: "security",
+    category: "security-audit",
+    remediation: "Inspect the OSV finding and rerun `bun run beep quality github-checks security`.",
+  },
+  {
+    needle: "nix",
+    subCategory: "nix",
+    category: "security-audit",
+    remediation: "Rerun `bun run beep quality github-checks nix` and inspect the Nix error.",
+  },
+];
+
+const knownSubLaneHintFromText = (text: string): O.Option<KnownSubLaneHint> =>
+  pipe(
+    knownSubLaneHints,
+    A.reduce(O.none<KnownSubLaneMatch>(), (latest, hint) => {
+      const index = text.lastIndexOf(hint.needle);
+      if (index < 0) {
+        return latest;
+      }
+      const candidate = { hint, index };
+      return pipe(
+        latest,
+        O.match({
+          onNone: () => O.some(candidate),
+          onSome: (match) => (index > match.index ? O.some(candidate) : latest),
+        })
+      );
+    }),
+    O.map((match) => match.hint)
+  );
+
+const knownSubLaneHintFromOutput = (output: string | undefined): O.Option<KnownSubLaneHint> => {
+  const normalized = Str.toLowerCase(output ?? "");
+  const tail = normalized.slice(-KNOWN_SUB_LANE_TAIL_CHARS);
+  return pipe(
+    knownSubLaneHintFromText(tail),
+    O.orElse(() => knownSubLaneHintFromText(normalized))
+  );
+};
+
 const severityForLine = (severity: string): QualityIssueSeverity => (severity === "warning" ? "warning" : "error");
 const lineIndicatesEffectDiagnostic = (line: string): boolean =>
   Str.includes(" effect(")(line) || Str.includes("effectFn")(line) || Str.includes("@effect")(line);
@@ -636,13 +736,36 @@ const fallbackIssueFromResult = (
   result: RepoStepRunResult,
   inferredPackageName: O.Option<string> = O.none()
 ): QualityIssue => {
-  const category = categoryForStep(step);
-  const message = `${step.label} failed with exit code ${result.exitCode}.`;
+  const subLaneHint = knownSubLaneHintFromOutput(result.output);
+  const category = pipe(
+    subLaneHint,
+    O.map((hint) => hint.category),
+    O.getOrElse(() => categoryForStep(step))
+  );
+  const message = pipe(
+    subLaneHint,
+    O.map((hint) => `${step.label} failed in ${hint.subCategory} with exit code ${result.exitCode}.`),
+    O.getOrElse(() => `${step.label} failed with exit code ${result.exitCode}.`)
+  );
   return QualityIssue.make({
     ...issueBase(context, step, result, category, message, inferredPackageName),
     id: issueId(step, category, message, inferredPackageName, O.none(), O.none()),
     severity: "error",
     confidence: "raw",
+    ...optionalProp(
+      "subCategory",
+      pipe(
+        subLaneHint,
+        O.map((hint) => hint.subCategory)
+      )
+    ),
+    ...optionalProp(
+      "remediation",
+      pipe(
+        subLaneHint,
+        O.map((hint) => hint.remediation)
+      )
+    ),
   });
 };
 

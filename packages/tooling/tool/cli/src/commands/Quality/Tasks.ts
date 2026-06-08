@@ -1182,7 +1182,7 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   repoCliStep(repoRoot, "lint:deprecated-apis", ["lint", "deprecated-apis"]),
   bunxStep(repoRoot, "lint:jsdoc", ["eslint", "."]),
   repoCliStep(repoRoot, "lint:jsdoc-module-tags", ["quality", "jsdoc-module-tags"]),
-  repoCliStep(repoRoot, "lint:docgen", ["docgen", "check"]),
+  repoCliStep(repoRoot, "lint:docgen", ["docgen", "check", "--reuse-proof-manifest"]),
   bunxStep(repoRoot, "lint:spell", ["cspell", ".", "--no-progress"]),
   bunxStep(repoRoot, "lint:markdown", ["markdownlint-cli2"]),
   repoCliStep(repoRoot, "lint:circular", ["lint", "circular"]),

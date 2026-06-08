@@ -1,14 +1,18 @@
 import {
   buildQualityIssueIndex,
   buildYeetRunPlanForTesting,
+  closeoutGateStatesForTesting,
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
+  defaultYeetRunOptions,
+  GreptileSummary,
   gitPathListFromNulOutputForTesting,
   greptileIssueLimitExceededForTesting,
   greptileRetriggerCommentForTesting,
   inferGreptileIssueCountForTesting,
   jsonObjectTextFromMixedOutputForTesting,
   latestGreptileSummaryForTesting,
+  PrCloseoutOptions,
   prePushLocalShasFromStdinForTesting,
   prePushShaMismatchesForTesting,
   publishPathsOutsideIntentForTesting,
@@ -20,16 +24,56 @@ import {
   RepoStepRunResult,
   renderPackageQualityPacketMarkdown,
   repoProofStepDefinition,
+  shouldSkipCommitForReusablePublishForTesting,
   TurboPlanSnapshot,
   TurboPlanTask,
   TurboWorkspacePackage,
 } from "@beep/repo-cli/test/Yeet";
-import { Effect } from "effect";
+import { provideScopedLayer } from "@beep/test-utils";
+import { NodeChildProcessSpawner } from "@effect/platform-node";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { Effect, FileSystem, Layer, Path } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import { describe, expect, it } from "vitest";
+
+const FileSystemLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+const PlatformLayer = Layer.mergeAll(
+  FileSystemLayer,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(FileSystemLayer))
+);
+
+const runGit = (cwd: string, args: ReadonlyArray<string>) =>
+  Effect.sync(() => {
+    const result = Bun.spawnSync(["git", ...args], {
+      cwd,
+      stderr: "pipe",
+      stdout: "pipe",
+    });
+
+    if (result.exitCode !== 0) {
+      throw new Error(`git ${A.join(args, " ")} failed: ${result.stderr.toString()}`);
+    }
+  });
+
+const withTempDirectory = <Result, Error, Requirements>(
+  use: (tmpDir: string) => Effect.Effect<Result, Error, Requirements>
+) =>
+  Effect.acquireUseRelease(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      return yield* fs.makeTempDirectory();
+    }),
+    use,
+    (tmpDir) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+  ).pipe(provideScopedLayer(PlatformLayer));
 
 const turboTask = (
   task: string,
@@ -351,6 +395,41 @@ describe("yeet planner", () => {
     ).toEqual(["publish:git:push", "monitor:pr-context", "monitor:pr-checks:watch"]);
     expect(findStep(plan.steps, "publish:git:push").args).toEqual(["push", "-u", "origin", "HEAD"]);
   });
+
+  it("rejects push-only reuse when staged changes are present", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const filePath = path.join(tmpDir, "tracked.txt");
+          const tempContext = RepoRunContext.make({
+            ...context,
+            cwd: tmpDir,
+            repoRoot: tmpDir,
+          });
+
+          yield* runGit(tmpDir, ["init"]);
+          yield* runGit(tmpDir, ["config", "user.email", "yeet@example.test"]);
+          yield* runGit(tmpDir, ["config", "user.name", "Yeet Test"]);
+          yield* fs.writeFileString(filePath, "base\n");
+          yield* runGit(tmpDir, ["add", "tracked.txt"]);
+          yield* runGit(tmpDir, ["commit", "-m", "init"]);
+          yield* fs.writeFileString(filePath, "changed\n");
+          yield* runGit(tmpDir, ["add", "tracked.txt"]);
+
+          const error = yield* Effect.flip(
+            shouldSkipCommitForReusablePublishForTesting(
+              tempContext,
+              defaultYeetRunOptions({ pushOnly: true, reuseVerified: true })
+            )
+          );
+
+          expect(error.message).toContain("yeet publish --push-only --reuse-verified refuses staged changes.");
+          expect(error.message).toContain("  - tracked.txt");
+        })
+      )
+    ));
 
   it("keeps publish monitor on the full local proof unless fast is explicit", () => {
     const plan = buildYeetRunPlanForTesting({
@@ -697,6 +776,39 @@ describe("yeet planner", () => {
     expect(greptileIssueLimitExceededForTesting(2, 2)).toBe(false);
     expect(greptileIssueLimitExceededForTesting(3, 2)).toBe(true);
   });
+
+  it("builds durable closeout gate states for bot and review gates", () => {
+    const states = closeoutGateStatesForTesting(
+      PrCloseoutOptions.make({
+        bots: "coderabbit,chatgpt,greptile",
+        requireGreptileIssues: 0,
+        requireGreptileScore: "5/5",
+        requireReviewComments: 0,
+        retriggerGreptile: false,
+      }),
+      0,
+      GreptileSummary.make({
+        issueCount: 0,
+        score: "5/5",
+        url: "https://github.test/pr#greptile",
+      }),
+      [
+        {
+          authorLogin: "coderabbitai",
+          body: "Review completed",
+          url: "https://github.test/pr#coderabbit",
+        },
+      ]
+    );
+
+    expect(states).toEqual([
+      expect.objectContaining({ name: "review-threads", status: "passed", count: 0 }),
+      expect.objectContaining({ name: "greptile", status: "passed", count: 0 }),
+      expect.objectContaining({ name: "coderabbit", status: "passed", count: 0 }),
+      expect.objectContaining({ name: "chatgpt", status: "unknown", count: 0 }),
+      expect.objectContaining({ name: "hosted-checks", status: "unknown" }),
+    ]);
+  });
 });
 
 describe("yeet quality issue index", () => {
@@ -842,6 +954,75 @@ describe("yeet quality issue index", () => {
       "feedback:test-test::test::package:@beep/repo-cli::0::feedback:test failed with exit code 1.",
       "feedback:test-test::test::package:@beep/schema::0::feedback:test failed with exit code 1.",
     ]);
+  });
+
+  it("extracts known sub-lane hints from broad proof failures", () => {
+    const step = RepoPlanStep.make({
+      id: "full:pre-push",
+      label: "full:pre-push",
+      phase: "full",
+      command: "bun",
+      args: ["run", "beep", "quality", "github-checks", "pre-push"],
+      cwd: "/repo",
+      scope: "repo",
+      mutability: "readonly",
+      resume: "never",
+    });
+    const issues = qualityIssuesFromStepResult(
+      context,
+      step,
+      RepoStepRunResult.make({
+        stepId: step.id,
+        commandText: "bun run beep quality github-checks pre-push",
+        exitCode: 1,
+        output: "[beep-cli] lint:cspell: cspell .\nUnknown word found",
+      })
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      category: "lint-tool",
+      message: "full:pre-push failed in cspell with exit code 1.",
+      remediation: "Run `bun run cspell` or update the spelling dictionary for intentional terms.",
+      subCategory: "cspell",
+    });
+  });
+
+  it("prefers the failing tail when broad proof output mentions earlier successful lanes", () => {
+    const step = RepoPlanStep.make({
+      id: "full:review-fix",
+      label: "full:review-fix",
+      phase: "full",
+      command: "bun",
+      args: ["run", "beep", "quality", "github-checks", "review-fix"],
+      cwd: "/repo",
+      scope: "repo",
+      mutability: "readonly",
+      resume: "never",
+    });
+    const issues = qualityIssuesFromStepResult(
+      context,
+      step,
+      RepoStepRunResult.make({
+        stepId: step.id,
+        commandText: "bun run beep quality github-checks review-fix",
+        exitCode: 1,
+        output:
+          "[beep-cli] lint:terse-effect: bun run beep laws terse-effect --check\n" +
+          "terse-effect: OK\n" +
+          "[github-checks] review-fix: local docgen\n" +
+          'docgen:local: full docgen proof required; re-run with "--full" to execute it.\n' +
+          "review-fix:docgen-local failed with exit code 1.",
+      })
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      category: "docgen-jsdoc-quality",
+      message: "full:review-fix failed in docgen with exit code 1.",
+      remediation: "Run `bun run docgen:local` for edit loops or `bun run docgen` for the full proof.",
+      subCategory: "docgen",
+    });
   });
 
   it("uses the workspace package catalog for full-proof diagnostic package attribution", () => {
