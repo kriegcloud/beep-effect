@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c1876acea87adf3bddb0cd48858416be5a2f06d7aec23277d369c3edd22b9dfd",
+    "digest": "6d444850c62a7432c3cf18b46efbce89544f3020f2bfdccdfa425fac3d42b63d",
     "inputs": [
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -647,8 +647,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sha256": "9b428b68e6e791dd0c855830e5fecdddea40022b11ee3b9b0c1c1b9ee7d23d75",
-        "bytes": 27930
+        "sha256": "eebe7ae6a4717c26924082a7130e638178c5e7bb660e8815c9c0fcf58dc35cf4",
+        "bytes": 29015
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
@@ -927,8 +927,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1770,
-      "uniqueSymbols": 652,
+      "publicExportEntries": 1771,
+      "uniqueSymbols": 653,
       "sourceFiles": 146
     },
     "exports": [
@@ -44113,7 +44113,7 @@
         "symbolName": "greptileIssueLimitExceededForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 612,
+        "sourceLine": 638,
         "summary": "Determine whether the Greptile issue-count gate should block closeout.",
         "categories": [
           "testing"
@@ -44211,6 +44211,32 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "inferGreptileIssueCountForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+        "sourceLine": 584,
+        "summary": "Fill a missing Greptile issue count from active Greptile-authored thread count.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet infergreptileissuecountfortesting const fill a missing greptile issue count from active greptile-authored thread count. testing packages/tooling/tool/cli/src/commands/yeet/internal/closeout.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "isConservativeResumeCandidate",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
@@ -44265,7 +44291,7 @@
         "symbolName": "latestGreptileSummaryForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 543,
+        "sourceLine": 558,
         "summary": "Parse the latest Greptile summary from simplified comment inputs.",
         "categories": [
           "testing"
@@ -45212,7 +45238,7 @@
         "symbolName": "runPrCloseout",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 852,
+        "sourceLine": 878,
         "summary": "Inspect current PR review and bot closeout state.",
         "categories": [
           "use-cases"

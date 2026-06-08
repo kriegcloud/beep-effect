@@ -6,6 +6,7 @@ import {
   gitPathListFromNulOutputForTesting,
   greptileIssueLimitExceededForTesting,
   greptileRetriggerCommentForTesting,
+  inferGreptileIssueCountForTesting,
   jsonObjectTextFromMixedOutputForTesting,
   latestGreptileSummaryForTesting,
   publishPathsOutsideIntentForTesting,
@@ -568,6 +569,11 @@ describe("yeet planner", () => {
         body: "Inline finding without a summary score",
         url: "https://github.test/pr#inline",
       },
+      {
+        authorLogin: "greptile-apps",
+        body: "`issueCount` and score/issue gates can fire spuriously. Fix prompt: %60issueCount%60",
+        url: "https://github.test/pr#inline-noise",
+      },
     ]);
 
     expect(summary).toMatchObject({
@@ -575,6 +581,54 @@ describe("yeet planner", () => {
       score: "5/5",
       url: "https://github.test/pr#greptile",
     });
+  });
+
+  it("parses only summary-shaped Greptile issue counts", () => {
+    expect(
+      latestGreptileSummaryForTesting([
+        {
+          authorLogin: "greptile-apps",
+          body: "Issues: 0",
+          url: "https://github.test/pr#labeled",
+        },
+      ])
+    ).toMatchObject({ issueCount: 0 });
+    expect(
+      latestGreptileSummaryForTesting([
+        {
+          authorLogin: "greptile-apps",
+          body: "No open issues",
+          url: "https://github.test/pr#none",
+        },
+      ])
+    ).toMatchObject({ issueCount: 0 });
+    expect(
+      latestGreptileSummaryForTesting([
+        {
+          authorLogin: "greptile-apps",
+          body: "Potential issue: score/issue gates can parse prompt links like %60issueCount%60.",
+          url: "https://github.test/pr#inline",
+        },
+      ])
+    ).toMatchObject({});
+  });
+
+  it("infers missing Greptile issue counts from active Greptile threads", () => {
+    expect(inferGreptileIssueCountForTesting(latestGreptileSummaryForTesting([]), 0)).toMatchObject({
+      issueCount: 0,
+    });
+    expect(
+      inferGreptileIssueCountForTesting(
+        latestGreptileSummaryForTesting([
+          {
+            authorLogin: "greptile-apps",
+            body: "Issues: 2",
+            url: "https://github.test/pr#summary",
+          },
+        ]),
+        0
+      )
+    ).toMatchObject({ issueCount: 2 });
   });
 
   it("treats Greptile issue requirements as an upper bound", () => {

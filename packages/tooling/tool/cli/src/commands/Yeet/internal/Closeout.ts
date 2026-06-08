@@ -484,8 +484,8 @@ const isGreptileComment = (author: GhActor | null): boolean =>
   Str.includes("greptile")(Str.toLowerCase(authorLogin(author)));
 
 const scorePattern = /(?<score>\d+(?:\.\d+)?)\s*\/\s*5/u;
-const leadingIssueCountPattern = /(?<count>\d+)\s+(?:open\s+)?issues?/iu;
-const labeledIssueCountPattern = /(?:open\s+)?issues?\D{0,16}(?<count>\d+)/iu;
+const leadingIssueCountPattern = /^\s*(?<count>\d+)\s+(?:open\s+)?issues?\b/imu;
+const labeledIssueCountPattern = /^\s*(?:open\s+)?issues?\s*[:=-]\s*(?<count>\d+)\b/imu;
 
 const parseScore = (body: string): O.Option<string> =>
   pipe(
@@ -494,7 +494,7 @@ const parseScore = (body: string): O.Option<string> =>
   );
 
 const parseIssueCount = (body: string): O.Option<number> => {
-  if (/no\s+(?:open\s+)?issues?/iu.test(body)) {
+  if (/^\s*no\s+(?:open\s+)?issues?\b/imu.test(body)) {
     return O.some(0);
   }
 
@@ -526,6 +526,21 @@ const latestGreptileSummary = (comments: ReadonlyArray<GhComment>): GreptileSumm
     O.getOrElse(() => GreptileSummary.make({}))
   );
 
+const greptileAuthoredReviewThreadCount = (threads: ReadonlyArray<GhReviewThread>): number =>
+  pipe(
+    threads,
+    A.filter(
+      (thread) =>
+        !thread.isResolved &&
+        !thread.isOutdated &&
+        A.some(thread.comments.nodes, (comment) => isGreptileComment(comment.author))
+    ),
+    A.length
+  );
+
+const inferGreptileIssueCount = (summary: GreptileSummary, activeThreadCount: number): GreptileSummary =>
+  summary.issueCount === undefined ? GreptileSummary.make({ ...summary, issueCount: activeThreadCount }) : summary;
+
 type GreptileSummaryCommentInput = {
   readonly authorLogin: string;
   readonly body: string;
@@ -556,6 +571,17 @@ export const latestGreptileSummaryForTesting = (
       )
     )
   );
+
+/**
+ * Fill a missing Greptile issue count from active Greptile-authored thread count.
+ *
+ * @param summary - Parsed Greptile summary.
+ * @param activeThreadCount - Unresolved, non-outdated Greptile-authored thread count.
+ * @returns Summary with an inferred issue count when Greptile omitted one.
+ * @category testing
+ * @since 0.0.0
+ */
+export const inferGreptileIssueCountForTesting = inferGreptileIssueCount;
 
 const issueRouting = (reason: string): ReadonlyArray<QualityIssueRouting> => [
   QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason }),
@@ -892,7 +918,10 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
     ])
   );
   const botComments = [...topLevelBotComments, ...reviewBotComments];
-  const greptile = latestGreptileSummary(botComments);
+  const greptile = inferGreptileIssueCount(
+    latestGreptileSummary(botComments),
+    greptileAuthoredReviewThreadCount(pullRequest.reviewThreads.nodes)
+  );
   const issues = [...threadIssues, ...gateIssues(options, actionableThreads.length, greptile)];
 
   if (options.retriggerGreptile) {
