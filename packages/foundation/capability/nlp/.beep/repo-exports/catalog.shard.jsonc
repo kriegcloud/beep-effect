@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ca50028da1c4bdc47d6e2bdaa47a6dd97026ae26a8e3e6bf2bf0ce692d8f939c",
+    "digest": "dddbefe2b25340339506b7a87212507ad7d7fc0d2122a8e6700de7925b19ba7b",
     "inputs": [
       {
         "path": "packages/foundation/capability/nlp/package.json",
@@ -182,8 +182,8 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/Handoff/index.ts",
-        "sha256": "9a53ae9a300bff4ee90cf6498a0b099d6cd65d124b6d1dccfa1f7ecd556f8fa2",
-        "bytes": 707
+        "sha256": "9da08dce177033e3675724ac4127771c3fb9d44299b6e39865af2f9181011468",
+        "bytes": 1009
       },
       {
         "path": "packages/foundation/capability/nlp/src/IdentifierText.ts",
@@ -507,8 +507,8 @@
       "@beep/nlp/VariantText"
     ],
     "counts": {
-      "publicExportEntries": 893,
-      "uniqueSymbols": 458,
+      "publicExportEntries": 897,
+      "uniqueSymbols": 459,
       "sourceFiles": 75
     },
     "exports": [
@@ -590,7 +590,7 @@
         "symbolName": "Handoff",
         "exportKind": "SourceFile",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/index.ts",
-        "sourceLine": 26,
+        "sourceLine": 25,
         "summary": "",
         "categories": [],
         "since": [],
@@ -16784,6 +16784,56 @@
         "packageName": "@beep/nlp",
         "packagePath": "packages/foundation/capability/nlp",
         "topoOrder": 0,
+        "importSpecifier": "@beep/nlp/Handoff",
+        "exportSubpath": "./Handoff",
+        "exportedFromPath": "packages/foundation/capability/nlp/src/Handoff/index.ts",
+        "symbolName": "UnitInterval",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/nlp/src/internal/numbers.ts",
+        "sourceLine": 45,
+        "summary": "Numeric value between 0 and 1 inclusive.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/handoff ./handoff unitinterval const numeric value between 0 and 1 inclusive. validation packages/foundation/capability/nlp/src/internal/numbers.ts"
+      },
+      {
+        "packageName": "@beep/nlp",
+        "packagePath": "packages/foundation/capability/nlp",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/nlp/Handoff",
+        "exportSubpath": "./Handoff",
+        "exportedFromPath": "packages/foundation/capability/nlp/src/Handoff/index.ts",
+        "symbolName": "UnitInterval",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/nlp/src/internal/numbers.ts",
+        "sourceLine": 64,
+        "summary": "Runtime type for {@link UnitInterval}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/handoff ./handoff unitinterval type runtime type for {@link unitinterval}. models packages/foundation/capability/nlp/src/internal/numbers.ts"
+      },
+      {
+        "packageName": "@beep/nlp",
+        "packagePath": "packages/foundation/capability/nlp",
+        "topoOrder": 0,
         "importSpecifier": "@beep/nlp/Handoff/Contract",
         "exportSubpath": "./Handoff/Contract",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
@@ -17241,6 +17291,56 @@
         "since": [],
         "tags": [],
         "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/handoff/index ./handoff/index contract sourcefile packages/foundation/capability/nlp/src/handoff/contract.ts"
+      },
+      {
+        "packageName": "@beep/nlp",
+        "packagePath": "packages/foundation/capability/nlp",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/nlp/Handoff/index",
+        "exportSubpath": "./Handoff/index",
+        "exportedFromPath": "packages/foundation/capability/nlp/src/Handoff/index.ts",
+        "symbolName": "UnitInterval",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/nlp/src/internal/numbers.ts",
+        "sourceLine": 45,
+        "summary": "Numeric value between 0 and 1 inclusive.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/handoff/index ./handoff/index unitinterval const numeric value between 0 and 1 inclusive. validation packages/foundation/capability/nlp/src/internal/numbers.ts"
+      },
+      {
+        "packageName": "@beep/nlp",
+        "packagePath": "packages/foundation/capability/nlp",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/nlp/Handoff/index",
+        "exportSubpath": "./Handoff/index",
+        "exportedFromPath": "packages/foundation/capability/nlp/src/Handoff/index.ts",
+        "symbolName": "UnitInterval",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/nlp/src/internal/numbers.ts",
+        "sourceLine": 64,
+        "summary": "Runtime type for {@link UnitInterval}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/handoff/index ./handoff/index unitinterval type runtime type for {@link unitinterval}. models packages/foundation/capability/nlp/src/internal/numbers.ts"
       },
       {
         "packageName": "@beep/nlp",

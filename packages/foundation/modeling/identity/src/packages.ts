@@ -39,7 +39,7 @@ import * as Identity from "./Id.ts";
  */
 export const $I = Identity.make("beep").$BeepId;
 
-const composers = $I.compose(
+const generatedComposers = $I.compose(
   // IaC Infra Package
   "infra",
 
@@ -152,6 +152,11 @@ const composers = $I.compose(
   "box",
   "firecrawl"
 );
+
+const composers = {
+  ...generatedComposers,
+  $LangExtractId: generatedComposers.$LangextractId,
+};
 
 // --- foundation ---
 
@@ -504,7 +509,7 @@ export const $NlpId: Identity.IdentityComposer<"@beep/nlp"> = composers.$NlpId;
  * @since 0.0.0
  * @category configuration
  */
-export const $LangExtractId: Identity.IdentityComposer<"@beep/langextract"> = composers.$LangextractId;
+export const $LangExtractId: Identity.IdentityComposer<"@beep/langextract"> = composers.$LangExtractId;
 
 /**
  * Identity composer for the `@beep/observability` package.

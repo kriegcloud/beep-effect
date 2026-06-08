@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "97b67e5e2a4717d1bb4138a3e40cdf849b300605b0e84c4d4100052237ba01d3",
+    "digest": "72bd4614d709f0cd599f545edcc7c3adf5f41e9aa88167b5cda2da2ed90e684b",
     "inputs": [
       {
         "path": "packages/foundation/capability/langextract/package.json",
@@ -27,8 +27,8 @@
       },
       {
         "path": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sha256": "b64f195364a4c77c922e8f48fb71e296e8a46c9ad3b2436fba971c682d7442a0",
-        "bytes": 12127
+        "sha256": "071ccf982ea573ce66f2757b4ca52f9ad51c0a3399a7665dc5fbb0d0dc9b0d8a",
+        "bytes": 11228
       },
       {
         "path": "packages/foundation/capability/langextract/src/Handoff/index.ts",
@@ -292,7 +292,7 @@
         "symbolName": "AlignmentStatus",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 132,
+        "sourceLine": 104,
         "summary": "Alignment status assigned to a parsed extraction candidate.",
         "categories": [
           "schemas"
@@ -317,7 +317,7 @@
         "symbolName": "AlignmentStatus",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 144,
+        "sourceLine": 116,
         "summary": "Type for {@link AlignmentStatus}.",
         "categories": [
           "models"
@@ -341,7 +341,7 @@
         "symbolName": "ExtractionCandidate",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 183,
+        "sourceLine": 155,
         "summary": "Candidate extraction decoded from model output before source alignment.",
         "categories": [
           "models"
@@ -366,7 +366,7 @@
         "symbolName": "GroundedExtraction",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 211,
+        "sourceLine": 183,
         "summary": "Extraction after deterministic source alignment.",
         "categories": [
           "models"
@@ -391,7 +391,7 @@
         "symbolName": "LangExtractDiagnostics",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 277,
+        "sourceLine": 249,
         "summary": "Counts emitted with a completed extraction result.",
         "categories": [
           "models"
@@ -416,7 +416,7 @@
         "symbolName": "LangExtractError",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 93,
+        "sourceLine": 65,
         "summary": "Sanitized LangExtract capability error.",
         "categories": [
           "errors"
@@ -441,7 +441,7 @@
         "symbolName": "LangExtractErrorReason",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 60,
+        "sourceLine": 32,
         "summary": "Machine-readable LangExtract failure reasons.",
         "categories": [
           "errors"
@@ -466,7 +466,7 @@
         "symbolName": "LangExtractErrorReason",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 78,
+        "sourceLine": 50,
         "summary": "Type for {@link LangExtractErrorReason}.",
         "categories": [
           "errors"
@@ -490,7 +490,7 @@
         "symbolName": "LangExtractOptions",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 160,
+        "sourceLine": 132,
         "summary": "Options controlling provider-neutral extraction and alignment.",
         "categories": [
           "models"
@@ -515,7 +515,7 @@
         "symbolName": "LangExtractRequest",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 245,
+        "sourceLine": 217,
         "summary": "Provider-neutral extraction request.",
         "categories": [
           "models"
@@ -540,7 +540,7 @@
         "symbolName": "LangExtractResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 324,
+        "sourceLine": 296,
         "summary": "Provider-neutral extraction result plus NLP handoff document.",
         "categories": [
           "models"
@@ -565,7 +565,7 @@
         "symbolName": "parseModelOutput",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 377,
+        "sourceLine": 349,
         "summary": "Decode a model text response into extraction candidates.",
         "categories": [
           "parsing"
@@ -591,7 +591,7 @@
         "symbolName": "AlignmentStatus",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 132,
+        "sourceLine": 104,
         "summary": "Alignment status assigned to a parsed extraction candidate.",
         "categories": [
           "schemas"
@@ -616,7 +616,7 @@
         "symbolName": "AlignmentStatus",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 144,
+        "sourceLine": 116,
         "summary": "Type for {@link AlignmentStatus}.",
         "categories": [
           "models"
@@ -640,7 +640,7 @@
         "symbolName": "ExtractionCandidate",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 183,
+        "sourceLine": 155,
         "summary": "Candidate extraction decoded from model output before source alignment.",
         "categories": [
           "models"
@@ -665,7 +665,7 @@
         "symbolName": "GroundedExtraction",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 211,
+        "sourceLine": 183,
         "summary": "Extraction after deterministic source alignment.",
         "categories": [
           "models"
@@ -690,7 +690,7 @@
         "symbolName": "LangExtractDiagnostics",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 277,
+        "sourceLine": 249,
         "summary": "Counts emitted with a completed extraction result.",
         "categories": [
           "models"
@@ -715,7 +715,7 @@
         "symbolName": "LangExtractError",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 93,
+        "sourceLine": 65,
         "summary": "Sanitized LangExtract capability error.",
         "categories": [
           "errors"
@@ -740,7 +740,7 @@
         "symbolName": "LangExtractErrorReason",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 60,
+        "sourceLine": 32,
         "summary": "Machine-readable LangExtract failure reasons.",
         "categories": [
           "errors"
@@ -765,7 +765,7 @@
         "symbolName": "LangExtractErrorReason",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 78,
+        "sourceLine": 50,
         "summary": "Type for {@link LangExtractErrorReason}.",
         "categories": [
           "errors"
@@ -789,7 +789,7 @@
         "symbolName": "LangExtractOptions",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 160,
+        "sourceLine": 132,
         "summary": "Options controlling provider-neutral extraction and alignment.",
         "categories": [
           "models"
@@ -814,7 +814,7 @@
         "symbolName": "LangExtractRequest",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 245,
+        "sourceLine": 217,
         "summary": "Provider-neutral extraction request.",
         "categories": [
           "models"
@@ -839,7 +839,7 @@
         "symbolName": "LangExtractResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 324,
+        "sourceLine": 296,
         "summary": "Provider-neutral extraction result plus NLP handoff document.",
         "categories": [
           "models"
@@ -864,7 +864,7 @@
         "symbolName": "parseModelOutput",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
-        "sourceLine": 377,
+        "sourceLine": 349,
         "summary": "Decode a model text response into extraction candidates.",
         "categories": [
           "parsing"

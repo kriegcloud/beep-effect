@@ -8,41 +8,13 @@
 import { $LangExtractId } from "@beep/identity";
 import { ExtractionExample, ExtractionTarget } from "@beep/langextract/Target";
 import { DocumentId } from "@beep/nlp/Core";
-import { Contract } from "@beep/nlp/Handoff";
+import { Contract, UnitInterval } from "@beep/nlp/Handoff";
 import { LiteralKit, NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import { Effect } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
 const $I = $LangExtractId.create("Extraction");
-
-const UnitInterval = S.Finite.check(
-  S.makeFilterGroup(
-    [
-      S.isGreaterThanOrEqualTo(0, {
-        identifier: $I`UnitIntervalMinimumCheck`,
-        title: "Unit Interval Minimum",
-        description: "Confidence must be greater than or equal to zero.",
-        message: "Expected confidence greater than or equal to zero",
-      }),
-      S.isLessThanOrEqualTo(1, {
-        identifier: $I`UnitIntervalMaximumCheck`,
-        title: "Unit Interval Maximum",
-        description: "Confidence must be less than or equal to one.",
-        message: "Expected confidence less than or equal to one",
-      }),
-    ],
-    {
-      identifier: $I`UnitIntervalChecks`,
-      title: "Unit Interval",
-      description: "Checks for normalized confidence values.",
-    }
-  )
-).pipe(
-  $I.annoteSchema("ExtractionConfidence", {
-    description: "Provider-neutral extraction confidence between zero and one.",
-  })
-);
 
 /**
  * Machine-readable LangExtract failure reasons.

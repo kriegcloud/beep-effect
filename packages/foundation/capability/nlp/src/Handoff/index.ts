@@ -10,6 +10,20 @@
  */
 
 /**
+ * Numeric value between 0 and 1 inclusive, shared by handoff confidence fields.
+ *
+ * @example
+ * ```ts
+ * import { UnitInterval } from "@beep/nlp/Handoff"
+ *
+ * console.log(UnitInterval)
+ * ```
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export { UnitInterval } from "../internal/numbers.ts";
+/**
  * The generic IR handoff contract schemas (Span/Provenance/TextChunk/Mention/
  * Entity/Relation/AnnotatedDocument + branded ids).
  *
