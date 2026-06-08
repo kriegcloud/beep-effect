@@ -145,10 +145,10 @@ type PackageCatalogShard = {
 const outputJsonRelativePath = "standards/repo-exports.catalog.jsonc";
 const outputMarkdownRelativePath = "standards/repo-exports.catalog.md";
 const outputShardRelativePath = ".beep/repo-exports/catalog.shard.jsonc";
+const catalogGeneratorVersion = "repo-exports-catalog-generator/v2";
 const generatorInputRelativePaths = [
   "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
   "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-  "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
   "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
 ];
 const conditionPreference = ["types", "import", "default", "require"];
@@ -854,17 +854,22 @@ const currentWorkspacePackage = Effect.fn("RepoExportsCatalog.currentWorkspacePa
 
 const sha256Hex = (content: string): string => createHash(fingerprintAlgorithm).update(content).digest("hex");
 
+const fingerprintInputFromContent = (inputPath: string, content: string): FingerprintInput => ({
+  path: inputPath,
+  sha256: sha256Hex(content),
+  bytes: new TextEncoder().encode(content).byteLength,
+});
+
+const catalogGeneratorVersionInput = (): FingerprintInput =>
+  fingerprintInputFromContent("generator:repo-exports-catalog", catalogGeneratorVersion);
+
 const fingerprintInputFor = Effect.fn("RepoExportsCatalog.fingerprintInputFor")(function* (
   filePath: string,
   repoRoot: string,
   path: Path.Path
 ): Effect.fn.Return<FingerprintInput, QualityArtifactGeneratorError, FileSystem.FileSystem> {
   const content = yield* readText(filePath);
-  return {
-    path: repoRelative(filePath, repoRoot, path),
-    sha256: sha256Hex(content),
-    bytes: new TextEncoder().encode(content).byteLength,
-  };
+  return fingerprintInputFromContent(repoRelative(filePath, repoRoot, path), content);
 });
 
 const packageFingerprint = Effect.fn("RepoExportsCatalog.packageFingerprint")(function* (
@@ -887,9 +892,13 @@ const packageFingerprint = Effect.fn("RepoExportsCatalog.packageFingerprint")(fu
   );
   const existingGeneratorInputPaths = A.getSomes(generatorInputOptions);
   const inputPaths = A.sort([packageJsonPath, ...packageSourceFiles, ...existingGeneratorInputPaths], compareText);
-  const inputs = yield* Effect.forEach(inputPaths, (inputPath) => fingerprintInputFor(inputPath, repoRoot, path), {
+  const fileInputs = yield* Effect.forEach(inputPaths, (inputPath) => fingerprintInputFor(inputPath, repoRoot, path), {
     concurrency: 8,
   });
+  const inputs = A.sort(
+    [catalogGeneratorVersionInput(), ...fileInputs] as ReadonlyArray<FingerprintInput>,
+    (left: FingerprintInput, right: FingerprintInput) => compareText(left.path, right.path)
+  );
   const digest = sha256Hex(
     A.join(
       A.map(inputs, (input) => `${input.path}\u0000${input.sha256}\u0000${input.bytes}`),
@@ -1021,6 +1030,33 @@ const checkFile = Effect.fn("RepoExportsCatalog.checkFile")(function* (
   return current === content ? [] : [`${repoRelative(filePath, repoRoot, path)} is stale`];
 });
 
+const packageCatalogPayload = (value: unknown): O.Option<unknown> =>
+  P.isObject(value) && P.hasProperty(value, "package") ? O.some(value.package) : O.none();
+
+const packageCatalogMatches = (left: unknown, right: PackageCatalogShard): boolean => {
+  const leftPackage = packageCatalogPayload(left);
+  return O.isSome(leftPackage) && JSON.stringify(leftPackage.value) === JSON.stringify(right.package);
+};
+
+const checkPackageShardFile = Effect.fn("RepoExportsCatalog.checkPackageShardFile")(function* (
+  shardPath: string,
+  shardContent: string,
+  expectedShard: PackageCatalogShard,
+  repoRoot: string,
+  path: Path.Path
+): Effect.fn.Return<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem> {
+  const findings = yield* checkFile(shardPath, shardContent, repoRoot, path);
+
+  if (findings.length === 0) {
+    return findings;
+  }
+
+  return yield* readJsonc(shardPath).pipe(
+    Effect.map((currentShard) => (packageCatalogMatches(currentShard, expectedShard) ? A.empty<string>() : findings)),
+    Effect.orElseSucceed(() => findings)
+  );
+});
+
 const writePackageCatalogShard = Effect.fn("RepoExportsCatalog.writePackageShard")(function* (
   options: RepoExportsCatalogOptions = {}
 ): Effect.fn.Return<
@@ -1038,7 +1074,7 @@ const writePackageCatalogShard = Effect.fn("RepoExportsCatalog.writePackageShard
   const shardContent = yield* formatJsonc(shard);
 
   if (check) {
-    const findings = yield* checkFile(shardPath, shardContent, repoRoot, path);
+    const findings = yield* checkPackageShardFile(shardPath, shardContent, shard, repoRoot, path);
 
     return {
       outputJsonPath,

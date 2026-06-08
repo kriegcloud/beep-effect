@@ -13,8 +13,13 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ea96c6289691d3c5bb802f747118526dfb2fe2ed40cf1099d083f96171a81de9",
+    "digest": "68662e7d1046c8588d11056de497ab2577d16386e5b4b366b2341f2396dd7708",
     "inputs": [
+      {
+        "path": "generator:repo-exports-catalog",
+        "sha256": "e6cae6330d6bd8d281c78e74b8a14825f906499b3c002f6ff5f73886e4ef3fb4",
+        "bytes": 33
+      },
       {
         "path": "packages/foundation/ui-system/form/package.json",
         "sha256": "53956d88ebf16091bf5f387d060e8dfd8698c25a11b69e17f0981516c52087b9",
@@ -87,8 +92,8 @@
       },
       {
         "path": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sha256": "7a41b6c4f3a6b78c35bb4877e8f48a9a2d0dd70e18f86091c205deeb4483a278",
-        "bytes": 22469
+        "sha256": "cab7f684203b08d940773c423b06fa3007635a9af34a11a985a2825f0acf1db2",
+        "bytes": 22227
       },
       {
         "path": "packages/foundation/ui-system/form/src/react/index.ts",
@@ -107,13 +112,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
-        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
-        "bytes": 40136
-      },
-      {
-        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "5d7d12f4417b8f8e0e703747a4987e2200fc2813807b45ba4f56ab875c005a6a",
+        "bytes": 41729
       }
     ]
   },
@@ -2070,7 +2070,7 @@
         "symbolName": "ArrayFieldOperations",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 77,
+        "sourceLine": 84,
         "summary": "React-facing array operations for array field render props.",
         "categories": [
           "models"
@@ -2095,7 +2095,7 @@
         "symbolName": "ArrayItemComponentMap",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 158,
+        "sourceLine": 165,
         "summary": "Component map accepted for one array field item.",
         "categories": [
           "components"
@@ -2120,7 +2120,7 @@
         "symbolName": "BuiltForm",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 229,
+        "sourceLine": 236,
         "summary": "React form object returned from {@link make}.",
         "categories": [
           "forms"
@@ -2145,7 +2145,7 @@
         "symbolName": "ExtractExtraProps",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 130,
+        "sourceLine": 137,
         "summary": "Extracts extra props from a field component.",
         "categories": [
           "type-level"
@@ -2170,7 +2170,7 @@
         "symbolName": "FieldComponent",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 113,
+        "sourceLine": 120,
         "summary": "React component type accepted for scalar fields.",
         "categories": [
           "components"
@@ -2195,7 +2195,7 @@
         "symbolName": "FieldComponentMap",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 185,
+        "sourceLine": 192,
         "summary": "Component map accepted by the React form factory.",
         "categories": [
           "components"
@@ -2220,7 +2220,7 @@
         "symbolName": "FieldComponentProps",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 94,
+        "sourceLine": 101,
         "summary": "Props received by a field component.",
         "categories": [
           "components"
@@ -2245,7 +2245,7 @@
         "symbolName": "FieldRefs",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 211,
+        "sourceLine": 218,
         "summary": "Field references exposed by a built React form.",
         "categories": [
           "type-level"
@@ -2270,7 +2270,7 @@
         "symbolName": "FieldState",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 60,
+        "sourceLine": 67,
         "summary": "React-facing state for one field.",
         "categories": [
           "models"
@@ -2295,7 +2295,7 @@
         "symbolName": "FieldValue",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 43,
+        "sourceLine": 50,
         "summary": "Render value type for a schema-backed field.",
         "categories": [
           "type-level"
@@ -2320,7 +2320,7 @@
         "symbolName": "make",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 540,
+        "sourceLine": 529,
         "summary": "Creates React components and atoms from a form builder.",
         "categories": [
           "constructors"

@@ -8,7 +8,7 @@
 import { Command, Flag } from "effect/unstable/cli";
 import { runYeet, YeetRunOptions } from "./internal/Handler.js";
 import { DEFAULT_YEET_PACKET_DIR } from "./internal/Planner.js";
-import type { YeetRunMode } from "./internal/Planner.js";
+import type { YeetProofTier, YeetRunMode } from "./internal/Planner.js";
 
 const baseFlag = Flag.string("base").pipe(
   Flag.withDescription("Base ref for affected feedback planning"),
@@ -38,8 +38,58 @@ const fastFlag = Flag.boolean("fast").pipe(
   Flag.withDescription("Skip local full pre-push proof only when paired with --monitor on a PR branch")
 );
 
+const startPrEarlyFlag = Flag.boolean("start-pr-early").pipe(
+  Flag.withDescription("Push with hooks skipped before full local proof, then run proof and monitor hosted checks")
+);
+
 const monitorFlag = Flag.boolean("monitor").pipe(
   Flag.withDescription("Monitor hosted PR checks after publish instead of stopping at push")
+);
+
+const tierFlag = Flag.choiceWithValue("tier", [
+  ["full", "full"],
+  ["review-fix", "review-fix"],
+]).pipe(
+  Flag.withDescription("Local proof tier for verify; publish always uses full"),
+  Flag.withDefault("full" as const)
+);
+
+const amendFlag = Flag.boolean("amend").pipe(Flag.withDescription("Amend the current local commit during publish"));
+
+const noEditFlag = Flag.boolean("no-edit").pipe(
+  Flag.withDescription("Reuse the current commit message with --amend during publish")
+);
+
+const reuseVerifiedFlag = Flag.boolean("reuse-verified").pipe(
+  Flag.withDescription("Skip publish proof only when durable Yeet full-proof state exactly matches")
+);
+
+const pushOnlyFlag = Flag.boolean("push-only").pipe(
+  Flag.withDescription("Push an already-verified clean commit without committing or rerunning local proof")
+);
+
+const botsFlag = Flag.string("bots").pipe(
+  Flag.withDescription("Comma-separated PR review bots to classify during closeout"),
+  Flag.withDefault("greptile,coderabbit,chatgpt")
+);
+
+const requireGreptileScoreFlag = Flag.string("require-greptile-score").pipe(
+  Flag.withDescription("Required Greptile score, for example 5/5; empty disables the gate"),
+  Flag.withDefault("")
+);
+
+const requireGreptileIssuesFlag = Flag.integer("require-greptile-issues").pipe(
+  Flag.withDescription("Required Greptile open issue count; negative disables the gate"),
+  Flag.withDefault(-1)
+);
+
+const requireReviewCommentsFlag = Flag.integer("require-review-comments").pipe(
+  Flag.withDescription("Required unresolved actionable PR review comment count; negative disables the gate"),
+  Flag.withDefault(-1)
+);
+
+const retriggerGreptileFlag = Flag.boolean("retrigger-greptile").pipe(
+  Flag.withDescription("Post the explicit Greptile retrigger comment after reading current PR state")
 );
 
 const sharedFlags = {
@@ -48,33 +98,70 @@ const sharedFlags = {
   json: jsonFlag,
   packetDir: packetDirFlag,
   plan: planFlag,
+  tier: tierFlag,
 } as const;
 
 const publishFlags = {
   ...sharedFlags,
+  amend: amendFlag,
   fast: fastFlag,
   message: messageFlag,
   monitor: monitorFlag,
+  noEdit: noEditFlag,
+  pushOnly: pushOnlyFlag,
+  reuseVerified: reuseVerifiedFlag,
+  startPrEarly: startPrEarlyFlag,
+} as const;
+
+const closeoutFlags = {
+  ...sharedFlags,
+  bots: botsFlag,
+  requireGreptileIssues: requireGreptileIssuesFlag,
+  requireGreptileScore: requireGreptileScoreFlag,
+  requireReviewComments: requireReviewCommentsFlag,
+  retriggerGreptile: retriggerGreptileFlag,
 } as const;
 
 type SharedOptions = {
+  readonly amend?: boolean;
   readonly base: string;
+  readonly bots?: string;
   readonly fast?: boolean;
   readonly head: string;
   readonly json: boolean;
   readonly packetDir: string;
   readonly plan: boolean;
   readonly monitor?: boolean;
+  readonly noEdit?: boolean;
+  readonly pushOnly?: boolean;
+  readonly requireGreptileIssues?: number;
+  readonly requireGreptileScore?: string;
+  readonly requireReviewComments?: number;
+  readonly retriggerGreptile?: boolean;
+  readonly reuseVerified?: boolean;
+  readonly startPrEarly?: boolean;
+  readonly tier?: YeetProofTier;
 };
 
 const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly message?: string }) =>
   runYeet(
     YeetRunOptions.make({
       ...options,
+      amend: options.amend ?? false,
+      bots: options.bots ?? "greptile,coderabbit,chatgpt",
       fast: options.fast ?? false,
       message: options.message ?? "",
       mode,
       monitor: options.monitor ?? false,
+      noEdit: options.noEdit ?? false,
+      pushOnly: options.pushOnly ?? false,
+      requireGreptileIssues: options.requireGreptileIssues ?? -1,
+      requireGreptileScore: options.requireGreptileScore ?? "",
+      requireReviewComments: options.requireReviewComments ?? -1,
+      retriggerGreptile: options.retriggerGreptile ?? false,
+      reuseVerified: options.reuseVerified ?? false,
+      startPrEarly: options.startPrEarly ?? false,
+      tier: options.tier ?? "full",
     })
   );
 
@@ -94,6 +181,14 @@ const yeetMonitorCommand = Command.make("monitor", sharedFlags, (options) => run
   Command.withDescription("Monitor hosted PR checks for the current branch")
 );
 
+const yeetCloseoutCommand = Command.make("closeout", closeoutFlags, (options) => runYeetMode("closeout", options)).pipe(
+  Command.withDescription("Inspect PR review threads and bot gates for merge closeout")
+);
+
+const yeetPrePushHookCommand = Command.make("pre-push-hook", sharedFlags, (options) =>
+  runYeetMode("pre-push-hook", options)
+).pipe(Command.withDescription("Reuse exact Yeet full-proof state for git pre-push hooks when safe"));
+
 /**
  * Command that repairs, verifies, or publishes repository work through Yeet.
  *
@@ -108,5 +203,12 @@ const yeetMonitorCommand = Command.make("monitor", sharedFlags, (options) => run
  */
 export const yeetCommand = Command.make("yeet", publishFlags, (options) => runYeetMode("publish", options)).pipe(
   Command.withDescription("Repair, verify, or publish repository work with canonical quality proof"),
-  Command.withSubcommands([yeetVerifyCommand, yeetRepairCommand, yeetPublishCommand, yeetMonitorCommand])
+  Command.withSubcommands([
+    yeetVerifyCommand,
+    yeetRepairCommand,
+    yeetPublishCommand,
+    yeetMonitorCommand,
+    yeetCloseoutCommand,
+    yeetPrePushHookCommand,
+  ])
 );

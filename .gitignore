@@ -100,3 +100,9 @@ sst-env.d.ts
 
 # subtrees
 .repos/*
+
+# Graphify local-only state. Durable graph/report/export artifacts under
+# graphify-out/ stay trackable for team use.
+graphify-out/cache/
+graphify-out/cost.json
+graphify-out/.graphify_*

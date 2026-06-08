@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "67b64b587da78a6cff2e1cbe35860285f51c415c6fe5ee50c718e14b4f5f1cbb",
+    "digest": "ad72b76e61cf468d1d5f1bbc958e817fada657a0de22bdf092bc364fd944379d",
     "inputs": [
       {
         "path": "apps/canvas/package.json",
@@ -22,18 +22,23 @@
       },
       {
         "path": "apps/canvas/src/App.tsx",
-        "sha256": "24605ecda7e615b37ab9fd1a72718f93ddc1f34e0236a5f00c3f8526f5dd8cb8",
-        "bytes": 21153
+        "sha256": "8d444a26c655e9449198abb5faaaccefe844d30fc5a2bcb74d04c701f9bc3983",
+        "bytes": 23620
       },
       {
         "path": "apps/canvas/src/commandBridge.ts",
-        "sha256": "11c68c8c4e96d92f9ac8d5d134dc1c2c8d2e16d1c24a63fe2944d87d62edb9f6",
-        "bytes": 21191
+        "sha256": "6e3035baeb01693849144e4849e513168d8e3c75281e6c3447934753c84c7db9",
+        "bytes": 22188
       },
       {
         "path": "apps/canvas/src/main.tsx",
         "sha256": "0677ac0f3d13bc26ed43d5802ccdb70d3af89facab0eae8ab21e025a227464a3",
         "bytes": 456
+      },
+      {
+        "path": "generator:repo-exports-catalog",
+        "sha256": "e6cae6330d6bd8d281c78e74b8a14825f906499b3c002f6ff5f73886e4ef3fb4",
+        "bytes": 33
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -47,13 +52,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
-        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
-        "bytes": 40136
-      },
-      {
-        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "5d7d12f4417b8f8e0e703747a4987e2200fc2813807b45ba4f56ab875c005a6a",
+        "bytes": 41729
       }
     ]
   },

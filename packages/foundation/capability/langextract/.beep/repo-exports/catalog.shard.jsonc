@@ -13,8 +13,13 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "3e7860a3b90354fd981298c13a2972c5e2bd61aaf4062628b47a96711b5e0e8d",
+    "digest": "28b3fe1f27b37ea7be46ef9ad3349ecccf8b460ce9a21874ca543f790ba120f0",
     "inputs": [
+      {
+        "path": "generator:repo-exports-catalog",
+        "sha256": "e6cae6330d6bd8d281c78e74b8a14825f906499b3c002f6ff5f73886e4ef3fb4",
+        "bytes": 33
+      },
       {
         "path": "packages/foundation/capability/langextract/package.json",
         "sha256": "511df5156c670af017c92b1f9aafe3e59161c9f651f1fd88915063cb905a60fd",
@@ -62,13 +67,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
-        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
-        "bytes": 40136
-      },
-      {
-        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "5d7d12f4417b8f8e0e703747a4987e2200fc2813807b45ba4f56ab875c005a6a",
+        "bytes": 41729
       }
     ]
   },

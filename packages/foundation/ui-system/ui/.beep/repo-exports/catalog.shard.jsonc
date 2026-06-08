@@ -13,8 +13,13 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "94c6fc7deedfc1121af6dff8189a4c4926f646659319913c6847d7815c976a5d",
+    "digest": "2db8df2f37e62b01313d6e76a1021bf52f4445c19b89c4f78f4dafbe559848cb",
     "inputs": [
+      {
+        "path": "generator:repo-exports-catalog",
+        "sha256": "e6cae6330d6bd8d281c78e74b8a14825f906499b3c002f6ff5f73886e4ef3fb4",
+        "bytes": 33
+      },
       {
         "path": "packages/foundation/ui-system/ui/package.json",
         "sha256": "8593f55980d20bb452d632d06197adec7771ec3e601fa9948ef084271787406a",
@@ -42,8 +47,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/avatar.tsx",
-        "sha256": "2a1da75cf06b5b892242bff93cab4ed00abd7c2fcd5349e7ed01932b6dceeecf",
-        "bytes": 2846
+        "sha256": "ad2b665787fc41fc5d3c56d4d871c071106f80e521e8a65e7670a4a01e32e4a8",
+        "bytes": 3204
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/badge.tsx",
@@ -92,8 +97,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/calendar.tsx",
-        "sha256": "4d60ed8d3bb045fb4c39034783efe57138fa9ed7dd90c3b3f3ea05e532d8d984",
-        "bytes": 8243
+        "sha256": "4980e98a5fbf6d71141479e2c7452d5b63d94b4b72d770d5a65b49a1a3cc1ce3",
+        "bytes": 8196
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/card.tsx",
@@ -102,13 +107,13 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sha256": "3d8844854a9c6fa187f18be7c790c462f6b3e49749d9816db761b2e605662c8f",
-        "bytes": 7426
+        "sha256": "4dbf5a70ae7e276de17af1e72d329b0da7f0ee7d2b9e0dd44c0be6114c4934c5",
+        "bytes": 7819
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/chart.tsx",
-        "sha256": "bc368cb0dbf6e0ffe776bd360f934682eadb6463f1e165d03d3f07731b9b1374",
-        "bytes": 13204
+        "sha256": "4f009133c325b23b9eea4188e93842353161ae1618fbab1fff53bcdc377f4623",
+        "bytes": 13114
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/checkbox.tsx",
@@ -137,13 +142,13 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/conversation.tsx",
-        "sha256": "8bd3c9f93e0c7ac87928973484648c7e2fdadd2f9105ad215ba083deb5e6cbc2",
-        "bytes": 4585
+        "sha256": "33853185a4d97b581f1a112506f9b6865544e64f9bb905e483ea91713a1584c2",
+        "bytes": 4463
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/date-picker.tsx",
-        "sha256": "f22d4cac9026b801d380fccadefe6cba5dbe2443e10899c666d95ea705df20a8",
-        "bytes": 2878
+        "sha256": "3ee6f75a7de0877975d333a6da49ea6bb20bb6346dfe9ac8e7f2f53c1e060c7a",
+        "bytes": 3469
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/dialog.tsx",
@@ -182,8 +187,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sha256": "c5e4fb9840f2ab530675d94fbe258c756380e42bf4d469266f873bbcfe8ef06e",
-        "bytes": 8874
+        "sha256": "57d4837de8bd94cc6667963013f475e3705796b3c3361ada4dc5bfe5585138a3",
+        "bytes": 8816
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/hover-card.tsx",
@@ -217,8 +222,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx",
-        "sha256": "1e50a11005a1bc92157f113438f76691828533288b94b4c8504b5b9d9d6d7c04",
-        "bytes": 16595
+        "sha256": "211a2d6187ac2a00feefc39c55064383de5f6ee49b4348d40ba0f77d2b4b3874",
+        "bytes": 17202
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/label.tsx",
@@ -227,8 +232,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/link-preview.tsx",
-        "sha256": "8c6593bf9976b1a68a95c2e0d86b81f61ce0b7a0c4a08cfe00c300d071504a13",
-        "bytes": 9443
+        "sha256": "dce684e9dd2c3072d37d893f11521567e0fe474e37261e3d0833f8de7b901c2e",
+        "bytes": 11284
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/live-waveform.tsx",
@@ -262,8 +267,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/orb.tsx",
-        "sha256": "4cfadf82948e5d5b66b58f1a5b848b3517523002413d05a67ee092cbd7b1f1e9",
-        "bytes": 17536
+        "sha256": "b6408ee7796313c4ee60933c9bf7299678c56febac44aa449979cecc33541172",
+        "bytes": 18530
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/pagination.tsx",
@@ -312,8 +317,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sha256": "2e51763a3981bb41debb4a65615e27bbe93e12eec8f6cf962ac767b6d9a2956d",
-        "bytes": 28103
+        "sha256": "caa5688809ff09793a624d09b0f10ba5e5cd08786861924a01bba440a5990566",
+        "bytes": 29043
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/skeleton.tsx",
@@ -322,8 +327,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/slider.tsx",
-        "sha256": "51105489cecc75d656a812d6553270963728ed4e12a2dd1102a7aecc33209cba",
-        "bytes": 2768
+        "sha256": "698075a5c2f8dd9ac9603584f1eeaab6492cf4ea9c552592558f2c0b423ddf80",
+        "bytes": 2679
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/sonner.tsx",
@@ -332,8 +337,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/speech-input.tsx",
-        "sha256": "c5d21b98fda265a1d73b0957caefe4680c92f70533ca5ad9dc4f32351039d555",
-        "bytes": 14088
+        "sha256": "ff1dd8ead37642369d007159039219679a596640eaace35c1d514a97fdbf89a5",
+        "bytes": 14021
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/spinner.tsx",
@@ -392,8 +397,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sha256": "2aca17a70acf68589b46390ed937149ed86b8efd5e1b7c16ac5b8a04c73b5ab7",
-        "bytes": 12801
+        "sha256": "0707dcd6d25723cba24dacb5e700ef3a7eee9d444d1a274f8180336bfd589e71",
+        "bytes": 12824
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/tooltip.tsx",
@@ -402,8 +407,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-        "sha256": "866b1253ae847be5a878e431598a08902f25f1eb492def5f88fcb01e50ef623c",
-        "bytes": 11836
+        "sha256": "0ffa9f4c75c9442ce9297cba08bb59487bf65e708d9539912f70f2abfa0443e1",
+        "bytes": 12818
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/ui/button.tsx",
@@ -422,28 +427,33 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/hooks/use-scribe.ts",
-        "sha256": "c4097c05e36aeec66061906dc5364f23ead6ea02772dda9d15408796befec169",
-        "bytes": 11348
+        "sha256": "4103086e57fee3a7edcbc39186f09de581d4c2ced0c78630073fb86313f61380",
+        "bytes": 12017
       },
       {
         "path": "packages/foundation/ui-system/ui/src/hooks/useMobile.ts",
-        "sha256": "c4305c9682754b10fa0cf5413b3d921c0409ab3e1dbcf0f890bf52c585362680",
-        "bytes": 1794
+        "sha256": "ee405c27b36a7bd437444786c9545d54db980361295d16ca343bdfcd2b2dca29",
+        "bytes": 1334
       },
       {
         "path": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sha256": "80d1f4bf0c56ea02538d214c990ea2476903b62717e591403d3bf5a243644e10",
-        "bytes": 25478
+        "sha256": "a9c42c454d306ffd88c12962ec11c72a3a9644d52acd4f45e7120cc9cf8ad9f9",
+        "bytes": 25002
       },
       {
         "path": "packages/foundation/ui-system/ui/src/hooks/useSpinner.ts",
-        "sha256": "1bf962cca3b42144bc515897237ad6ca3f6b2396b7ecf4e05b607fbcb5c8851e",
-        "bytes": 5658
+        "sha256": "e464550825a5bc15650a9cf1dea5188bd50e3de4f3c3dff39593a98e58c58d7b",
+        "bytes": 4419
       },
       {
         "path": "packages/foundation/ui-system/ui/src/index.ts",
         "sha256": "02bbf99ab4b115b53cfb29ac44f3e536b8aa88fc2308daa7a453721886ca5131",
         "bytes": 777
+      },
+      {
+        "path": "packages/foundation/ui-system/ui/src/internal/react-atoms.ts",
+        "sha256": "b0297d21965ee4dab234acf8715539a1044034352458d5f28ccdd79944fd20f8",
+        "bytes": 1260
       },
       {
         "path": "packages/foundation/ui-system/ui/src/lib/index.ts",
@@ -627,13 +637,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
-        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
-        "bytes": 40136
-      },
-      {
-        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "5d7d12f4417b8f8e0e703747a4987e2200fc2813807b45ba4f56ab875c005a6a",
+        "bytes": 41729
       }
     ]
   },
@@ -766,7 +771,7 @@
     "counts": {
       "publicExportEntries": 544,
       "uniqueSymbols": 460,
-      "sourceFiles": 119
+      "sourceFiles": 120
     },
     "exports": [
       {
@@ -1329,7 +1334,7 @@
         "symbolName": "Avatar",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/avatar.tsx",
-        "sourceLine": 23,
+        "sourceLine": 26,
         "summary": "Avatar component.",
         "categories": [
           "components"
@@ -1354,7 +1359,7 @@
         "symbolName": "AvatarFallback",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/avatar.tsx",
-        "sourceLine": 113,
+        "sourceLine": 128,
         "summary": "Avatar fallback component.",
         "categories": [
           "components"
@@ -1379,7 +1384,7 @@
         "symbolName": "AvatarImage",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/avatar.tsx",
-        "sourceLine": 53,
+        "sourceLine": 90,
         "summary": "Avatar image component.",
         "categories": [
           "components"
@@ -2447,7 +2452,7 @@
         "symbolName": "Carousel",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 79,
+        "sourceLine": 92,
         "summary": "Carousel component.",
         "categories": [
           "components"
@@ -2472,7 +2477,7 @@
         "symbolName": "CarouselApi",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 25,
+        "sourceLine": 26,
         "summary": "Carousel api type.",
         "categories": [
           "type-level"
@@ -2497,7 +2502,7 @@
         "symbolName": "CarouselContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 184,
+        "sourceLine": 201,
         "summary": "Carousel content component.",
         "categories": [
           "components"
@@ -2522,7 +2527,7 @@
         "symbolName": "CarouselItem",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 207,
+        "sourceLine": 224,
         "summary": "Carousel item component.",
         "categories": [
           "components"
@@ -2547,7 +2552,7 @@
         "symbolName": "CarouselNext",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 277,
+        "sourceLine": 294,
         "summary": "Carousel next component.",
         "categories": [
           "components"
@@ -2572,7 +2577,7 @@
         "symbolName": "CarouselPrevious",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 234,
+        "sourceLine": 251,
         "summary": "Carousel previous component.",
         "categories": [
           "components"
@@ -2597,7 +2602,7 @@
         "symbolName": "useCarousel",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 61,
+        "sourceLine": 74,
         "summary": "Use carousel hook.",
         "categories": [
           "hooks"
@@ -3897,7 +3902,7 @@
         "symbolName": "Conversation",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/conversation.tsx",
-        "sourceLine": 40,
+        "sourceLine": 39,
         "summary": "Conversation component.",
         "categories": [
           "components"
@@ -3922,7 +3927,7 @@
         "symbolName": "ConversationContent",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/conversation.tsx",
-        "sourceLine": 79,
+        "sourceLine": 78,
         "summary": "Conversation content component.",
         "categories": [
           "components"
@@ -3947,7 +3952,7 @@
         "symbolName": "ConversationContentProps",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/conversation.tsx",
-        "sourceLine": 64,
+        "sourceLine": 63,
         "summary": "Conversation content props type.",
         "categories": [
           "type-level"
@@ -3972,7 +3977,7 @@
         "symbolName": "ConversationEmptyState",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/conversation.tsx",
-        "sourceLine": 116,
+        "sourceLine": 115,
         "summary": "Conversation empty state component.",
         "categories": [
           "components"
@@ -3997,7 +4002,7 @@
         "symbolName": "ConversationEmptyStateProps",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/conversation.tsx",
-        "sourceLine": 97,
+        "sourceLine": 96,
         "summary": "Conversation empty state props type.",
         "categories": [
           "type-level"
@@ -4022,7 +4027,7 @@
         "symbolName": "ConversationProps",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/conversation.tsx",
-        "sourceLine": 25,
+        "sourceLine": 24,
         "summary": "Conversation props type.",
         "categories": [
           "type-level"
@@ -4047,7 +4052,7 @@
         "symbolName": "ConversationScrollButton",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/conversation.tsx",
-        "sourceLine": 169,
+        "sourceLine": 168,
         "summary": "Conversation scroll button component.",
         "categories": [
           "components"
@@ -4072,7 +4077,7 @@
         "symbolName": "ConversationScrollButtonProps",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/conversation.tsx",
-        "sourceLine": 154,
+        "sourceLine": 153,
         "summary": "Conversation scroll button props type.",
         "categories": [
           "type-level"
@@ -4097,7 +4102,7 @@
         "symbolName": "DatePicker",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/date-picker.tsx",
-        "sourceLine": 39,
+        "sourceLine": 52,
         "summary": "A single-date picker composed from {@link Popover} and {@link Calendar}. Supports",
         "categories": [
           "components"
@@ -5639,7 +5644,7 @@
         "symbolName": "Field",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sourceLine": 125,
+        "sourceLine": 124,
         "summary": "Field component.",
         "categories": [
           "components"
@@ -5664,7 +5669,7 @@
         "symbolName": "FieldContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sourceLine": 154,
+        "sourceLine": 153,
         "summary": "Field content component.",
         "categories": [
           "components"
@@ -5689,7 +5694,7 @@
         "symbolName": "FieldDescription",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sourceLine": 230,
+        "sourceLine": 229,
         "summary": "Field description component.",
         "categories": [
           "components"
@@ -5714,7 +5719,7 @@
         "symbolName": "FieldError",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sourceLine": 299,
+        "sourceLine": 298,
         "summary": "Field error component.",
         "categories": [
           "components"
@@ -5739,7 +5744,7 @@
         "symbolName": "FieldGroup",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sourceLine": 84,
+        "sourceLine": 83,
         "summary": "Field group component.",
         "categories": [
           "components"
@@ -5764,7 +5769,7 @@
         "symbolName": "FieldLabel",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sourceLine": 177,
+        "sourceLine": 176,
         "summary": "Field label component.",
         "categories": [
           "components"
@@ -5789,7 +5794,7 @@
         "symbolName": "FieldLegend",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sourceLine": 56,
+        "sourceLine": 55,
         "summary": "Field legend component.",
         "categories": [
           "components"
@@ -5814,7 +5819,7 @@
         "symbolName": "FieldSeparator",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sourceLine": 258,
+        "sourceLine": 257,
         "summary": "Field separator component.",
         "categories": [
           "components"
@@ -5839,7 +5844,7 @@
         "symbolName": "FieldSet",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sourceLine": 30,
+        "sourceLine": 29,
         "summary": "Field set component.",
         "categories": [
           "components"
@@ -5864,7 +5869,7 @@
         "symbolName": "FieldTitle",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/field.tsx",
-        "sourceLine": 204,
+        "sourceLine": 203,
         "summary": "Field title component.",
         "categories": [
           "components"
@@ -6539,7 +6544,7 @@
         "symbolName": "default",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx",
-        "sourceLine": 151,
+        "sourceLine": 177,
         "summary": "Knowledge graph component.",
         "categories": [
           "components"
@@ -6564,7 +6569,7 @@
         "symbolName": "GraphLink",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx",
-        "sourceLine": 57,
+        "sourceLine": 59,
         "summary": "Graph link type.",
         "categories": [
           "type-level"
@@ -6589,7 +6594,7 @@
         "symbolName": "GraphNode",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx",
-        "sourceLine": 28,
+        "sourceLine": 30,
         "summary": "Graph node type.",
         "categories": [
           "type-level"
@@ -6614,7 +6619,7 @@
         "symbolName": "KnowledgeGraph",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx",
-        "sourceLine": 151,
+        "sourceLine": 177,
         "summary": "Knowledge graph component.",
         "categories": [
           "components"
@@ -6639,7 +6644,7 @@
         "symbolName": "KnowledgeGraphHandle",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx",
-        "sourceLine": 101,
+        "sourceLine": 103,
         "summary": "Knowledge graph handle type.",
         "categories": [
           "type-level"
@@ -6689,7 +6694,7 @@
         "symbolName": "LinkPreview",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/link-preview.tsx",
-        "sourceLine": 122,
+        "sourceLine": 251,
         "summary": "Link preview component.",
         "categories": [
           "components"
@@ -7689,7 +7694,7 @@
         "symbolName": "Orb",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/orb.tsx",
-        "sourceLine": 64,
+        "sourceLine": 77,
         "summary": "Orb component.",
         "categories": [
           "components"
@@ -8914,7 +8919,7 @@
         "symbolName": "Sidebar",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 212,
+        "sourceLine": 230,
         "summary": "Sidebar component.",
         "categories": [
           "components"
@@ -8939,7 +8944,7 @@
         "symbolName": "SidebarContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 549,
+        "sourceLine": 567,
         "summary": "Sidebar content component.",
         "categories": [
           "components"
@@ -8964,7 +8969,7 @@
         "symbolName": "SidebarFooter",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 507,
+        "sourceLine": 525,
         "summary": "Sidebar footer component.",
         "categories": [
           "components"
@@ -8989,7 +8994,7 @@
         "symbolName": "SidebarGroup",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 575,
+        "sourceLine": 593,
         "summary": "Sidebar group component.",
         "categories": [
           "components"
@@ -9014,7 +9019,7 @@
         "symbolName": "SidebarGroupAction",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 621,
+        "sourceLine": 639,
         "summary": "Sidebar group action component.",
         "categories": [
           "components"
@@ -9039,7 +9044,7 @@
         "symbolName": "SidebarGroupContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 650,
+        "sourceLine": 668,
         "summary": "Sidebar group content component.",
         "categories": [
           "components"
@@ -9064,7 +9069,7 @@
         "symbolName": "SidebarGroupLabel",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 594,
+        "sourceLine": 612,
         "summary": "Sidebar group label component.",
         "categories": [
           "components"
@@ -9089,7 +9094,7 @@
         "symbolName": "SidebarHeader",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 488,
+        "sourceLine": 506,
         "summary": "Sidebar header component.",
         "categories": [
           "components"
@@ -9114,7 +9119,7 @@
         "symbolName": "SidebarInput",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 465,
+        "sourceLine": 483,
         "summary": "Sidebar input component.",
         "categories": [
           "components"
@@ -9139,7 +9144,7 @@
         "symbolName": "SidebarInset",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 438,
+        "sourceLine": 456,
         "summary": "Sidebar inset component.",
         "categories": [
           "components"
@@ -9164,7 +9169,7 @@
         "symbolName": "SidebarMenu",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 667,
+        "sourceLine": 685,
         "summary": "Sidebar menu component.",
         "categories": [
           "components"
@@ -9189,7 +9194,7 @@
         "symbolName": "SidebarMenuAction",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 783,
+        "sourceLine": 801,
         "summary": "Sidebar menu action component.",
         "categories": [
           "components"
@@ -9214,7 +9219,7 @@
         "symbolName": "SidebarMenuBadge",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 823,
+        "sourceLine": 841,
         "summary": "Sidebar menu badge component.",
         "categories": [
           "components"
@@ -9239,7 +9244,7 @@
         "symbolName": "SidebarMenuButton",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 730,
+        "sourceLine": 748,
         "summary": "Sidebar menu button component.",
         "categories": [
           "components"
@@ -9264,7 +9269,7 @@
         "symbolName": "SidebarMenuItem",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 684,
+        "sourceLine": 702,
         "summary": "Sidebar menu item component.",
         "categories": [
           "components"
@@ -9289,7 +9294,7 @@
         "symbolName": "SidebarMenuSkeleton",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 854,
+        "sourceLine": 872,
         "summary": "Sidebar menu skeleton component.",
         "categories": [
           "components"
@@ -9314,7 +9319,7 @@
         "symbolName": "SidebarMenuSub",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 891,
+        "sourceLine": 921,
         "summary": "Sidebar menu sub component.",
         "categories": [
           "components"
@@ -9339,7 +9344,7 @@
         "symbolName": "SidebarMenuSubButton",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 935,
+        "sourceLine": 965,
         "summary": "Sidebar menu sub button component.",
         "categories": [
           "components"
@@ -9364,7 +9369,7 @@
         "symbolName": "SidebarMenuSubItem",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 918,
+        "sourceLine": 948,
         "summary": "Sidebar menu sub item component.",
         "categories": [
           "components"
@@ -9389,7 +9394,7 @@
         "symbolName": "SidebarProvider",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 91,
+        "sourceLine": 107,
         "summary": "Sidebar provider export.",
         "categories": [
           "providers"
@@ -9414,7 +9419,7 @@
         "symbolName": "SidebarRail",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 401,
+        "sourceLine": 419,
         "summary": "Sidebar rail component.",
         "categories": [
           "components"
@@ -9439,7 +9444,7 @@
         "symbolName": "SidebarSeparator",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 530,
+        "sourceLine": 548,
         "summary": "Sidebar separator component.",
         "categories": [
           "components"
@@ -9464,7 +9469,7 @@
         "symbolName": "SidebarTrigger",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 367,
+        "sourceLine": 385,
         "summary": "Sidebar trigger component.",
         "categories": [
           "components"
@@ -9489,7 +9494,7 @@
         "symbolName": "useSidebar",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 53,
+        "sourceLine": 83,
         "summary": "Use sidebar hook.",
         "categories": [
           "hooks"
@@ -9539,7 +9544,7 @@
         "symbolName": "Slider",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/slider.tsx",
-        "sourceLine": 45,
+        "sourceLine": 44,
         "summary": "Slider component.",
         "categories": [
           "components"
@@ -10748,7 +10753,7 @@
         "symbolName": "Toolbar",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 30,
+        "sourceLine": 31,
         "summary": "Toolbar component.",
         "categories": [
           "components"
@@ -10773,7 +10778,7 @@
         "symbolName": "ToolbarButton",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 189,
+        "sourceLine": 190,
         "summary": "Toolbar button component.",
         "categories": [
           "components"
@@ -10798,7 +10803,7 @@
         "symbolName": "ToolbarGroup",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 370,
+        "sourceLine": 371,
         "summary": "Toolbar group component.",
         "categories": [
           "components"
@@ -10823,7 +10828,7 @@
         "symbolName": "ToolbarLink",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 93,
+        "sourceLine": 94,
         "summary": "Toolbar link component.",
         "categories": [
           "components"
@@ -10848,7 +10853,7 @@
         "symbolName": "ToolbarMenuGroup",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 431,
+        "sourceLine": 430,
         "summary": "Toolbar menu group component.",
         "categories": [
           "components"
@@ -10873,7 +10878,7 @@
         "symbolName": "ToolbarSeparator",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 110,
+        "sourceLine": 111,
         "summary": "Toolbar separator component.",
         "categories": [
           "components"
@@ -10898,7 +10903,7 @@
         "symbolName": "ToolbarSplitButton",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 253,
+        "sourceLine": 254,
         "summary": "Toolbar split button component.",
         "categories": [
           "components"
@@ -10923,7 +10928,7 @@
         "symbolName": "ToolbarSplitButtonPrimary",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 272,
+        "sourceLine": 273,
         "summary": "Toolbar split button primary component.",
         "categories": [
           "components"
@@ -10948,7 +10953,7 @@
         "symbolName": "ToolbarSplitButtonSecondary",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 310,
+        "sourceLine": 311,
         "summary": "Toolbar split button secondary component.",
         "categories": [
           "components"
@@ -10973,7 +10978,7 @@
         "symbolName": "ToolbarToggleGroup",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 47,
+        "sourceLine": 48,
         "summary": "Toolbar toggle group component.",
         "categories": [
           "components"
@@ -10998,7 +11003,7 @@
         "symbolName": "ToolbarToggleItem",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/toolbar.tsx",
-        "sourceLine": 348,
+        "sourceLine": 349,
         "summary": "Toolbar toggle item component.",
         "categories": [
           "components"
@@ -11123,7 +11128,7 @@
         "symbolName": "Step",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-        "sourceLine": 62,
+        "sourceLine": 185,
         "summary": "Step type.",
         "categories": [
           "type-level"
@@ -11148,7 +11153,7 @@
         "symbolName": "Tour",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-        "sourceLine": 91,
+        "sourceLine": 214,
         "summary": "Tour type.",
         "categories": [
           "type-level"
@@ -11173,7 +11178,7 @@
         "symbolName": "TourProvider",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-        "sourceLine": 109,
+        "sourceLine": 232,
         "summary": "Tour provider export.",
         "categories": [
           "providers"
@@ -11198,7 +11203,7 @@
         "symbolName": "useTour",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-        "sourceLine": 43,
+        "sourceLine": 166,
         "summary": "Use tour hook.",
         "categories": [
           "hooks"
@@ -11390,7 +11395,7 @@
         "symbolName": "BoundaryParams",
         "exportKind": "class",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 245,
+        "sourceLine": 230,
         "summary": "Schema describing optional numeric bounds and controlled values for number input hooks.",
         "categories": [
           "models"
@@ -11432,7 +11437,7 @@
         "symbolName": "getStepFactor",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 381,
+        "sourceLine": 366,
         "summary": "Compute the effective step multiplier for an increment or decrement gesture.",
         "categories": [
           "utilities"
@@ -11459,7 +11464,7 @@
         "symbolName": "maxSafeInteger",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 229,
+        "sourceLine": 214,
         "summary": "Highest safe integer supported by the hook defaults.",
         "categories": [
           "constants"
@@ -11484,7 +11489,7 @@
         "symbolName": "minSafeInteger",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 214,
+        "sourceLine": 199,
         "summary": "Lowest safe integer supported by the hook defaults.",
         "categories": [
           "constants"
@@ -11509,7 +11514,7 @@
         "symbolName": "NumberInputChangeMetadata",
         "exportKind": "class",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 468,
+        "sourceLine": 453,
         "summary": "Metadata passed to `UseNumberInputOptions.onChange`.",
         "categories": [
           "models"
@@ -11534,7 +11539,7 @@
         "symbolName": "NumberInputError",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 435,
+        "sourceLine": 420,
         "summary": "Error states reported through the `onChange` metadata callback.",
         "categories": [
           "models"
@@ -11559,7 +11564,7 @@
         "symbolName": "NumberInputError",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 447,
+        "sourceLine": 432,
         "summary": "Runtime type for {@link NumberInputError}.",
         "categories": [
           "models"
@@ -11583,7 +11588,7 @@
         "symbolName": "NumberInputEventType",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 408,
+        "sourceLine": 393,
         "summary": "Event types reported through the `onChange` metadata callback.",
         "categories": [
           "models"
@@ -11608,7 +11613,7 @@
         "symbolName": "NumberInputEventType",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 420,
+        "sourceLine": 405,
         "summary": "Runtime type for {@link NumberInputEventType}.",
         "categories": [
           "models"
@@ -11632,7 +11637,7 @@
         "symbolName": "numberToString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 334,
+        "sourceLine": 319,
         "summary": "Format an optional numeric value using a fixed decimal precision.",
         "categories": [
           "utilities"
@@ -11659,7 +11664,7 @@
         "symbolName": "ScribeStatus",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/use-scribe.ts",
-        "sourceLine": 64,
+        "sourceLine": 66,
         "summary": "Scribe status type.",
         "categories": [
           "type-level"
@@ -11684,7 +11689,7 @@
         "symbolName": "SpinParams",
         "exportKind": "class",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 271,
+        "sourceLine": 256,
         "summary": "Schema describing step and precision overrides for spinner changes.",
         "categories": [
           "models"
@@ -11709,7 +11714,7 @@
         "symbolName": "toNumber",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 302,
+        "sourceLine": 287,
         "summary": "Convert editable number-input text into a number when the text is parseable.",
         "categories": [
           "utilities"
@@ -11736,7 +11741,7 @@
         "symbolName": "useNumberBoundary",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 570,
+        "sourceLine": 555,
         "summary": "Low-level hook that manages string and numeric boundary state for a number input.",
         "categories": [
           "components",
@@ -11764,7 +11769,7 @@
         "symbolName": "useNumberInput",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 648,
+        "sourceLine": 632,
         "summary": "Fully managed number-input hook with keyboard and spinner controls.",
         "categories": [
           "components"
@@ -11789,7 +11794,7 @@
         "symbolName": "UseNumberInputOptions",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 514,
+        "sourceLine": 499,
         "summary": "Options accepted by {@link useNumberBoundary} and {@link useNumberInput}.",
         "categories": [
           "models"
@@ -11814,7 +11819,7 @@
         "symbolName": "useScribe",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/use-scribe.ts",
-        "sourceLine": 177,
+        "sourceLine": 195,
         "summary": "Use scribe hook.",
         "categories": [
           "hooks"
@@ -11873,7 +11878,7 @@
         "symbolName": "ScribeStatus",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/use-scribe.ts",
-        "sourceLine": 64,
+        "sourceLine": 66,
         "summary": "Scribe status type.",
         "categories": [
           "type-level"
@@ -11898,7 +11903,7 @@
         "symbolName": "useScribe",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/use-scribe.ts",
-        "sourceLine": 177,
+        "sourceLine": 195,
         "summary": "Use scribe hook.",
         "categories": [
           "hooks"
@@ -11923,7 +11928,7 @@
         "symbolName": "resolveIsMobile",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useMobile.ts",
-        "sourceLine": 45,
+        "sourceLine": 44,
         "summary": "Resolve is mobile export.",
         "categories": [
           "utilities"
@@ -11948,7 +11953,7 @@
         "symbolName": "useIsMobile",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useMobile.ts",
-        "sourceLine": 60,
+        "sourceLine": 59,
         "summary": "Use is mobile hook.",
         "categories": [
           "components"
@@ -11973,7 +11978,7 @@
         "symbolName": "BoundaryParams",
         "exportKind": "class",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 245,
+        "sourceLine": 230,
         "summary": "Schema describing optional numeric bounds and controlled values for number input hooks.",
         "categories": [
           "models"
@@ -11998,7 +12003,7 @@
         "symbolName": "getStepFactor",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 381,
+        "sourceLine": 366,
         "summary": "Compute the effective step multiplier for an increment or decrement gesture.",
         "categories": [
           "utilities"
@@ -12025,7 +12030,7 @@
         "symbolName": "maxSafeInteger",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 229,
+        "sourceLine": 214,
         "summary": "Highest safe integer supported by the hook defaults.",
         "categories": [
           "constants"
@@ -12050,7 +12055,7 @@
         "symbolName": "minSafeInteger",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 214,
+        "sourceLine": 199,
         "summary": "Lowest safe integer supported by the hook defaults.",
         "categories": [
           "constants"
@@ -12075,7 +12080,7 @@
         "symbolName": "NumberInputChangeMetadata",
         "exportKind": "class",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 468,
+        "sourceLine": 453,
         "summary": "Metadata passed to `UseNumberInputOptions.onChange`.",
         "categories": [
           "models"
@@ -12100,7 +12105,7 @@
         "symbolName": "NumberInputError",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 435,
+        "sourceLine": 420,
         "summary": "Error states reported through the `onChange` metadata callback.",
         "categories": [
           "models"
@@ -12125,7 +12130,7 @@
         "symbolName": "NumberInputError",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 447,
+        "sourceLine": 432,
         "summary": "Runtime type for {@link NumberInputError}.",
         "categories": [
           "models"
@@ -12149,7 +12154,7 @@
         "symbolName": "NumberInputEventType",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 408,
+        "sourceLine": 393,
         "summary": "Event types reported through the `onChange` metadata callback.",
         "categories": [
           "models"
@@ -12174,7 +12179,7 @@
         "symbolName": "NumberInputEventType",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 420,
+        "sourceLine": 405,
         "summary": "Runtime type for {@link NumberInputEventType}.",
         "categories": [
           "models"
@@ -12198,7 +12203,7 @@
         "symbolName": "numberToString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 334,
+        "sourceLine": 319,
         "summary": "Format an optional numeric value using a fixed decimal precision.",
         "categories": [
           "utilities"
@@ -12225,7 +12230,7 @@
         "symbolName": "SpinParams",
         "exportKind": "class",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 271,
+        "sourceLine": 256,
         "summary": "Schema describing step and precision overrides for spinner changes.",
         "categories": [
           "models"
@@ -12250,7 +12255,7 @@
         "symbolName": "toNumber",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 302,
+        "sourceLine": 287,
         "summary": "Convert editable number-input text into a number when the text is parseable.",
         "categories": [
           "utilities"
@@ -12277,7 +12282,7 @@
         "symbolName": "useNumberBoundary",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 570,
+        "sourceLine": 555,
         "summary": "Low-level hook that manages string and numeric boundary state for a number input.",
         "categories": [
           "components",
@@ -12305,7 +12310,7 @@
         "symbolName": "useNumberInput",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 648,
+        "sourceLine": 632,
         "summary": "Fully managed number-input hook with keyboard and spinner controls.",
         "categories": [
           "components"
@@ -12330,7 +12335,7 @@
         "symbolName": "UseNumberInputOptions",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useNumberInput.ts",
-        "sourceLine": 514,
+        "sourceLine": 499,
         "summary": "Options accepted by {@link useNumberBoundary} and {@link useNumberInput}.",
         "categories": [
           "models"
@@ -12355,7 +12360,7 @@
         "symbolName": "useSpinner",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/hooks/useSpinner.ts",
-        "sourceLine": 125,
+        "sourceLine": 149,
         "summary": "Use spinner hook.",
         "categories": [
           "components"

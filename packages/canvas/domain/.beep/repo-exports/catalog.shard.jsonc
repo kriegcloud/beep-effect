@@ -13,8 +13,13 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "dea48de10de3937078b00ec8700ea1e4223a545db21270d83019e55b4faf5c27",
+    "digest": "fc929bb55b265a24afc22ebdb3ff448421590db0a8a74d1c7c8a97eb38d971ae",
     "inputs": [
+      {
+        "path": "generator:repo-exports-catalog",
+        "sha256": "e6cae6330d6bd8d281c78e74b8a14825f906499b3c002f6ff5f73886e4ef3fb4",
+        "bytes": 33
+      },
       {
         "path": "packages/canvas/domain/package.json",
         "sha256": "9aa65e94258a1315e55c2fbe287b34d8dc3e40c7760eecf85d2123b4b48e8314",
@@ -27,8 +32,8 @@
       },
       {
         "path": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
-        "sha256": "8e8e4c2e569359815fcc2fc89a97084c688e03170b9c956d8e23ff7aea9ee9ba",
-        "bytes": 7194
+        "sha256": "f1920b3c7fc1986d5ee5f08cde926a4dc386a8de0f2f65db5c988050a2d114e0",
+        "bytes": 7208
       },
       {
         "path": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
@@ -72,13 +77,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
-        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
-        "bytes": 40136
-      },
-      {
-        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "5d7d12f4417b8f8e0e703747a4987e2200fc2813807b45ba4f56ab875c005a6a",
+        "bytes": 41729
       }
     ]
   },
@@ -95,8 +95,8 @@
       "@beep/canvas-domain/identity/Canvas"
     ],
     "counts": {
-      "publicExportEntries": 35,
-      "uniqueSymbols": 24,
+      "publicExportEntries": 37,
+      "uniqueSymbols": 26,
       "sourceFiles": 8
     },
     "exports": [
@@ -242,6 +242,23 @@
           "@since"
         ],
         "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject archive const archive any non-archived canvasproject. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "ArchivedCanvasProject",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 69,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject archivedcanvasproject class packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
       },
       {
         "packageName": "@beep/canvas-domain",
@@ -810,6 +827,23 @@
           "@since"
         ],
         "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject createcanvasprojectinput class canvasproject creation input. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "OpenCanvasProject",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 56,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject opencanvasproject class packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
       },
       {
         "packageName": "@beep/canvas-domain",

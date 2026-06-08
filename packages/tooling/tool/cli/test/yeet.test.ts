@@ -4,9 +4,16 @@ import {
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
   gitPathListFromNulOutputForTesting,
+  greptileIssueLimitExceededForTesting,
+  greptileRetriggerCommentForTesting,
+  inferGreptileIssueCountForTesting,
   jsonObjectTextFromMixedOutputForTesting,
+  latestGreptileSummaryForTesting,
+  prePushLocalShasFromStdinForTesting,
+  prePushShaMismatchesForTesting,
   publishPathsOutsideIntentForTesting,
   publishRestagePathsForTesting,
+  publishUpstreamMismatchWarningForTesting,
   qualityIssuesFromStepResult,
   RepoPlanStep,
   RepoRunContext,
@@ -146,7 +153,8 @@ describe("yeet planner", () => {
     expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
     expect(proof.args).toEqual(["run", "beep", "quality", "github-checks", "pre-push"]);
     expect(proof.mutability).toBe("readonly");
-    expect(push.args).toEqual(["push"]);
+    expect(push.args).toEqual(["push", "-u", "origin", "HEAD"]);
+    expect(push.env).toMatchObject({ BEEP_YEET_REUSE_PRE_PUSH_PROOF: "1" });
     expect(
       pipe(
         plan.steps,
@@ -171,6 +179,83 @@ describe("yeet planner", () => {
         A.dedupe
       )
     ).toEqual(["readonly"]);
+  });
+
+  it("builds review-fix verify as the targeted review proof", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "verify", tier: "review-fix" });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["full:review-fix"]);
+    expect(findStep(plan.steps, "full:review-fix").args).toEqual([
+      "run",
+      "beep",
+      "quality",
+      "github-checks",
+      "review-fix",
+      "--base",
+      "origin/main",
+      "--head",
+      "feature/head",
+    ]);
+  });
+
+  it("builds closeout as PR context plus review gates", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "closeout" });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["closeout:pr-context", "closeout:review-gates"]);
+    expect(findStep(plan.steps, "closeout:pr-context").args).toEqual([
+      "pr",
+      "view",
+      "--json",
+      "number,headRefName,state,url,headRefOid,isDraft",
+    ]);
+  });
+
+  it("builds pre-push-hook as a lightweight proof-state check", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "pre-push-hook" });
+
+    expect(plan.steps).toEqual([]);
+  });
+
+  it("uses a Greptile retrigger body that requests review explicitly", () => {
+    expect(greptileRetriggerCommentForTesting).toBe("@greptileai review");
+  });
+
+  it("builds amend no-edit publish without requiring a new message", () => {
+    const plan = buildYeetRunPlanForTesting({
+      amend: true,
+      context,
+      message: O.none(),
+      mode: "publish",
+      noEdit: true,
+    });
+
+    expect(findStep(plan.steps, "commit:git:commit:amend").args).toEqual(["commit", "--amend", "--no-edit"]);
+  });
+
+  it("builds amend publish with an explicit message without dropping --amend", () => {
+    const plan = buildYeetRunPlanForTesting({
+      amend: true,
+      context,
+      message: O.some("fix(repo-cli): update yeet"),
+      mode: "publish",
+    });
+
+    expect(findStep(plan.steps, "commit:git:commit:amend").args).toEqual([
+      "commit",
+      "--amend",
+      "-m",
+      "fix(repo-cli): update yeet",
+    ]);
   });
 
   it("builds monitor as current branch PR context plus check watching", () => {
@@ -213,6 +298,60 @@ describe("yeet planner", () => {
     ).not.toContain("full:pre-push");
   });
 
+  it("builds start-pr-early publish as commit, early push, full proof, then monitor", () => {
+    const plan = buildYeetRunPlanForTesting({
+      context,
+      message: O.some("feat(repo-cli): add yeet"),
+      monitor: true,
+      startPrEarly: true,
+    });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual([
+      "commit:git:commit",
+      "early-publish:git:push",
+      "full:pre-push",
+      "monitor:pr-context",
+      "monitor:pr-checks:watch",
+    ]);
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.phase),
+        A.dedupe
+      )
+    ).toEqual(["commit", "early-publish", "full", "monitor"]);
+
+    const commit = findStep(plan.steps, "commit:git:commit");
+    const earlyPush = findStep(plan.steps, "early-publish:git:push");
+
+    expect(commit.args).toEqual(["commit", "--no-verify", "-m", "feat(repo-cli): add yeet"]);
+    expect(earlyPush.args).toEqual(["push", "--no-verify", "-u", "origin", "HEAD"]);
+    expect(earlyPush.env).toBeUndefined();
+  });
+
+  it("builds push-only reuse publish as only push plus optional monitor", () => {
+    const plan = buildYeetRunPlanForTesting({
+      context,
+      message: O.none(),
+      mode: "publish",
+      monitor: true,
+      pushOnly: true,
+    });
+
+    expect(
+      pipe(
+        plan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["publish:git:push", "monitor:pr-context", "monitor:pr-checks:watch"]);
+    expect(findStep(plan.steps, "publish:git:push").args).toEqual(["push", "-u", "origin", "HEAD"]);
+  });
+
   it("keeps publish monitor on the full local proof unless fast is explicit", () => {
     const plan = buildYeetRunPlanForTesting({
       context,
@@ -232,6 +371,14 @@ describe("yeet planner", () => {
       "monitor:pr-context",
       "monitor:pr-checks:watch",
     ]);
+  });
+
+  it("exposes the review-fix repo proof surface", () => {
+    expect(repoProofStepDefinition("review-fix")).toMatchObject({
+      args: ["quality", "github-checks", "review-fix"],
+      label: "full:review-fix",
+      surface: "review-fix",
+    });
   });
 
   it("builds repair as deterministic generators plus affected feedback", () => {
@@ -441,6 +588,114 @@ describe("yeet planner", () => {
 
     expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
     expect(commandTextForStep(commit)).toBe("git commit -m 'feat(repo-cli): add yeet'");
+  });
+
+  it("parses pre-push stdin SHAs for proof reuse", () => {
+    const currentSha = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const otherSha = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    const deleteSha = "0000000000000000000000000000000000000000";
+    const shas = prePushLocalShasFromStdinForTesting(
+      `refs/heads/feature ${currentSha} refs/heads/feature 1111111111111111111111111111111111111111\n` +
+        `refs/heads/old ${deleteSha} refs/heads/old 2222222222222222222222222222222222222222\n` +
+        `refs/heads/other ${otherSha} refs/heads/other 3333333333333333333333333333333333333333\n`
+    );
+
+    expect(shas).toEqual([currentSha, otherSha]);
+    expect(prePushShaMismatchesForTesting(shas, currentSha)).toEqual([otherSha]);
+  });
+
+  it("warns when publish push target differs from upstream tracking", () => {
+    expect(publishUpstreamMismatchWarningForTesting("feat/yeet", "origin/main")).toEqual(
+      O.some('[yeet] warning: branch "feat/yeet" tracks "origin/main"; publish will push HEAD to origin/feat/yeet.')
+    );
+    expect(publishUpstreamMismatchWarningForTesting("feat/yeet", "origin/feat/yeet")).toEqual(O.none());
+  });
+
+  it("keeps human comments that mention Greptile from replacing the bot summary", () => {
+    const summary = latestGreptileSummaryForTesting([
+      {
+        authorLogin: "greptile-apps",
+        body: "Confidence Score: 5/5\n0 issues",
+        url: "https://github.test/pr#greptile",
+      },
+      {
+        authorLogin: "elpresidank",
+        body: "fixed per greptile feedback",
+        url: "https://github.test/pr#human",
+      },
+      {
+        authorLogin: "greptile-apps",
+        body: "Inline finding without a summary score",
+        url: "https://github.test/pr#inline",
+      },
+      {
+        authorLogin: "greptile-apps",
+        body: "`issueCount` and score/issue gates can fire spuriously. Fix prompt: %60issueCount%60",
+        url: "https://github.test/pr#inline-noise",
+      },
+    ]);
+
+    expect(summary).toMatchObject({
+      issueCount: 0,
+      score: "5/5",
+      url: "https://github.test/pr#greptile",
+    });
+  });
+
+  it("parses only summary-shaped Greptile issue counts", () => {
+    expect(
+      latestGreptileSummaryForTesting([
+        {
+          authorLogin: "greptile-apps",
+          body: "Issues: 0",
+          url: "https://github.test/pr#labeled",
+        },
+      ])
+    ).toMatchObject({ issueCount: 0 });
+    expect(
+      latestGreptileSummaryForTesting([
+        {
+          authorLogin: "greptile-apps",
+          body: "No open issues",
+          url: "https://github.test/pr#none",
+        },
+      ])
+    ).toMatchObject({ issueCount: 0 });
+    expect(
+      latestGreptileSummaryForTesting([
+        {
+          authorLogin: "greptile-apps",
+          body: "Potential issue: score/issue gates can parse prompt links like %60issueCount%60.",
+          url: "https://github.test/pr#inline",
+        },
+      ])
+    ).toMatchObject({});
+  });
+
+  it("infers missing Greptile issue counts from active Greptile threads", () => {
+    expect(inferGreptileIssueCountForTesting(latestGreptileSummaryForTesting([]), 0)).toMatchObject({
+      issueCount: 0,
+    });
+    expect(
+      inferGreptileIssueCountForTesting(
+        latestGreptileSummaryForTesting([
+          {
+            authorLogin: "greptile-apps",
+            body: "Issues: 2",
+            url: "https://github.test/pr#summary",
+          },
+        ]),
+        0
+      )
+    ).toMatchObject({ issueCount: 2 });
+  });
+
+  it("treats Greptile issue requirements as an upper bound", () => {
+    expect(greptileIssueLimitExceededForTesting(undefined, -1)).toBe(false);
+    expect(greptileIssueLimitExceededForTesting(undefined, 0)).toBe(true);
+    expect(greptileIssueLimitExceededForTesting(0, 2)).toBe(false);
+    expect(greptileIssueLimitExceededForTesting(2, 2)).toBe(false);
+    expect(greptileIssueLimitExceededForTesting(3, 2)).toBe(true);
   });
 });
 

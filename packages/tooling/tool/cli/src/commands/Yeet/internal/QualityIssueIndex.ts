@@ -53,6 +53,9 @@ export const QualityIssueCategory = LiteralKit([
   "changeset-policy",
   "repo-export-policy",
   "security-audit",
+  "pr-review",
+  "greptile-review",
+  "bot-review",
   "command-failure",
   "parser-error",
   "unknown-raw",
@@ -323,6 +326,15 @@ const routeForCategory = (category: QualityIssueCategory): ReadonlyArray<Quality
     ],
     "security-audit": () => [
       QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Security audit failure" }),
+    ],
+    "pr-review": () => [
+      QualityIssueRouting.make({ skill: "github:gh-address-comments", reason: "Actionable PR review thread" }),
+    ],
+    "greptile-review": () => [
+      QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Greptile closeout gate failure" }),
+    ],
+    "bot-review": () => [
+      QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Hosted review bot finding" }),
     ],
   });
 
