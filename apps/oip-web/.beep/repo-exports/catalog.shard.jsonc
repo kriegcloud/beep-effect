@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "5d642a7982825801d3eeb9af1bf7fe47f37bb440c8dde4d7a2ba8f33ad2918c1",
+    "digest": "611e4e13c2c3a43e042108dc8545aaf135b1962df54c870d5f2a77497747c121",
     "inputs": [
       {
         "path": "apps/oip-web/package.json",
@@ -182,8 +182,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

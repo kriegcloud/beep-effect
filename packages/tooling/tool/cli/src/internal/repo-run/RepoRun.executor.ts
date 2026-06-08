@@ -68,6 +68,21 @@ const collectCombinedOutput = <E1, E2>(stdout: Stream.Stream<Uint8Array, E1>, st
     Stream.runFold(() => emptyOutputState, appendOutputChunk)
   );
 
+const collectAndStreamCombinedOutput = <E1, E2>(
+  stdout: Stream.Stream<Uint8Array, E1>,
+  stderr: Stream.Stream<Uint8Array, E2>
+) =>
+  decodeOutputText(stdout).pipe(
+    Stream.merge(decodeOutputText(stderr)),
+    Stream.runFold(
+      () => emptyOutputState,
+      (state, chunk) => {
+        process.stdout.write(chunk);
+        return appendOutputChunk(state, chunk);
+      }
+    )
+  );
+
 /**
  * Execute a command and capture combined output.
  *
@@ -108,6 +123,57 @@ export const runRepoCommandCapture = Effect.fn("RepoRun.runRepoCommandCapture")(
       });
       const [output, exitCode] = yield* Effect.all(
         [collectCombinedOutput(handle.stdout, handle.stderr), handle.exitCode],
+        { concurrency: "unbounded" }
+      );
+      return {
+        exitCode,
+        output: Str.trim(output.text),
+        truncated: output.truncated,
+      };
+    })
+  ).pipe(Effect.mapError(DomainError.newCause(`Failed to spawn ${commandText}.`)));
+});
+
+/**
+ * Execute a command, stream combined output live, and retain bounded output.
+ *
+ * Non-zero exit codes are represented in the returned value. Spawn failures
+ * remain typed operational errors.
+ *
+ * @param command - Executable name or path.
+ * @param args - Command arguments.
+ * @param cwd - Working directory.
+ * @param env - Optional environment overrides.
+ * @returns Captured output and exit code.
+ * @example
+ * ```ts
+ * import { runRepoCommandStreamingCapture } from "@beep/repo-cli/internal/repo-run"
+ *
+ * const capture = runRepoCommandStreamingCapture("bun", ["--version"], process.cwd())
+ * console.log(capture)
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const runRepoCommandStreamingCapture = Effect.fn("RepoRun.runRepoCommandStreamingCapture")(function* (
+  command: string,
+  args: ReadonlyArray<string>,
+  cwd: string,
+  env: Record<string, string | undefined> | undefined = undefined
+): Effect.fn.Return<RepoCommandOutput, DomainError, ChildProcessSpawner.ChildProcessSpawner> {
+  const commandText = A.join([command, ...args], " ");
+  return yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make(command, [...args], {
+        cwd,
+        env,
+        extendEnv: true,
+        stdin: "inherit",
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      const [output, exitCode] = yield* Effect.all(
+        [collectAndStreamCombinedOutput(handle.stdout, handle.stderr), handle.exitCode],
         { concurrency: "unbounded" }
       );
       return {
@@ -170,6 +236,58 @@ export const executeRepoPlanStep = Effect.fn("RepoRun.executeRepoPlanStep")(func
   const commandText = commandTextForStep(step);
   yield* Console.log(`[repo-run] ${step.label}: ${commandText}`);
   const result = yield* runRepoCommandCapture(step.command, step.args, step.cwd, step.env);
+  if (O.isSome(rawOutputPath)) {
+    yield* writeRawOutput(rawOutputPath.value, result.output);
+  }
+
+  return RepoStepRunResult.make({
+    stepId: step.id,
+    commandText,
+    exitCode: result.exitCode,
+    output: result.output,
+    truncated: result.truncated,
+    ...(O.isSome(rawOutputPath) ? { rawOutputRef: rawOutputPath.value } : {}),
+  });
+});
+
+/**
+ * Execute a planned repository step, stream output live, and optionally persist
+ * its raw output.
+ *
+ * @param step - Planned step to execute.
+ * @param rawOutputPath - Optional path for captured command output.
+ * @returns Captured step result.
+ * @example
+ * ```ts
+ * import { executeRepoPlanStepStreaming, RepoPlanStep } from "@beep/repo-cli/internal/repo-run"
+ *
+ * const step = RepoPlanStep.make({
+ *   args: ["--version"],
+ *   command: "bun",
+ *   cwd: process.cwd(),
+ *   id: "bun-version",
+ *   label: "bun version",
+ *   mutability: "readonly",
+ *   phase: "feedback",
+ *   resume: "never",
+ *   scope: "repo"
+ * })
+ * console.log(executeRepoPlanStepStreaming(step))
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const executeRepoPlanStepStreaming = Effect.fn("RepoRun.executeRepoPlanStepStreaming")(function* (
+  step: RepoPlanStep,
+  rawOutputPath: O.Option<string> = O.none()
+): Effect.fn.Return<
+  RepoStepRunResult,
+  DomainError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const commandText = commandTextForStep(step);
+  yield* Console.log(`[repo-run] ${step.label}: ${commandText}`);
+  const result = yield* runRepoCommandStreamingCapture(step.command, step.args, step.cwd, step.env);
   if (O.isSome(rawOutputPath)) {
     yield* writeRawOutput(rawOutputPath.value, result.output);
   }

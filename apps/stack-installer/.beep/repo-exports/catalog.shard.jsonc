@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "1347979073171dc1f84caad7f4983fe50a75d63e8068aebdba642fcd8e9197ac",
+    "digest": "574cadb97777ea0fde97ac89b2605130379a22a77e1c783750cdb8f35a5ae2ca",
     "inputs": [
       {
         "path": "apps/stack-installer/package.json",
@@ -77,8 +77,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

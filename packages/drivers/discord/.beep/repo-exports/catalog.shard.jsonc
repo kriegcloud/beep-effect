@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "15172a4751335c8ffd91b4dfc1d072a9a133229ae73103e4a41fc0764c825059",
+    "digest": "83d12bbe000f7f193835cae25f27273f47d1cd872958b2a6a4ac039841f41f27",
     "inputs": [
       {
         "path": "packages/drivers/discord/package.json",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

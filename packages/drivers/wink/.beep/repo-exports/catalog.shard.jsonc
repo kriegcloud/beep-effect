@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f2afaff72f1a68e4a9d135e35521e9aae65d30cfcd5b96a6302a0d4027e0c186",
+    "digest": "48188c4b5116281aa1f0d78bb8bf1c9fa8c39e5e1c202557ca2b6f9eee7f677e",
     "inputs": [
       {
         "path": "packages/drivers/wink/package.json",
@@ -112,8 +112,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

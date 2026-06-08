@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "7b2664e2ddd19566eab5479dd70a838e54ba9c4ab1e436b20c324b0a88603727",
+    "digest": "fef08ce64cea07ac0cb58e7f2517f85f69c2ee4b233a09081cfcd3b88e193a53",
     "inputs": [
       {
         "path": "packages/tooling/library/ai-sync/package.json",
@@ -87,8 +87,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

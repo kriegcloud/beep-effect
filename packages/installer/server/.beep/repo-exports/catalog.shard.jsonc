@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "b6b34a3896c11ec2d67b73abed317c5c8c75db0f04eba782fc46f54182900d39",
+    "digest": "b7ca8beed08d246a39e868e8895e9fd26df84f2ca040b08655a77af80eab8e13",
     "inputs": [
       {
         "path": "packages/installer/server/package.json",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

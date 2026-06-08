@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "fe929190e0c10a363a33c3b20fa0f3c82a439c178bc99ce79649ff0d20a3bc6a",
+    "digest": "251ce292b0295a30e94122402bcde539e155baa7f8075b81ea4e229b6238ea2e",
     "inputs": [
       {
         "path": "packages/drivers/tika/package.json",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

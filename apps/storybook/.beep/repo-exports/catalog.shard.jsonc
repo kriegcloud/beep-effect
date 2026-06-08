@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "54e2a77f35648a072f3036263ee3b8e9755d16953ec50679d6f6152684847901",
+    "digest": "24b7f6aed1dd0b645c03497ee0a19667c81b15711f5e6865a56ae943191484da",
     "inputs": [
       {
         "path": "apps/storybook/package.json",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },

@@ -236,6 +236,86 @@ describe("quality artifact generators", () => {
       )
     ));
 
+  it("does not stale package shards for fingerprint-only metadata drift", () =>
+    Effect.runPromise(
+      withFixtureRepo(
+        Effect.fnUntraced(function* (repoRoot) {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const expectedShardPath = path.join(
+            repoRoot,
+            "packages",
+            "demo",
+            ".beep",
+            "repo-exports",
+            "catalog.shard.jsonc"
+          );
+
+          yield* writeOrCheckRepoExportsCatalog({
+            rootDir: repoRoot,
+            packageShard: true,
+            packageName: "@beep/demo",
+          });
+
+          const shard = parseJsoncText(yield* fs.readFileString(expectedShardPath)) as {
+            readonly fingerprint: { readonly digest: string; readonly inputs: ReadonlyArray<unknown> };
+            readonly package: {
+              readonly counts: {
+                readonly publicExportEntries: number;
+                readonly sourceFiles: number;
+                readonly uniqueSymbols: number;
+              };
+            };
+          };
+          const fingerprintOnlyDrift = {
+            ...shard,
+            fingerprint: {
+              digest: "0".repeat(64),
+              inputs: [
+                ...shard.fingerprint.inputs,
+                {
+                  path: "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+                  sha256: "1".repeat(64),
+                  bytes: 1,
+                },
+              ],
+            },
+          };
+
+          yield* fs.writeFileString(expectedShardPath, `${encodeJson(fingerprintOnlyDrift)}\n`);
+          const fingerprintOnlyCheck = yield* writeOrCheckRepoExportsCatalog({
+            rootDir: repoRoot,
+            packageShard: true,
+            packageName: "@beep/demo",
+            check: true,
+          });
+
+          const packageCatalogDrift = {
+            ...fingerprintOnlyDrift,
+            package: {
+              ...fingerprintOnlyDrift.package,
+              counts: {
+                ...fingerprintOnlyDrift.package.counts,
+                publicExportEntries: fingerprintOnlyDrift.package.counts.publicExportEntries + 1,
+              },
+            },
+          };
+          yield* fs.writeFileString(expectedShardPath, `${encodeJson(packageCatalogDrift)}\n`);
+          const packageCatalogCheck = yield* writeOrCheckRepoExportsCatalog({
+            rootDir: repoRoot,
+            packageShard: true,
+            packageName: "@beep/demo",
+            check: true,
+          });
+
+          expect(fingerprintOnlyCheck.findings).toEqual([]);
+          expect(packageCatalogCheck.findings).toEqual([
+            "packages/demo/.beep/repo-exports/catalog.shard.jsonc is stale",
+          ]);
+        })
+      )
+    ));
+
   it("summarizes Turbo affected query output with banner text", () =>
     Effect.runPromise(
       Effect.gen(function* () {

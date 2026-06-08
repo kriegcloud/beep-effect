@@ -25,6 +25,7 @@ const $I = $RepoCliId.create("internal/repo-run/RepoRun.proofs");
  */
 export const GITHUB_CHECK_MODE_VALUES = [
   "quality",
+  "review-fix",
   "repo-sanity",
   "secrets",
   "security",
@@ -65,7 +66,7 @@ export type GithubCheckMode = typeof GithubCheckMode.Type;
  * @category models
  * @since 0.0.0
  */
-export const RepoProofSurface = LiteralKit(["quality", "pre-push"]).pipe(
+export const RepoProofSurface = LiteralKit(["quality", "review-fix", "pre-push"]).pipe(
   $I.annoteSchema("RepoProofSurface", {
     description: "Named repository proof surface backed by a GitHub checks mode.",
   })
@@ -125,6 +126,13 @@ export const repoProofStepDefinition = (surface: RepoProofSurface): RepoProofSte
         id: "full:01-quality",
         label: "full:quality",
         args: ["quality", "github-checks", "quality"],
+      }),
+    "review-fix": () =>
+      RepoProofStepDefinition.make({
+        surface,
+        id: "full:01-review-fix",
+        label: "full:review-fix",
+        args: ["quality", "github-checks", "review-fix"],
       }),
     "pre-push": () =>
       RepoProofStepDefinition.make({

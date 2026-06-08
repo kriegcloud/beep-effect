@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "222be807846d55ec4a23df29dce4c84a0c7aa8d452ed3c293865b788440c092e",
+    "digest": "64054c7ab828760310e1949bd80ca1dd07929d17e0efaf2a1e06a6391880e486",
     "inputs": [
       {
         "path": "apps/codedank-web/package.json",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
-        "bytes": 65995
+        "sha256": "b50cbf1f0a5b5d1b30d11aa225ee7710563b3707c5267d35ba7c8968ec5e2468",
+        "bytes": 77619
       }
     ]
   },
