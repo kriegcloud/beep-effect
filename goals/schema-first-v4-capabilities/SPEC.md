@@ -236,13 +236,16 @@ Current P2 behavior has one completed enforcement slice:
   `equals` equivalence advisories after the LocalDate/Timestamp Wave 5
   remediation, zero active broad email-field precision advisories after the
   HubSpot request-email, shared `EmailString`, and precision-exception review
-  pilots, and zero
-  schema-heavy static-only test advisories after the Sha256, Markdown,
-  secure-header option, CSV, repo-configs route-predicate, LocalDate codec, and
+  pilots, and 34 schema-heavy static-only test advisories after the
+  `SFV4-arbitrary-tests` matcher was hardened from the async-only codec list to
+  the full Effect v4 sync/async codec family. The earlier Sha256, Markdown,
+  secure-header option, CSV, repo-configs route-predicate, LocalDate codec,
   Organization/identity/EntityKernel/shared-UI/Markdown-AST/file-processing/NLP
-  value-schema, PatternCore, semantic-web DTO, JSON-LD DTO, form-builder, and
-  tooling agent-effectiveness/AI-metrics/files command plus Libpff/Tika/Venice
-  AI/ACP/architecture-lab arbitrary-test remediation pilots.
+  value-schema, PatternCore, semantic-web DTO, JSON-LD DTO, form-builder,
+  tooling agent-effectiveness/AI-metrics/files command, and Libpff/Tika/Venice
+  AI/ACP/architecture-lab pilots cleared the async-only slice; the hardened rule
+  re-surfaced the synchronous-codec backlog now tracked as advisory candidates
+  for Wave 3.
 
 The advisory rule cards below have first P2 slices. Future work should harden
 or expand them only after reviewing false positives and remediation pilots.
@@ -336,7 +339,11 @@ Initial rule cards:
 - Severity: advisory only until at least two pilot conversions are reviewed.
 - Current P2 enforcement slice: test files with at least three
   `S.decode*` / `S.encode*` Schema codec helper calls and no
-  `S.toArbitrary(...)` or `fc.property` / `fc.assert` / `fc.check` coverage.
+  `S.toArbitrary(...)` or `fc.property` / `fc.assert` / `fc.check` coverage. The
+  matcher counts the full Effect v4 codec family — Effect, Result, Option, Exit,
+  Promise, and synchronous (`decodeUnknownSync` / `decodeSync` /
+  `encodeUnknownSync` / `encodeSync`) variants — so sync-codec value tests are
+  no longer a blind spot.
 - Rejected: one happy-path fixture for a domain law.
 - Accepted: fixture for a golden payload plus
   `fc.property(S.toArbitrary(Model), law)`.

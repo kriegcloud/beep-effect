@@ -137,7 +137,28 @@ After the ACP and architecture-lab PgLite pilots, the live repo now reports:
 [schema-first] sfv4_arbitrary_tests_advisories=0
 ```
 
-There are currently no tracked live `SFV4-arbitrary-tests` advisory files.
+There were no tracked live `SFV4-arbitrary-tests` advisory files under the
+async-only codec list.
+
+## Hardening: full Effect v4 codec family (2026-06-08)
+
+The first slice only counted `decode*Effect` / `encode*Effect`,
+`decode*Result` / `encode*Result`, and `decode*Option` helpers, so the most
+common unit-test idiom — the synchronous throwing codecs
+`S.decodeUnknownSync` / `S.decodeSync` / `S.encodeUnknownSync` /
+`S.encodeSync` (plus the Promise and Exit families) — was a rule blind spot.
+`SCHEMA_CODEC_HELPERS` now lists the full Effect v4 codec surface confirmed in
+`.repos/effect-v4/packages/effect/src/Schema.ts`. The hardened rule
+re-surfaced the synchronous-codec backlog:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=34
+```
+
+All 34 are tracked as `advisory` candidates pending Wave 3 review, and a clean
+lint run stays green (advisories do not fail). See
+`reviews/p2-arbitrary-tests-sync-codec-expansion.md` for the
+candidate-vs-exception guidance and the focused sync-codec lint test.
 
 ## Still Pending
 

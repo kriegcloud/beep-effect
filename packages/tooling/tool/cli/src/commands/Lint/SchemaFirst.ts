@@ -46,16 +46,36 @@ const MANUAL_EQUALITY_COMPARISON_PATTERN = /===|!==/;
 const BROAD_EMAIL_SCHEMA_PATTERN = /^S\.optionalKey\(S\.String(?:\)|,)|^S\.String(?:$|\.pipe\()/;
 const DEFAULT_PARAMETER_NAMES = ["options", "params", "config", "request", "args", "input"] as const;
 const SCHEMA_CODEC_HELPERS = [
+  // Effect-returning codecs.
   "decodeUnknownEffect",
   "decodeEffect",
   "encodeUnknownEffect",
   "encodeEffect",
+  // Result-returning codecs.
   "decodeUnknownResult",
   "decodeResult",
   "encodeUnknownResult",
   "encodeResult",
+  // Option-returning codecs.
   "decodeUnknownOption",
   "decodeOption",
+  "encodeUnknownOption",
+  "encodeOption",
+  // Exit-returning codecs.
+  "decodeUnknownExit",
+  "decodeExit",
+  "encodeUnknownExit",
+  "encodeExit",
+  // Promise-returning codecs.
+  "decodeUnknownPromise",
+  "decodePromise",
+  "encodeUnknownPromise",
+  "encodePromise",
+  // Synchronous throwing codecs (most common in unit tests).
+  "decodeUnknownSync",
+  "decodeSync",
+  "encodeUnknownSync",
+  "encodeSync",
 ] as const;
 const SCHEMA_ARBITRARY_PROPERTY_PATTERN = /\b(?:S|Schema)\.toArbitrary\b|\bfc\.(?:property|assert|check)\b/;
 const TEST_FILE_PATTERN = /(?:\/test\/|\/tests\/|\.test\.tsx?$|\.spec\.tsx?$)/;

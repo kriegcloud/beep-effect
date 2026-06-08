@@ -101,8 +101,10 @@ boundary-codec advisories after the Runpod OpenAPI generator remediation, zero
 equivalence advisories after `LocalDate.equals` / `Timestamp.equals` were moved to
 `S.toEquivalence`, zero active precision-audit advisories after the two
 remaining broad email fields were reviewed as raw-input/diagnostic exceptions,
-zero arbitrary-test migration advisories, and zero
-defaults/numeric/static-api advisories. P3 has started with an internal
+and zero defaults/numeric/static-api advisories. The `SFV4-arbitrary-tests`
+rule was then hardened from the async-only codec list to the full Effect v4
+sync/async codec family, re-surfacing 34 synchronous-codec advisory candidates
+now tracked for Wave 3 remediation. P3 has started with an internal
 repo-cli laws helper that formats `SchemaError.issue` through
 `SchemaIssue.makeFormatterStandardSchemaV1(...)` and provides redacted
 diagnostic output through public formatter hooks while avoiding a premature
@@ -184,9 +186,11 @@ omitted aggregate helper options are normalized through a schema-owned
 constructor default while `createHeadersObject()` and `createSecureHeaders()`
 keep their ergonomic call shape.
 Wave 2 also started with HubSpot request-email and shared `EmailString`
-precision pilots. These pilots reduced arbitrary-test advisories from 27 to 0
-and active precision-audit advisories from 7 to 0, with two reviewed precision
-exceptions still tracked in the inventory.
+precision pilots. These pilots reduced the async-only arbitrary-test advisories
+from 27 to 0 and active precision-audit advisories from 7 to 0, with two
+reviewed precision exceptions still tracked in the inventory. Hardening
+`SFV4-arbitrary-tests` to the full Effect v4 sync/async codec family then
+re-surfaced 34 synchronous-codec advisory candidates for Wave 3.
 The next packet phases are helper evaluation and ordered remediation waves.
 
 Use `PLAN.md` for sequencing and `SPEC.md` for acceptance.

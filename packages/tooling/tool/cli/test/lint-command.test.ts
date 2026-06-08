@@ -590,6 +590,60 @@ describe("schema-first lint command", { concurrent: false }, () => {
   );
 
   it(
+    "reports SFV4 arbitrary-tests advisories for synchronous schema codec helpers",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "test", "Sync.test.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+                "export const staticChecks = [",
+                '  S.decodeUnknownSync(Worker)({ id: "a", retryCount: 1 }),',
+                '  S.decodeSync(Worker)({ id: "b", retryCount: 2 }),',
+                '  S.encodeSync(Worker)({ id: "c", retryCount: 3 }),',
+                "];",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain(
+              "- packages/example/test/Sync.test.ts :: schema-codec-tests [schema-policy-advisory] Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
+            );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-arbitrary-tests",' +
+              '"severity":"warning","file":"packages/example/test/Sync.test.ts","line":4,' +
+              '"symbol":"schema-codec-tests",' +
+              '"message":"Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage.",' +
+              '"remediation":"Add a focused property test using S.toArbitrary(sourceSchema) and fast-check, or keep the inventory entry when the file is intentionally golden/snapshot/regression-only coverage."}';
+            expect(errorLines).toContain(structuredIssueLine);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
     "accepts schema-derived static match usage without static-api advisories",
     () =>
       Effect.runPromise(

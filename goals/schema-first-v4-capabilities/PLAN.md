@@ -74,9 +74,11 @@ remediation, and package routing. See `reviews/p2-enforcement-slice.md`.
         `reviews/p2-precision-email-field-advisory.md`.
   - [x] `SFV4-arbitrary-tests`: first AST advisory inventory slice for
         schema-heavy test files with repeated Schema codec assertions and no
-        schema-derived property coverage. Live repo count is currently zero
-        tracked advisories; see
-        `reviews/p2-arbitrary-tests-schema-codec-advisory.md`.
+        schema-derived property coverage. Hardened from the async-only codec
+        list to the full Effect v4 sync/async codec family, which re-surfaced 34
+        synchronous-codec advisory candidates now tracked for Wave 3; see
+        `reviews/p2-arbitrary-tests-schema-codec-advisory.md` and
+        `reviews/p2-arbitrary-tests-sync-codec-expansion.md`.
 - [x] Prefer AST-aware or ts-morph checks over fragile regex for production
       enforcement.
 - [x] Add rule-specific inventory entries with rule id, file, symbol, line, and
