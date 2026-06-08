@@ -432,6 +432,18 @@ class GithubChecksFallowFeatureMatrixRow extends S.Class<GithubChecksFallowFeatu
   })
 ) {}
 
+/**
+ * Minimal Fallow feature matrix used by GitHub check plan contract validation.
+ *
+ * @example
+ * ```ts
+ * import { GithubChecksFallowFeatureMatrix } from "@beep/repo-cli/commands/Quality/Quality.command"
+ * const matrix = GithubChecksFallowFeatureMatrix.make({ features: [] })
+ * console.log(matrix.features.length)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
 export class GithubChecksFallowFeatureMatrix extends S.Class<GithubChecksFallowFeatureMatrix>(
   $I`GithubChecksFallowFeatureMatrix`
 )(

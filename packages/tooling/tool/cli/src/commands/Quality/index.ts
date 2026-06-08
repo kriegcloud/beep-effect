@@ -4,12 +4,6 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-/**
- * Turbo scoped-config proof harness exports.
- *
- * @category utilities
- * @since 0.0.0
- */
 
 /**
  * Public Fallow quality command export.
@@ -18,6 +12,12 @@
  * @since 0.0.0
  */
 export { qualityFallowCommand } from "./FallowQuality.command.js";
+/**
+ * Turbo scoped-config proof harness exports.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export * from "./internal/TurboConfigProof.js";
 /**
  * Public quality command export.
