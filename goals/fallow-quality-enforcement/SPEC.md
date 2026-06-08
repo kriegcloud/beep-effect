@@ -167,7 +167,7 @@ the current CLI surface:
   proves the normal Yeet publish path still includes the same full pre-push
   quality plan before any blocking Fallow promotion. The checker must
   distinguish step ids from user-facing labels.
-- `beep yeet fallow-fixture-check reports/report-envelope-fixtures.jsonc --emit .beep/yeet/fallow-quality-issues.json --assert QualityIssueIndex,tool=fallow,blocking=false,attribution`
+- `beep yeet fallow-fixture-check goals/fallow-quality-enforcement/reports/report-envelope-fixtures.jsonc --emit .beep/yeet/fallow-quality-issues.json --assert QualityIssueIndex,tool=fallow,blocking=false,attribution`
   proves Fallow envelopes normalize into Yeet quality issues without losing
   attribution.
 - `beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes`
@@ -211,13 +211,13 @@ Success variant:
 
 Failure variants:
 
-- `status: tool-failed | invalid-json | base-resolution-failed`
+- `status: tool-failed | invalid-json | invalid-report | base-resolution-failed`
 - require `exitStatus`
 - require `stderrExcerpt`
 - require `rawOutputRef`
 
-`reports/report-envelope-fixtures.jsonc` must decode fixtures for `ok`,
-`tool-failed`, `invalid-json`, and `base-resolution-failed`, and it must include
+`goals/fallow-quality-enforcement/reports/report-envelope-fixtures.jsonc` must decode fixtures for `ok`,
+`tool-failed`, `invalid-json`, `invalid-report`, and `base-resolution-failed`, and it must include
 Yeet issue fixtures proving `introduced`, `inherited-adjacent`, and
 `not-applicable` attribution survives parser normalization.
 

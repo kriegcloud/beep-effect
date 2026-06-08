@@ -124,6 +124,7 @@
               "ok",
               "tool-failed",
               "invalid-json",
+              "invalid-report",
               "base-resolution-failed"
             ]
           },
@@ -224,6 +225,16 @@
               "status": {
                 "const": "tool-failed"
               },
+              "attributionKinds": {
+                "const": ["not-applicable"]
+              },
+              "findingAttributionSummary": {
+                "const": {
+                  "introduced": 0,
+                  "inheritedAdjacent": 0,
+                  "notApplicable": 0
+                }
+              },
               "exitStatus": {
                 "type": "integer",
                 "minimum": 1
@@ -238,6 +249,37 @@
             "properties": {
               "status": {
                 "const": "invalid-json"
+              },
+              "attributionKinds": {
+                "const": ["not-applicable"]
+              },
+              "findingAttributionSummary": {
+                "const": {
+                  "introduced": 0,
+                  "inheritedAdjacent": 0,
+                  "notApplicable": 0
+                }
+              }
+            },
+            "not": {
+              "required": ["report"]
+            }
+          },
+          {
+            "required": ["status", "stderrExcerpt"],
+            "properties": {
+              "status": {
+                "const": "invalid-report"
+              },
+              "attributionKinds": {
+                "const": ["not-applicable"]
+              },
+              "findingAttributionSummary": {
+                "const": {
+                  "introduced": 0,
+                  "inheritedAdjacent": 0,
+                  "notApplicable": 0
+                }
               }
             },
             "not": {
@@ -249,6 +291,16 @@
             "properties": {
               "status": {
                 "const": "base-resolution-failed"
+              },
+              "attributionKinds": {
+                "const": ["not-applicable"]
+              },
+              "findingAttributionSummary": {
+                "const": {
+                  "introduced": 0,
+                  "inheritedAdjacent": 0,
+                  "notApplicable": 0
+                }
               },
               "exitStatus": {
                 "type": "integer",
@@ -358,6 +410,7 @@
       "ok",
       "tool-failed",
       "invalid-json",
+      "invalid-report",
       "base-resolution-failed"
     ],
     "featureFamily": [

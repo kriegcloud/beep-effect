@@ -12,7 +12,7 @@
       "repoCommandTarget": {
         "command": "beep quality fallow audit",
         "phase": "P1",
-        "implementationStatus": "target-contract",
+        "implementationStatus": "implemented",
         "defaultOutputPath": ".beep/fallow/audit.json"
       },
       "configSurfaces": [
@@ -42,7 +42,7 @@
       "baselineArtifact": "standards/fallow.pilot.inventory.jsonc",
       "baselineSummary": {
         "status": "measured",
-        "counts": "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 31 complexity findings, and 124 clone groups; introduced counts were 3 dead-code, 3 complexity, and 0 duplication.",
+        "counts": "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 41 complexity findings, and 155 clone groups; introduced counts were 3 dead-code, 10 complexity, and 10 duplication.",
         "notes": "Changed-file count is worktree-volatile while this packet is edited. The baseline helper enforces a minimum changed-file snapshot plus exact finding and attribution counts."
       },
       "falsePositiveStatus": "unknown",
@@ -100,7 +100,7 @@
       "repoCommandTarget": {
         "command": "beep quality fallow dead-code",
         "phase": "P1",
-        "implementationStatus": "target-contract",
+        "implementationStatus": "implemented",
         "defaultOutputPath": ".beep/fallow/dead-code.json"
       },
       "configSurfaces": [
@@ -188,7 +188,7 @@
       "repoCommandTarget": {
         "command": "beep quality fallow dupes",
         "phase": "P1",
-        "implementationStatus": "target-contract",
+        "implementationStatus": "implemented",
         "defaultOutputPath": ".beep/fallow/dupes.json"
       },
       "configSurfaces": [".fallowrc.jsonc", "standards/clone.inventory.jsonc"],
@@ -263,7 +263,7 @@
       "repoCommandTarget": {
         "command": "beep quality fallow health",
         "phase": "P1",
-        "implementationStatus": "target-contract",
+        "implementationStatus": "implemented",
         "defaultOutputPath": ".beep/fallow/health.json"
       },
       "configSurfaces": [".fallowrc.jsonc"],
@@ -342,7 +342,7 @@
       "repoCommandTarget": {
         "command": "beep quality fallow boundaries",
         "phase": "P1",
-        "implementationStatus": "target-contract",
+        "implementationStatus": "implemented",
         "defaultOutputPath": ".beep/fallow/boundaries.json"
       },
       "configSurfaces": [
@@ -454,7 +454,7 @@
       "repoCommandTarget": {
         "command": "beep quality fallow flags",
         "phase": "P1",
-        "implementationStatus": "target-contract",
+        "implementationStatus": "implemented",
         "defaultOutputPath": ".beep/fallow/flags.json"
       },
       "configSurfaces": [
@@ -518,7 +518,7 @@
       "acceptanceCommands": [
         "bun run fallow -- flags --config .fallowrc.jsonc --format json --quiet --summary --top 50"
       ],
-      "rollbackNotes": "Keep flags out of CI and Yeet until registry policy exists.",
+      "rollbackNotes": "Remove flags advisory artifacts from CI and Yeet if registry-policy promotion is rolled back.",
       "evidenceRefs": [
         "research/flags.md",
         "standards/architecture/11-evolution-and-deprecation.md"
@@ -532,7 +532,7 @@
       "repoCommandTarget": {
         "command": "beep quality fallow security",
         "phase": "P1",
-        "implementationStatus": "target-contract",
+        "implementationStatus": "implemented",
         "defaultOutputPath": ".beep/fallow/security.json"
       },
       "configSurfaces": [".fallowrc.jsonc", ".github/workflows/check.yml"],
@@ -605,7 +605,7 @@
       "repoCommandTarget": {
         "command": "beep quality fallow fix-preview",
         "phase": "P1",
-        "implementationStatus": "target-contract",
+        "implementationStatus": "implemented",
         "defaultOutputPath": ".beep/fallow/fix-preview.json"
       },
       "configSurfaces": [".fallowrc.jsonc"],

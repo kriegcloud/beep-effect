@@ -2,7 +2,7 @@
 
 ## Status
 
-**ACTIVE - P0 research measured, P1 repo-cli integration gate open**
+**ACTIVE - P1 repo-cli advisory integration implemented, P2 CI envelope hardening next**
 
 ## Owner
 

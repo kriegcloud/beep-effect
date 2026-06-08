@@ -10,7 +10,7 @@
  * @category utilities
  * @since 0.0.0
  */
-export * from "./internal/TurboConfigProof.js";
+
 /**
  * Public Fallow quality command export.
  *
@@ -18,6 +18,7 @@ export * from "./internal/TurboConfigProof.js";
  * @since 0.0.0
  */
 export { qualityFallowCommand } from "./FallowQuality.command.js";
+export * from "./internal/TurboConfigProof.js";
 /**
  * Public quality command export.
  *

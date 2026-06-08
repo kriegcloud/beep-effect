@@ -20,7 +20,7 @@ updated: 2026-06-08
 - Exit status: 0
 - Runtime: about 15-21s
 - Counts: score 73.3, grade B, 1,859 files analyzed, 26,627 functions analyzed, 199 functions above threshold, 36 critical, 50 high, 113 moderate, average maintainability 92.2.
-- Artifact path: future P1 wrapper writes `.beep/fallow/health.json`; current baseline lives in this report and `standards/fallow.pilot.inventory.jsonc`.
+- Artifact path: P1 wrapper writes `.beep/fallow/health.json`; current baseline lives in this report and `standards/fallow.pilot.inventory.jsonc`.
 
 ## Repo Fit
 

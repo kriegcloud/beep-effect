@@ -14,7 +14,7 @@
       "advisory": true,
       "dirtyWorktree": true,
       "reportPath": ".beep/fallow/audit.json",
-      "rawOutputRef": ".beep/fallow/raw/audit.stdout.json",
+      "rawOutputRef": ".beep/fallow/raw/audit.combined.txt",
       "attributionKinds": [
         "introduced",
         "inherited-adjacent",
@@ -70,7 +70,7 @@
       "advisory": true,
       "dirtyWorktree": true,
       "reportPath": ".beep/fallow/health.json",
-      "rawOutputRef": ".beep/fallow/raw/health.stdout.json",
+      "rawOutputRef": ".beep/fallow/raw/health.combined.txt",
       "attributionKinds": ["not-applicable"],
       "findingAttributionSummary": {
         "introduced": 0,
@@ -91,7 +91,7 @@
       "advisory": true,
       "dirtyWorktree": true,
       "reportPath": ".beep/fallow/dead-code.json",
-      "rawOutputRef": ".beep/fallow/raw/dead-code.stdout.json",
+      "rawOutputRef": ".beep/fallow/raw/dead-code.combined.txt",
       "attributionKinds": ["not-applicable"],
       "findingAttributionSummary": {
         "introduced": 0,
@@ -105,6 +105,27 @@
     {
       "schemaVersion": "fallow-report-envelope/v1",
       "toolVersion": "fallow 0.0.0-fixture",
+      "command": "beep quality fallow flags --advisory --base origin/main",
+      "subcommand": "flags",
+      "baseRef": "origin/main",
+      "generatedAt": "2026-06-08T00:00:00.000Z",
+      "advisory": true,
+      "dirtyWorktree": true,
+      "reportPath": ".beep/fallow/flags.json",
+      "rawOutputRef": ".beep/fallow/raw/flags.combined.txt",
+      "attributionKinds": ["not-applicable"],
+      "findingAttributionSummary": {
+        "introduced": 0,
+        "inheritedAdjacent": 0,
+        "notApplicable": 0
+      },
+      "status": "invalid-report",
+      "exitStatus": 0,
+      "stderrExcerpt": "fallow emitted JSON that did not match the expected flags report shape"
+    },
+    {
+      "schemaVersion": "fallow-report-envelope/v1",
+      "toolVersion": "fallow 0.0.0-fixture",
       "command": "beep quality fallow boundaries --advisory --base origin/main",
       "subcommand": "boundaries",
       "baseRef": "origin/main",
@@ -112,7 +133,7 @@
       "advisory": true,
       "dirtyWorktree": true,
       "reportPath": ".beep/fallow/boundaries.json",
-      "rawOutputRef": ".beep/fallow/raw/boundaries.stderr.txt",
+      "rawOutputRef": ".beep/fallow/raw/boundaries.combined.txt",
       "attributionKinds": ["not-applicable"],
       "findingAttributionSummary": {
         "introduced": 0,

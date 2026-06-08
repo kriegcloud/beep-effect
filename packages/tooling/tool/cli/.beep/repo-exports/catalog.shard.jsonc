@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ab4f1d2deae811b59f8826a48b3ab4636d1b1758d2a02360d5f2715e60807433",
+    "digest": "d2757ab2a3d7e3858b283da10d05eb1a48e5f06cc1605c35cff91976534c0123",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -422,13 +422,13 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sha256": "c2b567a3595bd44e69519f8001b601cbc6a0cb666b626d07190084dfc6814f56",
-        "bytes": 36535
+        "sha256": "d1022758e539c7fe3d85a33bdf1caa1bfca1cf891eda00de01ddac3d3e9d0732",
+        "bytes": 74493
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
-        "sha256": "7f1e4efbb78260efea0b9b0e7c1ed13e36e7a182bff2382e64ff3818aa8375f5",
-        "bytes": 660
+        "sha256": "15b0238391d8beec6e664dbdcafc4cdb01d3435b0e4a0a3887fb446ea0c96eb3",
+        "bytes": 661
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts",
@@ -472,7 +472,7 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "95ad96d9be5bcefb50719ca68c41144b3cf1710d153519fec34d6fdb2b0b2bc4",
+        "sha256": "9c9d368f3bcb37e82cc738237c689e233abeb9d160c0f33a8e71fa3f6bd52a61",
         "bytes": 83826
       },
       {
@@ -27704,7 +27704,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 1023,
+        "sourceLine": 2185,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28381,7 +28381,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 1023,
+        "sourceLine": 2185,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28456,7 +28456,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 1023,
+        "sourceLine": 2185,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -41277,7 +41277,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 1023,
+        "sourceLine": 2185,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"

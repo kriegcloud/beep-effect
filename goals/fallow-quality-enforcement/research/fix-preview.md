@@ -20,7 +20,7 @@ updated: 2026-06-08
 - Exit status: 0
 - Runtime: about 3s
 - Counts: dry-run output reported 42 proposed fix entries, 0 applied fixes, 0 skipped content-changed files, 0 low-confidence export skips, and 0 mixed-line-ending skips.
-- Artifact path: future P1 wrapper writes `.beep/fallow/fix-preview.json`; current baseline lives in this report.
+- Artifact path: P1 wrapper writes `.beep/fallow/fix-preview.json`; current baseline lives in this report.
 
 ## Repo Fit
 
@@ -45,7 +45,7 @@ updated: 2026-06-08
 - Yeet category: `repo-law`
 - Parser: `fallow/fix-preview/v1`
 - Default blocking: false
-- CI mode: none in P0.
+- CI mode: advisory artifact; P2 CI hardening is still blocked until `fqe-005` uploads the dry-run envelope as nonblocking evidence.
 - Failure envelope behavior: wrapper must never run non-dry-run fix and must include the exact dry-run command in the envelope.
 
 ## Promotion Gate

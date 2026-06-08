@@ -19,9 +19,9 @@ updated: 2026-06-08
 - Command: `bun run fallow:audit -- --base origin/main --gate new-only`
 - Exit status: 1
 - Runtime: about 14s
-- Counts: at least 90 changed files in the current dirty worktree, verdict `fail`, 30 changed-scope dead-code issues, 31 complexity findings, 124 duplication clone groups.
-- Attribution: 3 introduced dead-code issues, 3 introduced complexity findings, 0 introduced duplication clone groups; remaining findings are inherited context.
-- Artifact path: future P1 wrapper writes `.beep/fallow/audit.json`; current evidence is live command output plus `standards/fallow.pilot.inventory.jsonc`.
+- Counts: at least 90 changed files in the current dirty worktree, verdict `fail`, 30 changed-scope dead-code issues, 41 complexity findings, 155 duplication clone groups.
+- Attribution: 3 introduced dead-code issues, 10 introduced complexity findings, 10 introduced duplication clone groups; remaining findings are inherited context.
+- Artifact path: P1 wrapper writes `.beep/fallow/audit.json`; current evidence is live wrapper output plus `standards/fallow.pilot.inventory.jsonc`.
 - Volatility note: `changed_files_count` moves as this packet adds files, so `validate-fallow-audit-baseline.ts` asserts a minimum changed-file snapshot while checking finding and attribution counts exactly.
 
 ## Repo Fit
@@ -30,7 +30,7 @@ updated: 2026-06-08
 - Existing repo lane overlap: CI already has raw `fallow-audit`; P2 must replace it with a repo-cli envelope.
 - Config surfaces: `.fallowrc.jsonc`, `standards/fallow.dead-code.regression-baseline.jsonc`, `.github/workflows/check.yml`
 - Generated metadata needed: none for audit itself; it consumes sub-analysis policy.
-- Important mismatch: `beep quality fallow audit` is a target contract, not a live command yet.
+- Important mismatch: raw `fallow audit` still exits nonzero for findings, while `beep quality fallow audit --advisory` exits zero and preserves the raw status in the envelope.
 
 ## False Positives And Suppressions
 
@@ -48,7 +48,7 @@ updated: 2026-06-08
 - Parser: `fallow/audit/v1`
 - Default blocking: false
 - CI mode: advisory artifact
-- Failure envelope behavior: wrapper must write `tool-failed`, `invalid-json`, or `base-resolution-failed` envelopes instead of letting raw Fallow failure disappear.
+- Failure envelope behavior: wrapper must write `tool-failed`, `invalid-json`, `invalid-report`, or `base-resolution-failed` envelopes instead of letting raw Fallow failure disappear.
 
 ## Promotion Gate
 

@@ -6,13 +6,15 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
-import { A, Str } from "@beep/utils";
-import { Console, DateTime, Effect, FileSystem, Path, pipe, Stream } from "effect";
+import { LiteralKit, NonNegativeInt } from "@beep/schema";
+import { Console, DateTime, Effect, FileSystem, flow, Path, pipe, Stream, Tuple } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import { ChildProcess } from "effect/unstable/process";
 import { QualityScriptCommandError } from "./Quality.errors.js";
@@ -20,7 +22,7 @@ import type { ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $RepoCliId.create("commands/Quality/FallowQuality");
 
-const fallowFeatureValues = [
+const FallowFeatureFamily = LiteralKit([
   "audit",
   "dead-code",
   "dupes",
@@ -29,7 +31,15 @@ const fallowFeatureValues = [
   "flags",
   "security",
   "fix-preview",
-];
+]).pipe(
+  $I.annoteSchema("FallowFeatureFamily", {
+    description: "Fallow feature family implemented by the quality wrapper.",
+  })
+);
+type FallowFeature = typeof FallowFeatureFamily.Type;
+
+const fallowFeatureValues: ReadonlyArray<FallowFeature> = FallowFeatureFamily.Options;
+const isFallowFeature = S.is(FallowFeatureFamily);
 
 const commonEnvelopeKeys = [
   "schemaVersion",
@@ -54,23 +64,51 @@ const defaultOutDir = ".beep/fallow";
 const defaultBaseRef = "origin/main";
 const fallbackSourceRef = "standards/fallow.pilot.inventory.jsonc";
 
-const FallowFeatureFamily = LiteralKit(fallowFeatureValues).pipe(
-  $I.annoteSchema("FallowFeatureFamily", {
-    description: "Fallow feature family implemented by the quality wrapper.",
-  })
-);
-
 const FindingAttributionKind = LiteralKit(["introduced", "inherited-adjacent", "not-applicable"]).pipe(
   $I.annoteSchema("FallowFindingAttributionKind", {
     description: "Attribution kind retained by repo-cli Fallow envelopes.",
   })
 );
 
-const FallowEnvelopeStatus = LiteralKit(["ok", "tool-failed", "invalid-json", "base-resolution-failed"]).pipe(
+const FallowEnvelopeStatus = LiteralKit([
+  "ok",
+  "tool-failed",
+  "invalid-json",
+  "invalid-report",
+  "base-resolution-failed",
+]).pipe(
   $I.annoteSchema("FallowEnvelopeStatus", {
     description: "Status discriminator for Fallow quality envelopes.",
   })
 );
+
+const FallowFailureEnvelopeStatus = LiteralKit([
+  "tool-failed",
+  "invalid-json",
+  "invalid-report",
+  "base-resolution-failed",
+]).pipe(
+  $I.annoteSchema("FallowFailureEnvelopeStatus", {
+    description: "Failure status discriminator for Fallow quality envelopes.",
+  })
+);
+
+const PositiveExitStatus = S.Int.pipe(S.brand("PositiveExitStatus"))
+  .check(
+    S.isGreaterThan(0, {
+      message: "Expected a positive process exit status",
+      description: "A positive process exit status",
+    })
+  )
+  .pipe(
+    $I.annoteSchema("PositiveExitStatus", {
+      description: "Positive process exit status used by failure Fallow envelopes.",
+    })
+  );
+
+const sameAttributionKind = S.toEquivalence(FindingAttributionKind);
+const sameEnvelopeStatus = S.toEquivalence(FallowEnvelopeStatus);
+const sameFeatureFamily = S.toEquivalence(FallowFeatureFamily);
 
 class FindingAttributionSummary extends S.Class<FindingAttributionSummary>($I`FindingAttributionSummary`)(
   {
@@ -108,6 +146,13 @@ class FallowReportPayload extends S.Class<FallowReportPayload>($I`FallowReportPa
   })
 ) {}
 
+const FallowAttributionKinds = S.NonEmptyArray(FindingAttributionKind).pipe(
+  $I.annoteSchema("FallowAttributionKinds", {
+    description: "Non-empty attribution-kind list emitted by Fallow report envelopes.",
+  })
+);
+type FallowAttributionKinds = typeof FallowAttributionKinds.Type;
+
 const FallowReportBaseFields = {
   schemaVersion: S.Literal("fallow-report-envelope/v1"),
   toolVersion: S.String,
@@ -119,7 +164,7 @@ const FallowReportBaseFields = {
   dirtyWorktree: S.Boolean,
   reportPath: S.String,
   rawOutputRef: S.String,
-  attributionKinds: S.NonEmptyArray(FindingAttributionKind),
+  attributionKinds: FallowAttributionKinds,
   findingAttributionSummary: FindingAttributionSummary,
 };
 
@@ -139,7 +184,7 @@ class FallowReportToolFailed extends S.Class<FallowReportToolFailed>($I`FallowRe
   {
     ...FallowReportBaseFields,
     status: S.Literal("tool-failed"),
-    exitStatus: NonNegativeInt,
+    exitStatus: PositiveExitStatus,
     stderrExcerpt: S.String,
   },
   $I.annote("FallowReportToolFailed", {
@@ -159,13 +204,25 @@ class FallowReportInvalidJson extends S.Class<FallowReportInvalidJson>($I`Fallow
   })
 ) {}
 
+class FallowReportInvalidReport extends S.Class<FallowReportInvalidReport>($I`FallowReportInvalidReport`)(
+  {
+    ...FallowReportBaseFields,
+    status: S.Literal("invalid-report"),
+    exitStatus: NonNegativeInt,
+    stderrExcerpt: S.String,
+  },
+  $I.annote("FallowReportInvalidReport", {
+    description: "Fallow envelope emitted when JSON decodes but does not match the expected feature report shape.",
+  })
+) {}
+
 class FallowReportBaseResolutionFailed extends S.Class<FallowReportBaseResolutionFailed>(
   $I`FallowReportBaseResolutionFailed`
 )(
   {
     ...FallowReportBaseFields,
     status: S.Literal("base-resolution-failed"),
-    exitStatus: NonNegativeInt,
+    exitStatus: PositiveExitStatus,
     stderrExcerpt: S.String,
   },
   $I.annote("FallowReportBaseResolutionFailed", {
@@ -173,28 +230,301 @@ class FallowReportBaseResolutionFailed extends S.Class<FallowReportBaseResolutio
   })
 ) {}
 
-const FallowReportWireEnvelope = S.Union([
-  FallowReportOk,
-  FallowReportToolFailed,
-  FallowReportInvalidJson,
-  FallowReportBaseResolutionFailed,
-]).pipe(
-  $I.annoteSchema("FallowReportWireEnvelope", {
-    description: "Wire guard for Fallow report envelopes before downstream quality parsing.",
+const FallowReportEnvelope = FallowEnvelopeStatus.mapMembers(
+  Tuple.evolve([
+    () => FallowReportOk,
+    () => FallowReportToolFailed,
+    () => FallowReportInvalidJson,
+    () => FallowReportInvalidReport,
+    () => FallowReportBaseResolutionFailed,
+  ])
+).pipe(
+  S.toTaggedUnion("status"),
+  $I.annoteSchema("FallowReportEnvelope", {
+    description: "Internal decoded Fallow report envelope discriminated by status.",
   })
 );
 
 const decodeJsonText = S.decodeUnknownEffect(S.UnknownFromJsonString);
-const encodeJsonText = S.encodeUnknownEffect(S.UnknownFromJsonString);
+const encodeFallowEnvelopeJson = S.encodeUnknownEffect(S.fromJsonString(FallowReportEnvelope));
 const decodeUnknownRecordOption = S.decodeUnknownOption(S.Record(S.String, S.Unknown));
 const decodeUnknownArrayOption = S.decodeUnknownOption(S.Array(S.Unknown));
-const decodeNumberOption = S.decodeUnknownOption(S.Number);
-const decodeStringOption = S.decodeUnknownOption(S.String);
-const decodeFallowReportWireEnvelope = S.decodeUnknownEffect(FallowReportWireEnvelope);
+const decodeNumberOption = S.decodeUnknownOption(S.Finite);
+const decodeFallowReportEnvelope = S.decodeUnknownEffect(FallowReportEnvelope);
+const decodeFallowReportOkOption = S.decodeUnknownOption(FallowReportOk);
+const decodeFallowAttributionKindsOption = S.decodeUnknownOption(FallowAttributionKinds);
 const decodeFallowEnvelopeStatusOption = S.decodeUnknownOption(FallowEnvelopeStatus);
 
-type FallowFeature = typeof FallowFeatureFamily.Type;
-type FallowFinding = typeof FallowReportFinding.Type;
+const FallowVersionedRawFields = {
+  schema_version: S.Finite,
+  version: S.String,
+  elapsed_ms: S.Finite,
+};
+const FallowRawAction = S.Struct({
+  type: S.String,
+  auto_fixable: S.Boolean,
+  description: S.String,
+}).pipe(
+  $I.annoteSchema("FallowRawAction", {
+    description: "Common raw Fallow action shape emitted with actionable findings.",
+  })
+);
+const FallowActionIssue = S.Struct({
+  actions: S.Array(FallowRawAction),
+}).pipe(
+  $I.annoteSchema("FallowActionIssue", {
+    description: "Raw Fallow issue item that must carry action metadata.",
+  })
+);
+const FallowIssueArray = S.Array(FallowActionIssue).pipe(
+  $I.annoteSchema("FallowIssueArray", {
+    description: "Raw Fallow issue array retained for success-shape validation.",
+  })
+);
+const FallowCloneInstance = S.Struct({
+  file: S.String,
+  start_line: S.Finite,
+  end_line: S.Finite,
+  start_col: S.Finite,
+  end_col: S.Finite,
+  fragment: S.String,
+}).pipe(
+  $I.annoteSchema("FallowCloneInstance", {
+    description: "Raw Fallow duplication clone instance shape.",
+  })
+);
+const FallowCloneGroup = S.Struct({
+  instances: S.Array(FallowCloneInstance),
+  token_count: S.Finite,
+  line_count: S.Finite,
+  fingerprint: S.String,
+  actions: S.Array(FallowRawAction),
+}).pipe(
+  $I.annoteSchema("FallowCloneGroup", {
+    description: "Raw Fallow duplication clone group shape.",
+  })
+);
+const FallowCloneFamily = S.Struct({
+  files: S.Array(S.String),
+  groups: S.Array(FallowCloneGroup),
+  total_duplicated_lines: S.Finite,
+  total_duplicated_tokens: S.Finite,
+  actions: S.Array(FallowRawAction),
+}).pipe(
+  $I.annoteSchema("FallowCloneFamily", {
+    description: "Raw Fallow duplication clone family shape.",
+  })
+);
+const FallowHealthFinding = S.Struct({
+  path: S.String,
+  name: S.String,
+  line: S.Finite,
+  col: S.Finite,
+  cyclomatic: S.Finite,
+  cognitive: S.Finite,
+  line_count: S.Finite,
+  param_count: S.Finite,
+  severity: S.String,
+  actions: S.Array(FallowRawAction),
+}).pipe(
+  $I.annoteSchema("FallowHealthFinding", {
+    description: "Raw Fallow health finding shape.",
+  })
+);
+const FallowFeatureFlagFinding = S.Struct({
+  path: S.String,
+  line: S.Finite,
+}).pipe(
+  $I.annoteSchema("FallowFeatureFlagFinding", {
+    description: "Raw Fallow feature flag finding shape.",
+  })
+);
+const FallowSecurityTracePoint = S.Struct({
+  path: S.String,
+  line: S.Finite,
+  col: S.Finite,
+  role: S.String,
+}).pipe(
+  $I.annoteSchema("FallowSecurityTracePoint", {
+    description: "Raw Fallow security trace point shape.",
+  })
+);
+const FallowSecurityFinding = S.Struct({
+  kind: S.String,
+  category: S.optionalKey(S.String),
+  cwe: S.optionalKey(S.Finite),
+  path: S.String,
+  line: S.Finite,
+  col: S.Finite,
+  evidence: S.String,
+  trace: S.Array(FallowSecurityTracePoint),
+  actions: S.Array(FallowRawAction),
+}).pipe(
+  $I.annoteSchema("FallowSecurityFinding", {
+    description: "Raw Fallow security finding shape.",
+  })
+);
+const FallowFixPreviewFinding = S.Struct({
+  type: S.String,
+  path: S.optionalKey(S.String),
+  file: S.optionalKey(S.String),
+  line: S.optionalKey(S.Finite),
+}).pipe(
+  $I.annoteSchema("FallowFixPreviewFinding", {
+    description: "Raw Fallow fix dry-run item shape.",
+  })
+);
+const FallowDeadCodeSummaryRawReport = S.Struct({
+  total_issues: S.Finite,
+  unused_files: S.Finite,
+  unused_exports: S.Finite,
+  unused_types: S.Finite,
+  unused_dependencies: S.Finite,
+  unresolved_imports: S.Finite,
+  unlisted_dependencies: S.Finite,
+  boundary_violations: S.Finite,
+});
+const FallowEntryPointsRawReport = S.Struct({
+  total: S.Finite,
+  sources: S.Record(S.String, S.Finite),
+}).pipe(
+  $I.annoteSchema("FallowEntryPointsRawReport", {
+    description: "Raw Fallow entry point summary emitted by dead-code JSON output.",
+  })
+);
+const FallowAuditRawReport = S.Struct({
+  kind: S.Literal("audit"),
+  ...FallowVersionedRawFields,
+  command: S.Literal("audit"),
+  verdict: S.String,
+  changed_files_count: S.Finite,
+  base_ref: S.String,
+  summary: S.Struct({
+    dead_code_issues: S.Finite,
+    dead_code_has_errors: S.Boolean,
+    complexity_findings: S.Finite,
+    max_cyclomatic: S.NullOr(S.Finite),
+    duplication_clone_groups: S.Finite,
+  }),
+  attribution: S.Struct({
+    gate: S.String,
+    dead_code_introduced: S.Finite,
+    dead_code_inherited: S.Finite,
+    complexity_introduced: S.Finite,
+    complexity_inherited: S.Finite,
+    duplication_introduced: S.Finite,
+    duplication_inherited: S.Finite,
+  }),
+}).pipe(
+  $I.annoteSchema("FallowAuditRawReport", {
+    description: "Raw Fallow audit JSON shape accepted by the P1 wrapper.",
+  })
+);
+const FallowDeadCodeRawReport = S.Struct({
+  kind: S.Literal("dead-code"),
+  ...FallowVersionedRawFields,
+  total_issues: S.Finite,
+  entry_points: FallowEntryPointsRawReport,
+  summary: FallowDeadCodeSummaryRawReport,
+  unused_files: FallowIssueArray,
+  unused_exports: FallowIssueArray,
+  unused_types: FallowIssueArray,
+  private_type_leaks: FallowIssueArray,
+  unused_dependencies: FallowIssueArray,
+  unused_dev_dependencies: FallowIssueArray,
+  unused_optional_dependencies: FallowIssueArray,
+  unused_enum_members: FallowIssueArray,
+  unused_class_members: FallowIssueArray,
+  unresolved_imports: FallowIssueArray,
+  unlisted_dependencies: FallowIssueArray,
+  duplicate_exports: FallowIssueArray,
+  type_only_dependencies: FallowIssueArray,
+  test_only_dependencies: FallowIssueArray,
+  circular_dependencies: FallowIssueArray,
+  re_export_cycles: FallowIssueArray,
+  boundary_violations: FallowIssueArray,
+  stale_suppressions: FallowIssueArray,
+  unused_catalog_entries: FallowIssueArray,
+  empty_catalog_groups: FallowIssueArray,
+  unresolved_catalog_references: FallowIssueArray,
+  unused_dependency_overrides: FallowIssueArray,
+  misconfigured_dependency_overrides: FallowIssueArray,
+}).pipe(
+  $I.annoteSchema("FallowDeadCodeRawReport", {
+    description: "Raw Fallow dead-code JSON shape accepted by dead-code and boundary lanes.",
+  })
+);
+const FallowDupesRawReport = S.Struct({
+  kind: S.Literal("dupes"),
+  ...FallowVersionedRawFields,
+  clone_groups: S.Array(FallowCloneGroup),
+  clone_families: S.Array(FallowCloneFamily),
+  stats: S.Record(S.String, S.Unknown),
+}).pipe(
+  $I.annoteSchema("FallowDupesRawReport", {
+    description: "Raw Fallow duplication JSON shape accepted by the P1 wrapper.",
+  })
+);
+const FallowHealthRawReport = S.Struct({
+  kind: S.Literal("health"),
+  ...FallowVersionedRawFields,
+  findings: S.Array(FallowHealthFinding),
+  summary: S.Struct({
+    files_analyzed: S.Finite,
+    functions_analyzed: S.Finite,
+    functions_above_threshold: S.Finite,
+    average_maintainability: S.Finite,
+    severity_critical_count: S.Finite,
+    severity_high_count: S.Finite,
+    severity_moderate_count: S.Finite,
+  }),
+}).pipe(
+  $I.annoteSchema("FallowHealthRawReport", {
+    description: "Raw Fallow health JSON shape accepted by the P1 wrapper.",
+  })
+);
+const FallowFlagsRawReport = S.Struct({
+  ...FallowVersionedRawFields,
+  feature_flags: S.Array(FallowFeatureFlagFinding),
+  total_flags: S.Finite,
+}).pipe(
+  $I.annoteSchema("FallowFlagsRawReport", {
+    description: "Raw Fallow flags JSON shape accepted by the P1 wrapper.",
+  })
+);
+const FallowSecurityRawReport = S.Struct({
+  kind: S.Literal("security"),
+  schema_version: S.Union([S.Finite, S.String]),
+  security_findings: S.Array(FallowSecurityFinding),
+  unresolved_edge_files: S.Finite,
+  unresolved_callee_sites: S.Finite,
+}).pipe(
+  $I.annoteSchema("FallowSecurityRawReport", {
+    description: "Raw Fallow security JSON shape accepted by the P1 wrapper.",
+  })
+);
+const FallowFixPreviewRawReport = S.Struct({
+  dry_run: S.Literal(true),
+  fixes: S.Array(FallowFixPreviewFinding),
+  total_fixed: S.Finite,
+  skipped: S.Finite,
+  skipped_content_changed: S.Finite,
+  skipped_low_confidence_exports: S.Finite,
+  skipped_mixed_line_endings: S.Finite,
+}).pipe(
+  $I.annoteSchema("FallowFixPreviewRawReport", {
+    description: "Raw Fallow fix dry-run JSON shape accepted by the P1 wrapper.",
+  })
+);
+const decodeFallowAuditRawReportOption = S.decodeUnknownOption(FallowAuditRawReport);
+const decodeFallowDeadCodeRawReportOption = S.decodeUnknownOption(FallowDeadCodeRawReport);
+const decodeFallowDupesRawReportOption = S.decodeUnknownOption(FallowDupesRawReport);
+const decodeFallowHealthRawReportOption = S.decodeUnknownOption(FallowHealthRawReport);
+const decodeFallowFlagsRawReportOption = S.decodeUnknownOption(FallowFlagsRawReport);
+const decodeFallowSecurityRawReportOption = S.decodeUnknownOption(FallowSecurityRawReport);
+const decodeFallowFixPreviewRawReportOption = S.decodeUnknownOption(FallowFixPreviewRawReport);
+
+type FallowFinding = FallowReportFinding;
 type FallowQualityEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
 type FallowCommandOptions = {
   readonly advisory: boolean;
@@ -204,6 +534,8 @@ type FallowCommandOptions = {
   readonly quiet: boolean;
 };
 type ProcessResult = {
+  readonly stdout: string;
+  readonly stderr: string;
   readonly output: string;
   readonly exitCode: number;
 };
@@ -226,43 +558,32 @@ const normalizePath = Str.replaceAll("\\", "/");
 const parserName = (feature: FallowFeature): string => `fallow/${feature}/v1`;
 const subCategoryName = (feature: FallowFeature, rule: string): string => `fallow:${feature}:${rule}`;
 const slugify = (value: string): string =>
-  Str.toLowerCase(value)
-    .replace(/[^a-z0-9]+/gu, "-")
-    .replace(/^-|-$/gu, "");
+  pipe(value, flow(Str.toLowerCase, Str.replace(/[^a-z0-9]+/gu, "-"), Str.replace(/^-|-$/gu, "")));
 
 const unknownRecordProperty = (value: unknown, key: string): O.Option<unknown> =>
   pipe(
     decodeUnknownRecordOption(value),
-    O.flatMap((record) => O.fromNullable(record[key]))
+    O.flatMap((record) => O.fromUndefinedOr(record[key]))
   );
 
 const unknownNumberProperty = (value: unknown, key: string): O.Option<number> =>
   pipe(unknownRecordProperty(value, key), O.flatMap(decodeNumberOption));
 
-const unknownStringProperty = (value: unknown, key: string): O.Option<string> =>
-  pipe(unknownRecordProperty(value, key), O.flatMap(decodeStringOption));
-
-const nonZeroNumberProperty = (value: unknown, key: string): O.Option<number> =>
-  pipe(
-    unknownNumberProperty(value, key),
-    O.filter((count) => count > 0)
-  );
-
 const countFor = (findings: ReadonlyArray<FallowFinding>, attribution: typeof FindingAttributionKind.Type): number =>
   pipe(
     findings,
-    A.filter((finding) => finding.attribution === attribution),
+    A.filter((finding) => sameAttributionKind(finding.attribution, attribution)),
     A.length
   );
 
 const attributionSummary = (findings: ReadonlyArray<FallowFinding>): FindingAttributionSummary =>
   FindingAttributionSummary.make({
-    introduced: countFor(findings, "introduced"),
-    inheritedAdjacent: countFor(findings, "inherited-adjacent"),
-    notApplicable: countFor(findings, "not-applicable"),
+    introduced: NonNegativeInt.make(countFor(findings, "introduced")),
+    inheritedAdjacent: NonNegativeInt.make(countFor(findings, "inherited-adjacent")),
+    notApplicable: NonNegativeInt.make(countFor(findings, "not-applicable")),
   });
 
-const attributionKinds = (findings: ReadonlyArray<FallowFinding>): ReadonlyArray<typeof FindingAttributionKind.Type> => {
+const attributionKinds = (findings: ReadonlyArray<FallowFinding>): FallowAttributionKinds => {
   const discovered = pipe(
     findings,
     A.map((finding) => finding.attribution),
@@ -272,13 +593,32 @@ const attributionKinds = (findings: ReadonlyArray<FallowFinding>): ReadonlyArray
   return A.isReadonlyArrayNonEmpty(discovered) ? discovered : ["not-applicable"];
 };
 
+const attributionKindSetDiagnostics = (
+  label: string,
+  expected: ReadonlyArray<typeof FindingAttributionKind.Type>,
+  actual: ReadonlyArray<typeof FindingAttributionKind.Type>
+): ReadonlyArray<string> => {
+  const missing = pipe(
+    expected,
+    A.filter((kind) => !A.some(actual, (actualKind) => sameAttributionKind(kind, actualKind)))
+  );
+  const extra = pipe(
+    actual,
+    A.filter((kind) => !A.some(expected, (expectedKind) => sameAttributionKind(kind, expectedKind)))
+  );
+  return A.isReadonlyArrayEmpty(missing) && A.isReadonlyArrayEmpty(extra)
+    ? A.empty()
+    : [`${label} mismatch. Missing: ${A.join(missing, ", ") || "none"}. Extra: ${A.join(extra, ", ") || "none"}.`];
+};
+
 const auditFinding = (
   rule: string,
   attribution: typeof FindingAttributionKind.Type,
-  feature: FallowFeature
+  feature: FallowFeature,
+  index?: number
 ): FallowFinding =>
   FallowReportFinding.make({
-    id: `${feature}-${attribution}-${rule}`,
+    id: `${feature}-${attribution}-${rule}${index === undefined ? "" : `-${index + 1}`}`,
     featureFamily: feature,
     attribution,
     parser: parserName(feature),
@@ -286,6 +626,17 @@ const auditFinding = (
     blocking: false,
     sourceRef: fallbackSourceRef,
   });
+
+const auditFindingsForCount = (
+  rule: string,
+  attribution: typeof FindingAttributionKind.Type,
+  count: number
+): ReadonlyArray<FallowFinding> =>
+  A.unfold(0, (index) =>
+    index < rawCountValue(count)
+      ? O.some([auditFinding(rule, attribution, "audit", index), index + 1] as const)
+      : O.none()
+  );
 
 const normalizeAuditFindings = (document: unknown): ReadonlyArray<FallowFinding> => {
   const attribution = pipe(unknownRecordProperty(document, "attribution"), O.getOrUndefined);
@@ -305,7 +656,14 @@ const normalizeAuditFindings = (document: unknown): ReadonlyArray<FallowFinding>
   return pipe(
     candidates,
     A.flatMap(([key, rule, attributionKind]) =>
-      O.isSome(nonZeroNumberProperty(attribution, key)) ? A.of(auditFinding(rule, attributionKind, "audit")) : A.empty()
+      auditFindingsForCount(
+        rule,
+        attributionKind,
+        pipe(
+          unknownNumberProperty(attribution, key),
+          O.getOrElse(() => 0)
+        )
+      )
     )
   );
 };
@@ -320,37 +678,158 @@ const normalizeSummaryFindings = (feature: FallowFeature, document: unknown): Re
   return pipe(
     R.keys(summaryRecord.value),
     A.flatMap((key) =>
-      O.isSome(nonZeroNumberProperty(summaryRecord.value, key))
-        ? A.of(
-            FallowReportFinding.make({
-              id: `${feature}-not-applicable-${slugify(key)}`,
-              featureFamily: feature,
-              attribution: "not-applicable",
-              parser: parserName(feature),
-              subCategory: subCategoryName(feature, slugify(key)),
-              blocking: false,
-              sourceRef: fallbackSourceRef,
-            })
+      key === "total_issues"
+        ? A.empty()
+        : findingsForCount(
+            feature,
+            slugify(key),
+            pipe(
+              unknownNumberProperty(summaryRecord.value, key),
+              O.getOrElse(() => 0)
+            )
           )
-        : A.empty()
     )
   );
 };
 
-const normalizeFindings = (feature: FallowFeature, document: unknown): ReadonlyArray<FallowFinding> =>
-  feature === "audit" ? normalizeAuditFindings(document) : normalizeSummaryFindings(feature, document);
+const rawCountValue = (count: number): number => (Number.isFinite(count) ? Math.max(0, Math.trunc(count)) : 0);
 
-const extractJsonDocumentText = (output: string): O.Option<string> => {
-  const start = output.indexOf("{");
-  const end = output.lastIndexOf("}");
+const notApplicableFinding = (feature: FallowFeature, rule: string, index?: number): FallowFinding =>
+  FallowReportFinding.make({
+    id: `${feature}-not-applicable-${slugify(rule)}${index === undefined ? "" : `-${index + 1}`}`,
+    featureFamily: feature,
+    attribution: "not-applicable",
+    parser: parserName(feature),
+    subCategory: subCategoryName(feature, slugify(rule)),
+    blocking: false,
+    sourceRef: fallbackSourceRef,
+  });
 
-  return start < 0 || end < start ? O.none() : O.some(output.slice(start, end + 1));
+const findingsForCount = (feature: FallowFeature, rule: string, count: number): ReadonlyArray<FallowFinding> =>
+  A.unfold(0, (index) =>
+    index < rawCountValue(count) ? O.some([notApplicableFinding(feature, rule, index), index + 1] as const) : O.none()
+  );
+
+const rawArrayCount = (document: unknown, key: string): number =>
+  pipe(
+    unknownRecordProperty(document, key),
+    O.flatMap(decodeUnknownArrayOption),
+    O.match({
+      onNone: () => 0,
+      onSome: A.length,
+    })
+  );
+
+const rawSummaryIssueCount = (document: unknown): number => {
+  const totalIssues = unknownNumberProperty(document, "total_issues");
+  if (O.isSome(totalIssues)) {
+    return rawCountValue(totalIssues.value);
+  }
+
+  const summary = pipe(unknownRecordProperty(document, "summary"), O.getOrUndefined);
+  const summaryRecord = decodeUnknownRecordOption(summary);
+  if (O.isNone(summaryRecord)) {
+    return 0;
+  }
+
+  return pipe(
+    R.keys(summaryRecord.value),
+    A.reduce(0, (total, key) =>
+      key === "total_issues"
+        ? total
+        : total +
+          rawCountValue(
+            pipe(
+              unknownNumberProperty(summaryRecord.value, key),
+              O.getOrElse(() => 0)
+            )
+          )
+    )
+  );
 };
+
+const normalizeArrayFindings = (
+  feature: FallowFeature,
+  document: unknown,
+  key: string,
+  rule: string
+): ReadonlyArray<FallowFinding> => findingsForCount(feature, rule, rawArrayCount(document, key));
+
+const normalizeFlagsFindings = (document: unknown): ReadonlyArray<FallowFinding> =>
+  findingsForCount(
+    "flags",
+    "feature-flags",
+    pipe(
+      unknownNumberProperty(document, "total_flags"),
+      O.getOrElse(() => rawArrayCount(document, "feature_flags"))
+    )
+  );
+
+const normalizeFindings = (feature: FallowFeature, document: unknown): ReadonlyArray<FallowFinding> =>
+  FallowFeatureFamily.$match(feature, {
+    audit: () => normalizeAuditFindings(document),
+    boundaries: () => normalizeSummaryFindings(feature, document),
+    "dead-code": () => normalizeSummaryFindings(feature, document),
+    dupes: () => normalizeArrayFindings(feature, document, "clone_groups", "clone-groups"),
+    "fix-preview": () => normalizeArrayFindings(feature, document, "fixes", "fixes"),
+    flags: () => normalizeFlagsFindings(document),
+    health: () => normalizeArrayFindings(feature, document, "findings", "complexity-findings"),
+    security: () => normalizeArrayFindings(feature, document, "security_findings", "security-findings"),
+  });
+
+const rawFindingCount = (feature: FallowFeature, document: unknown): number =>
+  FallowFeatureFamily.$match(feature, {
+    audit: () => A.length(normalizeAuditFindings(document)),
+    boundaries: () => rawSummaryIssueCount(document),
+    "dead-code": () => rawSummaryIssueCount(document),
+    dupes: () => rawArrayCount(document, "clone_groups"),
+    "fix-preview": () => rawArrayCount(document, "fixes"),
+    flags: () =>
+      rawCountValue(
+        pipe(
+          unknownNumberProperty(document, "total_flags"),
+          O.getOrElse(() => rawArrayCount(document, "feature_flags"))
+        )
+      ),
+    health: () => rawArrayCount(document, "findings"),
+    security: () => rawArrayCount(document, "security_findings"),
+  });
+
+const extractJsonDocumentText = (output: string): O.Option<string> =>
+  pipe(
+    Str.match(/\{[\s\S]*\}/u)(output),
+    O.flatMap((match) => O.fromUndefinedOr(match[0]))
+  );
+
+const normalizeToolVersion = (output: string): string =>
+  pipe(
+    Str.match(/fallow\s+\d+\.\d+\.\d+/u)(output),
+    O.flatMap((match) => O.fromUndefinedOr(match[0])),
+    O.getOrElse(() => {
+      const trimmed = Str.trim(output);
+      return Str.isNonEmpty(trimmed) ? trimmed : "fallow unknown";
+    })
+  );
 
 const stderrExcerpt = (output: string): string => {
   const trimmed = Str.trim(output);
-  return trimmed.length > 0 ? trimmed.slice(0, 4000) : "fallow emitted no output";
+  return Str.isNonEmpty(trimmed) ? Str.slice(0, 4000)(trimmed) : "fallow emitted no stderr";
 };
+
+const combineProcessOutput = (stdout: string, stderr: string): string =>
+  pipe([Str.trim(stdout), Str.trim(stderr)], A.filter(Str.isNonEmpty), A.join("\n"));
+
+const collectText = <E, R>(stream: Stream.Stream<Uint8Array, E, R>): Effect.Effect<string, E, R> =>
+  stream.pipe(
+    Stream.decodeText(),
+    Stream.runFold(
+      () => "",
+      (acc, chunk) => acc + chunk
+    )
+  );
+
+const formatEpochMillis = (millis: number): string =>
+  Number.isFinite(millis) && millis >= 0 ? DateTime.formatIso(DateTime.makeUnsafe(millis)) : "unknown";
 
 const collectProcessOutput = Effect.fn("FallowQuality.collectProcessOutput")(function* (
   repoRoot: string,
@@ -365,16 +844,14 @@ const collectProcessOutput = Effect.fn("FallowQuality.collectProcessOutput")(fun
         stdout: "pipe",
         stderr: "pipe",
       });
-      const output = yield* handle.all.pipe(
-        Stream.decodeText(),
-        Stream.runFold(
-          () => "",
-          (acc, chunk) => acc + chunk
-        )
+      const [stdout, stderr, exitCode] = yield* Effect.all(
+        [collectText(handle.stdout), collectText(handle.stderr), handle.exitCode],
+        { concurrency: "unbounded" }
       );
-      const exitCode = yield* handle.exitCode;
       return {
-        output,
+        stdout,
+        stderr,
+        output: combineProcessOutput(stdout, stderr),
         exitCode,
       };
     })
@@ -396,8 +873,12 @@ const collectOptionalOutput = Effect.fn("FallowQuality.collectOptionalOutput")(f
     return fallback;
   }
 
-  const jsonText = pipe(extractJsonDocumentText(result.value.output), O.getOrUndefined);
-  return Str.trim(jsonText ?? result.value.output) || fallback;
+  const outputText = pipe(
+    extractJsonDocumentText(result.value.output),
+    O.getOrElse(() => result.value.output)
+  );
+  const trimmed = Str.trim(outputText);
+  return Str.isNonEmpty(trimmed) ? trimmed : fallback;
 });
 
 const resolveReportPath = Effect.fn("FallowQuality.resolveReportPath")(function* (
@@ -408,7 +889,13 @@ const resolveReportPath = Effect.fn("FallowQuality.resolveReportPath")(function*
   const path = yield* Path.Path;
   const absolute = path.isAbsolute(out) ? out : path.join(repoRoot, out);
   const relative = normalizePath(path.relative(repoRoot, absolute));
-  const rawRelative = normalizePath(path.join(path.dirname(relative), "raw", `${feature}.stdout.json`));
+  const rawBasename = pipe(
+    path.basename(relative),
+    Str.replace(/\.[^.]+$/u, ""),
+    O.liftPredicate(Str.isNonEmpty),
+    O.getOrElse(() => feature)
+  );
+  const rawRelative = normalizePath(path.join(path.dirname(relative), "raw", `${rawBasename}.combined.txt`));
   const rawAbsolute = path.join(repoRoot, rawRelative);
 
   return {
@@ -422,99 +909,131 @@ const resolveReportPath = Effect.fn("FallowQuality.resolveReportPath")(function*
 const fallowArgs = (feature: FallowFeature, base: string, quiet: boolean): ReadonlyArray<string> => {
   const quietArgs = quiet ? ["--quiet"] : [];
 
-  switch (feature) {
-    case "audit":
-      return [
-        "run",
-        "fallow",
-        "--",
-        "audit",
-        "--config",
-        ".fallowrc.jsonc",
-        "--format",
-        "json",
-        ...quietArgs,
-        "--base",
-        base,
-        "--gate",
-        "new-only",
-      ];
-    case "dead-code":
-      return [
-        "run",
-        "fallow",
-        "--",
-        "dead-code",
-        "--config",
-        ".fallowrc.jsonc",
-        "--format",
-        "json",
-        ...quietArgs,
-        "--summary",
-      ];
-    case "dupes":
-      return ["run", "fallow", "--", "dupes", "--config", ".fallowrc.jsonc", "--format", "json", ...quietArgs, "--top", "50"];
-    case "health":
-      return [
-        "run",
-        "fallow",
-        "--",
-        "health",
-        "--config",
-        ".fallowrc.jsonc",
-        "--format",
-        "json",
-        ...quietArgs,
-        "--report-only",
-        "--top",
-        "50",
-      ];
-    case "boundaries":
-      return [
-        "run",
-        "fallow",
-        "--",
-        "dead-code",
-        "--boundary-violations",
-        "--config",
-        "standards/fallow.boundaries.generated.jsonc",
-        "--format",
-        "json",
-        ...quietArgs,
-        "--summary",
-      ];
-    case "flags":
-      return [
-        "run",
-        "fallow",
-        "--",
-        "flags",
-        "--config",
-        ".fallowrc.jsonc",
-        "--format",
-        "json",
-        ...quietArgs,
-        "--summary",
-        "--top",
-        "50",
-      ];
-    case "security":
-      return [
-        "run",
-        "fallow",
-        "--",
-        "security",
-        "--config",
-        ".fallowrc.jsonc",
-        "--format",
-        "json",
-        ...quietArgs,
-        "--summary",
-      ];
-    case "fix-preview":
-      return ["run", "fallow", "--", "fix", "--dry-run", "--format", "json", "--no-create-config"];
-  }
+  return FallowFeatureFamily.$match(feature, {
+    audit: () => [
+      "run",
+      "fallow",
+      "--",
+      "audit",
+      "--config",
+      ".fallowrc.jsonc",
+      "--format",
+      "json",
+      ...quietArgs,
+      "--base",
+      base,
+      "--gate",
+      "new-only",
+    ],
+    "dead-code": () => [
+      "run",
+      "fallow",
+      "--",
+      "dead-code",
+      "--config",
+      ".fallowrc.jsonc",
+      "--format",
+      "json",
+      ...quietArgs,
+      "--summary",
+    ],
+    dupes: () => [
+      "run",
+      "fallow",
+      "--",
+      "dupes",
+      "--config",
+      ".fallowrc.jsonc",
+      "--format",
+      "json",
+      ...quietArgs,
+      "--top",
+      "50",
+    ],
+    health: () => [
+      "run",
+      "fallow",
+      "--",
+      "health",
+      "--config",
+      ".fallowrc.jsonc",
+      "--format",
+      "json",
+      ...quietArgs,
+      "--report-only",
+      "--top",
+      "50",
+    ],
+    boundaries: () => [
+      "run",
+      "fallow",
+      "--",
+      "dead-code",
+      "--boundary-violations",
+      "--config",
+      "standards/fallow.boundaries.generated.jsonc",
+      "--format",
+      "json",
+      ...quietArgs,
+      "--summary",
+    ],
+    flags: () => [
+      "run",
+      "fallow",
+      "--",
+      "flags",
+      "--config",
+      ".fallowrc.jsonc",
+      "--format",
+      "json",
+      ...quietArgs,
+      "--summary",
+      "--top",
+      "50",
+    ],
+    security: () => [
+      "run",
+      "fallow",
+      "--",
+      "security",
+      "--config",
+      ".fallowrc.jsonc",
+      "--format",
+      "json",
+      ...quietArgs,
+      "--summary",
+    ],
+    "fix-preview": () => ["run", "fallow", "--", "fix", "--dry-run", "--format", "json", "--no-create-config"],
+  });
 };
+
+const wrapperArgs = (feature: FallowFeature, options: FallowCommandOptions, out: string): ReadonlyArray<string> => [
+  "quality",
+  "fallow",
+  feature,
+  ...(options.advisory ? ["--advisory"] : []),
+  "--base",
+  options.base,
+  ...(options.check ? ["--check"] : []),
+  "--out",
+  out,
+  ...(options.quiet ? ["--quiet"] : []),
+];
+
+const renderWrapperCommand = (feature: FallowFeature, options: FallowCommandOptions, out: string): string =>
+  commandText("beep", wrapperArgs(feature, options, out));
+
+const hasFallowReportShape = (feature: FallowFeature, document: unknown): boolean =>
+  FallowFeatureFamily.$match(feature, {
+    audit: () => O.isSome(decodeFallowAuditRawReportOption(document)),
+    boundaries: () => O.isSome(decodeFallowDeadCodeRawReportOption(document)),
+    "dead-code": () => O.isSome(decodeFallowDeadCodeRawReportOption(document)),
+    dupes: () => O.isSome(decodeFallowDupesRawReportOption(document)),
+    "fix-preview": () => O.isSome(decodeFallowFixPreviewRawReportOption(document)),
+    flags: () => O.isSome(decodeFallowFlagsRawReportOption(document)),
+    health: () => O.isSome(decodeFallowHealthRawReportOption(document)),
+    security: () => O.isSome(decodeFallowSecurityRawReportOption(document)),
+  });
 
 const baseEnvelope = (
   feature: FallowFeature,
@@ -525,9 +1044,9 @@ const baseEnvelope = (
   dirtyWorktree: boolean,
   findings: ReadonlyArray<FallowFinding>
 ) => ({
-  schemaVersion: "fallow-report-envelope/v1",
+  schemaVersion: "fallow-report-envelope/v1" as const,
   toolVersion,
-  command: `beep quality fallow ${feature} --base ${options.base}`,
+  command: renderWrapperCommand(feature, options, paths.relative),
   subcommand: feature,
   baseRef: options.base,
   generatedAt,
@@ -548,19 +1067,22 @@ const makeOkEnvelope = (
   dirtyWorktree: boolean,
   exitStatus: number,
   decoded: unknown
-) => {
+): FallowReportOk => {
   const findings = normalizeFindings(feature, decoded);
 
-  return {
+  return FallowReportOk.make({
     ...baseEnvelope(feature, options, paths, generatedAt, toolVersion, dirtyWorktree, findings),
     status: "ok",
-    exitStatus,
+    exitStatus: NonNegativeInt.make(exitStatus),
     report: FallowReportPayload.make({
-      findingCount: A.length(findings),
+      findingCount: NonNegativeInt.make(A.length(findings)),
       findings,
     }),
-  };
+  });
 };
+
+const positiveExitStatus = (exitStatus: number): typeof PositiveExitStatus.Type =>
+  PositiveExitStatus.make(exitStatus > 0 ? exitStatus : 1);
 
 const makeFailureEnvelope = (
   feature: FallowFeature,
@@ -569,23 +1091,52 @@ const makeFailureEnvelope = (
   generatedAt: string,
   toolVersion: string,
   dirtyWorktree: boolean,
-  status: typeof FallowEnvelopeStatus.Type,
+  status: typeof FallowFailureEnvelopeStatus.Type,
   exitStatus: number,
   message: string
-) => ({
-  ...baseEnvelope(feature, options, paths, generatedAt, toolVersion, dirtyWorktree, A.empty()),
-  status,
-  exitStatus,
-  stderrExcerpt: message,
-});
+): FallowReportToolFailed | FallowReportInvalidJson | FallowReportInvalidReport | FallowReportBaseResolutionFailed => {
+  const base = baseEnvelope(feature, options, paths, generatedAt, toolVersion, dirtyWorktree, A.empty());
+  return FallowFailureEnvelopeStatus.$match(status, {
+    "base-resolution-failed": () =>
+      FallowReportBaseResolutionFailed.make({
+        ...base,
+        status: "base-resolution-failed",
+        exitStatus: positiveExitStatus(exitStatus),
+        stderrExcerpt: message,
+      }),
+    "invalid-json": () =>
+      FallowReportInvalidJson.make({
+        ...base,
+        status: "invalid-json",
+        exitStatus: NonNegativeInt.make(exitStatus),
+        stderrExcerpt: message,
+      }),
+    "invalid-report": () =>
+      FallowReportInvalidReport.make({
+        ...base,
+        status: "invalid-report",
+        exitStatus: NonNegativeInt.make(exitStatus),
+        stderrExcerpt: message,
+      }),
+    "tool-failed": () =>
+      FallowReportToolFailed.make({
+        ...base,
+        status: "tool-failed",
+        exitStatus: positiveExitStatus(exitStatus),
+        stderrExcerpt: message,
+      }),
+  });
+};
 
-const encodeEnvelope = (envelope: unknown): Effect.Effect<string, QualityScriptCommandError> =>
-  encodeJsonText(envelope).pipe(QualityScriptCommandError.mapError("Failed to encode Fallow report envelope."));
+const encodeEnvelope = (envelope: typeof FallowReportEnvelope.Type): Effect.Effect<string, QualityScriptCommandError> =>
+  encodeFallowEnvelopeJson(envelope).pipe(
+    QualityScriptCommandError.mapError("Failed to encode Fallow report envelope.")
+  );
 
 const writeEnvelope = Effect.fn("FallowQuality.writeEnvelope")(function* (
   paths: ReportPathResolution,
   rawOutput: string,
-  envelope: unknown
+  envelope: typeof FallowReportEnvelope.Type
 ): Effect.fn.Return<void, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -618,12 +1169,80 @@ const resolveBaseRef = Effect.fn("FallowQuality.resolveBaseRef")(function* (
   base: string
 ): Effect.fn.Return<ProcessResult, never, ChildProcessSpawner.ChildProcessSpawner> {
   return yield* collectProcessOutput(repoRoot, "git", ["rev-parse", "--verify", base]).pipe(
-    Effect.catchAll(() =>
-      Effect.succeed({
-        output: `unable to resolve base ref ${base}`,
-        exitCode: 128,
-      })
-    )
+    Effect.orElseSucceed(() => ({
+      stdout: "",
+      stderr: `unable to resolve base ref ${base}`,
+      output: `unable to resolve base ref ${base}`,
+      exitCode: 128,
+    }))
+  );
+});
+
+const hasPromotedBlockingFindings = (envelope: typeof FallowReportEnvelope.Type): boolean =>
+  pipe(
+    decodeFallowReportOkOption(envelope),
+    O.match({
+      onNone: () => false,
+      onSome: (okEnvelope) => A.some(okEnvelope.report.findings, (finding) => finding.blocking),
+    })
+  );
+
+const shouldFailInvocation = (envelope: typeof FallowReportEnvelope.Type, options: FallowCommandOptions): boolean => {
+  if (!sameEnvelopeStatus(envelope.status, "ok")) {
+    return options.check || !options.advisory;
+  }
+  if (options.check) {
+    return hasPromotedBlockingFindings(envelope);
+  }
+  return options.advisory ? false : envelope.exitStatus !== 0;
+};
+
+const envelopeFromProcessResult = Effect.fn("FallowQuality.envelopeFromProcessResult")(function* (
+  feature: FallowFeature,
+  options: FallowCommandOptions,
+  paths: ReportPathResolution,
+  generatedAt: string,
+  toolVersion: string,
+  dirty: boolean,
+  result: ProcessResult
+): Effect.fn.Return<typeof FallowReportEnvelope.Type, never, never> {
+  const jsonText = pipe(extractJsonDocumentText(result.stdout), O.getOrUndefined);
+  const decoded = P.isUndefined(jsonText) ? O.none() : yield* decodeJsonText(jsonText).pipe(Effect.option);
+
+  return pipe(
+    decoded,
+    O.match({
+      onNone: () =>
+        makeFailureEnvelope(
+          feature,
+          options,
+          paths,
+          generatedAt,
+          toolVersion,
+          dirty,
+          result.exitCode === 0 ? "invalid-json" : "tool-failed",
+          result.exitCode,
+          result.exitCode === 0
+            ? `fallow emitted output that could not be decoded as JSON: ${stderrExcerpt(result.stderr)}`
+            : stderrExcerpt(result.stderr)
+        ),
+      onSome: (document) =>
+        hasFallowReportShape(feature, document)
+          ? makeOkEnvelope(feature, options, paths, generatedAt, toolVersion, dirty, result.exitCode, document)
+          : makeFailureEnvelope(
+              feature,
+              options,
+              paths,
+              generatedAt,
+              toolVersion,
+              dirty,
+              "invalid-report",
+              result.exitCode,
+              `fallow emitted JSON that did not match the expected ${feature} report shape: ${stderrExcerpt(
+                result.stderr
+              )}`
+            ),
+    })
   );
 });
 
@@ -635,8 +1254,14 @@ const runFallowFeature = Effect.fn("FallowQuality.runFallowFeature")(function* (
   const paths = yield* resolveReportPath(repoRoot, options.out, feature);
   const generatedAt = yield* DateTime.now.pipe(Effect.map(DateTime.formatIso));
   const isDirty = yield* dirtyWorktree(repoRoot);
-  const toolVersion = yield* collectOptionalOutput(repoRoot, "bun", ["run", "fallow", "--", "--version"], "fallow unknown");
-  const baseResult = feature === "audit" ? yield* resolveBaseRef(repoRoot, options.base) : { output: "", exitCode: 0 };
+  const toolVersionOutput = yield* collectOptionalOutput(
+    repoRoot,
+    "bun",
+    ["run", "fallow", "--", "--version"],
+    "fallow unknown"
+  );
+  const toolVersion = normalizeToolVersion(toolVersionOutput);
+  const baseResult = yield* resolveBaseRef(repoRoot, options.base);
 
   if (baseResult.exitCode !== 0) {
     const envelope = makeFailureEnvelope(
@@ -648,10 +1273,10 @@ const runFallowFeature = Effect.fn("FallowQuality.runFallowFeature")(function* (
       isDirty,
       "base-resolution-failed",
       baseResult.exitCode,
-      `unable to resolve base ref ${options.base}: ${stderrExcerpt(baseResult.output)}`
+      `unable to resolve base ref ${options.base}: ${stderrExcerpt(baseResult.stderr)}`
     );
     yield* writeEnvelope(paths, baseResult.output, envelope);
-    if (!options.advisory) {
+    if (shouldFailInvocation(envelope, options)) {
       return yield* QualityScriptCommandError.make({
         message: `Unable to resolve Fallow base ref ${options.base}.`,
         command: `git rev-parse --verify ${options.base}`,
@@ -661,35 +1286,17 @@ const runFallowFeature = Effect.fn("FallowQuality.runFallowFeature")(function* (
     return;
   }
 
-  const args = fallowArgs(feature, options.base, true);
+  const args = fallowArgs(feature, options.base, options.quiet);
   const result = yield* collectProcessOutput(repoRoot, "bun", args);
-  const jsonText = pipe(extractJsonDocumentText(result.output), O.getOrUndefined);
-  const decoded = jsonText === undefined ? O.none() : yield* decodeJsonText(jsonText).pipe(Effect.option);
-  const envelope =
-    O.isSome(decoded)
-      ? makeOkEnvelope(feature, options, paths, generatedAt, toolVersion, isDirty, result.exitCode, decoded.value)
-      : makeFailureEnvelope(
-          feature,
-          options,
-          paths,
-          generatedAt,
-          toolVersion,
-          isDirty,
-          result.exitCode === 0 ? "invalid-json" : "tool-failed",
-          result.exitCode,
-          result.exitCode === 0
-            ? `fallow emitted output that could not be decoded as JSON: ${stderrExcerpt(result.output)}`
-            : stderrExcerpt(result.output)
-        );
+  const envelope = yield* envelopeFromProcessResult(feature, options, paths, generatedAt, toolVersion, isDirty, result);
 
   yield* writeEnvelope(paths, result.output, envelope);
 
-  const envelopeStatus = pipe(unknownStringProperty(envelope, "status"), O.getOrElse(() => "tool-failed"));
-  if (!options.advisory && (envelopeStatus !== "ok" || result.exitCode !== 0)) {
+  if (shouldFailInvocation(envelope, options)) {
     return yield* QualityScriptCommandError.make({
-      message: `Fallow ${feature} failed with status ${envelopeStatus}.`,
+      message: `Fallow ${feature} failed with status ${envelope.status}.`,
       command: commandText("bun", args),
-      exitCode: result.exitCode === 0 ? 1 : result.exitCode,
+      exitCode: positiveExitStatus(envelope.exitStatus),
     });
   }
 });
@@ -708,7 +1315,10 @@ const readJsonDocument = Effect.fn("FallowQuality.readJsonDocument")(function* (
   return yield* decodeJsonText(text).pipe(QualityScriptCommandError.mapError(`Failed to decode ${absolutePath}.`));
 });
 
-const requireEnvelopeKeys = (document: unknown, requiredKeys: ReadonlyArray<string>): Effect.Effect<void, QualityScriptCommandError> => {
+const requireEnvelopeKeys = (
+  document: unknown,
+  requiredKeys: ReadonlyArray<string>
+): Effect.Effect<void, QualityScriptCommandError> => {
   const record = decodeUnknownRecordOption(document);
   if (O.isNone(record)) {
     return QualityScriptCommandError.make({
@@ -732,24 +1342,18 @@ const requireEnvelopeKeys = (document: unknown, requiredKeys: ReadonlyArray<stri
   return Effect.void;
 };
 
-const checkExactEnvelopeKeys = (document: unknown): Effect.Effect<void, QualityScriptCommandError> => {
+const exactEnvelopeKeyDiagnostics = (document: unknown): ReadonlyArray<string> => {
   const record = decodeUnknownRecordOption(document);
   if (O.isNone(record)) {
-    return QualityScriptCommandError.make({
-      message: "Fallow envelope is not a JSON object.",
-      exitCode: 1,
-    });
+    return ["Fallow envelope is not a JSON object."];
   }
 
   const status = pipe(unknownRecordProperty(record.value, "status"), O.flatMap(decodeFallowEnvelopeStatusOption));
   if (O.isNone(status)) {
-    return QualityScriptCommandError.make({
-      message: "Fallow envelope is missing a valid status discriminator.",
-      exitCode: 1,
-    });
+    return ["Fallow envelope is missing a valid status discriminator."];
   }
 
-  const allowed = status.value === "ok" ? okEnvelopeKeys : failureEnvelopeKeys;
+  const allowed = sameEnvelopeStatus(status.value, "ok") ? okEnvelopeKeys : failureEnvelopeKeys;
   const keys = R.keys(record.value);
   const missing = pipe(
     allowed,
@@ -760,36 +1364,147 @@ const checkExactEnvelopeKeys = (document: unknown): Effect.Effect<void, QualityS
     A.filter((key) => !A.contains(allowed, key))
   );
 
-  if (A.isReadonlyArrayNonEmpty(missing) || A.isReadonlyArrayNonEmpty(surplus)) {
-    return QualityScriptCommandError.make({
-      message: `Fallow envelope key mismatch. Missing: ${A.join(missing, ", ") || "none"}. Surplus: ${
-        A.join(surplus, ", ") || "none"
-      }.`,
-      exitCode: 1,
-    });
-  }
-
-  return Effect.void;
+  return A.isReadonlyArrayNonEmpty(missing) || A.isReadonlyArrayNonEmpty(surplus)
+    ? [
+        `Fallow envelope key mismatch. Missing: ${A.join(missing, ", ") || "none"}. Surplus: ${
+          A.join(surplus, ", ") || "none"
+        }.`,
+      ]
+    : A.empty();
 };
 
-const checkReportInvariants = (document: unknown): Effect.Effect<void, QualityScriptCommandError> => {
+const reportInvariantDiagnostics = (document: unknown): ReadonlyArray<string> => {
   const status = pipe(unknownRecordProperty(document, "status"), O.flatMap(decodeFallowEnvelopeStatusOption));
+  const exitStatus = pipe(
+    unknownNumberProperty(document, "exitStatus"),
+    O.getOrElse(() => -1)
+  );
+  const summary = pipe(unknownRecordProperty(document, "findingAttributionSummary"), O.getOrUndefined);
+  const introduced = pipe(
+    unknownNumberProperty(summary, "introduced"),
+    O.getOrElse(() => -1)
+  );
+  const inheritedAdjacent = pipe(
+    unknownNumberProperty(summary, "inheritedAdjacent"),
+    O.getOrElse(() => -1)
+  );
+  const notApplicable = pipe(
+    unknownNumberProperty(summary, "notApplicable"),
+    O.getOrElse(() => -1)
+  );
+  const attributionKindsOption = pipe(
+    unknownRecordProperty(document, "attributionKinds"),
+    O.flatMap(decodeFallowAttributionKindsOption)
+  );
+  const decodedOk = decodeFallowReportOkOption(document);
 
-  if (O.isSome(status) && status.value === "ok") {
-    const report = pipe(unknownRecordProperty(document, "report"), O.getOrUndefined);
-    const findingCount = pipe(unknownNumberProperty(report, "findingCount"), O.getOrElse(() => -1));
-    const findings = pipe(unknownRecordProperty(report, "findings"), O.flatMap(decodeUnknownArrayOption));
-    const actualCount = O.isSome(findings) ? A.length(findings.value) : -1;
+  if (O.isSome(decodedOk)) {
+    const envelope = decodedOk.value;
+    const actualCount = A.length(envelope.report.findings);
+    const expectedSummary = attributionSummary(envelope.report.findings);
+    const expectedKinds = attributionKinds(envelope.report.findings);
+    const diagnostics = [
+      ...(envelope.report.findingCount === actualCount
+        ? []
+        : [
+            `Fallow envelope report findingCount ${envelope.report.findingCount} does not match findings length ${actualCount}.`,
+          ]),
+      ...(envelope.findingAttributionSummary.introduced === expectedSummary.introduced
+        ? []
+        : [
+            `Fallow envelope introduced attribution count ${envelope.findingAttributionSummary.introduced} does not match findings count ${expectedSummary.introduced}.`,
+          ]),
+      ...(envelope.findingAttributionSummary.inheritedAdjacent === expectedSummary.inheritedAdjacent
+        ? []
+        : [
+            `Fallow envelope inheritedAdjacent attribution count ${envelope.findingAttributionSummary.inheritedAdjacent} does not match findings count ${expectedSummary.inheritedAdjacent}.`,
+          ]),
+      ...(envelope.findingAttributionSummary.notApplicable === expectedSummary.notApplicable
+        ? []
+        : [
+            `Fallow envelope notApplicable attribution count ${envelope.findingAttributionSummary.notApplicable} does not match findings count ${expectedSummary.notApplicable}.`,
+          ]),
+      ...attributionKindSetDiagnostics("Fallow envelope attributionKinds", expectedKinds, envelope.attributionKinds),
+    ];
 
-    if (findingCount !== actualCount) {
-      return QualityScriptCommandError.make({
-        message: `Fallow envelope report findingCount ${findingCount} does not match findings length ${actualCount}.`,
-        exitCode: 1,
-      });
+    if (A.isReadonlyArrayNonEmpty(diagnostics)) {
+      return diagnostics;
     }
   }
 
-  return Effect.void;
+  if (O.isSome(status) && !sameEnvelopeStatus(status.value, "ok")) {
+    const diagnostics = [
+      ...(introduced === 0 ? [] : [`Fallow ${status.value} envelope introduced attribution count must be 0.`]),
+      ...(inheritedAdjacent === 0
+        ? []
+        : [`Fallow ${status.value} envelope inheritedAdjacent attribution count must be 0.`]),
+      ...(notApplicable === 0 ? [] : [`Fallow ${status.value} envelope notApplicable attribution count must be 0.`]),
+      ...pipe(
+        attributionKindsOption,
+        O.match({
+          onNone: () => ["Fallow failure envelope attributionKinds must decode."],
+          onSome: (kinds) =>
+            attributionKindSetDiagnostics(
+              `Fallow ${status.value} envelope attributionKinds`,
+              ["not-applicable"],
+              kinds
+            ),
+        })
+      ),
+    ];
+
+    if (A.isReadonlyArrayNonEmpty(diagnostics)) {
+      return diagnostics;
+    }
+  }
+
+  if (
+    O.isSome(status) &&
+    (sameEnvelopeStatus(status.value, "tool-failed") || sameEnvelopeStatus(status.value, "base-resolution-failed")) &&
+    exitStatus <= 0
+  ) {
+    return [`Fallow ${status.value} envelope exitStatus must be positive.`];
+  }
+
+  return A.empty();
+};
+
+const exactEnvelopeDiagnostics = (document: unknown): ReadonlyArray<string> => [
+  ...exactEnvelopeKeyDiagnostics(document),
+  ...reportInvariantDiagnostics(document),
+];
+
+const FallowReportWireEnvelope = S.Unknown.pipe(
+  S.check(
+    S.makeFilter((document) => {
+      const diagnostics = exactEnvelopeDiagnostics(document);
+      return A.isReadonlyArrayEmpty(diagnostics) ? undefined : { path: [], issue: A.join(diagnostics, "\n") };
+    })
+  ),
+  $I.annoteSchema("FallowReportWireEnvelope", {
+    description: "Exact wire guard for Fallow report envelopes before downstream quality parsing.",
+  })
+);
+const decodeFallowReportWireEnvelope = S.decodeUnknownEffect(FallowReportWireEnvelope);
+
+const checkExactEnvelopeKeys = (document: unknown): Effect.Effect<void, QualityScriptCommandError> => {
+  const diagnostics = exactEnvelopeKeyDiagnostics(document);
+  return A.isReadonlyArrayEmpty(diagnostics)
+    ? Effect.void
+    : QualityScriptCommandError.make({
+        message: A.join(diagnostics, "\n"),
+        exitCode: 1,
+      });
+};
+
+const checkReportInvariants = (document: unknown): Effect.Effect<void, QualityScriptCommandError> => {
+  const diagnostics = reportInvariantDiagnostics(document);
+  return A.isReadonlyArrayEmpty(diagnostics)
+    ? Effect.void
+    : QualityScriptCommandError.make({
+        message: A.join(diagnostics, "\n"),
+        exitCode: 1,
+      });
 };
 
 const checkEnvelopePath = Effect.fn("FallowQuality.checkEnvelopePath")(function* (
@@ -802,11 +1517,136 @@ const checkEnvelopePath = Effect.fn("FallowQuality.checkEnvelopePath")(function*
   yield* decodeFallowReportWireEnvelope(document).pipe(
     QualityScriptCommandError.mapError(`Fallow envelope ${filePath} does not match the report schema.`)
   );
+  yield* decodeFallowReportEnvelope(document).pipe(
+    QualityScriptCommandError.mapError(`Fallow envelope ${filePath} does not match the decoded report schema.`)
+  );
   yield* checkReportInvariants(document);
   yield* Console.log(`[fallow] envelope ok: ${filePath}`);
 });
 
-const failWithDiagnostics = (label: string, diagnostics: ReadonlyArray<string>): Effect.Effect<void, QualityScriptCommandError> =>
+const checkPublicDispatchEnvelope = Effect.fn("FallowQuality.checkPublicDispatchEnvelope")(function* (
+  feature: FallowFeature,
+  options: FallowCommandOptions,
+  out: string,
+  expectedStatus: typeof FallowEnvelopeStatus.Type,
+  probeStartedAtMillis: number
+): Effect.fn.Return<void, QualityScriptCommandError, FallowQualityEnvironment> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
+  const paths = yield* resolveReportPath(repoRoot, out, feature);
+  yield* checkEnvelopePath(out, ["schemaVersion", "status", "command", "exitStatus", "baseRef", "rawOutputRef"]);
+  const document = yield* readJsonDocument(out);
+  const envelope = yield* decodeFallowReportEnvelope(document).pipe(
+    QualityScriptCommandError.mapError(`Fallow envelope ${out} does not match the decoded report schema.`)
+  );
+  const rawOutputPath = path.join(repoRoot, envelope.rawOutputRef);
+  const rawStat = yield* fs
+    .stat(rawOutputPath)
+    .pipe(QualityScriptCommandError.mapError(`Failed to stat Fallow raw output ${rawOutputPath}.`));
+  const rawModifiedAtMillis = pipe(
+    rawStat.mtime,
+    O.map((mtime) => mtime.getTime()),
+    O.getOrElse(() => -1)
+  );
+  const envelopeGeneratedAtMillis = Date.parse(envelope.generatedAt);
+  const expectedCommand = renderWrapperCommand(feature, options, paths.relative);
+  const rawOutputText = yield* fs.readFileString(rawOutputPath).pipe(Effect.option);
+  const rawJsonText = pipe(rawOutputText, O.flatMap(extractJsonDocumentText), O.getOrUndefined);
+  const rawDocument = P.isUndefined(rawJsonText) ? O.none() : yield* decodeJsonText(rawJsonText).pipe(Effect.option);
+  const decodedOk = decodeFallowReportOkOption(envelope);
+  const expectedFindingCount = pipe(
+    rawDocument,
+    O.map((document) => rawFindingCount(feature, document)),
+    O.getOrElse(() => -1)
+  );
+
+  yield* failWithDiagnostics("fallow public dispatch envelope", [
+    ...(sameFeatureFamily(envelope.subcommand, feature)
+      ? []
+      : [`${out}: expected subcommand ${feature}, got ${envelope.subcommand}`]),
+    ...(envelope.command === expectedCommand
+      ? []
+      : [`${out}: expected command ${expectedCommand}, got ${envelope.command}`]),
+    ...(envelope.advisory === options.advisory
+      ? []
+      : [`${out}: expected advisory ${String(options.advisory)}, got ${String(envelope.advisory)}`]),
+    ...(envelope.baseRef === options.base ? [] : [`${out}: expected baseRef ${options.base}, got ${envelope.baseRef}`]),
+    ...(sameEnvelopeStatus(envelope.status, expectedStatus)
+      ? []
+      : [`${out}: expected status ${expectedStatus}, got ${envelope.status}`]),
+    ...(envelope.reportPath === paths.relative
+      ? []
+      : [`${out}: expected reportPath ${paths.relative}, got ${envelope.reportPath}`]),
+    ...(envelope.rawOutputRef === paths.rawRelative
+      ? []
+      : [`${out}: expected rawOutputRef ${paths.rawRelative}, got ${envelope.rawOutputRef}`]),
+    ...(Number.isFinite(envelopeGeneratedAtMillis) && envelopeGeneratedAtMillis >= probeStartedAtMillis
+      ? []
+      : [
+          `${out}: generatedAt ${envelope.generatedAt} is older than public dispatch probe start ${formatEpochMillis(
+            probeStartedAtMillis
+          )}`,
+        ]),
+    ...(rawModifiedAtMillis >= probeStartedAtMillis
+      ? []
+      : [
+          `${out}: rawOutputRef mtime ${formatEpochMillis(
+            rawModifiedAtMillis
+          )} is older than public dispatch probe start ${formatEpochMillis(probeStartedAtMillis)}`,
+        ]),
+    ...(sameEnvelopeStatus(expectedStatus, "ok") && O.isNone(rawDocument)
+      ? [`${out}: expected parseable raw stdout JSON for ok public dispatch probe`]
+      : []),
+    ...(sameEnvelopeStatus(expectedStatus, "ok") &&
+    O.isSome(decodedOk) &&
+    decodedOk.value.report.findingCount !== expectedFindingCount
+      ? [
+          `${out}: expected normalized findingCount ${expectedFindingCount} from raw ${feature} report, got ${decodedOk.value.report.findingCount}`,
+        ]
+      : []),
+  ]);
+});
+
+const runPublicDispatchProbe = Effect.fn("FallowQuality.runPublicDispatchProbe")(function* (
+  feature: FallowFeature,
+  options: FallowCommandOptions,
+  expectedExit: number,
+  expectedStatus: typeof FallowEnvelopeStatus.Type
+): Effect.fn.Return<void, QualityScriptCommandError, FallowQualityEnvironment> {
+  const fs = yield* FileSystem.FileSystem;
+  const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
+  const paths = yield* resolveReportPath(repoRoot, options.out, feature);
+  const args = ["run", "beep", ...wrapperArgs(feature, options, options.out)];
+  const probeStartedAtMillis = yield* DateTime.now.pipe(
+    Effect.map((dateTime) => DateTime.toDateUtc(dateTime).getTime())
+  );
+
+  yield* fs
+    .remove(paths.absolute, { force: true })
+    .pipe(QualityScriptCommandError.mapError(`Failed to remove stale Fallow envelope ${paths.absolute}.`));
+  yield* fs
+    .remove(paths.rawAbsolute, { force: true })
+    .pipe(QualityScriptCommandError.mapError(`Failed to remove stale Fallow raw output ${paths.rawAbsolute}.`));
+
+  const result = yield* collectProcessOutput(repoRoot, "bun", args);
+  if (result.exitCode !== expectedExit) {
+    return yield* QualityScriptCommandError.make({
+      message: `Public Fallow CLI dispatch exited ${result.exitCode}, expected ${expectedExit}: ${stderrExcerpt(
+        result.stderr
+      )}`,
+      command: commandText("bun", args),
+      exitCode: positiveExitStatus(result.exitCode),
+    });
+  }
+
+  yield* checkPublicDispatchEnvelope(feature, options, options.out, expectedStatus, probeStartedAtMillis);
+});
+
+const failWithDiagnostics = (
+  label: string,
+  diagnostics: ReadonlyArray<string>
+): Effect.Effect<void, QualityScriptCommandError> =>
   A.isReadonlyArrayEmpty(diagnostics)
     ? Effect.void
     : QualityScriptCommandError.make({
@@ -814,9 +1654,253 @@ const failWithDiagnostics = (label: string, diagnostics: ReadonlyArray<string>):
         exitCode: 1,
       });
 
+const runSyntheticProcessProbe = Effect.fn("FallowQuality.runSyntheticProcessProbe")(function* (
+  feature: FallowFeature,
+  options: FallowCommandOptions,
+  result: ProcessResult,
+  expectedStatus: typeof FallowEnvelopeStatus.Type
+): Effect.fn.Return<void, QualityScriptCommandError, FallowQualityEnvironment> {
+  const fs = yield* FileSystem.FileSystem;
+  const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
+  const paths = yield* resolveReportPath(repoRoot, options.out, feature);
+  const probeStartedAtMillis = yield* DateTime.now.pipe(
+    Effect.map((dateTime) => DateTime.toDateUtc(dateTime).getTime())
+  );
+  const generatedAt = yield* DateTime.now.pipe(Effect.map(DateTime.formatIso));
+  const isDirty = yield* dirtyWorktree(repoRoot);
+  const envelope = yield* envelopeFromProcessResult(
+    feature,
+    options,
+    paths,
+    generatedAt,
+    "fallow contract-probe",
+    isDirty,
+    result
+  );
+
+  yield* fs
+    .remove(paths.absolute, { force: true })
+    .pipe(QualityScriptCommandError.mapError(`Failed to remove stale Fallow envelope ${paths.absolute}.`));
+  yield* fs
+    .remove(paths.rawAbsolute, { force: true })
+    .pipe(QualityScriptCommandError.mapError(`Failed to remove stale Fallow raw output ${paths.rawAbsolute}.`));
+  yield* writeEnvelope(paths, result.output, envelope);
+  yield* checkPublicDispatchEnvelope(feature, options, options.out, expectedStatus, probeStartedAtMillis);
+});
+
+const emptyDeadCodeIssueArrays = {
+  unused_files: [],
+  unused_exports: [],
+  unused_types: [],
+  private_type_leaks: [],
+  unused_dependencies: [],
+  unused_dev_dependencies: [],
+  unused_optional_dependencies: [],
+  unused_enum_members: [],
+  unused_class_members: [],
+  unresolved_imports: [],
+  unlisted_dependencies: [],
+  duplicate_exports: [],
+  type_only_dependencies: [],
+  test_only_dependencies: [],
+  circular_dependencies: [],
+  re_export_cycles: [],
+  boundary_violations: [],
+  stale_suppressions: [],
+  unused_catalog_entries: [],
+  empty_catalog_groups: [],
+  unresolved_catalog_references: [],
+  unused_dependency_overrides: [],
+  misconfigured_dependency_overrides: [],
+} as const;
+
+const invalidRawReportFixtures: ReadonlyArray<{
+  readonly feature: FallowFeature;
+  readonly label: string;
+  readonly document: unknown;
+}> = [
+  ...pipe(
+    fallowFeatureValues,
+    A.map((feature) => ({
+      feature,
+      label: `${feature} error object`,
+      document: {
+        error: "simulated fallow failure",
+        message: "this shape must not be accepted as a successful report",
+      },
+    }))
+  ),
+  {
+    feature: "dead-code",
+    label: "dead-code loose summary object",
+    document: {
+      summary: {
+        total_issues: 1,
+      },
+    },
+  },
+  {
+    feature: "dead-code",
+    label: "dead-code versioned summary without issue arrays",
+    document: {
+      kind: "dead-code",
+      schema_version: 7,
+      version: "2.89.0",
+      elapsed_ms: 1,
+      total_issues: 1,
+      summary: {
+        total_issues: 1,
+        unused_files: 0,
+        unused_exports: 1,
+        unused_types: 0,
+        unused_dependencies: 0,
+        unresolved_imports: 0,
+        unlisted_dependencies: 0,
+        boundary_violations: 0,
+      },
+    },
+  },
+  {
+    feature: "dead-code",
+    label: "dead-code malformed issue array item",
+    document: {
+      kind: "dead-code",
+      schema_version: 7,
+      version: "2.89.0",
+      elapsed_ms: 1,
+      total_issues: 1,
+      entry_points: {
+        total: 1,
+        sources: {
+          manual_entry: 1,
+        },
+      },
+      summary: {
+        total_issues: 1,
+        unused_files: 0,
+        unused_exports: 1,
+        unused_types: 0,
+        unused_dependencies: 0,
+        unresolved_imports: 0,
+        unlisted_dependencies: 0,
+        boundary_violations: 0,
+      },
+      ...emptyDeadCodeIssueArrays,
+      unused_exports: [{}],
+    },
+  },
+  {
+    feature: "boundaries",
+    label: "boundaries loose summary object",
+    document: {
+      summary: {
+        boundary_violations: 1,
+      },
+    },
+  },
+  {
+    feature: "dupes",
+    label: "dupes malformed clone group item",
+    document: {
+      kind: "dupes",
+      schema_version: 7,
+      version: "2.89.0",
+      elapsed_ms: 1,
+      clone_groups: [{}],
+      clone_families: [],
+      stats: {},
+    },
+  },
+  {
+    feature: "health",
+    label: "health malformed finding item",
+    document: {
+      kind: "health",
+      schema_version: 7,
+      version: "2.89.0",
+      elapsed_ms: 1,
+      findings: [{}],
+      summary: {
+        files_analyzed: 1,
+        functions_analyzed: 1,
+        functions_above_threshold: 1,
+        average_maintainability: 1,
+        severity_critical_count: 1,
+        severity_high_count: 0,
+        severity_moderate_count: 0,
+      },
+    },
+  },
+  {
+    feature: "flags",
+    label: "flags versioned count without feature array",
+    document: {
+      schema_version: 7,
+      version: "2.89.0",
+      elapsed_ms: 1,
+      total_flags: 1,
+    },
+  },
+  {
+    feature: "flags",
+    label: "flags malformed feature flag item",
+    document: {
+      schema_version: 7,
+      version: "2.89.0",
+      elapsed_ms: 1,
+      feature_flags: [{}],
+      total_flags: 1,
+    },
+  },
+  {
+    feature: "security",
+    label: "security malformed finding item",
+    document: {
+      kind: "security",
+      schema_version: "1",
+      security_findings: [{}],
+      unresolved_edge_files: 0,
+      unresolved_callee_sites: 1,
+    },
+  },
+  {
+    feature: "fix-preview",
+    label: "fix-preview apply-mode report",
+    document: {
+      dry_run: false,
+      fixes: [],
+      total_fixed: 0,
+      skipped: 0,
+      skipped_content_changed: 0,
+      skipped_low_confidence_exports: 0,
+      skipped_mixed_line_endings: 0,
+    },
+  },
+  {
+    feature: "fix-preview",
+    label: "fix-preview malformed fix item",
+    document: {
+      dry_run: true,
+      fixes: [{}],
+      total_fixed: 0,
+      skipped: 0,
+      skipped_content_changed: 0,
+      skipped_low_confidence_exports: 0,
+      skipped_mixed_line_endings: 0,
+    },
+  },
+];
+
+const invalidRawReportShapeDiagnostics = (): ReadonlyArray<string> =>
+  pipe(
+    invalidRawReportFixtures,
+    A.filter((fixture) => hasFallowReportShape(fixture.feature, fixture.document)),
+    A.map((fixture) => `${fixture.feature}: invalid raw fixture was accepted as ok report shape: ${fixture.label}`)
+  );
+
 const runBoundariesConfigCheck = Effect.fn("FallowQuality.runBoundariesConfigCheck")(function* (
   check: boolean
-): Effect.fn.Return<void, QualityScriptCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<void, QualityScriptCommandError, FallowQualityEnvironment> {
   const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
   const args = check ? ["run", "fallow:boundaries:check"] : ["run", "fallow:boundaries"];
   const result = yield* collectProcessOutput(repoRoot, "bun", args);
@@ -844,12 +1928,13 @@ const runCommandContractCheck = Effect.fn("FallowQuality.runCommandContractCheck
   );
   const unexpected = pipe(
     assertedValues,
-    A.filter((feature) => !A.contains(fallowFeatureValues, feature))
+    A.filter((feature) => !isFallowFeature(feature))
   );
   yield* failWithDiagnostics("fallow command-contract-check", [
     ...A.map(missing, (feature) => `missing asserted feature: ${feature}`),
     ...A.map(unexpected, (feature) => `unexpected asserted feature: ${feature}`),
   ]);
+  yield* failWithDiagnostics("fallow raw report failure-shape fixtures", invalidRawReportShapeDiagnostics());
 
   if (!requireEnvelope) {
     yield* Console.log("[fallow] command contract ok");
@@ -858,26 +1943,99 @@ const runCommandContractCheck = Effect.fn("FallowQuality.runCommandContractCheck
 
   yield* Effect.forEach(
     fallowFeatureValues,
-    (feature) =>
-      runFallowFeature(feature, {
-        advisory: true,
-        base: defaultBaseRef,
-        check: false,
-        out: path.join(outDir, `${feature}.json`),
-        quiet: true,
-      }).pipe(
-        Effect.zipRight(
-          checkEnvelopePath(path.join(outDir, `${feature}.json`), [
-            "schemaVersion",
-            "status",
-            "command",
-            "exitStatus",
-            "baseRef",
-            "rawOutputRef",
-          ])
-        )
-      ),
+    (feature) => {
+      const out = path.join(outDir, `${feature}.json`);
+      return runPublicDispatchProbe(
+        feature,
+        {
+          advisory: true,
+          base: defaultBaseRef,
+          check: false,
+          out,
+          quiet: true,
+        },
+        0,
+        "ok"
+      );
+    },
     { concurrency: 1 }
+  );
+
+  yield* runPublicDispatchProbe(
+    "audit",
+    {
+      advisory: false,
+      base: defaultBaseRef,
+      check: true,
+      out: path.join(outDir, "audit-check.json"),
+      quiet: true,
+    },
+    0,
+    "ok"
+  );
+
+  yield* runPublicDispatchProbe(
+    "boundaries",
+    {
+      advisory: true,
+      base: "refs/heads/definitely-not-real-fallow-base",
+      check: true,
+      out: path.join(outDir, "boundaries-bad-base-check.json"),
+      quiet: true,
+    },
+    128,
+    "base-resolution-failed"
+  );
+  yield* runSyntheticProcessProbe(
+    "health",
+    {
+      advisory: true,
+      base: defaultBaseRef,
+      check: false,
+      out: path.join(outDir, "health-tool-failed.json"),
+      quiet: true,
+    },
+    {
+      stdout: "",
+      stderr: "simulated fallow process failure",
+      output: "simulated fallow process failure",
+      exitCode: 2,
+    },
+    "tool-failed"
+  );
+  yield* runSyntheticProcessProbe(
+    "dead-code",
+    {
+      advisory: true,
+      base: defaultBaseRef,
+      check: false,
+      out: path.join(outDir, "dead-code-invalid-json.json"),
+      quiet: true,
+    },
+    {
+      stdout: "not-json",
+      stderr: "",
+      output: "not-json",
+      exitCode: 0,
+    },
+    "invalid-json"
+  );
+  yield* runSyntheticProcessProbe(
+    "flags",
+    {
+      advisory: true,
+      base: defaultBaseRef,
+      check: false,
+      out: path.join(outDir, "flags-invalid-report.json"),
+      quiet: true,
+    },
+    {
+      stdout: '{"error":"simulated malformed Fallow report"}',
+      stderr: "",
+      output: '{"error":"simulated malformed Fallow report"}',
+      exitCode: 0,
+    },
+    "invalid-report"
   );
   yield* Console.log("[fallow] command contract ok");
 });
@@ -904,7 +2062,9 @@ const runCiContractCheck = Effect.fn("FallowQuality.runCiContractCheck")(functio
         ? A.empty<string>()
         : A.of(`missing CI lane or artifact reference for ${lane}`)
     ),
-    ...(requireUpload && !Str.includes("actions/upload-artifact")(text) ? ["missing actions/upload-artifact step"] : []),
+    ...(requireUpload && !Str.includes("actions/upload-artifact")(text)
+      ? ["missing actions/upload-artifact step"]
+      : []),
     ...(requireUpload && !Str.includes(`if-no-files-found: ${ifNoFilesFound}`)(text)
       ? [`missing if-no-files-found: ${ifNoFilesFound}`]
       : []),
@@ -931,7 +2091,9 @@ const makeFallowFeatureCommand = (feature: FallowFeature) =>
         Flag.withDefault(`${defaultOutDir}/${feature}.json`),
         Flag.withDescription("Envelope output path")
       ),
-      quiet: Flag.boolean("quiet").pipe(Flag.withDescription("Suppress Fallow tool chatter in raw output where supported")),
+      quiet: Flag.boolean("quiet").pipe(
+        Flag.withDescription("Suppress Fallow tool chatter in raw output where supported")
+      ),
     },
     ({ advisory, base, check, out, quiet }) => runFallowFeature(feature, { advisory, base, check, out, quiet })
   ).pipe(Command.withDescription(`Run Fallow ${feature} and write a repo-cli report envelope`));

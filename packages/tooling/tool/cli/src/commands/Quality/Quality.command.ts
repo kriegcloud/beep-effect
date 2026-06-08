@@ -22,6 +22,7 @@ import { parse } from "jsonc-parser";
 import { printLines } from "../../internal/cli/Printer.js";
 import { GITHUB_CHECK_MODE_VALUES, GithubCheckMode as GithubCheckModeSchema } from "../../internal/repo-run/index.js";
 import { runChangesetGraphCheck } from "./ChangesetGraph.js";
+import { qualityFallowCommand } from "./FallowQuality.command.js";
 import { configStringEqualsSync } from "./internal/Config.js";
 import { writeJSDocDocumentationInventory } from "./internal/JSDocDocumentationInventory.js";
 import { runPackageVerifyCli } from "./internal/PackageVerify.js";
@@ -32,7 +33,6 @@ import {
   renderTurboConfigProofReportJson,
   runTurboConfigProof,
 } from "./internal/TurboConfigProof.js";
-import { qualityFallowCommand } from "./FallowQuality.command.js";
 import { QualityScriptCommandError } from "./Quality.errors.js";
 import { QualityTaskStep, runQualityTaskStreamingStepGroup } from "./Tasks.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";

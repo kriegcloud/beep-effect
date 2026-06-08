@@ -20,7 +20,7 @@ updated: 2026-06-08
 - Exit status: 0
 - Runtime: about 12-20s
 - Counts: top-bounded JSON report with 50 clone groups, 19 clone families, 536 clone instances, 5.07 percent duplication, 341 files with clones.
-- Artifact path: future P1 wrapper writes `.beep/fallow/dupes.json`; current baseline lives in this report and `standards/fallow.pilot.inventory.jsonc`.
+- Artifact path: P1 wrapper writes `.beep/fallow/dupes.json`; current baseline lives in this report and `standards/fallow.pilot.inventory.jsonc`.
 
 ## Repo Fit
 

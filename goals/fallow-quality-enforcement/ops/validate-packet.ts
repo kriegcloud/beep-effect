@@ -280,7 +280,13 @@ const ReviewClosureStatus = LiteralKit(["open", "fixed", "waived"]).pipe(
   })
 );
 
-const FallowEnvelopeStatus = LiteralKit(["ok", "tool-failed", "invalid-json", "base-resolution-failed"]).pipe(
+const FallowEnvelopeStatus = LiteralKit([
+  "ok",
+  "tool-failed",
+  "invalid-json",
+  "invalid-report",
+  "base-resolution-failed",
+]).pipe(
   $I.annoteSchema("FallowEnvelopeStatus", {
     description: "Discriminant values for Fallow report envelopes.",
   })
@@ -637,6 +643,18 @@ class FallowReportInvalidJson extends S.Class<FallowReportInvalidJson>($I`Fallow
   })
 ) {}
 
+class FallowReportInvalidReport extends S.Class<FallowReportInvalidReport>($I`FallowReportInvalidReport`)(
+  {
+    ...FallowReportBaseFields,
+    status: S.Literal("invalid-report"),
+    exitStatus: NonNegativeInt,
+    stderrExcerpt: TrimmedNonEmptyString,
+  },
+  $I.annote("FallowReportInvalidReport", {
+    description: "Fallow report envelope for decoded JSON that fails the expected feature report shape.",
+  })
+) {}
+
 class FallowReportBaseResolutionFailed extends S.Class<FallowReportBaseResolutionFailed>(
   $I`FallowReportBaseResolutionFailed`
 )(
@@ -655,6 +673,7 @@ const FallowReportEnvelope = S.Union([
   FallowReportOk,
   FallowReportToolFailed,
   FallowReportInvalidJson,
+  FallowReportInvalidReport,
   FallowReportBaseResolutionFailed,
 ]).pipe(
   $I.annoteSchema("FallowReportEnvelope", {
@@ -1100,6 +1119,24 @@ const githubChecksPlanContractCommand =
   "bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes";
 const ciFallowContractCommand =
   "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes audit,dead-code,dupes,health,boundaries,flags,security,fix-preview --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory";
+const expectedFallowAuditBaseline = {
+  changedFilesMinimum: 90,
+  deadCodeIssues: 30,
+  complexityFindings: 41,
+  duplicationCloneGroups: 155,
+  deadCodeIntroduced: 3,
+  deadCodeInherited: 27,
+  complexityIntroduced: 10,
+  complexityInherited: 30,
+  duplicationIntroduced: 10,
+  duplicationInherited: 145,
+} as const;
+const auditCountsNarrative =
+  "Counts: at least 90 changed files in the current dirty worktree, verdict `fail`, 30 changed-scope dead-code issues, 41 complexity findings, 155 duplication clone groups";
+const auditAttributionNarrative =
+  "Attribution: 3 introduced dead-code issues, 10 introduced complexity findings, 10 introduced duplication clone groups";
+const auditBaselineSummaryCounts =
+  "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 41 complexity findings, and 155 clone groups; introduced counts were 3 dead-code, 10 complexity, and 10 duplication.";
 const requiredBoundarySourceRefs = ["package.json", "standards/fallow.boundaries.generated.jsonc"];
 const requiredBoundaryCatalogRef = "standards/repo-exports.catalog.jsonc";
 const requiredBoundaryDoctrineRefPrefix = "standards/ARCHITECTURE.md";
@@ -1253,6 +1290,22 @@ const asStringArray = (value: unknown): ReadonlyArray<string> =>
     A.filter((item): item is string => typeof item === "string")
   );
 
+const asNumber = (value: unknown): O.Option<number> => (typeof value === "number" ? O.some(value) : O.none());
+
+const numberFieldDiagnostics = (
+  label: string,
+  record: Record<string, unknown>,
+  key: string,
+  expected: number
+): ReadonlyArray<string> =>
+  pipe(
+    asNumber(record[key]),
+    O.match({
+      onNone: () => [`${label}.${key}: expected ${expected}, got missing or non-number`],
+      onSome: (actual) => (actual === expected ? [] : [`${label}.${key}: expected ${expected}, got ${actual}`]),
+    })
+  );
+
 const schemaStatusConstValues = (branches: ReadonlyArray<unknown>): ReadonlyArray<string> =>
   pipe(
     branches,
@@ -1377,6 +1430,26 @@ const findingAttributionCounts = (
   "not-applicable": A.filter(findings, (finding) => finding.attribution === "not-applicable").length,
 });
 
+const findingAttributionKinds = (
+  findings: ReadonlyArray<FallowReportFinding>
+): ReadonlyArray<FindingAttributionKind> => {
+  const kinds = pipe(
+    findings,
+    A.map((finding) => finding.attribution),
+    A.dedupe
+  );
+  return A.isReadonlyArrayEmpty(kinds) ? ["not-applicable"] : kinds;
+};
+
+const attributionKindListDiagnostics = (
+  label: string,
+  expected: ReadonlyArray<FindingAttributionKind>,
+  actual: ReadonlyArray<FindingAttributionKind>
+): ReadonlyArray<string> => [
+  ...sameSetDiagnostics(label, expected, actual),
+  ...(expected.length === actual.length ? [] : [`${label}: expected ${expected.length} kind(s), got ${actual.length}`]),
+];
+
 const manifestArtifactPath = (artifact: string): string =>
   Str.startsWith("standards/")(artifact) ? artifact : `goals/fallow-quality-enforcement/${artifact}`;
 
@@ -1420,6 +1493,28 @@ const reportCommand = (content: string): O.Option<string> => {
   }
   const match = /- Command: `([^`]+)`/.exec(line);
   return match?.[1] === undefined ? O.none() : O.some(match[1]);
+};
+
+const reportCiMode = (content: string): O.Option<string> => {
+  const line = Str.split(content, "\n").find((entry) => Str.startsWith("- CI mode:")(entry));
+  return line === undefined ? O.none() : O.some(Str.trim(line.slice("- CI mode:".length)));
+};
+
+const normalizeReportCiMode = (value: string): O.Option<typeof CiMode.Type> => {
+  const normalized = pipe(value, Str.toLowerCase, Str.trim);
+  if (Str.startsWith("none")(normalized)) {
+    return O.some("none");
+  }
+  if (Str.startsWith("advisory artifact")(normalized)) {
+    return O.some("advisory-artifact");
+  }
+  if (Str.startsWith("warning check")(normalized) || Str.includes("warning-check")(normalized)) {
+    return O.some("warning-check");
+  }
+  if (Str.startsWith("blocking check")(normalized) || Str.includes("blocking-check")(normalized)) {
+    return O.some("blocking-check");
+  }
+  return O.none();
 };
 
 const phaseOrder = (phase: TaskPhase): number => {
@@ -1558,6 +1653,9 @@ const featureMatrixDiagnostics = (document: FeatureMatrixDocument): ReadonlyArra
       if (Str.includes(staleKnipBlockingPhrase)(row.rollbackNotes)) {
         diagnostics.push(`${row.id}: rollback notes must say Knip reference analyzer/parity gate, not blocking gate`);
       }
+      if (row.featureFamily === "audit" && row.baselineSummary.counts !== auditBaselineSummaryCounts) {
+        diagnostics.push(`${row.id}: audit baselineSummary.counts must match the recorded audit baseline`);
+      }
       if (row.ruleSourceClass === "review-gate-only" && A.contains(promotedStatuses, row.promotionStatus)) {
         diagnostics.push(`${row.id}: review-gate-only rows cannot be promoted`);
       }
@@ -1693,9 +1791,9 @@ const tasksDiagnostics = (document: TasksDocument): ReadonlyArray<string> => {
                 if (
                   phaseOrder(task.phase) > phaseOrder(dependencyTask.phase) &&
                   task.status !== "seeded" &&
-                  dependencyTask.decisionGate.status !== "passed"
+                  dependencyTask.status !== "done"
                 ) {
-                  diagnostics.push(`${task.id}: later-phase active task requires passed gate on ${dependency}`);
+                  diagnostics.push(`${task.id}: later-phase active task requires completed dependency ${dependency}`);
                 }
                 return diagnostics;
               },
@@ -1794,6 +1892,19 @@ const tasksDiagnostics = (document: TasksDocument): ReadonlyArray<string> => {
       }
       if (task.id === "fqe-005" && !hasCommand(allCommands, ciFallowContractCommand)) {
         diagnostics.push(`${task.id}: CI envelope hardening must assert workflow upload of the repo-cli envelope`);
+      }
+      if (task.id === "fqe-005" && task.status !== "done" && task.decisionGate.status !== "blocked") {
+        diagnostics.push(`${task.id}: unfinished CI hardening must keep decisionGate.status blocked`);
+      }
+      if (task.id === "fqe-005" && task.decisionGate.status === "passed" && task.status !== "done") {
+        diagnostics.push(`${task.id}: passed decision gate requires task status done`);
+      }
+      if (
+        task.id === "fqe-005" &&
+        task.decisionGate.status === "passed" &&
+        !A.contains(task.decisionGate.evidence, ".github/workflows/check.yml")
+      ) {
+        diagnostics.push(`${task.id}: passed decision gate requires .github/workflows/check.yml evidence`);
       }
       if (task.id === "fqe-006" && !hasCommand(allCommands, githubChecksPlanContractCommand)) {
         diagnostics.push(
@@ -2014,6 +2125,13 @@ const reportFixtureDiagnostics = (document: ReportFixtureDocument): ReadonlyArra
       if (fixture.status === "ok") {
         const counts = findingAttributionCounts(fixture.report.findings);
         const summary = attributionSummaryRecord(fixture.findingAttributionSummary);
+        diagnostics.push(
+          ...attributionKindListDiagnostics(
+            `${fixture.status}: attributionKinds must match report.findings`,
+            findingAttributionKinds(fixture.report.findings),
+            fixture.attributionKinds
+          )
+        );
         if (fixture.report.findingCount !== fixture.report.findings.length) {
           diagnostics.push(`${fixture.status}: report.findingCount must match report.findings length`);
         }
@@ -2035,6 +2153,13 @@ const reportFixtureDiagnostics = (document: ReportFixtureDocument): ReadonlyArra
         }
       } else {
         const summary = attributionSummaryRecord(fixture.findingAttributionSummary);
+        diagnostics.push(
+          ...attributionKindListDiagnostics(
+            `${fixture.status}: failure attributionKinds`,
+            ["not-applicable"],
+            fixture.attributionKinds
+          )
+        );
         for (const kind of FindingAttributionKind.Options) {
           if (summary[kind] !== 0) {
             diagnostics.push(`${fixture.status}: failure envelopes must not claim decoded finding counts`);
@@ -2248,6 +2373,7 @@ const featureReportRefDiagnostics = Effect.fn("featureReportRefDiagnostics")(fun
         const featureFamily = pipe(frontmatterValue(content, "featureFamily"), O.getOrUndefined);
         const status = pipe(frontmatterValue(content, "status"), O.getOrUndefined);
         const command = pipe(reportCommand(content), O.getOrUndefined);
+        const ciMode = pipe(reportCiMode(content), O.getOrUndefined);
         const feature = featureFamily === undefined ? undefined : featureByFamily.get(featureFamily);
         if (schemaVersion !== "fallow-quality-enforcement/research-report/v1") {
           diagnostics.push(`feature matrix report ref has invalid schemaVersion frontmatter: ${ref}`);
@@ -2275,6 +2401,18 @@ const featureReportRefDiagnostics = Effect.fn("featureReportRefDiagnostics")(fun
           if (status !== expectedStatus) {
             diagnostics.push(`feature matrix report ref must have ${expectedStatus} status frontmatter: ${ref}`);
           }
+          if (ciMode === undefined) {
+            diagnostics.push(`feature matrix report ref missing CI mode line: ${ref}`);
+          } else {
+            const normalizedCiMode = pipe(normalizeReportCiMode(ciMode), O.getOrUndefined);
+            if (normalizedCiMode === undefined) {
+              diagnostics.push(`feature matrix report ref has unrecognized CI mode prose: ${ref}`);
+            } else if (normalizedCiMode !== feature.ciMode) {
+              diagnostics.push(
+                `feature matrix report ref CI mode must match feature matrix for ${ref}: expected ${feature.ciMode}, got ${normalizedCiMode}`
+              );
+            }
+          }
         } else if (status !== "measured" && status !== "researched") {
           diagnostics.push(`feature matrix report ref has invalid status frontmatter: ${ref}`);
         }
@@ -2291,6 +2429,26 @@ const featureReportRefDiagnostics = Effect.fn("featureReportRefDiagnostics")(fun
         }
         if (Str.includes("Complete this report in `fqe-001`")(content)) {
           diagnostics.push(`feature matrix report ref still has placeholder next-evidence text: ${ref}`);
+        }
+        if (Str.includes("future P1 wrapper writes")(content)) {
+          diagnostics.push(`feature matrix report ref still describes implemented P1 wrapper as future work: ${ref}`);
+        }
+        if (Str.includes("not a live command yet")(content)) {
+          diagnostics.push(`feature matrix report ref still describes implemented P1 wrapper as not live: ${ref}`);
+        }
+        if (
+          feature?.repoCommandTarget.implementationStatus === "implemented" &&
+          Str.includes("CI mode: none in P0")(content)
+        ) {
+          diagnostics.push(
+            `feature matrix report ref still describes implemented advisory artifact lane as no-CI: ${ref}`
+          );
+        }
+        if (ref === "research/audit.md" && !Str.includes(auditAttributionNarrative)(content)) {
+          diagnostics.push(`feature matrix audit report must match recorded audit attribution narrative: ${ref}`);
+        }
+        if (ref === "research/audit.md" && !Str.includes(auditCountsNarrative)(content)) {
+          diagnostics.push(`feature matrix audit report must match recorded audit counts narrative: ${ref}`);
         }
         return diagnostics;
       }),
@@ -2378,6 +2536,10 @@ const pilotInventoryDiagnostics = (document: unknown): ReadonlyArray<string> => 
   const decision = asRecord(root.decision);
   const implementationPolicy = asRecord(root.implementationPolicy);
   const knipStrengths = asStringArray(asRecord(root.featureComparison).knipStrengths);
+  const fallowAudit = asRecord(asRecord(root.localProbeSnapshot).fallowAudit);
+  const fallowAuditSummary = asRecord(fallowAudit.summary);
+  const fallowAuditIntroduced = asRecord(fallowAudit.introduced);
+  const fallowAuditInherited = asRecord(fallowAudit.inherited);
   const diagnostics: Array<string> = [];
 
   if (decision.keepKnipAsBlockingGate === true) {
@@ -2395,6 +2557,68 @@ const pilotInventoryDiagnostics = (document: unknown): ReadonlyArray<string> => 
       "standards/fallow.pilot.inventory.jsonc: Knip strengths must say reference analyzer/parity gate, not existing blocking gate"
     );
   }
+  diagnostics.push(
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit",
+      fallowAudit,
+      "changedFilesMinimum",
+      expectedFallowAuditBaseline.changedFilesMinimum
+    ),
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.summary",
+      fallowAuditSummary,
+      "deadCodeIssues",
+      expectedFallowAuditBaseline.deadCodeIssues
+    ),
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.summary",
+      fallowAuditSummary,
+      "complexityFindings",
+      expectedFallowAuditBaseline.complexityFindings
+    ),
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.summary",
+      fallowAuditSummary,
+      "duplicationCloneGroups",
+      expectedFallowAuditBaseline.duplicationCloneGroups
+    ),
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.introduced",
+      fallowAuditIntroduced,
+      "deadCodeIssues",
+      expectedFallowAuditBaseline.deadCodeIntroduced
+    ),
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.introduced",
+      fallowAuditIntroduced,
+      "complexityFindings",
+      expectedFallowAuditBaseline.complexityIntroduced
+    ),
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.introduced",
+      fallowAuditIntroduced,
+      "duplicationCloneGroups",
+      expectedFallowAuditBaseline.duplicationIntroduced
+    ),
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.inherited",
+      fallowAuditInherited,
+      "deadCodeIssues",
+      expectedFallowAuditBaseline.deadCodeInherited
+    ),
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.inherited",
+      fallowAuditInherited,
+      "complexityFindings",
+      expectedFallowAuditBaseline.complexityInherited
+    ),
+    ...numberFieldDiagnostics(
+      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.inherited",
+      fallowAuditInherited,
+      "duplicationCloneGroups",
+      expectedFallowAuditBaseline.duplicationInherited
+    )
+  );
 
   return diagnostics;
 };

@@ -20,7 +20,7 @@ updated: 2026-06-08
 - Exit status: 0
 - Runtime: about 3s
 - Counts: 0 detected flags in the current configured scan.
-- Artifact path: future P1 wrapper writes `.beep/fallow/flags.json`; current baseline lives in this report.
+- Artifact path: P1 wrapper writes `.beep/fallow/flags.json`; current baseline lives in this report.
 
 ## Repo Fit
 
@@ -45,12 +45,12 @@ updated: 2026-06-08
 - Yeet category: `repo-law`
 - Parser: `fallow/flags/v1`
 - Default blocking: false
-- CI mode: none in P0.
-- Failure envelope behavior: P1 wrapper may emit advisory envelopes, but P2 should not upload flags as a hosted check until policy exists.
+- CI mode: advisory artifact; P2 uploads the envelope as nonblocking evidence, with promotion blocked until registry policy exists.
+- Failure envelope behavior: P1 wrapper may emit advisory envelopes, but no flags finding may become blocking until policy exists.
 
 ## Promotion Gate
 
 - Required commands: `bun run fallow -- flags --config .fallowrc.jsonc --format json --quiet --summary --top 50`
 - Required evidence refs: `research/flags.md`
 - Required reviewer roles: Evolution And Deprecation Reviewer
-- Rollback notes: keep flags out of CI and Yeet until registry policy exists.
+- Rollback notes: keep flags advisory-only in CI and Yeet until registry policy exists.

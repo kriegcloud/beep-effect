@@ -20,7 +20,7 @@ updated: 2026-06-08
 - Exit status: 0
 - Runtime: about 2-3s
 - Counts: 23 security candidates, 0 unresolved edge files, 26,844 unresolved callee sites.
-- Artifact path: future P1 wrapper writes `.beep/fallow/security.json`; current baseline lives in this report.
+- Artifact path: P1 wrapper writes `.beep/fallow/security.json`; current baseline lives in this report.
 
 ## Repo Fit
 
@@ -45,7 +45,7 @@ updated: 2026-06-08
 - Yeet category: `security-audit`
 - Parser: `fallow/security/v1`
 - Default blocking: false
-- CI mode: none in P0.
+- CI mode: advisory artifact; P2 CI hardening is still blocked until `fqe-005` uploads the envelope as nonblocking evidence.
 - Failure envelope behavior: wrapper must preserve `unresolved_edge_files` and `unresolved_callee_sites` as triage metadata.
 
 ## Promotion Gate

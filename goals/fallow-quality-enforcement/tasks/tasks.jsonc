@@ -85,7 +85,7 @@
     {
       "id": "fqe-003",
       "rank": 3,
-      "status": "seeded",
+      "status": "done",
       "phase": "P1",
       "title": "Add `beep quality fallow` advisory command group",
       "summary": "Move durable Fallow operator UX under the quality command group with success/failure report envelopes.",
@@ -109,15 +109,21 @@
       ],
       "dependencies": ["fqe-001", "fqe-002"],
       "rollbackPlan": "Remove the quality subcommand group and keep root Fallow scripts only.",
-      "evidenceRefs": ["SPEC.md#command-contract"],
+      "evidenceRefs": [
+        "SPEC.md#command-contract",
+        "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+        "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "packages/tooling/tool/cli/src/commands/Quality/index.ts"
+      ],
       "owner": "@beep-team",
       "riskLevel": "high",
       "decisionGate": {
-        "kind": "p0-reports-accepted",
+        "kind": "p2-envelope-contract-prerequisite",
         "status": "passed",
         "evidence": [
-          "research/feature-matrix.jsonc",
-          "research/knip-parity.jsonc"
+          "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+          "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+          "packages/tooling/tool/cli/src/commands/Quality/index.ts"
         ]
       }
     },
@@ -187,9 +193,9 @@
       "owner": "@beep-team",
       "riskLevel": "medium",
       "decisionGate": {
-        "kind": "envelope-contract-implemented",
+        "kind": "ci-envelope-contract",
         "status": "blocked",
-        "evidence": ["SPEC.md#report-envelope"]
+        "evidence": [".github/workflows/check.yml", "SPEC.md#ci-policy"]
       }
     },
     {

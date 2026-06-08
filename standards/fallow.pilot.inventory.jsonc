@@ -72,18 +72,18 @@
       "gate": "new-only",
       "summary": {
         "deadCodeIssues": 30,
-        "complexityFindings": 31,
-        "duplicationCloneGroups": 124
+        "complexityFindings": 41,
+        "duplicationCloneGroups": 155
       },
       "introduced": {
         "deadCodeIssues": 3,
-        "complexityFindings": 3,
-        "duplicationCloneGroups": 0
+        "complexityFindings": 10,
+        "duplicationCloneGroups": 10
       },
       "inherited": {
         "deadCodeIssues": 27,
-        "complexityFindings": 27,
-        "duplicationCloneGroups": 124
+        "complexityFindings": 30,
+        "duplicationCloneGroups": 145
       }
     },
     "fallowDupes": {
