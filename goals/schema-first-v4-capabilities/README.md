@@ -179,6 +179,10 @@ and `S.is(...)` guards for quality task routing while keeping the lazy
 constructing `OntologyMarkdownProjectionOptions` through its schema-owned
 `linkMode` constructor default instead of restating the portable-link fallback
 in normalization code.
+`SecureHeaderOptions` now demonstrates the options-argument default pattern:
+omitted aggregate helper options are normalized through a schema-owned
+constructor default while `createHeadersObject()` and `createSecureHeaders()`
+keep their ergonomic call shape.
 Wave 2 also started with HubSpot request-email and shared `EmailString`
 precision pilots. These pilots reduced arbitrary-test advisories from 27 to 0
 and active precision-audit advisories from 7 to 0, with two reviewed precision

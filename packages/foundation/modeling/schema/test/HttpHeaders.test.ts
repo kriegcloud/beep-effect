@@ -25,7 +25,7 @@ import { NoSniffHeader } from "@beep/schema/NoSniff";
 import { PermissionsPolicyHeader } from "@beep/schema/PermissionsPolicy";
 import { PermittedCrossDomainPoliciesHeader } from "@beep/schema/PermittedCrossDomainPolicies";
 import { ReferrerPolicyHeader } from "@beep/schema/ReferrerPolicy";
-import { createHeadersObject, createSecureHeaders } from "@beep/schema/SecureHeaderOptions";
+import { createHeadersObject, createSecureHeaders, SecureHeaderOptions } from "@beep/schema/SecureHeaderOptions";
 import { XSSProtectionHeader } from "@beep/schema/XssProtection";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
@@ -600,6 +600,18 @@ describe("Secure header aggregates", () => {
         })
       )
     ));
+
+  it("treats omitted, undefined, and schema-constructed empty options identically", () =>
+    Effect.gen(function* () {
+      const omitted = yield* Effect.promise(() => Promise.resolve(run(createHeadersObject())));
+      const explicitUndefined = yield* Effect.promise(() => Promise.resolve(run(createHeadersObject(undefined))));
+      const schemaConstructed = yield* Effect.promise(() =>
+        Promise.resolve(run(createHeadersObject(SecureHeaderOptions.make({}))))
+      );
+
+      expect(explicitUndefined).toEqual(omitted);
+      expect(schemaConstructed).toEqual(omitted);
+    }));
 
   it("creates customized secure headers and omits disabled values", () =>
     Effect.gen(function* () {

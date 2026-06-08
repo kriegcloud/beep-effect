@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "b0c8293506e08f7739cc1f2c403a086c3cd6c16a6768ad2f11bc93a74825ccaa",
+    "digest": "4c519c7c5f373aa1b4f12b3666e4ce5a90cf8db9db8bed8707e6d7eb6c81d821",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -1027,8 +1027,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts",
-        "sha256": "55ccee92cb581a7a71c889cdab337fcd0d81a4c78b116b1b669a96491c42d113",
-        "bytes": 6892
+        "sha256": "96ef58299b94a6db74ec134b7213b05da8429f8fa58745db60fd31fe77331ada",
+        "bytes": 7675
       },
       {
         "path": "packages/foundation/modeling/schema/src/SemanticVersion.ts",
@@ -41454,7 +41454,7 @@
         "symbolName": "createHeadersObject",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts",
-        "sourceLine": 163,
+        "sourceLine": 178,
         "summary": "Resolve secure-header options into a plain `Record<string, string>` header object.",
         "categories": [
           "constructors"
@@ -41479,7 +41479,7 @@
         "symbolName": "createSecureHeaders",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts",
-        "sourceLine": 192,
+        "sourceLine": 207,
         "summary": "Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs.",
         "categories": [
           "constructors"

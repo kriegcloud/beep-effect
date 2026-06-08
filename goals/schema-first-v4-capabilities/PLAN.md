@@ -263,6 +263,11 @@ class-local decoder statics pilots in
         into `OntologyMarkdownProjectionOptions` with
         `S.withConstructorDefault(...)` and proved omitted/empty options render
         equivalently; see `reviews/p4-ontology-markdown-defaults-pilot.md`.
+  - [x] Pilot secure-header aggregate options: moved the omitted options
+        fallback for `createHeadersObject` / `createSecureHeaders` into a
+        schema-owned argument object with `S.withConstructorDefault(...)` while
+        preserving the public helper call shape; see
+        `reviews/p4-secure-header-options-defaults-pilot.md`.
 - [x] Wave 5: add `S.toEquivalence` where schema-modeled equality is manually
       encoded. Completed for `LocalDate.equals` and `Timestamp.equals`; see
       `reviews/p4-equivalence-wave.md`.
