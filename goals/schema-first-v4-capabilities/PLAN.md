@@ -268,6 +268,12 @@ class-local decoder statics pilots in
         proving the optional/nullish Option codec round-trips (Some and
         omitted-None forms), dropping the advisories 33 → 32; see
         `reviews/p4-options-arbitrary-pilot.md`.
+  - [x] Orchestrated batch over the remaining 32 candidates (triage 6 genuine /
+        8 exception / 18 defer): remediated the 6 genuine schema-law tests
+        (`CanonicalizationSecurity`, `MutableHashMap`, `MutableHashSet`,
+        wink `ToolValidation`, `Model`, `Rdf`) with verified round-trip
+        properties, dropping the advisories 32 → 26; see
+        `reviews/p4-wave3-arbitrary-remediation-batch.md`.
 - [ ] Wave 4: migrate options/config/request defaults from parameter defaults
       and fallback objects into schema defaults. Start with schemas already
       modeling option/config/request objects.

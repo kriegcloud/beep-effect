@@ -15,6 +15,7 @@ import {
 } from "@beep/wink";
 import { Cause, Effect, Exit, Layer, Schema, Stream } from "effect";
 import * as O from "effect/Option";
+import { FastCheck as fc } from "effect/testing";
 import { describe, expect, it } from "vitest";
 
 const provideScopedLayer =
@@ -75,6 +76,19 @@ describe("Tool validation", () => {
         score: 2,
       })
     ).toThrow();
+  });
+
+  it("round-trips Tversky success payloads derived from the source schema", () => {
+    const arbitrary = Schema.toArbitrary(TverskySimilarity.successSchema);
+    const decode = Schema.decodeUnknownSync(TverskySimilarity.successSchema);
+    const encode = Schema.encodeUnknownSync(TverskySimilarity.successSchema);
+
+    fc.assert(
+      fc.property(arbitrary, (value) => {
+        expect(decode(encode(value))).toEqual(value);
+      }),
+      { numRuns: 50 }
+    );
   });
 
   it("rejects invalid custom-entity bracket patterns during engine learning", () =>

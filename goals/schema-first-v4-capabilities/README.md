@@ -104,7 +104,13 @@ remaining broad email fields were reviewed as raw-input/diagnostic exceptions,
 and zero defaults/numeric/static-api advisories. The `SFV4-arbitrary-tests`
 rule was then hardened from the async-only codec list to the full Effect v4
 sync/async codec family, re-surfacing 34 synchronous-codec advisory candidates
-now tracked for Wave 3 remediation. P3 has started with an internal
+for Wave 3. An orchestrated triage then remediated 8 of those with derived
+round-trip property tests (HttpStatus, Options, and the
+CanonicalizationSecurity / MutableHashMap / MutableHashSet / wink ToolValidation
+/ Model / Rdf batch), reclassified 8 incidental JSON-boundary and
+meta-combinator tests as inventory exceptions, and left 18 deferred pending a
+source-schema `toArbitrary` annotation pass — the live arbitrary-tests count is
+now 18. P3 has started with an internal
 repo-cli laws helper that formats `SchemaError.issue` through
 `SchemaIssue.makeFormatterStandardSchemaV1(...)` and provides redacted
 diagnostic output through public formatter hooks while avoiding a premature

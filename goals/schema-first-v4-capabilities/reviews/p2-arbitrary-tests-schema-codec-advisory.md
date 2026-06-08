@@ -168,11 +168,28 @@ After the HttpStatus round-trip pilot
 ```
 
 After the Options codec round-trip pilot
-(`reviews/p4-options-arbitrary-pilot.md`), the live repo now reports:
+(`reviews/p4-options-arbitrary-pilot.md`), the live repo reported:
 
 ```text
 [schema-first] sfv4_arbitrary_tests_advisories=32
 ```
+
+After the orchestrated Wave 3 batch remediated 6 genuine schema-law tests
+(`reviews/p4-wave3-arbitrary-remediation-batch.md`), the live repo reported:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=26
+```
+
+After reclassifying the 8 reviewed non-candidates as inventory exceptions
+(`reviews/p4-wave3-arbitrary-exceptions.md`), the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=18
+```
+
+The remaining 18 are deferred genuine schema tests pending a source-schema
+`toArbitrary` annotation pass.
 
 ## Still Pending
 

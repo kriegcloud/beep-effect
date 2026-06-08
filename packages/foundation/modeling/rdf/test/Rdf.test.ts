@@ -98,6 +98,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { pipe, Result } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const decodeIri = S.decodeUnknownSync(IRI);
 const decodeAbsoluteIri = S.decodeUnknownSync(AbsoluteIRI);
@@ -580,6 +581,19 @@ describe("@beep/rdf semantic metadata", () => {
     expect(getSemanticSchemaMetadata(wrapped)?.canonicalName).toBe("NestedIdentifier");
     expect(getSemanticSchemaMetadata(S.Array(S.String))).toBeUndefined();
     expect(getSemanticSchemaMetadata(S.Boolean)).toBeUndefined();
+  });
+
+  it("round-trips decode/encode for metadata derived from the source schema", () => {
+    const arbitrary = S.toArbitrary(SemanticSchemaMetadata);
+    const decode = S.decodeSync(SemanticSchemaMetadata);
+    const encode = S.encodeSync(SemanticSchemaMetadata);
+
+    fc.assert(
+      fc.property(arbitrary, (metadata) => {
+        expect(decode(encode(metadata))).toEqual(metadata);
+      }),
+      { numRuns: 50 }
+    );
   });
 });
 
