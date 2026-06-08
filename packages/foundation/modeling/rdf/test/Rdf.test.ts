@@ -20,6 +20,7 @@ import {
   DefaultGraph,
   GraphTerm,
   LanguageTag,
+  Literal,
   makeBlankNode,
   makeDataset,
   makeLiteral,
@@ -94,7 +95,7 @@ import {
 import { XSD_ANY_URI, XSD_BOOLEAN, XSD_DOUBLE, XSD_INTEGER, XSD_NAMESPACE, XSD_STRING } from "@beep/rdf/Vocab/Xsd";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
-import { pipe } from "effect";
+import { pipe, Result } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -405,8 +406,22 @@ describe("@beep/rdf RDF term and dataset models", () => {
   it("constructs and decodes every RDF term family", () => {
     const defaultGraph = DefaultGraph.make({ termType: "DefaultGraph", value: "" });
     const quad = makeQuad(alice, RDF_TYPE, { object: label, graph });
+    const decodedNamedNode = pipe(
+      NamedNode.decodeUnknownResult({ termType: "NamedNode", value: alice.value }),
+      Result.getOrThrow
+    );
+    const decodedLiteral = pipe(
+      Literal.decodeUnknownResult({
+        termType: "Literal",
+        value: "Alice",
+        datatype: NamedNode.make({ termType: "NamedNode", value: XSD_STRING.value }),
+      }),
+      Result.getOrThrow
+    );
 
     expect(makeNamedNode(alice.value)).toEqual(NamedNode.make({ termType: "NamedNode", value: alice.value }));
+    expect(decodedNamedNode).toEqual(alice);
+    expect(decodedLiteral).toEqual(typed);
     expect(blank).toEqual(BlankNode.make({ termType: "BlankNode", value: "b0" }));
     expect(label.language).toEqual(O.some("EN"));
     expect(typed.language).toEqual(O.none());
@@ -536,12 +551,14 @@ describe("@beep/rdf semantic metadata", () => {
 
   it("constructs metadata and exposes literal domains", () => {
     const metadata = makeSemanticSchemaMetadata(semanticMetadataInput);
+    const decodedMetadata = pipe(SemanticSchemaMetadata.decodeUnknownResult(semanticMetadataInput), Result.getOrThrow);
 
     expect(S.is(SemanticSchemaMetadataKind)("identifier")).toBe(true);
     expect(S.is(SemanticSchemaStatus)("stable")).toBe(true);
     expect(S.is(SemanticSchemaSpecificationDisposition)("informative")).toBe(true);
     expect(S.is(SemanticRepresentationKind)("JSON-LD")).toBe(true);
     expect(S.is(SemanticSchemaMetadata)(metadata)).toBe(true);
+    expect(decodedMetadata).toEqual(metadata);
     expect(metadata.canonicalName).toBe("ExampleIdentifier");
     expect(() =>
       S.decodeUnknownSync(SemanticSchemaMetadata)({

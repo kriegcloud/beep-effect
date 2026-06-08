@@ -167,6 +167,10 @@ repository cases behind their existing integration gate.
 derived decoders on `OipSiteContent`, `ContactSubmission`, and
 `ContactSubmissionFormPayload`, with compatibility exports delegating to those
 statics.
+`Rdf.ts` and `SemanticSchemaMetadata.ts` now expose class-local
+`decodeUnknownResult` statics on `NamedNode`, `Literal`, and
+`SemanticSchemaMetadata`, with RDF construction helpers delegating to those
+schema-owned decoders.
 `Quality/Tasks.ts` now demonstrates the loaded-module static helper pattern by
 using `LiteralKit` domains, `QualityTaskName.Enum`, `QualityTaskName.is.lint`,
 and `S.is(...)` guards for quality task routing while keeping the lazy

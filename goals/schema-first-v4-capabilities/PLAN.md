@@ -164,9 +164,10 @@ see
 `reviews/p4-tika-arbitrary-pilot.md`, and
 `reviews/p4-venice-ai-arbitrary-pilot.md`,
 `reviews/p4-acp-arbitrary-pilot.md`, and
-`reviews/p4-architecture-lab-pglite-arbitrary-pilot.md`, plus the OIP
-class-local decoder statics pilot in
-`reviews/p4-oip-class-local-statics-pilot.md`, and the repo-cli quality task
+`reviews/p4-architecture-lab-pglite-arbitrary-pilot.md`, plus the OIP and RDF
+class-local decoder statics pilots in
+`reviews/p4-oip-class-local-statics-pilot.md` and
+`reviews/p4-rdf-class-local-statics-pilot.md`, and the repo-cli quality task
 `LiteralKit` statics pilot in
 `reviews/p4-quality-task-literalkit-statics-pilot.md`.
 
@@ -271,6 +272,10 @@ class-local decoder statics pilot in
         `decodeUnknownEffect` statics to `OipSiteContent`,
         `ContactSubmission`, and `ContactSubmissionFormPayload`, while keeping
         existing compatibility exports delegated to those statics.
+  - [x] Pilot RDF schema classes: added class-local `decodeUnknownResult`
+        statics to `NamedNode`, `Literal`, and `SemanticSchemaMetadata`, then
+        moved private construction-helper decoders through those schema-owned
+        statics.
 - [ ] Spike `SchemaRepresentation` on a small generated model subset before
       touching broader generated driver output.
 - [ ] Keep the `SchemaRepresentation` spike side-by-side only. Do not replace
