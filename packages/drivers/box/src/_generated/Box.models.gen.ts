@@ -122,7 +122,7 @@ export const BoxSdkDateTime = S.Union([
 export type BoxSdkDateTime = typeof BoxSdkDateTime.Type;
 
 /**
- * Generated Box SDK method names wrapped by @beep/box.
+ * Generated Box SDK method names wrapped by \@beep/box.
  *
  * @example
  * ```ts

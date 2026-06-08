@@ -13,12 +13,12 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "9a05984a206b0a0b7f9d1af8e95266860af4c880013ed6a38d62d5a55c3bf4a8",
+    "digest": "599e479cdb19e8a32da36d8192e184a08d71e8e6ca8804f0ffe2cdbacb29b7ed",
     "inputs": [
       {
         "path": "package.json",
-        "sha256": "e2c96ee998fb6d44adb8d678eb1029e2bacb26fb785b05b0db36d5eb47a1a9cd",
-        "bytes": 15962
+        "sha256": "38a4a029ab670e1a919c2254cd2a49a970758b02ec3e7adb96c01ac392c11924",
+        "bytes": 16096
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",

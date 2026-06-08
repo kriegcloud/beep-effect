@@ -63,4 +63,6 @@ unticking
 USPTO
 vsearch
 yeet
+Regenerable
+uninspectable
 muda

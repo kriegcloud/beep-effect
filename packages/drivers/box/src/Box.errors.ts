@@ -10,6 +10,7 @@ import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { pipe, Result } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { BoxMethodName } from "./_generated/Box.models.gen.ts";
 import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
@@ -173,14 +174,20 @@ export class BoxError extends TaggedErrorClass<BoxError>($I`BoxError`)(
   static readonly fromReason = (reason: BoxErrorReason, options: BoxErrorOptionsInput = {}): BoxError =>
     BoxError.make({
       reason,
-      ...(options.cause === undefined ? {} : { cause: causeLabelFromInput(options.cause) }),
-      ...(options.code === undefined ? {} : { code: options.code }),
-      ...(options.context === undefined ? {} : { context: options.context }),
-      ...(options.helpUrl === undefined ? {} : { helpUrl: options.helpUrl }),
-      ...(options.method === undefined ? {} : { method: options.method }),
-      ...(options.requestId === undefined ? {} : { requestId: options.requestId }),
+      ...R.getSomes({
+        cause: pipe(O.fromUndefinedOr(options.cause), O.map(causeLabelFromInput)),
+        code: O.fromUndefinedOr(options.code),
+        helpUrl: O.fromUndefinedOr(options.helpUrl),
+        method: O.fromUndefinedOr(options.method),
+        requestId: O.fromUndefinedOr(options.requestId),
+      }),
+      ...R.getSomes({
+        context: O.fromUndefinedOr(options.context),
+      }),
+      ...R.getSomes({
+        status: O.fromUndefinedOr(options.status),
+      }),
       sdkVersion: options.sdkVersion ?? BOX_SDK_VERSION,
-      ...(options.status === undefined ? {} : { status: options.status }),
     });
 
   /**
@@ -199,20 +206,26 @@ export class BoxError extends TaggedErrorClass<BoxError>($I`BoxError`)(
    */
   static readonly fromUnknown = (method: BoxMethodNameType, cause: unknown): BoxError => {
     const responseInfo = responseInfoFromUnknown(cause);
-    const code = pipe(responseInfo, O.flatMap(readString("code")), O.getOrUndefined);
-    const context = pipe(responseInfo, O.flatMap(readContextInfo), O.getOrUndefined);
-    const helpUrl = pipe(responseInfo, O.flatMap(readString("helpUrl")), O.getOrUndefined);
-    const requestId = pipe(responseInfo, O.flatMap(readString("requestId")), O.getOrUndefined);
-    const status = pipe(responseInfo, O.flatMap(readNumber("statusCode")), O.getOrUndefined);
+    const code = pipe(responseInfo, O.flatMap(readString("code")));
+    const context = pipe(responseInfo, O.flatMap(readContextInfo));
+    const helpUrl = pipe(responseInfo, O.flatMap(readString("helpUrl")));
+    const requestId = pipe(responseInfo, O.flatMap(readString("requestId")));
+    const status = pipe(responseInfo, O.flatMap(readNumber("statusCode")));
 
     return BoxError.fromReason(reasonFromUnknown(cause), {
       cause: causeLabel(cause),
       method,
-      ...(code === undefined ? {} : { code }),
-      ...(context === undefined ? {} : { context }),
-      ...(helpUrl === undefined ? {} : { helpUrl }),
-      ...(requestId === undefined ? {} : { requestId }),
-      ...(status === undefined ? {} : { status }),
+      ...R.getSomes({
+        code,
+        helpUrl,
+        requestId,
+      }),
+      ...R.getSomes({
+        context,
+      }),
+      ...R.getSomes({
+        status,
+      }),
     });
   };
 }
@@ -258,19 +271,19 @@ const causeLabel = (cause: unknown): string =>
 
 const causeLabelFromInput = (cause: unknown): string => (P.isString(cause) ? cause : causeLabel(cause));
 
+const sdkThrownReason = (cause: unknown): BoxErrorReason =>
+  pipe(
+    readString("_tag")(cause),
+    O.filter((tag) => tag === "BoxSdkShapeError"),
+    O.as("sdk shape" as const),
+    O.getOrElse(() => "sdk thrown" as const)
+  );
+
 const reasonFromUnknown = (cause: unknown): BoxErrorReason =>
   pipe(
     responseInfoFromUnknown(cause),
     O.match({
-      onNone: () =>
-        pipe(
-          readString("_tag")(cause),
-          O.filter((tag) => tag === "BoxSdkShapeError"),
-          O.match({
-            onNone: () => "sdk thrown",
-            onSome: () => "sdk shape",
-          })
-        ),
+      onNone: () => sdkThrownReason(cause),
       onSome: () => "response status",
     })
   );

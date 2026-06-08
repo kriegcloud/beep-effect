@@ -260,7 +260,7 @@ describe("reuse command", () => {
     () =>
       Effect.runPromise(
         Effect.gen(function* () {
-          yield* runReuseCommand(["lookup", "--query", "UnknownRecord", "--json"]);
+          yield* runReuseCommand(["lookup", "--query", "UnknownRecord", "--limit", "1", "--json"]);
 
           const result = yield* parseLoggedJson(decodeRepoCodegraphLookupResultJson);
 
@@ -288,6 +288,8 @@ describe("reuse command", () => {
             "UnknownRecord\u001b]52;c;clipboard\u0007\rspoof",
             "--from",
             "packages/missing\u001b[31m/domain",
+            "--limit",
+            "0",
           ]);
 
           const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
@@ -309,7 +311,7 @@ describe("reuse command", () => {
         Effect.gen(function* () {
           const query = "UnknownRecord\u001b]52;c;clipboard\u0007\rspoof";
           const caller = "packages/missing\u001b[31m/domain";
-          yield* runReuseCommand(["lookup", "--query", query, "--from", caller, "--json"]);
+          yield* runReuseCommand(["lookup", "--query", query, "--from", caller, "--limit", "0", "--json"]);
 
           const result = yield* parseLoggedJson(decodeRepoCodegraphLookupResultJson);
           const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");

@@ -927,6 +927,21 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/foundation/capability/langextract": {
+      "name": "@beep/langextract",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/nlp": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/foundation/capability/md": {
       "name": "@beep/md",
       "version": "0.0.2",
@@ -2151,6 +2166,8 @@
     "@beep/installer-use-cases": ["@beep/installer-use-cases@workspace:packages/installer/use-cases"],
 
     "@beep/konva": ["@beep/konva@workspace:packages/drivers/konva"],
+
+    "@beep/langextract": ["@beep/langextract@workspace:packages/foundation/capability/langextract"],
 
     "@beep/law-practice-domain": ["@beep/law-practice-domain@workspace:packages/law-practice/domain"],
 

@@ -8,6 +8,8 @@
 import { $BoxId } from "@beep/identity";
 import { BoxCcgAuth, BoxClient, BoxDeveloperTokenAuth, CcgConfig } from "box-node-sdk";
 import { Context, Effect, Layer, Redacted } from "effect";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import { makeGeneratedOperations } from "./_generated/Box.operations.gen.ts";
 import { BoxConfig, BoxConfigLayer } from "./Box.config.ts";
 import { BoxError } from "./Box.errors.ts";
@@ -88,8 +90,10 @@ const makeCcgClient = (config: BoxCcgConfig): BoxClient =>
       config: new CcgConfig({
         clientId: config.clientId,
         clientSecret: Redacted.value(config.clientSecret),
-        ...(config.enterpriseId === undefined ? {} : { enterpriseId: config.enterpriseId }),
-        ...(config.userId === undefined ? {} : { userId: config.userId }),
+        ...R.getSomes({
+          enterpriseId: O.fromUndefinedOr(config.enterpriseId),
+          userId: O.fromUndefinedOr(config.userId),
+        }),
       }),
     }),
   });

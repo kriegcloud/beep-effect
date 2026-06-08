@@ -1,0 +1,1520 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "3e7860a3b90354fd981298c13a2972c5e2bd61aaf4062628b47a96711b5e0e8d",
+    "inputs": [
+      {
+        "path": "packages/foundation/capability/langextract/package.json",
+        "sha256": "511df5156c670af017c92b1f9aafe3e59161c9f651f1fd88915063cb905a60fd",
+        "bytes": 2791
+      },
+      {
+        "path": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "sha256": "21a767b27830d83b865031b4fd9c91870857fb22663a4e1deba12d6e335fdd8e",
+        "bytes": 8604
+      },
+      {
+        "path": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sha256": "1e7d8d811b1d39d71b4a452ab4c74e4316958b31f0796f83c3efebd178c721de",
+        "bytes": 11271
+      },
+      {
+        "path": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "sha256": "0ccd0176e9c6d6631e21de64b00e7108a2d306b1f50a28c4df4a64d9f6fcd716",
+        "bytes": 4235
+      },
+      {
+        "path": "packages/foundation/capability/langextract/src/index.ts",
+        "sha256": "4db84bc21184e81fdcdbefdd4fc1932a7ccf7b5ba0278c8148f9743ba5bf594d",
+        "bytes": 858
+      },
+      {
+        "path": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sha256": "82f8239e0c79ba288144acba48f1a02c7a4d16626768c34238060324fdb70294",
+        "bytes": 5931
+      },
+      {
+        "path": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sha256": "873ed99cc73b71b97f932827a869ae296717be6554ef58e5df331d5d1d3e657c",
+        "bytes": 3014
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "06d4948b859584986509c07f9dd45fc7804e14819250bd009483d3800f2b8242",
+        "bytes": 40136
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sha256": "e24de97c58609b7f32a56643f860045b19b98752336af4c43527a5863fd981a5",
+        "bytes": 65995
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/langextract",
+    "packagePath": "packages/foundation/capability/langextract",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/langextract",
+      "@beep/langextract/Alignment",
+      "@beep/langextract/Alignment/index",
+      "@beep/langextract/Extraction",
+      "@beep/langextract/Extraction/index",
+      "@beep/langextract/Handoff",
+      "@beep/langextract/Handoff/index",
+      "@beep/langextract/index",
+      "@beep/langextract/Service",
+      "@beep/langextract/Service/index",
+      "@beep/langextract/Target",
+      "@beep/langextract/Target/index"
+    ],
+    "counts": {
+      "publicExportEntries": 60,
+      "uniqueSymbols": 27,
+      "sourceFiles": 6
+    },
+    "exports": [
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/index.ts",
+        "symbolName": "Alignment",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract . alignment sourcefile packages/foundation/capability/langextract/src/alignment/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/index.ts",
+        "symbolName": "Extraction",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract . extraction sourcefile packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/index.ts",
+        "symbolName": "Handoff",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract . handoff sourcefile packages/foundation/capability/langextract/src/handoff/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/index.ts",
+        "symbolName": "Service",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract . service sourcefile packages/foundation/capability/langextract/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/index.ts",
+        "symbolName": "Target",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract . target sourcefile packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Alignment",
+        "exportSubpath": "./Alignment",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "symbolName": "alignCandidate",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "sourceLine": 203,
+        "summary": "Align one extraction candidate against source text.",
+        "categories": [
+          "mapping"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/alignment ./alignment aligncandidate const align one extraction candidate against source text. mapping packages/foundation/capability/langextract/src/alignment/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Alignment",
+        "exportSubpath": "./Alignment",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "symbolName": "alignCandidates",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "sourceLine": 248,
+        "summary": "Align candidates and honor the optional maximum extraction count.",
+        "categories": [
+          "mapping"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/alignment ./alignment aligncandidates const align candidates and honor the optional maximum extraction count. mapping packages/foundation/capability/langextract/src/alignment/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Alignment/index",
+        "exportSubpath": "./Alignment/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "symbolName": "alignCandidate",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "sourceLine": 203,
+        "summary": "Align one extraction candidate against source text.",
+        "categories": [
+          "mapping"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/alignment/index ./alignment/index aligncandidate const align one extraction candidate against source text. mapping packages/foundation/capability/langextract/src/alignment/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Alignment/index",
+        "exportSubpath": "./Alignment/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "symbolName": "alignCandidates",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "sourceLine": 248,
+        "summary": "Align candidates and honor the optional maximum extraction count.",
+        "categories": [
+          "mapping"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/alignment/index ./alignment/index aligncandidates const align candidates and honor the optional maximum extraction count. mapping packages/foundation/capability/langextract/src/alignment/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "AlignmentStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 105,
+        "summary": "Alignment status assigned to a parsed extraction candidate.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction alignmentstatus const alignment status assigned to a parsed extraction candidate. schemas packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "AlignmentStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 117,
+        "summary": "Type for {@link AlignmentStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction alignmentstatus type type for {@link alignmentstatus}. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "ExtractionCandidate",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 156,
+        "summary": "Candidate extraction decoded from model output before source alignment.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction extractioncandidate class candidate extraction decoded from model output before source alignment. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "GroundedExtraction",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 184,
+        "summary": "Extraction after deterministic source alignment.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction groundedextraction class extraction after deterministic source alignment. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractDiagnostics",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 250,
+        "summary": "Counts emitted with a completed extraction result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction langextractdiagnostics class counts emitted with a completed extraction result. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractError",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 66,
+        "summary": "Sanitized LangExtract capability error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction langextracterror class sanitized langextract capability error. errors packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 32,
+        "summary": "Machine-readable LangExtract failure reasons.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction langextracterrorreason const machine-readable langextract failure reasons. errors packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 51,
+        "summary": "Type for {@link LangExtractErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction langextracterrorreason type type for {@link langextracterrorreason}. errors packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 133,
+        "summary": "Options controlling provider-neutral extraction and alignment.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction langextractoptions class options controlling provider-neutral extraction and alignment. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 218,
+        "summary": "Provider-neutral extraction request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction langextractrequest class provider-neutral extraction request. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 297,
+        "summary": "Provider-neutral extraction result plus NLP handoff document.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction langextractresult class provider-neutral extraction result plus nlp handoff document. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction",
+        "exportSubpath": "./Extraction",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "parseModelOutput",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 350,
+        "summary": "Decode a model text response into extraction candidates.",
+        "categories": [
+          "parsing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction ./extraction parsemodeloutput const decode a model text response into extraction candidates. parsing packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "AlignmentStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 105,
+        "summary": "Alignment status assigned to a parsed extraction candidate.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index alignmentstatus const alignment status assigned to a parsed extraction candidate. schemas packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "AlignmentStatus",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 117,
+        "summary": "Type for {@link AlignmentStatus}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index alignmentstatus type type for {@link alignmentstatus}. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "ExtractionCandidate",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 156,
+        "summary": "Candidate extraction decoded from model output before source alignment.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index extractioncandidate class candidate extraction decoded from model output before source alignment. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "GroundedExtraction",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 184,
+        "summary": "Extraction after deterministic source alignment.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index groundedextraction class extraction after deterministic source alignment. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractDiagnostics",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 250,
+        "summary": "Counts emitted with a completed extraction result.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index langextractdiagnostics class counts emitted with a completed extraction result. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractError",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 66,
+        "summary": "Sanitized LangExtract capability error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index langextracterror class sanitized langextract capability error. errors packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractErrorReason",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 32,
+        "summary": "Machine-readable LangExtract failure reasons.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index langextracterrorreason const machine-readable langextract failure reasons. errors packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractErrorReason",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 51,
+        "summary": "Type for {@link LangExtractErrorReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index langextracterrorreason type type for {@link langextracterrorreason}. errors packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 133,
+        "summary": "Options controlling provider-neutral extraction and alignment.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index langextractoptions class options controlling provider-neutral extraction and alignment. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractRequest",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 218,
+        "summary": "Provider-neutral extraction request.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index langextractrequest class provider-neutral extraction request. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "LangExtractResult",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 297,
+        "summary": "Provider-neutral extraction result plus NLP handoff document.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index langextractresult class provider-neutral extraction result plus nlp handoff document. models packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Extraction/index",
+        "exportSubpath": "./Extraction/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "symbolName": "parseModelOutput",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 350,
+        "summary": "Decode a model text response into extraction candidates.",
+        "categories": [
+          "parsing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/extraction/index ./extraction/index parsemodeloutput const decode a model text response into extraction candidates. parsing packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Handoff",
+        "exportSubpath": "./Handoff",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "symbolName": "AnnotatedDocumentInput",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "sourceLine": 38,
+        "summary": "Input required to build an NLP handoff document.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/handoff ./handoff annotateddocumentinput class input required to build an nlp handoff document. interop packages/foundation/capability/langextract/src/handoff/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Handoff",
+        "exportSubpath": "./Handoff",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "symbolName": "toAnnotatedDocument",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "sourceLine": 108,
+        "summary": "Convert grounded extractions into the generic NLP handoff envelope.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/handoff ./handoff toannotateddocument const convert grounded extractions into the generic nlp handoff envelope. interop packages/foundation/capability/langextract/src/handoff/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Handoff/index",
+        "exportSubpath": "./Handoff/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "symbolName": "AnnotatedDocumentInput",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "sourceLine": 38,
+        "summary": "Input required to build an NLP handoff document.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/handoff/index ./handoff/index annotateddocumentinput class input required to build an nlp handoff document. interop packages/foundation/capability/langextract/src/handoff/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Handoff/index",
+        "exportSubpath": "./Handoff/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "symbolName": "toAnnotatedDocument",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "sourceLine": 108,
+        "summary": "Convert grounded extractions into the generic NLP handoff envelope.",
+        "categories": [
+          "interop"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/handoff/index ./handoff/index toannotateddocument const convert grounded extractions into the generic nlp handoff envelope. interop packages/foundation/capability/langextract/src/handoff/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/index.ts",
+        "symbolName": "Alignment",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/langextract/src/Alignment/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/index ./index alignment sourcefile packages/foundation/capability/langextract/src/alignment/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/index.ts",
+        "symbolName": "Extraction",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/langextract/src/Extraction/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/index ./index extraction sourcefile packages/foundation/capability/langextract/src/extraction/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/index.ts",
+        "symbolName": "Handoff",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/langextract/src/Handoff/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/index ./index handoff sourcefile packages/foundation/capability/langextract/src/handoff/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/index.ts",
+        "symbolName": "Service",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/index ./index service sourcefile packages/foundation/capability/langextract/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/index.ts",
+        "symbolName": "Target",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 8,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/index ./index target sourcefile packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "symbolName": "buildPrompt",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sourceLine": 87,
+        "summary": "Build the deterministic provider-neutral extraction prompt.",
+        "categories": [
+          "formatting"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/service ./service buildprompt const build the deterministic provider-neutral extraction prompt. formatting packages/foundation/capability/langextract/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "symbolName": "LangExtractService",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sourceLine": 43,
+        "summary": "Provider-neutral LangExtract service tag.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/service ./service langextractservice class provider-neutral langextract service tag. services packages/foundation/capability/langextract/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "symbolName": "layer",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sourceLine": 179,
+        "summary": "Layer that provides {@link LangExtractService} from an injected language model.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/service ./service layer const layer that provides {@link langextractservice} from an injected language model. layers packages/foundation/capability/langextract/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "symbolName": "make",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sourceLine": 113,
+        "summary": "Construct the service implementation from an injected language model.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/service ./service make const construct the service implementation from an injected language model. constructors packages/foundation/capability/langextract/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "symbolName": "buildPrompt",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sourceLine": 87,
+        "summary": "Build the deterministic provider-neutral extraction prompt.",
+        "categories": [
+          "formatting"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/service/index ./service/index buildprompt const build the deterministic provider-neutral extraction prompt. formatting packages/foundation/capability/langextract/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "symbolName": "LangExtractService",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sourceLine": 43,
+        "summary": "Provider-neutral LangExtract service tag.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/service/index ./service/index langextractservice class provider-neutral langextract service tag. services packages/foundation/capability/langextract/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "symbolName": "layer",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sourceLine": 179,
+        "summary": "Layer that provides {@link LangExtractService} from an injected language model.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/service/index ./service/index layer const layer that provides {@link langextractservice} from an injected language model. layers packages/foundation/capability/langextract/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "symbolName": "make",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Service/index.ts",
+        "sourceLine": 113,
+        "summary": "Construct the service implementation from an injected language model.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/service/index ./service/index make const construct the service implementation from an injected language model. constructors packages/foundation/capability/langextract/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Target",
+        "exportSubpath": "./Target",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "symbolName": "ExtractionExample",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 106,
+        "summary": "Few-shot example for a source text and expected extractions.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/target ./target extractionexample class few-shot example for a source text and expected extractions. models packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Target",
+        "exportSubpath": "./Target",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "symbolName": "ExtractionExampleItem",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 79,
+        "summary": "Example extraction included in a few-shot prompt.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/target ./target extractionexampleitem class example extraction included in a few-shot prompt. models packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Target",
+        "exportSubpath": "./Target",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "symbolName": "ExtractionTarget",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 54,
+        "summary": "A single extraction target requested from a language model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/target ./target extractiontarget class a single extraction target requested from a language model. models packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Target",
+        "exportSubpath": "./Target",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "symbolName": "ExtractionTargetKind",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 27,
+        "summary": "V1 target kinds understood by the provider-neutral extraction contract.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/target ./target extractiontargetkind const v1 target kinds understood by the provider-neutral extraction contract. schemas packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Target",
+        "exportSubpath": "./Target",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "symbolName": "ExtractionTargetKind",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 39,
+        "summary": "Type for {@link ExtractionTargetKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/target ./target extractiontargetkind type type for {@link extractiontargetkind}. models packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Target/index",
+        "exportSubpath": "./Target/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "symbolName": "ExtractionExample",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 106,
+        "summary": "Few-shot example for a source text and expected extractions.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/target/index ./target/index extractionexample class few-shot example for a source text and expected extractions. models packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Target/index",
+        "exportSubpath": "./Target/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "symbolName": "ExtractionExampleItem",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 79,
+        "summary": "Example extraction included in a few-shot prompt.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/target/index ./target/index extractionexampleitem class example extraction included in a few-shot prompt. models packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Target/index",
+        "exportSubpath": "./Target/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "symbolName": "ExtractionTarget",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 54,
+        "summary": "A single extraction target requested from a language model.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/target/index ./target/index extractiontarget class a single extraction target requested from a language model. models packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Target/index",
+        "exportSubpath": "./Target/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "symbolName": "ExtractionTargetKind",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 27,
+        "summary": "V1 target kinds understood by the provider-neutral extraction contract.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/target/index ./target/index extractiontargetkind const v1 target kinds understood by the provider-neutral extraction contract. schemas packages/foundation/capability/langextract/src/target/index.ts"
+      },
+      {
+        "packageName": "@beep/langextract",
+        "packagePath": "packages/foundation/capability/langextract",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/langextract/Target/index",
+        "exportSubpath": "./Target/index",
+        "exportedFromPath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "symbolName": "ExtractionTargetKind",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/langextract/src/Target/index.ts",
+        "sourceLine": 39,
+        "summary": "Type for {@link ExtractionTargetKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/langextract packages/foundation/capability/langextract @beep/langextract/target/index ./target/index extractiontargetkind type type for {@link extractiontargetkind}. models packages/foundation/capability/langextract/src/target/index.ts"
+      }
+    ]
+  }
+}

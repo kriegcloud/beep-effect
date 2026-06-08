@@ -2,6 +2,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { Match } from "effect";
 import ts from "typescript";
 
 type GeneratedDeclaration = {
@@ -221,46 +222,36 @@ const schemaForLiteral = (value: string | number | boolean | null | undefined): 
   return `S.Literal(${literalExpression(value)})`;
 };
 
-const schemaForReference = (name: string, state: GenerationState): string => {
-  switch (name) {
-    case "string":
-    case "String":
-      return "S.String";
-    case "number":
-    case "Number":
-      return "S.Finite";
-    case "boolean":
-    case "Boolean":
-      return "S.Boolean";
-    case "unknown":
-    case "any":
-    case "object":
-    case "Object":
+const schemaForReference = (name: string, state: GenerationState): string =>
+  Match.value(name).pipe(
+    Match.whenOr("string", "String", () => "S.String"),
+    Match.whenOr("number", "Number", () => "S.Finite"),
+    Match.whenOr("boolean", "Boolean", () => "S.Boolean"),
+    Match.whenOr("unknown", "any", "object", "Object", () => {
       state.constrainedTypes.add(name);
       return "S.Unknown";
-    case "DateTime":
-      return "BoxSdkDateTime";
-    case "Date":
-      return "BoxSdkDate";
-    case "SerializedData":
-      return "BoxSerializedData";
-    case "CancellationToken":
-      return "S.instanceOf(AbortSignal)";
-    case "ByteStream":
-    case "Buffer":
-    case "FormData":
-    case "AgentOptions":
-    case "Agent":
-    case "Interceptor":
-    case "TokenStorage":
-    case "PrivateKeyDecryptor":
-    case "RequestInit":
-      state.constrainedTypes.add(name);
-      return "S.Unknown";
-    default:
-      return state.declarationNames.has(name) ? `S.suspend(() => ${name})` : "S.Unknown";
-  }
-};
+    }),
+    Match.when("DateTime", () => "BoxSdkDateTime"),
+    Match.when("Date", () => "BoxSdkDate"),
+    Match.when("SerializedData", () => "BoxSerializedData"),
+    Match.when("CancellationToken", () => "S.instanceOf(AbortSignal)"),
+    Match.whenOr(
+      "ByteStream",
+      "Buffer",
+      "FormData",
+      "AgentOptions",
+      "Agent",
+      "Interceptor",
+      "TokenStorage",
+      "PrivateKeyDecryptor",
+      "RequestInit",
+      () => {
+        state.constrainedTypes.add(name);
+        return "S.Unknown";
+      }
+    ),
+    Match.orElse(() => (state.declarationNames.has(name) ? `S.suspend(() => ${name})` : "S.Unknown"))
+  );
 
 const schemaForTypeLiteral = (node: ts.TypeLiteralNode, state: GenerationState): string => {
   const fields: string[] = [];
@@ -401,26 +392,21 @@ const schemaForType = (node: ts.TypeNode, state: GenerationState): string => {
     return schemaForReference(name, state);
   }
 
-  switch (node.kind) {
-    case ts.SyntaxKind.StringKeyword:
-      return "S.String";
-    case ts.SyntaxKind.NumberKeyword:
-      return "S.Finite";
-    case ts.SyntaxKind.BooleanKeyword:
-      return "S.Boolean";
-    case ts.SyntaxKind.UnknownKeyword:
-    case ts.SyntaxKind.AnyKeyword:
-    case ts.SyntaxKind.ObjectKeyword:
+  return Match.value(node.kind).pipe(
+    Match.when(ts.SyntaxKind.StringKeyword, () => "S.String"),
+    Match.when(ts.SyntaxKind.NumberKeyword, () => "S.Finite"),
+    Match.when(ts.SyntaxKind.BooleanKeyword, () => "S.Boolean"),
+    Match.whenOr(ts.SyntaxKind.UnknownKeyword, ts.SyntaxKind.AnyKeyword, ts.SyntaxKind.ObjectKeyword, () => {
       state.constrainedTypes.add(node.getText());
       return "S.Unknown";
-    case ts.SyntaxKind.UndefinedKeyword:
-      return "S.Undefined";
-    case ts.SyntaxKind.NullKeyword:
-      return "S.Null";
-    default:
+    }),
+    Match.when(ts.SyntaxKind.UndefinedKeyword, () => "S.Undefined"),
+    Match.when(ts.SyntaxKind.NullKeyword, () => "S.Null"),
+    Match.orElse(() => {
       state.constrainedTypes.add(node.getText());
       return "S.Unknown";
-  }
+    })
+  );
 };
 
 const collectFields = (
@@ -1042,7 +1028,7 @@ export const BoxSdkDateTime = S.Union([
 export type BoxSdkDateTime = typeof BoxSdkDateTime.Type;
 
 /**
- * Generated Box SDK method names wrapped by @beep/box.
+ * Generated Box SDK method names wrapped by \\@beep/box.
  *
  * @example
  * \`\`\`ts

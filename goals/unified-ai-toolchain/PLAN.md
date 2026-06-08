@@ -1,160 +1,236 @@
 # Unified AI Toolchain Plan
 
 This plan executes [SPEC.md](./SPEC.md). P0 through P5 are complete for V1.
-P6+ records follow-up work that is intentionally outside the V1 schema-library
-gate.
+V2 is active. V3 is planned.
 
-## P0: Initiative Bootstrap And Current State
+## Status
 
-Status: complete
+| Phase | Status | Goal | Exit criteria |
+| --- | --- | --- | --- |
+| P0-P5 V1 | complete | Preserve schema truth layer evidence. | V1 evidence remains linked and package checks stay green. |
+| V2.0 Bootstrap | complete | Reopen packet for V2/V3 execution. | `GOAL.md`, spec, plan, manifest, and bootstrap evidence are updated. |
+| V2.1 Operator CLI | pending | Add root `beep ai-sync` commands. | `audit`, `check`, `drift`, and `refresh-pr` exist with tests. |
+| V2.2 Broad Dogfood | pending | Validate all registered repo agent config files. | Root/package checks cover `.codex/config.toml`, `.mcp.json`, `.claude/settings.json`, `AGENTS.md`, and `CLAUDE.md`. |
+| V2.3 Reports And Interop Evidence | pending | Add schema-first reports and rulesync audit/import evidence. | JSON reports decode through schemas; rulesync config/MCP evidence is tested; ruler remains research-only. |
+| V2.4 Drift Auto-PR | pending | Add weekly/manual scheduled refresh PR workflow. | Known drift can be refreshed into an automation PR with focused proof plus root check. |
+| V2.5 Closeout | pending | Prove V2 production-readiness. | V2 verification commands pass and closeout evidence is archived. |
+| V3.1 Canonical Models | planned | Add canonical per-domain config models. | Models decode fixtures and import current native repo files. |
+| V3.2 Canonical Source | planned | Introduce `.ai-sync/project.jsonc`. | File decodes, imports from native files, and is documented as the canonical source. |
+| V3.3 Native Plan/Apply | planned | Emit native files safely. | Dry-run plans, loss reports, temp-dir apply tests, and native validation pass. |
+| V3.4 Current-Matrix Emitters | planned | Support existing five target agents. | Claude Code, Codex, Grok Build, JetBrains AI Assistant, and Junie emitters are production-ready without guessing unknown cells. |
+| V3b Expansion | planned | Add a research-gated additional-agent batch. | Fresh source-map research selects a bounded batch with current evidence. |
 
-- Create the goal packet under `goals/unified-ai-toolchain`.
-- Preserve the prior web research artifact as
-  [research/claude-web-source-map.md](./research/claude-web-source-map.md).
-- Audit the current repo landscape:
-  - `@beep/acp` exists and provides the codegen precedent
-  - `@beep/ai-sync` did not yet exist at packet creation
-  - `.codex/config.toml`, `.mcp.json`, `.claude/settings.json`, `AGENTS.md`,
-    and `CLAUDE.md` are available dogfooding candidates
-- Record current state in
-  [history/outputs/p0-current-state.md](./history/outputs/p0-current-state.md).
-- Record the full source map in
-  [research/sources-of-truth.md](./research/sources-of-truth.md).
+## V1 Closeout
 
-Acceptance gate: the packet exists, `goals/README.md` lists the goal, and the
-P0 output records Tier-1 through Tier-4 sources with pins, drift mechanisms,
-and public accessibility.
+Status: complete.
 
-## P1: Source-of-Truth Pinning And Tier-1 Codegen
+V1 implementation lives in `packages/tooling/library/ai-sync` as
+`@beep/ai-sync`.
 
-Status: complete
+Evidence:
 
-- Create `packages/tooling/library/ai-sync` as a tooling library.
-- Pin Tier-1 machine-readable sources:
-  - Codex `codex-rs/core/config.schema.json` at `rust-v0.133.0`
-  - Codex `codex-rs/hooks/schema/generated/*.json` at `rust-v0.133.0`
-  - MCP `schema/2025-11-25/schema.json`
-  - ACP `schema/schema.json` at `v0.13.3`
-  - Claude Code SchemaStore mirrors for settings, plugin manifest, and
-    marketplace
-  - rulesync release schema assets for unified-config fallback
-- Build the codegen pipeline in the same style as
-  `packages/drivers/acp/scripts/generate.ts`.
-- Emit generated Effect Schema modules under
-  `src/_generated/<agent>/<domain>.gen.ts`.
-- Document the codegen architecture in
-  [research/codegen-and-drift-architecture.md](./research/codegen-and-drift-architecture.md).
+- [history/outputs/p0-current-state.md](./history/outputs/p0-current-state.md)
+- [history/outputs/p1-source-of-truth-pinning-and-tier-1-codegen.md](./history/outputs/p1-source-of-truth-pinning-and-tier-1-codegen.md)
+- [history/outputs/p2-tier-2-semantic-field-diff-schemas.md](./history/outputs/p2-tier-2-semantic-field-diff-schemas.md)
+- [history/outputs/p3-drift-detection-pipeline.md](./history/outputs/p3-drift-detection-pipeline.md)
+- [history/outputs/p4-cross-agent-transforms.md](./history/outputs/p4-cross-agent-transforms.md)
+- [history/outputs/p5-first-real-consumer.md](./history/outputs/p5-first-real-consumer.md)
 
-Evidence: [history/outputs/p1-source-of-truth-pinning-and-tier-1-codegen.md](./history/outputs/p1-source-of-truth-pinning-and-tier-1-codegen.md).
+Do not reopen V1 gates unless current implementation contradicts the V1
+completion criteria in [SPEC.md](./SPEC.md).
 
-Acceptance gate: Tier-1 generated schemas are reproducible from pinned sources,
-generated files carry a no-edit banner, and normal package check remains
-offline.
+## V2.0 Bootstrap
 
-## P2: Tier-2 Semantic-Field-Diff Schemas
+Status: complete.
 
-Status: complete
+- Add compact `GOAL.md` launcher.
+- Reframe packet status as V1 complete, V2 active, V3 planned.
+- Replace non-specific P6+ follow-ups with V2/V3 phase gates.
+- Record decisions in
+  [history/outputs/v2-v3-bootstrap.md](./history/outputs/v2-v3-bootstrap.md).
 
-- Hand-author Effect Schemas for domains without Tier-1 sources.
-- Cover Claude Code hooks, skills, commands, rules, plugin component metadata,
-  and MCP docs where SchemaStore is incomplete.
-- Cover JetBrains AI Assistant rules, prompt-library commands, and IDE MCP
-  JSON snippets; mark Skills, Hooks, and Plugins as N/A where the product has
-  no committed concept.
-- Cover Junie skills, rules, commands, and MCP from official docs; mark Hooks
-  and Plugins as N/A for V1.
-- Cover Grok Build documented skills, rules, commands, hooks, plugins, and
-  MCP compatibility surfaces; mark undocumented native schemas as
-  `unknown_schema`.
-- Attach each hand-authored schema to its upstream documentation URL through
-  JSDoc annotation.
+Acceptance gate:
 
-Evidence: [history/outputs/p2-tier-2-semantic-field-diff-schemas.md](./history/outputs/p2-tier-2-semantic-field-diff-schemas.md).
+- `GOAL.md` exists and is under 4,000 characters.
+- `ops/manifest.json` is valid JSON and marks the packet execution-capable.
+- `README.md`, `SPEC.md`, and `PLAN.md` agree on V2/V3 scope.
 
-Acceptance gate: schema coverage is complete across the matrix without
-inventing unsupported shapes.
+## V2.1 Operator CLI
 
-## P3: Drift Detection Pipeline
+Status: pending.
 
-Status: complete
+- Add an `ai-sync` command group to `@beep/repo-cli`.
+- Implement:
+  - `bun run beep ai-sync audit [--json]`
+  - `bun run beep ai-sync check [--json]`
+  - `bun run beep ai-sync drift [--strict] [--json]`
+  - `bun run beep ai-sync refresh-pr [--json]`
+- Keep `@beep/ai-sync` as the reusable library and source of schema/drift
+  primitives.
+- Preserve the root `bun run ai-sync ...` delegate as a low-level compatibility
+  shortcut unless a dedicated cleanup is planned.
 
-- Implement layered drift checks:
-  - `--check`: fast local check, no network, validates generated files and
-    local config against committed schemas
-  - `--strict`: CI mode, fetches upstream metadata and compares pins, hashes,
-    and semantic fields
-  - `--refresh`: regenerates from upstream pins or refreshed pins and prepares
-    the diff for PR automation
-- Integrate the fast check into the existing Husky lint-staged path only for
-  relevant config or package files.
-- Add CI coverage for strict drift checks.
-- Add synthetic drift tests that replace a pinned response and prove the drift
-  checker reports the affected source and domain.
+Acceptance gate:
 
-Evidence: [history/outputs/p3-drift-detection-pipeline.md](./history/outputs/p3-drift-detection-pipeline.md).
+- Command definitions are tested through `@beep/repo-cli`.
+- `--json` outputs decode through `@beep/ai-sync` report schemas.
+- Human output is a rendering of the same decoded report values.
 
-Acceptance gate: drift is visible before schemas silently become stale.
+## V2.2 Broad Dogfood
 
-## P4: Cross-Agent Transforms
+Status: pending.
 
-Status: complete
+- Promote all currently registered repo agent config files to mandatory
+  dogfooding inputs:
+  - `.codex/config.toml`
+  - `.mcp.json`
+  - `.claude/settings.json`
+  - `AGENTS.md`
+  - `CLAUDE.md`
+- Keep validation offline in normal checks.
+- Preserve secret-redaction and bounded-error-output behavior.
 
-- Implement bidirectional `Schema.transform` pairs only where semantics are
-  real.
-- Prioritize mappings with clear correspondence:
-  - AGENTS.md-style rules and agent instruction documents
-  - Codex `[mcp_servers.*]` TOML and Claude-style `.mcp.json`
-  - Junie project MCP JSON and Claude-compatible MCP JSON
-  - shared Agent Skills frontmatter where Claude Code, Codex, Grok Build, and
-    Junie overlap
-- Record lossy and lossless transform metadata.
-- Refuse transforms for unknown or unsupported cells until source evidence
-  exists.
+Acceptance gate:
 
-Evidence: [history/outputs/p4-cross-agent-transforms.md](./history/outputs/p4-cross-agent-transforms.md).
+- `bun run beep ai-sync check --json` reports all five files.
+- `bun run --cwd packages/tooling/library/ai-sync check` validates all
+  mandatory files or delegates to an equivalent package-local helper.
+- `bun run check` includes the broadened dogfood gate.
 
-Acceptance gate: transforms do not pretend that incompatible agent concepts are
-equivalent.
+## V2.3 Reports And Interop Evidence
 
-## P5: First Real Consumer
+Status: pending.
 
-Status: complete
+- Add schema-first report models for audit, validation, drift, refresh, and
+  compatibility evidence.
+- Add rulesync config/MCP import or audit evidence only for schema-backed
+  surfaces already represented in V1 source metadata.
+- Keep ruler as research and mapping evidence in V2; do not promise a supported
+  ruler parser.
+- Record mapping losses explicitly so V3 native emission can build from tested
+  evidence.
 
-- Wire beep-effect's own agent config files through
-  `@beep/ai-sync`.
-- Prefer `.codex/config.toml` as the first mandatory dogfooding file because it
-  has a Tier-1 upstream schema.
-- Add `.mcp.json`, `.claude/settings.json`, `AGENTS.md`, and `CLAUDE.md` as
-  supported dogfooding candidates when their schemas are ready.
-- Add a root `bun run check` gate that validates the selected files.
-- Record failure evidence from a deliberate invalid config mutation in a safe
-  test fixture or disposable copy.
+Acceptance gate:
 
-Evidence: [history/outputs/p5-first-real-consumer.md](./history/outputs/p5-first-real-consumer.md).
+- Rulesync evidence tests cover supported and lossy/declined mappings.
+- Ruler evidence is documented as research-only.
+- Reports identify unsupported, N/A, and `unknown_schema` cells without
+  accepting them as finished support.
 
-Acceptance gate: V1 is not complete until the repo uses the package on its own
-agent configuration in CI.
+## V2.4 Drift Auto-PR
 
-## P6+: Non-V1-Blocking Follow-Ups
+Status: pending.
 
-Status: pending
+- Add `.github/workflows/ai-sync-drift.yml`.
+- Trigger weekly and via `workflow_dispatch`.
+- Refresh generated AI-sync artifacts through the root CLI.
+- Run:
+  - `bun run --cwd packages/tooling/library/ai-sync check`
+  - `bun run --cwd packages/tooling/library/ai-sync test`
+  - `bun run check`
+  - `git diff --check`
+- Use the existing scheduled PR pattern from `.github/workflows/data-sync.yml`.
+- Open/update an automation PR only when a diff exists.
+- Do not route through Yeet publish while Yeet remains proof-mode.
 
-- Add a CLI package such as `packages/tooling/tool/agent-configs` for operator
-  workflows.
-- Add interoperability helpers for `ruler` and `rulesync`.
-- Add reverse-roundtrip emission from canonical schema data into native agent
-  files.
-- Add additional agents such as Cursor, Gemini CLI, Copilot, Aider, Windsurf,
-  OpenCode, or Goose.
-- Add automated PR creation for `--refresh` drift updates.
+Acceptance gate:
 
-Acceptance gate: none for V1. These phases are explicitly non-blocking until
-the schema library and dogfooding gate are complete.
+- A dry run with known drift sources produces a report naming the moved source
+  ids and prepares the expected generated artifact diff.
+- The workflow skips PR creation when no diff exists.
 
-## Required Checks
+## V2.5 Closeout
 
-- `bun run check`
-- `bun run --cwd packages/tooling/library/ai-sync check`
-- `bun run --cwd packages/tooling/library/ai-sync generate`
-- `bun run --cwd packages/tooling/library/ai-sync drift --strict`
-- dogfooding validation through root `bun run check`
+Status: pending.
+
+- Archive V2 closeout evidence under `history/outputs/`.
+- Update `README.md`, `PLAN.md`, and `ops/manifest.json` from V2 active to V2
+  complete.
+- Leave V3 planned unless V3 work begins in the same branch.
+
+Required V2 checks:
+
+```sh
+test "$(wc -m < goals/unified-ai-toolchain/GOAL.md)" -le 4000
+jq . goals/unified-ai-toolchain/ops/manifest.json
+bun run beep ai-sync audit --json
+bun run beep ai-sync check --json
+bun run beep ai-sync drift --strict --json
+bun run --cwd packages/tooling/library/ai-sync check
+bun run --cwd packages/tooling/library/ai-sync test
+bun run check
+git diff --check -- goals/unified-ai-toolchain packages/tooling/library/ai-sync packages/tooling/tool/cli .github/workflows
+```
+
+## V3.1 Canonical Models
+
+Status: planned.
+
+- Add schema-first canonical per-domain models in `@beep/ai-sync`.
+- Cover instructions/rules, skills, commands, hooks, plugins, MCP servers, and
+  config/profile data.
+- Model finite cases as discriminated unions.
+- Keep native schemas separate from canonical models.
+
+Acceptance gate:
+
+- Current native repo files import into canonical values.
+- Lossy mappings are explicit and tested.
+- Unknown native cells decline with typed errors.
+
+## V3.2 Canonical Source
+
+Status: planned.
+
+- Introduce `.ai-sync/project.jsonc` as the committed canonical source.
+- Decode it through canonical schemas.
+- Add import/report commands that show how current native files map into this
+  file before any native writing exists.
+
+Acceptance gate:
+
+- `.ai-sync/project.jsonc` decodes.
+- Import fixtures produce stable canonical JSONC.
+- The file path is documented in README, SPEC, and CLI help.
+
+## V3.3 Native Plan/Apply
+
+Status: planned.
+
+- Add dry-run native emission plans with target paths, diffs, validation, and
+  loss reports.
+- Add explicit apply commands that write only selected paths.
+- Prove apply in temp directories before real checkout writes are allowed.
+
+Acceptance gate:
+
+- Plan mode is default and read-only.
+- Apply mode validates emitted files against native schemas.
+- Conflicts with existing hand-authored files are reported before writes.
+
+## V3.4 Current-Matrix Emitters
+
+Status: planned.
+
+- Implement native emitters for Claude Code, Codex, Grok Build, JetBrains AI
+  Assistant, and Junie.
+- Decline emission for unsupported and `unknown_schema` cells.
+- Preserve lossy/lossless metadata through native emission reports.
+
+Acceptance gate:
+
+- Each supported emitter has round-trip or import-plan-apply validation tests.
+- No emitter invents undocumented Grok-native shapes.
+
+## V3b Expansion
+
+Status: planned.
+
+- Refresh public source maps before selecting additional agents.
+- Candidate agents must pass evidence criteria from [SPEC.md](./SPEC.md).
+- Add a bounded batch only after current-matrix emitters are green.
+
+Acceptance gate:
+
+- Expansion candidates are selected from current public evidence.
+- Unsupported or undocumented surfaces remain declined instead of guessed.

@@ -22,13 +22,13 @@
     ]
   },
   "totals": {
-    "packages": 93,
-    "packagesWithPublicExports": 82,
+    "packages": 94,
+    "packagesWithPublicExports": 83,
     "packagesWithoutPublicExports": 7,
     "missingWorkspaceMetadata": 4,
-    "importSpecifiers": 1081,
-    "publicExportEntries": 28159,
-    "uniquePackageSymbols": 10019
+    "importSpecifiers": 1093,
+    "publicExportEntries": 28239,
+    "uniquePackageSymbols": 10054
   },
   "packages": [
     {
@@ -287,394 +287,401 @@
       "shardPath": "apps/storybook/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
+      "packageName": "@beep/langextract",
+      "packagePath": "packages/foundation/capability/langextract",
+      "topoOrder": 38,
+      "status": "has-public-exports",
+      "shardPath": "packages/foundation/capability/langextract/.beep/repo-exports/catalog.shard.jsonc"
+    },
+    {
       "packageName": "@beep/agent-capability-domain",
       "packagePath": "packages/agent-capability/domain",
-      "topoOrder": 38,
+      "topoOrder": 39,
       "status": "has-public-exports",
       "shardPath": "packages/agent-capability/domain/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/shared-tables",
       "packagePath": "packages/shared/tables",
-      "topoOrder": 39,
+      "topoOrder": 40,
       "status": "has-public-exports",
       "shardPath": "packages/shared/tables/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/md",
       "packagePath": "packages/foundation/capability/md",
-      "topoOrder": 40,
+      "topoOrder": 41,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/capability/md/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/canvas",
       "packagePath": "apps/canvas",
-      "topoOrder": 41,
+      "topoOrder": 42,
       "status": "no-public-exports",
       "shardPath": "apps/canvas/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/workspace-domain",
       "packagePath": "packages/workspace/domain",
-      "topoOrder": 42,
+      "topoOrder": 43,
       "status": "has-public-exports",
       "shardPath": "packages/workspace/domain/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/semantic-web",
       "packagePath": "packages/foundation/capability/semantic-web",
-      "topoOrder": 43,
+      "topoOrder": 44,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/capability/semantic-web/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/utils",
       "packagePath": "packages/foundation/modeling/utils",
-      "topoOrder": 44,
+      "topoOrder": 45,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/modeling/utils/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/repo-ai-metrics",
       "packagePath": "packages/tooling/library/ai-metrics",
-      "topoOrder": 45,
+      "topoOrder": 46,
       "status": "has-public-exports",
       "shardPath": "packages/tooling/library/ai-metrics/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/architecture-lab-tables",
       "packagePath": "packages/architecture-lab/tables",
-      "topoOrder": 46,
+      "topoOrder": 47,
       "status": "has-public-exports",
       "shardPath": "packages/architecture-lab/tables/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/tika",
       "packagePath": "packages/drivers/tika",
-      "topoOrder": 47,
+      "topoOrder": 48,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/tika/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/libpff",
       "packagePath": "packages/drivers/libpff",
-      "topoOrder": 48,
+      "topoOrder": 49,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/libpff/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/venice-ai",
       "packagePath": "packages/drivers/venice-ai",
-      "topoOrder": 49,
+      "topoOrder": 50,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/venice-ai/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/form",
       "packagePath": "packages/foundation/ui-system/form",
-      "topoOrder": 50,
+      "topoOrder": 51,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/ui-system/form/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/identity",
       "packagePath": "packages/foundation/modeling/identity",
-      "topoOrder": 51,
+      "topoOrder": 52,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/modeling/identity/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/drizzle",
       "packagePath": "packages/drivers/drizzle",
-      "topoOrder": 52,
+      "topoOrder": 53,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/drizzle/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/box",
       "packagePath": "packages/drivers/box",
-      "topoOrder": 53,
+      "topoOrder": 54,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/box/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/openai-compat",
       "packagePath": "packages/drivers/openai-compat",
-      "topoOrder": 54,
+      "topoOrder": 55,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/openai-compat/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/stack-installer",
       "packagePath": "apps/stack-installer",
-      "topoOrder": 55,
+      "topoOrder": 56,
       "status": "no-public-exports",
       "shardPath": "apps/stack-installer/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/professional-desktop",
       "packagePath": "apps/professional-desktop",
-      "topoOrder": 56,
+      "topoOrder": 57,
       "status": "no-public-exports",
       "shardPath": "apps/professional-desktop/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/epistemic-domain",
       "packagePath": "packages/epistemic/domain",
-      "topoOrder": 57,
+      "topoOrder": 58,
       "status": "has-public-exports",
       "shardPath": "packages/epistemic/domain/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/architecture-lab-use-cases",
       "packagePath": "packages/architecture-lab/use-cases",
-      "topoOrder": 58,
+      "topoOrder": 59,
       "status": "has-public-exports",
       "shardPath": "packages/architecture-lab/use-cases/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/firecrawl",
       "packagePath": "packages/drivers/firecrawl",
-      "topoOrder": 59,
+      "topoOrder": 60,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/firecrawl/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/professional-runtime-proof",
       "packagePath": "apps/professional-runtime-proof",
-      "topoOrder": 60,
+      "topoOrder": 61,
       "status": "has-public-exports",
       "shardPath": "apps/professional-runtime-proof/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/acp",
       "packagePath": "packages/drivers/acp",
-      "topoOrder": 61,
+      "topoOrder": 62,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/acp/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/nlp",
       "packagePath": "packages/foundation/capability/nlp",
-      "topoOrder": 62,
+      "topoOrder": 63,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/capability/nlp/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/infra",
       "packagePath": "infra",
-      "topoOrder": 63,
+      "topoOrder": 64,
       "status": "has-public-exports",
       "shardPath": "infra/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/installer-use-cases",
       "packagePath": "packages/installer/use-cases",
-      "topoOrder": 64,
+      "topoOrder": 65,
       "status": "has-public-exports",
       "shardPath": "packages/installer/use-cases/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/runpod",
       "packagePath": "packages/drivers/runpod",
-      "topoOrder": 65,
+      "topoOrder": 66,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/runpod/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/repo-utils",
       "packagePath": "packages/tooling/library/repo-utils",
-      "topoOrder": 66,
+      "topoOrder": 67,
       "status": "has-public-exports",
       "shardPath": "packages/tooling/library/repo-utils/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/schema",
       "packagePath": "packages/foundation/modeling/schema",
-      "topoOrder": 67,
+      "topoOrder": 68,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/modeling/schema/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/rdf",
       "packagePath": "packages/foundation/modeling/rdf",
-      "topoOrder": 68,
+      "topoOrder": 69,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/modeling/rdf/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/codedank-web",
       "packagePath": "apps/codedank-web",
-      "topoOrder": 69,
+      "topoOrder": 70,
       "status": "no-public-exports",
       "shardPath": "apps/codedank-web/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/onepassword-cli",
       "packagePath": "packages/drivers/onepassword-cli",
-      "topoOrder": 70,
+      "topoOrder": 71,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/onepassword-cli/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/architecture-lab-config",
       "packagePath": "packages/architecture-lab/config",
-      "topoOrder": 71,
+      "topoOrder": 72,
       "status": "has-public-exports",
       "shardPath": "packages/architecture-lab/config/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/data",
       "packagePath": "packages/foundation/primitive/data",
-      "topoOrder": 72,
+      "topoOrder": 73,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/primitive/data/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/xai",
       "packagePath": "packages/drivers/xai",
-      "topoOrder": 73,
+      "topoOrder": 74,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/xai/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/wealth-management-domain",
       "packagePath": "packages/wealth-management/domain",
-      "topoOrder": 74,
+      "topoOrder": 75,
       "status": "has-public-exports",
       "shardPath": "packages/wealth-management/domain/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/architecture-lab-server",
       "packagePath": "packages/architecture-lab/server",
-      "topoOrder": 75,
+      "topoOrder": 76,
       "status": "has-public-exports",
       "shardPath": "packages/architecture-lab/server/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/duckdb",
       "packagePath": "packages/drivers/duckdb",
-      "topoOrder": 76,
+      "topoOrder": 77,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/duckdb/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/ffmpeg",
       "packagePath": "packages/drivers/ffmpeg",
-      "topoOrder": 77,
+      "topoOrder": 78,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/ffmpeg/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/architecture-lab-proof",
       "packagePath": "apps/architecture-lab-proof",
-      "topoOrder": 78,
+      "topoOrder": 79,
       "status": "has-public-exports",
       "shardPath": "apps/architecture-lab-proof/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/installer-server",
       "packagePath": "packages/installer/server",
-      "topoOrder": 79,
+      "topoOrder": 80,
       "status": "has-public-exports",
       "shardPath": "packages/installer/server/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/observability",
       "packagePath": "packages/foundation/capability/observability",
-      "topoOrder": 80,
+      "topoOrder": 81,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/capability/observability/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/konva",
       "packagePath": "packages/drivers/konva",
-      "topoOrder": 81,
+      "topoOrder": 82,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/konva/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/shared-client",
       "packagePath": "packages/shared/client",
-      "topoOrder": 82,
+      "topoOrder": 83,
       "status": "has-public-exports",
       "shardPath": "packages/shared/client/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/ui",
       "packagePath": "packages/foundation/ui-system/ui",
-      "topoOrder": 83,
+      "topoOrder": 84,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/ui-system/ui/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/repo-configs",
       "packagePath": "packages/tooling/policy-pack/repo-configs",
-      "topoOrder": 84,
+      "topoOrder": 85,
       "status": "has-public-exports",
       "shardPath": "packages/tooling/policy-pack/repo-configs/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/canvas-client",
       "packagePath": "packages/canvas/client",
-      "topoOrder": 85,
+      "topoOrder": 86,
       "status": "has-public-exports",
       "shardPath": "packages/canvas/client/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/wink",
       "packagePath": "packages/drivers/wink",
-      "topoOrder": 86,
+      "topoOrder": 87,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/wink/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/postgres",
       "packagePath": "packages/drivers/postgres",
-      "topoOrder": 87,
+      "topoOrder": 88,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/postgres/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/installer-domain",
       "packagePath": "packages/installer/domain",
-      "topoOrder": 88,
+      "topoOrder": 89,
       "status": "has-public-exports",
       "shardPath": "packages/installer/domain/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/architecture-lab-domain",
       "packagePath": "packages/architecture-lab/domain",
-      "topoOrder": 89,
+      "topoOrder": 90,
       "status": "has-public-exports",
       "shardPath": "packages/architecture-lab/domain/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/canvas-ui",
       "packagePath": "packages/canvas/ui",
-      "topoOrder": 90,
+      "topoOrder": 91,
       "status": "has-public-exports",
       "shardPath": "packages/canvas/ui/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/messages",
       "packagePath": "packages/foundation/modeling/messages",
-      "topoOrder": 91,
+      "topoOrder": 92,
       "status": "has-public-exports",
       "shardPath": "packages/foundation/modeling/messages/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/sanity",
       "packagePath": "packages/drivers/sanity",
-      "topoOrder": 92,
+      "topoOrder": 93,
       "status": "has-public-exports",
       "shardPath": "packages/drivers/sanity/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/shared-ui",
       "packagePath": "packages/shared/ui",
-      "topoOrder": 93,
+      "topoOrder": 94,
       "status": "has-public-exports",
       "shardPath": "packages/shared/ui/.beep/repo-exports/catalog.shard.jsonc"
     }
