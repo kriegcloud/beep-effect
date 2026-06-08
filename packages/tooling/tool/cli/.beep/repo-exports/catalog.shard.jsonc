@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "8898f42c21c103b40fbf0b8d572cceba7a6459024dcc0727c6334a0b43da93c3",
+    "digest": "f0c5f1feaa352e39f34c943baa7b428c557427c9c487971a0741b15ff6fb24bf",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -387,8 +387,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sha256": "a70e5ba4b5d6857a2f7797f86853ea6c6c2580e3924ab00cb934ece026d787a1",
-        "bytes": 47852
+        "sha256": "cd301ab07d36d870980faa5236922d257bd449be84e349d2e42d53be686ed0cc",
+        "bytes": 48000
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts",
@@ -27129,7 +27129,7 @@
         "symbolName": "lintSchemaFirstCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 1239,
+        "sourceLine": 1244,
         "summary": "Repo-wide schema-first lint command.",
         "categories": [
           "utilities"
@@ -27154,7 +27154,7 @@
         "symbolName": "runSchemaFirstLint",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 1093,
+        "sourceLine": 1098,
         "summary": "Run schema-first inventory verification against the committed baseline.",
         "categories": [
           "utilities"

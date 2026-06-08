@@ -19,7 +19,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-precision-audit",
-      "line": 181,
+      "line": 183,
       "owner": "@beep/oip-web",
       "reason": "Raw browser FormData staging payload intentionally preserves submitted email text before ContactSubmission performs domain email normalization and validation."
     },

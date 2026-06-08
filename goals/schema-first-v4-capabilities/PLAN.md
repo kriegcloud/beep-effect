@@ -159,7 +159,9 @@ see
 `reviews/p4-tika-arbitrary-pilot.md`, and
 `reviews/p4-venice-ai-arbitrary-pilot.md`,
 `reviews/p4-acp-arbitrary-pilot.md`, and
-`reviews/p4-architecture-lab-pglite-arbitrary-pilot.md`.
+`reviews/p4-architecture-lab-pglite-arbitrary-pilot.md`, plus the OIP
+class-local decoder statics pilot in
+`reviews/p4-oip-class-local-statics-pilot.md`.
 
 - [ ] Wave 1: migrate low-risk static schema API sites first:
       `TaggedUnion.match`, `.cases`, `.guards`, `LiteralKit.Enum`,
@@ -250,6 +252,10 @@ see
       `reviews/p4-equivalence-wave.md`.
 - [ ] Wave 6: add class-local derived helpers where repeated decode/encode /
       arbitrary/equivalence plumbing exists.
+  - [x] Pilot OIP schema classes: added class-local `decodeUnknownResult` and
+        `decodeUnknownEffect` statics to `OipSiteContent`,
+        `ContactSubmission`, and `ContactSubmissionFormPayload`, while keeping
+        existing compatibility exports delegated to those statics.
 - [ ] Spike `SchemaRepresentation` on a small generated model subset before
       touching broader generated driver output.
 - [ ] Keep the `SchemaRepresentation` spike side-by-side only. Do not replace

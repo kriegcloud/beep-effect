@@ -158,6 +158,10 @@ notifications from source schemas and prove JSON-boundary stability.
 `WorkItemDrizzleRepository.pglite.test.ts` derives architecture-lab domain ids
 and titles from source schemas in an always-on property while keeping the PgLite
 repository cases behind their existing integration gate.
+`OipContent.model.ts` and `ContactSubmission.model.ts` now expose class-local
+derived decoders on `OipSiteContent`, `ContactSubmission`, and
+`ContactSubmissionFormPayload`, with compatibility exports delegating to those
+statics.
 Wave 2 also started with HubSpot request-email and shared `EmailString`
 precision pilots. These pilots reduced arbitrary-test advisories from 27 to 0
 and active precision-audit advisories from 7 to 0, with two reviewed precision
