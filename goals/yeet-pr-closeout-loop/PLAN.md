@@ -48,25 +48,25 @@
 
 ## P7 Follow-Up Optimizations
 
-- [ ] Split repo-export generator inputs so ordinary Quality CLI edits do not churn
+- [x] Split repo-export generator inputs so ordinary Quality CLI edits do not churn
   every package shard; prefer an explicit `catalogGeneratorVersion` or a smaller
   extractor fingerprint surface.
-- [ ] Teach Yeet the composite pre-push lanes and persist per-lane success keyed by
+- [x] Teach Yeet the composite pre-push lanes and persist per-lane success keyed by
   command, tree/commit fingerprint, and generator version.
-- [ ] Add a shared docgen run manifest so check, generate, and aggregate can reuse
-  one package graph and example typecheck cache.
-- [ ] Rework terse-effect reporting into blocking files, informational files, and
+- [x] Add docgen proof-manifest reuse so `docgen check` can skip packages whose
+  generated docs are already proven current before the full generation lane.
+- [x] Rework terse-effect reporting into blocking files, informational files, and
   rewritable files with line-numbered findings.
-- [ ] Parse known quality runner output into Yeet failure packets with failed
+- [x] Parse known quality runner output into Yeet failure packets with failed
   subcommand, files, and suggested repair command.
 - [x] Keep publish pushes branch-name independent with `git push -u origin HEAD`
   and add a preflight warning for mismatched upstream tracking.
 - [x] Add a first-class push-only reuse path for exact verified commits.
 - [x] Add `publish --start-pr-early --monitor` so hosted review/checks can
   start before local proof completes while hooks remain local tripwires.
-- [ ] Add repo-level proof scheduling so only one full proof runs at a time while
+- [x] Add repo-level proof scheduling so only one full proof runs at a time while
   cheaper review-fix lanes can queue or proceed safely.
-- [ ] Add `quality profile detect` and explicit profiles for current machine,
+- [x] Add `quality profile detect` and explicit profiles for current machine,
   workstation, and CI concurrency settings.
-- [ ] Evolve closeout into a durable state machine for Greptile, CodeRabbit,
+- [x] Evolve closeout into a durable state machine for Greptile, CodeRabbit,
   ChatGPT, hosted checks, and unresolved actionable comments.

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "9c2f937762cf8d115f60c9146cea18962abc0ccd3b64545c6754e4999ba6a453",
+    "digest": "0bab7999e7e81c0d77b34fb171ba93de7e8d1ee87d41c67bced955bfa332710e",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -167,8 +167,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sha256": "6e063fd89540d029e055f79c6223b8a74a07d2141554c19ae7f5e86c7d88e0fe",
-        "bytes": 39391
+        "sha256": "8660b44ff58c1a44ae3b728442ead859f2a81ec2195e518e656d4d85532ce1e6",
+        "bytes": 41212
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/index.ts",
@@ -347,8 +347,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts",
-        "sha256": "22584f29393a5fe73f150c28d237871633025d84f5a4d782b836776338d98725",
-        "bytes": 15988
+        "sha256": "fee05cf591c8649beee46a8a4a2e8993eeafd192ad84d200c1d5bb3a9b8922d2",
+        "bytes": 16980
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Laws/Laws.errors.ts",
@@ -362,8 +362,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts",
-        "sha256": "30094469a68ff690e26635aad7767c396741c083d5ef46a44560816fdc5ece88",
-        "bytes": 22238
+        "sha256": "35891f530587ed9781fd284d7cf13ea278417fbdc240c77c1febbd1350921f2f",
+        "bytes": 26964
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
@@ -412,8 +412,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
-        "sha256": "dda27b8bd2bde17e4304e6594614cebdd444eb72f65c8ea8c11045b0a5e49175",
-        "bytes": 499
+        "sha256": "3ddf8a8d198eb1abba8f736c1b91373caf46769345cfd65372ce780bcc04886a",
+        "bytes": 579
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts",
@@ -457,8 +457,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "71aee4a82027859e38074e7c33a1bbac0e3b6b0e9a1eaf4f62032fbd25170993",
-        "bytes": 83679
+        "sha256": "9fb059690a23ad11476d1b13eb76c9faa122628b245d6db2cf23052184b38f3f",
+        "bytes": 92417
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts",
@@ -467,8 +467,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sha256": "562de4c5cdb0b5f9d0f4e2cb5f8be15e060b7bdf6aa69266d8afbf80a3872398",
-        "bytes": 54924
+        "sha256": "f8c636fec35fca14fc0e44db46ddc64af4099928016f7cffbe3d3604686968b5",
+        "bytes": 54950
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
@@ -647,13 +647,13 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sha256": "034d2a83b4e1ead94ae46512897499bb08a963030a379e364749e7d7c0079749",
-        "bytes": 29016
+        "sha256": "0226ff9019406c40d332b45b2e666cdd8a735cfb806f9e6f2319d4f767851531",
+        "bytes": 35349
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sha256": "f18d64c008dfb0d59d33e44496d4a43c15656d076dbbbb5d2c0bdd4f88a81d45",
-        "bytes": 64210
+        "sha256": "674dd2104626b74b14bd1e8fe058c92435bbf8641d2ed961301dd2eb81cfc2d7",
+        "bytes": 68228
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts",
@@ -667,8 +667,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sha256": "c893aa7603f25f9975e1ca7a483da009c39ba5975ab965c8834ec26082a07b04",
-        "bytes": 24267
+        "sha256": "d5c58611013a4de5b62233cd342b6e60c9ac1ac0b6e357ebc0777d3cacdd438d",
+        "bytes": 27849
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
@@ -927,8 +927,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1798,
-      "uniqueSymbols": 667,
+      "publicExportEntries": 1822,
+      "uniqueSymbols": 675,
       "sourceFiles": 146
     },
     "exports": [
@@ -1067,7 +1067,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sourceLine": 1112,
+        "sourceLine": 1151,
         "summary": "Human-first docgen command suite.",
         "categories": [
           "use-cases"
@@ -1192,7 +1192,7 @@
         "symbolName": "lawsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts",
-        "sourceLine": 439,
+        "sourceLine": 457,
         "summary": "Laws command group.",
         "categories": [
           "utilities"
@@ -1267,7 +1267,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2338,
+        "sourceLine": 2620,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -6542,7 +6542,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sourceLine": 1112,
+        "sourceLine": 1151,
         "summary": "Human-first docgen command suite.",
         "categories": [
           "use-cases"
@@ -6567,7 +6567,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sourceLine": 1112,
+        "sourceLine": 1151,
         "summary": "Human-first docgen command suite.",
         "categories": [
           "use-cases"
@@ -6592,7 +6592,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sourceLine": 1112,
+        "sourceLine": 1151,
         "summary": "Human-first docgen command suite.",
         "categories": [
           "use-cases"
@@ -25620,7 +25620,7 @@
         "symbolName": "lawsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts",
-        "sourceLine": 439,
+        "sourceLine": 457,
         "summary": "Laws command group.",
         "categories": [
           "utilities"
@@ -26148,7 +26148,7 @@
         "symbolName": "lawsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts",
-        "sourceLine": 439,
+        "sourceLine": 457,
         "summary": "Laws command group.",
         "categories": [
           "utilities"
@@ -26223,7 +26223,7 @@
         "symbolName": "lawsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts",
-        "sourceLine": 439,
+        "sourceLine": 457,
         "summary": "Laws command group.",
         "categories": [
           "utilities"
@@ -26523,7 +26523,7 @@
         "symbolName": "runTerseEffectRules",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts",
-        "sourceLine": 542,
+        "sourceLine": 571,
         "summary": "Run terse Effect style migration/check logic.",
         "categories": [
           "utilities"
@@ -27560,7 +27560,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2338,
+        "sourceLine": 2620,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -27574,6 +27574,106 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality ./commands/quality qualitycommand const quality command group for repo operational checks. cli-commands packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality",
+        "exportSubpath": "./commands/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
+        "symbolName": "QualityHardwareProfile",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 88,
+        "summary": "Explicit machine profile used to tune future quality scheduling.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality ./commands/quality qualityhardwareprofile const explicit machine profile used to tune future quality scheduling. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality",
+        "exportSubpath": "./commands/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
+        "symbolName": "QualityHardwareProfile",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 107,
+        "summary": "Explicit machine profile used to tune future quality scheduling.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality ./commands/quality qualityhardwareprofile type explicit machine profile used to tune future quality scheduling. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality",
+        "exportSubpath": "./commands/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
+        "symbolName": "QualityProfileConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 129,
+        "summary": "Static quality scheduling settings for a hardware profile.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality ./commands/quality qualityprofileconfig class static quality scheduling settings for a hardware profile. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality",
+        "exportSubpath": "./commands/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
+        "symbolName": "QualityProfileDetection",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 168,
+        "summary": "Detected quality profile plus host facts.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality ./commands/quality qualityprofiledetection class detected quality profile plus host facts. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -28262,7 +28362,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2338,
+        "sourceLine": 2620,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -28276,6 +28376,106 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/index ./commands/quality/index qualitycommand const quality command group for repo operational checks. cli-commands packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/index",
+        "exportSubpath": "./commands/Quality/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
+        "symbolName": "QualityHardwareProfile",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 88,
+        "summary": "Explicit machine profile used to tune future quality scheduling.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/index ./commands/quality/index qualityhardwareprofile const explicit machine profile used to tune future quality scheduling. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/index",
+        "exportSubpath": "./commands/Quality/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
+        "symbolName": "QualityHardwareProfile",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 107,
+        "summary": "Explicit machine profile used to tune future quality scheduling.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/index ./commands/quality/index qualityhardwareprofile type explicit machine profile used to tune future quality scheduling. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/index",
+        "exportSubpath": "./commands/Quality/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
+        "symbolName": "QualityProfileConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 129,
+        "summary": "Static quality scheduling settings for a hardware profile.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/index ./commands/quality/index qualityprofileconfig class static quality scheduling settings for a hardware profile. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/index",
+        "exportSubpath": "./commands/Quality/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
+        "symbolName": "QualityProfileDetection",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 168,
+        "summary": "Detected quality profile plus host facts.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/index ./commands/quality/index qualityprofiledetection class detected quality profile plus host facts. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -28762,7 +28962,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2044,
+        "sourceLine": 2294,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -28788,7 +28988,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1138,
+        "sourceLine": 1352,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -28812,10 +29012,35 @@
         "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
         "exportSubpath": "./commands/Quality/Quality.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "detectQualityProfileForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 248,
+        "summary": "Detect the quality hardware profile from host facts.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command detectqualityprofilefortesting const detect the quality hardware profile from host facts. configuration packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1976,
+        "sourceLine": 2226,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -28841,7 +29066,7 @@
         "symbolName": "GithubCheckLaneSpec",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 315,
+        "sourceLine": 511,
         "summary": "Executable lane specification for GitHub check collectors.",
         "categories": [
           "models"
@@ -28866,7 +29091,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 278,
+        "sourceLine": 474,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "models"
@@ -28891,7 +29116,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 295,
+        "sourceLine": 491,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "type-level"
@@ -28916,7 +29141,7 @@
         "symbolName": "GithubCheckMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 167,
+        "sourceLine": 363,
         "summary": "GitHub check mode handled by `beep quality github-checks`.",
         "categories": [
           "models"
@@ -28941,7 +29166,7 @@
         "symbolName": "GithubCheckMode",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 180,
+        "sourceLine": 376,
         "summary": "GitHub check mode handled by `beep quality github-checks`.",
         "categories": [
           "models"
@@ -28966,7 +29191,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 632,
+        "sourceLine": 828,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -28993,7 +29218,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 602,
+        "sourceLine": 798,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29020,7 +29245,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 617,
+        "sourceLine": 813,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29047,7 +29272,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2338,
+        "sourceLine": 2620,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -29061,6 +29286,131 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command qualitycommand const quality command group for repo operational checks. cli-commands packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "QualityHardwareProfile",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 88,
+        "summary": "Explicit machine profile used to tune future quality scheduling.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command qualityhardwareprofile const explicit machine profile used to tune future quality scheduling. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "QualityHardwareProfile",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 107,
+        "summary": "Explicit machine profile used to tune future quality scheduling.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command qualityhardwareprofile type explicit machine profile used to tune future quality scheduling. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "QualityProfileConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 129,
+        "summary": "Static quality scheduling settings for a hardware profile.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command qualityprofileconfig class static quality scheduling settings for a hardware profile. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "qualityProfileConfigForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 200,
+        "summary": "Return static quality scheduling settings for a hardware profile.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command qualityprofileconfigfortesting const return static quality scheduling settings for a hardware profile. configuration packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "QualityProfileDetection",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 168,
+        "summary": "Detected quality profile plus host facts.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command qualityprofiledetection class detected quality profile plus host facts. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -29094,10 +29444,37 @@
         "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
         "exportSubpath": "./commands/Quality/Quality.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "reviewFixDocgenLocalArgsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 887,
+        "summary": "Build the docgen command arguments for the review-fix proof lane.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command reviewfixdocgenlocalargsfortesting const build the docgen command arguments for the review-fix proof lane. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
         "symbolName": "runBunAudit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 500,
+        "sourceLine": 696,
         "summary": "Run Bun's high-severity package audit with OSV ignores mirrored from config.",
         "categories": [
           "use-cases"
@@ -29124,7 +29501,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1475,
+        "sourceLine": 1689,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -29151,7 +29528,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 896,
+        "sourceLine": 1110,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -29178,7 +29555,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1795,
+        "sourceLine": 2009,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -29204,7 +29581,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1718,
+        "sourceLine": 1932,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -29230,7 +29607,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1912,
+        "sourceLine": 2126,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -29255,7 +29632,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1830,
+        "sourceLine": 2044,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -29282,7 +29659,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1521,
+        "sourceLine": 1735,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -29309,7 +29686,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1284,
+        "sourceLine": 1498,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -29335,7 +29712,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1617,
+        "sourceLine": 1831,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -34980,7 +35357,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 227,
+        "sourceLine": 228,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -35005,7 +35382,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 173,
+        "sourceLine": 174,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -35030,7 +35407,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 44,
+        "sourceLine": 45,
         "summary": "Classification domain for normalized yeet quality findings.",
         "categories": [
           "models"
@@ -35055,7 +35432,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 74,
+        "sourceLine": 75,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -35079,7 +35456,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 114,
+        "sourceLine": 115,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35104,7 +35481,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 126,
+        "sourceLine": 127,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35128,7 +35505,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 253,
+        "sourceLine": 254,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -35153,7 +35530,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 141,
+        "sourceLine": 142,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -35178,7 +35555,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 88,
+        "sourceLine": 89,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -35203,7 +35580,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 100,
+        "sourceLine": 101,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -35351,7 +35728,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 260,
+        "sourceLine": 292,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"
@@ -35376,7 +35753,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 227,
+        "sourceLine": 228,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -35401,7 +35778,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 173,
+        "sourceLine": 174,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -35426,7 +35803,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 44,
+        "sourceLine": 45,
         "summary": "Classification domain for normalized yeet quality findings.",
         "categories": [
           "models"
@@ -35451,7 +35828,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 74,
+        "sourceLine": 75,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -35475,7 +35852,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 114,
+        "sourceLine": 115,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35500,7 +35877,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 126,
+        "sourceLine": 127,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35524,7 +35901,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 253,
+        "sourceLine": 254,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -35549,7 +35926,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 141,
+        "sourceLine": 142,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -35574,7 +35951,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 88,
+        "sourceLine": 89,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -35599,7 +35976,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 100,
+        "sourceLine": 101,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -35747,7 +36124,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 260,
+        "sourceLine": 292,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"
@@ -36960,7 +37337,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sourceLine": 1112,
+        "sourceLine": 1151,
         "summary": "Human-first docgen command suite.",
         "categories": [
           "use-cases"
@@ -39838,7 +40215,7 @@
         "symbolName": "lawsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts",
-        "sourceLine": 439,
+        "sourceLine": 457,
         "summary": "Laws command group.",
         "categories": [
           "utilities"
@@ -40166,7 +40543,7 @@
         "symbolName": "runTerseEffectRules",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts",
-        "sourceLine": 542,
+        "sourceLine": 571,
         "summary": "Run terse Effect style migration/check logic.",
         "categories": [
           "utilities"
@@ -40266,7 +40643,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2044,
+        "sourceLine": 2294,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -40440,7 +40817,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1138,
+        "sourceLine": 1352,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -40542,6 +40919,31 @@
         "importSpecifier": "@beep/repo-cli/test/Quality",
         "exportSubpath": "./test/Quality",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "detectQualityProfileForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 248,
+        "summary": "Detect the quality hardware profile from host facts.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality detectqualityprofilefortesting const detect the quality hardware profile from host facts. configuration packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
         "symbolName": "findMissingChangesetPackageReferences",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
@@ -40572,7 +40974,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1976,
+        "sourceLine": 2226,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -40598,7 +41000,7 @@
         "symbolName": "GithubCheckLaneSpec",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 315,
+        "sourceLine": 511,
         "summary": "Executable lane specification for GitHub check collectors.",
         "categories": [
           "models"
@@ -40623,7 +41025,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 278,
+        "sourceLine": 474,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "models"
@@ -40648,7 +41050,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 295,
+        "sourceLine": 491,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "type-level"
@@ -40673,7 +41075,7 @@
         "symbolName": "GithubCheckMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 167,
+        "sourceLine": 363,
         "summary": "GitHub check mode handled by `beep quality github-checks`.",
         "categories": [
           "models"
@@ -40698,7 +41100,7 @@
         "symbolName": "GithubCheckMode",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 180,
+        "sourceLine": 376,
         "summary": "GitHub check mode handled by `beep quality github-checks`.",
         "categories": [
           "models"
@@ -40723,7 +41125,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 632,
+        "sourceLine": 828,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -40750,7 +41152,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 602,
+        "sourceLine": 798,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -40777,7 +41179,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 617,
+        "sourceLine": 813,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -41130,7 +41532,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2338,
+        "sourceLine": 2620,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -41144,6 +41546,131 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality qualitycommand const quality command group for repo operational checks. cli-commands packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "QualityHardwareProfile",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 88,
+        "summary": "Explicit machine profile used to tune future quality scheduling.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality qualityhardwareprofile const explicit machine profile used to tune future quality scheduling. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "QualityHardwareProfile",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 107,
+        "summary": "Explicit machine profile used to tune future quality scheduling.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality qualityhardwareprofile type explicit machine profile used to tune future quality scheduling. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "QualityProfileConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 129,
+        "summary": "Static quality scheduling settings for a hardware profile.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality qualityprofileconfig class static quality scheduling settings for a hardware profile. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "qualityProfileConfigForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 200,
+        "summary": "Return static quality scheduling settings for a hardware profile.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality qualityprofileconfigfortesting const return static quality scheduling settings for a hardware profile. configuration packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "QualityProfileDetection",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 168,
+        "summary": "Detected quality profile plus host facts.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality qualityprofiledetection class detected quality profile plus host facts. models packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -41479,6 +42006,33 @@
         "importSpecifier": "@beep/repo-cli/test/Quality",
         "exportSubpath": "./test/Quality",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "reviewFixDocgenLocalArgsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 887,
+        "summary": "Build the docgen command arguments for the review-fix proof lane.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality reviewfixdocgenlocalargsfortesting const build the docgen command arguments for the review-fix proof lane. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
         "symbolName": "rootQualityStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
@@ -41509,7 +42063,7 @@
         "symbolName": "runBunAudit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 500,
+        "sourceLine": 696,
         "summary": "Run Bun's high-severity package audit with OSV ignores mirrored from config.",
         "categories": [
           "use-cases"
@@ -41561,7 +42115,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1475,
+        "sourceLine": 1689,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -41588,7 +42142,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 896,
+        "sourceLine": 1110,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -41615,7 +42169,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1795,
+        "sourceLine": 2009,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -41641,7 +42195,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1718,
+        "sourceLine": 1932,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -41667,7 +42221,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1912,
+        "sourceLine": 2126,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -41899,7 +42453,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1830,
+        "sourceLine": 2044,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -41951,7 +42505,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1521,
+        "sourceLine": 1735,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -41978,7 +42532,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1284,
+        "sourceLine": 1498,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -42004,7 +42558,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1617,
+        "sourceLine": 1831,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -44268,7 +44822,7 @@
         "symbolName": "buildQualityIssueIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 728,
+        "sourceLine": 851,
         "summary": "Build a schema-first issue index from normalized issues.",
         "categories": [
           "constructors"
@@ -44322,7 +44876,7 @@
         "symbolName": "buildYeetRunPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1801,
+        "sourceLine": 1913,
         "summary": "Build a plan for tests without reading repository state.",
         "categories": [
           "testing"
@@ -44396,6 +44950,31 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "closeoutGateStatesForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+        "sourceLine": 832,
+        "summary": "Build durable PR closeout gate states from simplified test inputs.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet closeoutgatestatesfortesting const build durable pr closeout gate states from simplified test inputs. testing packages/tooling/tool/cli/src/commands/yeet/internal/closeout.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "commandTextForStep",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.models.ts",
@@ -44426,7 +45005,7 @@
         "symbolName": "decodeTurboPlanTasksFromQueryJsonForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1030,
+        "sourceLine": 1057,
         "summary": "Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests.",
         "categories": [
           "testing"
@@ -44474,7 +45053,7 @@
         "symbolName": "defaultYeetRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1836,
+        "sourceLine": 1948,
         "summary": "Construct baseline yeet options for focused tests.",
         "categories": [
           "testing"
@@ -44680,7 +45259,7 @@
         "symbolName": "gitPathListFromNulOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 370,
+        "sourceLine": 402,
         "summary": "Parse NUL-delimited Git path output for Yeet publish-safety tests.",
         "categories": [
           "testing"
@@ -44704,7 +45283,7 @@
         "symbolName": "greptileIssueLimitExceededForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 638,
+        "sourceLine": 705,
         "summary": "Determine whether the Greptile issue-count gate should block closeout.",
         "categories": [
           "testing"
@@ -44730,7 +45309,7 @@
         "symbolName": "greptileRetriggerCommentForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 32,
+        "sourceLine": 33,
         "summary": "Greptile retrigger comment body used by closeout mode.",
         "categories": [
           "testing"
@@ -44754,7 +45333,7 @@
         "symbolName": "GreptileSummary",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 341,
+        "sourceLine": 342,
         "summary": "Summary of Greptile signal extracted from PR comments.",
         "categories": [
           "models"
@@ -44778,7 +45357,7 @@
         "symbolName": "hydrateYeetRunContext",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1071,
+        "sourceLine": 1098,
         "summary": "Hydrate a shared yeet run context from repository state.",
         "categories": [
           "utilities"
@@ -44805,7 +45384,7 @@
         "symbolName": "inferGreptileIssueCountForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 584,
+        "sourceLine": 651,
         "summary": "Fill a missing Greptile issue count from active Greptile-authored thread count.",
         "categories": [
           "testing"
@@ -44858,7 +45437,7 @@
         "symbolName": "jsonObjectTextFromMixedOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 887,
+        "sourceLine": 914,
         "summary": "Extract the last decodable JSON object from mixed command output for tests.",
         "categories": [
           "testing"
@@ -44882,7 +45461,7 @@
         "symbolName": "latestGreptileSummaryForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 558,
+        "sourceLine": 625,
         "summary": "Parse the latest Greptile summary from simplified comment inputs.",
         "categories": [
           "testing"
@@ -44908,7 +45487,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 227,
+        "sourceLine": 228,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -44930,10 +45509,35 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "PrCloseoutGateState",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+        "sourceLine": 383,
+        "summary": "Durable PR closeout gate state.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet prcloseoutgatestate class durable pr closeout gate state. models packages/tooling/tool/cli/src/commands/yeet/internal/closeout.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "PrCloseoutOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 322,
+        "sourceLine": 323,
         "summary": "Runtime closeout gates accepted by Yeet.",
         "categories": [
           "models"
@@ -44957,7 +45561,7 @@
         "symbolName": "PrCloseoutReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 358,
+        "sourceLine": 402,
         "summary": "Yeet PR closeout report.",
         "categories": [
           "models"
@@ -44981,7 +45585,7 @@
         "symbolName": "prePushLocalShasFromStdinForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 378,
+        "sourceLine": 410,
         "summary": "Parse Git pre-push stdin and return non-delete local commit SHAs.",
         "categories": [
           "testing"
@@ -45005,7 +45609,7 @@
         "symbolName": "prePushShaMismatchesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 386,
+        "sourceLine": 418,
         "summary": "Return pushed SHAs that do not match the reusable Yeet proof commit.",
         "categories": [
           "testing"
@@ -45029,7 +45633,7 @@
         "symbolName": "publishPathsOutsideIntentForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 394,
+        "sourceLine": 426,
         "summary": "Return observed paths that are not part of the reviewed Yeet publish intent.",
         "categories": [
           "testing"
@@ -45053,7 +45657,7 @@
         "symbolName": "publishRestagePathsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 403,
+        "sourceLine": 435,
         "summary": "Return reviewed paths that can be passed to `git add` without failing on",
         "categories": [
           "testing"
@@ -45077,7 +45681,7 @@
         "symbolName": "publishUpstreamMismatchWarningForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 412,
+        "sourceLine": 444,
         "summary": "Return the warning Yeet prints when publish push target differs from branch",
         "categories": [
           "testing"
@@ -45101,7 +45705,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 173,
+        "sourceLine": 174,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -45126,7 +45730,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 44,
+        "sourceLine": 45,
         "summary": "Classification domain for normalized yeet quality findings.",
         "categories": [
           "models"
@@ -45151,7 +45755,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 74,
+        "sourceLine": 75,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -45175,7 +45779,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 114,
+        "sourceLine": 115,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -45200,7 +45804,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 126,
+        "sourceLine": 127,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -45224,7 +45828,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 253,
+        "sourceLine": 254,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -45249,7 +45853,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 141,
+        "sourceLine": 142,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -45274,7 +45878,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 88,
+        "sourceLine": 89,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -45299,7 +45903,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 100,
+        "sourceLine": 101,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -45323,7 +45927,7 @@
         "symbolName": "qualityIssuesFromStepResult",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 674,
+        "sourceLine": 797,
         "summary": "Convert a failed step result into quality issues.",
         "categories": [
           "parsing"
@@ -45877,7 +46481,7 @@
         "symbolName": "runPrCloseout",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 878,
+        "sourceLine": 1054,
         "summary": "Inspect current PR review and bot closeout state.",
         "categories": [
           "use-cases"
@@ -45955,7 +46559,7 @@
         "symbolName": "runYeet",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1761,
+        "sourceLine": 1873,
         "summary": "Run yeet with the provided options.",
         "categories": [
           "use-cases"
@@ -45982,7 +46586,7 @@
         "symbolName": "shouldSkipCommitForReusablePublishForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1478,
+        "sourceLine": 1590,
         "summary": "Decide whether a reusable publish should skip the commit phase.",
         "categories": [
           "testing"
@@ -46355,7 +46959,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 260,
+        "sourceLine": 292,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"

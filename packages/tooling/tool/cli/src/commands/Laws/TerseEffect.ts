@@ -74,6 +74,30 @@ export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
+    blockingFiles: S.Array(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+    ),
+    informationalFiles: S.Array(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+    ),
+    rewritableFiles: S.Array(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+    ),
+    blockingFindings: S.Array(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+    ),
+    informationalFindings: S.Array(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+    ),
+    rewritableFindings: S.Array(S.String).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
+    ),
   },
   $I.annote("TerseEffectRulesSummary", {
     description: "Summary of terse Effect style migration results.",
@@ -96,6 +120,11 @@ const OPTION_MATCH_HANDLER_NAMES = ["onNone", "onSome"] as const;
 const BOOL_MATCH_HANDLER_NAMES = ["onFalse", "onTrue"] as const;
 
 const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
+
+const findingText = (sourceFile: import("ts-morph").SourceFile, filePath: string, kind: string, node: Node): string => {
+  const position = sourceFile.getLineAndColumnAtPos(node.getStart());
+  return `${filePath}:${position.line}:${position.column} ${kind}`;
+};
 
 const getCallExpressionArgument = (callExpression: CallExpression, index: number): O.Option<import("ts-morph").Node> =>
   A.get(callExpression.getArguments(), index);
@@ -569,10 +598,23 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
   let dualOverloadCandidatesDetected = 0;
   let touchedFiles = 0;
   let changedFiles = A.empty<string>();
+  let blockingFiles = A.empty<string>();
+  let informationalFiles = A.empty<string>();
+  let rewritableFiles = A.empty<string>();
+  let blockingFindings = A.empty<string>();
+  let informationalFindings = A.empty<string>();
+  let rewritableFindings = A.empty<string>();
 
   for (const sourceFile of sourceFiles) {
+    const sourceFilePath = toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath()));
     let fileTouched = false;
     let fileMutated = false;
+    let fileHasBlockingCandidate = false;
+    let fileHasInformationalCandidate = false;
+    let fileHasRewritableCandidate = false;
+    let fileBlockingFindings = A.empty<string>();
+    let fileInformationalFindings = A.empty<string>();
+    let fileRewritableFindings = A.empty<string>();
     const thunkHelperAliases = getImportedThunkHelperAliases(sourceFile);
     const arrowFunctions = A.sort(
       sourceFile.getDescendantsOfKind(SyntaxKind.ArrowFunction),
@@ -584,12 +626,17 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
         pipe(
           getArrowReplacement(arrowFunction),
           O.map((replacement) => {
+            const finding = findingText(sourceFile, sourceFilePath, "helper-ref", arrowFunction);
             if (options.write) {
               arrowFunction.replaceWithText(replacement);
               fileMutated = true;
             }
             helpersSimplified += 1;
             fileTouched = true;
+            fileHasBlockingCandidate = true;
+            fileHasRewritableCandidate = true;
+            fileBlockingFindings = A.append(fileBlockingFindings, finding);
+            fileRewritableFindings = A.append(fileRewritableFindings, finding);
           }),
           O.isSome
         )
@@ -601,12 +648,17 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
         pipe(
           getThunkHelperReplacement(arrowFunction, thunkHelperAliases),
           O.map((replacement) => {
+            const finding = findingText(sourceFile, sourceFilePath, "thunk-helper", arrowFunction);
             if (options.write) {
               arrowFunction.replaceWithText(replacement);
               fileMutated = true;
             }
             thunkHelpersSimplified += 1;
             fileTouched = true;
+            fileHasBlockingCandidate = true;
+            fileHasRewritableCandidate = true;
+            fileBlockingFindings = A.append(fileBlockingFindings, finding);
+            fileRewritableFindings = A.append(fileRewritableFindings, finding);
           }),
           O.isSome
         )
@@ -617,6 +669,11 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
       if (isFlowCandidate(arrowFunction)) {
         flowCandidatesDetected += 1;
         fileTouched = true;
+        fileHasInformationalCandidate = true;
+        fileInformationalFindings = A.append(
+          fileInformationalFindings,
+          findingText(sourceFile, sourceFilePath, "flow-candidate", arrowFunction)
+        );
       }
     }
 
@@ -624,16 +681,31 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
       if (isOptionObjectCompactionCandidate(callExpression)) {
         optionObjectCompactionCandidatesDetected += 1;
         fileTouched = true;
+        fileHasBlockingCandidate = true;
+        fileBlockingFindings = A.append(
+          fileBlockingFindings,
+          findingText(sourceFile, sourceFilePath, "option-object-compaction", callExpression)
+        );
       }
 
       if (isNestedOptionMatchCandidate(callExpression)) {
         nestedOptionMatchCandidatesDetected += 1;
         fileTouched = true;
+        fileHasBlockingCandidate = true;
+        fileBlockingFindings = A.append(
+          fileBlockingFindings,
+          findingText(sourceFile, sourceFilePath, "nested-option-match", callExpression)
+        );
       }
 
       if (isNestedBoolMatchCandidate(callExpression)) {
         nestedBoolMatchCandidatesDetected += 1;
         fileTouched = true;
+        fileHasBlockingCandidate = true;
+        fileBlockingFindings = A.append(
+          fileBlockingFindings,
+          findingText(sourceFile, sourceFilePath, "nested-bool-match", callExpression)
+        );
       }
     }
 
@@ -641,6 +713,11 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
       if (isConditionalOptionalObjectSpreadCandidate(spreadAssignment)) {
         conditionalOptionalObjectSpreadCandidatesDetected += 1;
         fileTouched = true;
+        fileHasBlockingCandidate = true;
+        fileBlockingFindings = A.append(
+          fileBlockingFindings,
+          findingText(sourceFile, sourceFilePath, "conditional-optional-object-spread", spreadAssignment)
+        );
       }
     }
 
@@ -648,6 +725,11 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
       if (isExplicitDualOverloadCandidate(functionDeclaration)) {
         dualOverloadCandidatesDetected += 1;
         fileTouched = true;
+        fileHasBlockingCandidate = true;
+        fileBlockingFindings = A.append(
+          fileBlockingFindings,
+          findingText(sourceFile, sourceFilePath, "dual-overload", functionDeclaration)
+        );
       }
     }
 
@@ -657,7 +739,19 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
 
     if (fileTouched) {
       touchedFiles += 1;
-      changedFiles = A.append(changedFiles, toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath())));
+      changedFiles = A.append(changedFiles, sourceFilePath);
+      if (fileHasBlockingCandidate) {
+        blockingFiles = A.append(blockingFiles, sourceFilePath);
+        blockingFindings = A.appendAll(blockingFindings, fileBlockingFindings);
+      }
+      if (fileHasInformationalCandidate) {
+        informationalFiles = A.append(informationalFiles, sourceFilePath);
+        informationalFindings = A.appendAll(informationalFindings, fileInformationalFindings);
+      }
+      if (fileHasRewritableCandidate) {
+        rewritableFiles = A.append(rewritableFiles, sourceFilePath);
+        rewritableFindings = A.appendAll(rewritableFindings, fileRewritableFindings);
+      }
     }
   }
 
@@ -693,5 +787,11 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
     dualOverloadCandidatesDetected,
     strictFailure,
     changedFiles,
+    blockingFiles,
+    informationalFiles,
+    rewritableFiles,
+    blockingFindings,
+    informationalFindings,
+    rewritableFindings,
   });
 });

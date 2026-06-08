@@ -1,15 +1,18 @@
 import {
   buildQualityIssueIndex,
   buildYeetRunPlanForTesting,
+  closeoutGateStatesForTesting,
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
   defaultYeetRunOptions,
+  GreptileSummary,
   gitPathListFromNulOutputForTesting,
   greptileIssueLimitExceededForTesting,
   greptileRetriggerCommentForTesting,
   inferGreptileIssueCountForTesting,
   jsonObjectTextFromMixedOutputForTesting,
   latestGreptileSummaryForTesting,
+  PrCloseoutOptions,
   prePushLocalShasFromStdinForTesting,
   prePushShaMismatchesForTesting,
   publishPathsOutsideIntentForTesting,
@@ -773,6 +776,39 @@ describe("yeet planner", () => {
     expect(greptileIssueLimitExceededForTesting(2, 2)).toBe(false);
     expect(greptileIssueLimitExceededForTesting(3, 2)).toBe(true);
   });
+
+  it("builds durable closeout gate states for bot and review gates", () => {
+    const states = closeoutGateStatesForTesting(
+      PrCloseoutOptions.make({
+        bots: "coderabbit,chatgpt,greptile",
+        requireGreptileIssues: 0,
+        requireGreptileScore: "5/5",
+        requireReviewComments: 0,
+        retriggerGreptile: false,
+      }),
+      0,
+      GreptileSummary.make({
+        issueCount: 0,
+        score: "5/5",
+        url: "https://github.test/pr#greptile",
+      }),
+      [
+        {
+          authorLogin: "coderabbitai",
+          body: "Review completed",
+          url: "https://github.test/pr#coderabbit",
+        },
+      ]
+    );
+
+    expect(states).toEqual([
+      expect.objectContaining({ name: "review-threads", status: "passed", count: 0 }),
+      expect.objectContaining({ name: "greptile", status: "passed", count: 0 }),
+      expect.objectContaining({ name: "coderabbit", status: "passed", count: 0 }),
+      expect.objectContaining({ name: "chatgpt", status: "unknown", count: 0 }),
+      expect.objectContaining({ name: "hosted-checks", status: "unknown" }),
+    ]);
+  });
 });
 
 describe("yeet quality issue index", () => {
@@ -918,6 +954,75 @@ describe("yeet quality issue index", () => {
       "feedback:test-test::test::package:@beep/repo-cli::0::feedback:test failed with exit code 1.",
       "feedback:test-test::test::package:@beep/schema::0::feedback:test failed with exit code 1.",
     ]);
+  });
+
+  it("extracts known sub-lane hints from broad proof failures", () => {
+    const step = RepoPlanStep.make({
+      id: "full:pre-push",
+      label: "full:pre-push",
+      phase: "full",
+      command: "bun",
+      args: ["run", "beep", "quality", "github-checks", "pre-push"],
+      cwd: "/repo",
+      scope: "repo",
+      mutability: "readonly",
+      resume: "never",
+    });
+    const issues = qualityIssuesFromStepResult(
+      context,
+      step,
+      RepoStepRunResult.make({
+        stepId: step.id,
+        commandText: "bun run beep quality github-checks pre-push",
+        exitCode: 1,
+        output: "[beep-cli] lint:cspell: cspell .\nUnknown word found",
+      })
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      category: "lint-tool",
+      message: "full:pre-push failed in cspell with exit code 1.",
+      remediation: "Run `bun run cspell` or update the spelling dictionary for intentional terms.",
+      subCategory: "cspell",
+    });
+  });
+
+  it("prefers the failing tail when broad proof output mentions earlier successful lanes", () => {
+    const step = RepoPlanStep.make({
+      id: "full:review-fix",
+      label: "full:review-fix",
+      phase: "full",
+      command: "bun",
+      args: ["run", "beep", "quality", "github-checks", "review-fix"],
+      cwd: "/repo",
+      scope: "repo",
+      mutability: "readonly",
+      resume: "never",
+    });
+    const issues = qualityIssuesFromStepResult(
+      context,
+      step,
+      RepoStepRunResult.make({
+        stepId: step.id,
+        commandText: "bun run beep quality github-checks review-fix",
+        exitCode: 1,
+        output:
+          "[beep-cli] lint:terse-effect: bun run beep laws terse-effect --check\n" +
+          "terse-effect: OK\n" +
+          "[github-checks] review-fix: local docgen\n" +
+          'docgen:local: full docgen proof required; re-run with "--full" to execute it.\n' +
+          "review-fix:docgen-local failed with exit code 1.",
+      })
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      category: "docgen-jsdoc-quality",
+      message: "full:review-fix failed in docgen with exit code 1.",
+      remediation: "Run `bun run docgen:local` for edit loops or `bun run docgen` for the full proof.",
+      subCategory: "docgen",
+    });
   });
 
   it("uses the workspace package catalog for full-proof diagnostic package attribution", () => {

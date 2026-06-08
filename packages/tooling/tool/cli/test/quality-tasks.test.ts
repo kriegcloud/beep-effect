@@ -1,6 +1,7 @@
 import {
   affectedRepoExportsCatalogPlanForTesting,
   collectEffectTsgoDiagnosticLines,
+  detectQualityProfileForTesting,
   fullRepoExportsCatalogEscalationCommandForTesting,
   GithubCheckMode,
   githubCheckPrePushExternalLanesForTesting,
@@ -11,6 +12,8 @@ import {
   QualityTaskFailed,
   QualityTaskGroupFailed,
   QualityTaskStep,
+  qualityProfileConfigForTesting,
+  reviewFixDocgenLocalArgsForTesting,
   rootQualityStepsForTesting,
   runQualityTask,
   runQualityTaskStepGroupForTesting,
@@ -263,6 +266,19 @@ describe("quality task adapter", () => {
     expect(GithubCheckMode.is["review-fix"]("review-fix")).toBe(true);
   });
 
+  it("lets review-fix docgen escalate when docgen tooling changed", () => {
+    expect(reviewFixDocgenLocalArgsForTesting("origin/main", "HEAD")).toEqual([
+      "docgen:local",
+      "--",
+      "--base",
+      "origin/main",
+      "--head",
+      "HEAD",
+      "--parallel=3",
+      "--full",
+    ]);
+  });
+
   it("maps repo-quality github checks as independent collector lanes", () => {
     const lanes = githubCheckQualityLanesForTesting("/repo");
 
@@ -346,6 +362,43 @@ describe("quality task adapter", () => {
     expect(fullRepoExportsCatalogEscalationCommandForTesting(true)).toEqual({
       args: ["repo-exports:catalog:check"],
       label: "quality:repo-exports-catalog-check",
+    });
+  });
+
+  it("detects explicit quality hardware profiles", () => {
+    expect(
+      detectQualityProfileForTesting({
+        ci: true,
+        cpuCount: 64,
+        totalMemoryBytes: 128 * 1024 * 1024 * 1024,
+      })
+    ).toMatchObject({
+      profile: "ci",
+      config: { fullProofSlots: 1, reviewFixSlots: 1 },
+    });
+    expect(
+      detectQualityProfileForTesting({
+        ci: false,
+        cpuCount: 64,
+        totalMemoryBytes: 128 * 1024 * 1024 * 1024,
+      })
+    ).toMatchObject({
+      profile: "workstation",
+      config: { docgenParallel: 6, reviewFixSlots: 3 },
+    });
+    expect(
+      detectQualityProfileForTesting({
+        ci: false,
+        cpuCount: 8,
+        totalMemoryBytes: 16 * 1024 * 1024 * 1024,
+      })
+    ).toMatchObject({
+      profile: "current",
+      config: { docgenParallel: 3, reviewFixSlots: 1 },
+    });
+    expect(qualityProfileConfigForTesting("workstation")).toMatchObject({
+      fullProofSlots: 1,
+      turboConcurrency: 8,
     });
   });
 
@@ -795,7 +848,7 @@ describe("quality task adapter", () => {
 
           const commandLog = yield* fs.readFileString(commandLogPath);
           expectSubstringBefore(commandLog, "bunx turbo run lint", "bun run beep laws effect-imports --check");
-          expect(commandLog).toContain("bun run beep docgen check");
+          expect(commandLog).toContain("bun run beep docgen check --reuse-proof-manifest");
           expect(commandLog).toContain("bunx typos");
         })
       )
