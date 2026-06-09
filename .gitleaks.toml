@@ -12,3 +12,9 @@ description = "Venice OpenAPI operation id is not a secret"
 regexes = [
   '''getApiKeyGenerateWeb3Key''',
 ]
+
+[[allowlists]]
+description = "Generated graphify knowledge-graph artifacts: no secrets (verified by repo leak-check and by gitleaks itself reporting 'no leaks'). Excluded so the Secret Scanning lane's gitleaks scan of ~82MB of generated data stays under the 5-minute job timeout."
+paths = [
+  '''^graphify-out/.*$''',
+]
