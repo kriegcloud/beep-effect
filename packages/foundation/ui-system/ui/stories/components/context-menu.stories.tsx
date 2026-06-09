@@ -21,7 +21,7 @@ import { useId } from "react";
 import { expect, fireEvent, screen, userEvent, waitFor, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-const contextCheckboxStateAtom = Atom.family((id: string) =>
+const contextCheckboxStateAtom = Atom.family((_id: string) =>
   Atom.make({
     showBookmarks: true,
     showFullUrls: false,
