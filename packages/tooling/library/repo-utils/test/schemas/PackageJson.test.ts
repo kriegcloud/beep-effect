@@ -73,10 +73,19 @@ describe("PackageJson schema", () => {
           { type: "github", url: "https://github.com/sponsors/beep-effect" },
         ],
         homepage: "https://github.com/example/repo",
+        author: {
+          name: "Beep Maintainer",
+          email: "MAINTAINER@EXAMPLE.COM",
+        },
+        bugs: {
+          email: "bugs@example.com",
+        },
       };
 
       const result = decodePackageJson(input);
       expect(result.name).toBe("@beep/repo-utils");
+      expect(result.author).toEqual(O.some({ name: "Beep Maintainer", email: "maintainer@example.com" }));
+      expect(result.bugs).toEqual(O.some({ email: "bugs@example.com" }));
       expect(result.browser).toEqual(
         O.some({
           "./src/server.ts": "./src/browser.ts",

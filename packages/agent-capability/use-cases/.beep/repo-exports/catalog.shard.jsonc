@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "af4e6469a3dabee8867383e5c8f1ecde0c719660c0daf9e1bb3f66f17ff1883b",
+    "digest": "399fe6e1a85ba46289516b38dd4b9ef24899ad678ade34b18e6de749832f023b",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sha256": "8814d903a640708585bb01e8f06efd7b54977ff75d6089793c51c5a42759cd44",
-        "bytes": 11327
+        "sha256": "748304ebb4ebeca54ac830c0c432b69f717f042073261889766f0120f28f36bd",
+        "bytes": 11374
       },
       {
         "path": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.errors.ts",
@@ -129,7 +129,7 @@
         "symbolName": "CandidateOutputSet",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 433,
+        "sourceLine": 434,
         "summary": "Batch of candidate outputs proposed by an agent run.",
         "categories": [
           "models"
@@ -254,7 +254,7 @@
         "symbolName": "RuntimeActivity",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 345,
+        "sourceLine": 346,
         "summary": "Runtime provenance activity included in a context packet.",
         "categories": [
           "models"
@@ -329,7 +329,7 @@
         "symbolName": "RuntimeApprovalGate",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 245,
+        "sourceLine": 246,
         "summary": "Candidate approval gate proposed by the runtime.",
         "categories": [
           "models"
@@ -354,7 +354,7 @@
         "symbolName": "RuntimeCandidateClaim",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 106,
+        "sourceLine": 107,
         "summary": "Candidate claim proposed by the runtime.",
         "categories": [
           "models"
@@ -379,7 +379,7 @@
         "symbolName": "RuntimeCandidateDraft",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 214,
+        "sourceLine": 215,
         "summary": "Candidate draft proposed by the runtime.",
         "categories": [
           "models"
@@ -429,7 +429,7 @@
         "symbolName": "RuntimeCandidateProject",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 136,
+        "sourceLine": 137,
         "summary": "Candidate project proposed by the runtime.",
         "categories": [
           "models"
@@ -454,7 +454,7 @@
         "symbolName": "RuntimeCandidateTask",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 163,
+        "sourceLine": 164,
         "summary": "Candidate task proposed by the runtime.",
         "categories": [
           "models"
@@ -504,7 +504,7 @@
         "symbolName": "RuntimeContextPacketRequest",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 274,
+        "sourceLine": 275,
         "summary": "Request section embedded in a context packet.",
         "categories": [
           "models"
@@ -529,7 +529,7 @@
         "symbolName": "RuntimeDraftRecipient",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 191,
+        "sourceLine": 192,
         "summary": "Recipient for a candidate draft.",
         "categories": [
           "models"
@@ -554,7 +554,7 @@
         "symbolName": "RuntimeEntityRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 59,
+        "sourceLine": 60,
         "summary": "Lightweight reference to a vertical or runtime entity.",
         "categories": [
           "models"
@@ -579,7 +579,7 @@
         "symbolName": "RuntimeEvidenceRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 82,
+        "sourceLine": 83,
         "summary": "Source evidence reference for a candidate output.",
         "categories": [
           "models"
@@ -629,7 +629,7 @@
         "symbolName": "RuntimeScope",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 35,
+        "sourceLine": 36,
         "summary": "Scope for an SDK request.",
         "categories": [
           "models"
@@ -654,7 +654,7 @@
         "symbolName": "RuntimeSourceArtifact",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 320,
+        "sourceLine": 321,
         "summary": "Source artifact declared by a context packet.",
         "categories": [
           "models"
@@ -704,7 +704,7 @@
         "symbolName": "RuntimeSourceSpanRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 297,
+        "sourceLine": 298,
         "summary": "Source span declared by a context packet source artifact.",
         "categories": [
           "models"
@@ -754,7 +754,7 @@
         "symbolName": "RuntimeUsageRecord",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 371,
+        "sourceLine": 372,
         "summary": "Runtime usage attribution included in a context packet.",
         "categories": [
           "models"
@@ -779,7 +779,7 @@
         "symbolName": "SdkContextPacket",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 396,
+        "sourceLine": 397,
         "summary": "Context packet returned to SDK clients.",
         "categories": [
           "models"
@@ -804,7 +804,7 @@
         "symbolName": "CandidateOutputSet",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 433,
+        "sourceLine": 434,
         "summary": "Batch of candidate outputs proposed by an agent run.",
         "categories": [
           "models"
@@ -979,7 +979,7 @@
         "symbolName": "RuntimeActivity",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 345,
+        "sourceLine": 346,
         "summary": "Runtime provenance activity included in a context packet.",
         "categories": [
           "models"
@@ -1054,7 +1054,7 @@
         "symbolName": "RuntimeApprovalGate",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 245,
+        "sourceLine": 246,
         "summary": "Candidate approval gate proposed by the runtime.",
         "categories": [
           "models"
@@ -1079,7 +1079,7 @@
         "symbolName": "RuntimeCandidateClaim",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 106,
+        "sourceLine": 107,
         "summary": "Candidate claim proposed by the runtime.",
         "categories": [
           "models"
@@ -1104,7 +1104,7 @@
         "symbolName": "RuntimeCandidateDraft",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 214,
+        "sourceLine": 215,
         "summary": "Candidate draft proposed by the runtime.",
         "categories": [
           "models"
@@ -1154,7 +1154,7 @@
         "symbolName": "RuntimeCandidateProject",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 136,
+        "sourceLine": 137,
         "summary": "Candidate project proposed by the runtime.",
         "categories": [
           "models"
@@ -1179,7 +1179,7 @@
         "symbolName": "RuntimeCandidateTask",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 163,
+        "sourceLine": 164,
         "summary": "Candidate task proposed by the runtime.",
         "categories": [
           "models"
@@ -1229,7 +1229,7 @@
         "symbolName": "RuntimeContextPacketRequest",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 274,
+        "sourceLine": 275,
         "summary": "Request section embedded in a context packet.",
         "categories": [
           "models"
@@ -1254,7 +1254,7 @@
         "symbolName": "RuntimeDraftRecipient",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 191,
+        "sourceLine": 192,
         "summary": "Recipient for a candidate draft.",
         "categories": [
           "models"
@@ -1279,7 +1279,7 @@
         "symbolName": "RuntimeEntityRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 59,
+        "sourceLine": 60,
         "summary": "Lightweight reference to a vertical or runtime entity.",
         "categories": [
           "models"
@@ -1304,7 +1304,7 @@
         "symbolName": "RuntimeEvidenceRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 82,
+        "sourceLine": 83,
         "summary": "Source evidence reference for a candidate output.",
         "categories": [
           "models"
@@ -1379,7 +1379,7 @@
         "symbolName": "RuntimeScope",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 35,
+        "sourceLine": 36,
         "summary": "Scope for an SDK request.",
         "categories": [
           "models"
@@ -1404,7 +1404,7 @@
         "symbolName": "RuntimeSourceArtifact",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 320,
+        "sourceLine": 321,
         "summary": "Source artifact declared by a context packet.",
         "categories": [
           "models"
@@ -1454,7 +1454,7 @@
         "symbolName": "RuntimeSourceSpanRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 297,
+        "sourceLine": 298,
         "summary": "Source span declared by a context packet source artifact.",
         "categories": [
           "models"
@@ -1504,7 +1504,7 @@
         "symbolName": "RuntimeUsageRecord",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 371,
+        "sourceLine": 372,
         "summary": "Runtime usage attribution included in a context packet.",
         "categories": [
           "models"
@@ -1529,7 +1529,7 @@
         "symbolName": "SdkContextPacket",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 396,
+        "sourceLine": 397,
         "summary": "Context packet returned to SDK clients.",
         "categories": [
           "models"
@@ -1554,7 +1554,7 @@
         "symbolName": "CandidateOutputSet",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 433,
+        "sourceLine": 434,
         "summary": "Batch of candidate outputs proposed by an agent run.",
         "categories": [
           "models"
@@ -1679,7 +1679,7 @@
         "symbolName": "RuntimeActivity",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 345,
+        "sourceLine": 346,
         "summary": "Runtime provenance activity included in a context packet.",
         "categories": [
           "models"
@@ -1754,7 +1754,7 @@
         "symbolName": "RuntimeApprovalGate",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 245,
+        "sourceLine": 246,
         "summary": "Candidate approval gate proposed by the runtime.",
         "categories": [
           "models"
@@ -1779,7 +1779,7 @@
         "symbolName": "RuntimeCandidateClaim",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 106,
+        "sourceLine": 107,
         "summary": "Candidate claim proposed by the runtime.",
         "categories": [
           "models"
@@ -1804,7 +1804,7 @@
         "symbolName": "RuntimeCandidateDraft",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 214,
+        "sourceLine": 215,
         "summary": "Candidate draft proposed by the runtime.",
         "categories": [
           "models"
@@ -1854,7 +1854,7 @@
         "symbolName": "RuntimeCandidateProject",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 136,
+        "sourceLine": 137,
         "summary": "Candidate project proposed by the runtime.",
         "categories": [
           "models"
@@ -1879,7 +1879,7 @@
         "symbolName": "RuntimeCandidateTask",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 163,
+        "sourceLine": 164,
         "summary": "Candidate task proposed by the runtime.",
         "categories": [
           "models"
@@ -1929,7 +1929,7 @@
         "symbolName": "RuntimeContextPacketRequest",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 274,
+        "sourceLine": 275,
         "summary": "Request section embedded in a context packet.",
         "categories": [
           "models"
@@ -1954,7 +1954,7 @@
         "symbolName": "RuntimeDraftRecipient",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 191,
+        "sourceLine": 192,
         "summary": "Recipient for a candidate draft.",
         "categories": [
           "models"
@@ -1979,7 +1979,7 @@
         "symbolName": "RuntimeEntityRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 59,
+        "sourceLine": 60,
         "summary": "Lightweight reference to a vertical or runtime entity.",
         "categories": [
           "models"
@@ -2004,7 +2004,7 @@
         "symbolName": "RuntimeEvidenceRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 82,
+        "sourceLine": 83,
         "summary": "Source evidence reference for a candidate output.",
         "categories": [
           "models"
@@ -2054,7 +2054,7 @@
         "symbolName": "RuntimeScope",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 35,
+        "sourceLine": 36,
         "summary": "Scope for an SDK request.",
         "categories": [
           "models"
@@ -2079,7 +2079,7 @@
         "symbolName": "RuntimeSourceArtifact",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 320,
+        "sourceLine": 321,
         "summary": "Source artifact declared by a context packet.",
         "categories": [
           "models"
@@ -2129,7 +2129,7 @@
         "symbolName": "RuntimeSourceSpanRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 297,
+        "sourceLine": 298,
         "summary": "Source span declared by a context packet source artifact.",
         "categories": [
           "models"
@@ -2179,7 +2179,7 @@
         "symbolName": "RuntimeUsageRecord",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 371,
+        "sourceLine": 372,
         "summary": "Runtime usage attribution included in a context packet.",
         "categories": [
           "models"
@@ -2204,7 +2204,7 @@
         "symbolName": "SdkContextPacket",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 396,
+        "sourceLine": 397,
         "summary": "Context packet returned to SDK clients.",
         "categories": [
           "models"
@@ -2229,7 +2229,7 @@
         "symbolName": "CandidateOutputSet",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 433,
+        "sourceLine": 434,
         "summary": "Batch of candidate outputs proposed by an agent run.",
         "categories": [
           "models"
@@ -2404,7 +2404,7 @@
         "symbolName": "RuntimeActivity",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 345,
+        "sourceLine": 346,
         "summary": "Runtime provenance activity included in a context packet.",
         "categories": [
           "models"
@@ -2479,7 +2479,7 @@
         "symbolName": "RuntimeApprovalGate",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 245,
+        "sourceLine": 246,
         "summary": "Candidate approval gate proposed by the runtime.",
         "categories": [
           "models"
@@ -2504,7 +2504,7 @@
         "symbolName": "RuntimeCandidateClaim",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 106,
+        "sourceLine": 107,
         "summary": "Candidate claim proposed by the runtime.",
         "categories": [
           "models"
@@ -2529,7 +2529,7 @@
         "symbolName": "RuntimeCandidateDraft",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 214,
+        "sourceLine": 215,
         "summary": "Candidate draft proposed by the runtime.",
         "categories": [
           "models"
@@ -2579,7 +2579,7 @@
         "symbolName": "RuntimeCandidateProject",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 136,
+        "sourceLine": 137,
         "summary": "Candidate project proposed by the runtime.",
         "categories": [
           "models"
@@ -2604,7 +2604,7 @@
         "symbolName": "RuntimeCandidateTask",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 163,
+        "sourceLine": 164,
         "summary": "Candidate task proposed by the runtime.",
         "categories": [
           "models"
@@ -2654,7 +2654,7 @@
         "symbolName": "RuntimeContextPacketRequest",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 274,
+        "sourceLine": 275,
         "summary": "Request section embedded in a context packet.",
         "categories": [
           "models"
@@ -2679,7 +2679,7 @@
         "symbolName": "RuntimeDraftRecipient",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 191,
+        "sourceLine": 192,
         "summary": "Recipient for a candidate draft.",
         "categories": [
           "models"
@@ -2704,7 +2704,7 @@
         "symbolName": "RuntimeEntityRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 59,
+        "sourceLine": 60,
         "summary": "Lightweight reference to a vertical or runtime entity.",
         "categories": [
           "models"
@@ -2729,7 +2729,7 @@
         "symbolName": "RuntimeEvidenceRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 82,
+        "sourceLine": 83,
         "summary": "Source evidence reference for a candidate output.",
         "categories": [
           "models"
@@ -2804,7 +2804,7 @@
         "symbolName": "RuntimeScope",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 35,
+        "sourceLine": 36,
         "summary": "Scope for an SDK request.",
         "categories": [
           "models"
@@ -2829,7 +2829,7 @@
         "symbolName": "RuntimeSourceArtifact",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 320,
+        "sourceLine": 321,
         "summary": "Source artifact declared by a context packet.",
         "categories": [
           "models"
@@ -2879,7 +2879,7 @@
         "symbolName": "RuntimeSourceSpanRef",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 297,
+        "sourceLine": 298,
         "summary": "Source span declared by a context packet source artifact.",
         "categories": [
           "models"
@@ -2929,7 +2929,7 @@
         "symbolName": "RuntimeUsageRecord",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 371,
+        "sourceLine": 372,
         "summary": "Runtime usage attribution included in a context packet.",
         "categories": [
           "models"
@@ -2954,7 +2954,7 @@
         "symbolName": "SdkContextPacket",
         "exportKind": "class",
         "sourcePath": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.contracts.ts",
-        "sourceLine": 396,
+        "sourceLine": 397,
         "summary": "Context packet returned to SDK clients.",
         "categories": [
           "models"

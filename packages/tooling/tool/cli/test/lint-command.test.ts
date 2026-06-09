@@ -163,6 +163,12 @@ describe("schema-first lint command", { concurrent: false }, () => {
             expect(errorLines).toContain(
               "- packages/example/src/Example.ts:2 arg1 [literal-kit-const-assertion] Inline LiteralKit array arguments do not need as const."
             );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"literal-kit-const-assertion",' +
+              '"severity":"error","file":"packages/example/src/Example.ts","line":2,"symbol":"LiteralKit",' +
+              '"message":"Inline LiteralKit array arguments do not need as const.",' +
+              '"remediation":"Remove the redundant as const assertion; LiteralKit already uses const type parameters."}';
+            expect(errorLines).toContain(structuredIssueLine);
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -198,6 +204,906 @@ describe("schema-first lint command", { concurrent: false }, () => {
 
             const errorLines = yield* TestConsole.errorLines;
             expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "reports untracked SFV4 numeric-domain advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
+                "  timeoutMs: S.Number,",
+                "  accountId: S.Number,",
+                "  retryCount: S.Int,",
+                "}) {}",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(errorLines).toContain(
+              '- packages/example/src/Example.ts :: WorkerOptions.timeoutMs [schema-policy-advisory] Broad numeric schema field "timeoutMs" should use S.Finite, S.Int, or a range check unless NaN and infinity are intentional.'
+            );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-numeric-domain",' +
+              '"severity":"warning","file":"packages/example/src/Example.ts","line":3,' +
+              '"symbol":"WorkerOptions.timeoutMs",' +
+              '"message":"Broad numeric schema field \\"timeoutMs\\" should use S.Finite, S.Int, or a range check unless NaN and infinity are intentional.",' +
+              '"remediation":"Review the numeric domain and replace broad S.Number/S.NumberFromString with S.Finite, S.Int, or checks; then run bun run beep lint schema-first --write if the broad domain is intentional."}';
+            expect(errorLines).toContain(structuredIssueLine);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "reports untracked SFV4 static-api discriminator switch advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                "const JobEvent = S.TaggedUnion({});",
+                'export const render = (event: { readonly _tag: "Created" | "Failed"; readonly id?: string; readonly reason?: string }) => {',
+                "  switch (event._tag) {",
+                '    case "Created":',
+                '      return event.id ?? "";',
+                '    case "Failed":',
+                '      return event.reason ?? "";',
+                "  }",
+                "};",
+                "void JobEvent;",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(errorLines).toContain(
+              '- packages/example/src/Example.ts :: render.switch(event._tag) [schema-policy-advisory] Schema-modeled discriminator switch "event._tag" should use schema-derived .match/.guards or LiteralKit.$match when semantics match.'
+            );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-static-api",' +
+              '"severity":"warning","file":"packages/example/src/Example.ts","line":4,' +
+              '"symbol":"render.switch(event._tag)",' +
+              '"message":"Schema-modeled discriminator switch \\"event._tag\\" should use schema-derived .match/.guards or LiteralKit.$match when semantics match.",' +
+              '"remediation":"Prefer schema-derived .match/.guards/.cases or LiteralKit helpers, or run bun run beep lint schema-first --write with a justification when behavior intentionally differs."}';
+            expect(errorLines).toContain(structuredIssueLine);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "reports untracked SFV4 precision-audit broad email advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                'export class Contact extends S.Class<Contact>("Contact")({',
+                "  email: S.String,",
+                "}) {}",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(errorLines).toContain(
+              '- packages/example/src/Example.ts :: Contact.email [schema-policy-advisory] Broad string field "email" should use @beep/schema Email, a local precise email schema, or a documented external-protocol exception.'
+            );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-precision-audit",' +
+              '"severity":"warning","file":"packages/example/src/Example.ts","line":3,' +
+              '"symbol":"Contact.email",' +
+              '"message":"Broad string field \\"email\\" should use @beep/schema Email, a local precise email schema, or a documented external-protocol exception.",' +
+              '"remediation":"Replace broad email S.String fields with @beep/schema Email or a local precise email schema; inventory only external protocol fields that intentionally allow non-email strings."}';
+            expect(errorLines).toContain(structuredIssueLine);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "accepts precise email schemas without precision-audit advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import { Email } from "@beep/schema";',
+                'import * as S from "effect/Schema";',
+                'export class Contact extends S.Class<Contact>("Contact")({',
+                "  email: Email,",
+                "}) {}",
+                "",
+              ].join("\n")
+            );
+
+            yield* runLintCommand(["schema-first"]);
+
+            const errorLines = yield* TestConsole.errorLines;
+            expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "excludes inventoried precision-audit exceptions from active advisory counts",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                'export class Contact extends S.Class<Contact>("Contact")({',
+                "  email: S.String,",
+                "}) {}",
+                "",
+              ].join("\n")
+            );
+            yield* fs.makeDirectory("standards");
+            yield* fs.writeFileString(
+              path.join("standards", "schema-first.inventory.jsonc"),
+              `${encodeJson({
+                version: 1,
+                generatedOn: "2026-06-08",
+                scope: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+                enforcedRoots: [
+                  "packages/tooling/tool/cli/src",
+                  "packages/tooling/library/repo-utils/src/FsUtils.ts",
+                  "packages/tooling/library/repo-utils/src/UniqueDeps.ts",
+                  "packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts",
+                ],
+                entries: [
+                  {
+                    file: "packages/example/src/Example.ts",
+                    symbol: "Contact.email",
+                    kind: "schema-policy-advisory",
+                    status: "exception",
+                    ruleId: "SFV4-precision-audit",
+                    line: 3,
+                    owner: "@beep/example",
+                    reason: "External protocol preserves raw email text before domain validation.",
+                  },
+                ],
+              })}\n`
+            );
+
+            yield* runLintCommand(["schema-first"]);
+
+            const logLines = yield* TestConsole.logLines;
+            const errorLines = yield* TestConsole.errorLines;
+            expect(logLines).toContain("[schema-first] sfv4_precision_audit_advisories=0");
+            expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "reports untracked SFV4 arbitrary-tests static-only schema test advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "test", "Example.test.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+                "export const staticChecks = [",
+                '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
+                '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
+                '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+                "];",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(errorLines).toContain(
+              "- packages/example/test/Example.test.ts :: schema-codec-tests [schema-policy-advisory] Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
+            );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-arbitrary-tests",' +
+              '"severity":"warning","file":"packages/example/test/Example.test.ts","line":4,' +
+              '"symbol":"schema-codec-tests",' +
+              '"message":"Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage.",' +
+              '"remediation":"Add a focused property test using S.toArbitrary(sourceSchema) and fast-check, or keep the inventory entry when the file is intentionally golden/snapshot/regression-only coverage."}';
+            expect(errorLines).toContain(structuredIssueLine);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "accepts schema-derived property tests without arbitrary-tests advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "test", "Example.test.ts"),
+              [
+                'import * as fc from "fast-check";',
+                'import * as S from "effect/Schema";',
+                "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+                "const WorkerArbitrary = S.toArbitrary(Worker);",
+                "export const staticChecks = [",
+                '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
+                '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
+                '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+                "];",
+                "export const property = fc.property(WorkerArbitrary, (worker) => worker.retryCount === Math.trunc(worker.retryCount));",
+                "",
+              ].join("\n")
+            );
+
+            yield* runLintCommand(["schema-first"]);
+
+            const errorLines = yield* TestConsole.errorLines;
+            expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "does not treat a non-schema-derived fast-check property as arbitrary-tests coverage",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "test", "Example.test.ts"),
+              [
+                'import * as fc from "fast-check";',
+                'import * as S from "effect/Schema";',
+                "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+                "export const staticChecks = [",
+                '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
+                '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
+                '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+                "];",
+                'export const property = fc.property(fc.string(), (id) => typeof id === "string");',
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain(
+              "- packages/example/test/Example.test.ts :: schema-codec-tests [schema-policy-advisory] Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
+            );
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "counts class-local static codec calls toward the arbitrary-tests threshold",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "test", "Example.test.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                'class Worker extends S.Class<Worker>("Worker")({ id: S.String }) {',
+                "  static readonly decodeUnknownSync = S.decodeUnknownSync(Worker);",
+                "}",
+                "export const staticChecks = [",
+                '  Worker.decodeUnknownSync({ id: "a" }),',
+                '  Worker.decodeUnknownSync({ id: "b" }),',
+                '  Worker.decodeUnknownSync({ id: "c" }),',
+                "];",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain(
+              "- packages/example/test/Example.test.ts :: schema-codec-tests [schema-policy-advisory] Schema-heavy test file has 4 Schema codec assertions but no schema-derived property coverage."
+            );
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "reports SFV4 arbitrary-tests advisories for synchronous schema codec helpers",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "test", "Sync.test.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+                "export const staticChecks = [",
+                '  S.decodeUnknownSync(Worker)({ id: "a", retryCount: 1 }),',
+                '  S.decodeSync(Worker)({ id: "b", retryCount: 2 }),',
+                '  S.encodeSync(Worker)({ id: "c", retryCount: 3 }),',
+                "];",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain(
+              "- packages/example/test/Sync.test.ts :: schema-codec-tests [schema-policy-advisory] Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
+            );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-arbitrary-tests",' +
+              '"severity":"warning","file":"packages/example/test/Sync.test.ts","line":4,' +
+              '"symbol":"schema-codec-tests",' +
+              '"message":"Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage.",' +
+              '"remediation":"Add a focused property test using S.toArbitrary(sourceSchema) and fast-check, or keep the inventory entry when the file is intentionally golden/snapshot/regression-only coverage."}';
+            expect(errorLines).toContain(structuredIssueLine);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "accepts schema-derived static match usage without static-api advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                "const JobEvent = S.TaggedUnion({});",
+                "export const render = (event: unknown) =>",
+                "  JobEvent.match(event, {",
+                '    Created: () => "created",',
+                '    Failed: () => "failed",',
+                "  });",
+                "",
+              ].join("\n")
+            );
+
+            yield* runLintCommand(["schema-first"]);
+
+            const errorLines = yield* TestConsole.errorLines;
+            expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "reports untracked SFV4 equivalence manual equals advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                'export class Worker extends S.Class<Worker>("Worker")({',
+                "  id: S.String,",
+                "  name: S.String,",
+                "}) {}",
+                "export const equals = (left: Worker, right: Worker) => left.id === right.id && left.name === right.name;",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(errorLines).toContain(
+              '- packages/example/src/Example.ts :: equals [schema-policy-advisory] Exported schema-modeled equality helper "equals" should derive from S.toEquivalence(schema) unless comparison intentionally differs from schema semantics.'
+            );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-equivalence",' +
+              '"severity":"warning","file":"packages/example/src/Example.ts","line":6,' +
+              '"symbol":"equals",' +
+              '"message":"Exported schema-modeled equality helper \\"equals\\" should derive from S.toEquivalence(schema) unless comparison intentionally differs from schema semantics.",' +
+              '"remediation":"Derive comparison from S.toEquivalence(schema) or SchemaUtils.toEquivalence(schema); use S.overrideToEquivalence only when schema semantics intentionally differ."}';
+            expect(errorLines).toContain(structuredIssueLine);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "accepts schema-derived equivalence helpers without equivalence advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                'export class Worker extends S.Class<Worker>("Worker")({',
+                "  id: S.String,",
+                "  name: S.String,",
+                "}) {}",
+                "export const equals = S.toEquivalence(Worker);",
+                "",
+              ].join("\n")
+            );
+
+            yield* runLintCommand(["schema-first"]);
+
+            const errorLines = yield* TestConsole.errorLines;
+            expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "reports untracked SFV4 boundary-codec JSON.parse advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              ["export const parseConfig = (text: string) => {", "  return JSON.parse(text);", "};", ""].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(errorLines).toContain(
+              "- packages/example/src/Example.ts :: parseConfig.JSON.parse [schema-policy-advisory] Direct JSON.parse boundary should use S.UnknownFromJsonString or S.fromJsonString(schema) so parsing and validation stay schema-owned."
+            );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-boundary-codec",' +
+              '"severity":"warning","file":"packages/example/src/Example.ts","line":2,' +
+              '"symbol":"parseConfig.JSON.parse",' +
+              '"message":"Direct JSON.parse boundary should use S.UnknownFromJsonString or S.fromJsonString(schema) so parsing and validation stay schema-owned.",' +
+              '"remediation":"Replace direct JSON.parse with S.UnknownFromJsonString or S.fromJsonString(schema) plus an Effect/Result/Option decoder, or inventory the exception when the protocol is intentionally non-standard."}';
+            expect(errorLines).toContain(structuredIssueLine);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "accepts schema JSON codecs without boundary-codec advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                "export const decodeConfig = S.decodeUnknownEffect(S.UnknownFromJsonString);",
+                "",
+              ].join("\n")
+            );
+
+            yield* runLintCommand(["schema-first"]);
+
+            const errorLines = yield* TestConsole.errorLines;
+            expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "reports untracked SFV4 defaults parameter object advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
+                "  timeoutMs: S.Finite,",
+                "}) {}",
+                "export const runWorker = (params = { timeoutMs: 5000 }) => params.timeoutMs;",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(errorLines).toContain(
+              '- packages/example/src/Example.ts :: runWorker.params [schema-policy-advisory] Parameter default object for "params" should move fallback values into schema defaults so construction, decoding, and tests share one source of truth.'
+            );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-defaults",' +
+              '"severity":"warning","file":"packages/example/src/Example.ts","line":5,' +
+              '"symbol":"runWorker.params",' +
+              '"message":"Parameter default object for \\"params\\" should move fallback values into schema defaults so construction, decoding, and tests share one source of truth.",' +
+              '"remediation":"Move option/request fallback values into schema fields with S.withConstructorDefault, S.withDecodingDefault*, or SchemaUtils.withKeyDefaults; inventory the exception only when the fallback intentionally differs from schema construction semantics."}';
+            expect(errorLines).toContain(structuredIssueLine);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "accepts schema-owned constructor defaults without defaults advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import { Effect } from "effect";',
+                'import * as S from "effect/Schema";',
+                'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
+                "  timeoutMs: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(5000))),",
+                "}) {}",
+                "export const runWorker = (params = WorkerOptions.make({})) => params.timeoutMs;",
+                "",
+              ].join("\n")
+            );
+
+            yield* runLintCommand(["schema-first"]);
+
+            const errorLines = yield* TestConsole.errorLines;
+            expect(errorLines).toEqual([]);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "writes SFV4 numeric-domain advisories to the schema-first inventory",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
+                "  timeoutMs: S.Number,",
+                "  retryCount: S.Int,",
+                "}) {}",
+                "",
+              ].join("\n")
+            );
+
+            yield* fs.makeDirectory("standards");
+            yield* runLintCommand(["schema-first", "--write"]);
+
+            const inventory = yield* fs.readFileString(path.join("standards", "schema-first.inventory.jsonc"));
+            const errorLines = yield* TestConsole.errorLines;
+            expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(inventory).toContain('"ruleId": "SFV4-numeric-domain"');
+            expect(inventory).toContain('"symbol": "WorkerOptions.timeoutMs"');
+            expect(inventory).not.toContain("retryCount");
           })
         ).pipe(provideScopedLayer(testLayer))
       ),

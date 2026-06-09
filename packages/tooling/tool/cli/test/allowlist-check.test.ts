@@ -1,7 +1,14 @@
-import { ALLOWLIST_PATH, AllowlistCheckOptions, runAllowlistCheck } from "@beep/repo-cli/test/Laws";
+import {
+  ALLOWLIST_PATH,
+  AllowlistCheckOptions,
+  formatRedactedSchemaDiagnostics,
+  formatSchemaDiagnostics,
+  runAllowlistCheck,
+} from "@beep/repo-cli/test/Laws";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { Effect, FileSystem, Layer, Path } from "effect";
+import { Effect, FileSystem, Layer, Path, Result } from "effect";
+import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
 const provideScopedLayer =
@@ -39,6 +46,26 @@ const writeRepoFile = Effect.fn("AllowlistCheckTest.writeRepoFile")(function* (
 });
 
 describe("allowlist-check", () => {
+  it("formats schema diagnostics with path labels and optional redaction", () => {
+    const result = S.decodeUnknownResult(
+      S.Struct({
+        token: S.Literal("expected-token"),
+      })
+    )({ token: "sk-test-secret" });
+
+    expect(Result.isFailure(result)).toBe(true);
+
+    if (Result.isFailure(result)) {
+      const diagnostics = formatSchemaDiagnostics(result.failure);
+      const redactedDiagnostics = formatRedactedSchemaDiagnostics(result.failure);
+
+      expect(diagnostics).toEqual([expect.stringContaining("token")]);
+      expect(diagnostics[0]).toContain("sk-test-secret");
+      expect(redactedDiagnostics).toEqual([expect.stringContaining("token")]);
+      expect(redactedDiagnostics[0]).not.toContain("sk-test-secret");
+    }
+  });
+
   it("passes when all referenced files exist", () =>
     Effect.runPromise(
       withTempRepo((tmpDir) =>

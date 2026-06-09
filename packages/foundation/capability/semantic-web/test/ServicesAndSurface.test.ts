@@ -20,6 +20,7 @@ import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Order, pipe } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
@@ -36,6 +37,17 @@ const dataset = makeDataset([
   ),
   makeQuad(makeNamedNode("https://example.com/people/alice"), RDF_TYPE, makeNamedNode("https://schema.org/Person")),
 ]);
+
+const boundDataset = (value: Dataset): Dataset => Dataset.make({ quads: pipe(value.quads, A.take(3)) });
+
+const DatasetArbitrary = S.toArbitrary(Dataset).map(boundDataset);
+const CanonicalizeDatasetRequestArbitrary = S.toArbitrary(CanonicalizeDatasetRequest).map((request) =>
+  CanonicalizeDatasetRequest.make({
+    dataset: boundDataset(request.dataset),
+    algorithm: request.algorithm,
+    workLimit: request.workLimit,
+  })
+);
 
 const runCanonicalization = <A, E>(effect: Effect.Effect<A, E, CanonicalizationService>) =>
   Effect.runPromise(effect.pipe(provideScopedLayer(CanonicalizationServiceLive), Effect.orDie));
@@ -55,6 +67,33 @@ describe("Services and Surface", () => {
       "RelativeIRIReference",
     ]);
   });
+
+  it(
+    "round-trips schema-derived RDF datasets and canonicalization DTOs through boundary encoders",
+    { timeout: 30000 },
+    () =>
+      fc.assert(
+        fc.property(DatasetArbitrary, CanonicalizeDatasetRequestArbitrary, (generatedDataset, canonicalizeRequest) => {
+          const encodedDataset = Effect.runSync(S.encodeEffect(Dataset)(generatedDataset));
+          const decodedDataset = Effect.runSync(S.decodeUnknownEffect(Dataset)(encodedDataset));
+          const reencodedDataset = Effect.runSync(S.encodeEffect(Dataset)(decodedDataset));
+
+          const encodedCanonicalizeRequest = Effect.runSync(
+            S.encodeEffect(CanonicalizeDatasetRequest)(canonicalizeRequest)
+          );
+          const decodedCanonicalizeRequest = Effect.runSync(
+            S.decodeUnknownEffect(CanonicalizeDatasetRequest)(encodedCanonicalizeRequest)
+          );
+          const reencodedCanonicalizeRequest = Effect.runSync(
+            S.encodeEffect(CanonicalizeDatasetRequest)(decodedCanonicalizeRequest)
+          );
+
+          expect(reencodedDataset).toEqual(encodedDataset);
+          expect(reencodedCanonicalizeRequest).toEqual(encodedCanonicalizeRequest);
+        }),
+        { numRuns: 5 }
+      )
+  );
 
   it("canonicalizes and fingerprints datasets deterministically", () =>
     Effect.gen(function* () {

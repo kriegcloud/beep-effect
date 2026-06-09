@@ -18,7 +18,9 @@ import { HeroVideo } from "@/components/HeroVideo";
 import { OipThemeProvider } from "@/components/OipThemeProvider";
 import { oipRedirects } from "@/config/OipRedirects";
 import {
+  ContactSubmission,
   ContactSubmissionAccepted,
+  ContactSubmissionFormPayload,
   ContactSubmissionRejected,
   ContactSubmissionResponse,
   contactSubmissionPayloadFromFormData,
@@ -31,6 +33,7 @@ import {
   decodeOipSiteContentResult,
   launchReviewGates,
   makeJsonLdGraph,
+  OipSiteContent,
   oipSiteContent,
   oipTwitterHandle,
   ReviewStatus,
@@ -198,6 +201,23 @@ describe("@beep/oip-web", { concurrent: false }, () => {
 
     expect(Result.isSuccess(result)).toBe(true);
   });
+
+  it("exposes schema class-local decoders beside compatibility exports", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const contentResult = OipSiteContent.decodeUnknownResult(oipSiteContent);
+        expect(contentResult).toEqual(decodeOipSiteContentResult(oipSiteContent));
+
+        const formPayload = contactSubmissionPayloadFromFormData(contactFormData());
+        const formResult = ContactSubmissionFormPayload.decodeUnknownResult(formPayload);
+        expect(Result.isSuccess(formResult)).toBe(true);
+
+        const contactPayload = validContactPayload();
+        const submission = yield* ContactSubmission.decodeUnknownEffect(contactPayload);
+        const submissionFromAlias = yield* decodeContactSubmission(contactPayload);
+        expect(submission).toEqual(submissionFromAlias);
+      })
+    ));
 
   it("decodes the firm social profiles", () => {
     expect(A.map(oipSiteContent.socials, (social) => social.platform)).toEqual([

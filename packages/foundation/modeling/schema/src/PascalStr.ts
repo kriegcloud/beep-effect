@@ -30,12 +30,18 @@ export const PascalCaseStr = NonEmptyTrimmedStr.pipe(
     S.isPattern(/^[A-Z][a-z0-9]*(?:[A-Z][a-z0-9]*)*$/, {
       message: "Must be PascalCase format",
     })
-  ),
-  S.brand("PascalCaseStr"),
-  $I.annoteSchema("PascalCaseStr", {
-    description: "A branded PascalCase string.",
+  )
+)
+  .annotate({
+    toArbitrary: () => (fc) =>
+      fc.stringMatching(/^[A-Z][a-z0-9]*(?:[A-Z][a-z0-9]*)*$/).map((value) => value as NonEmptyTrimmedStr),
   })
-);
+  .pipe(
+    S.brand("PascalCaseStr"),
+    $I.annoteSchema("PascalCaseStr", {
+      description: "A branded PascalCase string.",
+    })
+  );
 
 /**
  * Type for {@link PascalCaseStr}.

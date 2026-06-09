@@ -11,6 +11,16 @@ import * as GraphSchema from "@beep/nlp/Graph/Schema";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
+
+const TextNodeArbitrary = S.toArbitrary(GraphSchema.TextNode);
+const TextEdgeArbitrary = S.toArbitrary(GraphSchema.TextEdge);
+const EntityNodeArbitrary = S.toArbitrary(GraphSchema.EntityNode);
+const POSNodeArbitrary = S.toArbitrary(GraphSchema.POSNode);
+const LemmaNodeArbitrary = S.toArbitrary(GraphSchema.LemmaNode);
+const DependencyNodeArbitrary = S.toArbitrary(GraphSchema.DependencyNode);
+const RelationNodeArbitrary = S.toArbitrary(GraphSchema.RelationNode);
+const NLPAnalysisArbitrary = S.toArbitrary(GraphSchema.NLPAnalysis);
 
 describe("TextNode", () => {
   it.effect(
@@ -38,6 +48,46 @@ describe("TextNode", () => {
       expect(result._tag).toBe("Failure");
     })
   );
+});
+
+describe("Schema-derived graph payloads", () => {
+  it("round-trips generated graph schemas", () =>
+    fc.assert(
+      fc.property(
+        TextNodeArbitrary,
+        TextEdgeArbitrary,
+        EntityNodeArbitrary,
+        POSNodeArbitrary,
+        LemmaNodeArbitrary,
+        DependencyNodeArbitrary,
+        RelationNodeArbitrary,
+        NLPAnalysisArbitrary,
+        (textNode, textEdge, entityNode, posNode, lemmaNode, dependencyNode, relationNode, analysis) => {
+          const encodedTextNode = Effect.runSync(S.encodeEffect(GraphSchema.TextNode)(textNode));
+          const encodedTextEdge = Effect.runSync(S.encodeEffect(GraphSchema.TextEdge)(textEdge));
+          const encodedEntityNode = Effect.runSync(S.encodeEffect(GraphSchema.EntityNode)(entityNode));
+          const encodedPOSNode = Effect.runSync(S.encodeEffect(GraphSchema.POSNode)(posNode));
+          const encodedLemmaNode = Effect.runSync(S.encodeEffect(GraphSchema.LemmaNode)(lemmaNode));
+          const encodedDependencyNode = Effect.runSync(S.encodeEffect(GraphSchema.DependencyNode)(dependencyNode));
+          const encodedRelationNode = Effect.runSync(S.encodeEffect(GraphSchema.RelationNode)(relationNode));
+          const encodedAnalysis = Effect.runSync(S.encodeEffect(GraphSchema.NLPAnalysis)(analysis));
+
+          expect(Effect.runSync(S.decodeUnknownEffect(GraphSchema.TextNode)(encodedTextNode))).toEqual(textNode);
+          expect(Effect.runSync(S.decodeUnknownEffect(GraphSchema.TextEdge)(encodedTextEdge))).toEqual(textEdge);
+          expect(Effect.runSync(S.decodeUnknownEffect(GraphSchema.EntityNode)(encodedEntityNode))).toEqual(entityNode);
+          expect(Effect.runSync(S.decodeUnknownEffect(GraphSchema.POSNode)(encodedPOSNode))).toEqual(posNode);
+          expect(Effect.runSync(S.decodeUnknownEffect(GraphSchema.LemmaNode)(encodedLemmaNode))).toEqual(lemmaNode);
+          expect(Effect.runSync(S.decodeUnknownEffect(GraphSchema.DependencyNode)(encodedDependencyNode))).toEqual(
+            dependencyNode
+          );
+          expect(Effect.runSync(S.decodeUnknownEffect(GraphSchema.RelationNode)(encodedRelationNode))).toEqual(
+            relationNode
+          );
+          expect(Effect.runSync(S.decodeUnknownEffect(GraphSchema.NLPAnalysis)(encodedAnalysis))).toEqual(analysis);
+        }
+      ),
+      { numRuns: 50 }
+    ));
 });
 
 describe("TextEdge", () => {

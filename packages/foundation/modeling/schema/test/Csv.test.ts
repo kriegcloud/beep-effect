@@ -3,12 +3,15 @@ import { CSV } from "@beep/schema/Csv";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const $I = $SchemaId.create("csv_test");
 
+const PositiveCsvNumber = S.FiniteFromString.check(S.isGreaterThan(0));
+
 class UserRow extends S.Class<UserRow>($I`UserRow`)(
   {
-    id: S.FiniteFromString,
+    id: PositiveCsvNumber,
     first_name: S.String,
     last_name: S.String,
     address: S.String,
@@ -20,7 +23,7 @@ class UserRow extends S.Class<UserRow>($I`UserRow`)(
 
 class OptionalUserRow extends S.Class<OptionalUserRow>($I`OptionalUserRow`)(
   {
-    id: S.FiniteFromString,
+    id: PositiveCsvNumber,
     first_name: S.String,
     nickname: S.optionalKey(S.String),
   },
@@ -31,7 +34,7 @@ class OptionalUserRow extends S.Class<OptionalUserRow>($I`OptionalUserRow`)(
 
 class NullableUserRow extends S.Class<NullableUserRow>($I`NullableUserRow`)(
   {
-    id: S.FiniteFromString,
+    id: PositiveCsvNumber,
     nickname: S.NullOr(S.String),
   },
   $I.annote("NullableUserRow", {
@@ -50,6 +53,8 @@ class InvalidNumberRow extends S.Class<InvalidNumberRow>($I`InvalidNumberRow`)(
 ) {}
 
 describe("CSV", () => {
+  const userRowArbitrary = S.toArbitrary(UserRow);
+
   it.effect(
     "decodes headered CSV text into typed row arrays",
     Effect.fnUntraced(function* () {
@@ -144,6 +149,20 @@ describe("CSV", () => {
       expect(roundTrip[0].id).toBe(1);
     })
   );
+
+  it("round-trips schema-derived rows through the CSV codec", () => {
+    const csv = CSV(UserRow);
+
+    fc.assert(
+      fc.property(fc.array(userRowArbitrary, { maxLength: 5 }), (rows) => {
+        const encoded = S.encodeSync(csv)(rows);
+        const decoded = S.decodeUnknownSync(csv)(encoded);
+
+        expect(decoded).toEqual(rows);
+      }),
+      { numRuns: 25 }
+    );
+  });
 
   it.effect(
     "renders missing optional encoded fields as empty cells",

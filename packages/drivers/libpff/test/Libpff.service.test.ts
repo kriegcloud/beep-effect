@@ -12,6 +12,14 @@ import { PosixPath } from "@beep/schema/PosixPath";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
+
+const SourceArtifactArbitrary = S.toArbitrary(SourceArtifact);
+const ExportArchiveOperationArbitrary = S.toArbitrary(ExportArchiveOperation);
+const encodeSourceArtifact = S.encodeEffect(SourceArtifact);
+const decodeSourceArtifact = S.decodeUnknownEffect(SourceArtifact);
+const encodeExportArchiveOperation = S.encodeEffect(ExportArchiveOperation);
+const decodeExportArchiveOperation = S.decodeUnknownEffect(ExportArchiveOperation);
 
 const fixtureIds = Effect.all({
   artifactId: S.decodeUnknownEffect(ArtifactId)(
@@ -60,6 +68,20 @@ const operation = Effect.fn("LibpffTest.operation")(function* (ids: FixtureIds) 
 });
 
 describe("@beep/libpff", () => {
+  it("round-trips schema-derived archive operation data through file-processing schemas", () =>
+    fc.assert(
+      fc.property(SourceArtifactArbitrary, ExportArchiveOperationArbitrary, (sourceArtifact, exportOperation) => {
+        const encodedSourceArtifact = Effect.runSync(encodeSourceArtifact(sourceArtifact));
+        const decodedSourceArtifact = Effect.runSync(decodeSourceArtifact(encodedSourceArtifact));
+        expect(Effect.runSync(encodeSourceArtifact(decodedSourceArtifact))).toEqual(encodedSourceArtifact);
+
+        const encodedExportOperation = Effect.runSync(encodeExportArchiveOperation(exportOperation));
+        const decodedExportOperation = Effect.runSync(decodeExportArchiveOperation(encodedExportOperation));
+        expect(Effect.runSync(encodeExportArchiveOperation(decodedExportOperation))).toEqual(encodedExportOperation);
+      }),
+      { numRuns: 25 }
+    ));
+
   it.effect("maps unavailable libpff runtime to an operation-level deferral", () =>
     Effect.gen(function* () {
       const ids = yield* fixtureIds;

@@ -13,13 +13,14 @@ import {
   VeniceAiChat,
   VeniceAiLanguageModel,
 } from "@beep/venice-ai";
-import { describe, expect, layer } from "@effect/vitest";
+import { describe, expect, it, layer } from "@effect/vitest";
 import { Context, Effect, Layer, Match, pipe, Redacted, Ref, Stream } from "effect";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
@@ -98,6 +99,8 @@ class OpenApiSpec extends S.Class<OpenApiSpec>($TestI`OpenApiSpec`)(
 
 const decodeOpenApiSpec = S.decodeUnknownEffect(OpenApiSpec);
 const decodeOpenApiOperation = S.decodeUnknownEffect(OpenApiOperation);
+const encodeOpenApiOperation = S.encodeEffect(OpenApiOperation);
+const OpenApiOperationArbitrary = S.toArbitrary(OpenApiOperation);
 
 class PromptBody extends S.Class<PromptBody>($TestI`PromptBody`)(
   {
@@ -111,6 +114,8 @@ class PromptBody extends S.Class<PromptBody>($TestI`PromptBody`)(
 ) {}
 
 const decodePromptBody = S.decodeUnknownEffect(PromptBody);
+const encodePromptBody = S.encodeEffect(PromptBody);
+const PromptBodyArbitrary = S.toArbitrary(PromptBody);
 
 const sortStrings = A.sort(Order.String);
 const swaggerFile = new URL("../swagger.yaml", import.meta.url);
@@ -372,6 +377,20 @@ const requestFor = (descriptor: (typeof VENICE_AI_OPERATION_DESCRIPTORS)[number]
 };
 
 describe("@beep/venice-ai", () => {
+  it("round-trips schema-derived OpenAPI fixture and prompt body data", () =>
+    fc.assert(
+      fc.property(OpenApiOperationArbitrary, PromptBodyArbitrary, (operation, promptBody) => {
+        const encodedOperation = Effect.runSync(encodeOpenApiOperation(operation));
+        const decodedOperation = Effect.runSync(decodeOpenApiOperation(encodedOperation));
+        expect(Effect.runSync(encodeOpenApiOperation(decodedOperation))).toEqual(encodedOperation);
+
+        const encodedPromptBody = Effect.runSync(encodePromptBody(promptBody));
+        const decodedPromptBody = Effect.runSync(decodePromptBody(encodedPromptBody));
+        expect(Effect.runSync(encodePromptBody(decodedPromptBody))).toEqual(encodedPromptBody);
+      }),
+      { numRuns: 25 }
+    ));
+
   layer(makeVeniceAIUnitLayer())((it) =>
     it.effect(
       "keeps the operation registry and service surface aligned with swagger.yaml",

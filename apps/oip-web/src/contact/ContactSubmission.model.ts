@@ -136,7 +136,9 @@ export class ContactSubmission extends S.Class<ContactSubmission>($I`ContactSubm
   $I.annote("ContactSubmission", {
     description: "Browser-submitted OIP contact form payload.",
   })
-) {}
+) {
+  static readonly decodeUnknownEffect = S.decodeUnknownEffect(this);
+}
 
 const ContactSubmissionFormSubmittedAtFromString = S.FiniteFromString.pipe(
   S.decodeTo(NonNegativeInt),
@@ -190,10 +192,13 @@ export class ContactSubmissionFormPayload extends S.Class<ContactSubmissionFormP
   $I.annote("ContactSubmissionFormPayload", {
     description: "Normalized browser form payload before contact submission decoding.",
   })
-) {}
+) {
+  static readonly decodeUnknownResult = S.decodeUnknownResult(this);
+  static readonly decodeUnknownEffect = S.decodeUnknownEffect(this);
+}
 
-const decodeContactSubmissionFormPayloadResult = S.decodeUnknownResult(ContactSubmissionFormPayload);
-const decodeContactSubmissionFormPayloadEffect = S.decodeUnknownEffect(ContactSubmissionFormPayload);
+const decodeContactSubmissionFormPayloadResult = ContactSubmissionFormPayload.decodeUnknownResult;
+const decodeContactSubmissionFormPayloadEffect = ContactSubmissionFormPayload.decodeUnknownEffect;
 
 const formTextOption = (value: FormDataEntryValue | null): O.Option<string> =>
   pipe(O.fromNullishOr(value), O.filter(P.isString), O.map(Str.trim), O.filter(Str.isNonEmpty));
@@ -334,4 +339,4 @@ export class ContactSubmissionResponse extends S.Class<ContactSubmissionResponse
  * @category utilities
  * @since 0.0.0
  */
-export const decodeContactSubmission = S.decodeUnknownEffect(ContactSubmission);
+export const decodeContactSubmission = ContactSubmission.decodeUnknownEffect;

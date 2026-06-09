@@ -3,11 +3,18 @@ import { assert, describe, expect, it } from "@effect/vitest";
 import { Effect, Exit } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const decodeDisplay = S.decodeUnknownEffect(Organization.Display);
 const decodeForm = S.decodeUnknownEffect(Organization.Form);
 const encodeDisplay = S.encodeEffect(Organization.Display);
 const encodeForm = S.encodeEffect(Organization.Form);
+const decodeDisplaySync = S.decodeUnknownSync(Organization.Display);
+const decodeFormSync = S.decodeUnknownSync(Organization.Form);
+const encodeDisplaySync = S.encodeSync(Organization.Display);
+const encodeFormSync = S.encodeSync(Organization.Form);
+const DisplayArbitrary = S.toArbitrary(Organization.Display);
+const FormArbitrary = S.toArbitrary(Organization.Form);
 const expectFailure = Effect.fn("expectFailure")(function* <A, E>(effect: Effect.Effect<A, E, never>) {
   const exit = yield* Effect.exit(effect);
   assert.strictEqual(Exit.isFailure(exit), true);
@@ -103,6 +110,26 @@ describe("Organization UI contracts", () => {
       expect((yield* encodeForm(formWithoutParent)).parentOrgId).toBeNull();
     })
   );
+
+  it("round-trips schema-derived browser organization payloads", () => {
+    fc.assert(
+      fc.property(DisplayArbitrary, FormArbitrary, (display, form) => {
+        const encodedDisplay = encodeDisplaySync(display);
+        const decodedDisplay = decodeDisplaySync(encodedDisplay);
+        const reencodedDisplay = encodeDisplaySync(decodedDisplay);
+        const encodedForm = encodeFormSync(form);
+        const decodedForm = decodeFormSync(encodedForm);
+        const reencodedForm = encodeFormSync(decodedForm);
+
+        assert.instanceOf(decodedDisplay, Organization.Display);
+        assert.instanceOf(decodedForm, Organization.Form);
+        expect(reencodedDisplay).toEqual(encodedDisplay);
+        expect(reencodedForm).toEqual(encodedForm);
+        expect(Organization.primaryLabel(decodedDisplay)).toBe(decodedDisplay.name);
+      }),
+      { numRuns: 50 }
+    );
+  });
 
   it.effect(
     "rejects invalid browser-safe organization payload fields",

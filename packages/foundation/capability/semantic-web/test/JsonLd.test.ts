@@ -30,6 +30,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
@@ -39,6 +40,9 @@ const provideScopedLayer =
 const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 
 const isJsonLdLiteralValue = S.is(JsonLdLiteralValue);
+const JsonLdContextArbitrary = S.toArbitrary(JsonLdContext);
+const JsonLdFrameArbitrary = S.toArbitrary(JsonLdFrame);
+const JsonLdLiteralValueArbitrary = S.toArbitrary(JsonLdLiteralValue);
 
 const rawContext = {
   "@base": "https://example.com/",
@@ -142,6 +146,33 @@ const runStreamSerialize = <A, E>(effect: Effect.Effect<A, E, JsonLdStreamSerial
   );
 
 describe("JSON-LD", () => {
+  it("round-trips schema-derived JSON-LD DTOs through boundary encoders", () =>
+    fc.assert(
+      fc.property(
+        JsonLdContextArbitrary,
+        JsonLdLiteralValueArbitrary,
+        JsonLdFrameArbitrary,
+        (context, literalValue, frame) => {
+          const encodedContext = Effect.runSync(S.encodeEffect(JsonLdContext)(context));
+          const decodedContext = Effect.runSync(S.decodeUnknownEffect(JsonLdContext)(encodedContext));
+          const reencodedContext = Effect.runSync(S.encodeEffect(JsonLdContext)(decodedContext));
+
+          const encodedLiteralValue = Effect.runSync(S.encodeEffect(JsonLdLiteralValue)(literalValue));
+          const decodedLiteralValue = Effect.runSync(S.decodeUnknownEffect(JsonLdLiteralValue)(encodedLiteralValue));
+          const reencodedLiteralValue = Effect.runSync(S.encodeEffect(JsonLdLiteralValue)(decodedLiteralValue));
+
+          const encodedFrame = Effect.runSync(S.encodeEffect(JsonLdFrame)(frame));
+          const decodedFrame = Effect.runSync(S.decodeUnknownEffect(JsonLdFrame)(encodedFrame));
+          const reencodedFrame = Effect.runSync(S.encodeEffect(JsonLdFrame)(decodedFrame));
+
+          expect(reencodedContext).toEqual(encodedContext);
+          expect(reencodedLiteralValue).toEqual(encodedLiteralValue);
+          expect(reencodedFrame).toEqual(encodedFrame);
+        }
+      ),
+      { numRuns: 25 }
+    ));
+
   it("normalizes, expands, compacts, and merges bounded contexts", () =>
     Effect.gen(function* () {
       const normalized = yield* Effect.promise(() =>

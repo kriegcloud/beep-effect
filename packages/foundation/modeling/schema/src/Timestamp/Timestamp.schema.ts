@@ -458,7 +458,7 @@ export const isAfter: {
 export const equals: {
   (that: Timestamp): (self: Timestamp) => boolean;
   (self: Timestamp, that: Timestamp): boolean;
-} = dual(2, (self: Timestamp, that: Timestamp): boolean => self.epochMillis === that.epochMillis);
+} = dual(2, S.toEquivalence(Timestamp));
 
 /**
  * Add milliseconds to a timestamp.

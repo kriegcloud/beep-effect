@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c6c2eaabbd77dc8ea84113196e52d07f840c4727e9f040208d12fd9fc4b18d1c",
+    "digest": "7e76d1e7e70c90e6480d7ec71470fab4749fe293cd190c9bf9ee5187323201da",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -332,8 +332,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sha256": "ee44317e156458f72c63c8704e675c3eee0c74c2264600ab559ff5c0f4d9b2f2",
-        "bytes": 11629
+        "sha256": "336de81bcfe17903edf4f25c2acd388d3d64eddbb7942cf7d8a5eb0d1322f774",
+        "bytes": 11245
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
@@ -371,6 +371,11 @@
         "bytes": 21052
       },
       {
+        "path": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "sha256": "5a88ad1b27cbbee62e5010589f229b89696e6d0d39d6f822bcbf38bc6a4a30d8",
+        "bytes": 2431
+      },
+      {
         "path": "packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts",
         "sha256": "35891f530587ed9781fd284d7cf13ea278417fbdc240c77c1febbd1350921f2f",
         "bytes": 26964
@@ -397,8 +402,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sha256": "abdec82697cfd9378026db93df01c949938e3a0a8d545fc07860023e588e1fe1",
-        "bytes": 22790
+        "sha256": "e0cb10a80ceccb95e6d6cad151566822b86d38715dbc4970050fbe67585caa63",
+        "bytes": 49142
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts",
@@ -487,8 +492,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sha256": "f8c636fec35fca14fc0e44db46ddc64af4099928016f7cffbe3d3604686968b5",
-        "bytes": 54950
+        "sha256": "ac07d828b3f77a557cc1ca894bf87c44948e7ce2b0c891e90de069dddbd523d9",
+        "bytes": 55367
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
@@ -672,8 +677,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
-        "sha256": "47dbfce8eb9f4cee990b9737fc183935fe3f0fad2fab3405dd8fe2100367176e",
-        "bytes": 18858
+        "sha256": "f1de073c6aaffd5dff42c3a315bec0ef3c70c0307f70456d045fe83304b0e156",
+        "bytes": 19667
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
@@ -692,8 +697,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sha256": "ac1495b86d467b4f650954da2447832141bdd45cfa285a749fa61c214ad4965d",
-        "bytes": 28659
+        "sha256": "4c4fa6d14f630d6bff80806c4404ca5628060c1e51d1cccf1bbef626a2b7dd9d",
+        "bytes": 30731
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
@@ -767,8 +772,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Laws.test-kit.ts",
-        "sha256": "e0a2088b2919aaf9ec32ec2144a28f1902e94bc06fbceec3f195dc23d72a0ebb",
-        "bytes": 497
+        "sha256": "df1d24284805139fbdc0591072618d432f1691edba99e82e33e783112eb21000",
+        "bytes": 561
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
@@ -884,6 +889,7 @@
       "@beep/repo-cli/commands/Laws/Laws.command",
       "@beep/repo-cli/commands/Laws/Laws.errors",
       "@beep/repo-cli/commands/Laws/NoNativeRuntime",
+      "@beep/repo-cli/commands/Laws/SchemaDiagnostics",
       "@beep/repo-cli/commands/Laws/TerseEffect",
       "@beep/repo-cli/commands/Lint",
       "@beep/repo-cli/commands/Lint/index",
@@ -956,9 +962,9 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1844,
-      "uniqueSymbols": 682,
-      "sourceFiles": 151
+      "publicExportEntries": 1848,
+      "uniqueSymbols": 684,
+      "sourceFiles": 152
     },
     "exports": [
       {
@@ -25824,7 +25830,7 @@
         "symbolName": "ALLOWLIST_PATH",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 35,
+        "sourceLine": 36,
         "summary": "Relative path to the effect laws allowlist.",
         "categories": [
           "utilities"
@@ -25849,7 +25855,7 @@
         "symbolName": "AllowlistCheckOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 119,
+        "sourceLine": 120,
         "summary": "Runtime options for allowlist integrity checks.",
         "categories": [
           "models"
@@ -25874,7 +25880,7 @@
         "symbolName": "AllowlistCheckSummary",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 138,
+        "sourceLine": 139,
         "summary": "Result of an allowlist integrity check.",
         "categories": [
           "models"
@@ -25899,7 +25905,7 @@
         "symbolName": "reportAllowlistCheckSummary",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 365,
+        "sourceLine": 353,
         "summary": "Print allowlist integrity diagnostics to the console.",
         "categories": [
           "utilities"
@@ -25924,7 +25930,7 @@
         "symbolName": "runAllowlistCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 297,
+        "sourceLine": 285,
         "summary": "Run the effect laws allowlist integrity check.",
         "categories": [
           "utilities"
@@ -26646,6 +26652,56 @@
         "packageName": "@beep/repo-cli",
         "packagePath": "packages/tooling/tool/cli",
         "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Laws/SchemaDiagnostics",
+        "exportSubpath": "./commands/Laws/SchemaDiagnostics",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "symbolName": "formatRedactedSchemaDiagnostics",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "sourceLine": 66,
+        "summary": "Format a schema issue or schema error after redacting actual values.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/laws/schemadiagnostics ./commands/laws/schemadiagnostics formatredactedschemadiagnostics const format a schema issue or schema error after redacting actual values. utilities packages/tooling/tool/cli/src/commands/laws/schemadiagnostics.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Laws/SchemaDiagnostics",
+        "exportSubpath": "./commands/Laws/SchemaDiagnostics",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "symbolName": "formatSchemaDiagnostics",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "sourceLine": 50,
+        "summary": "Format a schema issue or schema error as path-prefixed Standard Schema V1 diagnostics.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/laws/schemadiagnostics ./commands/laws/schemadiagnostics formatschemadiagnostics const format a schema issue or schema error as path-prefixed standard schema v1 diagnostics. utilities packages/tooling/tool/cli/src/commands/laws/schemadiagnostics.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
         "importSpecifier": "@beep/repo-cli/commands/Laws/TerseEffect",
         "exportSubpath": "./commands/Laws/TerseEffect",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Laws/TerseEffect.ts",
@@ -27258,7 +27314,7 @@
         "symbolName": "lintSchemaFirstCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 626,
+        "sourceLine": 1273,
         "summary": "Repo-wide schema-first lint command.",
         "categories": [
           "utilities"
@@ -27283,7 +27339,7 @@
         "symbolName": "runSchemaFirstLint",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 517,
+        "sourceLine": 1127,
         "summary": "Run schema-first inventory verification against the committed baseline.",
         "categories": [
           "utilities"
@@ -27308,7 +27364,7 @@
         "symbolName": "SchemaFirstInventoryEntry",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 75,
+        "sourceLine": 196,
         "summary": "Namespace for {@link SchemaFirstInventoryEntry} companion types.",
         "categories": [
           "models"
@@ -30198,7 +30254,7 @@
         "symbolName": "collectLintFixChangedFilesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1603,
+        "sourceLine": 1615,
         "summary": "Collect existing changed files for the root lint fix fast path.",
         "categories": [
           "utilities"
@@ -30224,7 +30280,7 @@
         "symbolName": "collectStepOutput",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1524,
+        "sourceLine": 1536,
         "summary": "Run a subprocess and capture all output. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -30251,7 +30307,7 @@
         "symbolName": "lintFixChangedStepForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1618,
+        "sourceLine": 1630,
         "summary": "Build the root lint fix changed-file step. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -30277,7 +30333,7 @@
         "symbolName": "PackageTaskProfile",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 108,
+        "sourceLine": 122,
         "summary": "Package-local script profile used by the quality task adapter.",
         "categories": [
           "models"
@@ -30302,7 +30358,7 @@
         "symbolName": "parseQualityTaskInvocation",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1418,
+        "sourceLine": 1430,
         "summary": "Parse a raw argv vector into a quality task invocation when the first token is",
         "categories": [
           "utilities"
@@ -30404,7 +30460,7 @@
         "symbolName": "QualityTaskInvocation",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 164,
+        "sourceLine": 178,
         "summary": "Result of parsing a quality command invocation.",
         "categories": [
           "models"
@@ -30429,7 +30485,7 @@
         "symbolName": "QualityTaskName",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 74,
+        "sourceLine": 62,
         "summary": "Canonical quality task name.",
         "categories": [
           "models"
@@ -30454,7 +30510,7 @@
         "symbolName": "QualityTaskName",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 91,
+        "sourceLine": 79,
         "summary": "Canonical quality task name.",
         "categories": [
           "models"
@@ -30479,7 +30535,7 @@
         "symbolName": "QualityTaskStep",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 135,
+        "sourceLine": 149,
         "summary": "Planned subprocess invocation.",
         "categories": [
           "models"
@@ -30504,7 +30560,7 @@
         "symbolName": "rootQualityStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1293,
+        "sourceLine": 1305,
         "summary": "Build root quality task subprocess steps. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -30531,7 +30587,7 @@
         "symbolName": "runQualityTask",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1462,
+        "sourceLine": 1474,
         "summary": "Run a parsed quality task in either repo-root or package-local mode.",
         "categories": [
           "use-cases"
@@ -30557,7 +30613,7 @@
         "symbolName": "runQualityTaskIfRequested",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1492,
+        "sourceLine": 1504,
         "summary": "Run a quality task directly from a raw argv vector.",
         "categories": [
           "use-cases"
@@ -30584,7 +30640,7 @@
         "symbolName": "runQualityTaskStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1541,
+        "sourceLine": 1553,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "use-cases"
@@ -30610,7 +30666,7 @@
         "symbolName": "runQualityTaskStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1573,
+        "sourceLine": 1585,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "testing"
@@ -30636,7 +30692,7 @@
         "symbolName": "runQualityTaskStreamingStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1557,
+        "sourceLine": 1569,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "use-cases"
@@ -30662,7 +30718,7 @@
         "symbolName": "runQualityTaskStreamingStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1589,
+        "sourceLine": 1601,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "testing"
@@ -30688,7 +30744,7 @@
         "symbolName": "runSqlIntegrationTestLaneForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1100,
+        "sourceLine": 1112,
         "summary": "Run the SQL integration lane with an injected resource and child command.",
         "categories": [
           "utilities"
@@ -30713,7 +30769,7 @@
         "symbolName": "sqlIntegrationConnectionUriFromEnvForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1114,
+        "sourceLine": 1126,
         "summary": "Resolve the SQL integration database connection URI from environment variables.",
         "categories": [
           "utilities"
@@ -30738,7 +30794,7 @@
         "symbolName": "sqlIntegrationStepForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1081,
+        "sourceLine": 1093,
         "summary": "Build the SQL integration test subprocess step. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -30790,7 +30846,7 @@
         "symbolName": "workspaceTaskFiltersForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 521,
+        "sourceLine": 533,
         "summary": "Resolve Turbo filters for workspace packages that define a script.",
         "categories": [
           "utilities"
@@ -35667,7 +35723,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 255,
+        "sourceLine": 274,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -35692,7 +35748,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 200,
+        "sourceLine": 219,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -35717,7 +35773,7 @@
         "symbolName": "QualityIssueAttribution",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 141,
+        "sourceLine": 160,
         "summary": "Source attribution carried by normalized advisory analyzer issues.",
         "categories": [
           "models"
@@ -35742,7 +35798,7 @@
         "symbolName": "QualityIssueAttribution",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 153,
+        "sourceLine": 172,
         "summary": "Source attribution carried by normalized advisory analyzer issues.",
         "categories": [
           "models"
@@ -35766,7 +35822,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 45,
+        "sourceLine": 46,
         "summary": "Classification domain for normalized yeet quality findings.",
         "categories": [
           "models"
@@ -35791,7 +35847,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 75,
+        "sourceLine": 76,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -35815,7 +35871,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 115,
+        "sourceLine": 134,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35840,7 +35896,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 127,
+        "sourceLine": 146,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -35864,7 +35920,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 281,
+        "sourceLine": 300,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -35889,7 +35945,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 168,
+        "sourceLine": 187,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -35914,7 +35970,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 89,
+        "sourceLine": 90,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -35939,7 +35995,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 101,
+        "sourceLine": 102,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -36112,7 +36168,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 255,
+        "sourceLine": 274,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -36137,7 +36193,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 200,
+        "sourceLine": 219,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -36162,7 +36218,7 @@
         "symbolName": "QualityIssueAttribution",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 141,
+        "sourceLine": 160,
         "summary": "Source attribution carried by normalized advisory analyzer issues.",
         "categories": [
           "models"
@@ -36187,7 +36243,7 @@
         "symbolName": "QualityIssueAttribution",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 153,
+        "sourceLine": 172,
         "summary": "Source attribution carried by normalized advisory analyzer issues.",
         "categories": [
           "models"
@@ -36211,7 +36267,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 45,
+        "sourceLine": 46,
         "summary": "Classification domain for normalized yeet quality findings.",
         "categories": [
           "models"
@@ -36236,7 +36292,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 75,
+        "sourceLine": 76,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -36260,7 +36316,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 115,
+        "sourceLine": 134,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -36285,7 +36341,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 127,
+        "sourceLine": 146,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -36309,7 +36365,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 281,
+        "sourceLine": 300,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -36334,7 +36390,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 168,
+        "sourceLine": 187,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -36359,7 +36415,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 89,
+        "sourceLine": 90,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -36384,7 +36440,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 101,
+        "sourceLine": 102,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -40273,7 +40329,7 @@
         "symbolName": "ALLOWLIST_PATH",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 35,
+        "sourceLine": 36,
         "summary": "Relative path to the effect laws allowlist.",
         "categories": [
           "utilities"
@@ -40298,7 +40354,7 @@
         "symbolName": "AllowlistCheckOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 119,
+        "sourceLine": 120,
         "summary": "Runtime options for allowlist integrity checks.",
         "categories": [
           "models"
@@ -40323,7 +40379,7 @@
         "symbolName": "AllowlistCheckSummary",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 138,
+        "sourceLine": 139,
         "summary": "Result of an allowlist integrity check.",
         "categories": [
           "models"
@@ -40620,6 +40676,56 @@
         "importSpecifier": "@beep/repo-cli/test/Laws",
         "exportSubpath": "./test/Laws",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Laws.test-kit.ts",
+        "symbolName": "formatRedactedSchemaDiagnostics",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "sourceLine": 66,
+        "summary": "Format a schema issue or schema error after redacting actual values.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/laws ./test/laws formatredactedschemadiagnostics const format a schema issue or schema error after redacting actual values. utilities packages/tooling/tool/cli/src/commands/laws/schemadiagnostics.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Laws",
+        "exportSubpath": "./test/Laws",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Laws.test-kit.ts",
+        "symbolName": "formatSchemaDiagnostics",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/SchemaDiagnostics.ts",
+        "sourceLine": 50,
+        "summary": "Format a schema issue or schema error as path-prefixed Standard Schema V1 diagnostics.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/laws ./test/laws formatschemadiagnostics const format a schema issue or schema error as path-prefixed standard schema v1 diagnostics. utilities packages/tooling/tool/cli/src/commands/laws/schemadiagnostics.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Laws",
+        "exportSubpath": "./test/Laws",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Laws.test-kit.ts",
         "symbolName": "lawsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/Laws.command.ts",
@@ -40798,7 +40904,7 @@
         "symbolName": "reportAllowlistCheckSummary",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 365,
+        "sourceLine": 353,
         "summary": "Print allowlist integrity diagnostics to the console.",
         "categories": [
           "utilities"
@@ -40823,7 +40929,7 @@
         "symbolName": "runAllowlistCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Laws/AllowlistCheck.ts",
-        "sourceLine": 297,
+        "sourceLine": 285,
         "summary": "Run the effect laws allowlist integrity check.",
         "categories": [
           "utilities"
@@ -41252,7 +41358,7 @@
         "symbolName": "collectLintFixChangedFilesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1603,
+        "sourceLine": 1615,
         "summary": "Collect existing changed files for the root lint fix fast path.",
         "categories": [
           "utilities"
@@ -41303,7 +41409,7 @@
         "symbolName": "collectStepOutput",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1524,
+        "sourceLine": 1536,
         "summary": "Run a subprocess and capture all output. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -41741,7 +41847,7 @@
         "symbolName": "lintFixChangedStepForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1618,
+        "sourceLine": 1630,
         "summary": "Build the root lint fix changed-file step. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -41792,7 +41898,7 @@
         "symbolName": "PackageTaskProfile",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 108,
+        "sourceLine": 122,
         "summary": "Package-local script profile used by the quality task adapter.",
         "categories": [
           "models"
@@ -41992,7 +42098,7 @@
         "symbolName": "parseQualityTaskInvocation",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1418,
+        "sourceLine": 1430,
         "summary": "Parse a raw argv vector into a quality task invocation when the first token is",
         "categories": [
           "utilities"
@@ -42321,7 +42427,7 @@
         "symbolName": "QualityTaskInvocation",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 164,
+        "sourceLine": 178,
         "summary": "Result of parsing a quality command invocation.",
         "categories": [
           "models"
@@ -42346,7 +42452,7 @@
         "symbolName": "QualityTaskName",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 74,
+        "sourceLine": 62,
         "summary": "Canonical quality task name.",
         "categories": [
           "models"
@@ -42371,7 +42477,7 @@
         "symbolName": "QualityTaskName",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 91,
+        "sourceLine": 79,
         "summary": "Canonical quality task name.",
         "categories": [
           "models"
@@ -42396,7 +42502,7 @@
         "symbolName": "QualityTaskStep",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 135,
+        "sourceLine": 149,
         "summary": "Planned subprocess invocation.",
         "categories": [
           "models"
@@ -42575,7 +42681,7 @@
         "symbolName": "rootQualityStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1293,
+        "sourceLine": 1305,
         "summary": "Build root quality task subprocess steps. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -42835,7 +42941,7 @@
         "symbolName": "runQualityTask",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1462,
+        "sourceLine": 1474,
         "summary": "Run a parsed quality task in either repo-root or package-local mode.",
         "categories": [
           "use-cases"
@@ -42861,7 +42967,7 @@
         "symbolName": "runQualityTaskIfRequested",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1492,
+        "sourceLine": 1504,
         "summary": "Run a quality task directly from a raw argv vector.",
         "categories": [
           "use-cases"
@@ -42888,7 +42994,7 @@
         "symbolName": "runQualityTaskStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1541,
+        "sourceLine": 1553,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "use-cases"
@@ -42914,7 +43020,7 @@
         "symbolName": "runQualityTaskStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1573,
+        "sourceLine": 1585,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "testing"
@@ -42940,7 +43046,7 @@
         "symbolName": "runQualityTaskStreamingStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1557,
+        "sourceLine": 1569,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "use-cases"
@@ -42966,7 +43072,7 @@
         "symbolName": "runQualityTaskStreamingStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1589,
+        "sourceLine": 1601,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "testing"
@@ -43019,7 +43125,7 @@
         "symbolName": "runSqlIntegrationTestLaneForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1100,
+        "sourceLine": 1112,
         "summary": "Run the SQL integration lane with an injected resource and child command.",
         "categories": [
           "utilities"
@@ -43174,7 +43280,7 @@
         "symbolName": "sqlIntegrationConnectionUriFromEnvForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1114,
+        "sourceLine": 1126,
         "summary": "Resolve the SQL integration database connection URI from environment variables.",
         "categories": [
           "utilities"
@@ -43199,7 +43305,7 @@
         "symbolName": "sqlIntegrationStepForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1081,
+        "sourceLine": 1093,
         "summary": "Build the SQL integration test subprocess step. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -43523,7 +43629,7 @@
         "symbolName": "workspaceTaskFiltersForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 521,
+        "sourceLine": 533,
         "summary": "Resolve Turbo filters for workspace packages that define a script.",
         "categories": [
           "utilities"
@@ -45361,7 +45467,7 @@
         "symbolName": "buildQualityIssueIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 878,
+        "sourceLine": 942,
         "summary": "Build a schema-first issue index from normalized issues.",
         "categories": [
           "constructors"
@@ -46026,7 +46132,7 @@
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 255,
+        "sourceLine": 274,
         "summary": "Package-level issue report rendered into a quality packet.",
         "categories": [
           "models"
@@ -46244,7 +46350,7 @@
         "symbolName": "QualityIssue",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 200,
+        "sourceLine": 219,
         "summary": "One normalized quality issue.",
         "categories": [
           "models"
@@ -46269,7 +46375,7 @@
         "symbolName": "QualityIssueAttribution",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 141,
+        "sourceLine": 160,
         "summary": "Source attribution carried by normalized advisory analyzer issues.",
         "categories": [
           "models"
@@ -46294,7 +46400,7 @@
         "symbolName": "QualityIssueAttribution",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 153,
+        "sourceLine": 172,
         "summary": "Source attribution carried by normalized advisory analyzer issues.",
         "categories": [
           "models"
@@ -46318,7 +46424,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 45,
+        "sourceLine": 46,
         "summary": "Classification domain for normalized yeet quality findings.",
         "categories": [
           "models"
@@ -46343,7 +46449,7 @@
         "symbolName": "QualityIssueCategory",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 75,
+        "sourceLine": 76,
         "summary": "Type-level union of normalized yeet quality finding categories.",
         "categories": [
           "models"
@@ -46367,7 +46473,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 115,
+        "sourceLine": 134,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -46392,7 +46498,7 @@
         "symbolName": "QualityIssueConfidence",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 127,
+        "sourceLine": 146,
         "summary": "Parser confidence for a normalized issue.",
         "categories": [
           "models"
@@ -46416,7 +46522,7 @@
         "symbolName": "QualityIssueIndex",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 281,
+        "sourceLine": 300,
         "summary": "Complete quality issue index for a yeet run.",
         "categories": [
           "models"
@@ -46441,7 +46547,7 @@
         "symbolName": "QualityIssueRouting",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 168,
+        "sourceLine": 187,
         "summary": "Specialist routing hint for one issue.",
         "categories": [
           "models"
@@ -46466,7 +46572,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 89,
+        "sourceLine": 90,
         "summary": "Blocking level assigned to a normalized yeet quality finding.",
         "categories": [
           "models"
@@ -46491,7 +46597,7 @@
         "symbolName": "QualityIssueSeverity",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 101,
+        "sourceLine": 102,
         "summary": "Type-level union of yeet quality severity literals.",
         "categories": [
           "models"
@@ -46515,7 +46621,7 @@
         "symbolName": "qualityIssuesFromStepResult",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 824,
+        "sourceLine": 883,
         "summary": "Convert a failed step result into quality issues.",
         "categories": [
           "parsing"

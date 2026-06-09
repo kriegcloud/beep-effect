@@ -35,7 +35,8 @@ Rich annotated schemas pay back that ceremony because the same definition can:
 - derive TypeScript types instead of duplicating parallel shape definitions
 - provide constructors, defaults, normalization, JSON codecs, and boundary
   decoders
-- derive guards and equivalence instead of hand-written predicate helpers
+- derive guards, equivalence, arbitraries, and tagged/literal static APIs
+  instead of hand-written predicate helpers
 - feed generated docs and validation messages with the same domain descriptions
   humans read
 - keep runtime guarantees attached to the domain language instead of scattered
@@ -45,6 +46,12 @@ For pure data models, define the schema value first and derive the TypeScript
 type from it. Plain `interface` and object type aliases remain appropriate for
 service contracts, complex type-level transforms, utility types, and overload
 surfaces that `Schema` cannot represent cleanly.
+
+Schema-first also means being explicit about the real domain, not just the
+primitive category. `S.String` means any string, including empty and Unicode
+text. `S.Number` includes `NaN` and infinities. Use non-empty, pattern, length,
+finite, integer, range, brand, and collection checks whenever the domain is
+narrower than the full primitive space.
 
 ## Domain States And Variant Shapes
 
@@ -65,6 +72,14 @@ replacement for modeling the cases themselves.
 External protocols may require optional/nullish case bags. Keep that shape at
 the boundary when compatibility requires it, then decode or normalize into an
 internal tagged model before branching on case-specific behavior.
+
+Tagged schema values should also own their derived helper surface. Use
+`S.TaggedUnion` / `S.toTaggedUnion` `.cases`, `.guards`, `.isAnyOf`, and
+`.match` helpers instead of duplicating discriminator switches and guard maps.
+For internal literal domains, use `LiteralKit` helpers such as `.Enum`,
+`.Options`, `.is`, subset helpers, `.$match`, and `.toTaggedUnion`; use
+`MappedLiteralKit` when a protocol/code map needs helpers on both the encoded
+and decoded sides.
 
 ## Hybrid Style
 
