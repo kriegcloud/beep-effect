@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "4c519c7c5f373aa1b4f12b3666e4ce5a90cf8db9db8bed8707e6d7eb6c81d821",
+    "digest": "dc68286fd83b86e64ffdb7c1fc58c6e077cadb762b9937364c0ed81b5b82204d",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -407,8 +407,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts",
-        "sha256": "634c7eb80645d878acbc84d41ec176ecbfda1f89911617cd9fcf9bcdbf1fa946",
-        "bytes": 3270
+        "sha256": "51485b67c86b0ad0f260cb9d5261de64396600f4035ba6af0c8c93f99e8ed916",
+        "bytes": 3372
       },
       {
         "path": "packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/index.ts",
@@ -442,8 +442,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/FileName.ts",
-        "sha256": "e319b9b9bc28d99668288914c6247f4f7e406bb921d5da1716f59200d2de8ef8",
-        "bytes": 4065
+        "sha256": "fca9de4c16ddb8821842fce960143bbe8639e6d8bedb0e0df32c1782ebcc5cf6",
+        "bytes": 4346
       },
       {
         "path": "packages/foundation/modeling/schema/src/FilePath/FilePath.guards.ts",
@@ -452,8 +452,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sha256": "aa4600480ff45960e00c06c9d796b59936717ac613eb2259e8198935f5f78c17",
-        "bytes": 4588
+        "sha256": "69eb54a2175f1c107f639e42f046999f458905363c93ec1a0b0bbb2a4e033ec4",
+        "bytes": 4691
       },
       {
         "path": "packages/foundation/modeling/schema/src/FilePath/FilePath.schema.ts",
@@ -747,8 +747,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/KebabStr.ts",
-        "sha256": "ed0616c9fa3d9750899c0a2581d57e44cef3df20e38efec199e03689baadbf79",
-        "bytes": 1211
+        "sha256": "e9a4335b9d70338f11a7f5180435106a61af3a5b76a480fe4409afab774a2a59",
+        "bytes": 1385
       },
       {
         "path": "packages/foundation/modeling/schema/src/LiteralKit/index.ts",
@@ -887,8 +887,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/PascalStr.ts",
-        "sha256": "9c9d8893f873e95422397b2e7976a453d428ddcf589d646eed340e1476882411",
-        "bytes": 1204
+        "sha256": "00b5c994467fbee5d2e8a4cf59d60ef749ae526d9f5986b8ed4e0b1d555f31aa",
+        "bytes": 1382
       },
       {
         "path": "packages/foundation/modeling/schema/src/Percentage.ts",
@@ -1062,8 +1062,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/SnakeStr.ts",
-        "sha256": "eb4cd2a8421ecee0da5dd6b00c82cfb49bb82a483ce282cc1b2cd49586adf512",
-        "bytes": 1191
+        "sha256": "6fbfddf0cebfba615c633495f9a9856a6fd10bb779e069b99d41f66d67404535",
+        "bytes": 1363
       },
       {
         "path": "packages/foundation/modeling/schema/src/StatusCauseError.ts",
@@ -4363,7 +4363,7 @@
         "symbolName": "FileName",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/FileName.ts",
-        "sourceLine": 111,
+        "sourceLine": 118,
         "summary": "Portable file name schema.",
         "categories": [
           "validation"
@@ -4388,7 +4388,7 @@
         "symbolName": "FileName",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/FileName.ts",
-        "sourceLine": 129,
+        "sourceLine": 136,
         "summary": "Type for {@link FileName}.",
         "categories": [
           "models"
@@ -5758,7 +5758,7 @@
         "symbolName": "HasLeafSegment",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sourceLine": 106,
+        "sourceLine": 110,
         "summary": "Branded schema for path strings that include a non-root leaf segment.",
         "categories": [
           "validation"
@@ -5783,7 +5783,7 @@
         "symbolName": "HasLeafSegment",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sourceLine": 153,
+        "sourceLine": 157,
         "summary": "Type for {@link HasLeafSegment}.",
         "categories": [
           "models"
@@ -6938,7 +6938,7 @@
         "symbolName": "KebabCaseStr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/KebabStr.ts",
-        "sourceLine": 54,
+        "sourceLine": 60,
         "summary": "Type for {@link KebabCaseStr}.",
         "categories": [
           "models"
@@ -9640,7 +9640,7 @@
         "symbolName": "PascalCaseStr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/PascalStr.ts",
-        "sourceLine": 54,
+        "sourceLine": 60,
         "summary": "Type for {@link PascalCaseStr}.",
         "categories": [
           "models"
@@ -10751,7 +10751,7 @@
         "symbolName": "SnakeCaseStr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/SnakeStr.ts",
-        "sourceLine": 54,
+        "sourceLine": 60,
         "summary": "Type for {@link SnakeCaseStr}.",
         "categories": [
           "models"
@@ -12488,7 +12488,7 @@
         "symbolName": "WindowsDriveRoot",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sourceLine": 48,
+        "sourceLine": 52,
         "summary": "Type for {@link WindowsDriveRoot}.",
         "categories": [
           "models"
@@ -12659,7 +12659,7 @@
         "symbolName": "WindowsUncRoot",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sourceLine": 65,
+        "sourceLine": 69,
         "summary": "Branded schema for UNC roots such as `\\\\\\\\server\\\\share`.",
         "categories": [
           "validation"
@@ -12684,7 +12684,7 @@
         "symbolName": "WindowsUncRoot",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sourceLine": 85,
+        "sourceLine": 89,
         "summary": "Type for {@link WindowsUncRoot}.",
         "categories": [
           "models"
@@ -22484,7 +22484,7 @@
         "symbolName": "EthereumValidatorPublicKey",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts",
-        "sourceLine": 65,
+        "sourceLine": 69,
         "summary": "Type for {@link EthereumValidatorPublicKey}.",
         "categories": [
           "models"
@@ -22508,7 +22508,7 @@
         "symbolName": "EthereumValidatorPublicKeyRedacted",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts",
-        "sourceLine": 83,
+        "sourceLine": 87,
         "summary": "Redacted schema for canonical Ethereum validator public keys.",
         "categories": [
           "validation"
@@ -22533,7 +22533,7 @@
         "symbolName": "EthereumValidatorPublicKeyRedacted",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts",
-        "sourceLine": 99,
+        "sourceLine": 103,
         "summary": "Type for {@link EthereumValidatorPublicKeyRedacted}.",
         "categories": [
           "models"
@@ -22557,7 +22557,7 @@
         "symbolName": "Redacted",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts",
-        "sourceLine": 83,
+        "sourceLine": 87,
         "summary": "Redacted schema for canonical Ethereum validator public keys.",
         "categories": [
           "validation"
@@ -22582,7 +22582,7 @@
         "symbolName": "Redacted",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts",
-        "sourceLine": 99,
+        "sourceLine": 103,
         "summary": "Type for {@link EthereumValidatorPublicKeyRedacted}.",
         "categories": [
           "models"
@@ -22631,7 +22631,7 @@
         "symbolName": "Schema",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/EthereumValidatorPublicKey/EthereumValidatorPublicKey.schema.ts",
-        "sourceLine": 65,
+        "sourceLine": 69,
         "summary": "Type for {@link EthereumValidatorPublicKey}.",
         "categories": [
           "models"
@@ -23573,7 +23573,7 @@
         "symbolName": "FileName",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/FileName.ts",
-        "sourceLine": 111,
+        "sourceLine": 118,
         "summary": "Portable file name schema.",
         "categories": [
           "validation"
@@ -23598,7 +23598,7 @@
         "symbolName": "FileName",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/FileName.ts",
-        "sourceLine": 129,
+        "sourceLine": 136,
         "summary": "Type for {@link FileName}.",
         "categories": [
           "models"
@@ -23721,7 +23721,7 @@
         "symbolName": "HasLeafSegment",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sourceLine": 106,
+        "sourceLine": 110,
         "summary": "Branded schema for path strings that include a non-root leaf segment.",
         "categories": [
           "validation"
@@ -23746,7 +23746,7 @@
         "symbolName": "HasLeafSegment",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sourceLine": 153,
+        "sourceLine": 157,
         "summary": "Type for {@link HasLeafSegment}.",
         "categories": [
           "models"
@@ -24383,7 +24383,7 @@
         "symbolName": "WindowsDriveRoot",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sourceLine": 48,
+        "sourceLine": 52,
         "summary": "Type for {@link WindowsDriveRoot}.",
         "categories": [
           "models"
@@ -24554,7 +24554,7 @@
         "symbolName": "WindowsUncRoot",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sourceLine": 65,
+        "sourceLine": 69,
         "summary": "Branded schema for UNC roots such as `\\\\\\\\server\\\\share`.",
         "categories": [
           "validation"
@@ -24579,7 +24579,7 @@
         "symbolName": "WindowsUncRoot",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/FilePath/FilePath.roots.ts",
-        "sourceLine": 85,
+        "sourceLine": 89,
         "summary": "Type for {@link WindowsUncRoot}.",
         "categories": [
           "models"
@@ -32794,7 +32794,7 @@
         "symbolName": "KebabCaseStr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/KebabStr.ts",
-        "sourceLine": 54,
+        "sourceLine": 60,
         "summary": "Type for {@link KebabCaseStr}.",
         "categories": [
           "models"
@@ -37112,7 +37112,7 @@
         "symbolName": "PascalCaseStr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/PascalStr.ts",
-        "sourceLine": 54,
+        "sourceLine": 60,
         "summary": "Type for {@link PascalCaseStr}.",
         "categories": [
           "models"
@@ -42026,7 +42026,7 @@
         "symbolName": "SnakeCaseStr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/SnakeStr.ts",
-        "sourceLine": 54,
+        "sourceLine": 60,
         "summary": "Type for {@link SnakeCaseStr}.",
         "categories": [
           "models"

@@ -1,0 +1,77 @@
+# Fallow Quality Enforcement
+
+## Status
+
+**ACTIVE - P3 Yeet advisory feedback implemented, blocking promotion still gated**
+
+## Owner
+
+@beep-team
+
+## Created / Updated
+
+- **Created:** 2026-06-08
+- **Updated:** 2026-06-08
+
+## Purpose
+
+This goal turns the current Fallow pilot into a repo-native quality subsystem
+for fast agent feedback. Fallow should deepen existing quality law enforcement:
+dead-code analysis, changed-code audit, duplicate logic, complexity, boundaries,
+feature flags, security candidates, suppressions, and dry-run fix previews.
+
+Fallow is an enforcement projection only. Architecture meaning remains owned by
+`standards/ARCHITECTURE.md`, numbered architecture docs, package READMEs, and
+existing repo-law standards.
+
+## Reading Order
+
+- [SPEC.md](./SPEC.md) - binding contract for this goal
+- [PLAN.md](./PLAN.md) - phase sequence
+- [GOAL.md](./GOAL.md) - compact launcher
+- [ops/manifest.json](./ops/manifest.json) - machine-readable metadata
+- [research/feature-matrix.jsonc](./research/feature-matrix.jsonc) - feature
+  family status and promotion gates
+- [research/knip-parity.jsonc](./research/knip-parity.jsonc) - keep-or-retire
+  evidence for Knip
+- [tasks/tasks.jsonc](./tasks/tasks.jsonc) - implementation queue
+- [reports/report-envelope-fixtures.jsonc](./reports/report-envelope-fixtures.jsonc) -
+  report and Yeet attribution fixtures
+- [history/review-rounds.jsonc](./history/review-rounds.jsonc) - critic loop
+  closure inventory
+- [../../standards/fallow.boundaries.provenance.jsonc](../../standards/fallow.boundaries.provenance.jsonc) -
+  generated boundary-rule provenance sidecar
+
+## Current Decisions
+
+- Target canonical operator UX is `beep quality fallow ...`; P1 implements it.
+- Existing root scripts are convenience shims only.
+- `beep fallow boundaries` may remain as a compatibility alias while Fallow
+  migrates under `beep quality`.
+- P1 wrappers are report-only and stay outside `pre-push`.
+- P3 adds an explicit advisory Yeet feedback step before any blocking promotion;
+  the advisory step is implemented and emits nonblocking `QualityIssueIndex`
+  packets from Fallow envelopes.
+- P3 blocking promotion must be wired through `quality github-checks pre-push`
+  so Yeet verify, Yeet publish, and `audit:github pre-push` remain equivalent.
+- Blocking promotion must also prove the normal
+  `beep yeet publish --plan --json` pre-push path, not only
+  `beep yeet verify --plan --json`.
+- Runtime coverage is research-only.
+- `fix-preview` is dry-run only; Yeet repair must not run hidden Fallow
+  mutations.
+- Knip remains the reference analyzer and parity gate until parity rows
+  explicitly support replacing it.
+- Hosted CI now uploads repo-cli Fallow envelopes with hard
+  artifact-existence proof.
+
+## Verification
+
+```sh
+test "$(wc -m < goals/fallow-quality-enforcement/GOAL.md)" -le 4000
+bun goals/fallow-quality-enforcement/ops/validate-packet.ts
+bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts
+bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts
+bunx biome check goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json
+git diff --check -- goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json
+```

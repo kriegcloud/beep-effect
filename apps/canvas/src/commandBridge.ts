@@ -12,7 +12,9 @@ import { CanvasProject as CanvasProjectUseCases } from "@beep/canvas-use-cases/p
 import { $CanvasId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { Effect, HashMap, ManagedRuntime, Ref } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $CanvasId.create("commandBridge");
@@ -63,7 +65,7 @@ export type CanvasCommandRuntime = ReturnType<typeof makeCanvasCommandRuntime>;
  * @category commands
  * @since 0.0.0
  */
-export const commandSurface = [
+const commandSurface = [
   "canvas_health",
   "scene_create",
   "scene_list",
@@ -89,7 +91,7 @@ export const commandSurface = [
  * @category commands
  * @since 0.0.0
  */
-export const CanvasCommandName = LiteralKit(commandSurface).pipe(
+const CanvasCommandName = LiteralKit(commandSurface).pipe(
   $I.annoteSchema("CanvasCommandName", {
     description: "Native command name exposed by the canvas app shell.",
   })
@@ -108,7 +110,7 @@ export const CanvasCommandName = LiteralKit(commandSurface).pipe(
  * @category models
  * @since 0.0.0
  */
-export type CanvasCommandName = typeof CanvasCommandName.Type;
+type CanvasCommandName = typeof CanvasCommandName.Type;
 
 const CanvasHealthStatus = LiteralKit(["preview", "ready"]).pipe(
   $I.annoteSchema("CanvasHealthStatus", {
@@ -318,6 +320,12 @@ type CanvasCommandBridge = {
 };
 
 type NativeInvoke = (command: string, args?: Record<string, unknown>) => Promise<unknown>;
+type CanvasProjectUseCasesShape = CanvasProjectUseCases.CanvasProjectUseCasesShape;
+type CanvasCommandPersistence = {
+  readonly canvasHealth: () => Effect.Effect<CanvasHealth, CanvasCommandError>;
+  readonly loadScene: (request: SceneLoadRequest) => Effect.Effect<CanvasScene, CanvasCommandError>;
+  readonly saveScene: (request: SceneSaveRequest) => Effect.Effect<CanvasScene, CanvasCommandError>;
+};
 
 /**
  * Browser preview health payload.
@@ -332,7 +340,7 @@ type NativeInvoke = (command: string, args?: Record<string, unknown>) => Promise
  * @category commands
  * @since 0.0.0
  */
-export const previewHealth: CanvasHealth = {
+const previewHealth: CanvasHealth = {
   app: "@beep/canvas",
   commandSurface,
   persistence: "app-local-json",
@@ -597,62 +605,73 @@ export const makePreviewCanvasCommandBridge: CanvasCommandBridgeEffect = Effect.
   });
 });
 
-const loadThroughUseCases = (
-  useCases: CanvasProjectUseCases.CanvasProjectUseCasesShape,
-  scene: CanvasScene
-): Effect.Effect<CanvasScene, CanvasCommandError> =>
-  decodeCanvasScene(scene).pipe(
-    Effect.flatMap((decoded) =>
-      runAppEffect(useCases.restore(CanvasProjectUseCases.RestoreCanvasProjectCommand.make({ scene: decoded })))
+const loadThroughUseCases: {
+  (scene: CanvasScene): (useCases: CanvasProjectUseCasesShape) => Effect.Effect<CanvasScene, CanvasCommandError>;
+  (useCases: CanvasProjectUseCasesShape, scene: CanvasScene): Effect.Effect<CanvasScene, CanvasCommandError>;
+} = dual(
+  2,
+  (useCases: CanvasProjectUseCasesShape, scene: CanvasScene): Effect.Effect<CanvasScene, CanvasCommandError> =>
+    decodeCanvasScene(scene).pipe(
+      Effect.flatMap((decoded) =>
+        runAppEffect(useCases.restore(CanvasProjectUseCases.RestoreCanvasProjectCommand.make({ scene: decoded })))
+      )
     )
-  );
+);
 
-const makeUseCaseCanvasCommandBridge = (
-  useCases: CanvasProjectUseCases.CanvasProjectUseCasesShape,
-  persistence: {
-    readonly canvasHealth: () => Effect.Effect<CanvasHealth, CanvasCommandError>;
-    readonly loadScene: (request: SceneLoadRequest) => Effect.Effect<CanvasScene, CanvasCommandError>;
-    readonly saveScene: (request: SceneSaveRequest) => Effect.Effect<CanvasScene, CanvasCommandError>;
-  }
-): CanvasCommandBridge => ({
-  canvasHealth: persistence.canvasHealth,
-  sceneArchive: (command) =>
-    decodeArchiveCanvasProjectCommand(command).pipe(
-      Effect.flatMap((decoded) => runAppEffect(useCases.archive(decoded)))
-    ),
-  sceneCreate: (command) =>
-    decodeCreateCanvasProjectCommand(command).pipe(Effect.flatMap((decoded) => runAppEffect(useCases.create(decoded)))),
-  sceneGet: (query) =>
-    decodeGetCanvasProjectQuery(query).pipe(Effect.flatMap((decoded) => runAppEffect(useCases.get(decoded)))),
-  sceneList: (query) =>
-    decodeListCanvasProjectsQuery(query ?? {}).pipe(Effect.flatMap((decoded) => runAppEffect(useCases.list(decoded)))),
-  sceneLoad: (request) =>
-    decodeSceneLoadRequest(request).pipe(
-      Effect.flatMap(persistence.loadScene),
-      Effect.flatMap((scene) => loadThroughUseCases(useCases, scene))
-    ),
-  sceneNodeAdd: (command) =>
-    decodeAddCanvasNodeCommand(command).pipe(Effect.flatMap((decoded) => runAppEffect(useCases.addNode(decoded)))),
-  sceneNodeRemove: (command) =>
-    decodeRemoveCanvasNodeCommand(command).pipe(
-      Effect.flatMap((decoded) => runAppEffect(useCases.removeNode(decoded)))
-    ),
-  sceneSave: (request) =>
-    decodeSceneSaveRequest(request).pipe(Effect.flatMap((decoded) => persistence.saveScene(decoded))),
-});
+const makeUseCaseCanvasCommandBridge: {
+  (persistence: CanvasCommandPersistence): (useCases: CanvasProjectUseCasesShape) => CanvasCommandBridge;
+  (useCases: CanvasProjectUseCasesShape, persistence: CanvasCommandPersistence): CanvasCommandBridge;
+} = dual(
+  2,
+  (useCases: CanvasProjectUseCasesShape, persistence: CanvasCommandPersistence): CanvasCommandBridge => ({
+    canvasHealth: persistence.canvasHealth,
+    sceneArchive: (command) =>
+      decodeArchiveCanvasProjectCommand(command).pipe(
+        Effect.flatMap((decoded) => runAppEffect(useCases.archive(decoded)))
+      ),
+    sceneCreate: (command) =>
+      decodeCreateCanvasProjectCommand(command).pipe(
+        Effect.flatMap((decoded) => runAppEffect(useCases.create(decoded)))
+      ),
+    sceneGet: (query) =>
+      decodeGetCanvasProjectQuery(query).pipe(Effect.flatMap((decoded) => runAppEffect(useCases.get(decoded)))),
+    sceneList: (query) =>
+      decodeListCanvasProjectsQuery(query ?? {}).pipe(
+        Effect.flatMap((decoded) => runAppEffect(useCases.list(decoded)))
+      ),
+    sceneLoad: (request) =>
+      decodeSceneLoadRequest(request).pipe(
+        Effect.flatMap(persistence.loadScene),
+        Effect.flatMap((scene) => loadThroughUseCases(useCases, scene))
+      ),
+    sceneNodeAdd: (command) =>
+      decodeAddCanvasNodeCommand(command).pipe(Effect.flatMap((decoded) => runAppEffect(useCases.addNode(decoded)))),
+    sceneNodeRemove: (command) =>
+      decodeRemoveCanvasNodeCommand(command).pipe(
+        Effect.flatMap((decoded) => runAppEffect(useCases.removeNode(decoded)))
+      ),
+    sceneSave: (request) =>
+      decodeSceneSaveRequest(request).pipe(Effect.flatMap((decoded) => persistence.saveScene(decoded))),
+  })
+);
 
 const invokeNative = (command: string, args?: Record<string, unknown>): Promise<unknown> =>
   import("@tauri-apps/api/core").then(({ invoke }) => invoke(command, args));
 
-const invokeNativeEffect = (
-  invoke: NativeInvoke,
-  command: string,
-  args?: Record<string, unknown>
-): Effect.Effect<unknown, CanvasCommandError> =>
-  Effect.tryPromise({
-    try: () => invoke(command, args),
-    catch: (error) => CanvasCommandError.make({ message: errorMessage(error) }),
-  });
+const invokeNativeEffect: {
+  (
+    command: string,
+    args?: Record<string, unknown>
+  ): (invoke: NativeInvoke) => Effect.Effect<unknown, CanvasCommandError>;
+  (invoke: NativeInvoke, command: string, args?: Record<string, unknown>): Effect.Effect<unknown, CanvasCommandError>;
+} = dual(
+  (args) => P.isFunction(args[0]),
+  (invoke: NativeInvoke, command: string, args?: Record<string, unknown>): Effect.Effect<unknown, CanvasCommandError> =>
+    Effect.tryPromise({
+      try: () => invoke(command, args),
+      catch: (error) => CanvasCommandError.make({ message: errorMessage(error) }),
+    })
+);
 
 /**
  * Build the desktop bridge: Tauri owns only app-local OS/file IO while scene

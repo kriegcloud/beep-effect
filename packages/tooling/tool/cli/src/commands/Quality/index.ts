@@ -4,6 +4,14 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
+/**
+ * Public Fallow quality command export.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export { qualityFallowCommand } from "./FallowQuality.command.js";
 /**
  * Turbo scoped-config proof harness exports.
  *

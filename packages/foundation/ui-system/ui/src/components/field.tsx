@@ -6,7 +6,6 @@ import { A } from "@beep/utils";
 import { cva } from "class-variance-authority";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
-import { useMemo } from "react";
 import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
 import type React from "react";
@@ -304,7 +303,7 @@ function FieldError({
 }: React.ComponentProps<"div"> & {
   readonly errors?: undefined | Array<{ readonly message?: undefined | string } | undefined>;
 }) {
-  const content = useMemo(() => {
+  const content = (() => {
     if (hasRenderableNode(children)) {
       return children;
     }
@@ -337,7 +336,7 @@ function FieldError({
         )}
       </ul>
     );
-  }, [children, errors]);
+  })();
 
   if (!hasRenderableNode(content)) {
     return null;

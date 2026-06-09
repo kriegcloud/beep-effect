@@ -48,7 +48,7 @@ const makeOipContactHttpApiRouteLive = (submit: SubmitContact) =>
  * @category layers
  * @since 0.0.0
  */
-export const OipContactHttpApiRouteLive = makeOipContactHttpApiRouteLive(submitContact);
+// export const OipContactHttpApiRouteLive = makeOipContactHttpApiRouteLive(submitContact);
 
 const makeOipContactHttpApiAppLayer = (submit: SubmitContact) =>
   HttpApiBuilder.layer(OipHttpApi).pipe(

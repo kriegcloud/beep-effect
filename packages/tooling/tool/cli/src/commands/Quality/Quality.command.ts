@@ -10,7 +10,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, flow, MutableHashMap, Order, Path, pipe, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, Match, MutableHashMap, Order, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -23,6 +23,7 @@ import { parse } from "jsonc-parser";
 import { printLines } from "../../internal/cli/Printer.js";
 import { GITHUB_CHECK_MODE_VALUES, GithubCheckMode as GithubCheckModeSchema } from "../../internal/repo-run/index.js";
 import { runChangesetGraphCheck } from "./ChangesetGraph.js";
+import { qualityFallowCommand } from "./FallowQuality.command.js";
 import { configStringEqualsSync } from "./internal/Config.js";
 import { writeJSDocDocumentationInventory } from "./internal/JSDocDocumentationInventory.js";
 import { runPackageVerifyCli } from "./internal/PackageVerify.js";
@@ -374,6 +375,87 @@ export const GithubCheckMode = GithubCheckModeSchema;
  * @since 0.0.0
  */
 export type GithubCheckMode = GithubCheckModeType;
+
+const githubCheckModeFlagChoices: ReadonlyArray<readonly [GithubCheckMode, GithubCheckMode]> = A.map(
+  GITHUB_CHECK_MODE_VALUES,
+  (mode) => [mode, mode] as const
+);
+
+const FallowQualityFeatureFamily = LiteralKit([
+  "audit",
+  "dead-code",
+  "dupes",
+  "health",
+  "boundaries",
+  "flags",
+  "security",
+  "fix-preview",
+  "runtime-coverage",
+  "editor-mcp-hooks",
+]).pipe(
+  $I.annoteSchema("FallowQualityFeatureFamily", {
+    description: "Fallow feature family row tracked by the quality-enforcement matrix.",
+  })
+);
+
+type FallowQualityFeatureFamily = typeof FallowQualityFeatureFamily.Type;
+
+const FallowQualityCiMode = LiteralKit(["none", "advisory-artifact", "warning-check", "blocking-check"]).pipe(
+  $I.annoteSchema("FallowQualityCiMode", {
+    description: "CI posture for a Fallow feature-family matrix row.",
+  })
+);
+
+const FallowQualityPromotionStatus = LiteralKit([
+  "research",
+  "advisory",
+  "candidate-blocking",
+  "blocking",
+  "deferred",
+  "rejected",
+]).pipe(
+  $I.annoteSchema("FallowQualityPromotionStatus", {
+    description: "Promotion posture for a Fallow feature-family matrix row.",
+  })
+);
+
+class GithubChecksFallowFeatureMatrixRow extends S.Class<GithubChecksFallowFeatureMatrixRow>(
+  $I`GithubChecksFallowFeatureMatrixRow`
+)(
+  {
+    featureFamily: FallowQualityFeatureFamily,
+    ciMode: FallowQualityCiMode,
+    promotionStatus: FallowQualityPromotionStatus,
+  },
+  $I.annote("GithubChecksFallowFeatureMatrixRow", {
+    description: "Minimal Fallow feature-matrix row used by GitHub check plan contract validation.",
+  })
+) {}
+
+/**
+ * Minimal Fallow feature matrix used by GitHub check plan contract validation.
+ *
+ * @example
+ * ```ts
+ * import { GithubChecksFallowFeatureMatrix } from "@beep/repo-cli/commands/Quality/Quality.command"
+ * const matrix = GithubChecksFallowFeatureMatrix.make({ features: [] })
+ * console.log(matrix.features.length)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class GithubChecksFallowFeatureMatrix extends S.Class<GithubChecksFallowFeatureMatrix>(
+  $I`GithubChecksFallowFeatureMatrix`
+)(
+  {
+    features: S.Array(GithubChecksFallowFeatureMatrixRow),
+  },
+  $I.annote("GithubChecksFallowFeatureMatrix", {
+    description: "Minimal Fallow feature matrix used by GitHub check plan contract validation.",
+  })
+) {}
+
+const decodeGithubChecksFallowFeatureMatrix = S.decodeUnknownEffect(GithubChecksFallowFeatureMatrix);
 
 const commandText = (command: string, args: ReadonlyArray<string>) => A.join([command, ...args], " ");
 
@@ -782,6 +864,124 @@ const githubCheckPrePushExternalLanes = (repoRoot: string): ReadonlyArray<Github
   githubCheckLane("pre-push:nix", "environment", repoCliLane(repoRoot, "pre-push:nix", ["github-checks", "nix"])),
 ];
 
+const fallowGithubCheckLaneId = (featureFamily: FallowQualityFeatureFamily): string => `fallow:${featureFamily}`;
+
+const isBlockingFallowMatrixRow = (row: GithubChecksFallowFeatureMatrixRow): boolean =>
+  row.promotionStatus === "candidate-blocking" || row.promotionStatus === "blocking" || row.ciMode === "blocking-check";
+
+/**
+ * Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.
+ *
+ * @param matrix - Minimal Fallow feature matrix.
+ * @returns Sorted lane ids for feature families marked as blocking.
+ * @example
+ * ```ts
+ * import { GithubChecksFallowFeatureMatrix, promotedFallowGithubCheckLaneIdsForTesting } from "@beep/repo-cli/test/Quality"
+ *
+ * const matrix = GithubChecksFallowFeatureMatrix.make({ features: [] })
+ * console.log(promotedFallowGithubCheckLaneIdsForTesting(matrix))
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const promotedFallowGithubCheckLaneIdsForTesting = (
+  matrix: GithubChecksFallowFeatureMatrix
+): ReadonlyArray<string> =>
+  pipe(
+    matrix.features,
+    A.filter(isBlockingFallowMatrixRow),
+    A.map((row) => fallowGithubCheckLaneId(row.featureFamily)),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+
+/**
+ * Return the static GitHub check collector lanes for a mode.
+ *
+ * @param repoRoot - Repository root used for subprocess working directories.
+ * @param mode - GitHub check mode.
+ * @returns Static lane specs owned by the mode.
+ * @example
+ * ```ts
+ * import { githubCheckLanesForModeForTesting } from "@beep/repo-cli/test/Quality"
+ *
+ * console.log(githubCheckLanesForModeForTesting("/repo", "pre-push").map((lane) => lane.id))
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const githubCheckLanesForModeForTesting = (
+  repoRoot: string,
+  mode: GithubCheckMode
+): ReadonlyArray<GithubCheckLaneSpec> => {
+  const externalLanes = githubCheckPrePushExternalLanes(repoRoot);
+  const externalLane = (id: string): ReadonlyArray<GithubCheckLaneSpec> =>
+    pipe(
+      externalLanes,
+      A.findFirst((lane) => lane.id === id),
+      O.match({
+        onNone: A.empty<GithubCheckLaneSpec>,
+        onSome: A.of,
+      })
+    );
+
+  return pipe(
+    Match.value(mode),
+    Match.when("quality", () => [...githubCheckQualityLanes(repoRoot), ...githubCheckRepoSanityLanes(repoRoot)]),
+    Match.when("repo-sanity", () => githubCheckRepoSanityLanes(repoRoot)),
+    Match.when("secrets", () => externalLane("pre-push:secrets")),
+    Match.when("security", () => externalLane("pre-push:security")),
+    Match.when("sast", () => externalLane("pre-push:sast")),
+    Match.when("nix", () => externalLane("pre-push:nix")),
+    Match.when("pre-push", () => [
+      ...githubCheckQualityLanes(repoRoot),
+      ...githubCheckRepoSanityLanes(repoRoot),
+      ...githubCheckPrePushExternalLanes(repoRoot),
+    ]),
+    Match.when("review-fix", A.empty<GithubCheckLaneSpec>),
+    Match.exhaustive
+  );
+};
+
+/**
+ * Compare promoted Fallow matrix rows against static GitHub check lanes.
+ *
+ * @param repoRoot - Repository root used for lane construction.
+ * @param mode - GitHub check mode to inspect.
+ * @param matrix - Minimal Fallow feature matrix.
+ * @returns Diagnostics explaining missing or premature Fallow pre-push lanes.
+ * @example
+ * ```ts
+ * import { GithubChecksFallowFeatureMatrix, githubCheckPromotedFallowLaneDiagnosticsForTesting } from "@beep/repo-cli/test/Quality"
+ *
+ * const matrix = GithubChecksFallowFeatureMatrix.make({ features: [] })
+ * console.log(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix))
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const githubCheckPromotedFallowLaneDiagnosticsForTesting = (
+  repoRoot: string,
+  mode: GithubCheckMode,
+  matrix: GithubChecksFallowFeatureMatrix
+): ReadonlyArray<string> => {
+  const promotedLaneIds = promotedFallowGithubCheckLaneIdsForTesting(matrix);
+  const actualLaneIds = pipe(
+    githubCheckLanesForModeForTesting(repoRoot, mode),
+    A.map((lane) => lane.id),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+  const actualFallowLaneIds = A.filter(actualLaneIds, Str.startsWith("fallow:"));
+  const missingPromotedLaneIds = A.filter(promotedLaneIds, (laneId) => !A.contains(actualLaneIds, laneId));
+  const unpromotedLaneIds = A.filter(actualFallowLaneIds, (laneId) => !A.contains(promotedLaneIds, laneId));
+
+  return [
+    ...A.map(missingPromotedLaneIds, (laneId) => `missing promoted Fallow GitHub check lane ${laneId}`),
+    ...A.map(unpromotedLaneIds, (laneId) => `unpromoted Fallow GitHub check lane is wired: ${laneId}`),
+  ];
+};
+
 /**
  * Build the repo-quality diagnostic lanes used by GitHub check collectors.
  *
@@ -1123,6 +1323,72 @@ export const runGithubChecks = Effect.fn("QualityScriptCommands.runGithubChecks"
     nix: () => runNixChecks(repoRoot),
     "pre-push": () => pipe(ensureOriginMain(repoRoot), Effect.andThen(runPrePushChecks(repoRoot))),
   });
+});
+
+const readGithubChecksFallowFeatureMatrix = Effect.fn("QualityScriptCommands.readGithubChecksFallowFeatureMatrix")(
+  function* (
+    repoRoot: string,
+    featureMatrixPath: string
+  ): Effect.fn.Return<GithubChecksFallowFeatureMatrix, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const absolutePath = path.resolve(repoRoot, featureMatrixPath);
+    const text = yield* fs
+      .readFileString(absolutePath)
+      .pipe(QualityScriptCommandError.mapError(`Failed to read ${featureMatrixPath}.`));
+    const parseErrors: Array<ParseError> = [];
+    const parsed = parse(text, parseErrors, {
+      allowTrailingComma: true,
+      disallowComments: false,
+    });
+
+    if (A.isReadonlyArrayNonEmpty(parseErrors)) {
+      yield* Console.error(`[github-checks] failed to parse ${featureMatrixPath}`);
+      yield* Console.error(
+        A.join(
+          A.map(parseErrors, (error) => `parse error ${error.error} at offset ${error.offset}`),
+          "\n"
+        )
+      );
+      return yield* QualityScriptCommandError.make({
+        message: `${featureMatrixPath} is not valid JSONC.`,
+        exitCode: 1,
+      });
+    }
+
+    return yield* decodeGithubChecksFallowFeatureMatrix(parsed).pipe(
+      QualityScriptCommandError.mapError(`Failed to decode ${featureMatrixPath}.`)
+    );
+  }
+);
+
+const runGithubChecksPlanContractCheck = Effect.fn("QualityScriptCommands.runGithubChecksPlanContractCheck")(function* (
+  mode: GithubCheckMode,
+  featureMatrixPath: string,
+  expectPromotedFallowLanes: boolean
+): Effect.fn.Return<void, QualityScriptCommandError, QualityScriptEnvironment> {
+  const repoRoot = yield* findRepoRoot().pipe(QualityScriptCommandError.mapError("Failed to locate repository root."));
+  const matrix = yield* readGithubChecksFallowFeatureMatrix(repoRoot, featureMatrixPath);
+  const diagnostics = expectPromotedFallowLanes
+    ? githubCheckPromotedFallowLaneDiagnosticsForTesting(repoRoot, mode, matrix)
+    : A.empty<string>();
+
+  if (A.isReadonlyArrayNonEmpty(diagnostics)) {
+    yield* Console.error(`[github-checks] plan contract failed for ${mode}:`);
+    yield* Console.error(
+      A.join(
+        A.map(diagnostics, (diagnostic) => `  - ${diagnostic}`),
+        "\n"
+      )
+    );
+    return yield* QualityScriptCommandError.make({
+      message: `github-checks plan contract failed for ${mode}.`,
+      exitCode: 1,
+    });
+  }
+
+  const promotedCount = A.length(promotedFallowGithubCheckLaneIdsForTesting(matrix));
+  yield* Console.log(`[github-checks] plan contract ok: ${mode} (${promotedCount} promoted Fallow lane(s))`);
 });
 
 const normalizePath = Str.replaceAll("\\", "/");
@@ -2408,6 +2674,29 @@ const githubChecksCommand = Command.make(
   ({ base, head, mode }) => runQualityProgram(runGithubChecks(mode, { base, head }))
 ).pipe(Command.withDescription("Run repository GitHub verification lanes"));
 
+const githubChecksPlanContractCheckCommand = Command.make(
+  "plan-contract-check",
+  {
+    expectPromotedFallowLanes: Flag.boolean("expect-promoted-fallow-lanes").pipe(
+      Flag.withDescription("Assert that every matrix-promoted Fallow lane is wired into the selected GitHub check mode")
+    ),
+    featureMatrix: Flag.string("feature-matrix").pipe(
+      Flag.withDefault("goals/fallow-quality-enforcement/research/feature-matrix.jsonc"),
+      Flag.withDescription("Fallow feature matrix JSONC path")
+    ),
+    mode: Flag.choiceWithValue("mode", githubCheckModeFlagChoices).pipe(
+      Flag.withDefault("pre-push"),
+      Flag.withDescription("GitHub check mode whose static lane plan should be inspected")
+    ),
+  },
+  ({ expectPromotedFallowLanes, featureMatrix, mode }) =>
+    runQualityProgram(runGithubChecksPlanContractCheck(mode, featureMatrix, expectPromotedFallowLanes))
+).pipe(Command.withDescription("Validate the static GitHub check lane plan against packet promotion metadata"));
+
+const githubChecksCommandWithSubcommands = githubChecksCommand.pipe(
+  Command.withSubcommands([githubChecksPlanContractCheckCommand])
+);
+
 const bunAuditCommand = Command.make("bun-audit", {}, () =>
   runQualityProgram(
     findRepoRoot().pipe(
@@ -2622,6 +2911,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "Quality commands:",
     "- bun run beep quality github-checks quality",
     "- bun run beep quality github-checks repo-sanity",
+    "- bun run beep quality github-checks plan-contract-check --mode pre-push --expect-promoted-fallow-lanes",
     "- bun run beep quality bun-audit",
     "- bun run beep quality dtslint-tsgo",
     "- bun run beep quality test-tsgo",
@@ -2635,11 +2925,12 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality profile detect",
     "- bun run beep quality package-verify @beep/repo-cli",
     "- bun run beep quality changeset-graph",
+    "- bun run beep quality fallow audit --advisory",
   ])
 ).pipe(
   Command.withDescription("Repository operational quality commands"),
   Command.withSubcommands([
-    githubChecksCommand,
+    githubChecksCommandWithSubcommands,
     bunAuditCommand,
     dtslintTsgoCommand,
     testTsgoCommand,
@@ -2653,5 +2944,6 @@ export const qualityCommand = Command.make("quality", {}, () =>
     qualityProfileCommand,
     packageVerifyCommand,
     changesetGraphCommand,
+    qualityFallowCommand,
   ])
 );

@@ -1,10 +1,12 @@
 "use client";
 
 import { A, Str } from "@beep/utils";
+import { useAtom } from "@effect/atom-react";
 import * as d3 from "d3";
 import { flow, HashSet, Order, pipe } from "effect";
 import * as O from "effect/Option";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { Atom } from "effect/unstable/reactivity";
+import { forwardRef, useEffect, useId, useImperativeHandle, useRef } from "react";
 import { cn } from "../lib/index.ts";
 
 // ============================================================================
@@ -107,6 +109,30 @@ export interface KnowledgeGraphHandle {
   readonly resetZoom: () => void;
 }
 
+type KnowledgeGraphState = {
+  readonly legendItems: ReadonlyArray<{ readonly type: string; readonly color: string }>;
+  readonly tooltip: {
+    readonly x: number;
+    readonly y: number;
+    readonly content: string;
+    readonly visible: boolean;
+  };
+};
+
+const emptyKnowledgeGraphState: KnowledgeGraphState = {
+  legendItems: A.empty(),
+  tooltip: {
+    x: 0,
+    y: 0,
+    content: "",
+    visible: false,
+  },
+};
+
+const knowledgeGraphStateAtom = Atom.family((_scope: string) =>
+  Atom.make<KnowledgeGraphState>(emptyKnowledgeGraphState)
+);
+
 // ============================================================================
 // Utility Functions
 // ============================================================================
@@ -153,26 +179,14 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
     { nodes, links, onNodeClick, onNodeHover, showLegend = true, showLinkLabels = true, centerNodeId, className = "" },
     ref
   ) => {
+    const scope = useId();
+    const [graphState, setGraphState] = useAtom(knowledgeGraphStateAtom(scope));
     const svgRef = useRef<SVGSVGElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
 
-    const [tooltip, setTooltip] = useState<{
-      readonly x: number;
-      readonly y: number;
-      readonly content: string;
-      readonly visible: boolean;
-    }>({
-      x: 0,
-      y: 0,
-      content: "",
-      visible: false,
-    });
-
-    const [legendItems, setLegendItems] = useState<Array<{ readonly type: string; readonly color: string }>>([]);
-
     // Export as SVG
-    const exportAsSVG = useCallback(() => {
+    const exportAsSVG = () => {
       if (svgRef.current === null) return;
 
       const clonedSvg = svgRef.current.cloneNode(true) as SVGSVGElement;
@@ -201,10 +215,10 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       link.download = "knowledge-graph.svg";
       link.click();
       URL.revokeObjectURL(url);
-    }, []);
+    };
 
     // Export as PNG
-    const exportAsPNG = useCallback(() => {
+    const exportAsPNG = () => {
       if (svgRef.current === null) return;
 
       const clonedSvg = svgRef.current.cloneNode(true) as SVGSVGElement;
@@ -256,14 +270,14 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       const svgData = new XMLSerializer().serializeToString(clonedSvg);
       const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
       img.src = URL.createObjectURL(blob);
-    }, []);
+    };
 
     // Reset zoom
-    const resetZoom = useCallback(() => {
+    const resetZoom = () => {
       if (svgRef.current !== null && zoomRef.current !== null) {
         d3.select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity);
       }
-    }, []);
+    };
 
     useImperativeHandle(ref, () => ({
       exportAsSVG,
@@ -300,12 +314,13 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       const colorScale = (type: string, customColor?: string) => customColor ?? colorMapping[type] ?? "#6b7280";
 
       // Set legend items
-      setLegendItems(
-        A.map(nodeTypes, (type) => ({
+      setGraphState((state) => ({
+        ...state,
+        legendItems: A.map(nodeTypes, (type) => ({
           type: formatTypeLabel(type),
           color: colorMapping[type] ?? "#6b7280",
-        }))
-      );
+        })),
+      }));
 
       // Clone data to avoid mutation
       const nodesCopy: GraphNode[] = A.map(nodes, (n) => ({
@@ -435,16 +450,22 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
         .on("click", (_event: MouseEvent, d: GraphNode) => void onNodeClick?.(d))
         .on("mouseover", (event: MouseEvent, d: GraphNode) => {
           const [x, y] = d3.pointer(event, container);
-          setTooltip({
-            x: x + 10,
-            y: y - 10,
-            content: `${d.label} (${formatTypeLabel(d.type)})`,
-            visible: true,
-          });
+          setGraphState((state) => ({
+            ...state,
+            tooltip: {
+              x: x + 10,
+              y: y - 10,
+              content: `${d.label} (${formatTypeLabel(d.type)})`,
+              visible: true,
+            },
+          }));
           onNodeHover?.(d);
         })
         .on("mouseout", () => {
-          setTooltip((prev) => ({ ...prev, visible: false }));
+          setGraphState((state) => ({
+            ...state,
+            tooltip: { ...state.tooltip, visible: false },
+          }));
           onNodeHover?.(null);
         });
 
@@ -467,7 +488,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
 
       // Cleanup
       return () => void simulation.stop();
-    }, [nodes, links, onNodeClick, onNodeHover, showLinkLabels, centerNodeId]);
+    }, [nodes, links, onNodeClick, onNodeHover, showLinkLabels, centerNodeId, setGraphState]);
 
     return (
       <div className={cn("relative h-full w-full min-h-[400px]", className)}>
@@ -476,20 +497,20 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
         </div>
 
         {/* Tooltip */}
-        {tooltip.visible && (
+        {graphState.tooltip.visible && (
           <div
             className="pointer-events-none absolute z-10 px-3 py-2 text-sm rounded-lg bg-zinc-800 text-zinc-100 shadow-lg border border-zinc-700"
-            style={{ left: tooltip.x, top: tooltip.y }}
+            style={{ left: graphState.tooltip.x, top: graphState.tooltip.y }}
           >
-            {tooltip.content}
+            {graphState.tooltip.content}
           </div>
         )}
 
         {/* Legend */}
-        {showLegend && legendItems.length > 0 && (
+        {showLegend && graphState.legendItems.length > 0 && (
           <div className="absolute top-4 right-4 z-10 p-3 rounded-lg bg-zinc-800/90 backdrop-blur-sm border border-zinc-700">
             <div className="max-h-48 space-y-1.5 overflow-y-auto">
-              {A.map(legendItems, (item) => (
+              {A.map(graphState.legendItems, (item) => (
                 <div key={item.type} className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                   <span className="text-xs text-zinc-300">{item.type}</span>

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "7cc9d3a334ad42ecfd6c5fd428e3fbcdf7d98c5ed43bc3e570d2af5193ff5581",
+    "digest": "e56ada88375647715a12be1278dd6f24578762f972a337463e869de6b46569c4",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -92,8 +92,8 @@
       },
       {
         "path": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sha256": "7a41b6c4f3a6b78c35bb4877e8f48a9a2d0dd70e18f86091c205deeb4483a278",
-        "bytes": 22469
+        "sha256": "2c113437c959e5d0442e69521139434eed7c50a380f2b641af7a85717de698d8",
+        "bytes": 22392
       },
       {
         "path": "packages/foundation/ui-system/form/src/react/index.ts",
@@ -2070,7 +2070,7 @@
         "symbolName": "ArrayFieldOperations",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 77,
+        "sourceLine": 84,
         "summary": "React-facing array operations for array field render props.",
         "categories": [
           "models"
@@ -2095,7 +2095,7 @@
         "symbolName": "ArrayItemComponentMap",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 158,
+        "sourceLine": 165,
         "summary": "Component map accepted for one array field item.",
         "categories": [
           "components"
@@ -2120,7 +2120,7 @@
         "symbolName": "BuiltForm",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 229,
+        "sourceLine": 236,
         "summary": "React form object returned from {@link make}.",
         "categories": [
           "forms"
@@ -2145,7 +2145,7 @@
         "symbolName": "ExtractExtraProps",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 130,
+        "sourceLine": 137,
         "summary": "Extracts extra props from a field component.",
         "categories": [
           "type-level"
@@ -2170,7 +2170,7 @@
         "symbolName": "FieldComponent",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 113,
+        "sourceLine": 120,
         "summary": "React component type accepted for scalar fields.",
         "categories": [
           "components"
@@ -2195,7 +2195,7 @@
         "symbolName": "FieldComponentMap",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 185,
+        "sourceLine": 192,
         "summary": "Component map accepted by the React form factory.",
         "categories": [
           "components"
@@ -2220,7 +2220,7 @@
         "symbolName": "FieldComponentProps",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 94,
+        "sourceLine": 101,
         "summary": "Props received by a field component.",
         "categories": [
           "components"
@@ -2245,7 +2245,7 @@
         "symbolName": "FieldRefs",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 211,
+        "sourceLine": 218,
         "summary": "Field references exposed by a built React form.",
         "categories": [
           "type-level"
@@ -2270,7 +2270,7 @@
         "symbolName": "FieldState",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 60,
+        "sourceLine": 67,
         "summary": "React-facing state for one field.",
         "categories": [
           "models"
@@ -2295,7 +2295,7 @@
         "symbolName": "FieldValue",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 43,
+        "sourceLine": 50,
         "summary": "Render value type for a schema-backed field.",
         "categories": [
           "type-level"
@@ -2320,7 +2320,7 @@
         "symbolName": "make",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sourceLine": 540,
+        "sourceLine": 529,
         "summary": "Creates React components and atoms from a form builder.",
         "categories": [
           "constructors"

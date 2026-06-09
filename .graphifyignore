@@ -86,6 +86,7 @@ JSDOC_QUALITY.*
 # parent branch; ignore only the bulky generated branches.
 .beep/yeet/
 .beep/ai-metrics/
+.beep/fallow/
 **/.beep/docgen/
 
 # Subtrees and generated source bundles.
