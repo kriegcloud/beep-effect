@@ -46,12 +46,12 @@ describe("Markdown", () => {
     })
   );
 
-  it("derives accepted Markdown examples from the source schema", async () => {
-    const decodeMarkdown = S.decodeUnknownEffect(Markdown);
+  it("derives accepted Markdown examples from the source schema", () => {
+    const decodeMarkdown = S.decodeUnknownSync(Markdown);
 
-    await fc.assert(
-      fc.asyncProperty(markdownArbitrary, async (document) => {
-        await expect(Effect.runPromise(decodeMarkdown(document))).resolves.toBe(document);
+    fc.assert(
+      fc.property(markdownArbitrary, (document) => {
+        expect(decodeMarkdown(document)).toBe(document);
       }),
       { numRuns: 25 }
     );

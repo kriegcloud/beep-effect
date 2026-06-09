@@ -110,15 +110,17 @@ describe("Next route schemas", () => {
       })
     ));
 
-  it("decodes schema-derived route predicates", () =>
+  it("decodes schema-derived route predicates", () => {
+    const decodeRouteHasSync = S.decodeUnknownSync(RouteHas);
     fc.assert(
-      fc.asyncProperty(routeHasArbitrary, async (predicate) => {
-        const decoded = await Effect.runPromise(decodeRouteHas(predicate));
+      fc.property(routeHasArbitrary, (predicate) => {
+        const decoded = decodeRouteHasSync(predicate);
 
         expect(decoded).toEqual(predicate);
       }),
       { numRuns: 25 }
-    ));
+    );
+  });
 
   it("rejects invalid route discriminators and redirect mode mixing", () =>
     Effect.runPromise(

@@ -150,24 +150,19 @@ describe("CSV", () => {
     })
   );
 
-  it.effect(
-    "round-trips schema-derived rows through the CSV codec",
-    Effect.fnUntraced(function* () {
-      const csv = CSV(UserRow);
+  it("round-trips schema-derived rows through the CSV codec", () => {
+    const csv = CSV(UserRow);
 
-      yield* Effect.promise(() =>
-        fc.assert(
-          fc.asyncProperty(fc.array(userRowArbitrary, { maxLength: 5 }), async (rows) => {
-            const encoded = await Effect.runPromise(S.encodeEffect(csv)(rows));
-            const decoded = await Effect.runPromise(S.decodeUnknownEffect(csv)(encoded));
+    fc.assert(
+      fc.property(fc.array(userRowArbitrary, { maxLength: 5 }), (rows) => {
+        const encoded = S.encodeSync(csv)(rows);
+        const decoded = S.decodeUnknownSync(csv)(encoded);
 
-            expect(decoded).toEqual(rows);
-          }),
-          { numRuns: 25 }
-        )
-      );
-    })
-  );
+        expect(decoded).toEqual(rows);
+      }),
+      { numRuns: 25 }
+    );
+  });
 
   it.effect(
     "renders missing optional encoded fields as empty cells",

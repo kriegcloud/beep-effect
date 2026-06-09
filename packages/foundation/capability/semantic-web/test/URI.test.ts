@@ -53,26 +53,33 @@ describe("URI", () => {
 });
 
 describe("schema-derived arbitraries", () => {
-  const propertyCases = [
-    ["URI", URI],
-    ["AbsoluteURI", AbsoluteURI],
-    ["URIReference", URIReference],
-    ["RelativeURIReference", RelativeURIReference],
-  ] as const;
+  const assertDecodesToItself = <Schema extends S.Decoder<unknown>>(schema: Schema): void => {
+    const arbitrary = S.toArbitrary(schema);
+    const decode = S.decodeUnknownSync(schema);
+    const isValue = S.is(schema);
 
-  for (const [name, schema] of propertyCases) {
-    it(`only generates RFC 3986 ${name} values that decode to themselves`, () => {
-      const arbitrary = S.toArbitrary(schema);
-      const decode = S.decodeUnknownSync(schema);
-      const isValue = S.is(schema);
+    fc.assert(
+      fc.property(arbitrary, (value) => {
+        expect(isValue(value)).toBe(true);
+        expect(decode(value)).toBe(value);
+      }),
+      { numRuns: 50 }
+    );
+  };
 
-      fc.assert(
-        fc.property(arbitrary, (value) => {
-          expect(isValue(value)).toBe(true);
-          expect(decode(value)).toBe(value);
-        }),
-        { numRuns: 50 }
-      );
-    });
-  }
+  it("only generates RFC 3986 URI values that decode to themselves", () => {
+    assertDecodesToItself(URI);
+  });
+
+  it("only generates RFC 3986 AbsoluteURI values that decode to themselves", () => {
+    assertDecodesToItself(AbsoluteURI);
+  });
+
+  it("only generates RFC 3986 URIReference values that decode to themselves", () => {
+    assertDecodesToItself(URIReference);
+  });
+
+  it("only generates RFC 3986 RelativeURIReference values that decode to themselves", () => {
+    assertDecodesToItself(RelativeURIReference);
+  });
 });

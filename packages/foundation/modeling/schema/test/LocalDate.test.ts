@@ -549,9 +549,9 @@ describe("LocalDate", () => {
   describe("encoding", () => {
     it("round-trips schema-derived LocalDate values through the schema codec", () =>
       fc.assert(
-        fc.asyncProperty(LocalDateArbitrary, async (date) => {
-          const encoded = await Effect.runPromise(S.encodeEffect(LocalDate)(date));
-          const decoded = await Effect.runPromise(S.decodeUnknownEffect(LocalDate)(encoded));
+        fc.property(LocalDateArbitrary, (date) => {
+          const encoded = S.encodeSync(LocalDate)(date);
+          const decoded = S.decodeUnknownSync(LocalDate)(encoded);
 
           expect(decoded).toBeInstanceOf(LocalDate);
           expect(equals(decoded, date)).toBe(true);

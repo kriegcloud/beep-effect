@@ -47,7 +47,9 @@ describe("MutableHashSetFromSelf", () => {
 
     fc.assert(
       fc.property(arbitrary, (set) => {
-        expect(equivalence(decode(encode(set)), set)).toBe(true);
+        const encoded = encode(set);
+        const decoded = decode(encoded);
+        expect(equivalence(decoded, set)).toBe(true);
       }),
       { numRuns: 50 }
     );

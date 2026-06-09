@@ -678,13 +678,9 @@ describe("schema-first lint command", { concurrent: false }, () => {
 
             const errorLines = yield* TestConsole.errorLines;
             expectReportedExit(exit);
-            expect(
-              errorLines.some(
-                (entry) =>
-                  entry.includes("packages/example/test/Example.test.ts :: schema-codec-tests") &&
-                  entry.includes("no schema-derived property coverage")
-              )
-            ).toBe(true);
+            expect(errorLines).toContain(
+              "- packages/example/test/Example.test.ts :: schema-codec-tests [schema-policy-advisory] Schema-heavy test file has 4 Schema codec assertions but no schema-derived property coverage."
+            );
           })
         ).pipe(provideScopedLayer(testLayer))
       ),

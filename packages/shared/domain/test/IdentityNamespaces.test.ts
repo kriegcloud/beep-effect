@@ -321,9 +321,9 @@ describe("P3 identity namespaces", () => {
   it("round-trips schema-derived ids for every identity namespace", () => {
     for (const spec of specs) {
       fc.assert(
-        fc.asyncProperty(S.toArbitrary(spec.schema), async (id) => {
-          const decoded = await Effect.runPromise(S.decodeUnknownEffect(spec.schema)(id));
-          const encoded = await Effect.runPromise(S.encodeEffect(spec.schema)(decoded));
+        fc.property(S.toArbitrary(spec.schema), (id) => {
+          const decoded = S.decodeUnknownSync(spec.schema)(id);
+          const encoded = S.encodeSync(spec.schema)(decoded);
 
           expect(encoded, spec.label).toBe(id);
           expect(spec.schema.equivalence(cast(decoded), cast(id)), spec.label).toBe(true);

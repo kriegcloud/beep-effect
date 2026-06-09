@@ -120,7 +120,9 @@ describe("MutableHashMap", () => {
 
     fc.assert(
       fc.property(arbitrary, (value) => {
-        expect(equivalence(decode(encode(value)), value)).toBe(true);
+        const encoded = encode(value);
+        const decoded = decode(encoded);
+        expect(equivalence(decoded, value)).toBe(true);
       }),
       { numRuns: 50 }
     );

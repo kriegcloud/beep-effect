@@ -82,11 +82,11 @@ describe("LocalDate.Model", () => {
 
   it("round-trips schema-derived values through the class and string codecs", () =>
     fc.assert(
-      fc.asyncProperty(ModelArbitrary, async (date) => {
-        const encoded = await Effect.runPromise(S.encodeEffect(Model)(date));
-        const decoded = await Effect.runPromise(S.decodeUnknownEffect(Model)(encoded));
-        const encodedString = await Effect.runPromise(S.encodeEffect(LocalDateFromString)(date));
-        const decodedString = await Effect.runPromise(S.decodeUnknownEffect(LocalDateFromString)(encodedString));
+      fc.property(ModelArbitrary, (date) => {
+        const encoded = S.encodeSync(Model)(date);
+        const decoded = S.decodeUnknownSync(Model)(encoded);
+        const encodedString = S.encodeSync(LocalDateFromString)(date);
+        const decodedString = S.decodeUnknownSync(LocalDateFromString)(encodedString);
 
         assert.instanceOf(decoded, Model);
         assert.strictEqual(equals(decoded, date), true);

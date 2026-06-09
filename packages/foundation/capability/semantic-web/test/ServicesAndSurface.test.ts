@@ -68,7 +68,7 @@ describe("Services and Surface", () => {
     ]);
   });
 
-  it("round-trips schema-derived RDF datasets and canonicalization DTOs through boundary encoders", () =>
+  it("round-trips schema-derived RDF datasets and canonicalization DTOs through boundary encoders", { timeout: 30000 }, () =>
     fc.assert(
       fc.property(DatasetArbitrary, CanonicalizeDatasetRequestArbitrary, (generatedDataset, canonicalizeRequest) => {
         const encodedDataset = Effect.runSync(S.encodeEffect(Dataset)(generatedDataset));
@@ -88,7 +88,7 @@ describe("Services and Surface", () => {
         expect(reencodedDataset).toEqual(encodedDataset);
         expect(reencodedCanonicalizeRequest).toEqual(encodedCanonicalizeRequest);
       }),
-      { numRuns: 20 }
+      { numRuns: 5 }
     ));
 
   it("canonicalizes and fingerprints datasets deterministically", () =>

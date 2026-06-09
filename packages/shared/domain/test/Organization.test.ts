@@ -78,10 +78,10 @@ describe("Organization", () => {
 
   it("round-trips schema-derived license tiers and settings", () =>
     fc.assert(
-      fc.asyncProperty(LicenseTierArbitrary, SettingsArbitrary, async (licenseTier, settings) => {
-        const decodedTier = await Effect.runPromise(S.decodeUnknownEffect(Organization.LicenseTier)(licenseTier));
-        const encodedSettings = await Effect.runPromise(S.encodeEffect(Organization.Settings)(settings));
-        const decodedSettings = await Effect.runPromise(S.decodeUnknownEffect(Organization.Settings)(encodedSettings));
+      fc.property(LicenseTierArbitrary, SettingsArbitrary, (licenseTier, settings) => {
+        const decodedTier = S.decodeUnknownSync(Organization.LicenseTier)(licenseTier);
+        const encodedSettings = S.encodeSync(Organization.Settings)(settings);
+        const decodedSettings = S.decodeUnknownSync(Organization.Settings)(encodedSettings);
 
         expect(decodedTier).toBe(licenseTier);
         expect(
