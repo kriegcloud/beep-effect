@@ -1,6 +1,6 @@
 # GOAL: Implement Fallow Quality Enforcement
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect6`.
+Repo: repository root (`./`).
 
 Outcome: turn the Fallow pilot into a repo-native quality subsystem that gives
 coding agents fast, structured, enforceable feedback without replacing Knip

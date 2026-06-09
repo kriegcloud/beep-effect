@@ -8,11 +8,17 @@
 "use client";
 
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import * as O from "effect/Option";
 import { Atom } from "effect/unstable/reactivity";
 
 const REVEAL_OFFSET_PX = 560;
 
 const backToTopVisibleAtom = Atom.make((get) => {
+  const current = get.self<boolean>();
+  if (O.isSome(current)) {
+    return current.value;
+  }
+
   if (typeof window === "undefined") {
     return false;
   }

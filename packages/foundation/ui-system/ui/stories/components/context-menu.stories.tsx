@@ -17,13 +17,16 @@ import {
 import { A } from "@beep/utils";
 import { useAtom } from "@effect/atom-react";
 import { Atom } from "effect/unstable/reactivity";
+import { useId } from "react";
 import { expect, fireEvent, screen, userEvent, waitFor, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-const contextCheckboxStateAtom = Atom.make({
-  showBookmarks: true,
-  showFullUrls: false,
-});
+const contextCheckboxStateAtom = Atom.family((id: string) =>
+  Atom.make({
+    showBookmarks: true,
+    showFullUrls: false,
+  })
+);
 
 const editActions: ReadonlyArray<{ readonly label: string; readonly shortcut: string }> = [
   { label: "Cut", shortcut: "⌘X" },
@@ -162,7 +165,8 @@ export const DestructiveItem: Story = {
  */
 export const WithCheckboxes: Story = {
   render: (args) => {
-    const [checkboxState, setCheckboxState] = useAtom(contextCheckboxStateAtom);
+    const storyInstanceId = useId();
+    const [checkboxState, setCheckboxState] = useAtom(contextCheckboxStateAtom(storyInstanceId));
     return (
       <ContextMenu {...args}>
         <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm">

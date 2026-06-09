@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "92a7304d104240d7bb1e4b5229cbeb1fa455c0c0f3b34b5fbac77344a282ccab",
+    "digest": "a008523bc236e84ff44e81b735cd2373dec7a46101457ee20d03eab7fc68aeaf",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -107,8 +107,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sha256": "b5d948b15628423df32440bee017105be405ddeab0251118b16235fed79352f4",
-        "bytes": 9054
+        "sha256": "18c3c195e178635314f544d1d2041ef6e2ecdd45e9f87825d5595fec5e2d4dea",
+        "bytes": 9111
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/chart.tsx",
@@ -232,8 +232,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/link-preview.tsx",
-        "sha256": "dce684e9dd2c3072d37d893f11521567e0fe474e37261e3d0833f8de7b901c2e",
-        "bytes": 11284
+        "sha256": "38d97a1c8351e31f4059ba7f47d490255162b370da16a1c1be3bcd4f0c34d2e9",
+        "bytes": 12412
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/live-waveform.tsx",
@@ -317,8 +317,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sha256": "caa5688809ff09793a624d09b0f10ba5e5cd08786861924a01bba440a5990566",
-        "bytes": 29043
+        "sha256": "80dccce77dbfcf10682352de2f9558211f63864995c5e6154fb1ad64b08762b0",
+        "bytes": 29330
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/skeleton.tsx",
@@ -407,8 +407,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-        "sha256": "0ffa9f4c75c9442ce9297cba08bb59487bf65e708d9539912f70f2abfa0443e1",
-        "bytes": 12818
+        "sha256": "503fa70e0debd469abbe927bccc0afa76aab751abe79308eecf01de789e4df8a",
+        "bytes": 12943
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/ui/button.tsx",
@@ -427,8 +427,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/hooks/use-scribe.ts",
-        "sha256": "4103086e57fee3a7edcbc39186f09de581d4c2ced0c78630073fb86313f61380",
-        "bytes": 12017
+        "sha256": "171c4aabc84e2ee5cca3f4f6dbf2d3e16528ab8bc4e79097fafe0f5a3f665765",
+        "bytes": 12357
       },
       {
         "path": "packages/foundation/ui-system/ui/src/hooks/useMobile.ts",
@@ -2502,7 +2502,7 @@
         "symbolName": "CarouselContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 219,
+        "sourceLine": 221,
         "summary": "Carousel content component.",
         "categories": [
           "components"
@@ -2527,7 +2527,7 @@
         "symbolName": "CarouselItem",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 242,
+        "sourceLine": 244,
         "summary": "Carousel item component.",
         "categories": [
           "components"
@@ -2552,7 +2552,7 @@
         "symbolName": "CarouselNext",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 312,
+        "sourceLine": 314,
         "summary": "Carousel next component.",
         "categories": [
           "components"
@@ -2577,7 +2577,7 @@
         "symbolName": "CarouselPrevious",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 269,
+        "sourceLine": 271,
         "summary": "Carousel previous component.",
         "categories": [
           "components"
@@ -6694,7 +6694,7 @@
         "symbolName": "LinkPreview",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/link-preview.tsx",
-        "sourceLine": 251,
+        "sourceLine": 273,
         "summary": "Link preview component.",
         "categories": [
           "components"
@@ -8919,7 +8919,7 @@
         "symbolName": "Sidebar",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 230,
+        "sourceLine": 238,
         "summary": "Sidebar component.",
         "categories": [
           "components"
@@ -8944,7 +8944,7 @@
         "symbolName": "SidebarContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 567,
+        "sourceLine": 575,
         "summary": "Sidebar content component.",
         "categories": [
           "components"
@@ -8969,7 +8969,7 @@
         "symbolName": "SidebarFooter",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 525,
+        "sourceLine": 533,
         "summary": "Sidebar footer component.",
         "categories": [
           "components"
@@ -8994,7 +8994,7 @@
         "symbolName": "SidebarGroup",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 593,
+        "sourceLine": 601,
         "summary": "Sidebar group component.",
         "categories": [
           "components"
@@ -9019,7 +9019,7 @@
         "symbolName": "SidebarGroupAction",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 639,
+        "sourceLine": 647,
         "summary": "Sidebar group action component.",
         "categories": [
           "components"
@@ -9044,7 +9044,7 @@
         "symbolName": "SidebarGroupContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 668,
+        "sourceLine": 676,
         "summary": "Sidebar group content component.",
         "categories": [
           "components"
@@ -9069,7 +9069,7 @@
         "symbolName": "SidebarGroupLabel",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 612,
+        "sourceLine": 620,
         "summary": "Sidebar group label component.",
         "categories": [
           "components"
@@ -9094,7 +9094,7 @@
         "symbolName": "SidebarHeader",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 506,
+        "sourceLine": 514,
         "summary": "Sidebar header component.",
         "categories": [
           "components"
@@ -9119,7 +9119,7 @@
         "symbolName": "SidebarInput",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 483,
+        "sourceLine": 491,
         "summary": "Sidebar input component.",
         "categories": [
           "components"
@@ -9144,7 +9144,7 @@
         "symbolName": "SidebarInset",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 456,
+        "sourceLine": 464,
         "summary": "Sidebar inset component.",
         "categories": [
           "components"
@@ -9169,7 +9169,7 @@
         "symbolName": "SidebarMenu",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 685,
+        "sourceLine": 693,
         "summary": "Sidebar menu component.",
         "categories": [
           "components"
@@ -9194,7 +9194,7 @@
         "symbolName": "SidebarMenuAction",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 801,
+        "sourceLine": 809,
         "summary": "Sidebar menu action component.",
         "categories": [
           "components"
@@ -9219,7 +9219,7 @@
         "symbolName": "SidebarMenuBadge",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 841,
+        "sourceLine": 849,
         "summary": "Sidebar menu badge component.",
         "categories": [
           "components"
@@ -9244,7 +9244,7 @@
         "symbolName": "SidebarMenuButton",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 748,
+        "sourceLine": 756,
         "summary": "Sidebar menu button component.",
         "categories": [
           "components"
@@ -9269,7 +9269,7 @@
         "symbolName": "SidebarMenuItem",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 702,
+        "sourceLine": 710,
         "summary": "Sidebar menu item component.",
         "categories": [
           "components"
@@ -9294,7 +9294,7 @@
         "symbolName": "SidebarMenuSkeleton",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 872,
+        "sourceLine": 880,
         "summary": "Sidebar menu skeleton component.",
         "categories": [
           "components"
@@ -9319,7 +9319,7 @@
         "symbolName": "SidebarMenuSub",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 921,
+        "sourceLine": 929,
         "summary": "Sidebar menu sub component.",
         "categories": [
           "components"
@@ -9344,7 +9344,7 @@
         "symbolName": "SidebarMenuSubButton",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 965,
+        "sourceLine": 973,
         "summary": "Sidebar menu sub button component.",
         "categories": [
           "components"
@@ -9369,7 +9369,7 @@
         "symbolName": "SidebarMenuSubItem",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 948,
+        "sourceLine": 956,
         "summary": "Sidebar menu sub item component.",
         "categories": [
           "components"
@@ -9419,7 +9419,7 @@
         "symbolName": "SidebarRail",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 419,
+        "sourceLine": 427,
         "summary": "Sidebar rail component.",
         "categories": [
           "components"
@@ -9444,7 +9444,7 @@
         "symbolName": "SidebarSeparator",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 548,
+        "sourceLine": 556,
         "summary": "Sidebar separator component.",
         "categories": [
           "components"
@@ -9469,7 +9469,7 @@
         "symbolName": "SidebarTrigger",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
-        "sourceLine": 385,
+        "sourceLine": 393,
         "summary": "Sidebar trigger component.",
         "categories": [
           "components"
@@ -11128,7 +11128,7 @@
         "symbolName": "Step",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-        "sourceLine": 185,
+        "sourceLine": 187,
         "summary": "Step type.",
         "categories": [
           "type-level"
@@ -11153,7 +11153,7 @@
         "symbolName": "Tour",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-        "sourceLine": 214,
+        "sourceLine": 216,
         "summary": "Tour type.",
         "categories": [
           "type-level"
@@ -11178,7 +11178,7 @@
         "symbolName": "TourProvider",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-        "sourceLine": 232,
+        "sourceLine": 234,
         "summary": "Tour provider export.",
         "categories": [
           "providers"
@@ -11203,7 +11203,7 @@
         "symbolName": "useTour",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/tour.tsx",
-        "sourceLine": 166,
+        "sourceLine": 168,
         "summary": "Use tour hook.",
         "categories": [
           "hooks"

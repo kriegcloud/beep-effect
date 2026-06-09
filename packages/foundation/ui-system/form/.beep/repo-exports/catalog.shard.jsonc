@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "68662e7d1046c8588d11056de497ab2577d16386e5b4b366b2341f2396dd7708",
+    "digest": "e56ada88375647715a12be1278dd6f24578762f972a337463e869de6b46569c4",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -92,8 +92,8 @@
       },
       {
         "path": "packages/foundation/ui-system/form/src/react/FormReact.tsx",
-        "sha256": "cab7f684203b08d940773c423b06fa3007635a9af34a11a985a2825f0acf1db2",
-        "bytes": 22227
+        "sha256": "2c113437c959e5d0442e69521139434eed7c50a380f2b641af7a85717de698d8",
+        "bytes": 22392
       },
       {
         "path": "packages/foundation/ui-system/form/src/react/index.ts",

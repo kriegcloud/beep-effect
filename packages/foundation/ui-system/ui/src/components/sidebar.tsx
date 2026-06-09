@@ -137,16 +137,24 @@ function SidebarProviderInner({
   };
 
   const setOpen = (value: boolean | ((value: boolean) => boolean)) => {
-    const openState = P.isFunction(value) ? value(open) : value;
     if (setOpenProp !== undefined) {
+      const openState = P.isFunction(value) ? value(open) : value;
       setOpenProp(openState);
+      try {
+        localStorage.setItem(SIDEBAR_STORAGE_KEY, String(openState));
+      } catch {
+        // localStorage may be unavailable in some contexts
+      }
     } else {
-      setSidebarState((state) => ({ ...state, open: openState }));
-    }
-    try {
-      localStorage.setItem(SIDEBAR_STORAGE_KEY, String(openState));
-    } catch {
-      // localStorage may be unavailable in some contexts
+      setSidebarState((state) => {
+        const openState = P.isFunction(value) ? value(state.open) : value;
+        try {
+          localStorage.setItem(SIDEBAR_STORAGE_KEY, String(openState));
+        } catch {
+          // localStorage may be unavailable in some contexts
+        }
+        return { ...state, open: openState };
+      });
     }
   };
 

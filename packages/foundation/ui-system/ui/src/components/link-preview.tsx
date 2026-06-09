@@ -8,6 +8,7 @@ import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { Atom } from "effect/unstable/reactivity";
+import { useId } from "react";
 import { cn, sanitizeAnchorHref } from "../lib/index.ts";
 import type { ReactNode } from "react";
 
@@ -28,38 +29,51 @@ interface LinkPreviewProps {
 }
 
 type LinkPreviewState = {
-  readonly element: HTMLAnchorElement | null;
   readonly error: null | string;
   readonly fetchedMetadata: null | UrlMetadata;
-  readonly isInView: boolean;
   readonly isLoading: boolean;
   readonly validFavicon: boolean;
   readonly validImage: boolean;
 };
 
+type LinkPreviewInstanceState = {
+  readonly element: HTMLAnchorElement | null;
+  readonly isInView: boolean;
+};
+
 const emptyLinkPreviewState: LinkPreviewState = {
-  element: null,
   error: null,
   fetchedMetadata: null,
-  isInView: false,
   isLoading: false,
   validFavicon: true,
   validImage: true,
 };
 
+const emptyLinkPreviewInstanceState: LinkPreviewInstanceState = {
+  element: null,
+  isInView: false,
+};
+
+// Fetched metadata is cached per `href` so sibling instances can reuse it.
 const linkPreviewStateAtom = Atom.family((_href: string) => Atom.make<LinkPreviewState>(emptyLinkPreviewState));
 
-const linkPreviewElementAtom = Atom.family((href: string) =>
+// Element ref, observer, and in-view flag are scoped per component instance so
+// that unmounting one instance never tears down a sibling's observation.
+const linkPreviewInstanceStateAtom = Atom.family((_instanceId: string) =>
+  Atom.make<LinkPreviewInstanceState>(emptyLinkPreviewInstanceState)
+);
+
+const linkPreviewElementAtom = Atom.family((instanceId: string) =>
   Atom.writable(
-    (get) => get(linkPreviewStateAtom(href)).element,
+    (get) => get(linkPreviewInstanceStateAtom(instanceId)).element,
     (ctx, element: HTMLAnchorElement | null) => {
-      const stateAtom = linkPreviewStateAtom(href);
-      ctx.set(stateAtom, { ...ctx.get(stateAtom), element });
+      const instanceAtom = linkPreviewInstanceStateAtom(instanceId);
+      ctx.set(instanceAtom, { ...ctx.get(instanceAtom), element });
     }
   )
 );
 
-const linkPreviewObserverAtom = Atom.family((href: string) =>
+const linkPreviewObserverAtom = Atom.family((instanceId: string) =>
   Atom.make((get) => {
     let cleanupObserver: (() => void) | undefined;
 
@@ -67,15 +81,15 @@ const linkPreviewObserverAtom = Atom.family((href: string) =>
       cleanupObserver?.();
       cleanupObserver = undefined;
 
-      if (element === null || href.length === 0) {
+      if (element === null) {
         return;
       }
 
       const observer = new IntersectionObserver(
         ([entry]) => {
           if (entry?.isIntersecting) {
-            const stateAtom = linkPreviewStateAtom(href);
-            get.set(stateAtom, { ...get.once(stateAtom), isInView: true });
+            const instanceAtom = linkPreviewInstanceStateAtom(instanceId);
+            get.set(instanceAtom, { ...get.once(instanceAtom), isInView: true });
             observer.unobserve(element);
           }
         },
@@ -89,17 +103,24 @@ const linkPreviewObserverAtom = Atom.family((href: string) =>
       cleanupObserver = () => observer.unobserve(element);
     };
 
-    get.subscribe(linkPreviewElementAtom(href), observe, { immediate: true });
+    get.subscribe(linkPreviewElementAtom(instanceId), observe, { immediate: true });
     get.addFinalizer(() => cleanupObserver?.());
   })
 );
 
-const linkPreviewFetchAtom = Atom.family((href: string) =>
+// Keyed by `instanceId\nhref` so each component instance drives its own fetch
+// trigger while writing the result into the per-`href` metadata cache.
+const linkPreviewFetchAtom = Atom.family((key: string) =>
   Atom.make((get) => {
     let disposed = false;
+    const separatorIndex = key.indexOf("\n");
+    const instanceId = key.slice(0, separatorIndex);
+    const href = key.slice(separatorIndex + 1);
 
-    const maybeFetch = (state: LinkPreviewState) => {
-      if (!state.isInView || !canFetchMetadata(href) || state.fetchedMetadata !== null || state.isLoading) {
+    const maybeFetch = () => {
+      const instanceState = get.once(linkPreviewInstanceStateAtom(instanceId));
+      const state = get.once(linkPreviewStateAtom(href));
+      if (!instanceState.isInView || !canFetchMetadata(href) || state.fetchedMetadata !== null || state.isLoading) {
         return;
       }
 
@@ -148,7 +169,8 @@ const linkPreviewFetchAtom = Atom.family((href: string) =>
       });
     };
 
-    get.subscribe(linkPreviewStateAtom(href), maybeFetch, { immediate: true });
+    get.subscribe(linkPreviewInstanceStateAtom(instanceId), maybeFetch, { immediate: true });
+    get.subscribe(linkPreviewStateAtom(href), maybeFetch);
     get.addFinalizer(() => {
       disposed = true;
     });
@@ -249,16 +271,17 @@ const getFallbackMetadata = (href: string): UrlMetadata => {
  * @since 0.0.0
  */
 export function LinkPreview({ href, children, className, metadata }: LinkPreviewProps) {
+  const instanceId = useId();
   const stateAtom = linkPreviewStateAtom(href);
   const state = useAtomValue(stateAtom);
-  const setElement = useAtomSet(linkPreviewElementAtom(href));
+  const setElement = useAtomSet(linkPreviewElementAtom(instanceId));
   const setState = useAtomSet(stateAtom);
   const safeHref = sanitizeAnchorHref(href);
 
   const isValidUrl = href.length > 0 && isValidHttpUrl(href) && !isEmail(href) && !Str.startsWith(href, "mailto:");
 
-  useAtomMount(linkPreviewObserverAtom(href));
-  useAtomMount(linkPreviewFetchAtom(href));
+  useAtomMount(linkPreviewObserverAtom(instanceId));
+  useAtomMount(linkPreviewFetchAtom(`${instanceId}\n${href}`));
 
   const resolvedMetadata = {
     ...(state.fetchedMetadata ?? getFallbackMetadata(href)),

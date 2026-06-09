@@ -121,7 +121,7 @@
           },
           "owner": {
             "type": "string",
-            "pattern": "^@"
+            "pattern": "^@\\S+$"
           },
           "riskLevel": {
             "enum": ["low", "medium", "high"]

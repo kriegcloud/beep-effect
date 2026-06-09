@@ -30,7 +30,7 @@ import { AudioFormat, CommitStrategy, RealtimeEvents, Scribe } from "@elevenlabs
 import { Data, Effect } from "effect";
 import * as P from "effect/Predicate";
 import { Atom } from "effect/unstable/reactivity";
-import { useEffect, useId, useRef } from "react";
+import { useCallback, useEffect, useId, useRef } from "react";
 import type {
   CommittedTranscriptMessage,
   MicrophoneOptions,
@@ -200,144 +200,147 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
 
   optionsRef.current = options;
 
-  const clearTranscripts = () => {
+  const clearTranscripts = useCallback(() => {
     setState((current) => ({
       ...current,
       committedTranscripts: A.empty<CommittedTranscriptMessage>(),
       partialTranscript: "",
     }));
-  };
+  }, [setState]);
 
-  const disconnect = () => {
+  const disconnect = useCallback(() => {
     connectionRef.current?.close();
     connectionRef.current = null;
     setState((current) => ({ ...current, status: "idle" }));
-  };
+  }, [setState]);
 
-  const connect = ({ token }: ScribeConnectOptions): Promise<void> => {
-    let handledError = false;
-    const handleUnhandledError = (failure: ScribeConnectionFailure): Effect.Effect<never, Error> => {
-      const scribeError = failure.error;
-      if (!handledError) {
-        setState((current) => ({
-          ...current,
-          error: scribeError.message,
-          status: "idle",
-        }));
-        optionsRef.current.onError?.(scribeError);
-      }
-      return Effect.fail(scribeError);
-    };
+  const connect = useCallback(
+    ({ token }: ScribeConnectOptions): Promise<void> => {
+      let handledError = false;
+      const handleUnhandledError = (failure: ScribeConnectionFailure): Effect.Effect<never, Error> => {
+        const scribeError = failure.error;
+        if (!handledError) {
+          setState((current) => ({
+            ...current,
+            error: scribeError.message,
+            status: "idle",
+          }));
+          optionsRef.current.onError?.(scribeError);
+        }
+        return Effect.fail(scribeError);
+      };
 
-    return Effect.runPromise(
-      Effect.gen(function* () {
-        disconnect();
-        setState((current) => ({
-          ...current,
-          error: null,
-          status: "connecting",
-        }));
+      return Effect.runPromise(
+        Effect.gen(function* () {
+          disconnect();
+          setState((current) => ({
+            ...current,
+            error: null,
+            status: "connecting",
+          }));
 
-        const connection = yield* Effect.try({
-          try: () => {
-            const currentOptions = optionsRef.current;
-            const baseOptions = {
-              token,
-              modelId: currentOptions.modelId ?? defaultModelId,
-              ...O.getSomesStruct({ baseUri: O.fromUndefinedOr(currentOptions.baseUri) }),
-              ...O.getSomesStruct({ commitStrategy: O.fromUndefinedOr(currentOptions.commitStrategy) }),
-              ...O.getSomesStruct({ languageCode: O.fromUndefinedOr(currentOptions.languageCode) }),
-              ...O.getSomesStruct({ minSilenceDurationMs: O.fromUndefinedOr(currentOptions.minSilenceDurationMs) }),
-              ...O.getSomesStruct({ minSpeechDurationMs: O.fromUndefinedOr(currentOptions.minSpeechDurationMs) }),
-              ...O.getSomesStruct({
-                vadSilenceThresholdSecs: O.fromUndefinedOr(currentOptions.vadSilenceThresholdSecs),
-              }),
-              ...O.getSomesStruct({ vadThreshold: O.fromUndefinedOr(currentOptions.vadThreshold) }),
+          const connection = yield* Effect.try({
+            try: () => {
+              const currentOptions = optionsRef.current;
+              const baseOptions = {
+                token,
+                modelId: currentOptions.modelId ?? defaultModelId,
+                ...O.getSomesStruct({ baseUri: O.fromUndefinedOr(currentOptions.baseUri) }),
+                ...O.getSomesStruct({ commitStrategy: O.fromUndefinedOr(currentOptions.commitStrategy) }),
+                ...O.getSomesStruct({ languageCode: O.fromUndefinedOr(currentOptions.languageCode) }),
+                ...O.getSomesStruct({ minSilenceDurationMs: O.fromUndefinedOr(currentOptions.minSilenceDurationMs) }),
+                ...O.getSomesStruct({ minSpeechDurationMs: O.fromUndefinedOr(currentOptions.minSpeechDurationMs) }),
+                ...O.getSomesStruct({
+                  vadSilenceThresholdSecs: O.fromUndefinedOr(currentOptions.vadSilenceThresholdSecs),
+                }),
+                ...O.getSomesStruct({ vadThreshold: O.fromUndefinedOr(currentOptions.vadThreshold) }),
+              };
+              const { audioFormat, sampleRate } = currentOptions;
+              const hasManualAudio = audioFormat !== undefined || sampleRate !== undefined;
+
+              if (hasManualAudio && (audioFormat === undefined || sampleRate === undefined)) {
+                throw makeScribeError("audioFormat and sampleRate must be provided together for manual Scribe audio.");
+              }
+
+              const microphoneOptions = toMicrophoneOptions(currentOptions.microphone);
+              return hasManualAudio && audioFormat !== undefined && sampleRate !== undefined
+                ? Scribe.connect({
+                    ...baseOptions,
+                    audioFormat,
+                    sampleRate,
+                  })
+                : Scribe.connect({
+                    ...baseOptions,
+                    ...O.getSomesStruct({ microphone: O.fromUndefinedOr(microphoneOptions) }),
+                  });
+            },
+            catch: toScribeConnectionFailure,
+          });
+
+          connectionRef.current = connection;
+
+          yield* Effect.callback<void, ScribeConnectionFailure>((resume) => {
+            let settled = false;
+
+            const settleResolve = () => {
+              if (!settled) {
+                settled = true;
+                setState((current) => ({ ...current, status: "connected" }));
+                resume(Effect.void);
+              }
             };
-            const { audioFormat, sampleRate } = currentOptions;
-            const hasManualAudio = audioFormat !== undefined || sampleRate !== undefined;
 
-            if (hasManualAudio && (audioFormat === undefined || sampleRate === undefined)) {
-              throw makeScribeError("audioFormat and sampleRate must be provided together for manual Scribe audio.");
-            }
+            const settleReject = (scribeError_1: Error) => {
+              handledError = true;
+              setState((current) => ({
+                ...current,
+                error: scribeError_1.message,
+              }));
+              optionsRef.current.onError?.(scribeError_1);
+              if (!settled) {
+                settled = true;
+                setState((current) => ({ ...current, status: "idle" }));
+                resume(Effect.fail(new ScribeConnectionFailure({ error: scribeError_1 })));
+              }
+            };
 
-            const microphoneOptions = toMicrophoneOptions(currentOptions.microphone);
-            return hasManualAudio && audioFormat !== undefined && sampleRate !== undefined
-              ? Scribe.connect({
-                  ...baseOptions,
-                  audioFormat,
-                  sampleRate,
-                })
-              : Scribe.connect({
-                  ...baseOptions,
-                  ...O.getSomesStruct({ microphone: O.fromUndefinedOr(microphoneOptions) }),
-                });
-          },
-          catch: toScribeConnectionFailure,
-        });
-
-        connectionRef.current = connection;
-
-        yield* Effect.callback<void, ScribeConnectionFailure>((resume) => {
-          let settled = false;
-
-          const settleResolve = () => {
-            if (!settled) {
-              settled = true;
-              setState((current) => ({ ...current, status: "connected" }));
-              resume(Effect.void);
-            }
-          };
-
-          const settleReject = (scribeError_1: Error) => {
-            handledError = true;
-            setState((current) => ({
-              ...current,
-              error: scribeError_1.message,
-            }));
-            optionsRef.current.onError?.(scribeError_1);
-            if (!settled) {
-              settled = true;
+            connection.on(RealtimeEvents.OPEN, settleResolve);
+            connection.on(RealtimeEvents.CLOSE, (event_1) => {
+              if (connectionRef.current === connection) {
+                connectionRef.current = null;
+              }
               setState((current) => ({ ...current, status: "idle" }));
-              resume(Effect.fail(new ScribeConnectionFailure({ error: scribeError_1 })));
-            }
-          };
-
-          connection.on(RealtimeEvents.OPEN, settleResolve);
-          connection.on(RealtimeEvents.CLOSE, (event_1) => {
-            if (connectionRef.current === connection) {
-              connectionRef.current = null;
-            }
-            setState((current) => ({ ...current, status: "idle" }));
-            if (!settled) {
-              settleReject(closeEventToError(event_1));
-            }
+              if (!settled) {
+                settleReject(closeEventToError(event_1));
+              }
+            });
+            connection.on(RealtimeEvents.ERROR, (data) => settleReject(messageToError(data)));
+            connection.on(RealtimeEvents.AUTH_ERROR, (data_2) => {
+              optionsRef.current.onAuthError?.(data_2);
+              settleReject(makeScribeError(data_2.error));
+            });
+            connection.on(RealtimeEvents.QUOTA_EXCEEDED, (data_3) => {
+              optionsRef.current.onQuotaExceededError?.(data_3);
+              settleReject(makeScribeError(data_3.error));
+            });
+            connection.on(RealtimeEvents.PARTIAL_TRANSCRIPT, (data_4) => {
+              setState((current) => ({ ...current, partialTranscript: data_4.text }));
+              optionsRef.current.onPartialTranscript?.(data_4);
+            });
+            connection.on(RealtimeEvents.COMMITTED_TRANSCRIPT, (data_5) => {
+              setState((current) => ({
+                ...current,
+                committedTranscripts: A.append(current.committedTranscripts, data_5),
+                partialTranscript: "",
+              }));
+              optionsRef.current.onCommittedTranscript?.(data_5);
+            });
           });
-          connection.on(RealtimeEvents.ERROR, (data) => settleReject(messageToError(data)));
-          connection.on(RealtimeEvents.AUTH_ERROR, (data_2) => {
-            optionsRef.current.onAuthError?.(data_2);
-            settleReject(makeScribeError(data_2.error));
-          });
-          connection.on(RealtimeEvents.QUOTA_EXCEEDED, (data_3) => {
-            optionsRef.current.onQuotaExceededError?.(data_3);
-            settleReject(makeScribeError(data_3.error));
-          });
-          connection.on(RealtimeEvents.PARTIAL_TRANSCRIPT, (data_4) => {
-            setState((current) => ({ ...current, partialTranscript: data_4.text }));
-            optionsRef.current.onPartialTranscript?.(data_4);
-          });
-          connection.on(RealtimeEvents.COMMITTED_TRANSCRIPT, (data_5) => {
-            setState((current) => ({
-              ...current,
-              committedTranscripts: A.append(current.committedTranscripts, data_5),
-              partialTranscript: "",
-            }));
-            optionsRef.current.onCommittedTranscript?.(data_5);
-          });
-        });
-      }).pipe(Effect.catch(handleUnhandledError))
-    );
-  };
+        }).pipe(Effect.catch(handleUnhandledError))
+      );
+    },
+    [disconnect, setState]
+  );
 
   useEffect(
     () => () => {

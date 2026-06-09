@@ -16,7 +16,7 @@ import type { WorkspaceDeps } from "@beep/repo-utils";
 
 const FALLOW_CONFIG_SCHEMA_URL = "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json";
 const DEFAULT_BOUNDARY_CONFIG_PATH = "standards/fallow.boundaries.generated.jsonc";
-const ROOT_FALLOW_CONFIG_PATH = "../.fallowrc.jsonc";
+const ROOT_FALLOW_CONFIG_FILENAME = ".fallowrc.jsonc";
 
 type FallowBoundaryZone = {
   readonly name: string;
@@ -57,7 +57,10 @@ const workspaceDependencyNames = (workspaceDeps: WorkspaceDeps): ReadonlyArray<s
     A.sort(Order.String)
   );
 
-const makeBoundaryConfig = Effect.fn("Fallow.makeBoundaryConfig")(function* (repoRoot: string) {
+const makeBoundaryConfig = Effect.fn("Fallow.makeBoundaryConfig")(function* (
+  repoRoot: string,
+  rootConfigExtendsPath: string
+) {
   const path = yield* Path.Path;
   const workspaceDirs = yield* resolveWorkspaceDirs(repoRoot);
   const dependencyIndex = yield* buildRepoDependencyIndex(repoRoot);
@@ -101,7 +104,7 @@ const makeBoundaryConfig = Effect.fn("Fallow.makeBoundaryConfig")(function* (rep
 
   const config = {
     $schema: FALLOW_CONFIG_SCHEMA_URL,
-    extends: [ROOT_FALLOW_CONFIG_PATH],
+    extends: [rootConfigExtendsPath],
     boundaries: {
       zones,
       rules,
@@ -114,8 +117,12 @@ const makeBoundaryConfig = Effect.fn("Fallow.makeBoundaryConfig")(function* (rep
   return config;
 });
 
-const renderBoundaryConfig = Effect.fn("Fallow.renderBoundaryConfig")(function* (repoRoot: string) {
-  const config = yield* makeBoundaryConfig(repoRoot);
+const renderBoundaryConfig = Effect.fn("Fallow.renderBoundaryConfig")(function* (repoRoot: string, outputPath: string) {
+  const path = yield* Path.Path;
+  const rootConfigExtendsPath = normalizeSlashes(
+    path.relative(path.dirname(outputPath), path.join(repoRoot, ROOT_FALLOW_CONFIG_FILENAME))
+  );
+  const config = yield* makeBoundaryConfig(repoRoot, rootConfigExtendsPath);
   const configText = yield* jsonStringifyPretty(config);
 
   return `${configText}\n`;
@@ -180,7 +187,7 @@ const boundariesCommand = Command.make(
 
     const repoRoot = yield* findRepoRoot();
     const outputPath = yield* resolveOutputPath(repoRoot, output);
-    const expectedText = yield* renderBoundaryConfig(repoRoot);
+    const expectedText = yield* renderBoundaryConfig(repoRoot, outputPath);
 
     if (write) {
       yield* writeBoundaryConfig(outputPath, expectedText);

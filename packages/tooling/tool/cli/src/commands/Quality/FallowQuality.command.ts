@@ -7,8 +7,8 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
-import { LiteralKit, NonNegativeInt } from "@beep/schema";
-import { Console, DateTime, Effect, FileSystem, flow, Path, pipe, Stream, Tuple } from "effect";
+import { NonNegativeInt } from "@beep/schema";
+import { Console, DateTime, Effect, FileSystem, flow, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -18,26 +18,30 @@ import * as Str from "effect/String";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import { ChildProcess } from "effect/unstable/process";
 import { parseDocument } from "yaml";
+import {
+  FallowAttributionKinds,
+  FallowEnvelopeStatus,
+  FallowFailureEnvelopeStatus,
+  FallowFeatureFamily,
+  FallowReportBaseResolutionFailed,
+  FallowReportEnvelope,
+  FallowReportFinding,
+  FallowReportInvalidJson,
+  FallowReportInvalidReport,
+  FallowReportOk,
+  FallowReportPayload,
+  FallowReportToolFailed,
+  FindingAttributionSummary,
+  PositiveExitStatus,
+  sameAttributionKind,
+  sameEnvelopeStatus,
+  sameFeatureFamily,
+} from "./internal/FallowEnvelope.schema.js";
 import { QualityScriptCommandError } from "./Quality.errors.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
+import type { FallowFeature, FindingAttributionKind } from "./internal/FallowEnvelope.schema.js";
 
 const $I = $RepoCliId.create("commands/Quality/FallowQuality");
-
-const FallowFeatureFamily = LiteralKit([
-  "audit",
-  "dead-code",
-  "dupes",
-  "health",
-  "boundaries",
-  "flags",
-  "security",
-  "fix-preview",
-]).pipe(
-  $I.annoteSchema("FallowFeatureFamily", {
-    description: "Fallow feature family implemented by the quality wrapper.",
-  })
-);
-type FallowFeature = typeof FallowFeatureFamily.Type;
 
 const fallowFeatureValues: ReadonlyArray<FallowFeature> = FallowFeatureFamily.Options;
 const isFallowFeature = S.is(FallowFeatureFamily);
@@ -64,187 +68,6 @@ const failureEnvelopeKeys = [...commonEnvelopeKeys, "stderrExcerpt"];
 const defaultOutDir = ".beep/fallow";
 const defaultBaseRef = "origin/main";
 const fallbackSourceRef = "standards/fallow.pilot.inventory.jsonc";
-
-const FindingAttributionKind = LiteralKit(["introduced", "inherited-adjacent", "not-applicable"]).pipe(
-  $I.annoteSchema("FallowFindingAttributionKind", {
-    description: "Attribution kind retained by repo-cli Fallow envelopes.",
-  })
-);
-
-const FallowEnvelopeStatus = LiteralKit([
-  "ok",
-  "tool-failed",
-  "invalid-json",
-  "invalid-report",
-  "base-resolution-failed",
-]).pipe(
-  $I.annoteSchema("FallowEnvelopeStatus", {
-    description: "Status discriminator for Fallow quality envelopes.",
-  })
-);
-
-const FallowFailureEnvelopeStatus = LiteralKit([
-  "tool-failed",
-  "invalid-json",
-  "invalid-report",
-  "base-resolution-failed",
-]).pipe(
-  $I.annoteSchema("FallowFailureEnvelopeStatus", {
-    description: "Failure status discriminator for Fallow quality envelopes.",
-  })
-);
-
-const PositiveExitStatus = S.Int.pipe(S.brand("PositiveExitStatus"))
-  .check(
-    S.isGreaterThan(0, {
-      message: "Expected a positive process exit status",
-      description: "A positive process exit status",
-    })
-  )
-  .pipe(
-    $I.annoteSchema("PositiveExitStatus", {
-      description: "Positive process exit status used by failure Fallow envelopes.",
-    })
-  );
-
-const sameAttributionKind = S.toEquivalence(FindingAttributionKind);
-const sameEnvelopeStatus = S.toEquivalence(FallowEnvelopeStatus);
-const sameFeatureFamily = S.toEquivalence(FallowFeatureFamily);
-
-class FindingAttributionSummary extends S.Class<FindingAttributionSummary>($I`FindingAttributionSummary`)(
-  {
-    introduced: NonNegativeInt,
-    inheritedAdjacent: NonNegativeInt,
-    notApplicable: NonNegativeInt,
-  },
-  $I.annote("FindingAttributionSummary", {
-    description: "Count summary for normalized Fallow finding attribution.",
-  })
-) {}
-
-class FallowReportFinding extends S.Class<FallowReportFinding>($I`FallowReportFinding`)(
-  {
-    id: S.String,
-    featureFamily: FallowFeatureFamily,
-    attribution: FindingAttributionKind,
-    parser: S.String,
-    subCategory: S.String,
-    blocking: S.Literal(false),
-    sourceRef: S.String,
-  },
-  $I.annote("FallowReportFinding", {
-    description: "Normalized Fallow finding inside the repo-cli report envelope.",
-  })
-) {}
-
-class FallowReportPayload extends S.Class<FallowReportPayload>($I`FallowReportPayload`)(
-  {
-    findingCount: NonNegativeInt,
-    findings: S.Array(FallowReportFinding),
-  },
-  $I.annote("FallowReportPayload", {
-    description: "Normalized report payload carried by successful Fallow envelopes.",
-  })
-) {}
-
-const FallowAttributionKinds = S.NonEmptyArray(FindingAttributionKind).pipe(
-  $I.annoteSchema("FallowAttributionKinds", {
-    description: "Non-empty attribution-kind list emitted by Fallow report envelopes.",
-  })
-);
-type FallowAttributionKinds = typeof FallowAttributionKinds.Type;
-
-const FallowReportBaseFields = {
-  schemaVersion: S.Literal("fallow-report-envelope/v1"),
-  toolVersion: S.String,
-  command: S.String,
-  subcommand: FallowFeatureFamily,
-  baseRef: S.String,
-  generatedAt: S.String,
-  advisory: S.Boolean,
-  dirtyWorktree: S.Boolean,
-  reportPath: S.String,
-  rawOutputRef: S.String,
-  attributionKinds: FallowAttributionKinds,
-  findingAttributionSummary: FindingAttributionSummary,
-};
-
-class FallowReportOk extends S.Class<FallowReportOk>($I`FallowReportOk`)(
-  {
-    ...FallowReportBaseFields,
-    status: S.Literal("ok"),
-    exitStatus: NonNegativeInt,
-    report: FallowReportPayload,
-  },
-  $I.annote("FallowReportOk", {
-    description: "Successful Fallow envelope. The raw tool exit status is preserved separately.",
-  })
-) {}
-
-class FallowReportToolFailed extends S.Class<FallowReportToolFailed>($I`FallowReportToolFailed`)(
-  {
-    ...FallowReportBaseFields,
-    status: S.Literal("tool-failed"),
-    exitStatus: PositiveExitStatus,
-    stderrExcerpt: S.String,
-  },
-  $I.annote("FallowReportToolFailed", {
-    description: "Fallow envelope emitted when the tool failed without decodable JSON.",
-  })
-) {}
-
-class FallowReportInvalidJson extends S.Class<FallowReportInvalidJson>($I`FallowReportInvalidJson`)(
-  {
-    ...FallowReportBaseFields,
-    status: S.Literal("invalid-json"),
-    exitStatus: NonNegativeInt,
-    stderrExcerpt: S.String,
-  },
-  $I.annote("FallowReportInvalidJson", {
-    description: "Fallow envelope emitted when the tool succeeded but emitted invalid JSON.",
-  })
-) {}
-
-class FallowReportInvalidReport extends S.Class<FallowReportInvalidReport>($I`FallowReportInvalidReport`)(
-  {
-    ...FallowReportBaseFields,
-    status: S.Literal("invalid-report"),
-    exitStatus: NonNegativeInt,
-    stderrExcerpt: S.String,
-  },
-  $I.annote("FallowReportInvalidReport", {
-    description: "Fallow envelope emitted when JSON decodes but does not match the expected feature report shape.",
-  })
-) {}
-
-class FallowReportBaseResolutionFailed extends S.Class<FallowReportBaseResolutionFailed>(
-  $I`FallowReportBaseResolutionFailed`
-)(
-  {
-    ...FallowReportBaseFields,
-    status: S.Literal("base-resolution-failed"),
-    exitStatus: PositiveExitStatus,
-    stderrExcerpt: S.String,
-  },
-  $I.annote("FallowReportBaseResolutionFailed", {
-    description: "Fallow envelope emitted when a diff-aware base ref cannot be resolved.",
-  })
-) {}
-
-const FallowReportEnvelope = FallowEnvelopeStatus.mapMembers(
-  Tuple.evolve([
-    () => FallowReportOk,
-    () => FallowReportToolFailed,
-    () => FallowReportInvalidJson,
-    () => FallowReportInvalidReport,
-    () => FallowReportBaseResolutionFailed,
-  ])
-).pipe(
-  S.toTaggedUnion("status"),
-  $I.annoteSchema("FallowReportEnvelope", {
-    description: "Internal decoded Fallow report envelope discriminated by status.",
-  })
-);
 
 const decodeJsonText = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const encodeFallowEnvelopeJson = S.encodeUnknownEffect(S.fromJsonString(FallowReportEnvelope));
@@ -1197,7 +1020,7 @@ const makeFailureEnvelope = (
   });
 };
 
-const encodeEnvelope = (envelope: typeof FallowReportEnvelope.Type): Effect.Effect<string, QualityScriptCommandError> =>
+const encodeEnvelope = (envelope: FallowReportEnvelope): Effect.Effect<string, QualityScriptCommandError> =>
   encodeFallowEnvelopeJson(envelope).pipe(
     QualityScriptCommandError.mapError("Failed to encode Fallow report envelope.")
   );
@@ -1205,7 +1028,7 @@ const encodeEnvelope = (envelope: typeof FallowReportEnvelope.Type): Effect.Effe
 const writeEnvelope = Effect.fn("FallowQuality.writeEnvelope")(function* (
   paths: ReportPathResolution,
   rawOutput: string,
-  envelope: typeof FallowReportEnvelope.Type
+  envelope: FallowReportEnvelope
 ): Effect.fn.Return<void, QualityScriptCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -1247,7 +1070,7 @@ const resolveBaseRef = Effect.fn("FallowQuality.resolveBaseRef")(function* (
   );
 });
 
-const hasPromotedBlockingFindings = (envelope: typeof FallowReportEnvelope.Type): boolean =>
+const hasPromotedBlockingFindings = (envelope: FallowReportEnvelope): boolean =>
   pipe(
     decodeFallowReportOkOption(envelope),
     O.match({
@@ -1256,7 +1079,7 @@ const hasPromotedBlockingFindings = (envelope: typeof FallowReportEnvelope.Type)
     })
   );
 
-const shouldFailInvocation = (envelope: typeof FallowReportEnvelope.Type, options: FallowCommandOptions): boolean => {
+const shouldFailInvocation = (envelope: FallowReportEnvelope, options: FallowCommandOptions): boolean => {
   if (!sameEnvelopeStatus(envelope.status, "ok")) {
     return options.check || !options.advisory;
   }
@@ -1274,7 +1097,7 @@ const envelopeFromProcessResult = Effect.fn("FallowQuality.envelopeFromProcessRe
   toolVersion: string,
   dirty: boolean,
   result: ProcessResult
-): Effect.fn.Return<typeof FallowReportEnvelope.Type, never, never> {
+): Effect.fn.Return<FallowReportEnvelope, never, never> {
   const jsonText = pipe(extractJsonDocumentText(result.stdout), O.getOrUndefined);
   const decoded = P.isUndefined(jsonText) ? O.none() : yield* decodeJsonText(jsonText).pipe(Effect.option);
 

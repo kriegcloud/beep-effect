@@ -18,13 +18,9 @@ import {
 import { A } from "@beep/utils";
 import { useAtom } from "@effect/atom-react";
 import { Atom } from "effect/unstable/reactivity";
+import * as React from "react";
 import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-
-const menubarCheckboxStateAtom = Atom.make({
-  showBookmarks: true,
-  showFullUrls: false,
-});
 
 const fileActions: ReadonlyArray<{ readonly label: string; readonly shortcut: string }> = [
   { label: "New Tab", shortcut: "⌘T" },
@@ -180,6 +176,14 @@ export const DestructiveItem: Story = {
  */
 export const WithCheckboxes: Story = {
   render: (args) => {
+    const menubarCheckboxStateAtom = React.useMemo(
+      () =>
+        Atom.make({
+          showBookmarks: true,
+          showFullUrls: false,
+        }),
+      []
+    );
     const [checkboxState, setCheckboxState] = useAtom(menubarCheckboxStateAtom);
     return (
       <Menubar {...args}>

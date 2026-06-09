@@ -213,6 +213,9 @@
             "properties": {
               "status": {
                 "const": "ok"
+              },
+              "exitStatus": {
+                "const": 0
               }
             },
             "not": {

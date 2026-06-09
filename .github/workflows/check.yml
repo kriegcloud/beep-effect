@@ -232,6 +232,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 100
+          persist-credentials: false
 
       - name: Determine audit base
         id: base

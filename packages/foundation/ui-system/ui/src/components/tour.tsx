@@ -67,7 +67,8 @@ const tourOverlayPositionAtom = Atom.family((stepId: string) =>
     let needsScroll = true;
 
     const updatePosition = () => {
-      const elements = document.querySelectorAll(`[data-tour-step-id*='${stepId}']`);
+      const escapedStepId = CSS.escape(stepId);
+      const elements = document.querySelectorAll(`[data-tour-step-id='${escapedStepId}']`);
 
       if (elements.length === 0) {
         get.set(tourTargetsAtom(stepId), A.empty());
@@ -144,9 +145,10 @@ const tourOverlayPositionAtom = Atom.family((stepId: string) =>
 );
 
 const tourBodyOverflowLockAtom = Atom.make((get) => {
+  const previousOverflow = document.body.style.overflow;
   document.body.style.overflow = "hidden";
   get.addFinalizer(() => {
-    document.body.style.overflow = "";
+    document.body.style.overflow = previousOverflow;
   });
 });
 

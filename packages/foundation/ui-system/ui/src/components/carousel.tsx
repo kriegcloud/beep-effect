@@ -152,13 +152,15 @@ function Carousel({
     plugins
   );
 
-  // Bridge render values into the per-instance atoms. Embla keeps a stable
-  // `api` reference across renders, so these writes are idempotent (the
-  // registry dedupes equal writes via `Object.is`) and never re-render in a
-  // loop. The stable `carouselEffectAtom` subscribes to `api` and wires the
-  // select/reInit listeners exactly once per `api` change.
-  pushSetApi(setApi);
-  pushApi(api);
+  // Bridge render values into the per-instance atoms from a committed effect
+  // boundary (not the render body) so the writes never run during a discarded
+  // or replayed render under Strict/Concurrent Mode. The stable
+  // `carouselEffectAtom` subscribes to `api` and wires the select/reInit
+  // listeners exactly once per `api` change.
+  React.useLayoutEffect(() => {
+    pushSetApi(setApi);
+    pushApi(api);
+  }, [api, setApi, pushApi, pushSetApi]);
 
   const scrollPrev = () => api?.scrollPrev();
 

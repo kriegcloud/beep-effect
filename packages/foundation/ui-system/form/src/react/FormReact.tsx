@@ -636,22 +636,26 @@ export const make: {
     const isInitializedAtom = InitializeScope.use();
     const isInitialized = useAtomValue(isInitializedAtom);
 
-    useAtomMount(
-      Atom.make((get) => {
-        if (get(isInitializedAtom)) {
-          return;
-        }
-
-        const shouldInit = !registry.get(keepAliveActiveAtom) || O.isNone(registry.get(stateAtom));
-        if (shouldInit) {
-          get.set(stateAtom, O.some(operations.createInitialState(defaultValues)));
-          if (validateOnInit === true) {
-            get.set(validateAtom, undefined);
+    const initializeAtom = React.useMemo(
+      () =>
+        Atom.make((get) => {
+          if (get(isInitializedAtom)) {
+            return;
           }
-        }
-        get.set(isInitializedAtom, true);
-      })
+
+          const shouldInit = !registry.get(keepAliveActiveAtom) || O.isNone(registry.get(stateAtom));
+          if (shouldInit) {
+            get.set(stateAtom, O.some(operations.createInitialState(defaultValues)));
+            if (validateOnInit === true) {
+              get.set(validateAtom, undefined);
+            }
+          }
+          get.set(isInitializedAtom, true);
+        }),
+      [isInitializedAtom, registry, defaultValues, validateOnInit]
     );
+
+    useAtomMount(initializeAtom);
 
     useAtomMount(autoSubmitAtom);
 

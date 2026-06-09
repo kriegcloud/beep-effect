@@ -7,7 +7,6 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { Console, Effect, FileSystem, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
@@ -15,183 +14,29 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { commandTextForStep, RepoRunPlan } from "../../../internal/repo-run/index.js";
+import {
+  FallowFeatureFamily,
+  FallowReportEnvelope,
+  FindingAttributionKind,
+} from "../../Quality/internal/FallowEnvelope.schema.js";
 import { YeetCommandError } from "../Yeet.errors.js";
 import { buildQualityIssueIndex, QualityIssue, QualityIssueIndex, QualityIssueRouting } from "./QualityIssueIndex.js";
+import type {
+  FallowFailureEnvelope,
+  FallowReportFinding,
+  FallowReportOk,
+} from "../../Quality/internal/FallowEnvelope.schema.js";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/FallowFeedback");
 
-const FallowFeatureFamily = LiteralKit([
-  "audit",
-  "dead-code",
-  "dupes",
-  "health",
-  "boundaries",
-  "flags",
-  "security",
-  "fix-preview",
-]).pipe(
-  $I.annoteSchema("FallowFeedbackFeatureFamily", {
-    description: "Fallow feature family accepted by Yeet advisory feedback.",
-  })
-);
 const fallowEnvelopeFileNames = A.map(FallowFeatureFamily.Options, (feature) => `${feature}.json`);
 
-const FallowFindingAttribution = LiteralKit(["introduced", "inherited-adjacent", "not-applicable"]).pipe(
-  $I.annoteSchema("FallowFeedbackFindingAttribution", {
-    description: "Attribution class retained from Fallow advisory envelopes.",
-  })
-);
-
-const PositiveExitStatus = S.Int.pipe(S.brand("FallowFeedbackPositiveExitStatus"))
-  .check(
-    S.isGreaterThan(0, {
-      message: "Expected a positive process exit status",
-      description: "A positive process exit status",
-    })
-  )
-  .pipe(
-    $I.annoteSchema("FallowFeedbackPositiveExitStatus", {
-      description: "Positive process exit status used by failure Fallow envelopes.",
-    })
-  );
-
-const FallowAttributionKinds = S.NonEmptyArray(FallowFindingAttribution).pipe(
-  $I.annoteSchema("FallowFeedbackAttributionKinds", {
-    description: "Non-empty attribution-kind list emitted by Fallow report envelopes.",
-  })
-);
-
-class FallowAttributionSummary extends S.Class<FallowAttributionSummary>($I`FallowAttributionSummary`)(
-  {
-    introduced: NonNegativeInt,
-    inheritedAdjacent: NonNegativeInt,
-    notApplicable: NonNegativeInt,
-  },
-  $I.annote("FallowAttributionSummary", {
-    description: "Finding counts grouped by Fallow attribution class.",
-  })
-) {}
-
-class FallowFinding extends S.Class<FallowFinding>($I`FallowFinding`)(
-  {
-    id: S.String,
-    featureFamily: FallowFeatureFamily,
-    attribution: FallowFindingAttribution,
-    parser: S.String,
-    subCategory: S.String,
-    blocking: S.Literal(false),
-    sourceRef: S.String,
-  },
-  $I.annote("FallowFinding", {
-    description: "One normalized Fallow finding carried inside an advisory envelope.",
-  })
-) {}
-
-class FallowReportPayload extends S.Class<FallowReportPayload>($I`FallowReportPayload`)(
-  {
-    findingCount: NonNegativeInt,
-    findings: S.Array(FallowFinding),
-  },
-  $I.annote("FallowReportPayload", {
-    description: "Successful Fallow advisory report payload.",
-  })
-) {}
-
-const FallowEnvelopeBaseFields = {
-  schemaVersion: S.Literal("fallow-report-envelope/v1"),
-  toolVersion: S.String,
-  command: S.String,
-  subcommand: FallowFeatureFamily,
-  baseRef: S.String,
-  generatedAt: S.String,
-  advisory: S.Boolean,
-  dirtyWorktree: S.Boolean,
-  reportPath: S.String,
-  rawOutputRef: S.String,
-  attributionKinds: FallowAttributionKinds,
-  findingAttributionSummary: FallowAttributionSummary,
-} as const;
-
-class FallowOkEnvelope extends S.Class<FallowOkEnvelope>($I`FallowOkEnvelope`)(
-  {
-    ...FallowEnvelopeBaseFields,
-    status: S.Literal("ok"),
-    exitStatus: NonNegativeInt,
-    report: FallowReportPayload,
-  },
-  $I.annote("FallowOkEnvelope", {
-    description: "Successful Fallow advisory envelope decoded by Yeet.",
-  })
-) {}
-
-class FallowToolFailedEnvelope extends S.Class<FallowToolFailedEnvelope>($I`FallowToolFailedEnvelope`)(
-  {
-    ...FallowEnvelopeBaseFields,
-    status: S.Literal("tool-failed"),
-    exitStatus: PositiveExitStatus,
-    stderrExcerpt: S.String,
-  },
-  $I.annote("FallowToolFailedEnvelope", {
-    description: "Fallow envelope emitted when the tool failed without decodable JSON.",
-  })
-) {}
-
-class FallowInvalidJsonEnvelope extends S.Class<FallowInvalidJsonEnvelope>($I`FallowInvalidJsonEnvelope`)(
-  {
-    ...FallowEnvelopeBaseFields,
-    status: S.Literal("invalid-json"),
-    exitStatus: NonNegativeInt,
-    stderrExcerpt: S.String,
-  },
-  $I.annote("FallowInvalidJsonEnvelope", {
-    description: "Fallow envelope emitted when Fallow output cannot be decoded as JSON.",
-  })
-) {}
-
-class FallowInvalidReportEnvelope extends S.Class<FallowInvalidReportEnvelope>($I`FallowInvalidReportEnvelope`)(
-  {
-    ...FallowEnvelopeBaseFields,
-    status: S.Literal("invalid-report"),
-    exitStatus: NonNegativeInt,
-    stderrExcerpt: S.String,
-  },
-  $I.annote("FallowInvalidReportEnvelope", {
-    description: "Fallow envelope emitted when decoded JSON does not match the expected report shape.",
-  })
-) {}
-
-class FallowBaseResolutionFailedEnvelope extends S.Class<FallowBaseResolutionFailedEnvelope>(
-  $I`FallowBaseResolutionFailedEnvelope`
-)(
-  {
-    ...FallowEnvelopeBaseFields,
-    status: S.Literal("base-resolution-failed"),
-    exitStatus: PositiveExitStatus,
-    stderrExcerpt: S.String,
-  },
-  $I.annote("FallowBaseResolutionFailedEnvelope", {
-    description: "Fallow envelope emitted when a diff-aware base ref cannot be resolved.",
-  })
-) {}
-
-type FallowFailureEnvelope =
-  | FallowToolFailedEnvelope
-  | FallowInvalidJsonEnvelope
-  | FallowInvalidReportEnvelope
-  | FallowBaseResolutionFailedEnvelope;
-
-const FallowEnvelope = S.Union([
-  FallowOkEnvelope,
-  FallowToolFailedEnvelope,
-  FallowInvalidJsonEnvelope,
-  FallowInvalidReportEnvelope,
-  FallowBaseResolutionFailedEnvelope,
-]).pipe(
-  $I.annoteSchema("FallowFeedbackEnvelope", {
-    description: "Fallow advisory envelope accepted by Yeet feedback commands.",
-  })
-);
-type FallowEnvelope = typeof FallowEnvelope.Type;
+// Local aliases keep this module's prior names while sourcing the single
+// shared Fallow report-envelope codec, eliminating producer/consumer drift.
+type FallowOkEnvelope = FallowReportOk;
+type FallowFinding = FallowReportFinding;
+const FallowEnvelope = FallowReportEnvelope;
+type FallowEnvelope = FallowReportEnvelope;
 
 class FallowYeetIssueFixture extends S.Class<FallowYeetIssueFixture>($I`FallowYeetIssueFixture`)(
   {
@@ -203,7 +48,7 @@ class FallowYeetIssueFixture extends S.Class<FallowYeetIssueFixture>($I`FallowYe
     parser: S.String,
     subCategory: S.String,
     blocking: S.Literal(false),
-    attribution: FallowFindingAttribution,
+    attribution: FindingAttributionKind,
   },
   $I.annote("FallowYeetIssueFixture", {
     description: "Expected Yeet issue projection for one Fallow fixture finding.",
@@ -391,7 +236,22 @@ const envelopePaths = Effect.fn("YeetFallowFeedback.envelopePaths")(function* (
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const absoluteFromPath = yield* resolveRepoPath(fromPath);
-  const entries = yield* fs.readDirectory(absoluteFromPath).pipe(Effect.orElseSucceed(A.empty<string>));
+  const entries = yield* fs.readDirectory(absoluteFromPath).pipe(
+    // Treat only a missing directory as "no envelopes yet"; surface every other
+    // failure (permission errors, invalid paths, ...) so misconfiguration is not
+    // silently masked by a successful empty QualityIssueIndex.
+    Effect.catch((error) =>
+      error.reason._tag === "NotFound"
+        ? Effect.succeed(A.empty<string>())
+        : Effect.fail(
+            YeetCommandError.make({
+              message: `Failed to read Fallow envelope directory "${absoluteFromPath}".`,
+              file: absoluteFromPath,
+              cause: error,
+            })
+          )
+    )
+  );
   return pipe(
     entries,
     A.filter((entry) => A.contains(fallowEnvelopeFileNames, entry)),

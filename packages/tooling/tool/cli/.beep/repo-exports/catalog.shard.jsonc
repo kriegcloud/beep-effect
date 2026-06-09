@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "0064db4202ee980a216da5314cd7ea60012448962c814b1a11d077fae9c70dec",
+    "digest": "c6c2eaabbd77dc8ea84113196e52d07f840c4727e9f040208d12fd9fc4b18d1c",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -217,8 +217,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
-        "sha256": "8ce6a4df795f3b85786991a861e15967bc52d0cefa046456c16991ac801fead8",
-        "bytes": 6950
+        "sha256": "2bd1a38c1933c8a5cdb65ddb17f2d7dab272b25e5c49a600d5101a4e2907eb66",
+        "bytes": 7223
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Fallow/index.ts",
@@ -422,8 +422,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sha256": "6dd978b4ed8559c6292f5b472251aa31eea7cfaceb4e541ead28596185e4e1e4",
-        "bytes": 82376
+        "sha256": "8d9708a145324aecbc36db998a8909a621f7a03a9441f01a63439e49a85ae57d",
+        "bytes": 76958
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
@@ -434,6 +434,11 @@
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/Config.ts",
         "sha256": "c92c577558160e8030a4c34ec89b2243f92e3be1b5758fa25ef415f12e257143",
         "bytes": 1595
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sha256": "41a2692e2b4189648f84b05ba1fbbf6a4335b5bcbbacb014aec537b5d69efcbe",
+        "bytes": 9865
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts",
@@ -667,8 +672,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
-        "sha256": "d28425477cef4aa74e632761df740260e0f968f90ffee42abf586b5ad8f0990e",
-        "bytes": 22936
+        "sha256": "47dbfce8eb9f4cee990b9737fc183935fe3f0fad2fab3405dd8fe2100367176e",
+        "bytes": 18858
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
@@ -953,7 +958,7 @@
     "counts": {
       "publicExportEntries": 1844,
       "uniqueSymbols": 682,
-      "sourceFiles": 150
+      "sourceFiles": 151
     },
     "exports": [
       {
@@ -1141,7 +1146,7 @@
         "symbolName": "fallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
-        "sourceLine": 212,
+        "sourceLine": 219,
         "summary": "Fallow quality-tooling command group.",
         "categories": [
           "cli-commands"
@@ -9132,7 +9137,7 @@
         "symbolName": "fallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
-        "sourceLine": 212,
+        "sourceLine": 219,
         "summary": "Fallow quality-tooling command group.",
         "categories": [
           "cli-commands"
@@ -9157,7 +9162,7 @@
         "symbolName": "fallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
-        "sourceLine": 212,
+        "sourceLine": 219,
         "summary": "Fallow quality-tooling command group.",
         "categories": [
           "cli-commands"
@@ -9182,7 +9187,7 @@
         "symbolName": "fallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Fallow/Fallow.command.ts",
-        "sourceLine": 212,
+        "sourceLine": 219,
         "summary": "Fallow quality-tooling command group.",
         "categories": [
           "cli-commands"
@@ -27709,7 +27714,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2375,
+        "sourceLine": 2198,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28486,7 +28491,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2375,
+        "sourceLine": 2198,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28561,7 +28566,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2375,
+        "sourceLine": 2198,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -42066,7 +42071,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2375,
+        "sourceLine": 2198,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
