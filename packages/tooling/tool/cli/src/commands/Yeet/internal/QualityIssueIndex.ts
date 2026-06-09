@@ -108,7 +108,6 @@ class SchemaFirstPolicyOutput extends S.Class<SchemaFirstPolicyOutput>($I`Schema
     severity: QualityIssueSeverity,
     file: S.String,
     line: S.optionalKey(S.Finite),
-    column: S.optionalKey(S.Finite),
     symbol: S.optionalKey(S.String),
     message: S.String,
     remediation: S.String,
@@ -737,7 +736,6 @@ const schemaFirstPolicyIssueFromLine = (
     O.map((finding) => {
       const file = O.some(finding.file);
       const startLine = O.fromUndefinedOr(finding.line);
-      const startColumn = O.fromUndefinedOr(finding.column);
       const inferredPackageName = pipe(
         file,
         O.flatMap((path) => packageNameForFile(context, path))
@@ -759,7 +757,6 @@ const schemaFirstPolicyIssueFromLine = (
         remediation: finding.remediation,
         file: finding.file,
         ...optionalProp("line", startLine),
-        ...optionalProp("column", startColumn),
         ...optionalProp("symbol", O.fromUndefinedOr(finding.symbol)),
       });
     })

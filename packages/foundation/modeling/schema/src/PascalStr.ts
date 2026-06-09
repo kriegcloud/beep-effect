@@ -34,7 +34,7 @@ export const PascalCaseStr = NonEmptyTrimmedStr.pipe(
 )
   .annotate({
     toArbitrary: () => (fc) =>
-      fc.stringMatching(/^[A-Z][a-z0-9]*(?:[A-Z][a-z0-9]*)*$/).map((value) => value as typeof NonEmptyTrimmedStr.Type),
+      fc.stringMatching(/^[A-Z][a-z0-9]*(?:[A-Z][a-z0-9]*)*$/).map((value) => value as NonEmptyTrimmedStr),
   })
   .pipe(
     S.brand("PascalCaseStr"),

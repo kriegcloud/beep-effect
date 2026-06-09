@@ -103,6 +103,21 @@ bunx vitest run --config scratchpad/vitest.config.ts                  # 9 passed
   candidate/exception decision made per file. The first pilot
   (`reviews/p4-httpstatus-arbitrary-pilot.md`) landed a derived round-trip law
   for `HttpStatus`, dropping the live count to 33.
-- A later enforcement slice can separate files using hand-written `fc.*`
-  arbitraries from files using `S.toArbitrary(...)`; this matcher still only
-  separates static-only codec coverage from any property coverage.
+## PR #223 review precision hardening (2026-06-09)
+
+Two PR-review nits hardened the rule's precision; both have focused lint tests:
+
+- Coverage now requires a schema-derived arbitrary
+  (`S.toArbitrary` / `Schema.toArbitrary`). A bare
+  `fc.property(fc.string(), ...)` over a hand-rolled arbitrary no longer
+  suppresses the advisory (previously any `fc.*` counted as coverage).
+- `isSchemaCodecCallExpression` now counts class-local static codec calls
+  (`Model.decodeUnknownResult(...)`), not just `S.`/`Schema.` namespace calls,
+  so migrating a test to the class-static API promoted by this initiative cannot
+  silently drop below the threshold.
+
+These surfaced 2 additional honest findings
+(`apps/oip-web/test/oip-web.test.tsx`, `@beep/nlp` `Handoff/Contract.test.ts`),
+inventoried as advisory; the live count is now 7. A dead `column` field on the
+Yeet `SchemaFirstPolicyOutput` parser was also removed, and a brittle
+fixed-seed scratch assertion was made seed-independent.

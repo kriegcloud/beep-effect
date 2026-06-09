@@ -211,6 +211,14 @@ environment), IRI and PackageJson (reverted-flaky; need curated arbitraries),
 and the not-yet-addressed `schema/test/Graph.test.ts`. Cumulatively the 34
 surfaced candidates are 20 remediated, 9 exceptions, 5 deferred.
 
+PR #223 review then hardened the rule's precision (see
+`reviews/p2-arbitrary-tests-sync-codec-expansion.md`): schema-derived coverage
+now requires `S.toArbitrary` (a bare `fc.*` no longer suppresses the advisory),
+and the codec matcher now counts class-local static codec calls
+(`Model.decode*`), not just `S.`/`Schema.` namespace calls. That surfaced 2
+additional honest findings (`apps/oip-web/test/oip-web.test.tsx`,
+`@beep/nlp` `Handoff/Contract.test.ts`), bringing the live advisory count to 7.
+
 ## Still Pending
 
 - Review each advisory before remediation; many files may keep exact fixtures

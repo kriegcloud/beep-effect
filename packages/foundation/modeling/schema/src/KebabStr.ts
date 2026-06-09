@@ -34,7 +34,7 @@ export const KebabCaseStr = NonEmptyTrimmedStr.pipe(
 )
   .annotate({
     toArbitrary: () => (fc) =>
-      fc.stringMatching(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/).map((value) => value as typeof NonEmptyTrimmedStr.Type),
+      fc.stringMatching(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/).map((value) => value as NonEmptyTrimmedStr),
   })
   .pipe(
     S.brand("KebabCaseStr"),

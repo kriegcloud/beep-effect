@@ -77,7 +77,11 @@ const SCHEMA_CODEC_HELPERS = [
   "encodeUnknownSync",
   "encodeSync",
 ] as const;
-const SCHEMA_ARBITRARY_PROPERTY_PATTERN = /\b(?:S|Schema)\.toArbitrary\b|\bfc\.(?:property|assert|check)\b/;
+// Schema-derived property coverage requires deriving the arbitrary from the
+// schema itself (S.toArbitrary / Schema.toArbitrary, including toArbitraryLazy).
+// A bare fc.property/assert/check over a hand-rolled arbitrary is not
+// schema-derived coverage and must not suppress the advisory.
+const SCHEMA_ARBITRARY_PROPERTY_PATTERN = /\b(?:S|Schema)\.toArbitrary/;
 const TEST_FILE_PATTERN = /(?:\/test\/|\/tests\/|\.test\.tsx?$|\.spec\.tsx?$)/;
 const TEST_FILE_EXCLUDED_SEGMENTS = [
   "/.repos/",
@@ -825,13 +829,18 @@ const isSchemaFirstTestFile = (filePath: string): boolean =>
 const isSchemaCodecHelperName = (name: string): boolean =>
   A.some(SCHEMA_CODEC_HELPERS, (helperName) => Str.Equivalence(helperName, name));
 
+// Matches schema codec calls of the form `<Identifier>.<codecHelper>(...)`. This
+// covers the namespace forms `S.decodeUnknownSync(Schema)` / `Schema.decode...`
+// AND the class-local static API promoted by this repo, e.g.
+// `NamedNode.decodeUnknownResult(...)` or `ContactSubmission.decodeUnknownEffect(...)`,
+// so migrating to class statics cannot silently evade the advisory. The codec
+// helper names are Effect-Schema-specific, so any-identifier objects are safe.
 const isSchemaCodecCallExpression = (callExpression: import("ts-morph").CallExpression): boolean => {
   const expression = callExpression.getExpression();
   return (
     Node.isPropertyAccessExpression(expression) &&
     isSchemaCodecHelperName(expression.getName()) &&
-    (Str.Equivalence(expression.getExpression().getText(), "S") ||
-      Str.Equivalence(expression.getExpression().getText(), "Schema"))
+    Node.isIdentifier(expression.getExpression())
   );
 };
 

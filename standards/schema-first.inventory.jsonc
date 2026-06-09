@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-08",
+  "generatedOn": "2026-06-09",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -18,6 +18,16 @@
       "line": 183,
       "owner": "@beep/oip-web",
       "reason": "Raw browser FormData staging payload intentionally preserves submitted email text before ContactSubmission performs domain email normalization and validation."
+    },
+    {
+      "file": "apps/oip-web/test/oip-web.test.tsx",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "advisory",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 153,
+      "owner": "@beep/oip-web",
+      "reason": "Schema-heavy test file has 5 Schema codec assertions but no schema-derived property coverage."
     },
     {
       "file": "infra/src/OipWeb.ts",
@@ -1428,6 +1438,16 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/foundation/capability/nlp/test/Handoff/Contract.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "advisory",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 57,
+      "owner": "@beep/nlp",
+      "reason": "Schema-heavy test file has 9 Schema codec assertions but no schema-derived property coverage."
     },
     {
       "file": "packages/foundation/capability/sandbox/src/Agent.provider.ts",

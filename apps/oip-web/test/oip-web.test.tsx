@@ -157,8 +157,9 @@ describe("@beep/oip-web", { concurrent: false }, () => {
         const formResult = ContactSubmissionFormPayload.decodeUnknownResult(formPayload);
         expect(Result.isSuccess(formResult)).toBe(true);
 
-        const submission = yield* ContactSubmission.decodeUnknownEffect(validContactPayload());
-        const submissionFromAlias = yield* decodeContactSubmission(validContactPayload());
+        const contactPayload = validContactPayload();
+        const submission = yield* ContactSubmission.decodeUnknownEffect(contactPayload);
+        const submissionFromAlias = yield* decodeContactSubmission(contactPayload);
         expect(submission).toEqual(submissionFromAlias);
       })
     ));

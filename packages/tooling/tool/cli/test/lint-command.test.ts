@@ -590,6 +590,108 @@ describe("schema-first lint command", { concurrent: false }, () => {
   );
 
   it(
+    "does not treat a non-schema-derived fast-check property as arbitrary-tests coverage",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "test", "Example.test.ts"),
+              [
+                'import * as fc from "fast-check";',
+                'import * as S from "effect/Schema";',
+                "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+                "export const staticChecks = [",
+                '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
+                '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
+                '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+                "];",
+                'export const property = fc.property(fc.string(), (id) => typeof id === "string");',
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain(
+              "- packages/example/test/Example.test.ts :: schema-codec-tests [schema-policy-advisory] Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
+            );
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "counts class-local static codec calls toward the arbitrary-tests threshold",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "test", "Example.test.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                'class Worker extends S.Class<Worker>("Worker")({ id: S.String }) {',
+                "  static readonly decodeUnknownSync = S.decodeUnknownSync(Worker);",
+                "}",
+                "export const staticChecks = [",
+                '  Worker.decodeUnknownSync({ id: "a" }),',
+                '  Worker.decodeUnknownSync({ id: "b" }),',
+                '  Worker.decodeUnknownSync({ id: "c" }),',
+                "];",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(
+              errorLines.some(
+                (entry) =>
+                  entry.includes("packages/example/test/Example.test.ts :: schema-codec-tests") &&
+                  entry.includes("no schema-derived property coverage")
+              )
+            ).toBe(true);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
     "reports SFV4 arbitrary-tests advisories for synchronous schema codec helpers",
     () =>
       Effect.runPromise(

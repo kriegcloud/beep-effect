@@ -79,9 +79,12 @@ describe("schema-derived arbitraries", () => {
   });
 
   it("catches the same broad schema with property-based data", () => {
+    // No fixed seed: the broad S.Number domain (NaN, +/-Infinity, negative, and
+    // huge values, all of which fast-check biases toward early) can never satisfy
+    // the finite-and-bounded retry-delay predicate, so the property reliably fails
+    // regardless of fast-check's PRNG. numRuns is generous to keep it deterministic.
     const result = fc.check(fc.property(UnsafeRetryPolicyArbitrary, isOperationalRetryDelay), {
-      numRuns: 50,
-      seed: 20_260_608,
+      numRuns: 200,
     });
 
     expect(result.failed).toBe(true);

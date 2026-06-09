@@ -337,13 +337,16 @@ Initial rule cards:
 - Matcher: static fixture-only coverage for behavior that claims to hold across
   a schema domain.
 - Severity: advisory only until at least two pilot conversions are reviewed.
-- Current P2 enforcement slice: test files with at least three
-  `S.decode*` / `S.encode*` Schema codec helper calls and no
-  `S.toArbitrary(...)` or `fc.property` / `fc.assert` / `fc.check` coverage. The
-  matcher counts the full Effect v4 codec family — Effect, Result, Option, Exit,
-  Promise, and synchronous (`decodeUnknownSync` / `decodeSync` /
-  `encodeUnknownSync` / `encodeSync`) variants — so sync-codec value tests are
-  no longer a blind spot.
+- Current P2 enforcement slice: test files with at least three Schema codec
+  helper calls and no schema-derived (`S.toArbitrary` / `Schema.toArbitrary`)
+  property coverage. The matcher counts the full Effect v4 codec family —
+  Effect, Result, Option, Exit, Promise, and synchronous (`decodeUnknownSync` /
+  `decodeSync` / `encodeUnknownSync` / `encodeSync`) variants — and counts both
+  the namespace form (`S.decode*` / `Schema.decode*`) and the class-local static
+  form (`MyModel.decodeUnknownResult(...)`), so neither sync codecs nor
+  class-local statics are a blind spot. Coverage requires a schema-derived
+  arbitrary; a bare `fc.property` / `fc.assert` / `fc.check` over a hand-rolled
+  arbitrary no longer suppresses the advisory.
 - Rejected: one happy-path fixture for a domain law.
 - Accepted: fixture for a golden payload plus
   `fc.property(S.toArbitrary(Model), law)`.

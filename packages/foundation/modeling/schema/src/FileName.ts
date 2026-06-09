@@ -91,7 +91,7 @@ const FileNameSchema = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).p
       toArbitrary: () => (fc) =>
         fc
           .tuple(fc.stringMatching(/^[^ /\\.]+(?:\.[^ /\\.]+)*$/), fc.constantFrom(...FileExtension.Options))
-          .map(([stem, ext]) => `${stem}.${ext}` as `${string}.${typeof FileExtension.Type}`),
+          .map(([stem, ext]) => `${stem}.${ext}` as `${string}.${FileExtension}`),
     }),
   $I.annoteSchema("FileName", {
     description: "A portable file name in the format basename.ext.",
