@@ -67,6 +67,7 @@
     "dist",
     "coverage",
     "outputs",
+    "graphify-out/**",
     ".next",
     "storybook-static",
     "**/public/sw.js",
