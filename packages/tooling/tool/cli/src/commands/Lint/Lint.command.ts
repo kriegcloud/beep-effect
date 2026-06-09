@@ -21,6 +21,7 @@ import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { printLines } from "../../internal/cli/Printer.js";
 import { LintCircularAnalysisError, LintFileDiscoveryError } from "./Lint.errors.js";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.js";
+import { lintReflectionArtifactsCommand } from "./ReflectionArtifact.ts";
 import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
 import { lintSchemaTopologyCommand } from "./SchemaTopology.ts";
 
@@ -654,6 +655,7 @@ export const lintCommand = Command.make("lint", {}, () =>
     "- bun run beep lint circular",
     "- bun run beep lint deprecated-apis",
     "- bun run beep lint package-test-imports",
+    "- bun run beep lint reflection-artifacts",
     "- bun run beep lint schema-first",
     "- bun run beep lint schema-topology",
     "- bun run beep lint tooling-tagged-errors",
@@ -665,6 +667,7 @@ export const lintCommand = Command.make("lint", {}, () =>
     lintCircularCommand,
     lintDeprecatedApisCommand,
     lintPackageTestImportsCommand,
+    lintReflectionArtifactsCommand,
     lintSchemaFirstCommand,
     lintSchemaTopologyCommand,
     lintToolingTaggedErrorsCommand,
