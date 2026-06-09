@@ -54,6 +54,7 @@ import {
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Option as O } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import { Project } from "ts-morph";
 
 const decodeRepoRootPath = S.decodeUnknownSync(RepoRootPath);
@@ -249,6 +250,18 @@ describe("TSMorph model taxonomy", () => {
       expect(decodeSymbolKind("MethodDeclaration")).toBe("MethodDeclaration");
       expect(() => decodeSymbolKind("QualifiedName")).toThrow();
       expect(() => decodeSymbolKind("Identifier")).toThrow();
+    });
+
+    it("decodes every schema-derived SymbolId and round-trips it identically", () => {
+      const arbitrary = S.toArbitrary(SymbolId);
+      fc.assert(
+        fc.property(arbitrary, (symbolId) => {
+          const decoded = decodeSymbolId(symbolId);
+          expect(decoded).toBe(symbolId);
+          expect(decodeSymbolIdParts(symbolId)).toEqual([...decodeSymbolIdParts(decoded)]);
+        }),
+        { numRuns: 50 }
+      );
     });
 
     it("builds normalized symbols with derived ids and categories", () => {

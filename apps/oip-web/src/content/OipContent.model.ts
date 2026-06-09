@@ -6,7 +6,7 @@
  */
 
 import { $OipWebId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { EmailString, LiteralKit } from "@beep/schema";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
 
@@ -515,7 +515,7 @@ export class PressItem extends S.Class<PressItem>($I`PressItem`)(
  */
 export class ContactContent extends S.Class<ContactContent>($I`ContactContent`)(
   {
-    email: S.String,
+    email: EmailString,
     lede: S.String,
     notice: S.Array(S.String),
     review: ReviewGate,
@@ -559,7 +559,10 @@ export class OipSiteContent extends S.Class<OipSiteContent>($I`OipSiteContent`)(
   $I.annote("OipSiteContent", {
     description: "Complete content contract for the OIP public site.",
   })
-) {}
+) {
+  static readonly decodeUnknownResult = S.decodeUnknownResult(this);
+  static readonly decodeUnknownEffect = S.decodeUnknownEffect(this);
+}
 
 /**
  * Decodes unknown input into {@link OipSiteContent}.
@@ -576,7 +579,7 @@ export class OipSiteContent extends S.Class<OipSiteContent>($I`OipSiteContent`)(
  * @category utilities
  * @since 0.0.0
  */
-export const decodeOipSiteContentResult = S.decodeUnknownResult(OipSiteContent);
+export const decodeOipSiteContentResult = OipSiteContent.decodeUnknownResult;
 
 /**
  * Decodes unknown input into {@link OipSiteContent} in an Effect workflow.
@@ -593,4 +596,4 @@ export const decodeOipSiteContentResult = S.decodeUnknownResult(OipSiteContent);
  * @category utilities
  * @since 0.0.0
  */
-export const decodeOipSiteContent = S.decodeUnknownEffect(OipSiteContent);
+export const decodeOipSiteContent = OipSiteContent.decodeUnknownEffect;

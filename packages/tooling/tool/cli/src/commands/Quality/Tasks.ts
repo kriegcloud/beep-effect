@@ -40,25 +40,13 @@ export {
 
 const $I = $RepoCliId.create("commands/Quality/Tasks");
 
-const QUALITY_TASK_NAMES = ["build", "check", "test", "lint", "audit"] as const;
 const GROUPED_STEP_OUTPUT_MAX_CHARS = 256 * 1024;
 const CHANGED_PATH_DIFF_FILTER = ["A", "C", "M", "R", "T", "U", "X", "B"].join("");
 const LOCAL_BIOME_BIN = "./node_modules/.bin/biome";
 const BIOME_FIX_CHANGED_ARGS = ["check", "--write", "--files-ignore-unknown=true", "--no-errors-on-unmatched"] as const;
 const LINT_FIX_AGGREGATE_ARGS = ["--full", "--repo"] as const;
 const ROOT_TURBO_CONCURRENCY_ARG = "--concurrency=3";
-const QUALITY_TASK_BYPASS_ARG_NAMES = ["--completions", "--help", "--log-level", "--version", "-h", "-v"] as const;
 const groupedStepOutputTruncatedNotice = `\n[beep-cli] output truncated after ${GROUPED_STEP_OUTPUT_MAX_CHARS} characters`;
-const LINT_POLICY_SUBCOMMANDS = [
-  "circular",
-  "deprecated-apis",
-  "package-test-imports",
-  "schema-first",
-  "schema-topology",
-  "tooling-tagged-errors",
-  "tooling-schema-first",
-] as const;
-const AUDIT_MODE_NAMES = ["packages", "github"] as const;
 
 /**
  * Canonical quality task name.
@@ -71,7 +59,7 @@ const AUDIT_MODE_NAMES = ["packages", "github"] as const;
  * @category models
  * @since 0.0.0
  */
-export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).pipe(
+export const QualityTaskName = LiteralKit(["build", "check", "test", "lint", "audit"]).pipe(
   $I.annoteSchema("QualityTaskName", {
     description: "Canonical quality task name handled by beep-cli.",
   })
@@ -89,6 +77,32 @@ export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).pipe(
  * @since 0.0.0
  */
 export type QualityTaskName = typeof QualityTaskName.Type;
+
+const QualityTaskBypassArgName = LiteralKit(["--completions", "--help", "--log-level", "--version", "-h", "-v"]).pipe(
+  $I.annoteSchema("QualityTaskBypassArgName", {
+    description: "Root CLI flag names that must bypass the quality task fast path.",
+  })
+);
+
+const LintPolicySubcommand = LiteralKit([
+  "circular",
+  "deprecated-apis",
+  "package-test-imports",
+  "schema-first",
+  "schema-topology",
+  "tooling-tagged-errors",
+  "tooling-schema-first",
+]).pipe(
+  $I.annoteSchema("LintPolicySubcommand", {
+    description: "Lint policy subcommands that remain owned by the full command tree.",
+  })
+);
+
+const RootAuditMode = LiteralKit(["packages", "github"]).pipe(
+  $I.annoteSchema("RootAuditMode", {
+    description: "Root audit mode names supported by the quality task adapter.",
+  })
+);
 
 /**
  * Package-local script profile used by the quality task adapter.
@@ -235,7 +249,7 @@ type WorkspaceTaskOwner = {
   readonly scripts: Readonly<Record<string, string>>;
 };
 
-type RootAuditMode = (typeof AUDIT_MODE_NAMES)[number];
+type RootAuditMode = typeof RootAuditMode.Type;
 type RootAuditSelectionState = {
   readonly mode: RootAuditMode;
   readonly args: ReadonlyArray<string>;
@@ -254,26 +268,24 @@ const emptyTestLaneSelection: TestLaneSelectionState = {
 };
 
 const profileByTask: Readonly<Record<QualityTaskName, PackageTaskProfile>> = {
-  build: PackageTaskProfile.make({ task: "build", script: "beep:build" }),
-  check: PackageTaskProfile.make({ task: "check", script: "beep:check" }),
-  test: PackageTaskProfile.make({ task: "test", script: "beep:test" }),
-  lint: PackageTaskProfile.make({ task: "lint", script: "beep:lint", fixScript: "beep:lint:fix" }),
-  audit: PackageTaskProfile.make({ task: "audit", script: "beep:audit" }),
+  build: PackageTaskProfile.make({ task: QualityTaskName.Enum.build, script: "beep:build" }),
+  check: PackageTaskProfile.make({ task: QualityTaskName.Enum.check, script: "beep:check" }),
+  test: PackageTaskProfile.make({ task: QualityTaskName.Enum.test, script: "beep:test" }),
+  lint: PackageTaskProfile.make({ task: QualityTaskName.Enum.lint, script: "beep:lint", fixScript: "beep:lint:fix" }),
+  audit: PackageTaskProfile.make({ task: QualityTaskName.Enum.audit, script: "beep:audit" }),
 };
 
-const isQualityTaskName = (value: string): value is QualityTaskName =>
-  A.some(QUALITY_TASK_NAMES, (name) => name === value);
+const isQualityTaskName = S.is(QualityTaskName);
+const isLintPolicySubcommandName = S.is(LintPolicySubcommand);
+const isExactQualityTaskBypassArgName = S.is(QualityTaskBypassArgName);
+const isRootAuditMode = S.is(RootAuditMode);
 
 const isLintPolicySubcommand = (value: string | undefined): boolean =>
-  pipe(
-    O.fromUndefinedOr(value),
-    O.exists((subcommand) => A.some(LINT_POLICY_SUBCOMMANDS, (name) => name === subcommand))
-  );
-
-const isRootAuditMode = (value: string): value is RootAuditMode => A.some(AUDIT_MODE_NAMES, (name) => name === value);
+  value !== undefined && isLintPolicySubcommandName(value);
 
 const isQualityTaskBypassArg = (arg: string): boolean =>
-  A.some(QUALITY_TASK_BYPASS_ARG_NAMES, (name) => arg === name || Str.startsWith(`${name}=`)(arg));
+  isExactQualityTaskBypassArgName(arg) ||
+  A.some(QualityTaskBypassArgName.Options, (name) => Str.startsWith(`${name}=`)(arg));
 
 const hasQualityTaskBypassArg = (argv: ReadonlyArray<string>): boolean => A.some(argv, isQualityTaskBypassArg);
 
@@ -1421,7 +1433,7 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
       return O.none();
     }
 
-    if (command === "lint" && isLintPolicySubcommand(pipe(A.get(rawArgs, 0), O.getOrUndefined))) {
+    if (QualityTaskName.is.lint(command) && isLintPolicySubcommand(pipe(A.get(rawArgs, 0), O.getOrUndefined))) {
       return O.none();
     }
 
@@ -1430,7 +1442,7 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
       QualityTaskInvocation.make({
         task: command,
         args: parsed.args,
-        fix: command === "lint" && parsed.fix,
+        fix: QualityTaskName.is.lint(command) && parsed.fix,
       })
     );
   };

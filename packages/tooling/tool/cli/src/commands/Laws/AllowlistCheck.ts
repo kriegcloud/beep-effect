@@ -11,13 +11,14 @@ import { buildAllowlistSnapshotModuleFromJsoncText } from "@beep/repo-configs/in
 import { findRepoRoot } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
-import { Console, Effect, FileSystem, HashSet, Path, pipe, Result, SchemaIssue } from "effect";
+import { Console, Effect, FileSystem, HashSet, Path, pipe, Result } from "effect";
 import * as Eq from "effect/Equal";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { parse } from "jsonc-parser";
 import { Project } from "ts-morph";
 import { collectNativeRuntimeViolationKeys, NativeRuntimeViolationKeyOptions } from "./NoNativeRuntime.js";
+import { formatSchemaDiagnostics } from "./SchemaDiagnostics.js";
 import type { ParseError } from "jsonc-parser";
 
 const $I = $RepoCliId.create("commands/Laws/AllowlistCheck");
@@ -147,19 +148,6 @@ export class AllowlistCheckSummary extends S.Class<AllowlistCheckSummary>($I`All
     description: "Summary of effect laws allowlist integrity diagnostics.",
   })
 ) {}
-
-const formatSchemaDiagnostics = (issue: SchemaIssue.Issue): ReadonlyArray<string> =>
-  pipe(
-    SchemaIssue.makeFormatterStandardSchemaV1()(issue).issues,
-    A.map((diagnostic) => {
-      const pathLabel =
-        P.isUndefined(diagnostic.path) || Eq.equals(0, diagnostic.path.length)
-          ? "<root>"
-          : pipe(diagnostic.path, A.map(String), A.join("."));
-
-      return `${pathLabel}: ${diagnostic.message}`;
-    })
-  );
 
 const parseAllowlistText = (text: string): Result.Result<unknown, ReadonlyArray<string>> => {
   const parseErrors = A.empty<ParseError>();

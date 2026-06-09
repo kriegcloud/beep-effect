@@ -14,6 +14,14 @@ import { PosixPath } from "@beep/schema/PosixPath";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
+
+const ArtifactIdArbitrary = S.toArbitrary(ArtifactId);
+const ContentDigestArbitrary = S.toArbitrary(ContentDigest);
+const OperationIdArbitrary = S.toArbitrary(OperationId);
+const SourceArtifactArbitrary = S.toArbitrary(SourceArtifact);
+const ExtractFileOperationArbitrary = S.toArbitrary(ExtractFileOperation);
+const ProcessFileOperationArbitrary = S.toArbitrary(ProcessFileOperation);
 
 const fixtureIds = Effect.all({
   artifactId: S.decodeUnknownEffect(ArtifactId)(
@@ -72,6 +80,38 @@ describe("@beep/file-processing", () => {
       expect(childId.startsWith("artifact:")).toBe(true);
     })
   );
+
+  it("round-trips schema-derived artifact and operation payloads", () =>
+    fc.assert(
+      fc.property(
+        ArtifactIdArbitrary,
+        ContentDigestArbitrary,
+        OperationIdArbitrary,
+        SourceArtifactArbitrary,
+        ExtractFileOperationArbitrary,
+        ProcessFileOperationArbitrary,
+        (artifactId, digest, operationId, source, extractOperation, processOperation) => {
+          const decodedArtifactId = Effect.runSync(S.decodeUnknownEffect(ArtifactId)(artifactId));
+          const decodedDigest = Effect.runSync(S.decodeUnknownEffect(ContentDigest)(digest));
+          const decodedOperationId = Effect.runSync(S.decodeUnknownEffect(OperationId)(operationId));
+          const encodedSource = Effect.runSync(S.encodeEffect(SourceArtifact)(source));
+          const decodedSource = Effect.runSync(S.decodeUnknownEffect(SourceArtifact)(encodedSource));
+          const reencodedSource = Effect.runSync(S.encodeEffect(SourceArtifact)(decodedSource));
+          const encodedExtract = Effect.runSync(S.encodeEffect(ExtractFileOperation)(extractOperation));
+          const decodedExtract = Effect.runSync(S.decodeUnknownEffect(ExtractFileOperation)(encodedExtract));
+          const encodedProcess = Effect.runSync(S.encodeEffect(ProcessFileOperation)(processOperation));
+          const decodedProcess = Effect.runSync(S.decodeUnknownEffect(ProcessFileOperation)(encodedProcess));
+
+          expect(decodedArtifactId).toBe(artifactId);
+          expect(decodedDigest).toBe(digest);
+          expect(decodedOperationId).toBe(operationId);
+          expect(reencodedSource).toEqual(encodedSource);
+          expect(decodedExtract.operationKind).toBe("extract");
+          expect(decodedProcess.operationKind).toBe("process");
+        }
+      ),
+      { numRuns: 50 }
+    ));
 
   it.effect("extracts synthetic text through the service contract", () =>
     Effect.gen(function* () {

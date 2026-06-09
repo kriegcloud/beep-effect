@@ -11,6 +11,7 @@ import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, ConfigProvider, Effect, Exit, FileSystem, Layer, Path, pipe, Runtime } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 
@@ -21,6 +22,14 @@ const decodeAnnotationCheckReport = S.decodeUnknownEffect(S.fromJsonString(Agent
 const decodeDatasetBundle = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessDatasetBundle));
 const decodePhoenixSyncResult = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessPhoenixSyncResult));
 const decodePromptBundle = S.decodeUnknownEffect(S.fromJsonString(AgentEffectivenessPromptBundle));
+const encodeDoctorReport = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessDoctorReport));
+const encodeAnnotationCheckReport = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessAnnotationCheckReport));
+const encodePhoenixSyncResult = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessPhoenixSyncResult));
+const encodePromptBundle = S.encodeUnknownEffect(S.fromJsonString(AgentEffectivenessPromptBundle));
+const DoctorReportArbitrary = S.toArbitrary(AgentEffectivenessDoctorReport);
+const AnnotationCheckReportArbitrary = S.toArbitrary(AgentEffectivenessAnnotationCheckReport);
+const PhoenixSyncResultArbitrary = S.toArbitrary(AgentEffectivenessPhoenixSyncResult);
+const PromptBundleArbitrary = S.toArbitrary(AgentEffectivenessPromptBundle);
 
 const expectReportedExit = (exit: Exit.Exit<unknown, unknown>, exitCode = 1) => {
   expect(Exit.isFailure(exit)).toBe(true);
@@ -94,6 +103,38 @@ const lastLoggedLine = Effect.fn("AgentEffectivenessCommandTest.lastLoggedLine")
 });
 
 describe("agent-effectiveness command", () => {
+  it("round-trips schema-derived report data through JSON command boundaries", () =>
+    fc.assert(
+      fc.property(
+        DoctorReportArbitrary,
+        AnnotationCheckReportArbitrary,
+        PhoenixSyncResultArbitrary,
+        PromptBundleArbitrary,
+        (doctorReport, annotationCheckReport, phoenixSyncResult, promptBundle) => {
+          const encodedDoctorReport = Effect.runSync(encodeDoctorReport(doctorReport));
+          const decodedDoctorReport = Effect.runSync(decodeDoctorReport(encodedDoctorReport));
+          expect(Effect.runSync(encodeDoctorReport(decodedDoctorReport))).toBe(encodedDoctorReport);
+
+          const encodedAnnotationCheckReport = Effect.runSync(encodeAnnotationCheckReport(annotationCheckReport));
+          const decodedAnnotationCheckReport = Effect.runSync(
+            decodeAnnotationCheckReport(encodedAnnotationCheckReport)
+          );
+          expect(Effect.runSync(encodeAnnotationCheckReport(decodedAnnotationCheckReport))).toBe(
+            encodedAnnotationCheckReport
+          );
+
+          const encodedPhoenixSyncResult = Effect.runSync(encodePhoenixSyncResult(phoenixSyncResult));
+          const decodedPhoenixSyncResult = Effect.runSync(decodePhoenixSyncResult(encodedPhoenixSyncResult));
+          expect(Effect.runSync(encodePhoenixSyncResult(decodedPhoenixSyncResult))).toBe(encodedPhoenixSyncResult);
+
+          const encodedPromptBundle = Effect.runSync(encodePromptBundle(promptBundle));
+          const decodedPromptBundle = Effect.runSync(decodePromptBundle(encodedPromptBundle));
+          expect(Effect.runSync(encodePromptBundle(decodedPromptBundle))).toBe(encodedPromptBundle);
+        }
+      ),
+      { numRuns: 25 }
+    ));
+
   it.effect("emits report-only doctor JSON with offline Phoenix", () =>
     withTempDirectory(
       Effect.fnUntraced(function* (tmpDir) {

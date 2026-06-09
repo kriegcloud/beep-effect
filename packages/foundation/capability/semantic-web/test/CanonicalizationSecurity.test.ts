@@ -5,6 +5,7 @@ import { XSD_STRING } from "@beep/semantic-web/vocab/xsd";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import { afterEach, vi } from "vitest";
 
 const provideScopedLayer =
@@ -118,4 +119,29 @@ describe("Canonicalization security hardening", () => {
 
       yield* Effect.promise(() => Promise.resolve(expectSemanticBudgetFailure(timeoutError)));
     }));
+
+  it("derives canonicalization requests from the source schema and proves an encode/decode round-trip", {
+    timeout: 30000,
+  }, () => {
+    const encode = S.encodeSync(CanonicalizeDatasetRequest);
+    const decode = S.decodeSync(CanonicalizeDatasetRequest);
+
+    // Bound the generated RDF dataset to a small collection so deriving + encoding/decoding
+    // stays fast and reliable. The round-trip law holds regardless of dataset size.
+    const arbitrary = S.toArbitrary(CanonicalizeDatasetRequest).map((request) =>
+      CanonicalizeDatasetRequest.make({
+        ...request,
+        dataset: makeDataset(request.dataset.quads.slice(0, 3)),
+      })
+    );
+
+    fc.assert(
+      fc.property(arbitrary, (request) => {
+        const encoded = encode(request);
+
+        expect(encode(decode(encoded))).toEqual(encoded);
+      }),
+      { numRuns: 5 }
+    );
+  });
 });

@@ -39,9 +39,12 @@ Do not add `as const` to inline array literals passed directly to
 What it gives you:
 
 - schema value
+- `.Options`
 - `.Enum`
 - `.is`
 - `.thunk`
+- `.pickOptions(...)`
+- `.omitOptions(...)`
 - `$match`
 - `.mapMembers(...)` for tagged-union assembly
 - `.toTaggedUnion(...)` for direct literal-to-member tagged unions
@@ -56,13 +59,28 @@ Good fits:
 ## Prefer `MappedLiteralKit` for Lookup-Driven Literal Domains
 
 Use `MappedLiteralKit` when the literal set comes from a structured map or
-dictionary and you need the schema to stay derived from that source.
+dictionary and you need the schema to stay derived from that source. It keeps
+directional helpers on both sides of the mapping through `.From`, `.To`, and
+`.Pairs`.
 
 Good fits:
 
 - error-code tables
 - database enum maps
 - protocol lookup tables
+
+## Preserve Static Helpers After Rebuilds
+
+Schema annotations and transformations can rebuild schema values. If a
+`LiteralKit` value needs to keep its helper surface after a rebuild, use the
+repo helper that reattaches those statics instead of hand-copying properties:
+
+```ts
+import { withLiteralKitStatics } from "@beep/schema/SchemaUtils/withLiteralKitStatics"
+
+const StatusBase = LiteralKit(["draft", "published"])
+const Status = StatusBase.pipe(withLiteralKitStatics(StatusBase))
+```
 
 ## Prefer Shared Schemas Before New Brands
 

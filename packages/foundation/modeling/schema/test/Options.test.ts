@@ -2,6 +2,7 @@ import { OptionFromOptionalNullishKey } from "@beep/schema/Options";
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("OptionFromOptionalNullishKey", () => {
   it("decodes omitted, null, and undefined keys as None", () => {
@@ -47,5 +48,22 @@ describe("OptionFromOptionalNullishKey", () => {
     expect(encode({ homepage: O.some(new URL("https://example.com")) })).toEqual({
       homepage: "https://example.com/",
     });
+  });
+
+  it("round-trips Option values derived from the source schema", () => {
+    const Payload = S.Struct({
+      nickname: OptionFromOptionalNullishKey(S.String),
+    });
+
+    const decode = S.decodeUnknownSync(Payload);
+    const encode = S.encodeSync(Payload);
+    const arbitrary = S.toArbitrary(Payload);
+
+    fc.assert(
+      fc.property(arbitrary, (payload) => {
+        expect(decode(encode(payload))).toEqual(payload);
+      }),
+      { numRuns: 50 }
+    );
   });
 });

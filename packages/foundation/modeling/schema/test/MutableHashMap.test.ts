@@ -3,6 +3,7 @@ import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as MutableHashMap_ from "effect/MutableHashMap";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("MutableHashMapFromSelf", () => {
   it("preserves schema metadata and validates existing mutable hash maps", () => {
@@ -104,6 +105,26 @@ describe("MutableHashMap", () => {
 
     expect(() => S.decodeUnknownSync(schema)(MutableHashMap_.make(["a", null]))).toThrow(
       `Expected array, got MutableHashMap([["a",null]])`
+    );
+  });
+
+  it("round-trips arbitrary mutable hash maps derived from the source schema", () => {
+    const schema = MutableHashMap({
+      key: S.String,
+      value: S.FiniteFromString,
+    });
+    const arbitrary = S.toArbitrary(schema);
+    const decode = S.decodeSync(schema);
+    const encode = S.encodeSync(schema);
+    const equivalence = S.toEquivalence(schema);
+
+    fc.assert(
+      fc.property(arbitrary, (value) => {
+        const encoded = encode(value);
+        const decoded = decode(encoded);
+        expect(equivalence(decoded, value)).toBe(true);
+      }),
+      { numRuns: 50 }
     );
   });
 });

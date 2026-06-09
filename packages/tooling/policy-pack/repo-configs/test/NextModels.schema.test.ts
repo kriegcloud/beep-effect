@@ -11,6 +11,7 @@ import {
 } from "@beep/repo-configs/next";
 import { Effect, Exit } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import { describe, expect, it } from "vitest";
 
 const decodeFileSizeSuffix = S.decodeUnknownEffect(FileSizeSuffix);
@@ -55,6 +56,8 @@ describe("Next shared schemas", () => {
 });
 
 describe("Next route schemas", () => {
+  const routeHasArbitrary = S.toArbitrary(RouteHas);
+
   it("accepts route predicates and public route config shapes", () =>
     Effect.runPromise(
       Effect.gen(function* () {
@@ -106,6 +109,18 @@ describe("Next route schemas", () => {
         });
       })
     ));
+
+  it("decodes schema-derived route predicates", () => {
+    const decodeRouteHasSync = S.decodeUnknownSync(RouteHas);
+    fc.assert(
+      fc.property(routeHasArbitrary, (predicate) => {
+        const decoded = decodeRouteHasSync(predicate);
+
+        expect(decoded).toEqual(predicate);
+      }),
+      { numRuns: 25 }
+    );
+  });
 
   it("rejects invalid route discriminators and redirect mode mixing", () =>
     Effect.runPromise(

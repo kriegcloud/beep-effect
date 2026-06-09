@@ -356,7 +356,9 @@ export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
     description: "RDF named node value aligned with RDF/JS.",
     semanticSchemaMetadata: namedNodeMetadata,
   })
-) {}
+) {
+  static readonly decodeUnknownResult = S.decodeUnknownResult(this);
+}
 
 /**
  * RDF blank node value.
@@ -421,7 +423,9 @@ export class Literal extends S.Class<Literal>($I`Literal`)(
     description: "RDF literal value aligned with RDF/JS.",
     semanticSchemaMetadata: literalMetadata,
   })
-) {}
+) {
+  static readonly decodeUnknownResult = S.decodeUnknownResult(this);
+}
 
 /**
  * RDF default graph term.
@@ -742,9 +746,6 @@ export const PrefixMap = S.Record(PrefixLabel, IRI).pipe(
  */
 export type PrefixMap = typeof PrefixMap.Type;
 
-const decodeNamedNodeResult = S.decodeUnknownResult(NamedNode);
-const decodeLiteralResult = S.decodeUnknownResult(Literal);
-
 /**
  * Build a named node from an IRI string.
  *
@@ -764,7 +765,7 @@ const decodeLiteralResult = S.decodeUnknownResult(Literal);
  */
 export const makeNamedNode = (value: string): NamedNode =>
   pipe(
-    decodeNamedNodeResult({
+    NamedNode.decodeUnknownResult({
       termType: "NamedNode",
       value,
     }),
@@ -822,7 +823,7 @@ const isMakeLiteralDataFirst = (args: IArguments): boolean => args.length >= 2 &
 const makeLiteralInternal = (value: string, datatype: string, options: MakeLiteralOptions | string = {}): Literal => {
   const language = P.isString(options) ? options : options.language;
   return pipe(
-    decodeLiteralResult({
+    Literal.decodeUnknownResult({
       termType: "Literal",
       value,
       datatype: makeNamedNode(datatype),

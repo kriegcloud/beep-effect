@@ -1,11 +1,17 @@
 import { Field, FormBuilder } from "@beep/form/core";
 import { Effect, SchemaIssue } from "effect";
+import { FastCheck as fc } from "effect/testing";
 import { describe, expect, it } from "vitest";
 import * as S from "../helpers/SchemaCompat.ts";
 import type { TUnsafe } from "@beep/types";
 
 const effectTest = (name: string, body: () => Generator<TUnsafe.Any, void, TUnsafe.Any>) =>
   it(name, () => Effect.runPromise(Effect.gen(body) as TUnsafe.Any));
+
+const GeneratedForm = FormBuilder.buildSchema(
+  FormBuilder.empty.addField("email", S.String).addField("age", S.Finite).addField("subscribed", S.Boolean)
+);
+const GeneratedFormArbitrary = S.toArbitrary(GeneratedForm);
 
 describe("Form", () => {
   describe("FormBuilder", () => {
@@ -41,6 +47,18 @@ describe("Form", () => {
 
       expect(result).toEqual({ name: "John", age: 30 });
     });
+
+    it("round-trips schema-derived form values through a built schema", () =>
+      fc.assert(
+        fc.property(GeneratedFormArbitrary, (formValue) => {
+          const encoded = Effect.runSync(S.encodeEffect(GeneratedForm)(formValue));
+          const decoded = Effect.runSync(S.decodeUnknownEffect(GeneratedForm)(encoded));
+          const reencoded = Effect.runSync(S.encodeEffect(GeneratedForm)(decoded));
+
+          expect(reencoded).toEqual(encoded);
+        }),
+        { numRuns: 50 }
+      ));
 
     it("addArray adds an array field", () => {
       const NameField = Field.makeField("name", S.String);

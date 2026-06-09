@@ -9,6 +9,7 @@ import {
 } from "@beep/semantic-web/uri";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const decodeUri = S.decodeUnknownSync(URI);
 const decodeAbsoluteUri = S.decodeUnknownSync(AbsoluteURI);
@@ -48,5 +49,37 @@ describe("URI", () => {
     expect(() => decodeRelativeUriReference("scheme://example.com")).toThrow(
       "Expected a valid RFC 3986 relative URI reference"
     );
+  });
+});
+
+describe("schema-derived arbitraries", () => {
+  const assertDecodesToItself = <Schema extends S.Decoder<unknown>>(schema: Schema): void => {
+    const arbitrary = S.toArbitrary(schema);
+    const decode = S.decodeUnknownSync(schema);
+    const isValue = S.is(schema);
+
+    fc.assert(
+      fc.property(arbitrary, (value) => {
+        expect(isValue(value)).toBe(true);
+        expect(decode(value)).toBe(value);
+      }),
+      { numRuns: 50 }
+    );
+  };
+
+  it("only generates RFC 3986 URI values that decode to themselves", () => {
+    assertDecodesToItself(URI);
+  });
+
+  it("only generates RFC 3986 AbsoluteURI values that decode to themselves", () => {
+    assertDecodesToItself(AbsoluteURI);
+  });
+
+  it("only generates RFC 3986 URIReference values that decode to themselves", () => {
+    assertDecodesToItself(URIReference);
+  });
+
+  it("only generates RFC 3986 RelativeURIReference values that decode to themselves", () => {
+    assertDecodesToItself(RelativeURIReference);
   });
 });

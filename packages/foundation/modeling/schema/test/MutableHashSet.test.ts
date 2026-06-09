@@ -3,6 +3,7 @@ import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as MutableHashSet_ from "effect/MutableHashSet";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("MutableHashSetFromSelf", () => {
   it("preserves schema metadata and validates existing mutable hash sets", () => {
@@ -35,6 +36,23 @@ describe("MutableHashSetFromSelf", () => {
     expect(formatter(MutableHashSet_.make("b", "a"))).toBe(`MutableHashSet(2) { "a", "b" }`);
     expect(equivalence(MutableHashSet_.make("a", "b"), MutableHashSet_.make("b", "a"))).toBe(true);
     expect(equivalence(MutableHashSet_.make("a"), MutableHashSet_.make("b"))).toBe(false);
+  });
+
+  it("round-trips arbitrary sets derived from the source schema under the derived equivalence", () => {
+    const schema = MutableHashSetFromSelf(S.String);
+    const arbitrary = S.toArbitrary(schema);
+    const equivalence = S.toEquivalence(schema);
+    const decode = S.decodeSync(schema);
+    const encode = S.encodeSync(schema);
+
+    fc.assert(
+      fc.property(arbitrary, (set) => {
+        const encoded = encode(set);
+        const decoded = decode(encoded);
+        expect(equivalence(decoded, set)).toBe(true);
+      }),
+      { numRuns: 50 }
+    );
   });
 });
 

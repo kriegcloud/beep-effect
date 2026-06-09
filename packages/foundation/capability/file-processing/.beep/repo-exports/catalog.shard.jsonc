@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "bfede3503de874123a8313c4e820a384b5392bc5b12d23c051b7970cac252d79",
+    "digest": "9250eb82d753ec15dd4437d59ff8c73a9a2ef2e30e04fcaabf0278f80cf1298a",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -27,8 +27,8 @@
       },
       {
         "path": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sha256": "fa949f61581d859067f1f28e40b9fa16403631c67b8c1fd8b1d06b1feaea92ac",
-        "bytes": 7922
+        "sha256": "663d4babb732c38f96f05f6adb37aa0b3eb67b6f192a7347898d18525cd1e28c",
+        "bytes": 8754
       },
       {
         "path": "packages/foundation/capability/file-processing/src/Extraction/index.ts",
@@ -198,7 +198,7 @@
         "symbolName": "ArtifactId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 70,
+        "sourceLine": 78,
         "summary": "Stable artifact identifier derived from a content digest.",
         "categories": [
           "schemas"
@@ -223,7 +223,7 @@
         "symbolName": "ArtifactId",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 83,
+        "sourceLine": 95,
         "summary": "Type for {@link ArtifactId}.",
         "categories": [
           "models"
@@ -247,7 +247,7 @@
         "symbolName": "ArtifactLocator",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 217,
+        "sourceLine": 237,
         "summary": "Runtime-neutral artifact locator.",
         "categories": [
           "models"
@@ -272,7 +272,7 @@
         "symbolName": "ArtifactLocatorKind",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 182,
+        "sourceLine": 202,
         "summary": "Origin kind for a source artifact locator.",
         "categories": [
           "schemas"
@@ -297,7 +297,7 @@
         "symbolName": "ArtifactLocatorKind",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 194,
+        "sourceLine": 214,
         "summary": "Type for {@link ArtifactLocatorKind}.",
         "categories": [
           "models"
@@ -321,7 +321,7 @@
         "symbolName": "ArtifactReference",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 271,
+        "sourceLine": 291,
         "summary": "Lightweight reference to a materialized artifact.",
         "categories": [
           "models"
@@ -346,7 +346,7 @@
         "symbolName": "ContentDigest",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 126,
+        "sourceLine": 142,
         "summary": "SHA-256 content digest recorded with the source or emitted artifact.",
         "categories": [
           "schemas"
@@ -371,7 +371,7 @@
         "symbolName": "ContentDigest",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 139,
+        "sourceLine": 159,
         "summary": "Type for {@link ContentDigest}.",
         "categories": [
           "models"
@@ -395,7 +395,7 @@
         "symbolName": "deriveArtifactId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 164,
+        "sourceLine": 184,
         "summary": "Derive a stable artifact identifier from deterministic artifact parts.",
         "categories": [
           "constructors"
@@ -420,7 +420,7 @@
         "symbolName": "OperationId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 98,
+        "sourceLine": 110,
         "summary": "Stable operation identifier derived from source, operation kind, and strategy.",
         "categories": [
           "schemas"
@@ -445,7 +445,7 @@
         "symbolName": "OperationId",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 111,
+        "sourceLine": 127,
         "summary": "Type for {@link OperationId}.",
         "categories": [
           "models"
@@ -469,7 +469,7 @@
         "symbolName": "SourceArtifact",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 240,
+        "sourceLine": 260,
         "summary": "Source artifact supplied to a file-processing operation.",
         "categories": [
           "models"
@@ -494,7 +494,7 @@
         "symbolName": "ArtifactId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 70,
+        "sourceLine": 78,
         "summary": "Stable artifact identifier derived from a content digest.",
         "categories": [
           "schemas"
@@ -519,7 +519,7 @@
         "symbolName": "ArtifactId",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 83,
+        "sourceLine": 95,
         "summary": "Type for {@link ArtifactId}.",
         "categories": [
           "models"
@@ -543,7 +543,7 @@
         "symbolName": "ArtifactLocator",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 217,
+        "sourceLine": 237,
         "summary": "Runtime-neutral artifact locator.",
         "categories": [
           "models"
@@ -568,7 +568,7 @@
         "symbolName": "ArtifactLocatorKind",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 182,
+        "sourceLine": 202,
         "summary": "Origin kind for a source artifact locator.",
         "categories": [
           "schemas"
@@ -593,7 +593,7 @@
         "symbolName": "ArtifactLocatorKind",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 194,
+        "sourceLine": 214,
         "summary": "Type for {@link ArtifactLocatorKind}.",
         "categories": [
           "models"
@@ -617,7 +617,7 @@
         "symbolName": "ArtifactReference",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 271,
+        "sourceLine": 291,
         "summary": "Lightweight reference to a materialized artifact.",
         "categories": [
           "models"
@@ -642,7 +642,7 @@
         "symbolName": "ContentDigest",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 126,
+        "sourceLine": 142,
         "summary": "SHA-256 content digest recorded with the source or emitted artifact.",
         "categories": [
           "schemas"
@@ -667,7 +667,7 @@
         "symbolName": "ContentDigest",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 139,
+        "sourceLine": 159,
         "summary": "Type for {@link ContentDigest}.",
         "categories": [
           "models"
@@ -691,7 +691,7 @@
         "symbolName": "deriveArtifactId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 164,
+        "sourceLine": 184,
         "summary": "Derive a stable artifact identifier from deterministic artifact parts.",
         "categories": [
           "constructors"
@@ -716,7 +716,7 @@
         "symbolName": "OperationId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 98,
+        "sourceLine": 110,
         "summary": "Stable operation identifier derived from source, operation kind, and strategy.",
         "categories": [
           "schemas"
@@ -741,7 +741,7 @@
         "symbolName": "OperationId",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 111,
+        "sourceLine": 127,
         "summary": "Type for {@link OperationId}.",
         "categories": [
           "models"
@@ -765,7 +765,7 @@
         "symbolName": "SourceArtifact",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
-        "sourceLine": 240,
+        "sourceLine": 260,
         "summary": "Source artifact supplied to a file-processing operation.",
         "categories": [
           "models"

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "6356cd35e52d209cb2a5a049ca4e5de23b85d74176c224eb3dd56aa523034dd8",
+    "digest": "e24fb07863df340e94327bd21dd0f24a0ff49d4851d71174c7e406ad0a5b98f2",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sha256": "c6ceda727b36f4104ec66547869a9fb21e891bfda852f49d9559915c5891b6a9",
-        "bytes": 15835
+        "sha256": "9420fd67a46263f5843c1b30ff884b564420a42e0592bbb4da151184e9647088",
+        "bytes": 16374
       },
       {
         "path": "packages/drivers/hubspot/src/index.ts",
@@ -90,7 +90,7 @@
         "symbolName": "HubSpot",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 464,
+        "sourceLine": 480,
         "summary": "Effect service for HubSpot Forms API submissions.",
         "categories": [
           "services"
@@ -290,7 +290,7 @@
         "symbolName": "HubSpotFormContext",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 69,
+        "sourceLine": 85,
         "summary": "HubSpot form submission context.",
         "categories": [
           "models"
@@ -315,7 +315,7 @@
         "symbolName": "HubSpotFormField",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 41,
+        "sourceLine": 57,
         "summary": "HubSpot form field submission value.",
         "categories": [
           "models"
@@ -340,7 +340,7 @@
         "symbolName": "HubSpotShape",
         "exportKind": "type",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 248,
+        "sourceLine": 264,
         "summary": "Public HubSpot service shape.",
         "categories": [
           "services"
@@ -365,7 +365,7 @@
         "symbolName": "HubSpotSubmitFormRequest",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 98,
+        "sourceLine": 114,
         "summary": "HubSpot form submission request.",
         "categories": [
           "models"
@@ -390,7 +390,7 @@
         "symbolName": "HubSpotSubmitFormResponse",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 127,
+        "sourceLine": 143,
         "summary": "HubSpot form submission response.",
         "categories": [
           "models"
@@ -415,7 +415,7 @@
         "symbolName": "HubSpotUpsertContactRequest",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 157,
+        "sourceLine": 173,
         "summary": "HubSpot contact upsert request using email as the stable identifier.",
         "categories": [
           "models"
@@ -440,7 +440,7 @@
         "symbolName": "HubSpotUpsertContactResponse",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 212,
+        "sourceLine": 228,
         "summary": "HubSpot contact upsert response.",
         "categories": [
           "models"
@@ -465,7 +465,7 @@
         "symbolName": "HubSpotUpsertContactResult",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 185,
+        "sourceLine": 201,
         "summary": "HubSpot contact upsert result.",
         "categories": [
           "models"
@@ -665,7 +665,7 @@
         "symbolName": "HubSpot",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 464,
+        "sourceLine": 480,
         "summary": "Effect service for HubSpot Forms API submissions.",
         "categories": [
           "services"
@@ -690,7 +690,7 @@
         "symbolName": "HubSpotFormContext",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 69,
+        "sourceLine": 85,
         "summary": "HubSpot form submission context.",
         "categories": [
           "models"
@@ -715,7 +715,7 @@
         "symbolName": "HubSpotFormField",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 41,
+        "sourceLine": 57,
         "summary": "HubSpot form field submission value.",
         "categories": [
           "models"
@@ -740,7 +740,7 @@
         "symbolName": "HubSpotShape",
         "exportKind": "type",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 248,
+        "sourceLine": 264,
         "summary": "Public HubSpot service shape.",
         "categories": [
           "services"
@@ -765,7 +765,7 @@
         "symbolName": "HubSpotSubmitFormRequest",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 98,
+        "sourceLine": 114,
         "summary": "HubSpot form submission request.",
         "categories": [
           "models"
@@ -790,7 +790,7 @@
         "symbolName": "HubSpotSubmitFormResponse",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 127,
+        "sourceLine": 143,
         "summary": "HubSpot form submission response.",
         "categories": [
           "models"
@@ -815,7 +815,7 @@
         "symbolName": "HubSpotUpsertContactRequest",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 157,
+        "sourceLine": 173,
         "summary": "HubSpot contact upsert request using email as the stable identifier.",
         "categories": [
           "models"
@@ -840,7 +840,7 @@
         "symbolName": "HubSpotUpsertContactResponse",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 212,
+        "sourceLine": 228,
         "summary": "HubSpot contact upsert response.",
         "categories": [
           "models"
@@ -865,7 +865,7 @@
         "symbolName": "HubSpotUpsertContactResult",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 185,
+        "sourceLine": 201,
         "summary": "HubSpot contact upsert result.",
         "categories": [
           "models"
@@ -890,7 +890,7 @@
         "symbolName": "HubSpot",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 464,
+        "sourceLine": 480,
         "summary": "Effect service for HubSpot Forms API submissions.",
         "categories": [
           "services"
@@ -1090,7 +1090,7 @@
         "symbolName": "HubSpotFormContext",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 69,
+        "sourceLine": 85,
         "summary": "HubSpot form submission context.",
         "categories": [
           "models"
@@ -1115,7 +1115,7 @@
         "symbolName": "HubSpotFormField",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 41,
+        "sourceLine": 57,
         "summary": "HubSpot form field submission value.",
         "categories": [
           "models"
@@ -1140,7 +1140,7 @@
         "symbolName": "HubSpotShape",
         "exportKind": "type",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 248,
+        "sourceLine": 264,
         "summary": "Public HubSpot service shape.",
         "categories": [
           "services"
@@ -1165,7 +1165,7 @@
         "symbolName": "HubSpotSubmitFormRequest",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 98,
+        "sourceLine": 114,
         "summary": "HubSpot form submission request.",
         "categories": [
           "models"
@@ -1190,7 +1190,7 @@
         "symbolName": "HubSpotSubmitFormResponse",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 127,
+        "sourceLine": 143,
         "summary": "HubSpot form submission response.",
         "categories": [
           "models"
@@ -1215,7 +1215,7 @@
         "symbolName": "HubSpotUpsertContactRequest",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 157,
+        "sourceLine": 173,
         "summary": "HubSpot contact upsert request using email as the stable identifier.",
         "categories": [
           "models"
@@ -1240,7 +1240,7 @@
         "symbolName": "HubSpotUpsertContactResponse",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 212,
+        "sourceLine": 228,
         "summary": "HubSpot contact upsert response.",
         "categories": [
           "models"
@@ -1265,7 +1265,7 @@
         "symbolName": "HubSpotUpsertContactResult",
         "exportKind": "class",
         "sourcePath": "packages/drivers/hubspot/src/HubSpot.service.ts",
-        "sourceLine": 185,
+        "sourceLine": 201,
         "summary": "HubSpot contact upsert result.",
         "categories": [
           "models"

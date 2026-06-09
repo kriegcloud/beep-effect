@@ -36,7 +36,14 @@ Keep `Schema` as the source of truth for pure data models.
 - Pattern selection and anti-patterns: `references/pattern-catalog.md`
 - Real repository examples: `references/examples.md`
 
-3. Apply the laws in this order.
+3. Check local Effect v4 source for nontrivial Schema API choices.
+- Start with `.repos/effect-v4/packages/effect/SCHEMA.md`.
+- Confirm behavior in `.repos/effect-v4/packages/effect/src/Schema.ts` or the
+  specialized module (`SchemaAST`, `SchemaGetter`, `SchemaIssue`,
+  `SchemaRepresentation`, `SchemaTransformation`) when using advanced APIs.
+- Prefer exact upstream or repo-local helpers over memory and ad-hoc plumbing.
+
+4. Apply the laws in this order.
 - Model pure data with `Schema` first.
 - Prefer `S.Class` for object models unless a boundary exception makes
   `S.Struct` the better fit.
@@ -44,12 +51,12 @@ Keep `Schema` as the source of truth for pure data models.
 - Move normalization, defaults, nullable handling, and JSON parsing into the
   schema.
 - Annotate reusable schemas with `$I.annote(...)`.
-- Derive guards, equivalence, and codecs from the schema instead of writing
-  parallel helpers.
+- Derive guards, equivalence, arbitraries, codecs, tagged-union helpers, and
+  literal helpers from the schema instead of writing parallel helpers.
 - Prefer Effect schema codecs; map schema errors with `Effect.mapError(...)`
   when the error leaves the local helper/module boundary.
 
-4. Verify before finishing.
+5. Verify before finishing.
 - No exported pure-data `interface` or type literal remains.
 - No schema value ends with `Schema`.
 - Non-class schemas export same-name runtime type aliases.
@@ -65,7 +72,10 @@ Keep `Schema` as the source of truth for pure data models.
 - Prefer `S.Class` for object models and named intermediate schemas for reused
   concepts.
 - Prefer `LiteralKit` when a literal domain needs `.is`, `.Enum`, `.thunk`,
-  `$match`, `.mapMembers(...)`, or `.toTaggedUnion(...)`.
+  `$match`, `.Options`, `.pickOptions(...)`, `.omitOptions(...)`,
+  `.mapMembers(...)`, or `.toTaggedUnion(...)`.
+- Prefer `MappedLiteralKit` when a protocol/code mapping needs both encoded and
+  decoded literal helper surfaces.
 - Do not add `as const` to inline array literals passed directly to
   `LiteralKit(...)`; its const type parameters preserve the literal tuple.
 - Model finite variants, lifecycle states, status/result cases, and
@@ -76,8 +86,8 @@ Keep `Schema` as the source of truth for pure data models.
 - Use `S.toTaggedUnion("<field>")` for discriminators such as `kind`,
   `status`, `type`, `subtype`, `profile`, or `family`.
 - Use `S.TaggedUnion(...)` only for canonical `_tag` object unions.
-- Prefer the schema-derived `.match` helper when branching on a schema tagged
-  union.
+- Prefer schema-derived tagged-union helpers (`.cases`, `.guards`, `.isAnyOf`,
+  `.match`) when constructing, guarding, or branching on a schema tagged union.
 - Use `S.OptionFromNullOr`, `S.OptionFromNullishOr`,
   `S.OptionFromOptionalKey`, and `S.OptionFromOptional` for absence at the
   boundary.
@@ -89,9 +99,13 @@ Keep `Schema` as the source of truth for pure data models.
   `S.decodeTo(...)` with `SchemaTransformation` for normalization and fallback
   behavior.
 - Prefer built-in schema constructors and checks before `S.makeFilter(...)`.
+- Treat broad exported/domain/boundary primitives such as `S.String`,
+  `S.Number`, and unbounded arrays as prompts to ask whether the schema should
+  be more precise.
 - If you need a custom reusable check, include `identifier`, `title`, and
   `description`.
-- Use `S.is(schema)` for guards and `S.toEquivalence(schema)` for comparisons.
+- Use `S.is(schema)` for guards, `S.toEquivalence(schema)` for comparisons, and
+  `S.toArbitrary(schema)` for schema-modeled property tests.
 - Use `S.UnknownFromJsonString` or `S.fromJsonString(schema)` for JSON string
   boundaries.
 - Use `S.decodeUnknownEffect` / `S.decodeEffect` and `S.encodeUnknownEffect` /

@@ -6,9 +6,12 @@ import { assert, describe, expect, it } from "@effect/vitest";
 import { Effect, Exit } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const decodeOrganization = S.decodeUnknownEffect(Organization.Model);
 const decodeOrganizationId = S.decodeUnknownEffect(Shared.OrganizationId);
+const LicenseTierArbitrary = S.toArbitrary(Organization.LicenseTier);
+const SettingsArbitrary = S.toArbitrary(Organization.Settings);
 const expectFailure = Effect.fn("expectFailure")(function* <A, E>(effect: Effect.Effect<A, E, never>) {
   const exit = yield* Effect.exit(effect);
   assert.strictEqual(Exit.isFailure(exit), true);
@@ -72,6 +75,26 @@ describe("Organization", () => {
       yield* expectFailure(decodeSettings({ allowAgentActions: true, defaultRetentionDays: 0 }));
     })
   );
+
+  it("round-trips schema-derived license tiers and settings", () =>
+    fc.assert(
+      fc.property(LicenseTierArbitrary, SettingsArbitrary, (licenseTier, settings) => {
+        const decodedTier = S.decodeUnknownSync(Organization.LicenseTier)(licenseTier);
+        const encodedSettings = S.encodeSync(Organization.Settings)(settings);
+        const decodedSettings = S.decodeUnknownSync(Organization.Settings)(encodedSettings);
+
+        expect(decodedTier).toBe(licenseTier);
+        expect(
+          Organization.LicenseTier.is.solo(decodedTier) ||
+            Organization.LicenseTier.is.team(decodedTier) ||
+            Organization.LicenseTier.is.enterprise(decodedTier)
+        ).toBe(true);
+        assert.instanceOf(decodedSettings, Organization.Settings);
+        assert.strictEqual(decodedSettings.allowAgentActions, settings.allowAgentActions);
+        assert.strictEqual(decodedSettings.defaultRetentionDays, settings.defaultRetentionDays);
+      }),
+      { numRuns: 50 }
+    ));
 
   it.effect(
     "decodes nullable parent organization ids to Option values",

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "eef4b13deb2448837ad96897cd8d360fccd5513daf7c9e6aff0e7b8ab7f0e822",
+    "digest": "5639499ac307732f3454d67e6cf9a70fbdede2d635654cf41bc06d1497be2b72",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/foundation/modeling/ontology/src/projections/markdown.ts",
-        "sha256": "6962b67b17d385ddea9e2fd8c884653a7269bebb253c201d4e465c866f9521f2",
-        "bytes": 13690
+        "sha256": "a92c9f0cd1a53be3c90fb3874787d0dd07f2216efb9f8a56731ab2555d2ce00c",
+        "bytes": 13794
       },
       {
         "path": "packages/foundation/modeling/ontology/src/projections/turtle.ts",
@@ -306,7 +306,7 @@
         "symbolName": "projectMarkdown",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/ontology/src/projections/markdown.ts",
-        "sourceLine": 351,
+        "sourceLine": 352,
         "summary": "Projects an assembled ontology into deterministic Markdown documentation.",
         "categories": [
           "projections"

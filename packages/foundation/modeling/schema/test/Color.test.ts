@@ -1,6 +1,7 @@
 import * as Color from "@beep/schema/Color";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("Color", () => {
   it("normalizes shorthand and canonical hex inputs", () => {
@@ -45,5 +46,20 @@ describe("Color", () => {
     expect(S.decodeUnknownSync(Color.Lighten)({ color: "#000", amount: 1 })).toBe("#ffffff");
     expect(S.decodeUnknownSync(Color.Darken)({ color: "#fff", amount: 1 })).toBe("#000000");
     expect(S.decodeUnknownSync(Color.WithAlpha)({ color: "#336699", alpha: 0.25 })).toBe("rgba(51, 102, 153, 0.25)");
+  });
+
+  it("canonical hex colors round-trip losslessly through RGB", () => {
+    const hexArbitrary = S.toArbitrary(Color.HexColor);
+    const decodeRgb = S.decodeUnknownSync(Color.HexToRgb);
+    const encodeHex = S.decodeUnknownSync(Color.RgbToHex);
+
+    fc.assert(
+      fc.property(hexArbitrary, (hex) => {
+        expect(hex).toMatch(/^#[0-9a-f]{6}$/);
+        const rgb = decodeRgb(hex);
+        expect(encodeHex({ r: rgb.r, g: rgb.g, b: rgb.b })).toBe(hex);
+      }),
+      { numRuns: 50 }
+    );
   });
 });

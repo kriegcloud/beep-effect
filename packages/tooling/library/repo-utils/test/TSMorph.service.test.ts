@@ -1,5 +1,6 @@
 import {
   makeSymbolId,
+  SymbolId,
   SymbolQualifiedName,
   TSMorphService,
   TSMorphServiceLive,
@@ -18,10 +19,11 @@ import {
 import { A } from "@beep/utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { describe, expect, layer } from "@effect/vitest";
+import { describe, expect, it, layer } from "@effect/vitest";
 import { Context, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = TSMorphServiceLive.pipe(Layer.provideMerge(PlatformLayer));
@@ -86,6 +88,22 @@ const lateFileScopeRequest = (mode: "syntax" | "semantic" = "syntax") =>
   });
 
 const TSMORPH_TIMEOUT = 40_000;
+
+describe("SymbolId schema arbitrary", () => {
+  it("only generates decodable, round-tripping symbol ids", () => {
+    const symbolIdArbitrary = S.toArbitrary(SymbolId);
+    const decodeSymbolId = S.decodeUnknownSync(SymbolId);
+    const encodeSymbolId = S.encodeUnknownSync(SymbolId);
+
+    fc.assert(
+      fc.property(symbolIdArbitrary, (symbolId) => {
+        const decoded = decodeSymbolId(symbolId);
+        expect(encodeSymbolId(decoded)).toBe(symbolId);
+      }),
+      { numRuns: 50 }
+    );
+  });
+});
 
 layer(TestLayer, { timeout: TSMORPH_TIMEOUT })("TSMorphService", (it) => {
   describe("resolveProjectScope", () => {

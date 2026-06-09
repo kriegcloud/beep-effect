@@ -654,6 +654,7 @@ describe("@beep/ontology", () => {
     const jsonLd = projectJsonLdOntology(ontology);
     const turtle = projectTurtle(ontology);
     const markdown = projectMarkdown(ontology);
+    const markdownFromEmptyOptions = Ont.toMarkdown(ontology, {});
     const obsidianMarkdown = Ont.toMarkdown(ontology, { linkMode: "obsidian" });
     const conceptNode = pipe(
       jsonLd["@graph"],
@@ -669,6 +670,7 @@ describe("@beep/ontology", () => {
     expect(turtle).toContain("<https://example.org/test#PatentConcept> a rdfs:Class, skos:Concept");
     expect(turtle).toContain('skos:prefLabel "Patent"@en');
     expect(turtle).toContain("skos:inScheme <https://example.org/test#PracticeScheme>");
+    expect(markdownFromEmptyOptions).toBe(markdown);
     expect(markdown).toContain(
       "[https://example\\.org/test\\#PracticeScheme](<https://example.org/test#PracticeScheme>)"
     );

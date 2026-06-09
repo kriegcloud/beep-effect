@@ -30,12 +30,18 @@ export const KebabCaseStr = NonEmptyTrimmedStr.pipe(
     S.isPattern(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/, {
       message: "Must be KebabCase format",
     })
-  ),
-  S.brand("KebabCaseStr"),
-  $I.annoteSchema("KebabCaseStr", {
-    description: "A branded kebab-case string.",
+  )
+)
+  .annotate({
+    toArbitrary: () => (fc) =>
+      fc.stringMatching(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/).map((value) => value as NonEmptyTrimmedStr),
   })
-);
+  .pipe(
+    S.brand("KebabCaseStr"),
+    $I.annoteSchema("KebabCaseStr", {
+      description: "A branded kebab-case string.",
+    })
+  );
 
 /**
  * Type for {@link KebabCaseStr}.
