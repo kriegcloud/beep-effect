@@ -205,6 +205,24 @@ const assertAdvisoryEnvelopes = Effect.fn("YeetFallowFeedback.assertAdvisoryEnve
   envelopes: ReadonlyArray<FallowEnvelope>,
   advisory: boolean
 ): Effect.fn.Return<void, YeetCommandError> {
+  // Reject self-contradictory payloads up front: a successful envelope's findings
+  // must share its subcommand feature family, otherwise the issue id (derived from
+  // the subcommand) and category/message (derived from the finding) would disagree.
+  const inconsistentRefs = pipe(
+    envelopes,
+    A.filter(
+      (envelope) =>
+        envelope.status === "ok" &&
+        !envelope.report.findings.every((finding) => finding.featureFamily === envelope.subcommand)
+    ),
+    A.map((envelope) => envelope.reportPath)
+  );
+  if (!A.isReadonlyArrayEmpty(inconsistentRefs)) {
+    return yield* YeetCommandError.make({
+      message: `Fallow advisory feedback received envelope(s) whose findings disagree with the subcommand feature family: ${A.join(inconsistentRefs, ", ")}`,
+      exitCode: 1,
+    });
+  }
   if (!advisory) {
     return;
   }
