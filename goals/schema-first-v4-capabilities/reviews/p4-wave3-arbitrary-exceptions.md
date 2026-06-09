@@ -52,7 +52,17 @@ can derive from them.
 `fc.stringMatching` source annotations. The other filter-heavy entries below
 were attempted and correctly reverted because they are template/predicate
 brands rather than pure anchored-regex brands (FileName, Glob, IRI, URI) or
-transforms (DateTimeUtcFromValid), so 15 deferrals remain.
+transforms (DateTimeUtcFromValid), so 15 deferrals remained.
+
+**Update 2:** the probe-first batch in
+`reviews/p4-wave3-deferred-arbitraries.md` then cleared 9 more (FileName +
+TSMorph SymbolId source annotations; probe-only DateTimeUtcFromValid, RegExp,
+Duration, Color, URI, Observed), reverted IRI and PackageJson as flaky,
+reclassified PromiseSchema as an exception, and found the deferred Graph
+candidate was mis-targeted (the NLP Graph was already remediated). **5
+deferrals remain**: Glob and TypedArrays (Bun-runtime-blocked here), IRI and
+PackageJson (reverted-flaky; need curated arbitraries), and
+`schema/test/Graph.test.ts` (not yet addressed).
 
 - filter-heavy refinement brands (regex/predicate filters that random strings
   essentially never satisfy, so `toArbitrary` exhausts on rejection):

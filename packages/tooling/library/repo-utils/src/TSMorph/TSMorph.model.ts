@@ -827,6 +827,14 @@ export const ProjectCacheKey = resolvedProjectIdentity.pipe(
  */
 export type ProjectCacheKey = typeof ProjectCacheKey.Type;
 
+/** @internal */
+const symbolIdentity = S.TemplateLiteral([SymbolFilePath, "::", SymbolQualifiedName, "#", SymbolKind]).annotate({
+  toArbitrary: () => (fc) =>
+    fc
+      .tuple(S.toArbitrary(SymbolFilePath), S.toArbitrary(SymbolQualifiedName), S.toArbitrary(SymbolKind))
+      .map(([filePath, qualifiedName, kind]) => `${filePath}::${qualifiedName}#${kind}` as typeof symbolIdentity.Type),
+});
+
 /**
  * Stable symbol identity schema.
  *
@@ -838,7 +846,7 @@ export type ProjectCacheKey = typeof ProjectCacheKey.Type;
  * @category models
  * @since 0.0.0
  */
-export const SymbolId = S.TemplateLiteral([SymbolFilePath, "::", SymbolQualifiedName, "#", SymbolKind]).pipe(
+export const SymbolId = symbolIdentity.pipe(
   S.brand("SymbolId"),
   $I.annoteSchema("SymbolId", {
     description: "Stable TypeScript symbol identity string: file::qualifiedName#kind",

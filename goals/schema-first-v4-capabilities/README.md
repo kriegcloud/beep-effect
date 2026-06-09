@@ -112,9 +112,14 @@ meta-combinator tests as inventory exceptions, and deferred the rest. A
 follow-up source-annotation batch then added `fc.stringMatching` `toArbitrary`
 annotations to the `Kebab/Pascal/SnakeCaseStr`, `WindowsDriveRoot`, and
 `EthereumValidatorPublicKey` source brands (remediating CaseStr, FilePath, and
-BlockchainRedacted), bringing the live arbitrary-tests count to 15; the
-remaining deferrals need bespoke arbitrary generators. P3 has started with an
-internal
+BlockchainRedacted, count to 15). A probe-first deferred-arbitraries batch then
+remediated 9 more (FileName + TSMorph SymbolId source annotations plus
+probe-only DateTimeUtcFromValid, RegExp, Duration, Color, URI, Observed),
+reverted IRI and PackageJson as flaky, and made PromiseSchema an exception —
+bringing the live arbitrary-tests count to 5 (Glob/TypedArrays runtime-blocked,
+IRI/PackageJson flaky pending curated arbitraries, Graph not yet addressed).
+Cumulatively the 34 surfaced candidates are 20 remediated, 9 exceptions, 5
+deferred. P3 has started with an internal
 repo-cli laws helper that formats `SchemaError.issue` through
 `SchemaIssue.makeFormatterStandardSchemaV1(...)` and provides redacted
 diagnostic output through public formatter hooks while avoiding a premature

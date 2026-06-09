@@ -283,6 +283,13 @@ class-local decoder statics pilots in
         remediating `CaseStr`, `FilePath`, and `BlockchainRedacted` (18 → 15);
         5 non-regex brands were correctly reverted. See
         `reviews/p4-wave3-source-arbitrary-annotations.md`.
+  - [x] Probe-first deferred-arbitraries batch (13 tractable; Glob/TypedArrays
+        excluded as Bun-runtime-blocked): remediated 9 (FileName + TSMorph
+        SymbolId source annotations, plus probe-only DateTimeUtcFromValid,
+        RegExp, Duration, Color, URI, Observed), reverted IRI and PackageJson as
+        flaky (caught by full-suite + stress runs), and reclassified
+        PromiseSchema as an exception, dropping the advisories 15 → 5. See
+        `reviews/p4-wave3-deferred-arbitraries.md`.
 - [ ] Wave 4: migrate options/config/request defaults from parameter defaults
       and fallback objects into schema defaults. Start with schemas already
       modeling option/config/request objects.

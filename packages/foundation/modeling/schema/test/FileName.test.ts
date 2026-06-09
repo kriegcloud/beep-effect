@@ -1,6 +1,7 @@
 import { FileName } from "@beep/schema/FileName";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("FileName", () => {
   const decode = S.decodeUnknownSync(FileName);
@@ -57,5 +58,18 @@ describe("FileName", () => {
     const input = { fileName: "archive.tar.gz" };
 
     expect(S.decodeUnknownSync(Payload)(input)).toEqual(input);
+  });
+
+  it("derives only-valid names from the schema arbitrary and round-trips them", () => {
+    const arbitrary = S.toArbitrary(FileName);
+    const isFileName = S.is(FileName);
+
+    fc.assert(
+      fc.property(arbitrary, (name) => {
+        expect(isFileName(name)).toBe(true);
+        expect(decode(name)).toBe(name);
+      }),
+      { numRuns: 50 }
+    );
   });
 });

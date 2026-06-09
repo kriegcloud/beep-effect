@@ -1430,16 +1430,6 @@
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "packages/foundation/capability/observability/test/Observed.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 14,
-      "owner": "@beep/observability",
-      "reason": "Schema-heavy test file has 6 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
       "file": "packages/foundation/capability/sandbox/src/Agent.provider.ts",
       "symbol": "AgentProvider",
       "kind": "exported-interface",
@@ -1678,16 +1668,6 @@
       "status": "advisory",
       "ruleId": "SFV4-arbitrary-tests",
       "line": 7,
-      "owner": "@beep/semantic-web",
-      "reason": "Schema-heavy test file has 4 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
-      "file": "packages/foundation/capability/semantic-web/test/URI.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 13,
       "owner": "@beep/semantic-web",
       "reason": "Schema-heavy test file has 4 Schema codec assertions but no schema-derived property coverage."
     },
@@ -2236,46 +2216,6 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/modeling/schema/test/Color.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 7,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 19 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/test/DateTimeUtcFromValid.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 21,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 11 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/test/Duration.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 8,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 5 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/test/FileName.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 6,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
       "file": "packages/foundation/modeling/schema/test/Fn.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",
@@ -2319,21 +2259,11 @@
       "file": "packages/foundation/modeling/schema/test/PromiseSchema.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",
-      "status": "advisory",
+      "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
       "line": 10,
       "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 4 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/test/RegExp.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 6,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
+      "reason": "Exception: PromiseSchema is a pure S.declare<globalThis.Promise<unknown>> identity declaration (Type === Encoded === a native Promise, no codec transform). S.toArbitrary throws 'Unsupported AST Declaration', and a Promise cannot be meaningfully round-tripped (decode/encode are identity, equivalence is reference equality), so any property law would be vacuous. Cross-realm acceptance and thenable-impostor rejection are covered by example-based unit tests."
     },
     {
       "file": "packages/foundation/modeling/schema/test/SchemaUtils.test.ts",
@@ -2724,26 +2654,6 @@
       "status": "exception",
       "owner": "@beep/repo-utils",
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
-    },
-    {
-      "file": "packages/tooling/library/repo-utils/test/TSMorph.model.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 59,
-      "owner": "@beep/repo-utils",
-      "reason": "Schema-heavy test file has 43 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
-      "file": "packages/tooling/library/repo-utils/test/TSMorph.service.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 45,
-      "owner": "@beep/repo-utils",
-      "reason": "Schema-heavy test file has 9 Schema codec assertions but no schema-derived property coverage."
     },
     {
       "file": "packages/tooling/library/repo-utils/test/schemas/PackageJson.test.ts",

@@ -3,6 +3,7 @@ import { describe, expect, it } from "@effect/vitest";
 import * as D from "effect/Duration";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("DurationInput", () => {
   const decode = S.decodeUnknownSync(Duration.Input);
@@ -80,6 +81,16 @@ describe("DurationFromInput", () => {
   it("forbids encoding normalized Duration values back to the source boundary", () => {
     expect(() => encode(D.seconds(1))).toThrow(
       "Encoding DurationFromInput results back to the original duration input is not supported"
+    );
+  });
+
+  it("derives Duration values from the schema arbitrary that re-validate as durations", () => {
+    const arbitrary = S.toArbitrary(Duration.FromInput);
+    const isDuration = S.is(Duration.Schema);
+
+    fc.assert(
+      fc.property(arbitrary, (value) => D.isDuration(value) && isDuration(value)),
+      { numRuns: 50 }
     );
   });
 });

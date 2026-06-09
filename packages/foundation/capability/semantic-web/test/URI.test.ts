@@ -9,6 +9,7 @@ import {
 } from "@beep/semantic-web/uri";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const decodeUri = S.decodeUnknownSync(URI);
 const decodeAbsoluteUri = S.decodeUnknownSync(AbsoluteURI);
@@ -49,4 +50,29 @@ describe("URI", () => {
       "Expected a valid RFC 3986 relative URI reference"
     );
   });
+});
+
+describe("schema-derived arbitraries", () => {
+  const propertyCases = [
+    ["URI", URI],
+    ["AbsoluteURI", AbsoluteURI],
+    ["URIReference", URIReference],
+    ["RelativeURIReference", RelativeURIReference],
+  ] as const;
+
+  for (const [name, schema] of propertyCases) {
+    it(`only generates RFC 3986 ${name} values that decode to themselves`, () => {
+      const arbitrary = S.toArbitrary(schema);
+      const decode = S.decodeUnknownSync(schema);
+      const isValue = S.is(schema);
+
+      fc.assert(
+        fc.property(arbitrary, (value) => {
+          expect(isValue(value)).toBe(true);
+          expect(decode(value)).toBe(value);
+        }),
+        { numRuns: 50 }
+      );
+    });
+  }
 });

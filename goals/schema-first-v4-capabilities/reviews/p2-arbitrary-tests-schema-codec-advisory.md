@@ -196,9 +196,20 @@ BlockchainRedacted), the live repo now reports:
 [schema-first] sfv4_arbitrary_tests_advisories=15
 ```
 
-The remaining 15 are deferred genuine schema tests pending bespoke arbitrary
-generators (template/predicate brands, transforms, `instanceOf`, and the
-Bun-runtime-blocked Glob/TypedArrays suites).
+After the probe-first deferred-arbitraries batch
+(`reviews/p4-wave3-deferred-arbitraries.md`) remediated 9 more (FileName,
+DateTimeUtcFromValid, RegExp, Duration, Color, URI, Observed, and TSMorph
+model/service), reverted 2 as flaky (IRI, PackageJson), and reclassified
+PromiseSchema as an exception, the live repo now reports:
+
+```text
+[schema-first] sfv4_arbitrary_tests_advisories=5
+```
+
+The remaining 5 are Glob and TypedArrays (Bun-runtime-blocked in this
+environment), IRI and PackageJson (reverted-flaky; need curated arbitraries),
+and the not-yet-addressed `schema/test/Graph.test.ts`. Cumulatively the 34
+surfaced candidates are 20 remediated, 9 exceptions, 5 deferred.
 
 ## Still Pending
 

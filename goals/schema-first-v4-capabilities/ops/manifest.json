@@ -34,6 +34,7 @@
     "goals/schema-first-v4-capabilities/reviews/p4-wave3-arbitrary-remediation-batch.md",
     "goals/schema-first-v4-capabilities/reviews/p4-wave3-arbitrary-exceptions.md",
     "goals/schema-first-v4-capabilities/reviews/p4-wave3-source-arbitrary-annotations.md",
+    "goals/schema-first-v4-capabilities/reviews/p4-wave3-deferred-arbitraries.md",
     "goals/schema-first-v4-capabilities/reviews/yeet-closeout-merge-alignment.md",
     "goals/schema-first-v4-capabilities/reviews/p4-sha256-arbitrary-pilot.md",
     "goals/schema-first-v4-capabilities/reviews/p4-markdown-arbitrary-pilot.md",
