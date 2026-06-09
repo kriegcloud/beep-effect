@@ -373,7 +373,9 @@ jobs:
   secrets:
     name: Secret Scanning
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Raised from 5m: gitleaks reads the full PR diff, and this repo now commits
+    # large generated graphify-out/ artifacts that push the scan just past 5m.
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
