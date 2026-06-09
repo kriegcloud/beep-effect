@@ -35,7 +35,9 @@
       "!standards/fallow.dead-code.regression-baseline.jsonc",
       "!standards/jsdoc-documentation.inventory.jsonc",
       "!standards/repo-exports.catalog.jsonc",
-      "!scratchpad"
+      "!scratchpad",
+      "!graphify-out",
+      "!**/graphify-out"
     ]
   },
   "css": {
