@@ -26,6 +26,7 @@ import {
 } from "@phosphor-icons/react";
 import { Data, Effect, Match, pipe, Random } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Atom from "effect/unstable/reactivity/Atom";
@@ -50,8 +51,13 @@ type CanvasCommandBridge = Effect.Success<CanvasCommandBridgeEffect>;
 
 type LoadState = Data.TaggedEnum<{
   readonly loading: {};
-  readonly loaded: { readonly bridge: CanvasCommandBridge; readonly health: CanvasHealth };
-  readonly failed: { readonly message: string };
+  readonly loaded: {
+    readonly bridge: CanvasCommandBridge;
+    readonly health: CanvasHealth;
+  };
+  readonly failed: {
+    readonly message: string;
+  };
 }>;
 
 const loadState = Data.taggedEnum<LoadState>();
@@ -75,12 +81,16 @@ const firstOpenSceneId = (scenes: ReadonlyArray<CanvasScene>): O.Option<CanvasSc
 const isCanvasSceneList = S.is(CanvasSceneSchema.pipe(S.Array));
 const isCanvasCommandError = S.is(CanvasCommandError);
 const isString = S.is(S.String);
-const messageFromUnknown = (error: unknown, fallback: string): string =>
+const messageFromUnknown: {
+  (fallback: string): (error: unknown) => string;
+  (error: unknown, fallback: string): string;
+} = dual(2, (error: unknown, fallback: string): string =>
   Match.value(error).pipe(
     Match.when(isCanvasCommandError, (commandError) => commandError.message),
     Match.when(isString, (message) => message),
     Match.orElse(() => fallback)
-  );
+  )
+);
 
 type CanvasCommandResult = CanvasScene | ReadonlyArray<CanvasScene>;
 
@@ -93,7 +103,20 @@ type CanvasAppScope = {
   readonly isActive: () => boolean;
 };
 
-type CanvasAppAtoms = ReturnType<typeof makeCanvasAppAtoms>;
+type CanvasAppAtoms = {
+  readonly bootstrapAtom: Atom.Atom<LoadState>;
+  readonly commandAtom: Atom.Writable<void, CanvasCommandRequest>;
+  readonly loadStateAtom: Atom.Writable<LoadState>;
+  readonly messageAtom: Atom.Writable<string>;
+  readonly nodeKindAtom: Atom.Writable<CanvasSceneNode["kind"]>;
+  readonly nodeKindInputAtom: Atom.Writable<void, unknown>;
+  readonly nodeLabelAtom: Atom.Writable<string>;
+  readonly savePathAtom: Atom.Writable<string>;
+  readonly sceneTitleAtom: Atom.Writable<string>;
+  readonly scenesAtom: Atom.Writable<ReadonlyArray<CanvasScene>>;
+  readonly selectedSceneAtom: Atom.Atom<O.Option<CanvasScene>>;
+  readonly selectedSceneIdAtom: Atom.Writable<O.Option<CanvasScene["id"]>>;
+};
 
 const DefaultRuntimeCacheKey = Symbol.for("@beep/canvas/default-runtime");
 
@@ -102,20 +125,35 @@ const canvasAppAtomsCache = new Map<
   Map<CanvasCommandRuntime | typeof DefaultRuntimeCacheKey, CanvasAppAtoms>
 >();
 
-const setSelectedScene = (
-  ctx: Atom.WriteContext<unknown>,
-  selectedSceneIdAtom: Atom.Writable<O.Option<CanvasScene["id"]>>,
-  scenes: ReadonlyArray<CanvasScene>,
-  nextSelectedId: O.Option<CanvasScene["id"]>
-): void =>
-  ctx.set(
-    selectedSceneIdAtom,
-    pipe(
-      nextSelectedId,
-      O.orElse(() => ctx.get(selectedSceneIdAtom)),
-      O.orElse(() => firstOpenSceneId(scenes))
+const setSelectedScene: {
+  (
+    selectedSceneIdAtom: Atom.Writable<O.Option<CanvasScene["id"]>>,
+    scenes: ReadonlyArray<CanvasScene>,
+    nextSelectedId: O.Option<CanvasScene["id"]>
+  ): (ctx: Atom.WriteContext<unknown>) => void;
+  (
+    ctx: Atom.WriteContext<unknown>,
+    selectedSceneIdAtom: Atom.Writable<O.Option<CanvasScene["id"]>>,
+    scenes: ReadonlyArray<CanvasScene>,
+    nextSelectedId: O.Option<CanvasScene["id"]>
+  ): void;
+} = dual(
+  4,
+  (
+    ctx: Atom.WriteContext<unknown>,
+    selectedSceneIdAtom: Atom.Writable<O.Option<CanvasScene["id"]>>,
+    scenes: ReadonlyArray<CanvasScene>,
+    nextSelectedId: O.Option<CanvasScene["id"]>
+  ): void =>
+    ctx.set(
+      selectedSceneIdAtom,
+      pipe(
+        nextSelectedId,
+        O.orElse(() => ctx.get(selectedSceneIdAtom)),
+        O.orElse(() => firstOpenSceneId(scenes))
+      )
     )
-  );
+);
 
 const makeCanvasAppScope = (get: Atom.AtomContext): CanvasAppScope => {
   let active = true;
@@ -129,210 +167,226 @@ const makeCanvasAppScope = (get: Atom.AtomContext): CanvasAppScope => {
   };
 };
 
-const makeCanvasAppAtoms = (
-  loadBridge: CanvasCommandBridgeEffect,
-  providedRuntime: CanvasCommandRuntime | undefined
-) => {
-  const runtimeAtom = Atom.make((get) => {
-    if (providedRuntime !== undefined) {
-      return providedRuntime;
-    }
-
-    const runtime = makeCanvasCommandRuntime();
-    get.addFinalizer(() => {
-      void runtime.dispose();
-    });
-    return runtime;
-  });
-
-  const appScopeAtom = Atom.make(makeCanvasAppScope);
-  const loadStateAtom = Atom.make<LoadState>(loadState.loading());
-  const scenesAtom = Atom.make<ReadonlyArray<CanvasScene>>([]);
-  const selectedSceneIdAtom = Atom.make<O.Option<CanvasScene["id"]>>(O.none());
-  const sceneTitleAtom = Atom.make("First canvas scene");
-  const nodeLabelAtom = Atom.make("Reference node");
-  const nodeKindAtom = Atom.make<CanvasSceneNode["kind"]>("note");
-  const savePathAtom = Atom.make("canvas-scene.json");
-  const messageAtom = Atom.make("Ready");
-
-  const selectedSceneAtom = Atom.make((get) => {
-    const scenes = get(scenesAtom);
-    return pipe(
-      get(selectedSceneIdAtom),
-      O.flatMap((sceneId) => A.findFirst(scenes, (scene) => scene.id === sceneId)),
-      O.orElse(() => firstOpenScene(scenes))
-    );
-  });
-
-  const refreshScenes = (
-    ctx: Atom.WriteContext<unknown>,
-    bridge: CanvasCommandBridge,
-    nextSelectedId: O.Option<CanvasScene["id"]>,
-    appScope: CanvasAppScope
-  ): Effect.Effect<void, CanvasCommandError> =>
-    bridge.sceneList().pipe(
-      Effect.tap((nextScenes) =>
-        Effect.sync(() => {
-          if (!appScope.isActive()) {
-            return;
-          }
-
-          ctx.set(scenesAtom, nextScenes);
-          setSelectedScene(ctx, selectedSceneIdAtom, nextScenes, nextSelectedId);
-        })
-      ),
-      Effect.asVoid
-    );
-
-  const bootstrapAtom = Atom.make((get) => {
-    const appScope = get(appScopeAtom);
-    const runtime = get(runtimeAtom);
-    const currentLoadState = get(loadStateAtom);
-
-    if (!loadState.$is("loading")(currentLoadState)) {
-      return currentLoadState;
-    }
-
-    let cancelled = false;
-
-    void runtime
-      .runPromise(
-        loadBridge.pipe(
-          Effect.flatMap((bridge) =>
-            Effect.all([bridge.canvasHealth(), bridge.sceneList()], { concurrency: 2 }).pipe(
-              Effect.map(([health, loadedScenes]) => ({
-                bridge,
-                health,
-                loadedScenes,
-              }))
-            )
-          )
-        )
-      )
-      .then(({ bridge, health, loadedScenes }) => {
-        if (!cancelled && appScope.isActive()) {
-          get.set(loadStateAtom, loadState.loaded({ bridge, health }));
-          get.set(scenesAtom, loadedScenes);
-          get.set(selectedSceneIdAtom, firstOpenSceneId(loadedScenes));
-        }
-      })
-      .catch((error: unknown) => {
-        if (!cancelled && appScope.isActive()) {
-          get.set(loadStateAtom, loadState.failed({ message: messageFromUnknown(error, "Canvas bridge failed.") }));
-        }
-      });
-
-    get.addFinalizer(() => {
-      cancelled = true;
-    });
-
-    return currentLoadState;
-  });
-
-  const commandAtom = Atom.writable(
-    (get) => {
-      get(appScopeAtom);
-    },
-    (ctx, request: CanvasCommandRequest) => {
-      const appScope = ctx.get(appScopeAtom);
-      const currentLoadState = ctx.get(loadStateAtom);
-
-      if (!loadState.$is("loaded")(currentLoadState)) {
-        ctx.set(messageAtom, "Canvas bridge is not ready.");
-        return;
+const makeCanvasAppAtoms: {
+  (providedRuntime: CanvasCommandRuntime | undefined): (loadBridge: CanvasCommandBridgeEffect) => CanvasAppAtoms;
+  (loadBridge: CanvasCommandBridgeEffect, providedRuntime: CanvasCommandRuntime | undefined): CanvasAppAtoms;
+} = dual(
+  2,
+  (loadBridge: CanvasCommandBridgeEffect, providedRuntime: CanvasCommandRuntime | undefined): CanvasAppAtoms => {
+    const runtimeAtom = Atom.make((get) => {
+      if (providedRuntime !== undefined) {
+        return providedRuntime;
       }
 
-      const { bridge } = currentLoadState;
+      const runtime = makeCanvasCommandRuntime();
+      get.addFinalizer(() => {
+        void runtime.dispose();
+      });
+      return runtime;
+    });
 
-      void ctx
-        .get(runtimeAtom)
+    const appScopeAtom = Atom.make(makeCanvasAppScope);
+    const loadStateAtom = Atom.make<LoadState>(loadState.loading());
+    const scenesAtom = Atom.make<ReadonlyArray<CanvasScene>>([]);
+    const selectedSceneIdAtom = Atom.make<O.Option<CanvasScene["id"]>>(O.none());
+    const sceneTitleAtom = Atom.make("First canvas scene");
+    const nodeLabelAtom = Atom.make("Reference node");
+    const nodeKindAtom = Atom.make<CanvasSceneNode["kind"]>("note");
+    const savePathAtom = Atom.make("canvas-scene.json");
+    const messageAtom = Atom.make("Ready");
+
+    const selectedSceneAtom = Atom.make((get) => {
+      const scenes = get(scenesAtom);
+      return pipe(
+        get(selectedSceneIdAtom),
+        O.flatMap((sceneId) => A.findFirst(scenes, (scene) => scene.id === sceneId)),
+        O.orElse(() => firstOpenScene(scenes))
+      );
+    });
+
+    const refreshScenes = (
+      ctx: Atom.WriteContext<unknown>,
+      bridge: CanvasCommandBridge,
+      nextSelectedId: O.Option<CanvasScene["id"]>,
+      appScope: CanvasAppScope
+    ): Effect.Effect<void, CanvasCommandError> =>
+      bridge.sceneList().pipe(
+        Effect.tap((nextScenes) =>
+          Effect.sync(() => {
+            if (!appScope.isActive()) {
+              return;
+            }
+
+            ctx.set(scenesAtom, nextScenes);
+            setSelectedScene(ctx, selectedSceneIdAtom, nextScenes, nextSelectedId);
+          })
+        ),
+        Effect.asVoid
+      );
+
+    const bootstrapAtom = Atom.make((get) => {
+      const appScope = get(appScopeAtom);
+      const runtime = get(runtimeAtom);
+      const currentLoadState = get(loadStateAtom);
+
+      if (!loadState.$is("loading")(currentLoadState)) {
+        return currentLoadState;
+      }
+
+      let cancelled = false;
+
+      void runtime
         .runPromise(
-          request.operation(bridge).pipe(
-            Effect.flatMap((result) =>
-              isCanvasSceneList(result)
-                ? Effect.sync(() => {
-                    if (!appScope.isActive()) {
-                      return;
-                    }
-
-                    ctx.set(scenesAtom, result);
-                  })
-                : refreshScenes(ctx, bridge, O.some(result.id), appScope)
-            ),
-            Effect.tap(() =>
-              Effect.sync(() => {
-                if (appScope.isActive()) {
-                  ctx.set(messageAtom, request.success);
-                }
-              })
+          loadBridge.pipe(
+            Effect.flatMap((bridge) =>
+              Effect.all([bridge.canvasHealth(), bridge.sceneList()], { concurrency: 2 }).pipe(
+                Effect.map(([health, loadedScenes]) => ({
+                  bridge,
+                  health,
+                  loadedScenes,
+                }))
+              )
             )
           )
         )
-        .catch((error: unknown) => {
-          if (appScope.isActive()) {
-            ctx.set(messageAtom, messageFromUnknown(error, "Canvas command failed."));
-          }
-        });
-    }
-  );
-
-  const nodeKindInputAtom = Atom.writable(
-    (get) => {
-      get(appScopeAtom);
-    },
-    (ctx, value: unknown) => {
-      const appScope = ctx.get(appScopeAtom);
-
-      void ctx
-        .get(runtimeAtom)
-        .runPromise(decodeCanvasNodeKind(value))
-        .then((nextNodeKind) => {
-          if (appScope.isActive()) {
-            ctx.set(nodeKindAtom, nextNodeKind);
+        .then(({ bridge, health, loadedScenes }) => {
+          if (!cancelled && appScope.isActive()) {
+            get.set(
+              loadStateAtom,
+              loadState.loaded({
+                bridge,
+                health,
+              })
+            );
+            get.set(scenesAtom, loadedScenes);
+            get.set(selectedSceneIdAtom, firstOpenSceneId(loadedScenes));
           }
         })
         .catch((error: unknown) => {
-          if (appScope.isActive()) {
-            ctx.set(messageAtom, messageFromUnknown(error, "Invalid node kind."));
+          if (!cancelled && appScope.isActive()) {
+            get.set(loadStateAtom, loadState.failed({ message: messageFromUnknown(error, "Canvas bridge failed.") }));
           }
         });
-    }
-  );
 
-  return {
-    bootstrapAtom,
-    commandAtom,
-    loadStateAtom,
-    messageAtom,
-    nodeKindAtom,
-    nodeKindInputAtom,
-    nodeLabelAtom,
-    savePathAtom,
-    sceneTitleAtom,
-    scenesAtom,
-    selectedSceneAtom,
-    selectedSceneIdAtom,
-  };
-};
+      get.addFinalizer(() => {
+        cancelled = true;
+      });
 
-const getCanvasAppAtoms = (
-  loadBridge: CanvasCommandBridgeEffect,
-  providedRuntime: CanvasCommandRuntime | undefined
-): CanvasAppAtoms => {
-  const runtimeKey = providedRuntime ?? DefaultRuntimeCacheKey;
-  const runtimeAtoms = canvasAppAtomsCache.get(loadBridge) ?? new Map();
-  const cached = runtimeAtoms.get(runtimeKey);
+      return currentLoadState;
+    });
 
-  if (cached !== undefined) {
-    return cached;
+    const commandAtom = Atom.writable(
+      (get) => {
+        get(appScopeAtom);
+      },
+      (ctx, request: CanvasCommandRequest) => {
+        const appScope = ctx.get(appScopeAtom);
+        const currentLoadState = ctx.get(loadStateAtom);
+
+        if (!loadState.$is("loaded")(currentLoadState)) {
+          ctx.set(messageAtom, "Canvas bridge is not ready.");
+          return;
+        }
+
+        const { bridge } = currentLoadState;
+
+        void ctx
+          .get(runtimeAtom)
+          .runPromise(
+            request.operation(bridge).pipe(
+              Effect.flatMap((result) =>
+                isCanvasSceneList(result)
+                  ? Effect.sync(() => {
+                      if (!appScope.isActive()) {
+                        return;
+                      }
+
+                      ctx.set(scenesAtom, result);
+                    })
+                  : refreshScenes(ctx, bridge, O.some(result.id), appScope)
+              ),
+              Effect.tap(() =>
+                Effect.sync(() => {
+                  if (appScope.isActive()) {
+                    ctx.set(messageAtom, request.success);
+                  }
+                })
+              )
+            )
+          )
+          .catch((error: unknown) => {
+            if (appScope.isActive()) {
+              ctx.set(messageAtom, messageFromUnknown(error, "Canvas command failed."));
+            }
+          });
+      }
+    );
+
+    const nodeKindInputAtom = Atom.writable(
+      (get) => {
+        get(appScopeAtom);
+      },
+      (ctx, value: unknown) => {
+        const appScope = ctx.get(appScopeAtom);
+
+        void ctx
+          .get(runtimeAtom)
+          .runPromise(decodeCanvasNodeKind(value))
+          .then((nextNodeKind) => {
+            if (appScope.isActive()) {
+              ctx.set(nodeKindAtom, nextNodeKind);
+            }
+          })
+          .catch((error: unknown) => {
+            if (appScope.isActive()) {
+              ctx.set(messageAtom, messageFromUnknown(error, "Invalid node kind."));
+            }
+          });
+      }
+    );
+
+    return {
+      bootstrapAtom,
+      commandAtom,
+      loadStateAtom,
+      messageAtom,
+      nodeKindAtom,
+      nodeKindInputAtom,
+      nodeLabelAtom,
+      savePathAtom,
+      sceneTitleAtom,
+      scenesAtom,
+      selectedSceneAtom,
+      selectedSceneIdAtom,
+    };
   }
+);
 
-  const atoms = makeCanvasAppAtoms(loadBridge, providedRuntime);
-  runtimeAtoms.set(runtimeKey, atoms);
-  canvasAppAtomsCache.set(loadBridge, runtimeAtoms);
-  return atoms;
-};
+const getCanvasAppAtoms: {
+  (providedRuntime: CanvasCommandRuntime | undefined): (loadBridge: CanvasCommandBridgeEffect) => CanvasAppAtoms;
+  (loadBridge: CanvasCommandBridgeEffect, providedRuntime: CanvasCommandRuntime | undefined): CanvasAppAtoms;
+} = dual(
+  2,
+  (loadBridge: CanvasCommandBridgeEffect, providedRuntime: CanvasCommandRuntime | undefined): CanvasAppAtoms => {
+    const runtimeKey = providedRuntime ?? DefaultRuntimeCacheKey;
+    const runtimeAtoms = canvasAppAtomsCache.get(loadBridge) ?? new Map();
+    const cached = runtimeAtoms.get(runtimeKey);
 
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    const atoms = makeCanvasAppAtoms(loadBridge, providedRuntime);
+    runtimeAtoms.set(runtimeKey, atoms);
+    canvasAppAtomsCache.set(loadBridge, runtimeAtoms);
+    return atoms;
+  }
+);
+
+interface AppProps {
+  readonly loadBridge?: CanvasCommandBridgeEffect;
+  readonly runtime?: CanvasCommandRuntime;
+}
 /**
  * Canvas desktop shell root component.
  *
@@ -346,13 +400,7 @@ const getCanvasAppAtoms = (
  * @category components
  * @since 0.0.0
  */
-export function App({
-  loadBridge = makeCanvasCommandBridge,
-  runtime: providedRuntime,
-}: {
-  readonly loadBridge?: CanvasCommandBridgeEffect;
-  readonly runtime?: CanvasCommandRuntime;
-}) {
+export function App({ loadBridge = makeCanvasCommandBridge, runtime: providedRuntime }: AppProps) {
   return (
     <RegistryProvider>
       <CanvasAppShell atoms={getCanvasAppAtoms(loadBridge, providedRuntime)} />
@@ -382,7 +430,12 @@ const CanvasAppShell = ({ atoms }: { readonly atoms: CanvasAppAtoms }) => {
       operation: (bridge) =>
         newId("scene").pipe(
           Effect.flatMap(decodeCanvasProjectId),
-          Effect.flatMap((id) => bridge.sceneCreate({ id, title: sceneTitle }))
+          Effect.flatMap((id) =>
+            bridge.sceneCreate({
+              id,
+              title: sceneTitle,
+            })
+          )
         ),
       success: "Scene created",
     });
@@ -397,7 +450,11 @@ const CanvasAppShell = ({ atoms }: { readonly atoms: CanvasAppAtoms }) => {
               Effect.flatMap((id) =>
                 bridge.sceneNodeAdd({
                   id: scene.id,
-                  node: { id, kind: nodeKind, label: nodeLabel },
+                  node: {
+                    id,
+                    kind: nodeKind,
+                    label: nodeLabel,
+                  },
                 })
               )
             ),
@@ -409,7 +466,11 @@ const CanvasAppShell = ({ atoms }: { readonly atoms: CanvasAppAtoms }) => {
       onNone: () => setMessage("Create a scene first."),
       onSome: (scene) =>
         runCommand({
-          operation: (bridge) => bridge.sceneNodeRemove({ id: scene.id, nodeId }),
+          operation: (bridge) =>
+            bridge.sceneNodeRemove({
+              id: scene.id,
+              nodeId,
+            }),
           success: "Node removed",
         }),
     });
@@ -427,7 +488,11 @@ const CanvasAppShell = ({ atoms }: { readonly atoms: CanvasAppAtoms }) => {
       onNone: () => setMessage("Create a scene first."),
       onSome: (scene) =>
         runCommand({
-          operation: (bridge) => bridge.sceneSave({ path: savePath, scene }),
+          operation: (bridge) =>
+            bridge.sceneSave({
+              path: savePath,
+              scene,
+            }),
           success: "Scene saved",
         }),
     });

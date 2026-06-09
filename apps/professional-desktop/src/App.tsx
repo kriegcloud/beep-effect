@@ -12,6 +12,7 @@ import { Badge } from "@beep/ui/components/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/ui/components/card";
 import { Separator } from "@beep/ui/components/separator";
 import { A } from "@beep/utils";
+import { useAtomValue } from "@effect/atom-react";
 import {
   AppWindowIcon,
   BrainIcon,
@@ -23,9 +24,10 @@ import {
 } from "@phosphor-icons/react";
 import { invoke } from "@tauri-apps/api/core";
 import { Match } from "effect";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { useEffect, useState } from "react";
+import { Atom } from "effect/unstable/reactivity";
 
 const $I = $ProfessionalDesktopId.create("App");
 
@@ -43,7 +45,7 @@ class DesktopHealth extends S.Class<DesktopHealth>($I`DesktopHealth`)(
   })
 ) {}
 
-export class LoadingState extends S.TaggedClass<LoadingState>($I`LoadingState`)(
+class LoadingState extends S.TaggedClass<LoadingState>($I`LoadingState`)(
   "loading",
   {},
   $I.annote("LoadingState", {
@@ -51,7 +53,7 @@ export class LoadingState extends S.TaggedClass<LoadingState>($I`LoadingState`)(
   })
 ) {}
 
-export class LoadedState extends S.TaggedClass<LoadedState>($I`LoadedState`)(
+class LoadedState extends S.TaggedClass<LoadedState>($I`LoadedState`)(
   "loaded",
   {
     health: DesktopHealth,
@@ -61,7 +63,7 @@ export class LoadedState extends S.TaggedClass<LoadedState>($I`LoadedState`)(
   })
 ) {}
 
-export class FailedState extends S.TaggedClass<FailedState>($I`FailedState`)(
+class FailedState extends S.TaggedClass<FailedState>($I`FailedState`)(
   "failed",
   {
     message: S.String,
@@ -114,6 +116,38 @@ const defaultLoadDesktopHealth: LoadDesktopHealth = () => {
   return invoke<DesktopHealth>("professional_desktop_health");
 };
 
+const loadDesktopHealthStateAtom = Atom.family((loadDesktopHealth: LoadDesktopHealth) =>
+  Atom.make((get): LoadState => {
+    const current = get.self<LoadState>();
+    if (O.isSome(current)) {
+      return current.value;
+    }
+
+    let cancelled = false;
+
+    void loadDesktopHealth()
+      .then((health) => {
+        if (!cancelled) {
+          get.setSelf({ _tag: "loaded", health });
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          get.setSelf({
+            _tag: "failed",
+            message: errorMessage(error, "Professional Desktop health inspection failed."),
+          });
+        }
+      });
+
+    get.addFinalizer(() => {
+      cancelled = true;
+    });
+
+    return { _tag: "loading" };
+  })
+);
+
 const sliceMeta = [
   {
     description: "Workspaces, threads, tasks, approvals, and collaboration state.",
@@ -147,31 +181,7 @@ export function App({
 }: {
   readonly loadDesktopHealth?: LoadDesktopHealth;
 }) {
-  const [loadState, setLoadState] = useState<LoadState>({ _tag: "loading" });
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void loadDesktopHealth()
-      .then((health) => {
-        if (!cancelled) {
-          setLoadState({ _tag: "loaded", health });
-        }
-      })
-      .catch((error) => {
-        if (!cancelled) {
-          setLoadState({
-            _tag: "failed",
-            message: errorMessage(error, "Professional Desktop health inspection failed."),
-          });
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [loadDesktopHealth]);
-
+  const loadState = useAtomValue(loadDesktopHealthStateAtom(loadDesktopHealth));
   const health = loadState._tag === "loaded" ? loadState.health : undefined;
 
   return (

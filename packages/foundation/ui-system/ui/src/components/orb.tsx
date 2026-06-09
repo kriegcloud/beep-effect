@@ -6,7 +6,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Function as F } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type React from "react";
 
@@ -46,6 +46,19 @@ const randomUint32 = (): number => {
   const values = new Uint32Array(1);
   globalThis.crypto?.getRandomValues(values);
   return values[0] ?? 0;
+};
+
+type OrbUniforms = {
+  readonly uAnimation: THREE.Uniform<number>;
+  readonly uColor1: THREE.Uniform<THREE.Color>;
+  readonly uColor2: THREE.Uniform<THREE.Color>;
+  readonly uInverted: THREE.Uniform<number>;
+  readonly uInputVolume: THREE.Uniform<number>;
+  readonly uOffsets: { value: Float32Array };
+  readonly uOpacity: THREE.Uniform<number>;
+  readonly uOutputVolume: THREE.Uniform<number>;
+  readonly uPerlinTexture: THREE.Uniform<THREE.Texture>;
+  readonly uTime: THREE.Uniform<number>;
 };
 
 /**
@@ -143,6 +156,9 @@ function Scene({
   const manualOutRef = useRef<number>(manualOutput ?? 0);
   const curInRef = useRef(0);
   const curOutRef = useRef(0);
+  const randomSeedRef = useRef(seed ?? randomUint32());
+  const offsetsRef = useRef<Float32Array | null>(null);
+  const uniformsRef = useRef<OrbUniforms | null>(null);
 
   useEffect(() => {
     agentRef.current = agentState;
@@ -160,8 +176,16 @@ function Scene({
     manualOutRef.current = clamp01(manualOutput ?? outputVolumeRef?.current ?? getOutputVolume?.() ?? 0);
   }, [manualOutput, outputVolumeRef, getOutputVolume]);
 
-  const random = useMemo(() => splitmix32(seed ?? randomUint32()), [seed]);
-  const offsets = useMemo(() => new Float32Array(A.makeBy(7, () => random() * Math.PI * 2)), [random]);
+  if (seed !== undefined && randomSeedRef.current !== seed) {
+    randomSeedRef.current = seed;
+    offsetsRef.current = null;
+    uniformsRef.current = null;
+  }
+
+  if (offsetsRef.current === null) {
+    const random = splitmix32(randomSeedRef.current);
+    offsetsRef.current = new Float32Array(A.makeBy(7, () => random() * Math.PI * 2));
+  }
 
   useEffect(() => {
     targetColor1Ref.current = new THREE.Color(colors[0]);
@@ -280,15 +304,16 @@ function Scene({
     return () => canvas.removeEventListener("webglcontextlost", onContextLost, false);
   }, [gl]);
 
-  const uniforms = useMemo(() => {
-    perlinNoiseTexture.wrapS = THREE.RepeatWrapping;
-    perlinNoiseTexture.wrapT = THREE.RepeatWrapping;
+  perlinNoiseTexture.wrapS = THREE.RepeatWrapping;
+  perlinNoiseTexture.wrapT = THREE.RepeatWrapping;
+
+  if (uniformsRef.current === null) {
     const isDark =
       P.isNotUndefined(globalThis.document) && globalThis.document.documentElement.classList.contains("dark");
-    return {
+    uniformsRef.current = {
       uColor1: new THREE.Uniform(new THREE.Color(initialColorsRef.current[0])),
       uColor2: new THREE.Uniform(new THREE.Color(initialColorsRef.current[1])),
-      uOffsets: { value: offsets },
+      uOffsets: { value: offsetsRef.current },
       uPerlinTexture: new THREE.Uniform(perlinNoiseTexture),
       uTime: new THREE.Uniform(0),
       uAnimation: new THREE.Uniform(0.1),
@@ -297,7 +322,12 @@ function Scene({
       uOutputVolume: new THREE.Uniform(0),
       uOpacity: new THREE.Uniform(0),
     };
-  }, [perlinNoiseTexture, offsets]);
+  } else {
+    uniformsRef.current.uOffsets.value = offsetsRef.current;
+    uniformsRef.current.uPerlinTexture.value = perlinNoiseTexture;
+  }
+
+  const uniforms = uniformsRef.current;
 
   return (
     <mesh ref={circleRef}>

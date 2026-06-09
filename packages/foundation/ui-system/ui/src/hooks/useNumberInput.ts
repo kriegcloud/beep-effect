@@ -1,12 +1,14 @@
 import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Effect, flow, Match, pipe, Tuple } from "effect";
+import { useAtom, useAtomInitialValues, useAtomSet, useAtomSubscribe, useAtomValue } from "@effect/atom-react";
+import { flow, Match, pipe, Tuple } from "effect";
 import { constVoid, dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Atom } from "effect/unstable/reactivity";
+import { useId, useRef } from "react";
 import { useSpinner } from "./useSpinner";
 import type React from "react";
 
@@ -60,6 +62,7 @@ type StepModifierState = readonly [coarse: boolean | undefined, fine: boolean];
 type InputHandlers = {
   readonly onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
   readonly onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  readonly onWheel: (event: React.WheelEvent<HTMLInputElement>) => void;
 };
 
 type ButtonHandlers = {
@@ -145,18 +148,6 @@ const isAtLeastMinimumStepFactor = (minimumStepFactor: number): P.Predicate<numb
 const precisionFromOptions = (options: { readonly precision: number }): number =>
   P.isNumber(options) ? options : options.precision;
 
-const getNodeEnv = (): string | undefined => {
-  const runtimeProcess = Reflect.get(globalThis, "process");
-
-  if (!P.isObject(runtimeProcess) || !("env" in runtimeProcess) || !P.isObject(runtimeProcess.env)) {
-    return undefined;
-  }
-
-  const nodeEnv = Reflect.get(runtimeProcess.env, "NODE_ENV");
-
-  return P.isString(nodeEnv) ? nodeEnv : undefined;
-};
-
 const callAllHandlers =
   <T>(...handlers: ReadonlyArray<undefined | ((event: T) => void)>) =>
   (event: T) =>
@@ -188,15 +179,9 @@ const getSpinStartProps: {
     )
 );
 
-const useIsFirstMount = () => {
-  const isFirstMount = useRef(true);
+const numberBoundaryInterfaceValueAtom = Atom.family((_scope: string) => Atom.make(""));
 
-  useEffect(() => {
-    isFirstMount.current = false;
-  }, []);
-
-  return isFirstMount.current;
-};
+const numberInputTempInterfaceValueAtom = Atom.family((_scope: string) => Atom.make(""));
 
 /**
  * Lowest safe integer supported by the hook defaults.
@@ -567,7 +552,9 @@ export type UseNumberInputOptions = BoundaryParams &
  * @since 0.0.0
  * @category components
  */
-export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
+export const useNumberBoundary = (options: UseNumberInputOptions = {}, scope?: string | undefined) => {
+  const generatedScope = useId();
+  const boundaryScope = scope ?? generatedScope;
   const {
     min = minSafeInteger,
     max = maxSafeInteger,
@@ -580,44 +567,41 @@ export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
     parser = identity,
   } = options;
 
-  const [interfaceValue, setInterfaceValueState] = useState<string>(() =>
-    formatter(numberToString(defaultValue, precision))
-  );
+  const interfaceValueAtom = numberBoundaryInterfaceValueAtom(boundaryScope);
+  const [storedInterfaceValue, setInterfaceValueState] = useAtom(interfaceValueAtom);
 
+  useAtomInitialValues([[interfaceValueAtom, formatter(numberToString(defaultValue, precision))]]);
+
+  const storedNumberValue = pipe(storedInterfaceValue, parser, toNumber);
+  const interfaceValue =
+    defaultValue === undefined && value !== storedNumberValue
+      ? formatter(numberToString(value, precision))
+      : storedInterfaceValue;
   const numberValue = pipe(interfaceValue, parser, toNumber);
 
-  useEffect(() => {
-    if (defaultValue === undefined && value !== numberValue) {
-      setInterfaceValueState(formatter(numberToString(value, precision)));
-    }
-  }, [defaultValue, formatter, numberValue, precision, value]);
+  const change = (multiplier = 1, params: SpinParams = {}) =>
+    setInterfaceValueState((current) => {
+      const result = (pipe(current, parser, toNumber) ?? 0) + multiplier * (params.step ?? step);
+      const digits = params.precision ?? precision;
 
-  const change = useCallback(
-    (multiplier = 1, params: SpinParams = {}) =>
-      setInterfaceValueState((current) => {
-        const result = (pipe(current, parser, toNumber) ?? 0) + multiplier * (params.step ?? step);
-        const digits = params.precision ?? precision;
-
-        if (keepWithinRange) {
-          if (result > max) {
-            return formatter(max.toFixed(digits));
-          }
-
-          if (result < min) {
-            return formatter(min.toFixed(digits));
-          }
+      if (keepWithinRange) {
+        if (result > max) {
+          return formatter(max.toFixed(digits));
         }
 
-        return formatter(result.toFixed(digits));
-      }),
-    [formatter, keepWithinRange, max, min, parser, precision, step]
-  );
+        if (result < min) {
+          return formatter(min.toFixed(digits));
+        }
+      }
 
-  const increment = useCallback((params: SpinParams = {}) => change(1, params), [change]);
+      return formatter(result.toFixed(digits));
+    });
 
-  const decrement = useCallback((params: SpinParams = {}) => change(-1, params), [change]);
+  const increment = (params: SpinParams = {}) => change(1, params);
+  const decrement = (params: SpinParams = {}) => change(-1, params);
 
   return {
+    interfaceValueAtom,
     numberValue,
     interfaceValue,
     setInterfaceValue: flow(formatter, setInterfaceValueState),
@@ -646,6 +630,7 @@ export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
  * @category components
  */
 export const useNumberInput = (options: UseNumberInputOptions = {}) => {
+  const scope = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const {
     min = minSafeInteger,
@@ -661,68 +646,22 @@ export const useNumberInput = (options: UseNumberInputOptions = {}) => {
     onChange,
   } = options;
 
-  const { interfaceValue, setInterfaceValue, numberValue, increment, decrement } = useNumberBoundary(options);
-
-  useEffect(() => {
-    if (getNodeEnv() !== "production" && focusInputOnChange && inputRef.current === null) {
-      Effect.runSync(
-        Effect.logWarning(`Cannot find inputRef, make sure to pass it to <input /> like this 👇
-
-function NumberInput() {
-  const { inputRef } = useNumberInput(options)
-
-  return (
-    <input ref={inputRef} />
-  )
-}
-        `)
-      );
-    }
-  }, [focusInputOnChange, inputRef]);
-
-  useEffect(() => {
-    function handler(event: WheelEvent) {
-      const isInputFocused = document.activeElement === inputRef.current;
-
-      if (!allowMouseWheel || !isInputFocused) {
-        return;
-      }
-
-      event.preventDefault();
-
-      const stepFactor = getStepFactor(event, step, { precision });
-      const direction = Math.sign(event.deltaY);
-
-      if (direction === -1) {
-        increment({ step: stepFactor });
-      } else if (direction === 1) {
-        decrement({ step: stepFactor });
-      }
-    }
-
-    const element = inputRef.current;
-
-    if (element !== null && allowMouseWheel) {
-      element.addEventListener("wheel", handler, { passive: false });
-
-      return () => element.removeEventListener("wheel", handler);
-    }
-  }, [allowMouseWheel, decrement, increment, inputRef, precision, step]);
-
-  const isFirstMount = useIsFirstMount();
-
-  useEffect(() => {
-    if (!isFirstMount) {
-      onChange?.(numberValue, {
-        valueText: interfaceValue,
-        error: getError(numberValue, min, max),
-        eventType: NumberInputEventType.Enum.change,
-      });
-    }
-  }, [interfaceValue, isFirstMount, max, min, numberValue, onChange]);
-
-  const tempInterfaceValue = useRef(interfaceValue);
+  const { interfaceValueAtom, interfaceValue, setInterfaceValue, numberValue, increment, decrement } =
+    useNumberBoundary(options, scope);
+  const tempInterfaceValue = useAtomValue(numberInputTempInterfaceValueAtom(scope));
+  const setTempInterfaceValue = useAtomSet(numberInputTempInterfaceValueAtom(scope));
   const spinner = useSpinner(increment, decrement);
+
+  useAtomInitialValues([[numberInputTempInterfaceValueAtom(scope), interfaceValue]]);
+
+  useAtomSubscribe(interfaceValueAtom, (nextInterfaceValue) => {
+    const nextNumberValue = pipe(nextInterfaceValue, parser, toNumber);
+    onChange?.(nextNumberValue, {
+      valueText: nextInterfaceValue,
+      error: getError(nextNumberValue, min, max),
+      eventType: NumberInputEventType.Enum.change,
+    });
+  });
 
   const spinUp = (event: React.MouseEvent | React.TouchEvent) => {
     event.preventDefault();
@@ -762,8 +701,27 @@ function NumberInput() {
     );
   };
 
+  const handleWheel = (event: React.WheelEvent<HTMLInputElement>) => {
+    const isInputFocused = document.activeElement === inputRef.current;
+
+    if (!allowMouseWheel || !isInputFocused) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const stepFactor = getStepFactor(event, step, { precision });
+    const direction = Math.sign(event.deltaY);
+
+    if (direction === -1) {
+      increment({ step: stepFactor });
+    } else if (direction === 1) {
+      decrement({ step: stepFactor });
+    }
+  };
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    tempInterfaceValue.current = interfaceValue;
+    setTempInterfaceValue(interfaceValue);
 
     const result = parser(event.target.value);
 
@@ -780,7 +738,7 @@ function NumberInput() {
       let result = "";
 
       if (Number.isNaN(nextNum)) {
-        result = tempInterfaceValue.current;
+        result = tempInterfaceValue;
       } else {
         result = nextNum.toFixed(precision);
 
@@ -830,6 +788,7 @@ function NumberInput() {
       onChange: handleChange,
       onBlur: callAllHandlers(handleBlur, handlers?.onBlur),
       onKeyDown: callAllHandlers(handleKeyDown, handlers?.onKeyDown),
+      onWheel: callAllHandlers(handleWheel, handlers?.onWheel),
     }),
     getIncrementProps: (handlers?: Partial<ButtonHandlers>) => ({
       tabIndex: -1,

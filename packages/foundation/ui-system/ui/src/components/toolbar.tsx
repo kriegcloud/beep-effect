@@ -6,10 +6,11 @@ import { Toolbar as ToolbarPrimitive } from "@base-ui/react/toolbar";
 import { DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuSeparator } from "@beep/ui/components/dropdown-menu";
 import { Separator } from "@beep/ui/components/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
+import { useAtomValue } from "@effect/atom-react";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import { cva } from "class-variance-authority";
 import * as P from "effect/Predicate";
-import { useEffect, useState } from "react";
+import { clientMountedAtom } from "../internal/react-atoms.ts";
 import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
 import type { ComponentProps, ElementType, ReactNode } from "react";
@@ -394,10 +395,8 @@ function withTooltip<T extends ElementType>(Component: T) {
     tooltipTriggerProps,
     ...props
   }: TooltipProps<T>) {
-    const [mounted, setMounted] = useState(false);
+    const mounted = useAtomValue(clientMountedAtom);
     const hasTooltip = tooltip !== undefined && tooltip !== null && tooltip !== false;
-
-    useEffect(() => void setMounted(true), []);
 
     const component = <Component {...(props as ComponentProps<T>)} />;
 

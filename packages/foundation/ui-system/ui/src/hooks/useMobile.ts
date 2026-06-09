@@ -20,11 +20,10 @@
  * @packageDocumentation
  */
 import { Str } from "@beep/utils";
-import { useAtom } from "@effect/atom-react";
+import { useAtomValue } from "@effect/atom-react";
 import { constFalse } from "effect/Function";
 import * as O from "effect/Option";
-import { Atom } from "effect/unstable/reactivity";
-import * as React from "react";
+import { mediaQueryAtom } from "../internal/react-atoms.ts";
 import { TOUCH_MEDIA_QUERY } from "../themes/scales.ts";
 
 const mobileMediaQuery = Str.replace(/^@media\s*/, "")(TOUCH_MEDIA_QUERY);
@@ -58,18 +57,5 @@ export const resolveIsMobile = (isMobile: O.Option<boolean>): boolean => O.getOr
  * @since 0.0.0
  */
 export function useIsMobile() {
-  const [isMobileAtom] = React.useState(() => Atom.make<O.Option<boolean>>(O.none<boolean>()));
-  const [isMobile, setIsMobile] = useAtom(isMobileAtom);
-
-  React.useEffect(() => {
-    const mql = window.matchMedia(mobileMediaQuery);
-    const onChange = () => setIsMobile(O.some(mql.matches));
-
-    mql.addEventListener("change", onChange);
-    setIsMobile(O.some(mql.matches));
-
-    return () => mql.removeEventListener("change", onChange);
-  }, [setIsMobile]);
-
-  return resolveIsMobile(isMobile);
+  return useAtomValue(mediaQueryAtom(mobileMediaQuery));
 }

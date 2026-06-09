@@ -7,10 +7,11 @@
 
 "use client";
 
+import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
+import { Atom } from "effect/unstable/reactivity";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
 
 /**
  * Optional Network Information API surface used to skip the video on
@@ -22,6 +23,96 @@ type SaveDataNavigator = Navigator & {
     readonly effectiveType?: string;
   };
 };
+
+type HeroVideoState = {
+  readonly element: HTMLVideoElement | null;
+  readonly playing: boolean;
+};
+
+const emptyHeroVideoState: HeroVideoState = {
+  element: null,
+  playing: false,
+};
+
+const heroVideoKey = (poster: string, mp4: string, webm: string | undefined): string =>
+  `${poster}::${mp4}::${webm ?? ""}`;
+
+const heroVideoStateAtom = Atom.family((_key: string) => Atom.make<HeroVideoState>(emptyHeroVideoState));
+
+const heroVideoElementAtom = Atom.family((key: string) =>
+  Atom.writable(
+    (get) => get(heroVideoStateAtom(key)).element,
+    (ctx, element: HTMLVideoElement | null) => {
+      const state = ctx.get(heroVideoStateAtom(key));
+      ctx.set(heroVideoStateAtom(key), {
+        element,
+        playing: element === null ? false : state.playing,
+      });
+    }
+  )
+);
+
+const heroVideoPlayingAtom = Atom.family((key: string) =>
+  Atom.writable(
+    (get) => get(heroVideoStateAtom(key)).playing,
+    (ctx, playing: boolean) => {
+      const state = ctx.get(heroVideoStateAtom(key));
+      ctx.set(heroVideoStateAtom(key), { ...state, playing });
+    }
+  )
+);
+
+const shouldSkipHeroVideo = (): boolean => {
+  if (typeof window === "undefined") {
+    return true;
+  }
+
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true) {
+    return true;
+  }
+
+  const connection = (window.navigator as SaveDataNavigator).connection;
+
+  return (
+    connection?.saveData === true ||
+    (P.isString(connection?.effectiveType) && Str.includes("2g")(connection.effectiveType))
+  );
+};
+
+const scheduleHeroVideoStart = (video: HTMLVideoElement): (() => void) => {
+  const start = () => {
+    video.load();
+    void video.play().catch(() => undefined);
+  };
+
+  if (P.isFunction(window.requestIdleCallback)) {
+    const idleHandle = window.requestIdleCallback(start, { timeout: 2000 });
+    return () => window.cancelIdleCallback?.(idleHandle);
+  }
+
+  const timer = window.setTimeout(start, 200);
+  return () => window.clearTimeout(timer);
+};
+
+const heroVideoAutoplayAtom = Atom.family((key: string) =>
+  Atom.make((get) => {
+    let cancelScheduledStart: (() => void) | undefined;
+
+    const scheduleStart = (video: HTMLVideoElement | null) => {
+      cancelScheduledStart?.();
+      cancelScheduledStart = undefined;
+
+      if (video === null || shouldSkipHeroVideo()) {
+        return;
+      }
+
+      cancelScheduledStart = scheduleHeroVideoStart(video);
+    };
+
+    get.subscribe(heroVideoElementAtom(key), scheduleStart, { immediate: true });
+    get.addFinalizer(() => cancelScheduledStart?.());
+  })
+);
 
 /**
  * Decorative hero media: an optimized poster paints immediately for LCP, then
@@ -55,36 +146,11 @@ export function HeroVideo({
   readonly mp4: string;
   readonly webm?: string | undefined;
 }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (video === null) return;
-
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true) return;
-    const connection = (navigator as SaveDataNavigator).connection;
-    if (connection?.saveData === true) return;
-    if (P.isString(connection?.effectiveType) && Str.includes("2g")(connection.effectiveType)) return;
-
-    const start = () => {
-      video.load();
-      void video.play().catch(() => {});
-    };
-
-    let idleHandle: number | undefined;
-    let timer: number | undefined;
-    if (P.isFunction(window.requestIdleCallback)) {
-      idleHandle = window.requestIdleCallback(start, { timeout: 2000 });
-    } else {
-      timer = window.setTimeout(start, 200);
-    }
-
-    return () => {
-      if (idleHandle !== undefined) window.cancelIdleCallback?.(idleHandle);
-      if (timer !== undefined) window.clearTimeout(timer);
-    };
-  }, []);
+  const key = heroVideoKey(poster, mp4, webm);
+  const playing = useAtomValue(heroVideoPlayingAtom(key));
+  const setPlaying = useAtomSet(heroVideoPlayingAtom(key));
+  const setVideoElement = useAtomSet(heroVideoElementAtom(key));
+  useAtomMount(heroVideoAutoplayAtom(key));
 
   return (
     <>
@@ -100,7 +166,7 @@ export function HeroVideo({
         aria-hidden="true"
       />
       <video
-        ref={videoRef}
+        ref={setVideoElement}
         muted
         loop
         playsInline

@@ -154,6 +154,21 @@ export {
   docsCommand,
 } from "./commands/Docs/index.js";
 /**
+ * Fallow quality-tooling command group.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Fallow quality-tooling command group.
+   *
+   * @category cli-commands
+   * @since 0.0.0
+   */
+  fallowCommand,
+} from "./commands/Fallow/index.js";
+/**
  * Dataset file curation command group.
  *
  * @category cli-commands

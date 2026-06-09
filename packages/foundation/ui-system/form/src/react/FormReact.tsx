@@ -5,7 +5,14 @@
  * @since 0.0.0
  */
 
-import { RegistryContext, useAtom, useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
+import {
+  make as makeScopedAtom,
+  RegistryContext,
+  useAtom,
+  useAtomMount,
+  useAtomSet,
+  useAtomValue,
+} from "@effect/atom-react";
 import { Layer } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -316,7 +323,7 @@ const makeFieldComponent = <Schema extends S.Top, P>(
     const fieldPath =
       arrayCtx !== null ? (fieldKey === "" ? arrayCtx.parentPath : `${arrayCtx.parentPath}.${fieldKey}`) : fieldKey;
 
-    const fieldAtoms = React.useMemo(() => getOrCreateFieldAtoms(fieldPath, fieldDef.schema), [fieldPath]);
+    const fieldAtoms = getOrCreateFieldAtoms(fieldPath, fieldDef.schema);
 
     const [value, setValue] = useAtom(fieldAtoms.valueAtom) as [S.Codec.Encoded<Schema>, (v: unknown) => void];
     const [isTouched, setTouched] = useAtom(fieldAtoms.touchedAtom);
@@ -327,26 +334,23 @@ const makeFieldComponent = <Schema extends S.Top, P>(
 
     useAtomMount(fieldAtoms.triggerValidationAtom);
 
-    const onChange = React.useCallback((newValue: S.Codec.Encoded<Schema>) => setValue(newValue), [setValue]);
+    const onChange = (newValue: S.Codec.Encoded<Schema>) => setValue(newValue);
 
-    const onBlur = React.useCallback(() => {
+    const onBlur = () => {
       setTouched(true);
       setOnBlurSubmit();
-    }, [setTouched, setOnBlurSubmit]);
+    };
 
-    const fieldState = React.useMemo(
-      () => ({
-        path: fieldPath,
-        value,
-        onChange,
-        onBlur,
-        error: displayError,
-        isTouched,
-        isValidating,
-        isDirty,
-      }),
-      [fieldPath, value, onChange, onBlur, displayError, isTouched, isValidating, isDirty]
-    );
+    const fieldState = {
+      path: fieldPath,
+      value,
+      onChange,
+      onBlur,
+      error: displayError,
+      isTouched,
+      isValidating,
+      isDirty,
+    };
 
     return <Component field={fieldState} props={extraProps} />;
   };
@@ -370,56 +374,41 @@ const makeArrayFieldComponent = <Schema extends S.Top>(
     const formState = O.getOrThrow(formStateOption);
 
     const fieldPath = arrayCtx !== null ? `${arrayCtx.parentPath}.${fieldKey}` : fieldKey;
-    const items = React.useMemo(
-      () => (getNestedValue(formState.values, fieldPath) ?? []) as ReadonlyArray<S.Codec.Encoded<Schema>>,
-      [formState.values, fieldPath]
-    );
+    const items = (getNestedValue(formState.values, fieldPath) ?? []) as ReadonlyArray<S.Codec.Encoded<Schema>>;
 
-    const append = React.useCallback(
-      (value?: S.Codec.Encoded<Schema>) => {
-        setFormState((prev) => {
-          if (O.isNone(prev)) return prev;
-          return O.some(operations.appendArrayItem(prev.value, fieldPath, def.itemSchema, value));
-        });
-      },
-      [fieldPath, setFormState]
-    );
+    const append = (value?: S.Codec.Encoded<Schema>) => {
+      setFormState((prev) => {
+        if (O.isNone(prev)) return prev;
+        return O.some(operations.appendArrayItem(prev.value, fieldPath, def.itemSchema, value));
+      });
+    };
 
-    const remove = React.useCallback(
-      (index: number) => {
-        setFormState((prev) => {
-          if (O.isNone(prev)) return prev;
-          return O.some(operations.removeArrayItem(prev.value, fieldPath, index));
-        });
-      },
-      [fieldPath, setFormState]
-    );
+    const remove = (index: number) => {
+      setFormState((prev) => {
+        if (O.isNone(prev)) return prev;
+        return O.some(operations.removeArrayItem(prev.value, fieldPath, index));
+      });
+    };
 
     const swap: {
       (indexA: number, indexB: number): void;
       (indexB: number): (indexA: number) => void;
-    } = React.useCallback(
-      dual(2, (indexA: number, indexB: number) => {
-        setFormState((prev) => {
-          if (O.isNone(prev)) return prev;
-          return O.some(operations.swapArrayItems(prev.value, fieldPath, indexA, indexB));
-        });
-      }),
-      [fieldPath, setFormState]
-    );
+    } = dual(2, (indexA: number, indexB: number) => {
+      setFormState((prev) => {
+        if (O.isNone(prev)) return prev;
+        return O.some(operations.swapArrayItems(prev.value, fieldPath, indexA, indexB));
+      });
+    });
 
     const move: {
       (from: number, to: number): void;
       (to: number): (from: number) => void;
-    } = React.useCallback(
-      dual(2, (from: number, to: number) => {
-        setFormState((prev) => {
-          if (O.isNone(prev)) return prev;
-          return O.some(operations.moveArrayItem(prev.value, fieldPath, from, to));
-        });
-      }),
-      [fieldPath, setFormState]
-    );
+    } = dual(2, (from: number, to: number) => {
+      setFormState((prev) => {
+        if (O.isNone(prev)) return prev;
+        return O.some(operations.moveArrayItem(prev.value, fieldPath, from, to));
+      });
+    });
 
     return <>{children({ items, append, remove, swap, move })}</>;
   };
@@ -434,12 +423,12 @@ const makeArrayFieldComponent = <Schema extends S.Top>(
     const parentPath = arrayCtx !== null ? `${arrayCtx.parentPath}.${fieldKey}` : fieldKey;
     const itemPath = `${parentPath}[${index}]`;
 
-    const remove = React.useCallback(() => {
+    const remove = () => {
       setFormState((prev) => {
         if (O.isNone(prev)) return prev;
         return O.some(operations.removeArrayItem(prev.value, parentPath, index));
       });
-    }, [parentPath, index, setFormState]);
+    };
 
     return (
       <ArrayItemContext.Provider value={{ index, parentPath: itemPath }}>
@@ -625,28 +614,48 @@ export const make: {
     validationCountAtom,
     valuesAtom,
   } = formAtoms;
+  const InitializeScope = makeScopedAtom(() => Atom.make(false));
 
   const InitializeComponent: React.FC<{
+    readonly defaultValues: TUnsafe.Any;
+    readonly validateOnInit?: boolean;
+    readonly children: React.ReactNode;
+  }> = (props) => (
+    <InitializeScope.Provider>
+      <InitializeComponentInner {...props} />
+    </InitializeScope.Provider>
+  );
+
+  const InitializeComponentInner: React.FC<{
     readonly defaultValues: TUnsafe.Any;
     readonly validateOnInit?: boolean;
     readonly children: React.ReactNode;
   }> = ({ children, defaultValues, validateOnInit }) => {
     const registry = React.useContext(RegistryContext);
     const state = useAtomValue(stateAtom);
-    const setFormState = useAtomSet(stateAtom);
-    const triggerValidate = useAtomSet(validateAtom);
-    const [isInitialized, setIsInitialized] = React.useState(false);
+    const isInitializedAtom = InitializeScope.use();
+    const isInitialized = useAtomValue(isInitializedAtom);
 
-    React.useEffect(() => {
-      const shouldInit = !registry.get(keepAliveActiveAtom) || O.isNone(registry.get(stateAtom));
-      if (shouldInit) {
-        setFormState(O.some(operations.createInitialState(defaultValues)));
-        if (validateOnInit === true) {
-          triggerValidate();
-        }
-      }
-      setIsInitialized(true);
-    }, [registry]);
+    const initializeAtom = React.useMemo(
+      () =>
+        Atom.make((get) => {
+          if (get(isInitializedAtom)) {
+            return;
+          }
+
+          const shouldInit = !registry.get(keepAliveActiveAtom) || O.isNone(registry.get(stateAtom));
+          if (shouldInit) {
+            get.set(stateAtom, O.some(operations.createInitialState(defaultValues)));
+            if (validateOnInit === true) {
+              get.set(validateAtom, undefined);
+            }
+          }
+          get.set(isInitializedAtom, true);
+        }),
+      [isInitializedAtom, registry, defaultValues, validateOnInit]
+    );
+
+    useAtomMount(initializeAtom);
 
     useAtomMount(autoSubmitAtom);
 
@@ -666,12 +675,12 @@ export const make: {
   );
 
   const KeepAlive: React.FC = () => {
-    const setKeepAliveActive = useAtomSet(keepAliveActiveAtom);
-
-    React.useLayoutEffect(() => {
-      setKeepAliveActive(true);
-      return () => setKeepAliveActive(false);
-    }, [setKeepAliveActive]);
+    useAtomMount(
+      Atom.make((get) => {
+        get.set(keepAliveActiveAtom, true);
+        get.addFinalizer(() => get.set(keepAliveActiveAtom, false));
+      })
+    );
 
     useAtomMount(mountAtom);
     return null;

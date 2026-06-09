@@ -7,7 +7,7 @@ import * as O from "@beep/utils/Option";
 import { MicrophoneIcon, SquareIcon, XIcon } from "@phosphor-icons/react";
 import { cva } from "class-variance-authority";
 import { motion } from "framer-motion";
-import { createContext, forwardRef, useCallback, useContext, useEffect, useRef } from "react";
+import { createContext, forwardRef, useContext, useEffect, useRef } from "react";
 import { cn } from "../lib/index.ts";
 import { requireReactContext } from "../lib/react-invariant.ts";
 import type { AudioFormat, CommitStrategy } from "@beep/ui/hooks/use-scribe";
@@ -227,7 +227,7 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
 
   const isConnecting = scribe.status === "connecting";
 
-  const start = useCallback((): Promise<void> => {
+  const start = (): Promise<void> => {
     const requestId = startRequestIdRef.current + 1;
     startRequestIdRef.current = requestId;
 
@@ -257,7 +257,7 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
       .catch(() => {
         // Error is handled by onError callback
       });
-  }, [getToken, scribe, onStart, microphone]);
+  };
 
   const stop = () => {
     startRequestIdRef.current += 1;

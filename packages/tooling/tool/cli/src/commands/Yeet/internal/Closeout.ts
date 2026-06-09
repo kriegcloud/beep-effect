@@ -385,8 +385,8 @@ export class PrCloseoutGateState extends S.Class<PrCloseoutGateState>($I`PrClose
     name: PrCloseoutGateName,
     status: PrCloseoutGateStatus,
     detail: S.String,
-    count: S.optionalKey(S.Finite),
-    url: S.optionalKey(S.String),
+    count: S.optional(S.Finite),
+    url: S.optional(S.String),
   },
   $I.annote("PrCloseoutGateState", {
     description: "Durable state for one PR closeout gate.",
@@ -772,8 +772,8 @@ const closeoutGateStates = (
       detail: options.retriggerGreptile
         ? "Greptile retrigger comment was posted explicitly."
         : `Greptile score=${greptile.score ?? "unknown"} issues=${greptile.issueCount ?? "unknown"}.`,
-      ...(greptile.issueCount === undefined ? {} : { count: greptile.issueCount }),
-      ...(greptile.url === undefined ? {} : { url: greptile.url }),
+      count: greptile.issueCount,
+      url: greptile.url,
     }),
     PrCloseoutGateState.make({
       name: "coderabbit",

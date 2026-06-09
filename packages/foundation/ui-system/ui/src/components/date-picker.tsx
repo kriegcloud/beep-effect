@@ -4,8 +4,9 @@ import { Button } from "@beep/ui/components/button";
 import { Calendar } from "@beep/ui/components/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@beep/ui/components/popover";
 import { cn } from "@beep/ui/lib/utils";
+import { make as makeScopedAtom, useAtom } from "@effect/atom-react";
 import { CalendarBlankIcon } from "@phosphor-icons/react";
-import * as React from "react";
+import { Atom } from "effect/unstable/reactivity";
 
 const DATE_FORMAT = {
   year: "numeric",
@@ -22,6 +23,18 @@ interface DatePickerProps {
   readonly value?: Date | undefined;
 }
 
+type DatePickerState = {
+  readonly internalValue: Date | undefined;
+  readonly open: boolean;
+};
+
+const DatePickerScope = makeScopedAtom((defaultValue: Date | undefined) =>
+  Atom.make<DatePickerState>({
+    internalValue: defaultValue,
+    open: false,
+  })
+);
+
 /**
  * A single-date picker composed from {@link Popover} and {@link Calendar}. Supports
  * both controlled (`value` + `onValueChange`) and uncontrolled (`defaultValue`) usage.
@@ -37,24 +50,31 @@ interface DatePickerProps {
  * @since 0.0.0
  */
 function DatePicker(props: DatePickerProps) {
-  const { value, defaultValue, onValueChange, placeholder = "Pick a date", disabled = false, className } = props;
-  const [internalValue, setInternalValue] = React.useState<Date | undefined>(defaultValue);
-  const [open, setOpen] = React.useState(false);
+  return (
+    <DatePickerScope.Provider value={props.defaultValue}>
+      <DatePickerInner {...props} />
+    </DatePickerScope.Provider>
+  );
+}
+
+function DatePickerInner(props: DatePickerProps) {
+  const { value, onValueChange, placeholder = "Pick a date", disabled = false, className } = props;
+  const [state, setState] = useAtom(DatePickerScope.use());
   // Detect controlledness by prop presence so a parent that starts controlled
   // with `value={undefined}` (and any later reset to `undefined`) is honored.
   const isControlled = Object.hasOwn(props, "value");
-  const selected = isControlled ? value : internalValue;
+  const selected = isControlled ? value : state.internalValue;
 
   const handleSelect = (date: Date | undefined) => {
     if (!isControlled) {
-      setInternalValue(date);
+      setState((current) => ({ ...current, internalValue: date }));
     }
     onValueChange?.(date);
-    setOpen(false);
+    setState((current) => ({ ...current, open: false }));
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={state.open} onOpenChange={(open) => setState((current) => ({ ...current, open }))}>
       <PopoverTrigger
         render={
           <Button

@@ -11,6 +11,7 @@ import { headers } from "next/headers";
 import { connection } from "next/server";
 import { use } from "react";
 import { oipSiteContent, oipTwitterHandle } from "@/content";
+import { OipAtomProvider } from "@/runtime/OipAtomProvider";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
@@ -264,7 +265,7 @@ export default function RootLayout({
             )}
           </head>
           <body className="min-h-full flex flex-col">
-            {children}
+            <OipAtomProvider>{children}</OipAtomProvider>
             <VercelInsights />
           </body>
         </html>

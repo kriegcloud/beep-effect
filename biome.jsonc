@@ -31,6 +31,8 @@
       "!**/.cache",
       "!**/bun.lock",
       "!**/dist",
+      "!standards/fallow.boundaries.generated.jsonc",
+      "!standards/fallow.dead-code.regression-baseline.jsonc",
       "!standards/jsdoc-documentation.inventory.jsonc",
       "!standards/repo-exports.catalog.jsonc",
       "!scratchpad",
