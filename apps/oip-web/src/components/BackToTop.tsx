@@ -7,20 +7,53 @@
 
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import * as O from "effect/Option";
+import { Atom } from "effect/unstable/reactivity";
 
 const REVEAL_OFFSET_PX = 560;
+
+const backToTopVisibleAtom = Atom.make((get) => {
+  const current = get.self<boolean>();
+  if (O.isSome(current)) {
+    return current.value;
+  }
+
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const update = () => get.setSelf(window.scrollY > REVEAL_OFFSET_PX);
+
+  window.addEventListener("scroll", update, { passive: true });
+  get.addFinalizer(() => window.removeEventListener("scroll", update));
+
+  return window.scrollY > REVEAL_OFFSET_PX;
+});
+
+const scrollToTopAtom = Atom.writable(
+  () => undefined,
+  () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+  }
+);
 
 /**
  * Fixed bottom-right button that fades in once the visitor has scrolled past the
  * hero, then smooth-scrolls back to the top of the page when clicked.
  *
- * Visibility is driven by a passive scroll listener that flips local state once
- * the page has scrolled past `REVEAL_OFFSET_PX`, so the control stays hidden on
- * the first viewport. The scroll itself honours `prefers-reduced-motion`,
- * falling back to an instant jump for visitors who opt out of motion. Styling
- * mirrors the carousel chevrons: a soil-toned pill with a gold glyph that reads
- * on both the light paper and dark soil sections it floats over.
+ * Visibility is driven by an Atom-managed passive scroll listener that flips
+ * once the page has scrolled past `REVEAL_OFFSET_PX`, so the control stays
+ * hidden on the first viewport. The scroll itself honours
+ * `prefers-reduced-motion`, falling back to an instant jump for visitors who opt
+ * out of motion. Styling mirrors the carousel chevrons: a soil-toned pill with
+ * a gold glyph that reads on both the light paper and dark soil sections it
+ * floats over.
  *
  * @example
  * ```tsx
@@ -34,19 +67,8 @@ const REVEAL_OFFSET_PX = 560;
  * @since 0.0.0
  */
 export function BackToTop() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > REVEAL_OFFSET_PX);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const scrollToTop = useCallback(() => {
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
-  }, []);
+  const visible = useAtomValue(backToTopVisibleAtom);
+  const scrollToTop = useAtomSet(scrollToTopAtom);
 
   return (
     <button
@@ -55,7 +77,7 @@ export function BackToTop() {
         visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-2 opacity-0"
       }`}
       hidden={!visible}
-      onClick={scrollToTop}
+      onClick={() => scrollToTop(undefined)}
       type="button"
     >
       <svg

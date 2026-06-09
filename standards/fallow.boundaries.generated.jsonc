@@ -1,0 +1,1970 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  "extends": [
+    "../.fallowrc.jsonc"
+  ],
+  "boundaries": {
+    "zones": [
+      {
+        "name": "@beep/acp",
+        "patterns": [
+          "packages/drivers/acp/src/**"
+        ]
+      },
+      {
+        "name": "@beep/agent-capability-domain",
+        "patterns": [
+          "packages/agent-capability/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/agent-capability-use-cases",
+        "patterns": [
+          "packages/agent-capability/use-cases/src/**"
+        ]
+      },
+      {
+        "name": "@beep/ai-provider-cli",
+        "patterns": [
+          "packages/drivers/ai-provider-cli/src/**"
+        ]
+      },
+      {
+        "name": "@beep/ai-sync",
+        "patterns": [
+          "packages/tooling/library/ai-sync/src/**"
+        ]
+      },
+      {
+        "name": "@beep/architecture-lab-client",
+        "patterns": [
+          "packages/architecture-lab/client/src/**"
+        ]
+      },
+      {
+        "name": "@beep/architecture-lab-config",
+        "patterns": [
+          "packages/architecture-lab/config/src/**"
+        ]
+      },
+      {
+        "name": "@beep/architecture-lab-domain",
+        "patterns": [
+          "packages/architecture-lab/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/architecture-lab-proof",
+        "patterns": [
+          "apps/architecture-lab-proof/src/**"
+        ]
+      },
+      {
+        "name": "@beep/architecture-lab-server",
+        "patterns": [
+          "packages/architecture-lab/server/src/**"
+        ]
+      },
+      {
+        "name": "@beep/architecture-lab-tables",
+        "patterns": [
+          "packages/architecture-lab/tables/src/**"
+        ]
+      },
+      {
+        "name": "@beep/architecture-lab-ui",
+        "patterns": [
+          "packages/architecture-lab/ui/src/**"
+        ]
+      },
+      {
+        "name": "@beep/architecture-lab-use-cases",
+        "patterns": [
+          "packages/architecture-lab/use-cases/src/**"
+        ]
+      },
+      {
+        "name": "@beep/box",
+        "patterns": [
+          "packages/drivers/box/src/**"
+        ]
+      },
+      {
+        "name": "@beep/canvas",
+        "patterns": [
+          "apps/canvas/src/**"
+        ]
+      },
+      {
+        "name": "@beep/canvas-client",
+        "patterns": [
+          "packages/canvas/client/src/**"
+        ]
+      },
+      {
+        "name": "@beep/canvas-domain",
+        "patterns": [
+          "packages/canvas/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/canvas-server",
+        "patterns": [
+          "packages/canvas/server/src/**"
+        ]
+      },
+      {
+        "name": "@beep/canvas-ui",
+        "patterns": [
+          "packages/canvas/ui/src/**"
+        ]
+      },
+      {
+        "name": "@beep/canvas-use-cases",
+        "patterns": [
+          "packages/canvas/use-cases/src/**"
+        ]
+      },
+      {
+        "name": "@beep/chalk",
+        "patterns": [
+          "packages/foundation/capability/chalk/src/**"
+        ]
+      },
+      {
+        "name": "@beep/codedank-web",
+        "patterns": [
+          "apps/codedank-web/src/**"
+        ]
+      },
+      {
+        "name": "@beep/colors",
+        "patterns": [
+          "packages/foundation/capability/colors/src/**"
+        ]
+      },
+      {
+        "name": "@beep/data",
+        "patterns": [
+          "packages/foundation/primitive/data/src/**"
+        ]
+      },
+      {
+        "name": "@beep/db-admin",
+        "patterns": [
+          "packages/_internal/db-admin/src/**"
+        ]
+      },
+      {
+        "name": "@beep/discord",
+        "patterns": [
+          "packages/drivers/discord/src/**"
+        ]
+      },
+      {
+        "name": "@beep/drizzle",
+        "patterns": [
+          "packages/drivers/drizzle/src/**"
+        ]
+      },
+      {
+        "name": "@beep/duckdb",
+        "patterns": [
+          "packages/drivers/duckdb/src/**"
+        ]
+      },
+      {
+        "name": "@beep/epistemic-domain",
+        "patterns": [
+          "packages/epistemic/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/face-detection",
+        "patterns": [
+          "packages/drivers/face-detection/src/**"
+        ]
+      },
+      {
+        "name": "@beep/ffmpeg",
+        "patterns": [
+          "packages/drivers/ffmpeg/src/**"
+        ]
+      },
+      {
+        "name": "@beep/file-processing",
+        "patterns": [
+          "packages/foundation/capability/file-processing/src/**"
+        ]
+      },
+      {
+        "name": "@beep/firecrawl",
+        "patterns": [
+          "packages/drivers/firecrawl/src/**"
+        ]
+      },
+      {
+        "name": "@beep/form",
+        "patterns": [
+          "packages/foundation/ui-system/form/src/**"
+        ]
+      },
+      {
+        "name": "@beep/hubspot",
+        "patterns": [
+          "packages/drivers/hubspot/src/**"
+        ]
+      },
+      {
+        "name": "@beep/identity",
+        "patterns": [
+          "packages/foundation/modeling/identity/src/**"
+        ]
+      },
+      {
+        "name": "@beep/infra",
+        "patterns": [
+          "infra/src/**"
+        ]
+      },
+      {
+        "name": "@beep/installer-domain",
+        "patterns": [
+          "packages/installer/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/installer-server",
+        "patterns": [
+          "packages/installer/server/src/**"
+        ]
+      },
+      {
+        "name": "@beep/installer-use-cases",
+        "patterns": [
+          "packages/installer/use-cases/src/**"
+        ]
+      },
+      {
+        "name": "@beep/konva",
+        "patterns": [
+          "packages/drivers/konva/src/**"
+        ]
+      },
+      {
+        "name": "@beep/langextract",
+        "patterns": [
+          "packages/foundation/capability/langextract/src/**"
+        ]
+      },
+      {
+        "name": "@beep/law-practice-domain",
+        "patterns": [
+          "packages/law-practice/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/libpff",
+        "patterns": [
+          "packages/drivers/libpff/src/**"
+        ]
+      },
+      {
+        "name": "@beep/md",
+        "patterns": [
+          "packages/foundation/capability/md/src/**"
+        ]
+      },
+      {
+        "name": "@beep/messages",
+        "patterns": [
+          "packages/foundation/modeling/messages/src/**"
+        ]
+      },
+      {
+        "name": "@beep/nlp",
+        "patterns": [
+          "packages/foundation/capability/nlp/src/**"
+        ]
+      },
+      {
+        "name": "@beep/nlp-mcp",
+        "patterns": [
+          "packages/drivers/nlp-mcp/src/**"
+        ]
+      },
+      {
+        "name": "@beep/observability",
+        "patterns": [
+          "packages/foundation/capability/observability/src/**"
+        ]
+      },
+      {
+        "name": "@beep/oip-web",
+        "patterns": [
+          "apps/oip-web/src/**"
+        ]
+      },
+      {
+        "name": "@beep/onepassword-cli",
+        "patterns": [
+          "packages/drivers/onepassword-cli/src/**"
+        ]
+      },
+      {
+        "name": "@beep/ontology",
+        "patterns": [
+          "packages/foundation/modeling/ontology/src/**"
+        ]
+      },
+      {
+        "name": "@beep/openai-compat",
+        "patterns": [
+          "packages/drivers/openai-compat/src/**"
+        ]
+      },
+      {
+        "name": "@beep/phoenix",
+        "patterns": [
+          "packages/drivers/phoenix/src/**"
+        ]
+      },
+      {
+        "name": "@beep/postgres",
+        "patterns": [
+          "packages/drivers/postgres/src/**"
+        ]
+      },
+      {
+        "name": "@beep/professional-desktop",
+        "patterns": [
+          "apps/professional-desktop/src/**"
+        ]
+      },
+      {
+        "name": "@beep/professional-runtime-proof",
+        "patterns": [
+          "apps/professional-runtime-proof/src/**"
+        ]
+      },
+      {
+        "name": "@beep/rdf",
+        "patterns": [
+          "packages/foundation/modeling/rdf/src/**"
+        ]
+      },
+      {
+        "name": "@beep/repo-ai-metrics",
+        "patterns": [
+          "packages/tooling/library/ai-metrics/src/**"
+        ]
+      },
+      {
+        "name": "@beep/repo-cli",
+        "patterns": [
+          "packages/tooling/tool/cli/src/**"
+        ]
+      },
+      {
+        "name": "@beep/repo-codegraph",
+        "patterns": [
+          "packages/tooling/library/repo-codegraph/src/**"
+        ]
+      },
+      {
+        "name": "@beep/repo-configs",
+        "patterns": [
+          "packages/tooling/policy-pack/repo-configs/src/**"
+        ]
+      },
+      {
+        "name": "@beep/repo-docgen",
+        "patterns": [
+          "packages/tooling/tool/docgen/src/**"
+        ]
+      },
+      {
+        "name": "@beep/repo-utils",
+        "patterns": [
+          "packages/tooling/library/repo-utils/src/**"
+        ]
+      },
+      {
+        "name": "@beep/runpod",
+        "patterns": [
+          "packages/drivers/runpod/src/**"
+        ]
+      },
+      {
+        "name": "@beep/sandbox",
+        "patterns": [
+          "packages/foundation/capability/sandbox/src/**"
+        ]
+      },
+      {
+        "name": "@beep/sanity",
+        "patterns": [
+          "packages/drivers/sanity/src/**"
+        ]
+      },
+      {
+        "name": "@beep/schema",
+        "patterns": [
+          "packages/foundation/modeling/schema/src/**"
+        ]
+      },
+      {
+        "name": "@beep/semantic-web",
+        "patterns": [
+          "packages/foundation/capability/semantic-web/src/**"
+        ]
+      },
+      {
+        "name": "@beep/shared-client",
+        "patterns": [
+          "packages/shared/client/src/**"
+        ]
+      },
+      {
+        "name": "@beep/shared-config",
+        "patterns": [
+          "packages/shared/config/src/**"
+        ]
+      },
+      {
+        "name": "@beep/shared-domain",
+        "patterns": [
+          "packages/shared/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/shared-server",
+        "patterns": [
+          "packages/shared/server/src/**"
+        ]
+      },
+      {
+        "name": "@beep/shared-tables",
+        "patterns": [
+          "packages/shared/tables/src/**"
+        ]
+      },
+      {
+        "name": "@beep/shared-ui",
+        "patterns": [
+          "packages/shared/ui/src/**"
+        ]
+      },
+      {
+        "name": "@beep/shared-use-cases",
+        "patterns": [
+          "packages/shared/use-cases/src/**"
+        ]
+      },
+      {
+        "name": "@beep/stack-installer",
+        "patterns": [
+          "apps/stack-installer/src/**"
+        ]
+      },
+      {
+        "name": "@beep/storybook",
+        "patterns": [
+          "apps/storybook/src/**"
+        ]
+      },
+      {
+        "name": "@beep/test-utils",
+        "patterns": [
+          "packages/tooling/test-kit/test-utils/src/**"
+        ]
+      },
+      {
+        "name": "@beep/tika",
+        "patterns": [
+          "packages/drivers/tika/src/**"
+        ]
+      },
+      {
+        "name": "@beep/types",
+        "patterns": [
+          "packages/foundation/primitive/types/src/**"
+        ]
+      },
+      {
+        "name": "@beep/ui",
+        "patterns": [
+          "packages/foundation/ui-system/ui/src/**"
+        ]
+      },
+      {
+        "name": "@beep/utils",
+        "patterns": [
+          "packages/foundation/modeling/utils/src/**"
+        ]
+      },
+      {
+        "name": "@beep/venice-ai",
+        "patterns": [
+          "packages/drivers/venice-ai/src/**"
+        ]
+      },
+      {
+        "name": "@beep/wealth-management-domain",
+        "patterns": [
+          "packages/wealth-management/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/wink",
+        "patterns": [
+          "packages/drivers/wink/src/**"
+        ]
+      },
+      {
+        "name": "@beep/workspace-domain",
+        "patterns": [
+          "packages/workspace/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/workspace-tables",
+        "patterns": [
+          "packages/workspace/tables/src/**"
+        ]
+      },
+      {
+        "name": "@beep/xai",
+        "patterns": [
+          "packages/drivers/xai/src/**"
+        ]
+      }
+    ],
+    "rules": [
+      {
+        "from": "@beep/acp",
+        "allow": [
+          "@beep/acp",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/acp",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/agent-capability-domain",
+        "allow": [
+          "@beep/agent-capability-domain",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/agent-capability-domain",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ]
+      },
+      {
+        "from": "@beep/agent-capability-use-cases",
+        "allow": [
+          "@beep/agent-capability-use-cases",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/agent-capability-use-cases",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/ai-provider-cli",
+        "allow": [
+          "@beep/ai-provider-cli",
+          "@beep/identity",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/ai-provider-cli",
+          "@beep/identity",
+          "@beep/schema"
+        ]
+      },
+      {
+        "from": "@beep/ai-sync",
+        "allow": [
+          "@beep/ai-sync",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/types",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/ai-sync",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/types",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/architecture-lab-client",
+        "allow": [
+          "@beep/architecture-lab-client",
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-use-cases",
+          "@beep/identity"
+        ],
+        "allowTypeOnly": [
+          "@beep/architecture-lab-client",
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-use-cases",
+          "@beep/identity"
+        ]
+      },
+      {
+        "from": "@beep/architecture-lab-config",
+        "allow": [
+          "@beep/architecture-lab-config",
+          "@beep/identity"
+        ],
+        "allowTypeOnly": [
+          "@beep/architecture-lab-config",
+          "@beep/identity"
+        ]
+      },
+      {
+        "from": "@beep/architecture-lab-domain",
+        "allow": [
+          "@beep/architecture-lab-domain",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/architecture-lab-domain",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ]
+      },
+      {
+        "from": "@beep/architecture-lab-proof",
+        "allow": [
+          "@beep/architecture-lab-config",
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-proof",
+          "@beep/architecture-lab-server",
+          "@beep/architecture-lab-ui",
+          "@beep/architecture-lab-use-cases"
+        ],
+        "allowTypeOnly": [
+          "@beep/architecture-lab-config",
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-proof",
+          "@beep/architecture-lab-server",
+          "@beep/architecture-lab-ui",
+          "@beep/architecture-lab-use-cases"
+        ]
+      },
+      {
+        "from": "@beep/architecture-lab-server",
+        "allow": [
+          "@beep/architecture-lab-config",
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-server",
+          "@beep/architecture-lab-tables",
+          "@beep/architecture-lab-use-cases",
+          "@beep/identity",
+          "@beep/postgres",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/architecture-lab-config",
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-server",
+          "@beep/architecture-lab-tables",
+          "@beep/architecture-lab-use-cases",
+          "@beep/identity",
+          "@beep/postgres",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/architecture-lab-tables",
+        "allow": [
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-tables",
+          "@beep/drizzle"
+        ],
+        "allowTypeOnly": [
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-tables",
+          "@beep/drizzle"
+        ]
+      },
+      {
+        "from": "@beep/architecture-lab-ui",
+        "allow": [
+          "@beep/architecture-lab-config",
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-ui",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/architecture-lab-config",
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-ui",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/architecture-lab-use-cases",
+        "allow": [
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-use-cases",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/architecture-lab-domain",
+          "@beep/architecture-lab-use-cases",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/box",
+        "allow": [
+          "@beep/box",
+          "@beep/identity",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/box",
+          "@beep/identity",
+          "@beep/schema"
+        ]
+      },
+      {
+        "from": "@beep/canvas",
+        "allow": [
+          "@beep/canvas",
+          "@beep/canvas-domain",
+          "@beep/canvas-server",
+          "@beep/canvas-use-cases",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/ui"
+        ],
+        "allowTypeOnly": [
+          "@beep/canvas",
+          "@beep/canvas-domain",
+          "@beep/canvas-server",
+          "@beep/canvas-use-cases",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/ui"
+        ]
+      },
+      {
+        "from": "@beep/canvas-client",
+        "allow": [
+          "@beep/canvas-client",
+          "@beep/canvas-domain",
+          "@beep/canvas-use-cases",
+          "@beep/identity"
+        ],
+        "allowTypeOnly": [
+          "@beep/canvas-client",
+          "@beep/canvas-domain",
+          "@beep/canvas-use-cases",
+          "@beep/identity"
+        ]
+      },
+      {
+        "from": "@beep/canvas-domain",
+        "allow": [
+          "@beep/canvas-domain",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/canvas-domain",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ]
+      },
+      {
+        "from": "@beep/canvas-server",
+        "allow": [
+          "@beep/canvas-domain",
+          "@beep/canvas-server",
+          "@beep/canvas-use-cases",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/canvas-domain",
+          "@beep/canvas-server",
+          "@beep/canvas-use-cases",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/canvas-ui",
+        "allow": [
+          "@beep/canvas-domain",
+          "@beep/canvas-ui",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/canvas-domain",
+          "@beep/canvas-ui",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/canvas-use-cases",
+        "allow": [
+          "@beep/canvas-domain",
+          "@beep/canvas-use-cases",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/canvas-domain",
+          "@beep/canvas-use-cases",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/chalk",
+        "allow": [
+          "@beep/chalk",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/chalk",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/codedank-web",
+        "allow": [
+          "@beep/codedank-web",
+          "@beep/repo-configs",
+          "@beep/repo-utils",
+          "@beep/ui"
+        ],
+        "allowTypeOnly": [
+          "@beep/codedank-web",
+          "@beep/repo-configs",
+          "@beep/repo-utils",
+          "@beep/ui"
+        ]
+      },
+      {
+        "from": "@beep/colors",
+        "allow": [
+          "@beep/colors",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/colors",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/data",
+        "allow": [
+          "@beep/data",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/data",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/db-admin",
+        "allow": [
+          "@beep/architecture-lab-tables",
+          "@beep/db-admin",
+          "@beep/postgres",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/architecture-lab-tables",
+          "@beep/db-admin",
+          "@beep/postgres",
+          "@beep/test-utils",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/discord",
+        "allow": [
+          "@beep/discord",
+          "@beep/identity",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/discord",
+          "@beep/identity",
+          "@beep/schema"
+        ]
+      },
+      {
+        "from": "@beep/drizzle",
+        "allow": [
+          "@beep/drizzle",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/drizzle",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/duckdb",
+        "allow": [
+          "@beep/duckdb",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/duckdb",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/epistemic-domain",
+        "allow": [
+          "@beep/epistemic-domain",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/epistemic-domain",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ]
+      },
+      {
+        "from": "@beep/face-detection",
+        "allow": [
+          "@beep/face-detection",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/face-detection",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/ffmpeg",
+        "allow": [
+          "@beep/ffmpeg",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/ffmpeg",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/file-processing",
+        "allow": [
+          "@beep/file-processing",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/file-processing",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/firecrawl",
+        "allow": [
+          "@beep/firecrawl",
+          "@beep/identity",
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/firecrawl",
+          "@beep/identity",
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/form",
+        "allow": [
+          "@beep/form",
+          "@beep/identity",
+          "@beep/types"
+        ],
+        "allowTypeOnly": [
+          "@beep/form",
+          "@beep/identity",
+          "@beep/types"
+        ]
+      },
+      {
+        "from": "@beep/hubspot",
+        "allow": [
+          "@beep/hubspot",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/hubspot",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/identity",
+        "allow": [
+          "@beep/identity",
+          "@beep/types"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/types"
+        ]
+      },
+      {
+        "from": "@beep/infra",
+        "allow": [
+          "@beep/identity",
+          "@beep/infra",
+          "@beep/repo-ai-metrics",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/infra",
+          "@beep/repo-ai-metrics",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/installer-domain",
+        "allow": [
+          "@beep/identity",
+          "@beep/installer-domain",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/installer-domain",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ]
+      },
+      {
+        "from": "@beep/installer-server",
+        "allow": [
+          "@beep/ai-provider-cli",
+          "@beep/discord",
+          "@beep/installer-domain",
+          "@beep/installer-server",
+          "@beep/installer-use-cases",
+          "@beep/onepassword-cli",
+          "@beep/shared-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/ai-provider-cli",
+          "@beep/discord",
+          "@beep/installer-domain",
+          "@beep/installer-server",
+          "@beep/installer-use-cases",
+          "@beep/onepassword-cli",
+          "@beep/shared-domain"
+        ]
+      },
+      {
+        "from": "@beep/installer-use-cases",
+        "allow": [
+          "@beep/identity",
+          "@beep/installer-domain",
+          "@beep/installer-use-cases",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/installer-domain",
+          "@beep/installer-use-cases",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ]
+      },
+      {
+        "from": "@beep/konva",
+        "allow": [
+          "@beep/konva"
+        ],
+        "allowTypeOnly": [
+          "@beep/konva"
+        ]
+      },
+      {
+        "from": "@beep/langextract",
+        "allow": [
+          "@beep/identity",
+          "@beep/langextract",
+          "@beep/nlp",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/langextract",
+          "@beep/nlp",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/law-practice-domain",
+        "allow": [
+          "@beep/identity",
+          "@beep/law-practice-domain",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/law-practice-domain",
+          "@beep/schema",
+          "@beep/shared-domain"
+        ]
+      },
+      {
+        "from": "@beep/libpff",
+        "allow": [
+          "@beep/file-processing",
+          "@beep/identity",
+          "@beep/libpff",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/file-processing",
+          "@beep/identity",
+          "@beep/libpff",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/md",
+        "allow": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/messages",
+        "allow": [
+          "@beep/messages",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/messages",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/nlp",
+        "allow": [
+          "@beep/identity",
+          "@beep/nlp",
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/nlp",
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/nlp-mcp",
+        "allow": [
+          "@beep/identity",
+          "@beep/nlp",
+          "@beep/nlp-mcp",
+          "@beep/schema",
+          "@beep/wink"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/nlp",
+          "@beep/nlp-mcp",
+          "@beep/schema",
+          "@beep/wink"
+        ]
+      },
+      {
+        "from": "@beep/observability",
+        "allow": [
+          "@beep/colors",
+          "@beep/identity",
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/colors",
+          "@beep/identity",
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/oip-web",
+        "allow": [
+          "@beep/hubspot",
+          "@beep/identity",
+          "@beep/oip-web",
+          "@beep/repo-configs",
+          "@beep/repo-utils",
+          "@beep/sanity",
+          "@beep/schema",
+          "@beep/ui",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/hubspot",
+          "@beep/identity",
+          "@beep/oip-web",
+          "@beep/repo-configs",
+          "@beep/repo-utils",
+          "@beep/sanity",
+          "@beep/schema",
+          "@beep/ui",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/onepassword-cli",
+        "allow": [
+          "@beep/identity",
+          "@beep/onepassword-cli",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/onepassword-cli",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/ontology",
+        "allow": [
+          "@beep/identity",
+          "@beep/ontology",
+          "@beep/rdf",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/ontology",
+          "@beep/rdf",
+          "@beep/schema"
+        ]
+      },
+      {
+        "from": "@beep/openai-compat",
+        "allow": [
+          "@beep/identity",
+          "@beep/openai-compat",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/openai-compat",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/phoenix",
+        "allow": [
+          "@beep/identity",
+          "@beep/phoenix",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/phoenix",
+          "@beep/schema"
+        ]
+      },
+      {
+        "from": "@beep/postgres",
+        "allow": [
+          "@beep/colors",
+          "@beep/identity",
+          "@beep/postgres",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/colors",
+          "@beep/identity",
+          "@beep/postgres",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/professional-desktop",
+        "allow": [
+          "@beep/professional-desktop",
+          "@beep/ui"
+        ],
+        "allowTypeOnly": [
+          "@beep/professional-desktop",
+          "@beep/ui"
+        ]
+      },
+      {
+        "from": "@beep/professional-runtime-proof",
+        "allow": [
+          "@beep/agent-capability-domain",
+          "@beep/agent-capability-use-cases",
+          "@beep/epistemic-domain",
+          "@beep/law-practice-domain",
+          "@beep/professional-runtime-proof",
+          "@beep/shared-domain",
+          "@beep/utils",
+          "@beep/wealth-management-domain",
+          "@beep/workspace-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/agent-capability-domain",
+          "@beep/agent-capability-use-cases",
+          "@beep/epistemic-domain",
+          "@beep/law-practice-domain",
+          "@beep/professional-runtime-proof",
+          "@beep/shared-domain",
+          "@beep/utils",
+          "@beep/wealth-management-domain",
+          "@beep/workspace-domain"
+        ]
+      },
+      {
+        "from": "@beep/rdf",
+        "allow": [
+          "@beep/identity",
+          "@beep/rdf",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/rdf",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/repo-ai-metrics",
+        "allow": [
+          "@beep/duckdb",
+          "@beep/identity",
+          "@beep/phoenix",
+          "@beep/repo-ai-metrics",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/duckdb",
+          "@beep/identity",
+          "@beep/phoenix",
+          "@beep/repo-ai-metrics",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/repo-cli",
+        "allow": [
+          "@beep/chalk",
+          "@beep/colors",
+          "@beep/duckdb",
+          "@beep/face-detection",
+          "@beep/ffmpeg",
+          "@beep/file-processing",
+          "@beep/identity",
+          "@beep/libpff",
+          "@beep/md",
+          "@beep/observability",
+          "@beep/phoenix",
+          "@beep/repo-ai-metrics",
+          "@beep/repo-cli",
+          "@beep/repo-codegraph",
+          "@beep/repo-configs",
+          "@beep/repo-docgen",
+          "@beep/repo-utils",
+          "@beep/runpod",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/tika",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/chalk",
+          "@beep/colors",
+          "@beep/duckdb",
+          "@beep/face-detection",
+          "@beep/ffmpeg",
+          "@beep/file-processing",
+          "@beep/identity",
+          "@beep/libpff",
+          "@beep/md",
+          "@beep/observability",
+          "@beep/phoenix",
+          "@beep/repo-ai-metrics",
+          "@beep/repo-cli",
+          "@beep/repo-codegraph",
+          "@beep/repo-configs",
+          "@beep/repo-docgen",
+          "@beep/repo-utils",
+          "@beep/runpod",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/tika",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/repo-codegraph",
+        "allow": [
+          "@beep/identity",
+          "@beep/repo-codegraph",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/repo-codegraph",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/repo-configs",
+        "allow": [
+          "@beep/identity",
+          "@beep/repo-configs",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/repo-configs",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/repo-docgen",
+        "allow": [
+          "@beep/chalk",
+          "@beep/identity",
+          "@beep/repo-docgen",
+          "@beep/repo-utils",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/chalk",
+          "@beep/identity",
+          "@beep/repo-docgen",
+          "@beep/repo-utils",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/repo-utils",
+        "allow": [
+          "@beep/identity",
+          "@beep/repo-utils",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/repo-utils",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/runpod",
+        "allow": [
+          "@beep/identity",
+          "@beep/runpod",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/runpod",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/sandbox",
+        "allow": [
+          "@beep/identity",
+          "@beep/observability",
+          "@beep/sandbox",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/observability",
+          "@beep/sandbox",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/sanity",
+        "allow": [
+          "@beep/identity",
+          "@beep/sanity",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/sanity",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/schema",
+        "allow": [
+          "@beep/data",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/types",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/data",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/types",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/semantic-web",
+        "allow": [
+          "@beep/identity",
+          "@beep/rdf",
+          "@beep/schema",
+          "@beep/semantic-web",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/rdf",
+          "@beep/schema",
+          "@beep/semantic-web",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/shared-client",
+        "allow": [
+          "@beep/shared-client"
+        ],
+        "allowTypeOnly": [
+          "@beep/shared-client"
+        ]
+      },
+      {
+        "from": "@beep/shared-config",
+        "allow": [
+          "@beep/shared-config"
+        ],
+        "allowTypeOnly": [
+          "@beep/shared-config"
+        ]
+      },
+      {
+        "from": "@beep/shared-domain",
+        "allow": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/shared-server",
+        "allow": [
+          "@beep/shared-server"
+        ],
+        "allowTypeOnly": [
+          "@beep/shared-server"
+        ]
+      },
+      {
+        "from": "@beep/shared-tables",
+        "allow": [
+          "@beep/drizzle",
+          "@beep/shared-domain",
+          "@beep/shared-tables",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/drizzle",
+          "@beep/shared-domain",
+          "@beep/shared-tables",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/shared-ui",
+        "allow": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/shared-ui"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/shared-ui"
+        ]
+      },
+      {
+        "from": "@beep/shared-use-cases",
+        "allow": [
+          "@beep/shared-use-cases"
+        ],
+        "allowTypeOnly": [
+          "@beep/shared-use-cases"
+        ]
+      },
+      {
+        "from": "@beep/stack-installer",
+        "allow": [
+          "@beep/ai-provider-cli",
+          "@beep/discord",
+          "@beep/identity",
+          "@beep/installer-server",
+          "@beep/installer-use-cases",
+          "@beep/onepassword-cli",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/stack-installer",
+          "@beep/ui"
+        ],
+        "allowTypeOnly": [
+          "@beep/ai-provider-cli",
+          "@beep/discord",
+          "@beep/identity",
+          "@beep/installer-server",
+          "@beep/installer-use-cases",
+          "@beep/onepassword-cli",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/stack-installer",
+          "@beep/ui"
+        ]
+      },
+      {
+        "from": "@beep/storybook",
+        "allow": [
+          "@beep/storybook",
+          "@beep/ui"
+        ],
+        "allowTypeOnly": [
+          "@beep/storybook",
+          "@beep/ui"
+        ]
+      },
+      {
+        "from": "@beep/test-utils",
+        "allow": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/tika",
+        "allow": [
+          "@beep/file-processing",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/tika",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/file-processing",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/tika",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/types",
+        "allow": [
+          "@beep/types"
+        ],
+        "allowTypeOnly": [
+          "@beep/types"
+        ]
+      },
+      {
+        "from": "@beep/ui",
+        "allow": [
+          "@beep/ui",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/ui",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/utils",
+        "allow": [
+          "@beep/identity",
+          "@beep/types",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/types",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/venice-ai",
+        "allow": [
+          "@beep/identity",
+          "@beep/openai-compat",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/venice-ai"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/openai-compat",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/venice-ai"
+        ]
+      },
+      {
+        "from": "@beep/wealth-management-domain",
+        "allow": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/wealth-management-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/wealth-management-domain"
+        ]
+      },
+      {
+        "from": "@beep/wink",
+        "allow": [
+          "@beep/identity",
+          "@beep/nlp",
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/wink"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/nlp",
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/wink"
+        ]
+      },
+      {
+        "from": "@beep/workspace-domain",
+        "allow": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/workspace-domain"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/workspace-domain"
+        ]
+      },
+      {
+        "from": "@beep/workspace-tables",
+        "allow": [
+          "@beep/drizzle",
+          "@beep/workspace-domain",
+          "@beep/workspace-tables"
+        ],
+        "allowTypeOnly": [
+          "@beep/drizzle",
+          "@beep/workspace-domain",
+          "@beep/workspace-tables"
+        ]
+      },
+      {
+        "from": "@beep/xai",
+        "allow": [
+          "@beep/identity",
+          "@beep/openai-compat",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/xai"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/openai-compat",
+          "@beep/schema",
+          "@beep/utils",
+          "@beep/xai"
+        ]
+      }
+    ]
+  },
+  "rules": {
+    "boundary-violation": "warn"
+  }
+}

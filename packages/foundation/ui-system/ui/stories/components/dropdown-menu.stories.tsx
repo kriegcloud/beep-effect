@@ -16,7 +16,9 @@ import {
   DropdownMenuTrigger,
 } from "@beep/ui/components/dropdown-menu";
 import { A } from "@beep/utils";
-import { useState } from "react";
+import { useAtom } from "@effect/atom-react";
+import { Atom } from "effect/unstable/reactivity";
+import * as React from "react";
 import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
@@ -155,8 +157,15 @@ export const DestructiveItem: Story = {
  */
 export const WithCheckboxes: Story = {
   render: (args) => {
-    const [showBookmarks, setShowBookmarks] = useState(true);
-    const [showFullUrls, setShowFullUrls] = useState(false);
+    const dropdownCheckboxStateAtom = React.useMemo(
+      () =>
+        Atom.make({
+          showBookmarks: true,
+          showFullUrls: false,
+        }),
+      []
+    );
+    const [checkboxState, setCheckboxState] = useAtom(dropdownCheckboxStateAtom);
     return (
       <DropdownMenu {...args}>
         <DropdownMenuTrigger render={<Button variant="outline">View</Button>} />
@@ -165,10 +174,16 @@ export const WithCheckboxes: Story = {
             <DropdownMenuLabel>Appearance</DropdownMenuLabel>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuCheckboxItem checked={showBookmarks} onCheckedChange={setShowBookmarks}>
+          <DropdownMenuCheckboxItem
+            checked={checkboxState.showBookmarks}
+            onCheckedChange={(showBookmarks) => setCheckboxState((state) => ({ ...state, showBookmarks }))}
+          >
             Show Bookmarks
           </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem checked={showFullUrls} onCheckedChange={setShowFullUrls}>
+          <DropdownMenuCheckboxItem
+            checked={checkboxState.showFullUrls}
+            onCheckedChange={(showFullUrls) => setCheckboxState((state) => ({ ...state, showFullUrls }))}
+          >
             Show Full URLs
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>

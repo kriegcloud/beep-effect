@@ -74,6 +74,9 @@
       "@beep/repo-cli/commands/Docs": [
         "../../../../packages/tooling/tool/cli/src/commands/Docs/index.ts"
       ],
+      "@beep/repo-cli/commands/Fallow": [
+        "../../../../packages/tooling/tool/cli/src/commands/Fallow/index.ts"
+      ],
       "@beep/repo-cli/commands/Files": [
         "../../../../packages/tooling/tool/cli/src/commands/Files/index.ts"
       ],

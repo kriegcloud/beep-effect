@@ -173,7 +173,7 @@ const findStep = (steps: ReadonlyArray<RepoPlanStep>, label: string): RepoPlanSt
   );
 
 describe("yeet planner", () => {
-  it("builds publish as commit, pre-push proof, then push", () => {
+  it("builds publish as advisory feedback, commit, pre-push proof, then push", () => {
     const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
 
     expect(
@@ -181,14 +181,14 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual(["commit:git:commit", "full:pre-push", "publish:git:push"]);
+    ).toEqual(["fallow-advisory-feedback", "commit:git:commit", "full:pre-push", "publish:git:push"]);
     expect(
       pipe(
         plan.steps,
         A.map((step) => step.phase),
         A.dedupe
       )
-    ).toEqual(["commit", "full", "publish"]);
+    ).toEqual(["feedback", "commit", "full", "publish"]);
 
     const commit = findStep(plan.steps, "commit:git:commit");
     const proof = findStep(plan.steps, "full:pre-push");
@@ -207,7 +207,7 @@ describe("yeet planner", () => {
     ).not.toContainEqual(["add", "-A"]);
   });
 
-  it("builds verify as only the canonical pre-push proof", () => {
+  it("builds verify as advisory feedback plus the canonical pre-push proof", () => {
     const plan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "verify" });
 
     expect(
@@ -215,14 +215,14 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual(["full:pre-push"]);
+    ).toEqual(["fallow-advisory-feedback", "full:pre-push"]);
     expect(
       pipe(
         plan.steps,
         A.map((step) => step.mutability),
         A.dedupe
       )
-    ).toEqual(["readonly"]);
+    ).toEqual(["write", "readonly"]);
   });
 
   it("builds review-fix verify as the targeted review proof", () => {
@@ -233,7 +233,7 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual(["full:review-fix"]);
+    ).toEqual(["fallow-advisory-feedback", "full:review-fix"]);
     expect(findStep(plan.steps, "full:review-fix").args).toEqual([
       "run",
       "beep",
@@ -333,7 +333,13 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual(["commit:git:commit", "publish:git:push", "monitor:pr-context", "monitor:pr-checks:watch"]);
+    ).toEqual([
+      "fallow-advisory-feedback",
+      "commit:git:commit",
+      "publish:git:push",
+      "monitor:pr-context",
+      "monitor:pr-checks:watch",
+    ]);
     expect(
       pipe(
         plan.steps,
@@ -356,6 +362,7 @@ describe("yeet planner", () => {
         A.map((step) => step.label)
       )
     ).toEqual([
+      "fallow-advisory-feedback",
       "commit:git:commit",
       "early-publish:git:push",
       "full:pre-push",
@@ -368,7 +375,7 @@ describe("yeet planner", () => {
         A.map((step) => step.phase),
         A.dedupe
       )
-    ).toEqual(["commit", "early-publish", "full", "monitor"]);
+    ).toEqual(["feedback", "commit", "early-publish", "full", "monitor"]);
 
     const commit = findStep(plan.steps, "commit:git:commit");
     const earlyPush = findStep(plan.steps, "early-publish:git:push");
@@ -444,6 +451,7 @@ describe("yeet planner", () => {
         A.map((step) => step.label)
       )
     ).toEqual([
+      "fallow-advisory-feedback",
       "commit:git:commit",
       "full:pre-push",
       "publish:git:push",

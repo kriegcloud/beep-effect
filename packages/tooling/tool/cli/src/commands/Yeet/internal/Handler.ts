@@ -1234,11 +1234,10 @@ const acquireFullProofLock = Effect.fn("Yeet.acquireFullProofLock")(function* (
   return lockPath;
 });
 
-const releaseProofLock = (lockPath: string): Effect.Effect<void, never, FileSystem.FileSystem> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    yield* fs.remove(lockPath).pipe(Effect.ignore);
-  });
+const releaseProofLock = Effect.fn("releaseProofLock")(function* (lockPath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  yield* fs.remove(lockPath).pipe(Effect.ignore);
+});
 
 const runProofPhase = Effect.fn("Yeet.runProofPhase")(function* (
   context: RepoRunContext,

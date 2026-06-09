@@ -626,6 +626,54 @@
       "column": 19,
       "parameterCount": 3,
       "diagnostics": ["third-param-not-object-like"]
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+      "qualifiedName": "githubCheckLanesForModeForTesting",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/repo-cli",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 913,
+      "column": 14,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+      "qualifiedName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/repo-cli",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 963,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+      "qualifiedName": "reviewFixDocgenLocalArgsForTesting",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/repo-cli",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 1087,
+      "column": 14,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+      "qualifiedName": "closeoutGateStatesForTesting",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/repo-cli",
+      "reason": "Public helper APIs may not expose more than 3 positional parameters.",
+      "line": 832,
+      "column": 14,
+      "parameterCount": 4,
+      "diagnostics": ["too-many-positional-params"]
     }
   ]
 }

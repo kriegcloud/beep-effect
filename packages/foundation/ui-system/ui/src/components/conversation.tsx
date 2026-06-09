@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowDownIcon } from "@phosphor-icons/react";
-import { useCallback } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
 import { cn } from "../lib/index.ts";
 import { Button } from "./button";
@@ -169,8 +168,6 @@ export type ConversationScrollButtonProps = ComponentProps<typeof Button>;
 export const ConversationScrollButton = ({ className, ...props }: ConversationScrollButtonProps) => {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
 
-  const handleScrollToBottom = useCallback(() => void scrollToBottom(), [scrollToBottom]);
-
   return (
     !isAtBottom && (
       <Button
@@ -178,7 +175,7 @@ export const ConversationScrollButton = ({ className, ...props }: ConversationSc
           "bg-background dark:bg-background absolute bottom-4 left-[50%] translate-x-[-50%] rounded-full shadow-md",
           className
         )}
-        onClick={handleScrollToBottom}
+        onClick={() => void scrollToBottom()}
         size="icon"
         variant="outline"
         {...props}

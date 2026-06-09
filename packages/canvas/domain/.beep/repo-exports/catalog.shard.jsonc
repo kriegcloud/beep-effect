@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "af672e7d451ea2715687c3416358d2014ab29cdba8ea2331c18b706255946c25",
+    "digest": "5a7586cb8e3276bb0e2928e7e55b090db4e2212f07df13d2ae6a41dbff560d51",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,8 +32,8 @@
       },
       {
         "path": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
-        "sha256": "8e8e4c2e569359815fcc2fc89a97084c688e03170b9c956d8e23ff7aea9ee9ba",
-        "bytes": 7194
+        "sha256": "adf12ba5ea4d0e2d1036205a2d4517c6971532220e4be0c175fd57fc8e1b81b9",
+        "bytes": 7758
       },
       {
         "path": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.values.ts",
@@ -95,8 +95,8 @@
       "@beep/canvas-domain/identity/Canvas"
     ],
     "counts": {
-      "publicExportEntries": 35,
-      "uniqueSymbols": 24,
+      "publicExportEntries": 37,
+      "uniqueSymbols": 26,
       "sourceFiles": 8
     },
     "exports": [
@@ -203,7 +203,7 @@
         "symbolName": "addNode",
         "exportKind": "const",
         "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
-        "sourceLine": 190,
+        "sourceLine": 216,
         "summary": "Add lightweight node metadata to an open CanvasProject.",
         "categories": [
           "aggregates"
@@ -228,7 +228,7 @@
         "symbolName": "archive",
         "exportKind": "const",
         "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
-        "sourceLine": 252,
+        "sourceLine": 278,
         "summary": "Archive any non-archived CanvasProject.",
         "categories": [
           "aggregates"
@@ -242,6 +242,31 @@
           "@since"
         ],
         "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject archive const archive any non-archived canvasproject. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "ArchivedCanvasProject",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 95,
+        "summary": "Archived scene container aggregate for the bootstrap canvas slice.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject archivedcanvasproject class archived scene container aggregate for the bootstrap canvas slice. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
       },
       {
         "packageName": "@beep/canvas-domain",
@@ -475,7 +500,7 @@
         "symbolName": "CanvasProject",
         "exportKind": "const",
         "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
-        "sourceLine": 95,
+        "sourceLine": 121,
         "summary": "CanvasProject aggregate.",
         "categories": [
           "aggregates"
@@ -500,7 +525,7 @@
         "symbolName": "CanvasProject",
         "exportKind": "type",
         "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
-        "sourceLine": 111,
+        "sourceLine": 137,
         "summary": "CanvasProject aggregate type.",
         "categories": [
           "aggregates"
@@ -771,7 +796,7 @@
         "symbolName": "create",
         "exportKind": "const",
         "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
-        "sourceLine": 158,
+        "sourceLine": 184,
         "summary": "Create a new open CanvasProject aggregate.",
         "categories": [
           "aggregates"
@@ -796,7 +821,7 @@
         "symbolName": "CreateCanvasProjectInput",
         "exportKind": "class",
         "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
-        "sourceLine": 129,
+        "sourceLine": 155,
         "summary": "CanvasProject creation input.",
         "categories": [
           "aggregates"
@@ -818,10 +843,35 @@
         "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
         "exportSubpath": "./aggregates/CanvasProject",
         "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
+        "symbolName": "OpenCanvasProject",
+        "exportKind": "class",
+        "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
+        "sourceLine": 69,
+        "summary": "Open scene container aggregate for the bootstrap canvas slice.",
+        "categories": [
+          "aggregates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/canvas-domain packages/canvas/domain @beep/canvas-domain/aggregates/canvasproject ./aggregates/canvasproject opencanvasproject class open scene container aggregate for the bootstrap canvas slice. aggregates packages/canvas/domain/src/aggregates/canvasproject/canvasproject.model.ts"
+      },
+      {
+        "packageName": "@beep/canvas-domain",
+        "packagePath": "packages/canvas/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/canvas-domain/aggregates/CanvasProject",
+        "exportSubpath": "./aggregates/CanvasProject",
+        "exportedFromPath": "packages/canvas/domain/src/aggregates/CanvasProject/index.ts",
         "symbolName": "removeNode",
         "exportKind": "const",
         "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
-        "sourceLine": 221,
+        "sourceLine": 247,
         "summary": "Remove lightweight node metadata from an open CanvasProject.",
         "categories": [
           "aggregates"
@@ -846,7 +896,7 @@
         "symbolName": "reopen",
         "exportKind": "const",
         "sourcePath": "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.model.ts",
-        "sourceLine": 273,
+        "sourceLine": 299,
         "summary": "Reopen an archived CanvasProject.",
         "categories": [
           "aggregates"

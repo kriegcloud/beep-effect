@@ -8,7 +8,6 @@ import * as O from "effect/Option";
 import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
 import * as Atom from "effect/unstable/reactivity/Atom";
 import * as AtomRegistry from "effect/unstable/reactivity/AtomRegistry";
-import * as React from "react";
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import * as Context from "../helpers/ContextCompat.ts";
 import * as Effect from "../helpers/EffectCompat.ts";
@@ -1726,9 +1725,11 @@ describe("FormReact.make", () => {
       });
 
       const SubmitButton = makeSubmitButton(form.submit, undefined);
+      const showConfirmAtom = Atom.make(true);
 
       const ToggleableForm = () => {
-        const [showConfirm, setShowConfirm] = React.useState(true);
+        const showConfirm = useAtomValue(showConfirmAtom);
+        const setShowConfirm = useAtomSet(showConfirmAtom);
         return (
           <form.Initialize defaultValues={{ password: "abc", confirm: "xyz" }}>
             <form.password />
@@ -3074,8 +3075,11 @@ describe("FormReact.make", () => {
         return <span data-testid="validation-count">{validationCount}</span>;
       };
 
+      const mountedAtom = Atom.make(true);
+
       const ToggleableForm = () => {
-        const [mounted, setMounted] = React.useState(true);
+        const mounted = useAtomValue(mountedAtom);
+        const setMounted = useAtomSet(mountedAtom);
         return (
           <>
             <form.KeepAlive />

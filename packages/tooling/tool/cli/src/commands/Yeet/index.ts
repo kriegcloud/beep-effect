@@ -28,6 +28,7 @@ export { YeetRunMode } from "./internal/Planner.js";
 export {
   PackageQualityReport,
   QualityIssue,
+  QualityIssueAttribution,
   QualityIssueCategory,
   QualityIssueConfidence,
   QualityIssueIndex,
