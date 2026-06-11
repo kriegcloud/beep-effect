@@ -8,11 +8,17 @@
 import { Effect } from "effect";
 import * as O from "effect/Option";
 import { Command, Flag } from "effect/unstable/cli";
-import { CorpusCatalogOptions, CorpusExtractOptions, CorpusSalvageOptions } from "./Corpus.schemas.js";
+import {
+  CorpusCatalogOptions,
+  CorpusExtractOptions,
+  CorpusOrganizeOptions,
+  CorpusSalvageOptions,
+} from "./Corpus.schemas.js";
 import {
   CorpusCommandServiceLive,
   catalogCorpus,
   extractCorpus,
+  organizeCorpus,
   printCorpusIndex,
   verifySalvage,
 } from "./Corpus.service.js";
@@ -120,6 +126,35 @@ const corpusExtractCommand = Command.make(
   Command.provide(CorpusCommandServiceLive)
 );
 
+const clientMapFlag = Flag.file("client-map", { mustExist: true }).pipe(
+  Flag.withDescription("JSON file mapping salvage source labels to client slugs"),
+  Flag.optional
+);
+const organizeOverwriteFlag = Flag.boolean("overwrite").pipe(
+  Flag.withDescription("Rebuild a non-empty organized/ tree")
+);
+
+const corpusOrganizeCommand = Command.make(
+  "organize",
+  {
+    clientMap: clientMapFlag,
+    corpusRoot: corpusRootFlag,
+    overwrite: organizeOverwriteFlag,
+  },
+  Effect.fn(function* ({ clientMap, corpusRoot, overwrite }) {
+    yield* organizeCorpus(
+      CorpusOrganizeOptions.make({
+        corpusRoot,
+        overwrite,
+        ...(O.isNone(clientMap) ? {} : { clientMapPath: clientMap.value }),
+      })
+    ).pipe(Effect.asVoid);
+  })
+).pipe(
+  Command.withDescription("Build the organized/ client, docket, and email-archive taxonomy from the catalog"),
+  Command.provide(CorpusCommandServiceLive)
+);
+
 const corpusSalvageCommand = Command.make(
   "salvage",
   {
@@ -152,5 +187,5 @@ const corpusSalvageCommand = Command.make(
  */
 export const corpusCommand = Command.make("corpus", {}, () => printCorpusIndex).pipe(
   Command.withDescription("Corpus salvage and curation commands"),
-  Command.withSubcommands([corpusCatalogCommand, corpusExtractCommand, corpusSalvageCommand])
+  Command.withSubcommands([corpusCatalogCommand, corpusExtractCommand, corpusOrganizeCommand, corpusSalvageCommand])
 );
