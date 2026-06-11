@@ -25,21 +25,6 @@ const safeJsonScript = (value: unknown) =>
   Str.replaceAll("<", "\\u003c")(S.encodeUnknownSync(S.UnknownFromJsonString)(value));
 
 /**
- * Allows the search-param aware home route to block during the first render.
- *
- * @example
- * ```ts
- * import { instant } from "@beep/oip-web/app/page"
- *
- * console.log(instant)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const instant = false;
-
-/**
  * Generates page metadata from runtime OIP content.
  *
  * @example

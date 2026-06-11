@@ -162,7 +162,7 @@ const fallbackToStaticContent = (error: OipContentLoadError): Effect.Effect<OipS
  * @category utilities
  * @since 0.0.0
  */
-export const loadOipSiteContent = Effect.gen(function* () {
+const loadOipSiteContent = Effect.gen(function* () {
   const config = yield* sanityConfig();
 
   if (O.isNone(config)) {

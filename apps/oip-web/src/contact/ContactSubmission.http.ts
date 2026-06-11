@@ -94,7 +94,7 @@ export class ContactSubmissionRejected extends S.Class<ContactSubmissionRejected
  * @category schemas
  * @since 0.0.0
  */
-export const ContactSubmissionPayload = ContactSubmissionFormPayload.pipe(
+const ContactSubmissionPayload = ContactSubmissionFormPayload.pipe(
   $I.annoteSchema("ContactSubmissionPayload", {
     description: "Browser wire payload accepted by the OIP contact HTTP API.",
   })
@@ -136,7 +136,7 @@ export type ContactSubmissionPayload = typeof ContactSubmissionPayload.Type;
  * @category models
  * @since 0.0.0
  */
-export const OipContactHttpApiGroup = HttpApiGroup.make("contact").add(
+const OipContactHttpApiGroup = HttpApiGroup.make("contact").add(
   HttpApiEndpoint.post("submit", "/api/contact", {
     payload: ContactSubmissionPayload,
     success: ContactSubmissionAccepted.pipe(HttpApiSchema.status(202)),

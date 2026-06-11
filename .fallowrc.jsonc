@@ -1,7 +1,39 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
   // Library packages intentionally expose top-level src modules through package exports.
-  "entry": ["packages/**/src/*.ts", "infra/src/internal/*-entry.ts"],
+  // App workspaces are rooted at their framework entrypoints (Next App Router special
+  // files, Vite/Tauri main.tsx, proof-app index.ts, Storybook config) so app code is
+  // reachable instead of invisible (goals/fallow-zero-dead-code).
+  "entry": [
+    "packages/**/src/*.ts",
+    "infra/src/internal/*-entry.ts",
+    "apps/*/src/main.tsx",
+    "apps/*/src/index.ts",
+    "apps/*/next.config.ts",
+    "apps/*/vite.config.ts",
+    "apps/*/src/app/**/layout.tsx",
+    "apps/*/src/app/**/page.tsx",
+    "apps/*/src/app/**/route.ts",
+    "apps/*/src/app/**/loading.tsx",
+    "apps/*/src/app/**/error.tsx",
+    "apps/*/src/app/**/not-found.tsx",
+    "apps/*/src/app/**/global-error.tsx",
+    "apps/*/src/app/manifest.ts",
+    "apps/*/src/app/robots.ts",
+    "apps/*/src/app/sitemap.ts",
+    "apps/*/src/mdx-components.tsx",
+    "apps/*/src/middleware.ts",
+    "apps/*/src/instrumentation.ts",
+    "apps/storybook/.storybook/main.ts",
+    "apps/storybook/.storybook/manager.ts",
+    "apps/storybook/.storybook/preview.tsx",
+    // Tool-loaded roots: syncpack auto-loads its config, the deprecated eslint
+    // config is consumed by the Lint command, and global-cleanup.ts is the
+    // vitest globalSetup for @beep/repo-cli.
+    "syncpack.config.ts",
+    "eslint.deprecated.config.mjs",
+    "packages/tooling/tool/cli/test/global-cleanup.ts"
+  ],
   // Approximates dead-code path suppression; Knip remains authoritative for unmigrated workspace/binary policy.
   "ignorePatterns": [
     "**/dtslint/**",
@@ -37,7 +69,23 @@
     "ws",
     "@types/ws",
     "@beep/repo-utils",
-    "@beep/test-utils"
+    "@beep/test-utils",
+    // @beep/ui: MUI's runtime styling engine; required peers of @mui/material even
+    // without direct imports (goals/fallow-zero-dead-code/research/triage.md).
+    "@emotion/react",
+    "@emotion/styled",
+    // @beep/ui: consumed via type-only `import type {} from "@mui/x-*/themeAugmentation"`
+    // in src/themes/components; empty type imports are invisible to fallow.
+    "@mui/x-data-grid",
+    "@mui/x-date-pickers",
+    "@mui/x-date-pickers-pro",
+    "@mui/x-tree-view",
+    // Next apps: loaded by @next/mdx inside @beep/repo-configs SharedNextConfig.
+    "@mdx-js/loader",
+    // Next apps: loaded by Next when SharedNextConfig defaults reactCompiler: true.
+    "babel-plugin-react-compiler",
+    // Root: used by git-tracked scratchpad tests; scratchpad/** is ignored above.
+    "@faker-js/faker"
   ],
   "audit": {
     "gate": "new-only"
@@ -46,6 +94,6 @@
     "duplicate-exports": "off",
     "unused-catalog-entries": "off",
     "empty-catalog-groups": "off",
-    "boundary-violation": "warn"
+    "boundary-violation": "error"
   }
 }

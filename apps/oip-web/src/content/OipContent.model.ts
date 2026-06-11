@@ -33,22 +33,6 @@ export const ReviewStatus = LiteralKit(["approved", "needs_review"]).pipe(
 );
 
 /**
- * Runtime type for {@link ReviewStatus}.
- *
- * @example
- * ```ts
- * import type { ReviewStatus } from "@beep/oip-web/content"
- *
- * const status: ReviewStatus = "approved"
- * console.log(status)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export type ReviewStatus = typeof ReviewStatus.Type;
-
-/**
  * Review note attached to a public website claim.
  *
  * @example
@@ -66,7 +50,7 @@ export type ReviewStatus = typeof ReviewStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReviewGate extends S.Class<ReviewGate>($I`ReviewGate`)(
+class ReviewGate extends S.Class<ReviewGate>($I`ReviewGate`)(
   {
     status: ReviewStatus,
     note: S.String,
@@ -94,7 +78,7 @@ export class ReviewGate extends S.Class<ReviewGate>($I`ReviewGate`)(
  * @category models
  * @since 0.0.0
  */
-export class ExternalLink extends S.Class<ExternalLink>($I`ExternalLink`)(
+class ExternalLink extends S.Class<ExternalLink>($I`ExternalLink`)(
   {
     href: S.String,
     label: S.String,
@@ -118,7 +102,7 @@ export class ExternalLink extends S.Class<ExternalLink>($I`ExternalLink`)(
  * @category schemas
  * @since 0.0.0
  */
-export const SocialPlatform = LiteralKit([
+const SocialPlatform = LiteralKit([
   "instagram",
   "x",
   "linkedin",
@@ -169,7 +153,7 @@ export type SocialPlatform = typeof SocialPlatform.Type;
  * @category models
  * @since 0.0.0
  */
-export class SocialLink extends S.Class<SocialLink>($I`SocialLink`)(
+class SocialLink extends S.Class<SocialLink>($I`SocialLink`)(
   {
     href: S.String,
     label: S.String,
@@ -202,7 +186,7 @@ export class SocialLink extends S.Class<SocialLink>($I`SocialLink`)(
  * @category models
  * @since 0.0.0
  */
-export class SiteAsset extends S.Class<SiteAsset>($I`SiteAsset`)(
+class SiteAsset extends S.Class<SiteAsset>($I`SiteAsset`)(
   {
     alt: S.String,
     credit: S.optionalKey(S.String),
@@ -237,7 +221,7 @@ export class SiteAsset extends S.Class<SiteAsset>($I`SiteAsset`)(
  * @category models
  * @since 0.0.0
  */
-export class SiteMetadataContent extends S.Class<SiteMetadataContent>($I`SiteMetadataContent`)(
+class SiteMetadataContent extends S.Class<SiteMetadataContent>($I`SiteMetadataContent`)(
   {
     description: S.String,
     linkedInUrl: S.String,
@@ -265,7 +249,7 @@ export class SiteMetadataContent extends S.Class<SiteMetadataContent>($I`SiteMet
  * @category models
  * @since 0.0.0
  */
-export class NavItem extends S.Class<NavItem>($I`NavItem`)(
+class NavItem extends S.Class<NavItem>($I`NavItem`)(
   {
     href: S.String,
     label: S.String,
@@ -301,7 +285,7 @@ export class NavItem extends S.Class<NavItem>($I`NavItem`)(
  * @category models
  * @since 0.0.0
  */
-export class HeroContent extends S.Class<HeroContent>($I`HeroContent`)(
+class HeroContent extends S.Class<HeroContent>($I`HeroContent`)(
   {
     citation: S.String,
     headline: S.String,
@@ -338,7 +322,7 @@ export class HeroContent extends S.Class<HeroContent>($I`HeroContent`)(
  * @category models
  * @since 0.0.0
  */
-export class AboutPanel extends S.Class<AboutPanel>($I`AboutPanel`)(
+class AboutPanel extends S.Class<AboutPanel>($I`AboutPanel`)(
   {
     body: S.String,
     id: S.String,
@@ -370,7 +354,7 @@ export class AboutPanel extends S.Class<AboutPanel>($I`AboutPanel`)(
  * @category models
  * @since 0.0.0
  */
-export class PracticeArea extends S.Class<PracticeArea>($I`PracticeArea`)(
+class PracticeArea extends S.Class<PracticeArea>($I`PracticeArea`)(
   {
     body: S.String,
     id: S.String,
@@ -405,7 +389,7 @@ export class PracticeArea extends S.Class<PracticeArea>($I`PracticeArea`)(
  * @category models
  * @since 0.0.0
  */
-export class MatterItem extends S.Class<MatterItem>($I`MatterItem`)(
+class MatterItem extends S.Class<MatterItem>($I`MatterItem`)(
   {
     body: S.String,
     caption: S.String,
@@ -443,7 +427,7 @@ export class MatterItem extends S.Class<MatterItem>($I`MatterItem`)(
  * @category models
  * @since 0.0.0
  */
-export class ClientLogo extends S.Class<ClientLogo>($I`ClientLogo`)(
+class ClientLogo extends S.Class<ClientLogo>($I`ClientLogo`)(
   {
     aspectRatio: S.String,
     id: S.String,
@@ -478,7 +462,7 @@ export class ClientLogo extends S.Class<ClientLogo>($I`ClientLogo`)(
  * @category models
  * @since 0.0.0
  */
-export class PressItem extends S.Class<PressItem>($I`PressItem`)(
+class PressItem extends S.Class<PressItem>($I`PressItem`)(
   {
     body: S.String,
     date: S.String,
@@ -513,7 +497,7 @@ export class PressItem extends S.Class<PressItem>($I`PressItem`)(
  * @category models
  * @since 0.0.0
  */
-export class ContactContent extends S.Class<ContactContent>($I`ContactContent`)(
+class ContactContent extends S.Class<ContactContent>($I`ContactContent`)(
   {
     email: EmailString,
     lede: S.String,

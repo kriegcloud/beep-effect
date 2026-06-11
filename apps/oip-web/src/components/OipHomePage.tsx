@@ -28,7 +28,8 @@ import { ThemeModeToggle } from "./ThemeModeToggle";
 import type { Icon } from "@phosphor-icons/react";
 import type { CSSProperties, ReactNode } from "react";
 import type { ContactSubmissionStatus } from "../contact";
-import type { OipSiteContent, SocialPlatform } from "../content";
+import type { OipSiteContent } from "../content";
+import type { SocialPlatform } from "../content/OipContent.model.ts";
 
 const sectionShell = "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-12";
 const monoLabel = "font-[family-name:var(--font-oip-mono)] text-xs font-medium uppercase tracking-[0.16em]";

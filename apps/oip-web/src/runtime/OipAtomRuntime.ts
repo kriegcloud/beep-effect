@@ -25,7 +25,7 @@ import { Atom } from "effect/unstable/reactivity";
  * @category runtime
  * @since 0.0.0
  */
-export const oipAtomRuntimeFactory = Atom.context({
+const oipAtomRuntimeFactory = Atom.context({
   memoMap: Layer.makeMemoMapUnsafe(),
 });
 
@@ -42,7 +42,7 @@ export const oipAtomRuntimeFactory = Atom.context({
  * @category layers
  * @since 0.0.0
  */
-export const oipBrowserLayer = Layer.mergeAll(BrowserHttpClient.layerFetch, BrowserKeyValueStore.layerLocalStorage);
+const oipBrowserLayer = Layer.mergeAll(BrowserHttpClient.layerFetch, BrowserKeyValueStore.layerLocalStorage);
 
 /**
  * Browser runtime mounted by the OIP app provider.

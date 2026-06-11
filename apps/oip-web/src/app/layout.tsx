@@ -134,21 +134,6 @@ function VercelInsights() {
 }
 
 /**
- * Allows the nonce-bearing root layout to block on request state.
- *
- * @example
- * ```ts
- * import { instant } from "@beep/oip-web/app/layout"
- *
- * console.log(instant)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const instant = false;
-
-/**
  * Static metadata for the oip web app shell.
  *
  * @example

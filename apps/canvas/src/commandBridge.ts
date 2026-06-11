@@ -205,7 +205,7 @@ export type CanvasScene = typeof CanvasScene.Type;
  * @category models
  * @since 0.0.0
  */
-export const CanvasSceneNode = DomainCanvasProject.CanvasNode;
+const CanvasSceneNode = DomainCanvasProject.CanvasNode;
 
 /**
  * Type for {@link CanvasSceneNode}.
@@ -255,7 +255,7 @@ export type CanvasSceneNode = typeof CanvasSceneNode.Type;
  * @category models
  * @since 0.0.0
  */
-export class SceneSaveRequest extends S.Class<SceneSaveRequest>($I`SceneSaveRequest`)(
+class SceneSaveRequest extends S.Class<SceneSaveRequest>($I`SceneSaveRequest`)(
   {
     path: S.String,
     scene: CanvasScene,
@@ -279,7 +279,7 @@ export class SceneSaveRequest extends S.Class<SceneSaveRequest>($I`SceneSaveRequ
  * @category models
  * @since 0.0.0
  */
-export class SceneLoadRequest extends S.Class<SceneLoadRequest>($I`SceneLoadRequest`)(
+class SceneLoadRequest extends S.Class<SceneLoadRequest>($I`SceneLoadRequest`)(
   {
     path: S.String,
   },

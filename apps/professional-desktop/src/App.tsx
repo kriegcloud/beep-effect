@@ -73,7 +73,7 @@ class FailedState extends S.TaggedClass<FailedState>($I`FailedState`)(
   })
 ) {}
 
-export const LoadState = S.Union([FailedState, LoadedState, LoadingState]).pipe(
+const LoadState = S.Union([FailedState, LoadedState, LoadingState]).pipe(
   S.toTaggedUnion("_tag"),
   $I.annoteSchema("LoadState", {
     description: "Union of loading states for the professional desktop application.",

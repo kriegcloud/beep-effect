@@ -46,7 +46,7 @@ export const CHECKSUMS_FILE_NAME = "sha256sums.txt";
  * @category constants
  * @since 0.0.0
  */
-export const P1RequiredPlatform = LiteralKit(["macos", "windows"]).pipe(
+const P1RequiredPlatform = LiteralKit(["macos", "windows"]).pipe(
   $I.annoteSchema("P1RequiredPlatform", {
     description: "Required P1 fresh-machine proof platform.",
   })
