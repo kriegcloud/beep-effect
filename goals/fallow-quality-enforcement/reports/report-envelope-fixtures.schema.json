@@ -188,7 +188,7 @@
                       "pattern": "^fallow:"
                     },
                     "blocking": {
-                      "const": false
+                      "type": "boolean"
                     },
                     "sourceRef": {
                       "type": "string",

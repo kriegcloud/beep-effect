@@ -288,7 +288,7 @@ jobs:
             echo "- ${lane}: ${status} (${elapsed_seconds}s)" >> .beep/fallow/status.md
           }
 
-          for lane in audit dead-code dupes health boundaries flags security fix-preview; do
+          for lane in dupes health boundaries flags security fix-preview; do
             run_fallow "$lane"
           done
 
@@ -304,7 +304,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          for lane in audit dead-code dupes health boundaries flags security fix-preview; do
+          for lane in dupes health boundaries flags security fix-preview; do
             bun run beep quality fallow envelope-check ".beep/fallow/${lane}.json" \
               --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef \
               --expect-subcommand "$lane" \

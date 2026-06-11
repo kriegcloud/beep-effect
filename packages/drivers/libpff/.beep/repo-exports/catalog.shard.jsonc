@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "a71d5c80a7e476e62e46dab317d2d358455fdc5b7fbbf4da3400d54eeab5d908",
+    "digest": "52f6f9ab8f762505f581170117e4857350331e1f368452a5a1774d6b7469ab44",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/drivers/libpff/package.json",
-        "sha256": "43fe8b10fb54bbd1785e8ec0e0589c0209dba9925f0d1a3bebf671a6f1a66681",
-        "bytes": 2493
+        "sha256": "48b98afdca4566f1cbb27f04362e8b02096661e6dd34408fc6e1b49f1f061a8d",
+        "bytes": 2459
       },
       {
         "path": "packages/drivers/libpff/src/index.ts",

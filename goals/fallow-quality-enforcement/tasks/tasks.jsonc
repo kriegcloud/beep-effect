@@ -1,7 +1,7 @@
 {
   "$schema": "./tasks.schema.json",
   "schemaVersion": "fallow-quality-enforcement/tasks/v1",
-  "updated": "2026-06-08",
+  "updated": "2026-06-11",
   "validatorVersion": "fallow-quality-enforcement-validator/v1",
   "tasks": [
     {
@@ -188,13 +188,13 @@
       ],
       "proofCommands": [
         "ruby -e 'require \"yaml\"; YAML.load_file(\".github/workflows/check.yml\")'",
-        "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes audit,dead-code,dupes,health,boundaries,flags,security,fix-preview --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory",
+        "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory",
         "bun run beep quality fallow audit --advisory --base origin/main --out .beep/fallow/audit.json",
         "bun run beep quality fallow envelope-check .beep/fallow/audit.json --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef"
       ],
       "acceptanceCommands": [
         "ruby -e 'require \"yaml\"; YAML.load_file(\".github/workflows/check.yml\")'",
-        "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes audit,dead-code,dupes,health,boundaries,flags,security,fix-preview --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory",
+        "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory",
         "bun run beep quality fallow audit --advisory --base origin/main --out .beep/fallow/audit.json",
         "bun run beep quality fallow envelope-check .beep/fallow/audit.json --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef"
       ],
@@ -220,7 +220,7 @@
     {
       "id": "fqe-006",
       "rank": 6,
-      "status": "seeded",
+      "status": "done",
       "phase": "P3",
       "title": "Promote selected Fallow lanes to blocking pre-push proof",
       "summary": "Move only matrix-approved lanes into `quality github-checks pre-push` and preserve Yeet equivalence.",
@@ -247,7 +247,7 @@
       "riskLevel": "high",
       "decisionGate": {
         "kind": "feature-matrix-promotion",
-        "status": "blocked",
+        "status": "passed",
         "evidence": ["research/feature-matrix.jsonc"]
       }
     }

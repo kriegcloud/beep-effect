@@ -503,6 +503,21 @@ const attributionKindSetDiagnostics = (
     : [`${label} mismatch. Missing: ${A.join(missing, ", ") || "none"}. Extra: ${A.join(extra, ", ") || "none"}.`];
 };
 
+// Promoted blocking lanes (goals/fallow-quality-enforcement feature matrix):
+// dead-code blocks on any finding against its zero baseline; audit blocks only
+// on introduced findings under the new-only gate. All other lanes stay advisory.
+const promotedBlockingFinding = (feature: FallowFeature, attribution: typeof FindingAttributionKind.Type): boolean =>
+  FallowFeatureFamily.$match(feature, {
+    audit: () => sameAttributionKind(attribution, "introduced"),
+    boundaries: () => false,
+    "dead-code": () => true,
+    dupes: () => false,
+    "fix-preview": () => false,
+    flags: () => false,
+    health: () => false,
+    security: () => false,
+  });
+
 const auditFinding = (
   rule: string,
   attribution: typeof FindingAttributionKind.Type,
@@ -515,7 +530,7 @@ const auditFinding = (
     attribution,
     parser: parserName(feature),
     subCategory: subCategoryName(feature, rule),
-    blocking: false,
+    blocking: promotedBlockingFinding(feature, attribution),
     sourceRef: fallbackSourceRef,
   });
 
@@ -593,7 +608,7 @@ const notApplicableFinding = (feature: FallowFeature, rule: string, index?: numb
     attribution: "not-applicable",
     parser: parserName(feature),
     subCategory: subCategoryName(feature, slugify(rule)),
-    blocking: false,
+    blocking: promotedBlockingFinding(feature, "not-applicable"),
     sourceRef: fallbackSourceRef,
   });
 

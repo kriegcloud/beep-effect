@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "69a2bbbf47fcaccf9038e6e1132597f4ca8ef1a01775f9423afa814ac78c35ed",
+    "digest": "6ec0b884a1ff98efb8ff0b0803eb71c00b1af6aeef85442d8849a6bf02dfd54f",
     "inputs": [
       {
         "path": "apps/canvas/package.json",
@@ -27,8 +27,8 @@
       },
       {
         "path": "apps/canvas/src/commandBridge.ts",
-        "sha256": "6e3035baeb01693849144e4849e513168d8e3c75281e6c3447934753c84c7db9",
-        "bytes": 22188
+        "sha256": "509014ab0c03539df7cda57d97f13b8eb667d257d4caf54264d591f818032eeb",
+        "bytes": 22167
       },
       {
         "path": "apps/canvas/src/main.tsx",

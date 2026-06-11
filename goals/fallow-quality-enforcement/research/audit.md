@@ -47,7 +47,7 @@ updated: 2026-06-08
 - Yeet category: `repo-law`
 - Parser: `fallow/audit/v1`
 - Default blocking: false
-- CI mode: advisory artifact
+- CI mode: blocking check (promoted pre-push lane via goals/fallow-zero-dead-code)
 - Failure envelope behavior: wrapper must write `tool-failed`, `invalid-json`, `invalid-report`, or `base-resolution-failed` envelopes instead of letting raw Fallow failure disappear.
 
 ## Promotion Gate

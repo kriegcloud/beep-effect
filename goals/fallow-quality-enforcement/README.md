@@ -2,7 +2,7 @@
 
 ## Status
 
-**ACTIVE - P3 Yeet advisory feedback implemented, blocking promotion still gated**
+**COMPLETE - P3 blocking promotion landed: dead-code + audit lanes are blocking in `quality github-checks pre-push` (fqe-006 closed via goals/fallow-zero-dead-code on 2026-06-11)**
 
 ## Owner
 

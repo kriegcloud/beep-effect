@@ -9,10 +9,10 @@ Status: `active`
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
 | P0 Triage | done | Verify all 61 findings and lock remediation policy. | `research/triage.md` records per-finding verdicts (20 TP / 41 FP) and locked policies. |
-| P1 Remediate | pending | Fix true positives (fzd-002) and eliminate false positives config-only (fzd-003). | `bun run fallow:dead-code:json` reports `total_issues: 0`. |
-| P2 Rebaseline | pending | Rewrite the regression baseline at zero and refresh audit expectations (fzd-004). | Baseline reads zero; audit-baseline validator passes with new counts. |
-| P3 Promote | pending | Promote dead-code + audit to blocking pre-push; close fqe-005/fqe-006 (fzd-005). | `--expect-promoted-fallow-lanes` contract passes; 3 clean runs recorded; old packet validator passes. |
-| P4 Close | pending | Mergeable PR via normal yeet path (fzd-006). | `yeet monitor` green; 0 required review findings in `history/review-rounds.jsonc`. |
+| P1 Remediate | done | Fix true positives (fzd-002) and eliminate false positives config-only (fzd-003). | `bun run fallow:dead-code:json` reports `total_issues: 0`. |
+| P2 Rebaseline | done | Rewrite the regression baseline at zero and refresh audit expectations (fzd-004). | Baseline reads zero; audit-baseline validator passes with new counts. |
+| P3 Promote | done | Promote dead-code + audit to blocking pre-push; close fqe-005/fqe-006 (fzd-005). | `--expect-promoted-fallow-lanes` contract passes; 3 clean runs recorded; old packet validator passes. |
+| P4 Close | in-progress | Mergeable PR via normal yeet path (fzd-006). | `yeet monitor` green; 0 required review findings in `history/review-rounds.jsonc`. |
 
 ## Execution Notes
 

@@ -163,7 +163,7 @@ const repoCliPackage = {
   path: "packages/tooling/tool/cli",
 };
 type FallowFeatureMatrixRowTuple = readonly [
-  featureFamily: "audit" | "dead-code",
+  featureFamily: "audit" | "dead-code" | "dupes",
   ciMode: "advisory-artifact" | "blocking-check",
   promotionStatus: "advisory" | "research" | "candidate-blocking" | "blocking",
 ];
@@ -177,10 +177,10 @@ const fallowFeatureMatrix = (features: ReadonlyArray<FallowFeatureMatrixRowTuple
     })),
   });
 
-const expectMissingFallowAuditLane = (matrix: GithubChecksFallowFeatureMatrix): void => {
+const expectUnpromotedWiredDeadCodeLane = (matrix: GithubChecksFallowFeatureMatrix): void => {
   expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:audit"]);
   expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([
-    "missing promoted Fallow GitHub check lane fallow:audit",
+    "unpromoted Fallow GitHub check lane is wired: fallow:dead-code",
   ]);
 };
 
@@ -355,22 +355,44 @@ describe("quality task adapter", () => {
     expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
   });
 
-  it("accepts the current packet state with no promoted Fallow pre-push lanes", () => {
+  it("accepts the current packet state with promoted audit and dead-code pre-push lanes", () => {
     const matrix = fallowFeatureMatrix([
-      ["audit", "advisory-artifact", "advisory"],
-      ["dead-code", "advisory-artifact", "research"],
+      ["audit", "blocking-check", "blocking"],
+      ["dead-code", "blocking-check", "blocking"],
     ]);
 
-    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual([]);
+    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:audit", "fallow:dead-code"]);
     expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([]);
   });
 
   it("rejects a promoted Fallow matrix row that is not wired into pre-push", () => {
-    expectMissingFallowAuditLane(fallowFeatureMatrix([["audit", "blocking-check", "blocking"]]));
+    const matrix = fallowFeatureMatrix([
+      ["audit", "blocking-check", "blocking"],
+      ["dead-code", "blocking-check", "blocking"],
+      ["dupes", "blocking-check", "blocking"],
+    ]);
+
+    expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([
+      "missing promoted Fallow GitHub check lane fallow:dupes",
+    ]);
+  });
+
+  it("rejects a wired Fallow lane whose matrix row is not promoted", () => {
+    expectUnpromotedWiredDeadCodeLane(
+      fallowFeatureMatrix([
+        ["audit", "blocking-check", "blocking"],
+        ["dead-code", "advisory-artifact", "research"],
+      ])
+    );
   });
 
   it("treats candidate-blocking Fallow rows as promotion contract inputs", () => {
-    expectMissingFallowAuditLane(fallowFeatureMatrix([["audit", "advisory-artifact", "candidate-blocking"]]));
+    expectUnpromotedWiredDeadCodeLane(
+      fallowFeatureMatrix([
+        ["audit", "advisory-artifact", "candidate-blocking"],
+        ["dead-code", "advisory-artifact", "research"],
+      ])
+    );
   });
 
   it("plans affected repo export checks conservatively", () => {

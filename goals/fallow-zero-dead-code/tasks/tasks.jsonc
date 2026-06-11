@@ -32,7 +32,7 @@
     {
       "id": "fzd-002",
       "rank": 2,
-      "status": "seeded",
+      "status": "done",
       "phase": "P1",
       "title": "Fix all true-positive findings",
       "summary": "Unexport 4 symbols (instant x2, LoadState, Either), remove 11 unused dependencies (re-checking MUI theme augmentations with typecheck as arbiter), add 5 missing dependencies via catalog (effect, three, madge, @effect/platform-bun, @phosphor-icons/react; three must enter the root catalog first), and re-verify the 2 disputed findings (@opentelemetry pair, @typescript/native-preview) before final classification.",
@@ -68,14 +68,14 @@
       "riskLevel": "medium",
       "decisionGate": {
         "kind": "none",
-        "status": "open",
+        "status": "passed",
         "evidence": ["research/triage.md"]
       }
     },
     {
       "id": "fzd-003",
       "rank": 3,
-      "status": "seeded",
+      "status": "done",
       "phase": "P1",
       "title": "Eliminate false positives via config and reach zero",
       "summary": "Add app entry roots to .fallowrc.jsonc so apps/** is reachable, add the confirmed dependency false positives to ignoreDependencies with provenance comments, flip rules.boundary-violation from warn to error, then iterate wire-or-delete on stragglers (including CtaLink.tsx) until fallow dead-code reports total_issues=0. No inline suppressions.",
@@ -97,14 +97,14 @@
       "riskLevel": "medium",
       "decisionGate": {
         "kind": "zero-findings",
-        "status": "open",
+        "status": "passed",
         "evidence": ["research/triage.md"]
       }
     },
     {
       "id": "fzd-004",
       "rank": 4,
-      "status": "seeded",
+      "status": "done",
       "phase": "P2",
       "title": "Re-baseline dead-code to zero and refresh audit expectations",
       "summary": "Rewrite standards/fallow.dead-code.regression-baseline.jsonc at zero via the baseline:write script, update the hardcoded expected counts in goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts to post-remediation values, and record measured dupes/health ratchet baselines in their feature-matrix rows (both stay advisory).",
@@ -130,14 +130,14 @@
       "riskLevel": "low",
       "decisionGate": {
         "kind": "zero-findings",
-        "status": "open",
+        "status": "passed",
         "evidence": ["standards/fallow.dead-code.regression-baseline.jsonc"]
       }
     },
     {
       "id": "fzd-005",
       "rank": 5,
-      "status": "seeded",
+      "status": "done",
       "phase": "P3",
       "title": "Promote dead-code and audit lanes; close fqe-005 and fqe-006",
       "summary": "Update the authoritative feature matrix (dead-code + audit rows to promotionStatus blocking, baselineStatus measured, falsePositiveStatus resolved, ciMode blocking-check; duplicate-exports rationale; dupes/health measured advisory baselines), wire the advisory yeet fallow-feedback step and the promoted blocking lanes into quality github-checks pre-push, record knip parity evidence with recommendation keep-knip, capture 3 consecutive clean runs under reports/, and mark fqe-005/fqe-006 done in the old packet.",
@@ -174,7 +174,7 @@
       "riskLevel": "high",
       "decisionGate": {
         "kind": "feature-matrix-promotion",
-        "status": "open",
+        "status": "passed",
         "evidence": [
           "goals/fallow-quality-enforcement/research/feature-matrix.jsonc"
         ]

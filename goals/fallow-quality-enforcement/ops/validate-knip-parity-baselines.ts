@@ -7,23 +7,25 @@ type JsonRecord = Record<string, unknown>;
 const textDecoder = new TextDecoder();
 const repoRoot = new URL("../../../", import.meta.url).pathname;
 
+// Re-measured 2026-06-11 after goals/fallow-zero-dead-code drove the Fallow
+// dead-code lane to zero (the remediation also resolved 14 Knip containers).
 const expectedKnipCounts = {
-  issueContainers: 31,
-  files: 9,
-  exports: 13,
-  dependencies: 4,
+  issueContainers: 17,
+  files: 6,
+  exports: 2,
+  dependencies: 0,
   devDependencies: 4,
-  unlisted: 1,
+  unlisted: 0,
   unresolved: 9,
 } as const;
 
 const expectedFallowSummary = {
-  total_issues: 63,
-  unused_files: 6,
-  unused_exports: 25,
-  unused_types: 4,
-  unused_dependencies: 21,
-  unlisted_dependencies: 7,
+  total_issues: 0,
+  unused_files: 0,
+  unused_exports: 0,
+  unused_types: 0,
+  unused_dependencies: 0,
+  unlisted_dependencies: 0,
   unresolved_imports: 0,
   boundary_violations: 0,
 } as const;
@@ -212,7 +214,7 @@ expectEqual(
 expectEqual("knip unlisted", nestedIssueCount(knipIssues, "unlisted"), expectedKnipCounts.unlisted);
 expectEqual("knip unresolved", nestedIssueCount(knipIssues, "unresolved"), expectedKnipCounts.unresolved);
 
-const fallow = run("fallow dead-code", ["bun", "run", "fallow:dead-code:json", "--", "--summary"], 1).json;
+const fallow = run("fallow dead-code", ["bun", "run", "fallow:dead-code:json", "--", "--summary"], 0).json;
 const fallowSummary = asRecord(fallow.summary, "fallow.summary");
 for (const [key, expected] of Object.entries(expectedFallowSummary)) {
   expectEqual(`fallow summary.${key}`, Number(fallowSummary[key]), expected);
@@ -274,7 +276,7 @@ const entryPointInventory = run(
   ],
   0
 );
-expectEqual("fallow entry_point_count", Number(entryPointInventory.json.entry_point_count), 2491);
+expectEqual("fallow entry_point_count", Number(entryPointInventory.json.entry_point_count), 2523);
 expectStringContains("fallow entry-point warnings", entryPointInventory.output, "Skipped");
 expectStringContains("fallow entry-point warnings", entryPointInventory.output, "parent directory traversal");
 

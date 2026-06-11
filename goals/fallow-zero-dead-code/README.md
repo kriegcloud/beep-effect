@@ -43,14 +43,19 @@ tasks fqe-005/fqe-006.
 
 ## Current Phase
 
-P1 Remediate. Next concrete action: execute `fzd-002` (fix the 20 verified
-true positives), then `fzd-003` (config tuning + wire-or-delete loop to
-`total_issues: 0`).
+P4 Close. fzd-001 through fzd-005 are done: fallow dead-code reports
+`total_issues: 0`, the regression baseline is zero, and the dead-code + audit
+lanes are blocking in `quality github-checks pre-push` (fqe-005/fqe-006
+closed). Remaining action: land the mergeable PR via the normal yeet path
+(fzd-006).
 
 ## Latest Evidence
 
+- [`reports/clean-runs.md`](./reports/clean-runs.md) (2026-06-11): 3
+  consecutive clean runs of both promoted blocking lanes plus contract-check
+  proofs.
 - [`research/triage.md`](./research/triage.md) (2026-06-11): all 61 findings
-  verified; baseline scan summary `total_issues: 61` reproduced locally.
+  verified (20 true positives, 41 false positives).
 
 ## Notes
 

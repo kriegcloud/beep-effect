@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "7e76d1e7e70c90e6480d7ec71470fab4749fe293cd190c9bf9ee5187323201da",
+    "digest": "2a0b672c74c3ec2b6ff6606dd8e295803ac8fd779384f9439cca5ebaa8ec2578",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -27,8 +27,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/package.json",
-        "sha256": "fa1e7129fbbcaa881af6eafe8fd8b71aaf65cdd57707ad8441e777956883f74f",
-        "bytes": 6789
+        "sha256": "38638e195d9c2cd4bc1a2595273b31a72ef138333ed0a3e77f971598673caa5e",
+        "bytes": 6814
       },
       {
         "path": "packages/tooling/tool/cli/src/bin-main.ts",
@@ -427,8 +427,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sha256": "8d9708a145324aecbc36db998a8909a621f7a03a9441f01a63439e49a85ae57d",
-        "bytes": 76958
+        "sha256": "7e701f48dbf5817c0b667942d7ac7f6566e1ffefcd7920d944b3b4a016be4382",
+        "bytes": 77703
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
@@ -442,8 +442,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sha256": "41a2692e2b4189648f84b05ba1fbbf6a4335b5bcbbacb014aec537b5d69efcbe",
-        "bytes": 9865
+        "sha256": "a5859a1e192c75f486cf677746528e1e4f3ae20d464801914678936bcf7aaf66",
+        "bytes": 9858
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts",
@@ -482,8 +482,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "bb1c0b171e4da648bb5d878c86b05c63e59d13528831772df25b567e8d711262",
-        "bytes": 103427
+        "sha256": "53e602a63444afeb71992cbbb69bf434cfcb8df4e41d964eb7df3a9003fb81e3",
+        "bytes": 104140
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts",
@@ -1327,7 +1327,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2909,
+        "sourceLine": 2927,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -27745,7 +27745,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2909,
+        "sourceLine": 2927,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -27770,7 +27770,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2198,
+        "sourceLine": 2213,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28547,7 +28547,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2198,
+        "sourceLine": 2213,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28597,7 +28597,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2909,
+        "sourceLine": 2927,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -28622,7 +28622,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2198,
+        "sourceLine": 2213,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -29222,7 +29222,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2560,
+        "sourceLine": 2578,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -29248,7 +29248,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1618,
+        "sourceLine": 1636,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -29300,7 +29300,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2492,
+        "sourceLine": 2510,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -29326,7 +29326,7 @@
         "symbolName": "githubCheckLanesForModeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 913,
+        "sourceLine": 929,
         "summary": "Return the static GitHub check collector lanes for a mode.",
         "categories": [
           "testing"
@@ -29478,7 +29478,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1028,
+        "sourceLine": 1045,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29505,7 +29505,7 @@
         "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 963,
+        "sourceLine": 980,
         "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
         "categories": [
           "testing"
@@ -29532,7 +29532,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 998,
+        "sourceLine": 1015,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29559,7 +29559,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1013,
+        "sourceLine": 1030,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29611,7 +29611,7 @@
         "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 887,
+        "sourceLine": 903,
         "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
         "categories": [
           "testing"
@@ -29638,7 +29638,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2909,
+        "sourceLine": 2927,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -29813,7 +29813,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1087,
+        "sourceLine": 1105,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -29867,7 +29867,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1955,
+        "sourceLine": 1973,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -29894,7 +29894,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1310,
+        "sourceLine": 1328,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -29921,7 +29921,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2275,
+        "sourceLine": 2293,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -29947,7 +29947,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2198,
+        "sourceLine": 2216,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -29973,7 +29973,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2392,
+        "sourceLine": 2410,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -29998,7 +29998,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2310,
+        "sourceLine": 2328,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -30025,7 +30025,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2001,
+        "sourceLine": 2019,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -30052,7 +30052,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1764,
+        "sourceLine": 1782,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -30078,7 +30078,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2097,
+        "sourceLine": 2115,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -41157,7 +41157,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2560,
+        "sourceLine": 2578,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -41331,7 +41331,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1618,
+        "sourceLine": 1636,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -41488,7 +41488,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2492,
+        "sourceLine": 2510,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -41514,7 +41514,7 @@
         "symbolName": "githubCheckLanesForModeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 913,
+        "sourceLine": 929,
         "summary": "Return the static GitHub check collector lanes for a mode.",
         "categories": [
           "testing"
@@ -41666,7 +41666,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1028,
+        "sourceLine": 1045,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -41693,7 +41693,7 @@
         "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 963,
+        "sourceLine": 980,
         "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
         "categories": [
           "testing"
@@ -41720,7 +41720,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 998,
+        "sourceLine": 1015,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -41747,7 +41747,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1013,
+        "sourceLine": 1030,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -42125,7 +42125,7 @@
         "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 887,
+        "sourceLine": 903,
         "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
         "categories": [
           "testing"
@@ -42152,7 +42152,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2909,
+        "sourceLine": 2927,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -42177,7 +42177,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2198,
+        "sourceLine": 2213,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -42654,7 +42654,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1087,
+        "sourceLine": 1105,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -42760,7 +42760,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1955,
+        "sourceLine": 1973,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -42787,7 +42787,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1310,
+        "sourceLine": 1328,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -42814,7 +42814,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2275,
+        "sourceLine": 2293,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -42840,7 +42840,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2198,
+        "sourceLine": 2216,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -42866,7 +42866,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2392,
+        "sourceLine": 2410,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -43098,7 +43098,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2310,
+        "sourceLine": 2328,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -43150,7 +43150,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2001,
+        "sourceLine": 2019,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -43177,7 +43177,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1764,
+        "sourceLine": 1782,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -43203,7 +43203,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2097,
+        "sourceLine": 2115,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
