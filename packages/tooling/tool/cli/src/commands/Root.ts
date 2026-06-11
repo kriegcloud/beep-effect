@@ -13,6 +13,7 @@ import { architectureCommand } from "./Architecture/index.js";
 import { ciCommand } from "./Ci/index.js";
 import { codegenCommand } from "./Codegen/index.js";
 import { codexCommand } from "./Codex/index.js";
+import { corpusCommand } from "./Corpus/index.js";
 import { createPackageCommand } from "./CreatePackage/index.js";
 import { docgenCommand } from "./Docgen/index.js";
 import { docsCommand } from "./Docs/index.js";
@@ -53,6 +54,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
     architectureCommand,
     ciCommand,
     codexCommand,
+    corpusCommand,
     docgenCommand,
     docsCommand,
     fallowCommand,

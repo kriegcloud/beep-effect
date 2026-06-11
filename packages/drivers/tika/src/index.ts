@@ -19,6 +19,13 @@ export * from "./Tika.errors.ts";
  * @since 0.0.0
  */
 export * from "./Tika.service.ts";
+/**
+ * Real tika-app-backed text and metadata extraction engine.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./Tika.tikaapp.ts";
 
 /**
  * Package version.

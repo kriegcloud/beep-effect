@@ -28,6 +28,7 @@
     "./commands/Ci": "./src/commands/Ci/index.ts",
     "./commands/Codegen": "./src/commands/Codegen/index.ts",
     "./commands/Codex": "./src/commands/Codex/index.ts",
+    "./commands/Corpus": "./src/commands/Corpus/index.ts",
     "./commands/CreatePackage": "./src/commands/CreatePackage/index.ts",
     "./commands/Docgen": "./src/commands/Docgen/index.ts",
     "./commands/Docs": "./src/commands/Docs/index.ts",
