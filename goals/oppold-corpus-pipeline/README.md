@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -36,16 +36,18 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P4 Enrichment running / P5 Close. P0–P3 completed 2026-06-11: salvage
+Closed (completed-retained, 2026-06-11). All six phases executed: salvage
 (8,438 files, 31.7 GB, zero errors), DuckDB catalog (7,330 distinct digests,
 290 duplicate sets), real extraction via hardened libpff/tika drivers
 (7,045/7,330 succeeded; 663,272 PST message artifacts; 6,702 text
-artifacts), and the `organized/` taxonomy (643 docket files across 105
-docket families, 242 restored names). New `drivers/uspto` resolves corpus
-identifiers against the Open Data Portal.
+artifacts), the `organized/` taxonomy (643 docket files across 105 docket
+families, 242 restored names), and USPTO enrichment (99 resolved
+identifiers, 99 docket-family anchors). Closeout reflection:
+[`history/reflections/2026-06-11-claude.md`](./history/reflections/2026-06-11-claude.md).
 
 ## Latest Evidence
 
+- [`history/outputs/2026-06-11-p4-enrichment-report.md`](./history/outputs/2026-06-11-p4-enrichment-report.md)
 - [`history/outputs/2026-06-11-p3-organize-report.md`](./history/outputs/2026-06-11-p3-organize-report.md)
 - [`history/outputs/2026-06-11-p2-extraction-report.md`](./history/outputs/2026-06-11-p2-extraction-report.md)
 - [`history/outputs/2026-06-11-p1-catalog-report.md`](./history/outputs/2026-06-11-p1-catalog-report.md)

@@ -11,6 +11,7 @@ import { A } from "@beep/utils";
 import { Config, Context, Effect, Layer, Match, Redacted } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
@@ -104,12 +105,7 @@ const stringField = (record: Readonly<Record<string, unknown>>, key: string): O.
   O.fromUndefinedOr(record[key]).pipe(O.filter(P.isString));
 
 const optionalField = (record: Readonly<Record<string, unknown>>, key: string): Record<string, string> =>
-  stringField(record, key).pipe(
-    O.match({
-      onNone: () => ({}),
-      onSome: (value) => ({ [key]: value }),
-    })
-  );
+  R.getSomes({ [key]: stringField(record, key) });
 
 const metadataFromWrapper = (
   wrapper: {
@@ -167,12 +163,7 @@ const documentFromRecord = (
     ...optionalField(record, "documentCode"),
     ...optionalField(record, "documentCodeDescriptionText"),
     ...optionalField(record, "officialDate"),
-    ...downloadOptions.pipe(
-      O.match({
-        onNone: () => ({}),
-        onSome: (downloadUrl) => ({ downloadUrl }),
-      })
-    ),
+    ...R.getSomes({ downloadUrl: downloadOptions }),
   }).pipe(
     Effect.map(O.some),
     Effect.mapError(() => UsptoError.fromReason("response-decoding"))

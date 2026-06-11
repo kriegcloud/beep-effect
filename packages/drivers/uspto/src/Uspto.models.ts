@@ -7,7 +7,7 @@
 
 import { $UsptoId } from "@beep/identity";
 import { Str } from "@beep/utils";
-import { pipe } from "effect";
+import { flow, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -130,15 +130,13 @@ export const normalizeUsptoApplicationNumber = (text: string): O.Option<string> 
  * @category parsers
  * @since 0.0.0
  */
-export const normalizeUsptoPatentNumber = (text: string): O.Option<string> =>
-  pipe(
-    text,
-    Str.toUpperCase,
-    (value) => value.replaceAll(/[\s,]/gu, ""),
-    (value) => value.replace(/^US/u, ""),
-    (value) => value.replace(/[A-Z]\d?$/u, ""),
-    (candidate) => (patentNumberPattern.test(candidate) ? O.some(candidate) : O.none())
-  );
+export const normalizeUsptoPatentNumber: (text: string) => O.Option<string> = flow(
+  Str.toUpperCase,
+  (value) => value.replaceAll(/[\s,]/gu, ""),
+  (value) => value.replace(/^US/u, ""),
+  (value) => value.replace(/[A-Z]\d?$/u, ""),
+  (candidate) => (patentNumberPattern.test(candidate) ? O.some(candidate) : O.none())
+);
 
 /**
  * Official application metadata resolved from the Open Data Portal.

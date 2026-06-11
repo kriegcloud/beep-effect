@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "6eb00b4a0548eeb214b3faa6c2e9f2790aadf8ee2176cc3fc836fad69eef09eb",
+    "digest": "3e6e82b054922b717e5a1479509fa0cd5264f35a2d8f70213c2c051cb4bf872e",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sha256": "b9bdf97c88043e6e573f48602248cf90f3585648c2da3f7217d5174781f08307",
-        "bytes": 13066
+        "sha256": "d96b165188f3748862d086b28447ea8b28b37311e0867cd9bfa12d792a9df886",
+        "bytes": 13147
       },
       {
         "path": "packages/drivers/libpff/src/Libpff.service.ts",
@@ -290,7 +290,7 @@
         "symbolName": "makePffexportFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 180,
+        "sourceLine": 183,
         "summary": "Create the real pffexport-backed file-processing engine.",
         "categories": [
           "constructors"
@@ -316,7 +316,7 @@
         "symbolName": "PffexportEngineConfig",
         "exportKind": "class",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 96,
+        "sourceLine": 97,
         "summary": "Configuration for the pffexport subprocess engine.",
         "categories": [
           "configuration"
@@ -341,7 +341,7 @@
         "symbolName": "PffexportFormat",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 68,
+        "sourceLine": 69,
         "summary": "pffexport message body export format.",
         "categories": [
           "schemas"
@@ -366,7 +366,7 @@
         "symbolName": "PffexportFormat",
         "exportKind": "type",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 80,
+        "sourceLine": 81,
         "summary": "Type for {@link PffexportFormat}.",
         "categories": [
           "models"
@@ -390,7 +390,7 @@
         "symbolName": "PffexportMode",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 42,
+        "sourceLine": 43,
         "summary": "pffexport item export mode.",
         "categories": [
           "schemas"
@@ -415,7 +415,7 @@
         "symbolName": "PffexportMode",
         "exportKind": "type",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 54,
+        "sourceLine": 55,
         "summary": "Type for {@link PffexportMode}.",
         "categories": [
           "models"
@@ -664,7 +664,7 @@
         "symbolName": "makePffexportFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 180,
+        "sourceLine": 183,
         "summary": "Create the real pffexport-backed file-processing engine.",
         "categories": [
           "constructors"
@@ -690,7 +690,7 @@
         "symbolName": "PffexportEngineConfig",
         "exportKind": "class",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 96,
+        "sourceLine": 97,
         "summary": "Configuration for the pffexport subprocess engine.",
         "categories": [
           "configuration"
@@ -715,7 +715,7 @@
         "symbolName": "PffexportFormat",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 68,
+        "sourceLine": 69,
         "summary": "pffexport message body export format.",
         "categories": [
           "schemas"
@@ -740,7 +740,7 @@
         "symbolName": "PffexportFormat",
         "exportKind": "type",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 80,
+        "sourceLine": 81,
         "summary": "Type for {@link PffexportFormat}.",
         "categories": [
           "models"
@@ -764,7 +764,7 @@
         "symbolName": "PffexportMode",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 42,
+        "sourceLine": 43,
         "summary": "pffexport item export mode.",
         "categories": [
           "schemas"
@@ -789,7 +789,7 @@
         "symbolName": "PffexportMode",
         "exportKind": "type",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 54,
+        "sourceLine": 55,
         "summary": "Type for {@link PffexportMode}.",
         "categories": [
           "models"
@@ -938,7 +938,7 @@
         "symbolName": "makePffexportFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 180,
+        "sourceLine": 183,
         "summary": "Create the real pffexport-backed file-processing engine.",
         "categories": [
           "constructors"
@@ -964,7 +964,7 @@
         "symbolName": "PffexportEngineConfig",
         "exportKind": "class",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 96,
+        "sourceLine": 97,
         "summary": "Configuration for the pffexport subprocess engine.",
         "categories": [
           "configuration"
@@ -989,7 +989,7 @@
         "symbolName": "PffexportFormat",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 68,
+        "sourceLine": 69,
         "summary": "pffexport message body export format.",
         "categories": [
           "schemas"
@@ -1014,7 +1014,7 @@
         "symbolName": "PffexportFormat",
         "exportKind": "type",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 80,
+        "sourceLine": 81,
         "summary": "Type for {@link PffexportFormat}.",
         "categories": [
           "models"
@@ -1038,7 +1038,7 @@
         "symbolName": "PffexportMode",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 42,
+        "sourceLine": 43,
         "summary": "pffexport item export mode.",
         "categories": [
           "schemas"
@@ -1063,7 +1063,7 @@
         "symbolName": "PffexportMode",
         "exportKind": "type",
         "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
-        "sourceLine": 54,
+        "sourceLine": 55,
         "summary": "Type for {@link PffexportMode}.",
         "categories": [
           "models"

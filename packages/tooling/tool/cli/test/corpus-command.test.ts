@@ -12,9 +12,9 @@ import {
   verifySalvage,
 } from "@beep/repo-cli/commands/Corpus";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
+import { describe, expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as O from "effect/Option";
-import { describe, expect, it } from "vitest";
 
 const testLayer = Layer.mergeAll(
   CorpusCommandServiceLive.pipe(
@@ -23,7 +23,12 @@ const testLayer = Layer.mergeAll(
   NodeServices.layer
 );
 
-const runTest = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> => Effect.runPromise(effect);
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
+const provideTestLayer = provideScopedLayer(testLayer);
 
 const filetime2020 = 132_223_104_000_000_000n;
 
@@ -59,36 +64,42 @@ const makeMetadataV1 = (originalPath: string, sizeBytes: bigint, filetime: bigin
 };
 
 describe("Corpus recycle-bin parsing", () => {
-  it("parses a v2 $I metadata record", async () => {
-    const original = await runTest(
-      parseRecycleBinMetadata(makeMetadataV2("H:\\Clients\\Acme\\Spec (final).docx", 54_805n, filetime2020))
-    );
+  it.effect("parses a v2 $I metadata record", () =>
+    Effect.gen(function* () {
+      const original = yield* parseRecycleBinMetadata(
+        makeMetadataV2("H:\\Clients\\Acme\\Spec (final).docx", 54_805n, filetime2020)
+      );
 
-    expect(original.version).toBe("v2");
-    expect(original.originalPath).toBe("H:\\Clients\\Acme\\Spec (final).docx");
-    expect(original.originalName).toBe("Spec (final).docx");
-    expect(original.originalSizeBytes).toBe(54_805);
-    expect(original.deletedAtIso).toBe("2020-01-01T00:00:00.000Z");
-    expect(original.deletedAtFiletime).toBe(filetime2020.toString());
-  });
+      expect(original.version).toBe("v2");
+      expect(original.originalPath).toBe("H:\\Clients\\Acme\\Spec (final).docx");
+      expect(original.originalName).toBe("Spec (final).docx");
+      expect(original.originalSizeBytes).toBe(54_805);
+      expect(original.deletedAtIso).toBe("2020-01-01T00:00:00.000Z");
+      expect(original.deletedAtFiletime).toBe(filetime2020.toString());
+    })
+  );
 
-  it("parses a v1 $I metadata record with a fixed-width path", async () => {
-    const original = await runTest(parseRecycleBinMetadata(makeMetadataV1("C:\\old\\draft.doc", 11n, filetime2020)));
+  it.effect("parses a v1 $I metadata record with a fixed-width path", () =>
+    Effect.gen(function* () {
+      const original = yield* parseRecycleBinMetadata(makeMetadataV1("C:\\old\\draft.doc", 11n, filetime2020));
 
-    expect(original.version).toBe("v1");
-    expect(original.originalPath).toBe("C:\\old\\draft.doc");
-    expect(original.originalName).toBe("draft.doc");
-  });
+      expect(original.version).toBe("v1");
+      expect(original.originalPath).toBe("C:\\old\\draft.doc");
+      expect(original.originalName).toBe("draft.doc");
+    })
+  );
 
-  it("rejects records that are too short or have unknown versions", async () => {
-    const shortResult = await runTest(parseRecycleBinMetadata(new Uint8Array(8)).pipe(Effect.flip));
-    expect(shortResult.message).toContain("header bytes");
+  it.effect("rejects records that are too short or have unknown versions", () =>
+    Effect.gen(function* () {
+      const shortResult = yield* parseRecycleBinMetadata(new Uint8Array(8)).pipe(Effect.flip);
+      expect(shortResult.message).toContain("header bytes");
 
-    const badVersion = makeMetadataV2("C:\\x.txt", 1n, filetime2020);
-    new DataView(badVersion.buffer).setBigUint64(0, 9n, true);
-    const versionResult = await runTest(parseRecycleBinMetadata(badVersion).pipe(Effect.flip));
-    expect(versionResult.message).toContain("unsupported format version");
-  });
+      const badVersion = makeMetadataV2("C:\\x.txt", 1n, filetime2020);
+      new DataView(badVersion.buffer).setBigUint64(0, 9n, true);
+      const versionResult = yield* parseRecycleBinMetadata(badVersion).pipe(Effect.flip);
+      expect(versionResult.message).toContain("unsupported format version");
+    })
+  );
 
   it("classifies $I and $R names and ignores everything else", () => {
     expect(O.map(classifyRecycleBinName("$I0CB4M9.docx"), (entry) => `${entry.kind}:${entry.pairKey}`)).toStrictEqual(
@@ -116,14 +127,14 @@ describe("Corpus recycle-bin parsing", () => {
 });
 
 describe("corpus catalog", () => {
-  it("builds the catalog, duplicate report, and restoration manifest from a synthetic corpus", async () => {
-    const digestA = "a".repeat(64);
-    const digestB = "b".repeat(64);
-    const digestMeta = "c".repeat(64);
-    const digestContent = "d".repeat(64);
-    const digestLoose = "e".repeat(64);
+  it.effect("builds the catalog, duplicate report, and restoration manifest from a synthetic corpus", () =>
+    Effect.gen(function* () {
+      const digestA = "a".repeat(64);
+      const digestB = "b".repeat(64);
+      const digestMeta = "c".repeat(64);
+      const digestContent = "d".repeat(64);
+      const digestLoose = "e".repeat(64);
 
-    const program = Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const corpusRoot = yield* fs.makeTempDirectoryScoped({ prefix: "corpus-catalog-test-" });
@@ -172,31 +183,27 @@ describe("corpus catalog", () => {
       const summaryText = yield* fs.readFileString(path.join(corpusRoot, "catalog", "reports", "catalog-summary.json"));
       const databaseExists = yield* fs.exists(path.join(corpusRoot, "catalog", "corpus.duckdb"));
 
-      return { databaseExists, duplicateText, restorationText, summary, summaryText };
-    });
+      expect(summary.sourceFiles).toBe(6);
+      expect(summary.totalBytes).toBe(100 + 200 + 100 + 146 + 1_024 + 5_000);
+      expect(summary.distinctDigests).toBe(5);
+      expect(summary.duplicateSets).toBe(1);
+      expect(summary.duplicateFiles).toBe(1);
+      expect(summary.redundantBytes).toBe(100);
+      expect(summary.matchedRestorations).toBe(1);
+      expect(summary.unmatchedMetadataFiles).toBe(0);
+      expect(summary.unmatchedContentFiles).toBe(1);
 
-    const result = await runTest(Effect.scoped(program).pipe(Effect.provide(testLayer)));
+      expect(databaseExists).toBe(true);
+      expect(duplicateText).toContain(`sha256:${digestA}`);
+      expect(duplicateText).toContain("source-a/docs/a.txt | source-b/copy/a.txt");
+      expect(summaryText).toContain('"sourceFiles":6');
 
-    expect(result.summary.sourceFiles).toBe(6);
-    expect(result.summary.totalBytes).toBe(100 + 200 + 100 + 146 + 1_024 + 5_000);
-    expect(result.summary.distinctDigests).toBe(5);
-    expect(result.summary.duplicateSets).toBe(1);
-    expect(result.summary.duplicateFiles).toBe(1);
-    expect(result.summary.redundantBytes).toBe(100);
-    expect(result.summary.matchedRestorations).toBe(1);
-    expect(result.summary.unmatchedMetadataFiles).toBe(0);
-    expect(result.summary.unmatchedContentFiles).toBe(1);
-
-    expect(result.databaseExists).toBe(true);
-    expect(result.duplicateText).toContain(`sha256:${digestA}`);
-    expect(result.duplicateText).toContain("source-a/docs/a.txt | source-b/copy/a.txt");
-    expect(result.summaryText).toContain('"sourceFiles":6');
-
-    const restorationLines = result.restorationText.trim().split("\n");
-    expect(restorationLines).toHaveLength(2);
-    expect(result.restorationText).toContain("Spec v3.docx");
-    expect(result.restorationText).toContain("unmatched-content");
-  });
+      const restorationLines = restorationText.trim().split("\n");
+      expect(restorationLines).toHaveLength(2);
+      expect(restorationText).toContain("Spec v3.docx");
+      expect(restorationText).toContain("unmatched-content");
+    }).pipe(Effect.scoped, provideTestLayer)
+  );
 });
 
 const stubPffexport = `#!/usr/bin/env bash
@@ -219,16 +226,15 @@ printf '%s' '[{"Content-Type":"text/plain","X-TIKA:content":"\\n  stub text body
 exit 0
 `;
 
-const writeStub = (script: string, stubPath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    yield* fs.writeFileString(stubPath, script);
-    yield* fs.chmod(stubPath, 0o755);
-  });
+const writeStub = Effect.fn("CorpusTest.writeStub")(function* (script: string, stubPath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  yield* fs.writeFileString(stubPath, script);
+  yield* fs.chmod(stubPath, 0o755);
+});
 
 describe("corpus extract and salvage", () => {
-  it("extracts a synthetic corpus through stub engines and verifies salvage", async () => {
-    const program = Effect.gen(function* () {
+  it.effect("extracts a synthetic corpus through stub engines and verifies salvage", () =>
+    Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const corpusRoot = yield* fs.makeTempDirectoryScoped({ prefix: "corpus-extract-test-" });
@@ -290,22 +296,18 @@ describe("corpus extract and salvage", () => {
 
       const salvage = yield* verifySalvage(CorpusSalvageOptions.make({ corpusRoot }));
 
-      return { childrenText, runExists, salvage, sourcesText, summary };
-    });
-
-    const result = await runTest(Effect.scoped(program).pipe(Effect.provide(testLayer)));
-
-    expect(result.summary.sourceCount).toBe(2);
-    expect(result.summary.duplicatesSkipped).toBe(1);
-    expect(result.summary.succeededCount).toBe(2);
-    expect(result.summary.failedCount).toBe(0);
-    expect(result.summary.childArtifactCount).toBe(2);
-    expect(result.summary.textArtifactCount).toBe(1);
-    expect(result.runExists).toBe(true);
-    expect(result.sourcesText).toContain('"status":"succeeded"');
-    expect(result.childrenText).toContain("Attachments/report.pdf");
-    expect(result.salvage.matched).toBe(3);
-    expect(result.salvage.mismatched).toBe(0);
-    expect(result.salvage.missing).toBe(0);
-  });
+      expect(summary.sourceCount).toBe(2);
+      expect(summary.duplicatesSkipped).toBe(1);
+      expect(summary.succeededCount).toBe(2);
+      expect(summary.failedCount).toBe(0);
+      expect(summary.childArtifactCount).toBe(2);
+      expect(summary.textArtifactCount).toBe(1);
+      expect(runExists).toBe(true);
+      expect(sourcesText).toContain('"status":"succeeded"');
+      expect(childrenText).toContain("Attachments/report.pdf");
+      expect(salvage.matched).toBe(3);
+      expect(salvage.mismatched).toBe(0);
+      expect(salvage.missing).toBe(0);
+    }).pipe(Effect.scoped, provideTestLayer)
+  );
 });

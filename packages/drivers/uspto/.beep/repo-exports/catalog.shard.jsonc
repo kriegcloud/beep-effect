@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c04487a407083a4ae23c0990a32f14cf1aae51d4060232ad280d785a9c94f251",
+    "digest": "e5575ea65a960f87c81ed69977da5898366051fc0a1b4d1815338cae20b7fbbb",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -42,13 +42,13 @@
       },
       {
         "path": "packages/drivers/uspto/src/Uspto.models.ts",
-        "sha256": "5dd16f6cad5c9a24e18065cb5595cc666b6223906dde1de51816d65fa440ecaa",
-        "bytes": 6512
+        "sha256": "f9f80de49c4faa3e9964a58df1ed09cc0d79e1f9adf5ab5c20283962361cd03f",
+        "bytes": 6494
       },
       {
         "path": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sha256": "4abf7e2286bfd90a7f6a32cc4c30f775d6c5bd93e316a084b877a49c6af03b37",
-        "bytes": 13018
+        "sha256": "6649f2e277483d70c7bb4ef026c982ebb598ae42ee92b8c1d869fa56f070a048",
+        "bytes": 12887
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -175,7 +175,7 @@
         "symbolName": "Uspto",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sourceLine": 297,
+        "sourceLine": 288,
         "summary": "Effect service for product-neutral USPTO Open Data Portal access.",
         "categories": [
           "services"
@@ -225,7 +225,7 @@
         "symbolName": "UsptoApplicationMetadata",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.models.ts",
-        "sourceLine": 156,
+        "sourceLine": 154,
         "summary": "Official application metadata resolved from the Open Data Portal.",
         "categories": [
           "models"
@@ -324,7 +324,7 @@
         "symbolName": "UsptoContinuity",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.models.ts",
-        "sourceLine": 189,
+        "sourceLine": 187,
         "summary": "Parent and child continuity application numbers for one application.",
         "categories": [
           "models"
@@ -349,7 +349,7 @@
         "symbolName": "UsptoDocumentReference",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.models.ts",
-        "sourceLine": 212,
+        "sourceLine": 210,
         "summary": "Reference to one document in an application file wrapper.",
         "categories": [
           "models"
@@ -498,7 +498,7 @@
         "symbolName": "UsptoShape",
         "exportKind": "interface",
         "sourcePath": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sourceLine": 40,
+        "sourceLine": 41,
         "summary": "Runtime shape exposed by the {@link Uspto} service.",
         "categories": [
           "services"
@@ -627,7 +627,7 @@
         "symbolName": "Uspto",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sourceLine": 297,
+        "sourceLine": 288,
         "summary": "Effect service for product-neutral USPTO Open Data Portal access.",
         "categories": [
           "services"
@@ -677,7 +677,7 @@
         "symbolName": "UsptoApplicationMetadata",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.models.ts",
-        "sourceLine": 156,
+        "sourceLine": 154,
         "summary": "Official application metadata resolved from the Open Data Portal.",
         "categories": [
           "models"
@@ -776,7 +776,7 @@
         "symbolName": "UsptoContinuity",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.models.ts",
-        "sourceLine": 189,
+        "sourceLine": 187,
         "summary": "Parent and child continuity application numbers for one application.",
         "categories": [
           "models"
@@ -801,7 +801,7 @@
         "symbolName": "UsptoDocumentReference",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.models.ts",
-        "sourceLine": 212,
+        "sourceLine": 210,
         "summary": "Reference to one document in an application file wrapper.",
         "categories": [
           "models"
@@ -950,7 +950,7 @@
         "symbolName": "UsptoShape",
         "exportKind": "interface",
         "sourcePath": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sourceLine": 40,
+        "sourceLine": 41,
         "summary": "Runtime shape exposed by the {@link Uspto} service.",
         "categories": [
           "services"
@@ -1204,7 +1204,7 @@
         "symbolName": "UsptoApplicationMetadata",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.models.ts",
-        "sourceLine": 156,
+        "sourceLine": 154,
         "summary": "Official application metadata resolved from the Open Data Portal.",
         "categories": [
           "models"
@@ -1278,7 +1278,7 @@
         "symbolName": "UsptoContinuity",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.models.ts",
-        "sourceLine": 189,
+        "sourceLine": 187,
         "summary": "Parent and child continuity application numbers for one application.",
         "categories": [
           "models"
@@ -1303,7 +1303,7 @@
         "symbolName": "UsptoDocumentReference",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.models.ts",
-        "sourceLine": 212,
+        "sourceLine": 210,
         "summary": "Reference to one document in an application file wrapper.",
         "categories": [
           "models"
@@ -1377,7 +1377,7 @@
         "symbolName": "Uspto",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sourceLine": 297,
+        "sourceLine": 288,
         "summary": "Effect service for product-neutral USPTO Open Data Portal access.",
         "categories": [
           "services"
@@ -1402,7 +1402,7 @@
         "symbolName": "UsptoShape",
         "exportKind": "interface",
         "sourcePath": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sourceLine": 40,
+        "sourceLine": 41,
         "summary": "Runtime shape exposed by the {@link Uspto} service.",
         "categories": [
           "services"

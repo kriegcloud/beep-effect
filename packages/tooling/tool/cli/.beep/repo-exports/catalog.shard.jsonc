@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "629502be36b88462d6057bc19fe4572b4a570f592ae129a4489df281eea574a6",
+    "digest": "eb5dfed96c6c35c673da6d7db96a49e85e746e9a6637753cec8f9e2ed293683f",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -152,8 +152,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sha256": "8b5d7bfa366bcb80a8829579491c8246db66b8d60f2e1c4c7fb57134d233f0e8",
-        "bytes": 76915
+        "sha256": "93acdc2f05b4949afe8085d368b9c83eaef918ed1ee7d53c3050139187368e43",
+        "bytes": 76485
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
@@ -5526,7 +5526,7 @@
         "symbolName": "catalogCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1803,
+        "sourceLine": 1799,
         "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
         "categories": [
           "use-cases"
@@ -5680,7 +5680,7 @@
         "symbolName": "CorpusCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 156,
+        "sourceLine": 157,
         "summary": "Service tag for corpus curation operations.",
         "categories": [
           "services"
@@ -5705,7 +5705,7 @@
         "symbolName": "CorpusCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1787,
+        "sourceLine": 1783,
         "summary": "Live service layer for corpus curation operations.",
         "categories": [
           "layers"
@@ -5730,7 +5730,7 @@
         "symbolName": "CorpusCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 107,
+        "sourceLine": 108,
         "summary": "Service contract for corpus curation operations.",
         "categories": [
           "services"
@@ -6403,7 +6403,7 @@
         "symbolName": "enrichCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1843,
+        "sourceLine": 1839,
         "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
         "categories": [
           "use-cases"
@@ -6430,7 +6430,7 @@
         "symbolName": "extractCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1823,
+        "sourceLine": 1819,
         "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
         "categories": [
           "use-cases"
@@ -6457,7 +6457,7 @@
         "symbolName": "extractCorpusDocket",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1122,
+        "sourceLine": 1121,
         "summary": "Extract an attorney-docket token and its family prefix from free text.",
         "categories": [
           "parsers"
@@ -6509,7 +6509,7 @@
         "symbolName": "organizeCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1863,
+        "sourceLine": 1859,
         "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
         "categories": [
           "use-cases"
@@ -6588,7 +6588,7 @@
         "symbolName": "printCorpusIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1901,
+        "sourceLine": 1897,
         "summary": "Print the corpus command index.",
         "categories": [
           "use-cases"
@@ -6861,7 +6861,7 @@
         "symbolName": "verifySalvage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1883,
+        "sourceLine": 1879,
         "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
         "categories": [
           "use-cases"
@@ -7988,7 +7988,7 @@
         "symbolName": "catalogCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1803,
+        "sourceLine": 1799,
         "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
         "categories": [
           "use-cases"
@@ -8015,7 +8015,7 @@
         "symbolName": "CorpusCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 156,
+        "sourceLine": 157,
         "summary": "Service tag for corpus curation operations.",
         "categories": [
           "services"
@@ -8040,7 +8040,7 @@
         "symbolName": "CorpusCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1787,
+        "sourceLine": 1783,
         "summary": "Live service layer for corpus curation operations.",
         "categories": [
           "layers"
@@ -8065,7 +8065,7 @@
         "symbolName": "CorpusCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 107,
+        "sourceLine": 108,
         "summary": "Service contract for corpus curation operations.",
         "categories": [
           "services"
@@ -8090,7 +8090,7 @@
         "symbolName": "enrichCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1843,
+        "sourceLine": 1839,
         "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
         "categories": [
           "use-cases"
@@ -8117,7 +8117,7 @@
         "symbolName": "extractCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1823,
+        "sourceLine": 1819,
         "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
         "categories": [
           "use-cases"
@@ -8144,7 +8144,7 @@
         "symbolName": "extractCorpusDocket",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1122,
+        "sourceLine": 1121,
         "summary": "Extract an attorney-docket token and its family prefix from free text.",
         "categories": [
           "parsers"
@@ -8171,7 +8171,7 @@
         "symbolName": "organizeCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1863,
+        "sourceLine": 1859,
         "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
         "categories": [
           "use-cases"
@@ -8198,7 +8198,7 @@
         "symbolName": "printCorpusIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1901,
+        "sourceLine": 1897,
         "summary": "Print the corpus command index.",
         "categories": [
           "use-cases"
@@ -8223,7 +8223,7 @@
         "symbolName": "verifySalvage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1883,
+        "sourceLine": 1879,
         "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
         "categories": [
           "use-cases"
@@ -8250,7 +8250,7 @@
         "symbolName": "catalogCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1803,
+        "sourceLine": 1799,
         "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
         "categories": [
           "use-cases"
@@ -8404,7 +8404,7 @@
         "symbolName": "CorpusCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 156,
+        "sourceLine": 157,
         "summary": "Service tag for corpus curation operations.",
         "categories": [
           "services"
@@ -8429,7 +8429,7 @@
         "symbolName": "CorpusCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1787,
+        "sourceLine": 1783,
         "summary": "Live service layer for corpus curation operations.",
         "categories": [
           "layers"
@@ -8454,7 +8454,7 @@
         "symbolName": "CorpusCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 107,
+        "sourceLine": 108,
         "summary": "Service contract for corpus curation operations.",
         "categories": [
           "services"
@@ -9127,7 +9127,7 @@
         "symbolName": "enrichCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1843,
+        "sourceLine": 1839,
         "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
         "categories": [
           "use-cases"
@@ -9154,7 +9154,7 @@
         "symbolName": "extractCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1823,
+        "sourceLine": 1819,
         "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
         "categories": [
           "use-cases"
@@ -9181,7 +9181,7 @@
         "symbolName": "extractCorpusDocket",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1122,
+        "sourceLine": 1121,
         "summary": "Extract an attorney-docket token and its family prefix from free text.",
         "categories": [
           "parsers"
@@ -9233,7 +9233,7 @@
         "symbolName": "organizeCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1863,
+        "sourceLine": 1859,
         "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
         "categories": [
           "use-cases"
@@ -9312,7 +9312,7 @@
         "symbolName": "printCorpusIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1901,
+        "sourceLine": 1897,
         "summary": "Print the corpus command index.",
         "categories": [
           "use-cases"
@@ -9585,7 +9585,7 @@
         "symbolName": "verifySalvage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1883,
+        "sourceLine": 1879,
         "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
         "categories": [
           "use-cases"

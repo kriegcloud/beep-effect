@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active`
+Status: `completed`
 
 ## Phases
 
@@ -13,7 +13,7 @@ Status: `active`
 | P2 Extraction | completed (2026-06-11) | Harden `drivers/libpff` (pffexport subprocess engine) and `drivers/tika` (real invocation); add the `beep corpus` command family; run extraction over `raw/` into `staging/`. | Per-message artifacts with attachments + text/metadata manifests emitted; coverage summary recorded; drivers pass repo quality gates. Evidence: [`history/outputs/2026-06-11-p2-extraction-report.md`](./history/outputs/2026-06-11-p2-extraction-report.md). |
 | P3 Organization | completed (2026-06-11) | Build the `organized/` client/matter/patent-family taxonomy from restored names + extracted metadata; group multi-version drafts. | `organized/` tree + catalog views exist; user sampling review recorded. Evidence: [`history/outputs/2026-06-11-p3-organize-report.md`](./history/outputs/2026-06-11-p3-organize-report.md). |
 | P4 Enrichment | completed (2026-06-11) | New `drivers/uspto` (Open Data Portal); resolve patent/application numbers from the corpus; fetch official metadata + published PDFs; anchor version groups to patent families. | Enrichment manifest exists; family anchors present in catalog. Evidence: [`history/outputs/2026-06-11-p4-enrichment-report.md`](./history/outputs/2026-06-11-p4-enrichment-report.md). |
-| P5 Close | pending | Update packet status + evidence, write the closeout reflection. | Reflection passes `bun run beep lint reflection-artifacts`; manifest/README statuses updated. |
+| P5 Close | completed (2026-06-11) | Update packet status + evidence, write the closeout reflection. | Reflection passes `bun run beep lint reflection-artifacts`; manifest/README statuses updated. Evidence: [`history/reflections/2026-06-11-claude.md`](./history/reflections/2026-06-11-claude.md). |
 
 ## Phase Notes
 

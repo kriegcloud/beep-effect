@@ -40,6 +40,7 @@ import { makeUsptoError, normalizeUsptoApplicationNumber, normalizeUsptoPatentNu
 import { A, Str } from "@beep/utils";
 import { Console, Context, Effect, FileSystem, Layer, Match, Order, Path, Ref, Result, Stream } from "effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { printLines } from "../../internal/cli/Printer.js";
 import { CorpusCommandError } from "./Corpus.errors.js";
@@ -380,8 +381,9 @@ const buildRestorationRecords = Effect.fn("CorpusCommandService.buildRestoration
     );
   });
 
-  const groupResults = yield* Effect.forEach([...groups.values()], (group) =>
-    Effect.gen(function* () {
+  const groupResults = yield* Effect.forEach(
+    [...groups.values()],
+    Effect.fnUntraced(function* (group) {
       const pairing = pairRecycleBinEntries(group.entries);
       const matched = yield* Effect.forEach(pairing.matched, (pair) =>
         parseMetadataAt(group.sourceLabel, pair.metadataRelativePath).pipe(
@@ -712,13 +714,13 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
   const libpffEngine = yield* makePffexportFileProcessingEngine(
     PffexportEngineConfig.make({
       exportRoot: childrenRoot,
-      ...(options.pffexportPath === undefined ? {} : { pffexportPath: options.pffexportPath }),
+      ...R.getSomes({ pffexportPath: O.fromUndefinedOr(options.pffexportPath) }),
     })
   );
   const tikaEngine = yield* makeTikaAppFileProcessingEngine(
     TikaAppEngineConfig.make({
       jarPath: options.tikaJarPath,
-      ...(options.javaPath === undefined ? {} : { javaPath: options.javaPath }),
+      ...R.getSomes({ javaPath: O.fromUndefinedOr(options.javaPath) }),
     })
   );
   const engines: ReadonlyArray<FileProcessingEngineShape> = [libpffEngine, tikaEngine];
@@ -753,9 +755,7 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
       name: basenameOf(record.relativePath),
       relativePath: `${record.sourceLabel}/${record.relativePath}`,
       sizeBytes: record.sizeBytes,
-      ...(extensionOf(basenameOf(record.relativePath)) === undefined
-        ? {}
-        : { extension: extensionOf(basenameOf(record.relativePath)) }),
+      ...R.getSomes({ extension: O.fromUndefinedOr(extensionOf(basenameOf(record.relativePath))) }),
     }).pipe(Effect.option);
 
     if (O.isNone(source)) {
@@ -1047,22 +1047,21 @@ const verifySalvageImpl = Effect.fn("CorpusCommandService.verifySalvage")(functi
 
   const results = yield* Effect.forEach(
     sampled,
-    (record) =>
-      Effect.gen(function* () {
-        const exists = yield* fs
-          .exists(record.destPath)
-          .pipe(CorpusCommandError.mapError(`Failed checking salvaged file "${record.destPath}".`));
-        if (!exists) {
-          yield* Console.log(`corpus salvage: MISSING ${record.sourceLabel}/${record.relativePath}`);
-          return { kind: "missing" as const, sizeBytes: 0 };
-        }
-        const actual = yield* hashFile(record.destPath);
-        if (actual !== record.sha256) {
-          yield* Console.log(`corpus salvage: MISMATCH ${record.sourceLabel}/${record.relativePath}`);
-          return { kind: "mismatched" as const, sizeBytes: record.sizeBytes };
-        }
-        return { kind: "matched" as const, sizeBytes: record.sizeBytes };
-      }),
+    Effect.fnUntraced(function* (record) {
+      const exists = yield* fs
+        .exists(record.destPath)
+        .pipe(CorpusCommandError.mapError(`Failed checking salvaged file "${record.destPath}".`));
+      if (!exists) {
+        yield* Console.log(`corpus salvage: MISSING ${record.sourceLabel}/${record.relativePath}`);
+        return { kind: "missing" as const, sizeBytes: 0 };
+      }
+      const actual = yield* hashFile(record.destPath);
+      if (actual !== record.sha256) {
+        yield* Console.log(`corpus salvage: MISMATCH ${record.sourceLabel}/${record.relativePath}`);
+        return { kind: "mismatched" as const, sizeBytes: record.sizeBytes };
+      }
+      return { kind: "matched" as const, sizeBytes: record.sizeBytes };
+    }),
     { concurrency: 4 }
   );
 
@@ -1389,11 +1388,13 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
         restoredFromRecycleBin: row.restored,
         sourceLabel: row.sourceLabel,
         sourceRelativePath: row.sourceRelativePath,
-        ...(row.client === undefined ? {} : { client: row.client }),
-        ...(row.docket === undefined ? {} : { docket: row.docket }),
-        ...(row.docketFamily === undefined ? {} : { docketFamily: row.docketFamily }),
-        ...(organizedRelative === undefined ? {} : { organizedRelativePath: organizedRelative }),
-        ...(versionIndex === undefined ? {} : { versionIndex: NonNegativeInt.make(versionIndex) }),
+        ...R.getSomes({
+          client: O.fromUndefinedOr(row.client),
+          docket: O.fromUndefinedOr(row.docket),
+          docketFamily: O.fromUndefinedOr(row.docketFamily),
+          organizedRelativePath: O.fromUndefinedOr(organizedRelative),
+        }),
+        ...R.getSomes({ versionIndex: O.map(O.fromUndefinedOr(versionIndex), NonNegativeInt.make) }),
       })
     );
   }
@@ -1622,61 +1623,56 @@ const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function
     const uspto = yield* Uspto;
     return yield* Effect.forEach(
       limited,
-      ([key, candidate]) =>
-        Effect.gen(function* () {
-          const normalized = key.slice(key.indexOf(":") + 1);
-          yield* Effect.sleep(`${lookupDelayMillis} millis`);
-          const resolved =
-            candidate.kind === "application"
-              ? yield* uspto.getApplication(normalized).pipe(Effect.result)
-              : yield* uspto.searchApplications(`applicationMetaData.patentNumber:"${normalized}"`).pipe(
-                  Effect.flatMap((results) =>
-                    A.head(results).pipe(
-                      O.match({
-                        onNone: () => Effect.fail(makeUsptoError("not-found")),
-                        onSome: Effect.succeed,
-                      })
-                    )
-                  ),
-                  Effect.result
-                );
+      Effect.fnUntraced(function* ([key, candidate]) {
+        const normalized = key.slice(key.indexOf(":") + 1);
+        yield* Effect.sleep(`${lookupDelayMillis} millis`);
+        const resolved =
+          candidate.kind === "application"
+            ? yield* uspto.getApplication(normalized).pipe(Effect.result)
+            : yield* uspto.searchApplications(`applicationMetaData.patentNumber:"${normalized}"`).pipe(
+                Effect.flatMap((results) =>
+                  A.head(results).pipe(
+                    O.match({
+                      onNone: () => Effect.fail(makeUsptoError("not-found")),
+                      onSome: Effect.succeed,
+                    })
+                  )
+                ),
+                Effect.result
+              );
 
-          if (Result.isFailure(resolved)) {
-            const status = resolved.failure.reason === "not-found" ? ("not-found" as const) : ("failed" as const);
-            return CorpusEnrichmentRecord.make({
-              candidate: normalized,
-              candidateKind: candidate.kind,
-              docketFamilies: [...candidate.docketFamilies].sort(),
-              occurrenceCount: NonNegativeInt.make(candidate.occurrenceCount),
-              parentApplicationNumbers: [],
-              status,
-            });
-          }
-
-          const continuity = yield* uspto
-            .getContinuity(resolved.success.applicationNumberText)
-            .pipe(Effect.orElseSucceed(() => ({ childApplicationNumbers: [], parentApplicationNumbers: [] })));
-
+        if (Result.isFailure(resolved)) {
+          const status = resolved.failure.reason === "not-found" ? ("not-found" as const) : ("failed" as const);
           return CorpusEnrichmentRecord.make({
-            applicationNumber: resolved.success.applicationNumberText,
             candidate: normalized,
             candidateKind: candidate.kind,
             docketFamilies: [...candidate.docketFamilies].sort(),
             occurrenceCount: NonNegativeInt.make(candidate.occurrenceCount),
-            parentApplicationNumbers: continuity.parentApplicationNumbers,
-            status: "resolved",
-            ...(resolved.success.firstApplicantName === undefined
-              ? {}
-              : { firstApplicantName: resolved.success.firstApplicantName }),
-            ...(resolved.success.firstInventorName === undefined
-              ? {}
-              : { firstInventorName: resolved.success.firstInventorName }),
-            ...(resolved.success.inventionTitle === undefined
-              ? {}
-              : { inventionTitle: resolved.success.inventionTitle }),
-            ...(resolved.success.patentNumber === undefined ? {} : { patentNumber: resolved.success.patentNumber }),
+            parentApplicationNumbers: [],
+            status,
           });
-        }),
+        }
+
+        const continuity = yield* uspto
+          .getContinuity(resolved.success.applicationNumberText)
+          .pipe(Effect.orElseSucceed(() => ({ childApplicationNumbers: [], parentApplicationNumbers: [] })));
+
+        return CorpusEnrichmentRecord.make({
+          applicationNumber: resolved.success.applicationNumberText,
+          candidate: normalized,
+          candidateKind: candidate.kind,
+          docketFamilies: [...candidate.docketFamilies].sort(),
+          occurrenceCount: NonNegativeInt.make(candidate.occurrenceCount),
+          parentApplicationNumbers: continuity.parentApplicationNumbers,
+          status: "resolved",
+          ...R.getSomes({
+            firstApplicantName: O.fromUndefinedOr(resolved.success.firstApplicantName),
+            firstInventorName: O.fromUndefinedOr(resolved.success.firstInventorName),
+            inventionTitle: O.fromUndefinedOr(resolved.success.inventionTitle),
+            patentNumber: O.fromUndefinedOr(resolved.success.patentNumber),
+          }),
+        });
+      }),
       { concurrency: 1 }
     );
   });

@@ -96,7 +96,7 @@ const operationFailure = (operation: ExtractFileOperation, error: TikaError): Fi
         format: operation.format,
         message: "Tika extraction failed inside the driver boundary.",
         operationId: operation.operationId,
-        ...(error.cause === undefined ? {} : { details: { cause: error.cause } }),
+        ...R.getSomes({ details: O.map(O.fromUndefinedOr(error.cause), (cause) => ({ cause })) }),
       })
     )
   );

@@ -3,13 +3,13 @@
   "initiative": {
     "id": "oppold-corpus-pipeline",
     "title": "Oppold Corpus Pipeline",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-06-11",
     "updated": "2026-06-11",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/oppold-corpus-pipeline",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "executionCapable": true,
   "reflectionRequired": true,
   "currentSourceOfTruth": [
@@ -58,7 +58,7 @@
     {
       "id": "P5",
       "name": "Close",
-      "status": "pending"
+      "status": "completed"
     }
   ],
   "verificationCommands": [
