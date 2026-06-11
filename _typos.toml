@@ -61,7 +61,6 @@ extend-exclude = [
   "**/storybook-static/**",
   ".beep/**",
   "scratchpad/**",
-  "graphify-out/**",
   "outputs/agent-reliability/**",
   "goals/**",
   "graphify-out/**",

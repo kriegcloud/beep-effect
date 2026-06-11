@@ -213,14 +213,19 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
         ),
       toArbitrary:
         ([key, value]) =>
-        (fc, ctx) =>
-          fc
-            .oneof(
-              ctx?.isSuspend === true ? { maxDepth: 2, depthIdentifier: "MutableHashMap" } : {},
-              fc.constant([]),
-              fc.array(fc.tuple(key, value), ctx?.constraints?.array)
-            )
-            .map(MutableHashMap_.fromIterable),
+        (fc, ctx) => {
+          const constraint = ctx.constraint ?? {};
+          const entries = fc.array(fc.tuple(key.arbitrary, value.arbitrary), {
+            ...(constraint.minLength !== undefined ? { minLength: constraint.minLength } : {}),
+            ...(constraint.maxLength !== undefined ? { maxLength: constraint.maxLength } : {}),
+          });
+          const empty = fc.constant<Array<[Key["Type"], Value["Type"]]>>([]);
+          const terminal = empty.map(MutableHashMap_.fromIterable);
+          const arbitrary = (
+            ctx.recursion === undefined ? fc.oneof(empty, entries) : fc.oneof(ctx.recursion, empty, entries)
+          ).map(MutableHashMap_.fromIterable);
+          return { arbitrary, terminal };
+        },
       toEquivalence: ([key, value]) => makeMutableHashMapEquivalence(key, value),
       toFormatter:
         ([key, value]) =>

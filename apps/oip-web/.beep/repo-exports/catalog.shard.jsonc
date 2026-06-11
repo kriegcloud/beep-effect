@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "b3f9e21ddc38d78cc854060cafcc1ef4c16ff34197fdce7c9e8691e11ec13da6",
+    "digest": "bb2619043e2c53385974b58675db78f8ee3d587c1c412be9975d563ffa0d1b08",
     "inputs": [
       {
         "path": "apps/oip-web/package.json",
@@ -37,8 +37,8 @@
       },
       {
         "path": "apps/oip-web/src/app/layout.tsx",
-        "sha256": "c7a32ebeb66ba7c649ec9de18b9cf7c1ec219a9ebd1d4dab7c77b559f4ab2fc6",
-        "bytes": 7858
+        "sha256": "5efa746132c164a5ae57271d26b9618becd4990f56197d5c86553c235df00313",
+        "bytes": 7831
       },
       {
         "path": "apps/oip-web/src/app/llms.txt/route.ts",
@@ -52,8 +52,8 @@
       },
       {
         "path": "apps/oip-web/src/app/page.tsx",
-        "sha256": "f80ed20e0b1fcb2588873636b38100926967d493112430cf95b7848e1e78b21f",
-        "bytes": 3919
+        "sha256": "b7f73c79b695ca8b81bdc5035a97c5c4c6dd8a2cc3e75627c2715dab96e391b1",
+        "bytes": 3892
       },
       {
         "path": "apps/oip-web/src/app/robots.ts",
