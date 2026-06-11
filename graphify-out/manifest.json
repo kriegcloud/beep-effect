@@ -10640,7 +10640,7 @@
     "semantic_hash": "5cd4e2239b9aa1ec54655966090b786d"
   },
   "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts": {
-    "mtime": 1781197618.3513792,
+    "mtime": 1781204442.0562963,
     "ast_hash": "bb1380310d8f04eb150b8739e50bb6d6",
     "semantic_hash": ""
   },
@@ -11120,7 +11120,7 @@
     "semantic_hash": "ad70a4c9cb8e093a3337700b5b255f2f"
   },
   "packages/tooling/tool/cli/test/quality-tasks.test.ts": {
-    "mtime": 1781197618.352379,
+    "mtime": 1781204442.0562963,
     "ast_hash": "8c836eecc28a02b7707741e9228a33be",
     "semantic_hash": ""
   },
@@ -14985,7 +14985,7 @@
     "semantic_hash": "80f3274cb34b1e72b424498a57de06d8"
   },
   "standards/repo-exports.catalog.md": {
-    "mtime": 1781197673.5884812,
+    "mtime": 1781204442.0592966,
     "ast_hash": "495f23a6c7209ee982e1b4c0aa35040f",
     "semantic_hash": ""
   },
@@ -15934,24 +15934,29 @@
     "ast_hash": "9d06ea15465f52db07e440ba69d489b4",
     "semantic_hash": ""
   },
-  "goals/fallow-advisory-ratchets/GOAL.md": {
-    "mtime": 1781197618.3643796,
-    "ast_hash": "0cb62782d127a3ef80d35c0e4cfbf141",
+  "goals/fallow-debt-burndown/GOAL.md": {
+    "mtime": 1781204470.977399,
+    "ast_hash": "6bf81bd681b78b52e7bf5b12c5f49005",
     "semantic_hash": ""
   },
-  "goals/fallow-advisory-ratchets/PLAN.md": {
-    "mtime": 1781197618.3646612,
-    "ast_hash": "676019a3aeae9cf68d45db93b2297cdf",
+  "goals/fallow-debt-burndown/PLAN.md": {
+    "mtime": 1781204470.9778883,
+    "ast_hash": "cd044d04ffe685552c481f5abda8bf6b",
     "semantic_hash": ""
   },
-  "goals/fallow-advisory-ratchets/README.md": {
-    "mtime": 1781197618.3646612,
-    "ast_hash": "042044ee87cbccf68061bd15991a0d33",
+  "goals/fallow-debt-burndown/README.md": {
+    "mtime": 1781204470.9778883,
+    "ast_hash": "1abd37673921d450c1f5b83d8f2bd768",
     "semantic_hash": ""
   },
-  "goals/fallow-advisory-ratchets/SPEC.md": {
-    "mtime": 1781197618.3646612,
-    "ast_hash": "a625a9135c27cdd73266ebe11b16ad6d",
+  "goals/fallow-debt-burndown/SPEC.md": {
+    "mtime": 1781204470.9778883,
+    "ast_hash": "51b75073aa5527704ca45e9541883176",
+    "semantic_hash": ""
+  },
+  "goals/fallow-debt-burndown/research/current-fallow-snapshot.md": {
+    "mtime": 1781204470.977993,
+    "ast_hash": "73c3e9a2fffa238a09169d63a74ea153",
     "semantic_hash": ""
   },
   "goals/yeet-agent-ergonomics/GOAL.md": {
@@ -15982,6 +15987,26 @@
   "goals/yeet-agent-ergonomics/research/session-findings.md": {
     "mtime": 1781192445.7240965,
     "ast_hash": "162171428aecaf67b50e6c8370872bd3",
+    "semantic_hash": ""
+  },
+  "goals/fallow-advisory-ratchets/GOAL.md": {
+    "mtime": 1781204442.0304236,
+    "ast_hash": "0cb62782d127a3ef80d35c0e4cfbf141",
+    "semantic_hash": ""
+  },
+  "goals/fallow-advisory-ratchets/PLAN.md": {
+    "mtime": 1781204442.0305371,
+    "ast_hash": "676019a3aeae9cf68d45db93b2297cdf",
+    "semantic_hash": ""
+  },
+  "goals/fallow-advisory-ratchets/README.md": {
+    "mtime": 1781204442.0305371,
+    "ast_hash": "042044ee87cbccf68061bd15991a0d33",
+    "semantic_hash": ""
+  },
+  "goals/fallow-advisory-ratchets/SPEC.md": {
+    "mtime": 1781204442.0305371,
+    "ast_hash": "a625a9135c27cdd73266ebe11b16ad6d",
     "semantic_hash": ""
   }
 }
