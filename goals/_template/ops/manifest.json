@@ -11,6 +11,7 @@
   "packetPath": "goals/<slug>",
   "lifecycle": "active",
   "executionCapable": true,
+  "reflectionRequired": true,
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -54,7 +55,8 @@
     "test \"$(wc -m < goals/<slug>/GOAL.md)\" -le 4000",
     "jq . goals/<slug>/ops/manifest.json",
     "rg -n \"<slug>|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/<slug>",
-    "git diff --check -- goals/<slug>"
+    "git diff --check -- goals/<slug>",
+    "bun run beep lint reflection-artifacts"
   ],
   "stopConditions": [
     "Required source files are missing or materially contradictory.",

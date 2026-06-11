@@ -1,8 +1,8 @@
 /**
- * Experimental Box SDK schema scaffolding.
+ * Experimental effect/Schema models for Box Node SDK payloads.
  *
- * @since 0.0.0
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 import { $BoxId } from "@beep/identity";

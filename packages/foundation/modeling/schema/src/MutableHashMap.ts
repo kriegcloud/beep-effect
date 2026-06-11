@@ -6,7 +6,8 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { A, O as OptionUtils, Str } from "@beep/utils";
+import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import {
   Effect,
   MutableHashMap as MutableHashMap_,
@@ -215,9 +216,9 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
         ([key, value]) =>
         (fc, ctx) => {
           const constraint = ctx.constraint ?? {};
-          const constraints = OptionUtils.getSomesStruct({
-            minLength: Option.fromUndefinedOr(constraint.minLength),
-            maxLength: Option.fromUndefinedOr(constraint.maxLength),
+          const constraints = O.getSomesStruct({
+            minLength: O.fromUndefinedOr(constraint.minLength),
+            maxLength: O.fromUndefinedOr(constraint.maxLength),
           });
           const minLength = constraints.minLength ?? 0;
           const terminalItem =

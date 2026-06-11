@@ -36,6 +36,7 @@ goals/<slug>/
 | `ops/manifest.json` | Machine-readable routing: lifecycle, anchor document, launchers, phases, checks, assets. |
 | `research/` | Source-backed exploration, tradeoffs, inventories, and freshness-dated notes. |
 | `history/` | Archived outputs, closeouts, reflection logs, verification notes, and evidence. |
+| `history/reflections/` | Per-session agent reflections written at P3 Close (and on demand via `/reflect`). One immutable file per run, named `<YYYY-MM-DD>-<agent>.md`, with schema-validated YAML frontmatter (`ReflectionFrontmatter`); enforced by `bun run beep lint reflection-artifacts` for packets with `reflectionRequired: true`. Start from `_template/history/reflections/_TEMPLATE.md`. |
 | `ops/handoffs/` | Optional phase-specific handoffs or secondary execution packets. |
 | `ops/prompts/` | Optional reusable prompts or prompt assets. |
 
