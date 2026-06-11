@@ -488,6 +488,20 @@ const knownSubLaneHints: ReadonlyArray<KnownSubLaneHint> = [
     category: "security-audit",
     remediation: "Rerun `bun run beep quality github-checks nix` and inspect the Nix error.",
   },
+  {
+    needle: "changeset",
+    subCategory: "changeset-status",
+    category: "changeset-policy",
+    remediation:
+      "Run `bun run changeset:status:since-main`. If the change is intentionally version-neutral, run `bunx changeset add --empty` and commit the empty changeset.",
+  },
+  {
+    needle: "typos",
+    subCategory: "typos",
+    category: "lint-tool",
+    remediation:
+      "Run the typos checker on the flagged files and fix the spelling, or whitelist intentional terms in `_typos.toml`.",
+  },
 ];
 
 const knownSubLaneHintFromText = (text: string): O.Option<KnownSubLaneHint> =>

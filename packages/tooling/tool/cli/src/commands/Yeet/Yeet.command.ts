@@ -61,6 +61,18 @@ const tierFlag = Flag.choiceWithValue("tier", [
 
 const amendFlag = Flag.boolean("amend").pipe(Flag.withDescription("Amend the current local commit during publish"));
 
+const stagedOnlyFlag = Flag.boolean("staged-only").pipe(
+  Flag.withDescription(
+    "Publish exactly the staged index: stash unstaged/untracked residue after commit, prove the clean tree, restore after push"
+  )
+);
+
+const allowStaleBaseFlag = Flag.boolean("allow-stale-base").pipe(
+  Flag.withDescription(
+    "Proceed with publish even when branch files overlap commits landed on the base since merge-base"
+  )
+);
+
 const noEditFlag = Flag.boolean("no-edit").pipe(
   Flag.withDescription("Reuse the current commit message with --amend during publish")
 );
@@ -151,6 +163,7 @@ const sharedFlags = {
 
 const publishFlags = {
   ...sharedFlags,
+  allowStaleBase: allowStaleBaseFlag,
   amend: amendFlag,
   fast: fastFlag,
   message: messageFlag,
@@ -158,6 +171,7 @@ const publishFlags = {
   noEdit: noEditFlag,
   pushOnly: pushOnlyFlag,
   reuseVerified: reuseVerifiedFlag,
+  stagedOnly: stagedOnlyFlag,
   startPrEarly: startPrEarlyFlag,
 } as const;
 
@@ -171,6 +185,7 @@ const closeoutFlags = {
 } as const;
 
 type SharedOptions = {
+  readonly allowStaleBase?: boolean;
   readonly amend?: boolean;
   readonly base: string;
   readonly bots?: string;
@@ -187,6 +202,7 @@ type SharedOptions = {
   readonly requireReviewComments?: number;
   readonly retriggerGreptile?: boolean;
   readonly reuseVerified?: boolean;
+  readonly stagedOnly?: boolean;
   readonly startPrEarly?: boolean;
   readonly tier?: YeetProofTier;
 };
@@ -195,6 +211,7 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
   runYeet(
     YeetRunOptions.make({
       ...options,
+      allowStaleBase: options.allowStaleBase ?? false,
       amend: options.amend ?? false,
       bots: options.bots ?? "greptile,coderabbit,chatgpt",
       fast: options.fast ?? false,
@@ -208,6 +225,7 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
       requireReviewComments: options.requireReviewComments ?? -1,
       retriggerGreptile: options.retriggerGreptile ?? false,
       reuseVerified: options.reuseVerified ?? false,
+      stagedOnly: options.stagedOnly ?? false,
       startPrEarly: options.startPrEarly ?? false,
       tier: options.tier ?? "full",
     })
