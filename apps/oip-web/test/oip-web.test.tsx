@@ -169,6 +169,10 @@ const oipRuntimeKvsAtom = Atom.kvs({
 });
 const OipSiteContentArbitrary = S.toArbitrary(OipSiteContent);
 const ContactSubmissionFormPayloadArbitrary = S.toArbitrary(ContactSubmissionFormPayload);
+const encodeOipSiteContent = S.encodeSync(OipSiteContent);
+const decodeOipSiteContent = S.decodeUnknownSync(OipSiteContent);
+const encodeContactSubmissionFormPayload = S.encodeSync(ContactSubmissionFormPayload);
+const decodeContactSubmissionFormPayload = S.decodeUnknownSync(ContactSubmissionFormPayload);
 
 function OipRuntimeKvsHarness() {
   const [value, setValue] = useAtom(oipRuntimeKvsAtom);
@@ -208,8 +212,11 @@ describe("@beep/oip-web", { concurrent: false }, () => {
   it("derives valid OIP content and contact form values from production schemas", () => {
     fc.assert(
       fc.property(OipSiteContentArbitrary, ContactSubmissionFormPayloadArbitrary, (content, payload) => {
-        expect(S.is(OipSiteContent)(content)).toBe(true);
-        expect(S.is(ContactSubmissionFormPayload)(payload)).toBe(true);
+        const encodedContent = encodeOipSiteContent(content);
+        const encodedPayload = encodeContactSubmissionFormPayload(payload);
+
+        expect(decodeOipSiteContent(encodedContent)).toEqual(content);
+        expect(decodeContactSubmissionFormPayload(encodedPayload)).toEqual(payload);
       }),
       { numRuns: 20 }
     );
@@ -548,7 +555,7 @@ describe("@beep/oip-web", { concurrent: false }, () => {
   it("converts contact FormData into the shared submission payload", () => {
     const payload = contactSubmissionPayloadFromFormData(contactFormData());
 
-    expect(payload.email).toBe("TOM@EXAMPLE.COM");
+    expect(payload.email).toBe("tom@example.com");
     expect(payload.message).toBe("I would like help protecting a new machine design.");
     expect(payload.name).toBe("Thomas Oppold");
     expect(payload.submittedAt).toBeGreaterThan(0);

@@ -56,6 +56,9 @@ Higher sources outrank lower sources when they conflict.
   needs to exclude them.
 - Preserve the branch's pre-existing dirty files until they are classified as
   in-scope, intentionally separate, or excluded before publish.
+- The branch intentionally carries pre-existing root dependency updates for
+  `drizzle-orm`, `drizzle-kit`, `fallow`, and their lockfile entries because the
+  user asked the new branch to include the checkout's current changes.
 - Prefer schema-first migration over widening exceptions for true pure-data
   payloads.
 - Run package-scoped verification for every touched cluster before relying on

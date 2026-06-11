@@ -1,6 +1,6 @@
 # GOAL: zero actionable schema-first findings
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect6`.
+Repo: this checkout of `beep-effect6`.
 
 Outcome: drive schema-first governance to zero actionable findings, harden the
 lint gate so the zero state is preserved, and publish a merge-ready PR.

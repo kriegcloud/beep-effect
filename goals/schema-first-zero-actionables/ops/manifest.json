@@ -42,32 +42,32 @@
     {
       "id": "P0",
       "name": "Packet and baseline",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Detector audit",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Arbitrary leftovers",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "High-volume migration",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Stragglers and hard gate",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P5",
       "name": "PR closure",
-      "status": "pending"
+      "status": "in-progress"
     }
   ],
   "verificationCommands": [

@@ -1103,6 +1103,55 @@ describe("schema-first lint command", { concurrent: false }, () => {
       ),
     5_000
   );
+
+  it(
+    "does not suppress S.Struct candidates when a same-named field variable feeds an unrelated class",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+
+            yield* fs.writeFileString(
+              "package.json",
+              `${encodeJson({
+                name: "@beep/test-root",
+                private: true,
+                type: "module",
+                workspaces: ["packages/*"],
+              })}\n`
+            );
+            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.writeFileString(
+              path.join("packages", "example", "src", "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                "const buildClass = () => {",
+                "  const fields = { id: S.String };",
+                '  return S.Class<any>("Worker")(fields);',
+                "};",
+                "const fields = S.Struct({ id: S.String });",
+                "void buildClass;",
+                "void fields;",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(errorLines).toContain(
+              "- packages/example/src/Example.ts :: fields [object-struct-schema] Object schema should prefer an annotated S.Class over S.Struct."
+            );
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
 });
 
 describe("package test import lint command", { concurrent: false }, () => {

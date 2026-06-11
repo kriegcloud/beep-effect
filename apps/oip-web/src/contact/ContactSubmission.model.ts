@@ -6,7 +6,7 @@
  */
 
 import { $OipWebId } from "@beep/identity/packages";
-import { LiteralKit, NonNegativeInt } from "@beep/schema";
+import { LiteralKit, NonNegativeInt, TrimmedNonEmptyText } from "@beep/schema";
 import { Str } from "@beep/utils";
 import { Effect, pipe, Result, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
@@ -18,9 +18,11 @@ const $I = $OipWebId.create("contact/ContactSubmission.model");
 
 const contactEmailPattern =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+const ContactEmailArbitraryValues = ["builder@example.com", "intake@oip.law", "tom@example.com"] as const;
 
-const TrimmedContactText = S.NonEmptyString.pipe(
-  S.decode(SchemaTransformation.trim()),
+const TrimmedContactText = TrimmedNonEmptyText.annotate({
+  toArbitrary: () => (fc) => fc.string({ minLength: 1 }).map(Str.trim).filter(Str.isNonEmpty),
+}).pipe(
   $I.annoteSchema("TrimmedContactText", {
     description: "Trimmed non-empty contact form text.",
   })
@@ -49,7 +51,10 @@ const ContactEmail = TrimmedContactText.pipe(S.decode(SchemaTransformation.toLow
     $I.annoteSchema("ContactEmail", {
       description: "Normalized contact form email address.",
     })
-  );
+  )
+  .annotate({
+    toArbitrary: () => (fc) => fc.constantFrom(...ContactEmailArbitraryValues),
+  });
 
 const ContactMessage = TrimmedContactText.check(
   S.isMinLength(10, {
@@ -180,7 +185,7 @@ export class ContactSubmissionFormPayload extends S.Class<ContactSubmissionFormP
 )(
   {
     company: S.optionalKey(TrimmedContactText),
-    email: S.String,
+    email: ContactEmail,
     message: S.String,
     name: S.String,
     phone: S.optionalKey(TrimmedContactText),

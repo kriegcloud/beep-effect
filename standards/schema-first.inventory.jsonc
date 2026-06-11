@@ -1,18 +1,12 @@
 {
   "version": 1,
   "generatedOn": "2026-06-11",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "entries": [
-    {
-      "file": "apps/oip-web/src/contact/ContactSubmission.model.ts",
-      "symbol": "ContactSubmissionFormPayload.email",
-      "kind": "schema-policy-advisory",
-      "status": "exception",
-      "ruleId": "SFV4-precision-audit",
-      "line": 183,
-      "owner": "@beep/oip-web",
-      "reason": "Raw browser FormData staging payload intentionally preserves submitted email text before ContactSubmission performs domain email normalization and validation."
-    },
     {
       "file": "infra/src/OipWeb.ts",
       "symbol": "OipWebRuntimeSecrets",

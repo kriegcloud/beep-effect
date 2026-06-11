@@ -98,5 +98,13 @@ describe("packages/tooling/tool/cli schema-first models", () => {
     expect(
       sourceTextHasSchemaArbitraryPropertyCoverage("fc.property(fc.string(), (value) => value.length >= 0);")
     ).toBe(false);
+    expect(sourceTextHasSchemaArbitraryPropertyCoverage("const WorkerArbitrary = S.toArbitraryLazy(Worker);")).toBe(
+      true
+    );
+    expect(
+      sourceTextHasSchemaArbitraryPropertyCoverage(
+        'import { assertSchemaArbitraryDecodesToSelf } from "@beep/test-utils";'
+      )
+    ).toBe(false);
   });
 });

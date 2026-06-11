@@ -45,6 +45,11 @@ const tools = await Effect.runPromise(
 console.log(tools.map((tool) => tool.name))
 ```
 
+AI tool `success` schemas use `S.toEncoded(...)` so exported tool contracts
+describe transport-safe JSON-compatible output. The corresponding domain
+schemas remain available in `@beep/nlp/Tools/_schemas` for in-process decoding,
+encoding, and test generation.
+
 ### Tokenization With A Driver
 
 ```ts

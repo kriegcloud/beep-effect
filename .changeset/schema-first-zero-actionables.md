@@ -9,7 +9,7 @@
 "@beep/test-utils": patch
 ---
 
-Clear schema-first zero-actionable follow-ups across Box streaming payloads,
-Chalk runtime state, NLP tool schemas, RDF and shared schema arbitrary values,
-semantic-web arbitrary tests, shared schema arbitrary test helpers, repo-docgen
-carried schema models, and the schema-first lint gate.
+Model Box streaming payloads, Chalk runtime state, NLP tool results, RDF terms,
+semantic-web fixtures, repo-docgen data, and shared schema arbitraries with
+runtime schemas, source-derived arbitraries, and a repo-wide schema-first lint
+gate.

@@ -72,12 +72,14 @@ const SCHEMA_CODEC_HELPERS = [
   "encodeUnknownSync",
   "encodeSync",
 ] as const;
+const SCHEMA_ARBITRARY_NAMESPACE_NAMES = ["S", "Schema"] as const;
+const SCHEMA_ARBITRARY_HELPERS = ["toArbitrary", "toArbitraryLazy"] as const;
+const REPO_SCHEMA_ARBITRARY_HELPERS = ["assertSchemaArbitraryDecodesToSelf"] as const;
 // Schema-derived property coverage requires deriving the arbitrary from the
 // schema itself, either directly (S.toArbitrary / Schema.toArbitrary, including
 // toArbitraryLazy) or through repo-owned helpers that perform that derivation.
 // A bare fc.property/assert/check over a hand-rolled arbitrary is not
 // schema-derived coverage and must not suppress the advisory.
-const SCHEMA_ARBITRARY_PROPERTY_PATTERN = /\b(?:(?:S|Schema)\.toArbitrary|assertSchemaArbitraryDecodesToSelf)\b/;
 const TEST_FILE_PATTERN = /(?:\/test\/|\/tests\/|\.test\.tsx?$|\.spec\.tsx?$)/;
 const TEST_FILE_EXCLUDED_SEGMENTS = [
   "/.repos/",
@@ -482,18 +484,27 @@ const isFunctionLocalNode = (node: Node): boolean =>
       Node.isMethodDeclaration(ancestor)
   ) !== undefined;
 
+const nodesShareSymbolDeclaration = (left: Node, right: Node): boolean => {
+  const rightDeclarations = right.getSymbol()?.getDeclarations() ?? [];
+  return (
+    rightDeclarations.length > 0 &&
+    A.some(left.getSymbol()?.getDeclarations() ?? [], (leftDeclaration) => rightDeclarations.includes(leftDeclaration))
+  );
+};
+
 const isStructFieldsInputForSchemaClass = (callExpression: import("ts-morph").CallExpression): boolean => {
   const variableDeclaration = callExpression.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
   if (variableDeclaration === undefined) {
     return false;
   }
 
-  const variableName = variableDeclaration.getName();
+  const variableNameNode = variableDeclaration.getNameNode();
   return A.some(callExpression.getSourceFile().getDescendantsOfKind(SyntaxKind.CallExpression), (candidate) => {
     if (candidate === callExpression || !SCHEMA_CLASS_FIELDS_CALL_PATTERN.test(candidate.getExpression().getText())) {
       return false;
     }
-    return candidate.getArguments()[0]?.getText() === variableName;
+    const firstArgument = candidate.getArguments()[0];
+    return firstArgument !== undefined && nodesShareSymbolDeclaration(firstArgument, variableNameNode);
   });
 };
 
@@ -863,6 +874,26 @@ const isSchemaCodecCallExpression = (callExpression: import("ts-morph").CallExpr
   );
 };
 
+const literalMemberEquals = <const T extends string>(members: readonly T[], candidate: string): boolean =>
+  A.some(members, (member) => Str.Equivalence(member, candidate));
+
+const isSchemaArbitraryPropertyCoverageCall = (callExpression: import("ts-morph").CallExpression): boolean => {
+  const expression = callExpression.getExpression();
+  if (Node.isPropertyAccessExpression(expression)) {
+    const namespaceExpression = expression.getExpression();
+    return (
+      Node.isIdentifier(namespaceExpression) &&
+      literalMemberEquals(SCHEMA_ARBITRARY_NAMESPACE_NAMES, namespaceExpression.getText()) &&
+      literalMemberEquals(SCHEMA_ARBITRARY_HELPERS, expression.getName())
+    );
+  }
+
+  return Node.isIdentifier(expression) && literalMemberEquals(REPO_SCHEMA_ARBITRARY_HELPERS, expression.getText());
+};
+
+const sourceHasSchemaArbitraryPropertyCoverage = (sourceFile: import("ts-morph").SourceFile): boolean =>
+  A.some(sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression), isSchemaArbitraryPropertyCoverageCall);
+
 /**
  * Test whether source text contains schema-derived arbitrary coverage.
  *
@@ -877,11 +908,11 @@ const isSchemaCodecCallExpression = (callExpression: import("ts-morph").CallExpr
  * @category utilities
  * @since 0.0.0
  */
-export const sourceTextHasSchemaArbitraryPropertyCoverage = (sourceText: string): boolean =>
-  SCHEMA_ARBITRARY_PROPERTY_PATTERN.test(sourceText);
-
-const sourceHasSchemaArbitraryPropertyCoverage = (sourceFile: import("ts-morph").SourceFile): boolean =>
-  sourceTextHasSchemaArbitraryPropertyCoverage(sourceFile.getFullText());
+export const sourceTextHasSchemaArbitraryPropertyCoverage = (sourceText: string): boolean => {
+  const project = new Project({ skipAddingFilesFromTsConfig: true });
+  const sourceFile = project.createSourceFile("schema-arbitrary-coverage.tsx", sourceText, { overwrite: true });
+  return sourceHasSchemaArbitraryPropertyCoverage(sourceFile);
+};
 
 const arbitraryTestsEntryFromSourceFile = (
   sourceFile: import("ts-morph").SourceFile,
