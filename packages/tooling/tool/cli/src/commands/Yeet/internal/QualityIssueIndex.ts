@@ -524,12 +524,58 @@ const knownSubLaneHintFromText = (text: string): O.Option<KnownSubLaneHint> =>
     O.map((match) => match.hint)
   );
 
+const FAILURE_HINT_WINDOW_RADIUS = 12;
+
+const lineIndicatesFailure = (line: string): boolean => {
+  const normalized = Str.toLowerCase(line);
+  return (
+    Str.includes("failed")(normalized) ||
+    Str.includes("failure")(normalized) ||
+    Str.includes("error")(normalized) ||
+    Str.includes("exit code")(normalized) ||
+    Str.includes("timed out")(normalized)
+  );
+};
+
+const outputFailureHintWindows = (text: string): ReadonlyArray<string> => {
+  const lines = pipe(text, Str.replace(/\r\n/gu, "\n"), Str.split("\n"));
+  return pipe(
+    lines,
+    A.map((line, index) => ({ index, line })),
+    A.filter((entry) => lineIndicatesFailure(entry.line)),
+    A.map((entry) => {
+      const start = Math.max(0, entry.index - FAILURE_HINT_WINDOW_RADIUS);
+      return pipe(lines, A.drop(start), A.take(entry.index - start + 1), A.join("\n"));
+    })
+  );
+};
+
+const knownSubLaneHintFromFailureWindows = (text: string): O.Option<KnownSubLaneHint> => {
+  const windows = outputFailureHintWindows(text);
+  if (A.isReadonlyArrayEmpty(windows)) {
+    return O.none();
+  }
+  return pipe(
+    windows,
+    A.reduce(O.none<KnownSubLaneHint>(), (matched, window) =>
+      O.isSome(matched) ? matched : knownSubLaneHintFromText(window)
+    )
+  );
+};
+
 const knownSubLaneHintFromOutput = (output: string | undefined): O.Option<KnownSubLaneHint> => {
   const normalized = Str.toLowerCase(output ?? "");
   const tail = normalized.slice(-KNOWN_SUB_LANE_TAIL_CHARS);
   return pipe(
-    knownSubLaneHintFromText(tail),
-    O.orElse(() => knownSubLaneHintFromText(normalized))
+    knownSubLaneHintFromFailureWindows(normalized),
+    O.orElse(() =>
+      A.isReadonlyArrayEmpty(outputFailureHintWindows(normalized))
+        ? pipe(
+            knownSubLaneHintFromText(tail),
+            O.orElse(() => knownSubLaneHintFromText(normalized))
+          )
+        : O.none()
+    )
   );
 };
 

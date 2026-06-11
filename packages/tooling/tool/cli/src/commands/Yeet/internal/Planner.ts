@@ -55,7 +55,15 @@ type YeetFeedbackTask = (typeof YEET_FEEDBACK_TASKS)[number];
  * @category models
  * @since 0.0.0
  */
-export const YeetRunMode = LiteralKit(["repair", "verify", "publish", "monitor", "closeout", "pre-push-hook"]).pipe(
+export const YeetRunMode = LiteralKit([
+  "repair",
+  "verify",
+  "publish",
+  "monitor",
+  "closeout",
+  "status",
+  "pre-push-hook",
+]).pipe(
   $I.annoteSchema("YeetRunMode", {
     description: "Execution mode selected for a yeet repository run.",
   })
@@ -126,6 +134,10 @@ export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`Y
     monitor: S.Boolean,
     noEdit: S.Boolean,
     pushOnly: S.Boolean,
+    remote: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
     startPrEarly: S.Boolean,
     tier: YeetProofTier,
     pr: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefault(Effect.succeed(false))),
@@ -439,6 +451,39 @@ const closeoutSteps = (context: RepoRunContext): ReadonlyArray<RepoPlanStep> => 
   closeoutReviewGateStep(context),
 ];
 
+const statusLocalStep = (context: RepoRunContext): RepoPlanStep =>
+  RepoPlanStep.make({
+    id: "status:01-local",
+    label: "status:local",
+    phase: "monitor",
+    command: "git",
+    args: ["status", "--short", "--branch"],
+    cwd: context.repoRoot,
+    scope: "git",
+    mutability: "readonly",
+    resume: "never",
+    verification: "local-branch-and-worktree-status",
+  });
+
+const statusRemoteStep = (context: RepoRunContext): RepoPlanStep =>
+  RepoPlanStep.make({
+    id: "status:02-remote-pr",
+    label: "status:remote-pr",
+    phase: "monitor",
+    command: "gh",
+    args: ["pr", "view", "--json", "number,url,state,mergeable,mergeStateStatus,isDraft,reviewDecision"],
+    cwd: context.repoRoot,
+    scope: "repo",
+    mutability: "readonly",
+    resume: "never",
+    verification: "current-branch-pr-status",
+  });
+
+const statusSteps = (context: RepoRunContext, options: YeetRunPlanModeOptions): ReadonlyArray<RepoPlanStep> => [
+  statusLocalStep(context),
+  ...(options.remote ? [statusRemoteStep(context)] : []),
+];
+
 const publishSteps = (
   context: RepoRunContext,
   message: O.Option<string>,
@@ -479,6 +524,7 @@ const stepsForMode = (
     publish: () => publishSteps(context, message, options),
     monitor: () => monitorSteps(context),
     closeout: () => closeoutSteps(context),
+    status: () => statusSteps(context, options),
     "pre-push-hook": () => [],
   });
 

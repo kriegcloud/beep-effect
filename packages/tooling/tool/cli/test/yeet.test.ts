@@ -5,6 +5,7 @@ import {
   buildYeetVerdictForTesting,
   closeoutGateStatesForTesting,
   closeoutWritePlanForTesting,
+  collectDiffFingerprintForTesting,
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
   defaultYeetRunOptions,
@@ -30,6 +31,7 @@ import {
   RepoRunContext,
   RepoStepRunResult,
   renderPackageQualityPacketMarkdown,
+  renderYeetStatusSummary,
   repoProofStepDefinition,
   restoreStashedWorktreeForTesting,
   shouldSkipCommitForReusablePublishForTesting,
@@ -40,7 +42,12 @@ import {
   TurboWorkspacePackage,
   YeetExecutedStep,
   YeetProofLockStateForTesting,
+  YeetStatusArtifact,
+  YeetStatusRemote,
+  YeetStatusSnapshot,
+  YeetStatusWorktree,
   YeetVerdict,
+  yeetStatusNextCommandForTesting,
 } from "@beep/repo-cli/test/Yeet";
 import { provideScopedLayer } from "@beep/test-utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
@@ -109,6 +116,38 @@ const withTempDirectory = <Result, Error, Requirements>(
         yield* fs.remove(tmpDir, { recursive: true });
       })
   ).pipe(provideScopedLayer(PlatformLayer));
+
+type TempTrackedFileRepo = {
+  readonly filePath: string;
+  readonly tempContext: RepoRunContext;
+  readonly tmpDir: string;
+};
+
+const initTrackedFileRepo = Effect.fn("initTrackedFileRepo")(function* (tmpDir: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const filePath = path.join(tmpDir, "tracked.txt");
+  const tempContext = RepoRunContext.make({ ...context, cwd: tmpDir, repoRoot: tmpDir });
+
+  yield* runGit(tmpDir, ["init"]);
+  yield* runGit(tmpDir, ["config", "user.email", "yeet@example.test"]);
+  yield* runGit(tmpDir, ["config", "user.name", "Yeet Test"]);
+  yield* fs.writeFileString(filePath, "base\n");
+  yield* runGit(tmpDir, ["add", "tracked.txt"]);
+  yield* runGit(tmpDir, ["commit", "-m", "init"]);
+
+  return { filePath, tempContext } as const;
+});
+
+const withTrackedFileRepo = <Result, Error, Requirements>(
+  use: (repo: TempTrackedFileRepo) => Effect.Effect<Result, Error, Requirements>
+) =>
+  withTempDirectory((tmpDir) =>
+    Effect.gen(function* () {
+      const repo = yield* initTrackedFileRepo(tmpDir);
+      return yield* use({ ...repo, tmpDir });
+    })
+  );
 
 const turboTask = (
   task: string,
@@ -185,6 +224,30 @@ const feedbackStep = (label: string, task: string): RepoPlanStep =>
     packagePath: "packages/tooling/tool/cli",
     task,
   });
+
+const prePushStep = RepoPlanStep.make({
+  id: "full:pre-push",
+  label: "full:pre-push",
+  phase: "full",
+  command: "bun",
+  args: ["run", "beep", "quality", "github-checks", "pre-push"],
+  cwd: "/repo",
+  scope: "repo",
+  mutability: "readonly",
+  resume: "never",
+});
+
+const prePushFailureIssues = (runContext: RepoRunContext, output: string) =>
+  qualityIssuesFromStepResult(
+    runContext,
+    prePushStep,
+    RepoStepRunResult.make({
+      stepId: prePushStep.id,
+      commandText: "bun run beep quality github-checks pre-push",
+      exitCode: 1,
+      output,
+    })
+  );
 
 const repoScopedFeedbackStep = (label: string, task: string, filters: ReadonlyArray<string>): RepoPlanStep =>
   RepoPlanStep.make({
@@ -355,6 +418,30 @@ describe("yeet planner", () => {
     expect(findStep(plan.steps, "monitor:pr-checks:watch").args).toEqual(["pr", "checks", "--watch"]);
   });
 
+  it("builds status as local-only by default and adds remote PR reads on request", () => {
+    const localPlan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "status" });
+    const remotePlan = buildYeetRunPlanForTesting({ context, message: O.none(), mode: "status", remote: true });
+
+    expect(
+      pipe(
+        localPlan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["status:local"]);
+    expect(
+      pipe(
+        remotePlan.steps,
+        A.map((step) => step.label)
+      )
+    ).toEqual(["status:local", "status:remote-pr"]);
+    expect(findStep(remotePlan.steps, "status:remote-pr").args).toEqual([
+      "pr",
+      "view",
+      "--json",
+      "number,url,state,mergeable,mergeStateStatus,isDraft,reviewDecision",
+    ]);
+  });
+
   it("builds fast-plus-monitor publish without the local full proof", () => {
     const plan = buildYeetRunPlanForTesting({
       context,
@@ -440,23 +527,9 @@ describe("yeet planner", () => {
 
   it("rejects push-only reuse when staged changes are present", () =>
     Effect.runPromise(
-      withTempDirectory((tmpDir) =>
+      withTrackedFileRepo(({ filePath, tempContext, tmpDir }) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const filePath = path.join(tmpDir, "tracked.txt");
-          const tempContext = RepoRunContext.make({
-            ...context,
-            cwd: tmpDir,
-            repoRoot: tmpDir,
-          });
-
-          yield* runGit(tmpDir, ["init"]);
-          yield* runGit(tmpDir, ["config", "user.email", "yeet@example.test"]);
-          yield* runGit(tmpDir, ["config", "user.name", "Yeet Test"]);
-          yield* fs.writeFileString(filePath, "base\n");
-          yield* runGit(tmpDir, ["add", "tracked.txt"]);
-          yield* runGit(tmpDir, ["commit", "-m", "init"]);
           yield* fs.writeFileString(filePath, "changed\n");
           yield* runGit(tmpDir, ["add", "tracked.txt"]);
 
@@ -469,6 +542,24 @@ describe("yeet planner", () => {
 
           expect(error.message).toContain("yeet publish --push-only --reuse-verified refuses staged changes.");
           expect(error.message).toContain("  - tracked.txt");
+        })
+      )
+    ));
+
+  it("fingerprints large dirty diffs without command capture truncation", () =>
+    Effect.runPromise(
+      withTrackedFileRepo(({ filePath, tempContext }) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+
+          yield* fs.writeFileString(filePath, `${"first\n".repeat(110_000)}`);
+          const first = yield* collectDiffFingerprintForTesting(tempContext);
+          yield* fs.writeFileString(filePath, `${"second\n".repeat(110_000)}`);
+          const second = yield* collectDiffFingerprintForTesting(tempContext);
+
+          expect(first).toMatch(/^[a-f0-9]{64}$/u);
+          expect(second).toMatch(/^[a-f0-9]{64}$/u);
+          expect(second).not.toBe(first);
         })
       )
     ));
@@ -1060,27 +1151,7 @@ describe("yeet quality issue index", () => {
   });
 
   it("extracts known sub-lane hints from broad proof failures", () => {
-    const step = RepoPlanStep.make({
-      id: "full:pre-push",
-      label: "full:pre-push",
-      phase: "full",
-      command: "bun",
-      args: ["run", "beep", "quality", "github-checks", "pre-push"],
-      cwd: "/repo",
-      scope: "repo",
-      mutability: "readonly",
-      resume: "never",
-    });
-    const issues = qualityIssuesFromStepResult(
-      context,
-      step,
-      RepoStepRunResult.make({
-        stepId: step.id,
-        commandText: "bun run beep quality github-checks pre-push",
-        exitCode: 1,
-        output: "[beep-cli] lint:cspell: cspell .\nUnknown word found",
-      })
-    );
+    const issues = prePushFailureIssues(context, "[beep-cli] lint:cspell: cspell .\nUnknown word found");
 
     expect(issues).toHaveLength(1);
     expect(issues[0]).toMatchObject({
@@ -1136,26 +1207,9 @@ describe("yeet quality issue index", () => {
         turboPackage("@beep/schema", "packages/foundation/modeling/schema"),
       ]
     );
-    const step = RepoPlanStep.make({
-      id: "full:pre-push",
-      label: "full:pre-push",
-      phase: "full",
-      command: "bun",
-      args: ["run", "beep", "quality", "github-checks", "pre-push"],
-      cwd: "/repo",
-      scope: "repo",
-      mutability: "readonly",
-      resume: "never",
-    });
-    const issues = qualityIssuesFromStepResult(
+    const issues = prePushFailureIssues(
       fullContext,
-      step,
-      RepoStepRunResult.make({
-        stepId: step.id,
-        commandText: "bun run beep quality github-checks pre-push",
-        exitCode: 1,
-        output: "packages/foundation/modeling/schema/src/example.ts:3:1 - error TS2322: nope",
-      })
+      "packages/foundation/modeling/schema/src/example.ts:3:1 - error TS2322: nope"
     );
 
     expect(issues).toHaveLength(1);
@@ -1166,28 +1220,27 @@ describe("yeet quality issue index", () => {
     });
   });
 
-  it("extracts the changeset sub-lane hint with the empty-changeset remedy", () => {
-    const step = RepoPlanStep.make({
-      id: "full:pre-push",
-      label: "full:pre-push",
-      phase: "full",
-      command: "bun",
-      args: ["run", "beep", "quality", "github-checks", "pre-push"],
-      cwd: "/repo",
-      scope: "repo",
-      mutability: "readonly",
-      resume: "never",
-    });
-    const issues = qualityIssuesFromStepResult(
+  it("does not replace an unclassified failure with a later unrelated tail needle", () => {
+    const issues = prePushFailureIssues(
       context,
-      step,
-      RepoStepRunResult.make({
-        stepId: step.id,
-        commandText: "bun run beep quality github-checks pre-push",
-        exitCode: 1,
-        output:
-          "[beep-cli] quality:changeset-status: bun run changeset:status:since-main\nSome packages have been changed but no changesets were found.",
-      })
+      "test-utils test/integration/SqlTest.pglite.test.ts timed out after 60000ms\n" +
+        "full:pre-push failed with exit code 1.\n" +
+        "security:nix completed successfully"
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      category: "command-failure",
+      message: "full:pre-push failed with exit code 1.",
+    });
+    expect(issues[0]?.subCategory).not.toBe("nix");
+    expect(issues[0]?.remediation).toBeUndefined();
+  });
+
+  it("extracts the changeset sub-lane hint with the empty-changeset remedy", () => {
+    const issues = prePushFailureIssues(
+      context,
+      "[beep-cli] quality:changeset-status: bun run changeset:status:since-main\nSome packages have been changed but no changesets were found."
     );
 
     expect(issues).toHaveLength(1);
@@ -1227,6 +1280,61 @@ describe("yeet quality issue index", () => {
       subCategory: "typos",
     });
     expect(issues[0]?.remediation).toContain("_typos.toml");
+  });
+});
+
+describe("yeet status helpers", () => {
+  it("renders compact local status and suggests repair commands from verdict artifacts", () => {
+    const verdict = YeetStatusArtifact.make({
+      detail: "publish failure: proof failed",
+      mode: "publish",
+      outcome: "failure",
+      path: ".beep/yeet/runs/feature/verdict.json",
+      repairCommand: "Run `bun run docgen:local`.",
+      schemaVersion: "yeet-verdict/v1",
+      state: "present",
+    });
+    const closeout = YeetStatusArtifact.make({
+      detail: "no closeout artifact found for this branch",
+      path: ".beep/yeet/runs/feature/pr-closeout.json",
+      state: "missing",
+    });
+    const remote = YeetStatusRemote.make({
+      available: false,
+      checked: false,
+      detail: "pass --remote to include live GitHub PR data",
+    });
+    const worktree = YeetStatusWorktree.make({ clean: true, staged: 0, unstaged: 0, untracked: 0 });
+    const nextCommand = yeetStatusNextCommandForTesting(worktree, verdict, closeout, remote);
+    const snapshot = YeetStatusSnapshot.make({
+      base: "origin/main",
+      branch: "feature",
+      closeout,
+      createdAt: "2026-06-11T00:00:00.000Z",
+      head: "HEAD",
+      nextCommand,
+      remote,
+      runId: "feature",
+      schemaVersion: "yeet-status/v1",
+      statusPath: ".beep/yeet/runs/feature/status.json",
+      verdict,
+      worktree,
+    });
+
+    expect(nextCommand).toBe("Run `bun run docgen:local`.");
+    expect(renderYeetStatusSummary(snapshot)).toContain("- worktree: clean (0 staged, 0 unstaged, 0 untracked)");
+    expect(renderYeetStatusSummary(snapshot)).toContain("- next: Run `bun run docgen:local`.");
+  });
+
+  it("suggests staged-only publish when local status sees a dirty worktree", () => {
+    const command = yeetStatusNextCommandForTesting(
+      YeetStatusWorktree.make({ clean: false, staged: 1, unstaged: 2, untracked: 3 }),
+      YeetStatusArtifact.make({ detail: "missing", path: "verdict.json", state: "missing" }),
+      YeetStatusArtifact.make({ detail: "missing", path: "pr-closeout.json", state: "missing" }),
+      YeetStatusRemote.make({ available: false, checked: false, detail: "pass --remote" })
+    );
+
+    expect(command).toContain("publish --staged-only --pr --monitor");
   });
 });
 
@@ -1424,20 +1532,12 @@ describe("yeet publish scope helpers", () => {
 
   it("parks and restores staged-only residue through a marked stash", () =>
     Effect.runPromise(
-      withTempDirectory((tmpDir) =>
+      withTrackedFileRepo(({ filePath, tempContext, tmpDir }) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
           const path = yield* Path.Path;
-          const tempContext = RepoRunContext.make({ ...context, cwd: tmpDir, repoRoot: tmpDir });
 
-          yield* runGit(tmpDir, ["init"]);
-          yield* runGit(tmpDir, ["config", "user.email", "yeet@example.test"]);
-          yield* runGit(tmpDir, ["config", "user.name", "Yeet Test"]);
-          yield* fs.writeFileString(path.join(tmpDir, "tracked.txt"), "base\n");
-          yield* runGit(tmpDir, ["add", "tracked.txt"]);
-          yield* runGit(tmpDir, ["commit", "-m", "init"]);
-
-          yield* fs.writeFileString(path.join(tmpDir, "tracked.txt"), "residue\n");
+          yield* fs.writeFileString(filePath, "residue\n");
           yield* fs.writeFileString(path.join(tmpDir, "untracked.txt"), "wip\n");
 
           const stash = yield* stashUnstagedWorktreeForTesting(tempContext);
@@ -1461,24 +1561,15 @@ describe("yeet publish scope helpers", () => {
 
   it("keeps the stash and reports instead of failing when the pop conflicts", () =>
     Effect.runPromise(
-      withTempDirectory((tmpDir) =>
+      withTrackedFileRepo(({ filePath, tempContext, tmpDir }) =>
         Effect.gen(function* () {
           const fs = yield* FileSystem.FileSystem;
-          const path = yield* Path.Path;
-          const tempContext = RepoRunContext.make({ ...context, cwd: tmpDir, repoRoot: tmpDir });
 
-          yield* runGit(tmpDir, ["init"]);
-          yield* runGit(tmpDir, ["config", "user.email", "yeet@example.test"]);
-          yield* runGit(tmpDir, ["config", "user.name", "Yeet Test"]);
-          yield* fs.writeFileString(path.join(tmpDir, "tracked.txt"), "base\n");
-          yield* runGit(tmpDir, ["add", "tracked.txt"]);
-          yield* runGit(tmpDir, ["commit", "-m", "init"]);
-
-          yield* fs.writeFileString(path.join(tmpDir, "tracked.txt"), "residue\n");
+          yield* fs.writeFileString(filePath, "residue\n");
           const stash = yield* stashUnstagedWorktreeForTesting(tempContext);
           expect(O.isSome(stash)).toBe(true);
 
-          yield* fs.writeFileString(path.join(tmpDir, "tracked.txt"), "conflicting\n");
+          yield* fs.writeFileString(filePath, "conflicting\n");
           yield* runGit(tmpDir, ["add", "tracked.txt"]);
           yield* runGit(tmpDir, ["commit", "-m", "conflicting change"]);
 

@@ -11,5 +11,6 @@ export * from "../commands/Yeet/internal/Handler.js";
 export * from "../commands/Yeet/internal/PacketRenderer.js";
 export * from "../commands/Yeet/internal/Planner.js";
 export * from "../commands/Yeet/internal/QualityIssueIndex.js";
+export * from "../commands/Yeet/internal/Status.js";
 export * from "../commands/Yeet/internal/Verdict.js";
 export * from "../internal/repo-run/index.js";

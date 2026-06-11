@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "yeet-operator-clarity",
+    "title": "Yeet Operator Clarity",
+    "status": "active",
+    "created": "2026-06-11",
+    "updated": "2026-06-11",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/yeet-operator-clarity",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "mission": "Add local-first Yeet status, opt-in compact summaries, and failure-local remediation hints for autonomous operators.",
+  "relatedPackets": [
+    {
+      "id": "yeet-agent-ergonomics",
+      "relation": "successor",
+      "notes": "Builds on PR #230 operator ergonomics without reopening the completed-retained packet."
+    }
+  ],
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/yeet-operator-clarity/README.md",
+    "goals/yeet-operator-clarity/SPEC.md",
+    "goals/yeet-operator-clarity/PLAN.md",
+    "goals/yeet-operator-clarity/GOAL.md",
+    "goals/yeet-operator-clarity/research/grounding.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/yeet-operator-clarity/GOAL.md"
+    }
+  ],
+  "implementationSurfaces": [
+    "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
+    "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
+    "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
+    "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+    "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
+    "packages/tooling/tool/cli/test/yeet.test.ts",
+    ".claude/skills/yeet/SKILL.md"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Grounding",
+      "status": "completed"
+    },
+    {
+      "id": "P1",
+      "name": "Packet",
+      "status": "completed"
+    },
+    {
+      "id": "P2",
+      "name": "Status",
+      "status": "completed"
+    },
+    {
+      "id": "P3",
+      "name": "Summaries and Hints",
+      "status": "completed"
+    },
+    {
+      "id": "P4",
+      "name": "Docs and Proof",
+      "status": "completed"
+    },
+    {
+      "id": "P5",
+      "name": "Closeout",
+      "status": "in_progress"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/yeet-operator-clarity/GOAL.md)\" -le 4000",
+    "jq . goals/yeet-operator-clarity/ops/manifest.json",
+    "rg -n \"yeet-operator-clarity|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/yeet-operator-clarity",
+    "git diff --check -- goals/yeet-operator-clarity",
+    "bunx --bun vitest run packages/tooling/tool/cli/test/yeet.test.ts",
+    "bun run beep yeet status --json",
+    "bun run beep yeet status --remote --plan --json",
+    "bun run beep yeet monitor --summary --plan --json",
+    "bun run beep yeet closeout --summary --plan --json",
+    "bun run repo-exports:catalog && bun run repo-exports:catalog:check",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "The implementation would exceed named scope.",
+    "A change would weaken full proof, hosted checks, or closeout gates.",
+    "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}
