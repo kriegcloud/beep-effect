@@ -772,8 +772,10 @@ const closeoutGateStates = (
       detail: options.retriggerGreptile
         ? "Greptile retrigger comment was posted explicitly."
         : `Greptile score=${greptile.score ?? "unknown"} issues=${greptile.issueCount ?? "unknown"}.`,
-      ...(greptile.issueCount === undefined ? {} : { count: greptile.issueCount }),
-      ...(greptile.url === undefined ? {} : { url: greptile.url }),
+      ...OptionUtils.getSomesStruct({
+        count: O.fromUndefinedOr(greptile.issueCount),
+        url: O.fromUndefinedOr(greptile.url),
+      }),
     }),
     PrCloseoutGateState.make({
       name: "coderabbit",

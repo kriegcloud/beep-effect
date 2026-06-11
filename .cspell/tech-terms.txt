@@ -53,6 +53,7 @@ geoshape
 Geospatial
 nostdin
 Geotime
+gibibytes
 glsl
 groupby
 halfvector

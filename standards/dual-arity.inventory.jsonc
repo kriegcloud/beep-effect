@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-08",
+  "generatedOn": "2026-06-11",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
@@ -626,6 +626,30 @@
       "column": 19,
       "parameterCount": 3,
       "diagnostics": ["third-param-not-object-like"]
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+      "qualifiedName": "reviewFixDocgenLocalArgsForTesting",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/repo-cli",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 887,
+      "column": 14,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
+      "qualifiedName": "closeoutGateStatesForTesting",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/repo-cli",
+      "reason": "Public helper APIs may not expose more than 3 positional parameters.",
+      "line": 834,
+      "column": 14,
+      "parameterCount": 4,
+      "diagnostics": ["too-many-positional-params"]
     }
   ]
 }
