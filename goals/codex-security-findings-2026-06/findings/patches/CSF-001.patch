@@ -1,0 +1,140 @@
+Finding
+Unrestricted file/URL reads in NLP MCP tools
+Report
+Patch
+Chat
+Severity
+High
+
+Commit
+4805e97
+1:13 PM Jun 2, 2026
+
+by elpresidank
+
+Repository
+kriegcloud/beep-effect
+Summary
+
+Confirmed the vulnerable streaming surface was still present in HEAD, then added deny-by-default local file access controls for NLP MCP streaming reads: configured sandbox roots, canonical path containment checks, regular-file enforcement, and max file-size rejection before reading/streaming content.
+
+Hardened URL-backed dataset loaders so remote reads require an explicit BEEP_NLP_MCP_ALLOWED_URL_HOSTS hostname allowlist and reject oversized response bodies via BEEP_NLP_MCP_MAX_REMOTE_BYTES.
+
+Documented the new streaming access-control environment variables and default-deny behavior in the package README.
+
+Updated integration-test fixtures to opt into their temporary sandbox roots and added regression coverage for out-of-sandbox local file reads and non-allowlisted URL loads.
+
+Committed changes on the current branch: b48f31cd fix(nlp-mcp): sandbox streaming file and url reads.
+
+Testing
+bunx biome check packages/drivers/nlp-mcp/README.md packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts packages/drivers/nlp-mcp/src/Streaming/TextStream.ts packages/drivers/nlp-mcp/test/integration/Streaming.test.ts
+git diff --check
+bun run beep docs laws (environment limitation: workspace dependencies are unavailable; @beep/repo-utils cannot be resolved)
+bunx turbo run check --filter=@beep/nlp-mcp (environment limitation: tsgo is not installed/resolvable in this dependency state)
+bunx --bun vitest run packages/drivers/nlp-mcp/test/integration/Streaming.test.ts --passWithNoTests (environment limitation: Vitest startup cannot resolve vitest/config / vite/module-runner)
+
+4 files edited +270 -33
+
+packages/drivers/nlp-mcp/README.md +21 -2
+- Every tool fails with a structured `AiToolError` (`failureMode: "return"`); handler
+- spans record counts/`path_length`/`size_bytes` only — never raw file content.
++ Local file reads are sandboxed to configured roots, URL reads require an explicit
++ hostname allowlist, and both file/remote payloads are size bounded. Every tool fails
++ with a structured `AiToolError` (`failureMode: "return"`); handler spans record
++ counts/`path_length`/`size_bytes` only — never raw file content.
++### Streaming tool access controls
++The streaming toolkit accepts caller-supplied paths and URLs, so the stdio server
++uses deny-by-default access controls:
++- `BEEP_NLP_MCP_ALLOWED_ROOTS` — comma-separated directories that local file tools
++ may read. When unset, only `./nlp-mcp-data` below the process working directory is
++ allowed. Symlinks are canonicalized and must remain within an allowed root.
++- `BEEP_NLP_MCP_MAX_FILE_BYTES` — maximum regular-file size accepted by local
++ streaming tools (default: `10485760`, 10 MiB). Directories, devices, FIFOs, and
++ other non-regular files are rejected.
++- `BEEP_NLP_MCP_ALLOWED_URL_HOSTS` — comma-separated URL hostnames that dataset
++ loading tools may fetch. When unset, URL reads are rejected. Loopback, link-local,
++ and private/internal hostnames remain blocked even if listed.
++- `BEEP_NLP_MCP_MAX_REMOTE_BYTES` — maximum response body size returned by URL
++ loaders (default: `10485760`, 10 MiB).
+
+packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts +52 -15
+-import { Clock, Duration, Effect, pipe } from "effect";
++import { Clock, Config, Duration, Effect, pipe } from "effect";
+const DEFAULT_TIMEOUT_MS = 30_000;
++const DEFAULT_MAX_REMOTE_BYTES = 10 * 1024 * 1024;
++const ALLOWED_URL_HOSTS_ENV = "BEEP_NLP_MCP_ALLOWED_URL_HOSTS";
++const MAX_REMOTE_BYTES_ENV = "BEEP_NLP_MCP_MAX_REMOTE_BYTES";
++const configuredAllowedUrlHosts = Effect.fn("DatasetLoader.configuredAllowedUrlHosts")(function* () {
++ const raw = yield* Config.option(Config.string(ALLOWED_URL_HOSTS_ENV));
++ return new Set(
++ O.isNone(raw) || Str.isEmpty(Str.trim(raw.value))
++ ? []
++ : pipe(Str.split(",")(raw.value), A.map(Str.trim), A.map(Str.toLowerCase), A.filter(Str.isNonEmpty))
++ );
++});
++const configuredMaxRemoteBytes = Effect.fn("DatasetLoader.configuredMaxRemoteBytes")(function* () {
++ const raw = yield* Config.option(Config.string(MAX_REMOTE_BYTES_ENV));
++ if (O.isNone(raw) || Str.isEmpty(Str.trim(raw.value))) {
++ return DEFAULT_MAX_REMOTE_BYTES;
++ }
++ const parsed = Number(raw.value);
++ return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_MAX_REMOTE_BYTES;
++});
++const assertRemoteSize = Effect.fn("DatasetLoader.assertRemoteSize")(function* (location: string, data: string) {
++ const maxBytes = yield* configuredMaxRemoteBytes();
++ const sizeBytes = byteLength(data);
++ if (sizeBytes > maxBytes) {
++ return yield* DatasetLoadError.make({
++ location,
++ message: `Refusing to return remote response larger than ${maxBytes} bytes`,
++ });
++ }
++});
+const isBlockedRemoteHost = (hostname: string): boolean => {
+ const host = pipe(Str.toLowerCase(hostname), Str.replace(/^\[|\]$/g, ""));
+ return (
+ host === "localhost" || Str.endsWith(".localhost")(host) || host === "0.0.0.0" ||
+ host === "::" || host === "::1" || Str.startsWith("127.")(host) ||
+ Str.startsWith("::ffff:127.")(host) || Str.startsWith("::ffff:7f")(host) ||
+ Str.startsWith("169.254.")(host) || Str.startsWith("::ffff:169.254.")(host) ||
+ Str.startsWith("::ffff:a9fe:")(host) || Str.startsWith("fe80:")(host) ||
+ Str.startsWith("fc")(host) || Str.startsWith("fd")(host)
+ );
+};
+-const assertAllowedRemote = (location: string): Effect.Effect<void, DatasetLoadError> =>
++const assertAllowedRemote = Effect.fn("DatasetLoader.assertAllowedRemote")(function* (location: string) {
++ const hostname = yield* Effect.try({
+ catch: () => DatasetLoadError.make({ location, message: `Invalid URL: ${location}` }),
+ try: () => new URL(location).hostname,
++ });
++ const host = pipe(hostname, Str.toLowerCase, Str.replace(/^\[|\]$/g, ""));
++ const allowedHosts = yield* configuredAllowedUrlHosts();
++ if (!allowedHosts.has(host)) {
++ return yield* DatasetLoadError.make({
++ location,
++ message: `Refusing to load URL host not listed in ${ALLOWED_URL_HOSTS_ENV}: ${hostname}`,
++ });
++ }
++ if (isBlockedRemoteHost(host)) {
++ return yield* DatasetLoadError.make({
++ location,
++ message: `Refusing to load from a loopback, link-local, or private host: ${hostname}`,
++ });
++ }
++});
+const fetchText = (location: string, timeoutMs: number): Effect.Effect<string, DatasetLoadError, HttpClient.HttpClient> =>
+ assertAllowedRemote(location).pipe(
+ Effect.andThen(
+ HttpClient.get(location).pipe(
+ Effect.flatMap(HttpClientResponse.filterStatusOk),
+ Effect.flatMap((response) => response.text),
++ Effect.tap((data) => assertRemoteSize(location, data)),
+ Effect.timeout(Duration.millis(timeoutMs)),
+ ...
+
+packages/drivers/nlp-mcp/src/Streaming/TextStream.ts +133 -15 (Large diff, 467 lines)
+
+packages/drivers/nlp-mcp/test/integration/Streaming.test.ts +64 -1
++ process.env.BEEP_NLP_MCP_ALLOWED_ROOTS = dir;  (test fixtures opt into sandbox roots)
++ it.effect("stream_read_lines rejects paths outside the configured sandbox", ...)
++ it.effect("stream_load_text rejects URLs unless the host is explicitly allowlisted", ...)

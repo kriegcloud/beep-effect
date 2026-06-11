@@ -1,0 +1,81 @@
+Finding
+Event-log RPC lets clients impersonate other public keys
+Report
+Patch
+Chat
+Severity
+High
+
+Commit
+92ef20f
+1:09 AM Jun 2, 2026
+
+by elpresidank
+
+Repository
+kriegcloud/beep-effect
+Summary
+
+Confirmed the event-log RPC issue still existed in HEAD and fixed it by threading the authenticated EventLog.Identity into post-auth write/change callbacks, so handlers no longer rely on request-controlled publicKey values after authentication.
+
+Added a shared Changes guard that rejects requests whose payload publicKey differs from the authenticated session identity with a Forbidden EventLogProtocolError.
+
+Updated encrypted event-log writes and change streams to reject mismatched write payloads and derive storage access from the authenticated identity.
+
+Updated unencrypted authentication to apply authorizeIdentity, and updated unencrypted writes/reads to authorize, map, process, and provide handler identity using the authenticated identity instead of the request payload public key.
+
+Added regression tests for cross-identity unencrypted write spoofing and encrypted Changes spoofing through the real RPC authentication flow.
+
+Added an Effect patch changeset for the runtime security behavior change.
+
+Committed changes on the current branch with commit c68e2e41 and created the PR record.
+
+Testing
+pnpm test packages/effect/test/unstable/eventlog/EventLogServer.test.ts
+pnpm check:tsgo
+pnpm lint-fix
+
+5 files edited +179 -22
+
+.repos/effect-v4/.changeset/fix-eventlog-session-publickey.md (New +5 -0)
++"effect": patch
++Bind event-log remote writes and change streams to the authenticated session public key.
+
+.repos/effect-v4/packages/effect/src/unstable/eventlog/EventLogServer.ts +24 -9
+ readonly onWrite: (data, identity: EventLog.Identity["Service"]) => Effect.Effect<void, EventLogProtocolError>
+ readonly changes: (options, identity: EventLog.Identity["Service"]) => Stream...
+ "EventLog.WriteSingle": ... const identity = yield* EventLog.Identity; yield* options.onWrite(request.data, identity)
+ "EventLog.WriteChunked": ... const identity = yield* EventLog.Identity; yield* options.onWrite(data, identity)
+ "EventLog.Changes": Effect.fnUntraced(function*(request) {
+   const identity = yield* EventLog.Identity
+   if (request.publicKey !== identity.publicKey) {
+     return Stream.fail(new EventLogProtocolError({ requestTag: "Changes", publicKey: request.publicKey, code: "Forbidden", message: "Authenticated identity does not match request publicKey" }))
+   }
+   return options.changes({ publicKey: identity.publicKey, storeId: request.storeId, startSequence: request.startSequence }, identity).pipe(...)
+ }, Stream.unwrap)
+
+.repos/effect-v4/packages/effect/src/unstable/eventlog/EventLogServerEncrypted.ts +12 -4
+ onWrite: Effect.fnUntraced(function*(data, identity) {
+   const request = yield* WriteEntries.decode(data)...
++  if (request.publicKey !== identity.publicKey) { return yield* new EventLogProtocolError({ requestTag: "WriteEntries", publicKey: request.publicKey, code: "Forbidden", message: "Authenticated identity does not match request publicKey" }) }
+   ...
++  return yield* storage.write(identity.publicKey, request.storeId, entries)...
+ changes: ({ storeId, startSequence }, identity) => storage.changes(identity.publicKey, storeId, startSequence)...
+
+.repos/effect-v4/packages/effect/src/unstable/eventlog/EventLogServerUnencrypted.ts +27 -9
+ getOrCreateSessionAuthBinding: ... auth.authorizeIdentity({ publicKey }).pipe(Effect.mapError(... Forbidden ...), Effect.andThen(storage.getOrCreateSessionAuthBinding(publicKey, signingPublicKey)))
+ onWrite: Effect.fnUntraced(function*(data, identity) {
++  if (request.publicKey !== identity.publicKey) { return yield* new EventLogProtocolError({ requestTag: "WriteEntries", publicKey: request.publicKey, code: "Forbidden", message: "Authenticated identity does not match request publicKey" }) }
+   const resolvedStoreId = yield* mapping.resolve({ publicKey: identity.publicKey, storeId: request.storeId })
+   yield* auth.authorizeWrite({ publicKey: identity.publicKey, storeId: resolvedStoreId, entries: request.entries })
+   yield* processEntries({ publicKey: identity.publicKey, ... }).pipe(..., Effect.provideService(EventLog.Identity, makeClientIdentity(identity.publicKey)))
+ changes: Effect.fnUntraced(function*(request, identity) {
+   const storeId = yield* mapping.resolve({ publicKey: identity.publicKey, storeId: request.storeId })
+   yield* auth.authorizeRead({ publicKey: identity.publicKey, storeId })
+   ...
+ }, Stream.unwrap)
+
+.repos/effect-v4/packages/effect/test/unstable/eventlog/EventLogServer.test.ts (New +111 -0)
++ Regression: "rejects unencrypted writes for a different publicKey than the authenticated identity"
++ and "rejects encrypted changes for a different publicKey than the authenticated identity".
++ Authenticates as attacker, attempts WriteSingle/Changes with victim.publicKey, asserts Forbidden "Authenticated identity does not match request publicKey".

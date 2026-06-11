@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "schemaVersion": "codex-triage/v1",
+    "scanId": "5138685acf488191ad6a5ee51a84452d",
+    "branch": "@slop/june-8-2026",
+    "expectedCount": 52,
+    "capturedCount": 0,
+    "gateApprovedAt": null,
+    "note": "Seeded at P0 with no findings. P1 extraction locks the 52-id manifest before opening any detail; P2 triage fills verdict/disposition/lane/verification; P3/P7 stamp closure."
+  },
+  "lanes": {},
+  "findings": {}
+}
