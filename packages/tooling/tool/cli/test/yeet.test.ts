@@ -1,7 +1,10 @@
 import {
+  assessBaseFreshnessForTesting,
   buildQualityIssueIndex,
   buildYeetRunPlanForTesting,
+  buildYeetVerdictForTesting,
   closeoutGateStatesForTesting,
+  closeoutWritePlanForTesting,
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
   defaultYeetRunOptions,
@@ -12,9 +15,13 @@ import {
   inferGreptileIssueCountForTesting,
   jsonObjectTextFromMixedOutputForTesting,
   latestGreptileSummaryForTesting,
+  overlappingBasePathsForTesting,
   PrCloseoutOptions,
+  PrCloseoutReport,
+  partiallyStagedPathsForTesting,
   prePushLocalShasFromStdinForTesting,
   prePushShaMismatchesForTesting,
+  proofLockDispositionForTesting,
   publishPathsOutsideIntentForTesting,
   publishRestagePathsForTesting,
   publishUpstreamMismatchWarningForTesting,
@@ -24,10 +31,16 @@ import {
   RepoStepRunResult,
   renderPackageQualityPacketMarkdown,
   repoProofStepDefinition,
+  restoreStashedWorktreeForTesting,
   shouldSkipCommitForReusablePublishForTesting,
+  stashUnstagedWorktreeForTesting,
+  summarizePublishPathsForTesting,
   TurboPlanSnapshot,
   TurboPlanTask,
   TurboWorkspacePackage,
+  YeetExecutedStep,
+  YeetProofLockStateForTesting,
+  YeetVerdict,
 } from "@beep/repo-cli/test/Yeet";
 import { provideScopedLayer } from "@beep/test-utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
@@ -38,6 +51,9 @@ import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { FastCheck as fc } from "effect/testing";
 import { describe, expect, it } from "vitest";
 
 const FileSystemLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
@@ -58,6 +74,25 @@ const runGit = (cwd: string, args: ReadonlyArray<string>) =>
       throw new Error(`git ${A.join(args, " ")} failed: ${result.stderr.toString()}`);
     }
   });
+
+const runGitCapture = (cwd: string, args: ReadonlyArray<string>) =>
+  Effect.sync(() => {
+    const result = Bun.spawnSync(["git", ...args], {
+      cwd,
+      stderr: "pipe",
+      stdout: "pipe",
+    });
+
+    if (result.exitCode !== 0) {
+      throw new Error(`git ${A.join(args, " ")} failed: ${result.stderr.toString()}`);
+    }
+    return result.stdout.toString();
+  });
+
+const runGitStatus = (cwd: string) => runGitCapture(cwd, ["status", "--porcelain"]).pipe(Effect.map(Str.trim));
+
+const runGitOutputLines = (cwd: string, args: ReadonlyArray<string>) =>
+  runGitCapture(cwd, args).pipe(Effect.map((output) => Str.split(/\r?\n/u)(Str.trim(output))));
 
 const withTempDirectory = <Result, Error, Requirements>(
   use: (tmpDir: string) => Effect.Effect<Result, Error, Requirements>
@@ -1109,4 +1144,458 @@ describe("yeet quality issue index", () => {
       packagePath: "packages/foundation/modeling/schema",
     });
   });
+
+  it("extracts the changeset sub-lane hint with the empty-changeset remedy", () => {
+    const step = RepoPlanStep.make({
+      id: "full:pre-push",
+      label: "full:pre-push",
+      phase: "full",
+      command: "bun",
+      args: ["run", "beep", "quality", "github-checks", "pre-push"],
+      cwd: "/repo",
+      scope: "repo",
+      mutability: "readonly",
+      resume: "never",
+    });
+    const issues = qualityIssuesFromStepResult(
+      context,
+      step,
+      RepoStepRunResult.make({
+        stepId: step.id,
+        commandText: "bun run beep quality github-checks pre-push",
+        exitCode: 1,
+        output:
+          "[beep-cli] quality:changeset-status: bun run changeset:status:since-main\nSome packages have been changed but no changesets were found.",
+      })
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      category: "changeset-policy",
+      subCategory: "changeset-status",
+    });
+    expect(issues[0]?.remediation).toContain("changeset add --empty");
+  });
+
+  it("extracts the typos sub-lane hint from hook-style failures", () => {
+    const step = RepoPlanStep.make({
+      id: "commit:git:commit",
+      label: "commit:git:commit",
+      phase: "commit",
+      command: "git",
+      args: ["commit", "-m", "feat: example"],
+      cwd: "/repo",
+      scope: "repo",
+      mutability: "publish",
+      resume: "never",
+    });
+    const issues = qualityIssuesFromStepResult(
+      context,
+      step,
+      RepoStepRunResult.make({
+        stepId: step.id,
+        commandText: "git commit -m 'feat: example'",
+        exitCode: 1,
+        output: "🥊 typos\nerror: `flagged-word` should be `corrected-word`\n  --> ./generated/report.html:1242:37",
+      })
+    );
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      category: "lint-tool",
+      subCategory: "typos",
+    });
+    expect(issues[0]?.remediation).toContain("_typos.toml");
+  });
+});
+
+describe("yeet publish scope helpers", () => {
+  it("summarizes refused paths with counts, top-level entries, and capped examples", () => {
+    const paths = pipe(
+      A.makeBy(14, (index) => `generated/wiki/page-${Str.padStart(2, "0")(`${index}`)}.md`),
+      A.appendAll(["notes.txt", "docs/guide.md"])
+    );
+    const summary = summarizePublishPathsForTesting(paths);
+
+    expect(summary).toContain("16 path(s) across 3 top-level entries: docs, generated, notes.txt");
+    expect(summary).toContain("  - docs/guide.md");
+    expect(summary).toContain("(+6 more; full list in the failure packet)");
+    expect(Str.split("\n")(summary).length).toBeLessThanOrEqual(12);
+  });
+
+  it("summarizes a single path without an overflow marker", () => {
+    const summary = summarizePublishPathsForTesting(["src/index.ts"]);
+
+    expect(summary).toContain("1 path(s) across 1 top-level entry: src");
+    expect(summary).toContain("  - src/index.ts");
+    expect(summary).not.toContain("more; full list");
+  });
+
+  it("returns staged paths that also carry unstaged modifications", () => {
+    expect(partiallyStagedPathsForTesting(["a.ts", "b.ts", "c.ts"], ["b.ts", "d.ts"])).toEqual(["b.ts"]);
+    expect(partiallyStagedPathsForTesting(["a.ts"], [])).toEqual([]);
+    expect(partiallyStagedPathsForTesting([], ["a.ts"])).toEqual([]);
+  });
+
+  it("returns branch paths that were also changed on the base since merge-base", () => {
+    expect(overlappingBasePathsForTesting(["src/a.ts", "src/b.ts"], ["src/b.ts", "src/c.ts"])).toEqual(["src/b.ts"]);
+    expect(overlappingBasePathsForTesting(["src/a.ts"], ["src/c.ts"])).toEqual([]);
+    expect(overlappingBasePathsForTesting([], ["src/c.ts"])).toEqual([]);
+  });
+
+  it("plans publish --pr with the create step after the push", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet"), pr: true });
+    const labels = pipe(
+      plan.steps,
+      A.map((step) => step.label)
+    );
+    expect(labels).toEqual([
+      "fallow-advisory-feedback",
+      "commit:git:commit",
+      "full:pre-push",
+      "publish:git:push",
+      "publish:pr-create",
+    ]);
+    expect(findStep(plan.steps, "publish:pr-create").command).toBe("gh");
+  });
+
+  it("plans start-pr-early --pr with the create step after the early push", () => {
+    const plan = buildYeetRunPlanForTesting({
+      context,
+      message: O.some("feat(repo-cli): add yeet"),
+      monitor: true,
+      pr: true,
+      startPrEarly: true,
+    });
+    const labels = pipe(
+      plan.steps,
+      A.map((step) => step.label)
+    );
+    expect(labels).toEqual([
+      "fallow-advisory-feedback",
+      "commit:git:commit",
+      "early-publish:git:push",
+      "publish:pr-create",
+      "full:pre-push",
+      "monitor:pr-context",
+      "monitor:pr-checks:watch",
+    ]);
+  });
+
+  it("builds a verdict with hint-derived repair commands and not-run lanes", () => {
+    const proofStep = RepoPlanStep.make({
+      id: "full:pre-push",
+      label: "full:pre-push",
+      phase: "full",
+      command: "bun",
+      args: ["run", "beep", "quality", "github-checks", "pre-push"],
+      cwd: "/repo",
+      scope: "repo",
+      mutability: "readonly",
+      resume: "never",
+    });
+    const pushStep = RepoPlanStep.make({
+      id: "publish:01-git-push",
+      label: "publish:git:push",
+      phase: "publish",
+      command: "git",
+      args: ["push", "-u", "origin", "HEAD"],
+      cwd: "/repo",
+      scope: "git",
+      mutability: "publish",
+      resume: "never",
+    });
+    const verdict = buildYeetVerdictForTesting({
+      base: "origin/main",
+      branch: "feature",
+      createdAt: "2026-06-11T00:00:00.000Z",
+      executed: [
+        YeetExecutedStep.make({
+          result: RepoStepRunResult.make({
+            stepId: proofStep.id,
+            commandText: "bun run beep quality github-checks pre-push",
+            exitCode: 1,
+            output: "[beep-cli] lint:cspell: cspell .\nUnknown word found",
+          }),
+          step: proofStep,
+        }),
+      ],
+      head: "HEAD",
+      message: "yeet publish proof failed after creating the local commit.",
+      mode: "publish",
+      outcome: "failure",
+      packetPaths: [],
+      planned: [proofStep, pushStep],
+      runId: "feature",
+    });
+
+    expect(verdict.outcome).toBe("failure");
+    expect(verdict.committed).toBe(false);
+    expect(verdict.pushed).toBe(false);
+    expect(verdict.lanes).toHaveLength(2);
+    expect(verdict.lanes[0]).toMatchObject({
+      id: "full:pre-push",
+      repairCommand: "Run `bun run cspell` or update the spelling dictionary for intentional terms.",
+      status: "failed",
+    });
+    expect(verdict.lanes[1]).toMatchObject({ id: "publish:01-git-push", status: "not-run" });
+  });
+
+  it("round-trips the verdict schema and marks executed push lanes", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pushStep = RepoPlanStep.make({
+          id: "publish:01-git-push",
+          label: "publish:git:push",
+          phase: "publish",
+          command: "git",
+          args: ["push", "-u", "origin", "HEAD"],
+          cwd: "/repo",
+          scope: "git",
+          mutability: "publish",
+          resume: "never",
+        });
+        const verdict = buildYeetVerdictForTesting({
+          base: "origin/main",
+          branch: "feature",
+          createdAt: "2026-06-11T00:00:00.000Z",
+          executed: [
+            YeetExecutedStep.make({
+              result: RepoStepRunResult.make({
+                stepId: pushStep.id,
+                commandText: "git push -u origin HEAD",
+                exitCode: 0,
+                output: "",
+              }),
+              step: pushStep,
+            }),
+          ],
+          head: "HEAD",
+          message: "yeet publish succeeded.",
+          mode: "publish",
+          outcome: "success",
+          packetPaths: [],
+          planned: [pushStep],
+          runId: "feature",
+        });
+
+        expect(verdict.pushed).toBe(true);
+        const encoded = yield* S.encodeEffect(YeetVerdict)(verdict);
+        const decoded = yield* S.decodeUnknownEffect(YeetVerdict)(encoded);
+        expect(decoded.lanes[0]?.status).toBe("passed");
+        expect(decoded.schemaVersion).toBe("yeet-verdict/v1");
+      })
+    ));
+
+  it("property: verdict schema round-trips arbitrary verdicts", () => {
+    const VerdictArbitrary = S.toArbitrary(YeetVerdict);
+    fc.assert(
+      fc.property(VerdictArbitrary, (verdict) => {
+        const encoded = S.encodeSync(YeetVerdict)(verdict);
+        const decoded = S.decodeUnknownSync(YeetVerdict)(encoded);
+        expect(decoded.schemaVersion).toBe("yeet-verdict/v1");
+        expect(decoded.lanes.length).toBe(verdict.lanes.length);
+        expect(decoded.outcome).toBe(verdict.outcome);
+      }),
+      { numRuns: 32 }
+    );
+  });
+
+  it("parks and restores staged-only residue through a marked stash", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tempContext = RepoRunContext.make({ ...context, cwd: tmpDir, repoRoot: tmpDir });
+
+          yield* runGit(tmpDir, ["init"]);
+          yield* runGit(tmpDir, ["config", "user.email", "yeet@example.test"]);
+          yield* runGit(tmpDir, ["config", "user.name", "Yeet Test"]);
+          yield* fs.writeFileString(path.join(tmpDir, "tracked.txt"), "base\n");
+          yield* runGit(tmpDir, ["add", "tracked.txt"]);
+          yield* runGit(tmpDir, ["commit", "-m", "init"]);
+
+          yield* fs.writeFileString(path.join(tmpDir, "tracked.txt"), "residue\n");
+          yield* fs.writeFileString(path.join(tmpDir, "untracked.txt"), "wip\n");
+
+          const stash = yield* stashUnstagedWorktreeForTesting(tempContext);
+          expect(O.isSome(stash)).toBe(true);
+
+          const cleanStatus = yield* runGitStatus(tmpDir);
+          expect(cleanStatus).toBe("");
+
+          if (O.isSome(stash)) {
+            expect(stash.value.marker).toContain("yeet-staged-only/");
+            yield* restoreStashedWorktreeForTesting(tempContext, stash.value);
+          }
+
+          const restored = yield* fs.readFileString(path.join(tmpDir, "tracked.txt"));
+          const untrackedExists = yield* fs.exists(path.join(tmpDir, "untracked.txt"));
+          expect(restored).toBe("residue\n");
+          expect(untrackedExists).toBe(true);
+        })
+      )
+    ));
+
+  it("keeps the stash and reports instead of failing when the pop conflicts", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tempContext = RepoRunContext.make({ ...context, cwd: tmpDir, repoRoot: tmpDir });
+
+          yield* runGit(tmpDir, ["init"]);
+          yield* runGit(tmpDir, ["config", "user.email", "yeet@example.test"]);
+          yield* runGit(tmpDir, ["config", "user.name", "Yeet Test"]);
+          yield* fs.writeFileString(path.join(tmpDir, "tracked.txt"), "base\n");
+          yield* runGit(tmpDir, ["add", "tracked.txt"]);
+          yield* runGit(tmpDir, ["commit", "-m", "init"]);
+
+          yield* fs.writeFileString(path.join(tmpDir, "tracked.txt"), "residue\n");
+          const stash = yield* stashUnstagedWorktreeForTesting(tempContext);
+          expect(O.isSome(stash)).toBe(true);
+
+          yield* fs.writeFileString(path.join(tmpDir, "tracked.txt"), "conflicting\n");
+          yield* runGit(tmpDir, ["add", "tracked.txt"]);
+          yield* runGit(tmpDir, ["commit", "-m", "conflicting change"]);
+
+          if (O.isSome(stash)) {
+            yield* restoreStashedWorktreeForTesting(tempContext, stash.value);
+          }
+
+          const stashList = yield* runGitOutputLines(tmpDir, ["stash", "list"]);
+          expect(stashList.join("\n")).toContain("yeet-staged-only/");
+        })
+      )
+    ));
+
+  it("forces dependency-sensitive lanes when forceTurbo is set", () => {
+    const forced = buildYeetRunPlanForTesting({
+      context,
+      forceTurbo: true,
+      message: O.some("feat(repo-cli): add yeet"),
+    });
+    const proof = findStep(forced.steps, "full:pre-push");
+    expect(proof.env).toMatchObject({ TURBO_FORCE: "true" });
+    const advisory = findStep(forced.steps, "fallow-advisory-feedback");
+    expect(advisory.env?.TURBO_FORCE).toBeUndefined();
+
+    const unforced = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
+    expect(findStep(unforced.steps, "full:pre-push").env?.TURBO_FORCE).toBeUndefined();
+  });
+
+  it("classifies proof lock disposition by readability and owner liveness", () => {
+    const state = O.some(
+      YeetProofLockStateForTesting.make({
+        schemaVersion: "yeet-proof-lock/v1",
+        branch: "feature",
+        command: "bun run beep quality github-checks pre-push",
+        pid: 12345,
+        proofTier: "full",
+        startedAt: "2026-06-11T00:00:00.000Z",
+      })
+    );
+    expect(proofLockDispositionForTesting(O.none(), false)).toBe("refuse-unreadable");
+    expect(proofLockDispositionForTesting(O.none(), true)).toBe("refuse-unreadable");
+    expect(proofLockDispositionForTesting(state, true)).toBe("refuse-active");
+    expect(proofLockDispositionForTesting(state, false)).toBe("replace-stale");
+  });
+
+  it("plans closeout write actions only for known thread ids with a paired body", () => {
+    const known = ["PRRT_a", "PRRT_b"];
+    const ok = closeoutWritePlanForTesting("PRRT_a", "Fixed in abc123.", "PRRT_a,PRRT_b", known);
+    expect(O.isNone(ok.error)).toBe(true);
+    expect(ok.intents.map((intent) => `${intent.kind}:${intent.threadId}`)).toEqual([
+      "reply:PRRT_a",
+      "resolve:PRRT_a",
+      "resolve:PRRT_b",
+    ]);
+
+    const unknown = closeoutWritePlanForTesting("", "", "PRRT_missing", known);
+    expect(O.isSome(unknown.error)).toBe(true);
+    if (O.isSome(unknown.error)) {
+      expect(unknown.error.value).toContain("PRRT_missing");
+    }
+
+    const unpaired = closeoutWritePlanForTesting("PRRT_a", "", "", known);
+    expect(O.isSome(unpaired.error)).toBe(true);
+
+    const orphanBody = closeoutWritePlanForTesting("", "orphan body without a thread", "", known);
+    expect(O.isSome(orphanBody.error)).toBe(true);
+
+    const oversized = closeoutWritePlanForTesting("PRRT_a", "x".repeat(17 * 1024), "", known);
+    expect(O.isSome(oversized.error)).toBe(true);
+  });
+
+  it("decodes closeout reports without writeActions for backwards compatibility", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const decoded = yield* S.decodeUnknownEffect(PrCloseoutReport)({
+          actionableReviewThreadCount: 0,
+          botCommentCount: 0,
+          greptile: {},
+          issueCount: 0,
+          issues: [],
+          prNumber: 1,
+          prUrl: "https://example.test/pr/1",
+          retriggeredGreptile: false,
+          schemaVersion: "yeet-pr-closeout/v1",
+        });
+        expect(decoded.writeActions).toEqual([]);
+        expect(decoded.states).toEqual([]);
+      })
+    ));
+
+  it("warns on behind-only divergence and reports overlap paths for refusal", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+
+          yield* runGit(tmpDir, ["init", "-b", "main"]);
+          yield* runGit(tmpDir, ["config", "user.email", "yeet@example.test"]);
+          yield* runGit(tmpDir, ["config", "user.name", "Yeet Test"]);
+          yield* fs.writeFileString(path.join(tmpDir, "shared.txt"), "base\n");
+          yield* fs.writeFileString(path.join(tmpDir, "other.txt"), "base\n");
+          yield* runGit(tmpDir, ["add", "."]);
+          yield* runGit(tmpDir, ["commit", "-m", "init"]);
+
+          yield* runGit(tmpDir, ["checkout", "-b", "feature"]);
+          yield* fs.writeFileString(path.join(tmpDir, "shared.txt"), "feature\n");
+          yield* runGit(tmpDir, ["commit", "-am", "feature touches shared"]);
+
+          yield* runGit(tmpDir, ["checkout", "main"]);
+          yield* fs.writeFileString(path.join(tmpDir, "shared.txt"), "main moved\n");
+          yield* runGit(tmpDir, ["commit", "-am", "main touches shared"]);
+          yield* runGit(tmpDir, ["checkout", "feature"]);
+
+          const overlapContext = RepoRunContext.make({
+            ...context,
+            base: "main",
+            cwd: tmpDir,
+            repoRoot: tmpDir,
+          });
+          const overlapping = yield* assessBaseFreshnessForTesting(overlapContext);
+          expect(overlapping.behindCount).toBe(1);
+          expect(overlapping.overlappingPaths).toEqual(["shared.txt"]);
+
+          yield* runGit(tmpDir, ["checkout", "main"]);
+          yield* fs.writeFileString(path.join(tmpDir, "other.txt"), "main only\n");
+          yield* runGit(tmpDir, ["commit", "-am", "main touches other"]);
+          yield* runGit(tmpDir, ["checkout", "feature"]);
+
+          const stillOverlapping = yield* assessBaseFreshnessForTesting(overlapContext);
+          expect(stillOverlapping.behindCount).toBe(2);
+          expect(stillOverlapping.overlappingPaths).toEqual(["shared.txt"]);
+
+          yield* fs.writeFileString(path.join(tmpDir, "other.txt"), "staged before commit\n");
+          yield* runGit(tmpDir, ["add", "other.txt"]);
+          const withStaged = yield* assessBaseFreshnessForTesting(overlapContext);
+          expect(withStaged.overlappingPaths).toEqual(["other.txt", "shared.txt"]);
+        })
+      )
+    ));
 });

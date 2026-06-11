@@ -97,6 +97,7 @@
     "standards/jsdoc-documentation.inventory.jsonc",
     "standards/jsdoc-documentation.inventory.md",
     "standards/repo-exports.catalog.jsonc",
-    "standards/repo-exports.catalog.md"
+    "standards/repo-exports.catalog.md",
+    "patches/**"
   ]
 }

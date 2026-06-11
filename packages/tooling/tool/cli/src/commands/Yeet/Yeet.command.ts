@@ -61,6 +61,22 @@ const tierFlag = Flag.choiceWithValue("tier", [
 
 const amendFlag = Flag.boolean("amend").pipe(Flag.withDescription("Amend the current local commit during publish"));
 
+const stagedOnlyFlag = Flag.boolean("staged-only").pipe(
+  Flag.withDescription(
+    "Publish exactly the staged index: stash unstaged/untracked residue after commit, prove the clean tree, restore after push"
+  )
+);
+
+const allowStaleBaseFlag = Flag.boolean("allow-stale-base").pipe(
+  Flag.withDescription(
+    "Proceed with publish even when branch files overlap commits landed on the base since merge-base"
+  )
+);
+
+const prFlag = Flag.boolean("pr").pipe(
+  Flag.withDescription("Create a ready (non-draft) pull request after the push succeeds, unless one is already open")
+);
+
 const noEditFlag = Flag.boolean("no-edit").pipe(
   Flag.withDescription("Reuse the current commit message with --amend during publish")
 );
@@ -91,6 +107,21 @@ const requireGreptileIssuesFlag = Flag.integer("require-greptile-issues").pipe(
 const requireReviewCommentsFlag = Flag.integer("require-review-comments").pipe(
   Flag.withDescription("Required unresolved actionable PR review comment count; negative disables the gate"),
   Flag.withDefault(-1)
+);
+
+const replyThreadFlag = Flag.string("reply-thread").pipe(
+  Flag.withDescription("Review thread id to reply to during closeout; requires --reply-body"),
+  Flag.withDefault("")
+);
+
+const replyBodyFlag = Flag.string("reply-body").pipe(
+  Flag.withDescription("Reply body posted to --reply-thread during closeout"),
+  Flag.withDefault("")
+);
+
+const resolveThreadsFlag = Flag.string("resolve-threads").pipe(
+  Flag.withDescription("Comma-separated review thread ids to resolve during closeout"),
+  Flag.withDefault("")
 );
 
 const retriggerGreptileFlag = Flag.boolean("retrigger-greptile").pipe(
@@ -151,26 +182,33 @@ const sharedFlags = {
 
 const publishFlags = {
   ...sharedFlags,
+  allowStaleBase: allowStaleBaseFlag,
   amend: amendFlag,
   fast: fastFlag,
   message: messageFlag,
   monitor: monitorFlag,
   noEdit: noEditFlag,
+  pr: prFlag,
   pushOnly: pushOnlyFlag,
   reuseVerified: reuseVerifiedFlag,
+  stagedOnly: stagedOnlyFlag,
   startPrEarly: startPrEarlyFlag,
 } as const;
 
 const closeoutFlags = {
   ...sharedFlags,
   bots: botsFlag,
+  replyBody: replyBodyFlag,
+  replyThread: replyThreadFlag,
   requireGreptileIssues: requireGreptileIssuesFlag,
   requireGreptileScore: requireGreptileScoreFlag,
   requireReviewComments: requireReviewCommentsFlag,
+  resolveThreads: resolveThreadsFlag,
   retriggerGreptile: retriggerGreptileFlag,
 } as const;
 
 type SharedOptions = {
+  readonly allowStaleBase?: boolean;
   readonly amend?: boolean;
   readonly base: string;
   readonly bots?: string;
@@ -181,12 +219,17 @@ type SharedOptions = {
   readonly plan: boolean;
   readonly monitor?: boolean;
   readonly noEdit?: boolean;
+  readonly pr?: boolean;
   readonly pushOnly?: boolean;
+  readonly replyBody?: string;
+  readonly replyThread?: string;
   readonly requireGreptileIssues?: number;
   readonly requireGreptileScore?: string;
   readonly requireReviewComments?: number;
+  readonly resolveThreads?: string;
   readonly retriggerGreptile?: boolean;
   readonly reuseVerified?: boolean;
+  readonly stagedOnly?: boolean;
   readonly startPrEarly?: boolean;
   readonly tier?: YeetProofTier;
 };
@@ -195,6 +238,7 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
   runYeet(
     YeetRunOptions.make({
       ...options,
+      allowStaleBase: options.allowStaleBase ?? false,
       amend: options.amend ?? false,
       bots: options.bots ?? "greptile,coderabbit,chatgpt",
       fast: options.fast ?? false,
@@ -202,12 +246,17 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
       mode,
       monitor: options.monitor ?? false,
       noEdit: options.noEdit ?? false,
+      pr: options.pr ?? false,
       pushOnly: options.pushOnly ?? false,
+      replyBody: options.replyBody ?? "",
+      replyThread: options.replyThread ?? "",
       requireGreptileIssues: options.requireGreptileIssues ?? -1,
       requireGreptileScore: options.requireGreptileScore ?? "",
       requireReviewComments: options.requireReviewComments ?? -1,
+      resolveThreads: options.resolveThreads ?? "",
       retriggerGreptile: options.retriggerGreptile ?? false,
       reuseVerified: options.reuseVerified ?? false,
+      stagedOnly: options.stagedOnly ?? false,
       startPrEarly: options.startPrEarly ?? false,
       tier: options.tier ?? "full",
     })

@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Order } from "effect";
+import { Effect, Order } from "effect";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -128,6 +128,11 @@ export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`Y
     pushOnly: S.Boolean,
     startPrEarly: S.Boolean,
     tier: YeetProofTier,
+    pr: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefault(Effect.succeed(false))),
+    forceTurbo: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
   },
   $I.annote("YeetRunPlanModeOptions", {
     description: "Options for building a Yeet run plan in a specific mode.",
@@ -355,6 +360,19 @@ const pushStep = (context: RepoRunContext): RepoPlanStep =>
     O.some({ BEEP_YEET_REUSE_PRE_PUSH_PROOF: "1" })
   );
 
+const prCreateStep = (context: RepoRunContext, phase: RepoPlanStep["phase"] = "publish"): RepoPlanStep =>
+  RepoPlanStep.make({
+    id: "publish:02-pr-create",
+    label: "publish:pr-create",
+    phase,
+    command: "gh",
+    args: ["pr", "create", "--title", "<head-commit-subject>", "--body-file", "<run-artifacts>/pr-body.md"],
+    cwd: context.repoRoot,
+    scope: "repo",
+    mutability: "publish",
+    resume: "never",
+  });
+
 const monitorContextStep = (context: RepoRunContext): RepoPlanStep =>
   RepoPlanStep.make({
     id: "monitor:01-pr-context",
@@ -427,12 +445,17 @@ const publishSteps = (
   options: YeetRunPlanModeOptions
 ): ReadonlyArray<RepoPlanStep> =>
   options.pushOnly
-    ? [pushStep(context), ...(options.monitor ? monitorSteps(context) : [])]
+    ? [
+        pushStep(context),
+        ...(options.pr ? [prCreateStep(context)] : []),
+        ...(options.monitor ? monitorSteps(context) : []),
+      ]
     : options.startPrEarly
       ? [
           fallowAdvisoryFeedbackStep(context),
           commitStep(context, message, options),
           earlyPushStep(context),
+          ...(options.pr ? [prCreateStep(context, "early-publish")] : []),
           proofStep(context, "full"),
           ...(options.monitor ? monitorSteps(context) : []),
         ]
@@ -441,6 +464,7 @@ const publishSteps = (
           commitStep(context, message, options),
           ...(options.fast && options.monitor ? [] : [proofStep(context, "full")]),
           pushStep(context),
+          ...(options.pr ? [prCreateStep(context)] : []),
           ...(options.monitor ? monitorSteps(context) : []),
         ];
 
@@ -457,6 +481,17 @@ const stepsForMode = (
     closeout: () => closeoutSteps(context),
     "pre-push-hook": () => [],
   });
+
+const withTurboForce = (steps: ReadonlyArray<RepoPlanStep>, forceTurbo: boolean): ReadonlyArray<RepoPlanStep> =>
+  forceTurbo
+    ? A.map(steps, (step) =>
+        step.command === "bun" &&
+        (step.phase === "feedback" || step.phase === "full") &&
+        step.label !== "fallow-advisory-feedback"
+          ? RepoPlanStep.make({ ...step, env: { ...step.env, TURBO_FORCE: "true" } })
+          : step
+      )
+    : steps;
 
 /**
  * Build a yeet run plan for a specific mode.
@@ -513,7 +548,10 @@ export const buildYeetRunPlanWithMode: {
   (context: RepoRunContext, message: O.Option<string>, options: YeetRunPlanModeOptions): RepoRunPlan =>
     RepoRunPlan.make({
       context,
-      steps: pipe(stepsForMode(context, message, options), A.sort(byRepoPlanStepAscending)),
+      steps: pipe(
+        withTurboForce(stepsForMode(context, message, options), options.forceTurbo),
+        A.sort(byRepoPlanStepAscending)
+      ),
     })
 );
 
