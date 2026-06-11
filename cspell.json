@@ -58,6 +58,7 @@
   ],
   "ignorePaths": [
     "bun.lock",
+    "patches/**",
     "_typos.toml",
     "node_modules",
     ".repos",

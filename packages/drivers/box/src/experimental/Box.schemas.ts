@@ -1,3 +1,10 @@
+/**
+ * Experimental Box SDK schema scaffolding.
+ *
+ * @since 0.0.0
+ * @packageDocumentation
+ */
+
 import { $BoxId } from "@beep/identity";
 import { HttpMethod } from "@beep/schema/HttpMethod";
 import { HttpStatus } from "@beep/schema/HttpStatus";
