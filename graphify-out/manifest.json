@@ -10040,7 +10040,7 @@
     "semantic_hash": "ec70cc91a43031b41cd4439b2c35a72f"
   },
   "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts": {
-    "mtime": 1781197909.4704607,
+    "mtime": 1781217550.8171744,
     "ast_hash": "ef820ae303b2cd84605c1c5776b141ce",
     "semantic_hash": "ef820ae303b2cd84605c1c5776b141ce"
   },
@@ -11115,8 +11115,8 @@
     "semantic_hash": "ad70a4c9cb8e093a3337700b5b255f2f"
   },
   "packages/tooling/tool/cli/test/quality-tasks.test.ts": {
-    "mtime": 1781190898.123197,
-    "ast_hash": "a9e72a1b073d9b9d4e44dc22bcd7ffe6",
+    "mtime": 1781217895.279267,
+    "ast_hash": "54a91f034ca5b443cf1a1a947fa0f967",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/repo-exports-catalog.test.ts": {
@@ -12095,8 +12095,8 @@
     "semantic_hash": "28dd9bb850e6ba76de37a69dff2e8a1b"
   },
   ".github/workflows/check.yml": {
-    "mtime": 1781206309.4444003,
-    "ast_hash": "f606e6ecda16f93b686b23098a094486",
+    "mtime": 1781217485.9907148,
+    "ast_hash": "e5369639f0c21d6195562bf4d1e07303",
     "semantic_hash": ""
   },
   ".github/workflows/data-sync.yml": {

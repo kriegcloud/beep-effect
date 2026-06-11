@@ -406,16 +406,21 @@ describe("quality task adapter", () => {
           workflowText.indexOf("          run_blocking_fallow()"),
           workflowText.indexOf("      - name: Validate Fallow envelopes")
         )(workflowText);
-        const advisoryLoopIndex = fallowStepText.indexOf(
-          "          for lane in dupes health boundaries flags security fix-preview; do"
+        const allLaneLoopIndex = fallowStepText.indexOf(
+          "          for lane in audit dead-code dupes health boundaries flags security fix-preview; do"
+        );
+        const promotedLaneCheckIndex = fallowStepText.indexOf(
+          "          for lane in audit dead-code; do",
+          allLaneLoopIndex + 1
         );
         const outputWriteIndex = fallowStepText.indexOf('          } >> "$GITHUB_OUTPUT"');
         const deferredExitIndex = fallowStepText.indexOf("          if (( blocking_status != 0 )); then");
 
         expect(fallowStepText).toContain("          blocking_status=0");
         expect(fallowStepText).toContain('            if run_blocking_fallow "$lane"; then');
-        expect(advisoryLoopIndex).toBeGreaterThan(-1);
-        expect(outputWriteIndex).toBeGreaterThan(advisoryLoopIndex);
+        expect(allLaneLoopIndex).toBeGreaterThan(-1);
+        expect(promotedLaneCheckIndex).toBeGreaterThan(allLaneLoopIndex);
+        expect(outputWriteIndex).toBeGreaterThan(promotedLaneCheckIndex);
         expect(deferredExitIndex).toBeGreaterThan(outputWriteIndex);
       }).pipe(provideScopedLayer(FileSystemLayer))
     ));
