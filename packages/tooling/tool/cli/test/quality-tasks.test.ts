@@ -605,6 +605,7 @@ describe("quality task adapter", () => {
       "lint:allowlist",
       "lint:tsgo-rules",
       "lint:package-test-imports",
+      "lint:reflection-artifacts",
       "lint:schema-first",
       "lint:deprecated-apis",
       "lint:jsdoc",

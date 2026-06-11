@@ -1,3 +1,10 @@
+/**
+ * Experimental effect/Schema models for Box Node SDK payloads.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $BoxId } from "@beep/identity";
 import { HttpMethod } from "@beep/schema/HttpMethod";
 import { HttpStatus } from "@beep/schema/HttpStatus";

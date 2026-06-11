@@ -13,11 +13,11 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "fa4b4e95576dbb029dea10a525aca798d3efc91d15bdc998a5c030fa46090691",
+    "digest": "6a22eb4a49a7f55e2b079fd6e1e83c31ec80d176355ae17f4ca95135729a357e",
     "inputs": [
       {
         "path": "apps/oip-web/package.json",
-        "sha256": "124c04e019f7fdd0b8123190cdd793c645f0d35828d81495fd77c6aab0042fe6",
+        "sha256": "212f93a2ca133622a8724a1debe5db60d62e548560c5516e8e63aa00f0ca658d",
         "bytes": 2599
       },
       {
@@ -37,8 +37,8 @@
       },
       {
         "path": "apps/oip-web/src/app/layout.tsx",
-        "sha256": "c58b29f272eecfc51bf2a2232912e0aaad98b69bee37a0184b186bf67b32c28a",
-        "bytes": 7567
+        "sha256": "dd117999a2cb03dc1ce33cbd4e9c069542746a5df0d69b76d2435a94dfaab34f",
+        "bytes": 7899
       },
       {
         "path": "apps/oip-web/src/app/llms.txt/route.ts",
@@ -52,8 +52,8 @@
       },
       {
         "path": "apps/oip-web/src/app/page.tsx",
-        "sha256": "d3375a7a7fa924d93a6cc7c6e4dc9cd8fd6f50ecffe660710e5af17b7f8dac7c",
-        "bytes": 3619
+        "sha256": "7e8a278c9d2051337bebc0e1987e77241d143edc9df037251ce2f5853527cd77",
+        "bytes": 3962
       },
       {
         "path": "apps/oip-web/src/app/robots.ts",
