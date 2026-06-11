@@ -4,10 +4,155 @@
     "scanId": "5138685acf488191ad6a5ee51a84452d",
     "branch": "@slop/june-8-2026",
     "expectedCount": 52,
-    "capturedCount": 0,
+    "capturedCount": 12,
     "gateApprovedAt": null,
-    "note": "Seeded at P0 with no findings. P1 extraction locks the 52-id manifest before opening any detail; P2 triage fills verdict/disposition/lane/verification; P3/P7 stamp closure."
+    "note": "P1 partial capture is in progress. CSF-001 through CSF-012 are committed as sanitized markdown; CSF-001 through CSF-003 include captured patch files. P2 triage still fills verdict/disposition/lane/verification."
   },
   "lanes": {},
-  "findings": {}
+  "findings": {
+    "CSF-001": {
+      "path": "findings/CSF-001-unrestricted-file-url-reads-in-nlp-mcp-tools.md",
+      "patchPath": "findings/patches/CSF-001.patch",
+      "severity": "High",
+      "codexStatus": "New",
+      "sourceCommit": "4805e97",
+      "ownerArea": "packages/drivers/nlp-mcp",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-002": {
+      "path": "findings/CSF-002-event-log-rpc-trusts-spoofable-publickey-fields.md",
+      "patchPath": "findings/patches/CSF-002.patch",
+      "severity": "High",
+      "codexStatus": "New",
+      "sourceCommit": "0dc3200",
+      "ownerArea": "packages/effect/src",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-003": {
+      "path": "findings/CSF-003-event-log-rpc-lets-clients-impersonate-other-public-keys.md",
+      "patchPath": "findings/patches/CSF-003.patch",
+      "severity": "High",
+      "codexStatus": "New",
+      "sourceCommit": "92ef20f",
+      "ownerArea": "packages/effect/src",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-004": {
+      "path": "findings/CSF-004-unescaped-systemd-upstream-enables-directive-injection.md",
+      "patchPath": null,
+      "severity": "Medium",
+      "codexStatus": "New",
+      "sourceCommit": "241a206",
+      "ownerArea": "packages/tooling/tool",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-005": {
+      "path": "findings/CSF-005-unrestricted-box-url-operations-enable-ssrf.md",
+      "patchPath": null,
+      "severity": "Medium",
+      "codexStatus": "New",
+      "sourceCommit": "9d8e7ac",
+      "ownerArea": "packages/drivers/box",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-006": {
+      "path": "findings/CSF-006-yeet-skill-leaks-process-command-lines.md",
+      "patchPath": null,
+      "severity": "Medium",
+      "codexStatus": "New",
+      "sourceCommit": "7ce284a",
+      "ownerArea": ".claude/skills/yeet",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-007": {
+      "path": "findings/CSF-007-pr-affected-lint-skips-repo-wide-security-policies.md",
+      "patchPath": null,
+      "severity": "Medium",
+      "codexStatus": "New",
+      "sourceCommit": "009c89b",
+      "ownerArea": "packages/tooling/tool/cli",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-008": {
+      "path": "findings/CSF-008-unsafe-markdown-projection-permits-script-link-injection.md",
+      "patchPath": null,
+      "severity": "Medium",
+      "codexStatus": "New",
+      "sourceCommit": "8a64c3c",
+      "ownerArea": "packages/foundation/modeling/ontology",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-009": {
+      "path": "findings/CSF-009-turtle-projection-allows-prefix-injection.md",
+      "patchPath": null,
+      "severity": "Medium",
+      "codexStatus": "New",
+      "sourceCommit": "8273eb9",
+      "ownerArea": "packages/foundation/modeling/ontology",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-010": {
+      "path": "findings/CSF-010-default-defect-encoding-leaks-error-causes-over-rpc.md",
+      "patchPath": null,
+      "severity": "Medium",
+      "codexStatus": "New",
+      "sourceCommit": "5938a35",
+      "ownerArea": "packages/effect/src/unstable/rpc",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-011": {
+      "path": "findings/CSF-011-symlink-following-source-scan-can-escape-repo.md",
+      "patchPath": null,
+      "severity": "Medium",
+      "codexStatus": "New",
+      "sourceCommit": "fa66534",
+      "ownerArea": "packages/tooling/tool/cli",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    },
+    "CSF-012": {
+      "path": "findings/CSF-012-nlp-telemetry-logs-unsanitized-failure-causes.md",
+      "patchPath": null,
+      "severity": "Medium",
+      "codexStatus": "New",
+      "sourceCommit": "0b8d3fc",
+      "ownerArea": "packages/foundation/capability/nlp",
+      "verdict": "_pending P2_",
+      "disposition": "_pending P2_",
+      "lane": "_pending P4_",
+      "remediationStatus": "_pending P5_"
+    }
+  }
 }

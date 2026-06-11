@@ -37,12 +37,14 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-`P1 extract` - capture Report + Patch for all 52 findings via the authenticated
-Codex tab. Next action: lock the 52-id manifest, then capture each finding.
+`P1 extract` - 12 of 52 findings are committed as sanitized markdown captures.
+CSF-001 through CSF-003 also have captured patch files. Next action: continue
+capturing the remaining 40 findings from the authenticated Codex tab.
 
 ## Latest Evidence
 
-`Not started` - packet bootstrapped 2026-06-08; extraction pending.
+`2026-06-11` - manifest, triage, and index reconcile with the 12 committed
+captures and 3 committed patch files.
 
 ## Notes
 

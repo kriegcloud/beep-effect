@@ -18,7 +18,7 @@ Summary
 
 Confirmed the vulnerable streaming surface was still present in HEAD, then added deny-by-default local file access controls for NLP MCP streaming reads: configured sandbox roots, canonical path containment checks, regular-file enforcement, and max file-size rejection before reading/streaming content.
 
-Hardened URL-backed dataset loaders so remote reads require an explicit BEEP_NLP_MCP_ALLOWED_URL_HOSTS hostname allowlist and reject oversized response bodies via BEEP_NLP_MCP_MAX_REMOTE_BYTES.
+Hardened URL-backed dataset loaders so remote reads require an explicit BEEP_NLP_MCP_ALLOWED_URL_HOSTS hostname allowlist and enforce BEEP_NLP_MCP_MAX_REMOTE_BYTES while reading response chunks, before a full response body is materialized.
 
 Documented the new streaming access-control environment variables and default-deny behavior in the package README.
 
@@ -80,16 +80,23 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 + const parsed = Number(raw.value);
 + return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_MAX_REMOTE_BYTES;
 +});
-+const assertRemoteSize = Effect.fn("DatasetLoader.assertRemoteSize")(function* (location: string, data: string) {
++const appendRemoteChunk = Effect.fn("DatasetLoader.appendRemoteChunk")(function* (
++ location: string,
++ state: { readonly chunks: ReadonlyArray<Uint8Array>; readonly sizeBytes: number },
++ chunk: Uint8Array,
++) {
 + const maxBytes = yield* configuredMaxRemoteBytes();
-+ const sizeBytes = byteLength(data);
++ const sizeBytes = state.sizeBytes + chunk.byteLength;
 + if (sizeBytes > maxBytes) {
 + return yield* DatasetLoadError.make({
 + location,
-+ message: `Refusing to return remote response larger than ${maxBytes} bytes`,
++ message: `Refusing to read remote response larger than ${maxBytes} bytes`,
 + });
 + }
++ return { chunks: [...state.chunks, chunk], sizeBytes };
 +});
++const decodeRemoteChunks = (chunks: ReadonlyArray<Uint8Array>): string =>
++ new TextDecoder().decode(Uint8Array.from(chunks.flatMap((chunk) => Array.from(chunk))));
 const isBlockedRemoteHost = (hostname: string): boolean => {
  const host = pipe(Str.toLowerCase(hostname), Str.replace(/^\[|\]$/g, ""));
  return (
@@ -127,8 +134,12 @@ const fetchText = (location: string, timeoutMs: number): Effect.Effect<string, D
  Effect.andThen(
  HttpClient.get(location).pipe(
  Effect.flatMap(HttpClientResponse.filterStatusOk),
- Effect.flatMap((response) => response.text),
-+ Effect.tap((data) => assertRemoteSize(location, data)),
++ Effect.flatMap((response) =>
++ response.stream.pipe(
++ Stream.runFoldEffect({ chunks: [], sizeBytes: 0 }, (state, chunk) => appendRemoteChunk(location, state, chunk)),
++ Effect.map((state) => decodeRemoteChunks(state.chunks))
++ )
++ ),
  Effect.timeout(Duration.millis(timeoutMs)),
  ...
 
