@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "a06b08a0d158e7226c56076bcfb0f01f31d39ea0abbbe773ac63357cf19fcf56",
+    "digest": "4dfe2271d6707069fc003a2b61e884cfa531be723dd331776bad53ee0bbd86bd",
     "inputs": [
       {
         "path": "apps/oip-web/package.json",
@@ -22,8 +22,8 @@
       },
       {
         "path": "apps/oip-web/src/app/api/contact/ContactHttpApiRoute.ts",
-        "sha256": "d91120b50f0b21970d0fd6699e452b9a9466e9fa84621054a002e70ec4cb012a",
-        "bytes": 3270
+        "sha256": "050ebdce832aec2f20b970b01c6c3dd4c74d94906092f6e3476cb2927f7ad45d",
+        "bytes": 2636
       },
       {
         "path": "apps/oip-web/src/app/api/contact/ContactRouteResponse.ts",
@@ -32,8 +32,8 @@
       },
       {
         "path": "apps/oip-web/src/app/api/contact/route.ts",
-        "sha256": "cc3d64dfeb064bb21399dee254b574a65a59fa8b1a32ef19aa8d83d1a505a044",
-        "bytes": 1405
+        "sha256": "7f5625947528706de91564c3acd83c4ea704532fedcb52a62a317284171a5f5c",
+        "bytes": 2079
       },
       {
         "path": "apps/oip-web/src/app/layout.tsx",
@@ -112,8 +112,8 @@
       },
       {
         "path": "apps/oip-web/src/contact/ContactSubmission.model.ts",
-        "sha256": "4c24639d75ef44ccd2bacc4407d86c1a7854a7c5d7aa0c73e36f71dc2e7f0c14",
-        "bytes": 10685
+        "sha256": "94c301713b83170929419af9ac13bc96b4e08c98bf72b1e6d6c824178d236170",
+        "bytes": 11227
       },
       {
         "path": "apps/oip-web/src/contact/ContactSubmission.service.ts",

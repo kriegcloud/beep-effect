@@ -76,10 +76,9 @@ const SCHEMA_ARBITRARY_NAMESPACE_NAMES = ["S", "Schema"] as const;
 const SCHEMA_ARBITRARY_HELPERS = ["toArbitrary", "toArbitraryLazy"] as const;
 const REPO_SCHEMA_ARBITRARY_HELPERS = ["assertSchemaArbitraryDecodesToSelf"] as const;
 // Schema-derived property coverage requires deriving the arbitrary from the
-// schema itself, either directly (S.toArbitrary / Schema.toArbitrary, including
-// toArbitraryLazy) or through repo-owned helpers that perform that derivation.
-// A bare fc.property/assert/check over a hand-rolled arbitrary is not
-// schema-derived coverage and must not suppress the advisory.
+// schema itself and using it in a property, or through repo-owned helpers that
+// perform that property assertion internally. Bare arbitrary construction is not
+// coverage and must not suppress the advisory.
 const TEST_FILE_PATTERN = /(?:\/test\/|\/tests\/|\.test\.tsx?$|\.spec\.tsx?$)/;
 const TEST_FILE_EXCLUDED_SEGMENTS = [
   "/.repos/",
@@ -877,22 +876,105 @@ const isSchemaCodecCallExpression = (callExpression: import("ts-morph").CallExpr
 const literalMemberEquals = <const T extends string>(members: readonly T[], candidate: string): boolean =>
   A.some(members, (member) => Str.Equivalence(member, candidate));
 
-const isSchemaArbitraryPropertyCoverageCall = (callExpression: import("ts-morph").CallExpression): boolean => {
+const isSchemaArbitraryCallExpression = (callExpression: import("ts-morph").CallExpression): boolean => {
+  const expression = callExpression.getExpression();
+  return (
+    Node.isPropertyAccessExpression(expression) &&
+    Node.isIdentifier(expression.getExpression()) &&
+    literalMemberEquals(SCHEMA_ARBITRARY_NAMESPACE_NAMES, expression.getExpression().getText()) &&
+    literalMemberEquals(SCHEMA_ARBITRARY_HELPERS, expression.getName())
+  );
+};
+
+const isSchemaArbitraryExpression = (
+  expression: import("ts-morph").Expression,
+  schemaArbitraryIdentifiers: ReadonlySet<string>
+): boolean => {
+  if (Node.isIdentifier(expression)) {
+    return schemaArbitraryIdentifiers.has(expression.getText());
+  }
+
+  if (Node.isCallExpression(expression)) {
+    if (isSchemaArbitraryCallExpression(expression)) {
+      return true;
+    }
+
+    const callTarget = expression.getExpression();
+    if (Node.isPropertyAccessExpression(callTarget)) {
+      return isSchemaArbitraryExpression(callTarget.getExpression(), schemaArbitraryIdentifiers);
+    }
+  }
+
+  return false;
+};
+
+const containsSchemaArbitraryExpression = (
+  expression: import("ts-morph").Expression,
+  schemaArbitraryIdentifiers: ReadonlySet<string>
+): boolean => {
+  if (isSchemaArbitraryExpression(expression, schemaArbitraryIdentifiers)) {
+    return true;
+  }
+
+  if (Node.isCallExpression(expression)) {
+    return A.some(expression.getArguments(), (argument) =>
+      Node.isExpression(argument) ? containsSchemaArbitraryExpression(argument, schemaArbitraryIdentifiers) : false
+    );
+  }
+
+  return false;
+};
+
+const isFastCheckPropertyCallExpression = (
+  callExpression: import("ts-morph").CallExpression,
+  schemaArbitraryIdentifiers: ReadonlySet<string>
+): boolean => {
   const expression = callExpression.getExpression();
   if (Node.isPropertyAccessExpression(expression)) {
     const namespaceExpression = expression.getExpression();
     return (
       Node.isIdentifier(namespaceExpression) &&
-      literalMemberEquals(SCHEMA_ARBITRARY_NAMESPACE_NAMES, namespaceExpression.getText()) &&
-      literalMemberEquals(SCHEMA_ARBITRARY_HELPERS, expression.getName())
+      namespaceExpression.getText() === "fc" &&
+      literalMemberEquals(["property", "asyncProperty"] as const, expression.getName()) &&
+      A.some(callExpression.getArguments(), (argument) =>
+        Node.isExpression(argument) ? containsSchemaArbitraryExpression(argument, schemaArbitraryIdentifiers) : false
+      )
     );
   }
 
+  return false;
+};
+
+const isRepoSchemaArbitraryHelperCallExpression = (callExpression: import("ts-morph").CallExpression): boolean => {
+  const expression = callExpression.getExpression();
   return Node.isIdentifier(expression) && literalMemberEquals(REPO_SCHEMA_ARBITRARY_HELPERS, expression.getText());
 };
 
-const sourceHasSchemaArbitraryPropertyCoverage = (sourceFile: import("ts-morph").SourceFile): boolean =>
-  A.some(sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression), isSchemaArbitraryPropertyCoverageCall);
+const sourceSchemaArbitraryIdentifiers = (sourceFile: import("ts-morph").SourceFile): ReadonlySet<string> => {
+  const identifiers = new Set<string>();
+  for (const variableDeclaration of sourceFile.getDescendantsOfKind(SyntaxKind.VariableDeclaration)) {
+    const nameNode = variableDeclaration.getNameNode();
+    const initializer = variableDeclaration.getInitializer();
+    if (
+      Node.isIdentifier(nameNode) &&
+      initializer !== undefined &&
+      isSchemaArbitraryExpression(initializer, identifiers)
+    ) {
+      identifiers.add(nameNode.getText());
+    }
+  }
+  return identifiers;
+};
+
+const sourceHasSchemaArbitraryPropertyCoverage = (sourceFile: import("ts-morph").SourceFile): boolean => {
+  const schemaArbitraryIdentifiers = sourceSchemaArbitraryIdentifiers(sourceFile);
+  return A.some(
+    sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression),
+    (callExpression) =>
+      isRepoSchemaArbitraryHelperCallExpression(callExpression) ||
+      isFastCheckPropertyCallExpression(callExpression, schemaArbitraryIdentifiers)
+  );
+};
 
 /**
  * Test whether source text contains schema-derived arbitrary coverage.
@@ -903,7 +985,7 @@ const sourceHasSchemaArbitraryPropertyCoverage = (sourceFile: import("ts-morph")
  * ```ts
  * import { sourceTextHasSchemaArbitraryPropertyCoverage } from "@beep/repo-cli/commands/Lint"
  *
- * console.log(sourceTextHasSchemaArbitraryPropertyCoverage("S.toArbitrary(Worker)"))
+ * console.log(sourceTextHasSchemaArbitraryPropertyCoverage("fc.property(S.toArbitrary(Worker), (worker) => true)"))
  * ```
  * @category utilities
  * @since 0.0.0

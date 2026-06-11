@@ -98,8 +98,30 @@ describe("packages/tooling/tool/cli schema-first models", () => {
     expect(
       sourceTextHasSchemaArbitraryPropertyCoverage("fc.property(fc.string(), (value) => value.length >= 0);")
     ).toBe(false);
+    expect(
+      sourceTextHasSchemaArbitraryPropertyCoverage(
+        [
+          'import * as fc from "fast-check";',
+          'import * as S from "effect/Schema";',
+          "const Worker = S.Struct({ id: S.String });",
+          "const WorkerArbitrary = S.toArbitraryLazy(Worker);",
+          "fc.property(WorkerArbitrary, (worker) => typeof worker.id === 'string');",
+        ].join("\n")
+      )
+    ).toBe(true);
+    expect(
+      sourceTextHasSchemaArbitraryPropertyCoverage(
+        [
+          'import * as fc from "fast-check";',
+          'import * as S from "effect/Schema";',
+          "const Worker = S.Struct({ id: S.String });",
+          "const WorkerArbitrary = S.toArbitrary(Worker);",
+          "fc.property(fc.array(WorkerArbitrary), (workers) => workers.every((worker) => typeof worker.id === 'string'));",
+        ].join("\n")
+      )
+    ).toBe(true);
     expect(sourceTextHasSchemaArbitraryPropertyCoverage("const WorkerArbitrary = S.toArbitraryLazy(Worker);")).toBe(
-      true
+      false
     );
     expect(
       sourceTextHasSchemaArbitraryPropertyCoverage(

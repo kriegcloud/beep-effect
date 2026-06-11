@@ -92,6 +92,7 @@
     "**/internal/data/**",
     "**/dtslint/**",
     "**/test/**",
+    "patches/**",
     "**/src-tauri/gen/**",
     "**/src-tauri/target/**",
     "standards/jsdoc-documentation.inventory.jsonc",
