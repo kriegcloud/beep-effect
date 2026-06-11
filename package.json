@@ -183,7 +183,7 @@
     "markdownlint-cli2": "catalog:",
     "syncpack": "catalog:",
     "tstyche": "catalog:",
-    "turbo": "catalog:",
+    "turbo": "^2.9.18",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
