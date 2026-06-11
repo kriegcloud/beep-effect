@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "219f3a8f7dc009f599e253089eb6e2d3ae16adb7bebba6458af59a5e39744064",
+    "digest": "5d8a284f794c8ad3e293306a25a234aab719bf554f56d82a32681f403854c469",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/Schema.ts",
-        "sha256": "637c3418317cd08384251a00c1cc031c05a9860fefdbc0b6dd23e59b3edefc65",
-        "bytes": 1159
+        "sha256": "e25c4e4a9b1d8fe1510530c60d91da3dfcb21125e8fa2745812e8cf3ffe396af",
+        "bytes": 1309
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
@@ -90,7 +90,7 @@
         "symbolName": "assertSchemaArbitraryDecodesToSelf",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/Schema.ts",
-        "sourceLine": 27,
+        "sourceLine": 30,
         "summary": "Assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation.",
         "categories": [
           "schema"
@@ -624,7 +624,7 @@
         "symbolName": "assertSchemaArbitraryDecodesToSelf",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/Schema.ts",
-        "sourceLine": 27,
+        "sourceLine": 30,
         "summary": "Assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation.",
         "categories": [
           "schema"
@@ -1185,7 +1185,7 @@
         "symbolName": "assertSchemaArbitraryDecodesToSelf",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/Schema.ts",
-        "sourceLine": 27,
+        "sourceLine": 30,
         "summary": "Assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation.",
         "categories": [
           "schema"
