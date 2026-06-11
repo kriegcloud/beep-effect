@@ -9,8 +9,7 @@ import { Effect, Layer } from "effect";
 import { HttpRouter, HttpServer } from "effect/unstable/http";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import { ContactSubmissionAccepted, ContactSubmissionRejected, OipHttpApi, submitContact } from "../../../contact";
-import type { ContactSubmissionResponse } from "../../../contact";
-import type { ContactSubmissionPayload } from "../../../contact/ContactSubmission.http.ts";
+import type { ContactSubmissionPayload, ContactSubmissionResponse } from "../../../contact";
 
 type SubmitContact = (payload: ContactSubmissionPayload) => Effect.Effect<ContactSubmissionResponse>;
 

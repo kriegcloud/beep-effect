@@ -1978,6 +1978,164 @@ const runCommandContractCheck = Effect.fn("FallowQuality.runCommandContractCheck
   yield* Console.log("[fallow] command contract ok");
 });
 
+const optionAsArray = <Value>(option: O.Option<Value>): ReadonlyArray<Value> =>
+  pipe(
+    option,
+    O.match({
+      onNone: A.empty<Value>,
+      onSome: A.of,
+    })
+  );
+
+const stepStringValues = (steps: ReadonlyArray<unknown>, key: string): ReadonlyArray<string> =>
+  pipe(
+    steps,
+    A.flatMap((step) => optionAsArray(unknownStringProperty(step, key)))
+  );
+
+const uploadWithString = (step: unknown, key: string): O.Option<string> =>
+  pipe(
+    unknownRecordProperty(step, "with"),
+    O.flatMap((withRecord) => unknownStringProperty(withRecord, key))
+  );
+
+const uploadWithStringEquals = (step: unknown, key: string, expected: string): boolean =>
+  pipe(
+    uploadWithString(step, key),
+    O.match({
+      onNone: () => false,
+      onSome: (actual) => Str.Equivalence(actual, expected),
+    })
+  );
+
+const missingDiagnostic = (condition: boolean, diagnostic: string): ReadonlyArray<string> =>
+  condition ? A.empty() : A.of(diagnostic);
+
+const presentDiagnostic = (condition: boolean, diagnostic: string): ReadonlyArray<string> =>
+  condition ? A.of(diagnostic) : A.empty();
+
+const repeatedLineDiagnostics = (
+  jobRunLines: ReadonlyArray<string>,
+  expectedLine: string,
+  diagnostic: string
+): ReadonlyArray<string> =>
+  missingDiagnostic(A.length(A.filter(jobRunLines, (line) => Str.Equivalence(line, expectedLine))) >= 2, diagnostic);
+
+const laneEnvelopeDiagnostics = (
+  lanes: ReadonlyArray<string>,
+  expectOutDir: string,
+  jobRunBody: string,
+  hasLaneEnvelopeTemplate: boolean,
+  message: (lane: string) => string
+): ReadonlyArray<string> =>
+  A.flatMap(lanes, (lane) =>
+    missingDiagnostic(
+      hasLaneEnvelopeTemplate || Str.includes(`${expectOutDir}/${lane}.json`)(jobRunBody),
+      message(lane)
+    )
+  );
+
+const laneNameDiagnostics = (
+  lanes: ReadonlyArray<string>,
+  jobRunBody: string,
+  message: (lane: string) => string
+): ReadonlyArray<string> =>
+  A.flatMap(lanes, (lane) => missingDiagnostic(Str.includes(lane)(jobRunBody), message(lane)));
+
+const fallowCiRequiredTextDiagnostics = (
+  jobRunBody: string,
+  blockingLanes: ReadonlyArray<string>,
+  advisory: boolean
+): ReadonlyArray<string> => [
+  ...missingDiagnostic(
+    Str.includes("bun run beep quality fallow")(jobRunBody),
+    "missing repo-cli Fallow envelope invocation"
+  ),
+  ...presentDiagnostic(
+    Str.includes("bun run fallow:audit")(jobRunBody),
+    "CI must not use raw fallow:audit pilot command"
+  ),
+  ...missingDiagnostic(
+    Str.includes("beep quality fallow envelope-check")(jobRunBody),
+    "missing hard envelope-check validation step"
+  ),
+  ...missingDiagnostic(Str.includes("--expect-subcommand")(jobRunBody), "missing envelope-check subcommand assertion"),
+  ...missingDiagnostic(Str.includes("--expect-report-path")(jobRunBody), "missing envelope-check reportPath assertion"),
+  ...missingDiagnostic(Str.includes("--require-raw-output")(jobRunBody), "missing envelope-check raw output proof"),
+  ...missingDiagnostic(
+    Str.includes("|| fetch_status=$?")(jobRunBody) && Str.includes("base_fetch_status")(jobRunBody),
+    "base fetch must be best-effort so Fallow wrappers can emit base-resolution envelopes"
+  ),
+  ...missingDiagnostic(
+    A.isReadonlyArrayEmpty(blockingLanes) || Str.includes("--check")(jobRunBody),
+    "missing blocking Fallow --check invocation"
+  ),
+  ...missingDiagnostic(!advisory || Str.includes("--advisory")(jobRunBody), "missing advisory Fallow invocation"),
+];
+
+const fallowCiUploadDiagnostics = (
+  requireUpload: boolean,
+  jobUsesValues: ReadonlyArray<string>,
+  uploadArtifactSteps: ReadonlyArray<unknown>,
+  expectOutDir: string,
+  ifNoFilesFound: string
+): ReadonlyArray<string> => [
+  ...missingDiagnostic(
+    A.some(uploadArtifactSteps, (step) => uploadWithStringEquals(step, "path", `${expectOutDir}/**`)),
+    `missing upload of complete Fallow output tree: ${expectOutDir}/**`
+  ),
+  ...presentDiagnostic(
+    requireUpload && !A.some(jobUsesValues, Str.includes("actions/upload-artifact")),
+    "missing actions/upload-artifact step"
+  ),
+  ...presentDiagnostic(
+    requireUpload &&
+      !A.some(uploadArtifactSteps, (step) => uploadWithStringEquals(step, "if-no-files-found", ifNoFilesFound)),
+    `missing if-no-files-found: ${ifNoFilesFound}`
+  ),
+];
+
+const fallowCiLaneDiagnostics = (
+  lanes: ReadonlyArray<string>,
+  blockingLanes: ReadonlyArray<string>,
+  expectOutDir: string,
+  jobRunBody: string,
+  jobRunLines: ReadonlyArray<string>,
+  hasLaneEnvelopeTemplate: boolean
+): ReadonlyArray<string> => {
+  const expectedLaneLoop = `for lane in ${A.join(lanes, " ")}; do`;
+  const expectedBlockingLaneLoop = `for lane in ${A.join(blockingLanes, " ")}; do`;
+
+  return [
+    ...repeatedLineDiagnostics(
+      jobRunLines,
+      expectedLaneLoop,
+      `missing run and validation loops over expected Fallow lanes: ${expectedLaneLoop}`
+    ),
+    ...missingDiagnostic(
+      A.isReadonlyArrayEmpty(blockingLanes) ||
+        A.length(A.filter(jobRunLines, (line) => Str.Equivalence(line, expectedBlockingLaneLoop))) >= 2,
+      `missing run and validation loops over expected promoted blocking Fallow lanes: ${expectedBlockingLaneLoop}`
+    ),
+    ...laneEnvelopeDiagnostics(
+      lanes,
+      expectOutDir,
+      jobRunBody,
+      hasLaneEnvelopeTemplate,
+      (lane) => `missing CI envelope path for ${lane}: ${expectOutDir}/${lane}.json`
+    ),
+    ...laneEnvelopeDiagnostics(
+      blockingLanes,
+      expectOutDir,
+      jobRunBody,
+      hasLaneEnvelopeTemplate,
+      (lane) => `missing CI envelope path for promoted blocking lane ${lane}: ${expectOutDir}/${lane}.json`
+    ),
+    ...laneNameDiagnostics(lanes, jobRunBody, (lane) => `missing CI advisory lane name ${lane}`),
+    ...laneNameDiagnostics(blockingLanes, jobRunBody, (lane) => `missing promoted blocking CI lane name ${lane}`),
+  ];
+};
+
 const runCiContractCheck = Effect.fn("FallowQuality.runCiContractCheck")(function* (
   workflowPath: string,
   expectLanes: string,
@@ -2004,106 +2162,23 @@ const runCiContractCheck = Effect.fn("FallowQuality.runCiContractCheck")(functio
     O.flatMap((job) => unknownArrayProperty(job, "steps")),
     O.getOrElse(A.empty<unknown>)
   );
-  const stepStringValues = (key: string): ReadonlyArray<string> =>
-    pipe(
-      fallowSteps,
-      A.flatMap((step) =>
-        pipe(
-          unknownStringProperty(step, key),
-          O.match({
-            onNone: A.empty<string>,
-            onSome: A.of,
-          })
-        )
-      )
-    );
-  const jobRunText = A.join(stepStringValues("run"), "\n");
+  const jobRunText = A.join(stepStringValues(fallowSteps, "run"), "\n");
   const jobRunLines = nonCommentLines(jobRunText);
   const jobRunBody = A.join(jobRunLines, "\n");
-  const jobUsesValues = stepStringValues("uses");
+  const jobUsesValues = stepStringValues(fallowSteps, "uses");
   const uploadArtifactSteps = A.filter(fallowSteps, (step) => {
     const uses = unknownStringProperty(step, "uses");
     return O.isSome(uses) && Str.includes("actions/upload-artifact")(uses.value);
   });
-  const uploadWithString = (step: unknown, key: string): O.Option<string> =>
-    pipe(
-      unknownRecordProperty(step, "with"),
-      O.flatMap((withRecord) => unknownStringProperty(withRecord, key))
-    );
   const lanes = csvValues(expectLanes);
   const blockingLanes = csvValues(expectBlockingLanes);
-  const expectedLaneList = A.join(lanes, " ");
-  const expectedLaneLoop = `for lane in ${expectedLaneList}; do`;
-  const expectedBlockingLaneList = A.join(blockingLanes, " ");
-  const expectedBlockingLaneLoop = `for lane in ${expectedBlockingLaneList}; do`;
   const hasLaneEnvelopeTemplate =
     Str.includes(`${expectOutDir}/\${lane}.json`)(jobRunBody) || Str.includes(`${expectOutDir}/$lane.json`)(jobRunBody);
   const diagnostics = [
-    ...(O.isSome(fallowJob) ? [] : ["missing fallow-advisory workflow job id"]),
-    ...(A.filter(jobRunLines, (line) => Str.Equivalence(line, expectedLaneLoop)).length >= 2
-      ? []
-      : [`missing run and validation loops over expected Fallow lanes: ${expectedLaneLoop}`]),
-    ...(A.isReadonlyArrayEmpty(blockingLanes) ||
-    A.filter(jobRunLines, (line) => Str.Equivalence(line, expectedBlockingLaneLoop)).length >= 2
-      ? []
-      : [`missing run and validation loops over expected promoted blocking Fallow lanes: ${expectedBlockingLaneLoop}`]),
-    ...A.flatMap(lanes, (lane) =>
-      hasLaneEnvelopeTemplate || Str.includes(`${expectOutDir}/${lane}.json`)(jobRunBody)
-        ? A.empty<string>()
-        : A.of(`missing CI envelope path for ${lane}: ${expectOutDir}/${lane}.json`)
-    ),
-    ...A.flatMap(blockingLanes, (lane) =>
-      hasLaneEnvelopeTemplate || Str.includes(`${expectOutDir}/${lane}.json`)(jobRunBody)
-        ? A.empty<string>()
-        : A.of(`missing CI envelope path for promoted blocking lane ${lane}: ${expectOutDir}/${lane}.json`)
-    ),
-    ...(Str.includes("bun run beep quality fallow")(jobRunBody) ? [] : ["missing repo-cli Fallow envelope invocation"]),
-    ...(Str.includes("bun run fallow:audit")(jobRunBody) ? ["CI must not use raw fallow:audit pilot command"] : []),
-    ...(Str.includes("beep quality fallow envelope-check")(jobRunBody)
-      ? []
-      : ["missing hard envelope-check validation step"]),
-    ...(Str.includes("--expect-subcommand")(jobRunBody) ? [] : ["missing envelope-check subcommand assertion"]),
-    ...(Str.includes("--expect-report-path")(jobRunBody) ? [] : ["missing envelope-check reportPath assertion"]),
-    ...(Str.includes("--require-raw-output")(jobRunBody) ? [] : ["missing envelope-check raw output proof"]),
-    ...(Str.includes("|| fetch_status=$?")(jobRunBody) && Str.includes("base_fetch_status")(jobRunBody)
-      ? []
-      : ["base fetch must be best-effort so Fallow wrappers can emit base-resolution envelopes"]),
-    ...(A.some(uploadArtifactSteps, (step) =>
-      pipe(
-        uploadWithString(step, "path"),
-        O.match({
-          onNone: () => false,
-          onSome: (actual) => Str.Equivalence(actual, `${expectOutDir}/**`),
-        })
-      )
-    )
-      ? []
-      : [`missing upload of complete Fallow output tree: ${expectOutDir}/**`]),
-    ...A.flatMap(lanes, (lane) =>
-      Str.includes(lane)(jobRunBody) ? A.empty<string>() : A.of(`missing CI advisory lane name ${lane}`)
-    ),
-    ...A.flatMap(blockingLanes, (lane) =>
-      Str.includes(lane)(jobRunBody) ? A.empty<string>() : A.of(`missing promoted blocking CI lane name ${lane}`)
-    ),
-    ...(A.isReadonlyArrayEmpty(blockingLanes) || Str.includes("--check")(jobRunBody)
-      ? []
-      : ["missing blocking Fallow --check invocation"]),
-    ...(requireUpload && !A.some(jobUsesValues, Str.includes("actions/upload-artifact"))
-      ? ["missing actions/upload-artifact step"]
-      : []),
-    ...(requireUpload &&
-    !A.some(uploadArtifactSteps, (step) =>
-      pipe(
-        uploadWithString(step, "if-no-files-found"),
-        O.match({
-          onNone: () => false,
-          onSome: (actual) => Str.Equivalence(actual, ifNoFilesFound),
-        })
-      )
-    )
-      ? [`missing if-no-files-found: ${ifNoFilesFound}`]
-      : []),
-    ...(advisory && !Str.includes("--advisory")(jobRunBody) ? ["missing advisory Fallow invocation"] : []),
+    ...missingDiagnostic(O.isSome(fallowJob), "missing fallow-advisory workflow job id"),
+    ...fallowCiLaneDiagnostics(lanes, blockingLanes, expectOutDir, jobRunBody, jobRunLines, hasLaneEnvelopeTemplate),
+    ...fallowCiRequiredTextDiagnostics(jobRunBody, blockingLanes, advisory),
+    ...fallowCiUploadDiagnostics(requireUpload, jobUsesValues, uploadArtifactSteps, expectOutDir, ifNoFilesFound),
   ];
 
   yield* failWithDiagnostics("fallow ci-contract-check", diagnostics);
@@ -2207,7 +2282,15 @@ const ciContractCheckCommand = Command.make(
     advisory: Flag.boolean("advisory").pipe(Flag.withDescription("Require advisory Fallow invocations")),
   },
   ({ advisory, expectBlockingLanes, expectLanes, expectOutDir, ifNoFilesFound, requireUpload, workflow }) =>
-    runCiContractCheck(workflow, expectLanes, expectBlockingLanes, expectOutDir, requireUpload, ifNoFilesFound, advisory)
+    runCiContractCheck(
+      workflow,
+      expectLanes,
+      expectBlockingLanes,
+      expectOutDir,
+      requireUpload,
+      ifNoFilesFound,
+      advisory
+    )
 ).pipe(Command.withDescription("Verify hosted CI uses the repo-cli Fallow envelope wrapper"));
 
 const fallowAuditCommand = makeFallowFeatureCommand("audit");

@@ -29,6 +29,7 @@ import {
   workspaceTaskFiltersForTesting,
 } from "@beep/repo-cli/test/Quality";
 import { findRepoRoot } from "@beep/repo-utils";
+import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { provideScopedLayer } from "@beep/test-utils";
 import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
@@ -38,7 +39,6 @@ import { Cause, Effect, Exit, FileSystem, Layer, Order, Path, pipe } from "effec
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
-import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";
 import type { QualityTaskInvocation } from "@beep/repo-cli/test/Quality";
 
@@ -49,21 +49,10 @@ const PlatformLayer = Layer.mergeAll(
   TestConsole.layer
 );
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-const decodeGithubChecksFallowFeatureMatrixForTesting = S.decodeUnknownEffect(GithubChecksFallowFeatureMatrix);
+const decodeGithubChecksFallowFeatureMatrixJsoncForTesting = decodeJsoncTextAs(GithubChecksFallowFeatureMatrix);
 const isQualityTaskFailed = S.is(QualityTaskFailed);
 const isQualityTaskGroupFailed = S.is(QualityTaskGroupFailed);
 const isString = (value: unknown): value is string => typeof value === "string";
-
-const parseJsoncText = (text: string): unknown => {
-  const errors: Array<jsonc.ParseError> = [];
-  const parsed: unknown = jsonc.parse(text, errors, {
-    allowTrailingComma: true,
-    disallowComments: false,
-  });
-
-  expect(errors).toEqual([]);
-  return parsed;
-};
 
 const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -390,7 +379,7 @@ describe("quality task adapter", () => {
         const matrixText = yield* fs.readFileString(
           path.join(repoRoot, "goals/fallow-quality-enforcement/research/feature-matrix.jsonc")
         );
-        const matrix = yield* decodeGithubChecksFallowFeatureMatrixForTesting(parseJsoncText(matrixText));
+        const matrix = yield* decodeGithubChecksFallowFeatureMatrixJsoncForTesting(matrixText);
         const promotedLaneIds = promotedFallowGithubCheckLaneIdsForTesting(matrix);
         const wiredFallowLaneIds = pipe(
           githubCheckLanesForModeForTesting("/repo", "pre-push"),

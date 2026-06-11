@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c4e4200cd4d8c95714c45b102c8a2b915a8f3aa07fc2ceef67c43b31c4588401",
+    "digest": "f30ec43cb557424abec1b1d6c7d164ddebf3b8c2b3178fd64f8de29bd83d4ac1",
     "inputs": [
       {
         "path": "apps/oip-web/package.json",
@@ -22,8 +22,8 @@
       },
       {
         "path": "apps/oip-web/src/app/api/contact/ContactHttpApiRoute.ts",
-        "sha256": "b473d16ece92fdef66f7c949b43e7eeb43d9c06ce5aa4aa76611e36891e9ed6d",
-        "bytes": 3336
+        "sha256": "d91120b50f0b21970d0fd6699e452b9a9466e9fa84621054a002e70ec4cb012a",
+        "bytes": 3270
       },
       {
         "path": "apps/oip-web/src/app/api/contact/ContactRouteResponse.ts",
